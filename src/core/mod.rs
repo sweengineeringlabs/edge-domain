@@ -1,1 +1,3 @@
-//! Core implementations — pub(crate) only.
+//! Core implementations — service trait implementations.
+
+pub(crate) mod validator;

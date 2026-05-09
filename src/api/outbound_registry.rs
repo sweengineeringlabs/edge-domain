@@ -6,15 +6,6 @@ use parking_lot::RwLock;
 
 /// Thread-safe registry of outbound handles keyed by name.
 ///
-/// Mirrors [`super::handler_registry::HandlerRegistry`] for the egress side:
-/// where `HandlerRegistry` stores typed `Handler` implementations, `OutboundRegistry`
-/// stores arbitrary cloneable handles (transports, clients, provider instances).
-///
-/// ## Concurrency
-///
-/// Guarded by a `parking_lot::RwLock` — `get` and `names` proceed in parallel
-/// while `register` and `deregister` are serialized.
-///
 /// ## Example
 ///
 /// ```rust
@@ -25,7 +16,7 @@ use parking_lot::RwLock;
 /// assert_eq!(reg.get("anthropic").as_deref(), Some("https://api.anthropic.com"));
 /// ```
 pub struct OutboundRegistry<H: Clone + Send + Sync> {
-    handles: RwLock<HashMap<String, H>>,
+    pub(crate) handles: RwLock<HashMap<String, H>>,
 }
 
 impl<H: Clone + Send + Sync> OutboundRegistry<H> {
@@ -73,50 +64,31 @@ impl<H: Clone + Send + Sync> Default for OutboundRegistry<H> {
 mod tests {
     use super::*;
 
-    /// @covers: new — starts empty.
+    /// @covers: register
     #[test]
-    fn test_new_outbound_registry_is_empty() {
-        let reg: OutboundRegistry<String> = OutboundRegistry::new();
-        assert!(reg.is_empty());
-        assert_eq!(reg.len(), 0);
-    }
-
-    /// @covers: register — stores a handle retrievable by name.
-    #[test]
-    fn test_register_and_get_returns_handle() {
+    fn test_register_stores_handle_retrievable_by_name() {
         let reg: OutboundRegistry<u32> = OutboundRegistry::new();
-        reg.register("svc-a", 42u32);
-        assert_eq!(reg.get("svc-a"), Some(42));
+        reg.register("svc", 42u32);
+        assert_eq!(reg.get("svc"), Some(42));
     }
 
-    /// @covers: get — returns None for unregistered name.
+    /// @covers: get
     #[test]
     fn test_get_returns_none_for_unregistered_name() {
         let reg: OutboundRegistry<String> = OutboundRegistry::new();
         assert!(reg.get("missing").is_none());
     }
 
-    /// @covers: register — replaces existing entry with same name.
+    /// @covers: deregister
     #[test]
-    fn test_register_replaces_existing_entry() {
-        let reg: OutboundRegistry<u32> = OutboundRegistry::new();
-        reg.register("svc", 1u32);
-        reg.register("svc", 2u32);
-        assert_eq!(reg.get("svc"), Some(2));
-        assert_eq!(reg.len(), 1);
-    }
-
-    /// @covers: deregister — removes present entry and returns true.
-    #[test]
-    fn test_deregister_returns_true_when_present_and_false_when_absent() {
+    fn test_deregister_removes_handle_and_returns_true() {
         let reg: OutboundRegistry<String> = OutboundRegistry::new();
-        reg.register("svc", "endpoint".to_string());
+        reg.register("svc", "url".to_string());
         assert!(reg.deregister("svc"));
-        assert!(!reg.deregister("svc"));
-        assert!(reg.is_empty());
+        assert!(reg.get("svc").is_none());
     }
 
-    /// @covers: names — snapshots all registered names.
+    /// @covers: names
     #[test]
     fn test_names_returns_all_registered_keys() {
         let reg: OutboundRegistry<u8> = OutboundRegistry::new();
@@ -127,14 +99,21 @@ mod tests {
         assert_eq!(names, vec!["a", "b"]);
     }
 
-    /// @covers: len, is_empty — reflect current count.
+    /// @covers: len
     #[test]
-    fn test_len_and_is_empty_reflect_current_count() {
+    fn test_len_returns_correct_count() {
         let reg: OutboundRegistry<i32> = OutboundRegistry::new();
         assert_eq!(reg.len(), 0);
-        assert!(reg.is_empty());
         reg.register("x", 0i32);
         assert_eq!(reg.len(), 1);
+    }
+
+    /// @covers: is_empty
+    #[test]
+    fn test_is_empty_reflects_registry_state() {
+        let reg: OutboundRegistry<i32> = OutboundRegistry::new();
+        assert!(reg.is_empty());
+        reg.register("x", 0i32);
         assert!(!reg.is_empty());
     }
 }

@@ -1,5 +1,6 @@
 [package.metadata.struct-engine]
 application_type = "lib"
+service_type     = "handler"
 
 [whitelist]
-allow = []
+allow = ["Cargo.lock", "struct.toml"]

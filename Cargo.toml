@@ -18,8 +18,29 @@ parking_lot = "0.12"
 [dev-dependencies]
 tokio = { version = "1", features = ["macros", "rt"] }
 
+[[test]]
+name = "handler_registry_int_test"
+path = "tests/handler_registry_int_test.rs"
+
+[[test]]
+name = "outbound_registry_int_test"
+path = "tests/outbound_registry_int_test.rs"
+
+[[test]]
+name = "factory_int_test"
+path = "tests/factory_int_test.rs"
+
+[[test]]
+name = "handler_trait_int_test"
+path = "tests/handler_trait_int_test.rs"
+
+[[test]]
+name = "validator_int_test"
+path = "tests/validator_int_test.rs"
+
 [package.metadata.struct-engine]
 application_type = "lib"
+service_type     = "handler"
 
 [lib]
 path = "src/lib.rs"

@@ -4,7 +4,7 @@ use std::any::Any;
 
 use async_trait::async_trait;
 
-use super::error::HandlerError;
+use super::handler_error::HandlerError;
 
 /// A single execution unit that processes a request and returns a response.
 ///

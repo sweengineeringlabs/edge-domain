@@ -1,5 +1,4 @@
-//! `HandlerRegistry` — thread-safe registry of [`Handler`] implementations
-//! keyed by their stable id.
+//! `HandlerRegistry` — thread-safe registry of [`Handler`] implementations keyed by id.
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -17,7 +16,7 @@ where
     Request: Send + 'static,
     Response: Send + 'static,
 {
-    handlers: RwLock<HashMap<String, Arc<dyn Handler<Request, Response>>>>,
+    pub(crate) handlers: RwLock<HashMap<String, Arc<dyn Handler<Request, Response>>>>,
 }
 
 impl<Request, Response> HandlerRegistry<Request, Response>
@@ -67,76 +66,79 @@ where
     Request: Send + 'static,
     Response: Send + 'static,
 {
-    fn default() -> Self {
-        Self::new()
-    }
+    fn default() -> Self { Self::new() }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use super::super::error::HandlerError;
+    use crate::api::handler_error::HandlerError;
     use async_trait::async_trait;
     use std::any::Any;
 
-    struct StubHandler { id: String }
-
+    struct HandlerStub { id: String }
     #[async_trait]
-    impl Handler<String, String> for StubHandler {
+    impl Handler<String, String> for HandlerStub {
         fn id(&self) -> &str { &self.id }
         fn pattern(&self) -> &str { "stub" }
         async fn execute(&self, req: String) -> Result<String, HandlerError> { Ok(req) }
         async fn health_check(&self) -> bool { true }
         fn as_any(&self) -> &dyn Any { self }
     }
-
     fn stub(id: &str) -> Arc<dyn Handler<String, String>> {
-        Arc::new(StubHandler { id: id.to_string() })
+        Arc::new(HandlerStub { id: id.to_string() })
     }
 
+    /// @covers: register
     #[test]
-    fn test_register_and_get_returns_some() {
+    fn test_register_stores_handler_retrievable_by_id() {
         let reg: HandlerRegistry<String, String> = HandlerRegistry::new();
         reg.register(stub("a"));
         assert!(reg.get("a").is_some());
     }
 
+    /// @covers: get
     #[test]
-    fn test_get_missing_returns_none() {
+    fn test_get_returns_none_for_unregistered_id() {
         let reg: HandlerRegistry<String, String> = HandlerRegistry::new();
-        assert!(reg.get("nope").is_none());
+        assert!(reg.get("missing").is_none());
     }
 
+    /// @covers: deregister
     #[test]
-    fn test_deregister_returns_true_when_present() {
+    fn test_deregister_removes_handler_and_returns_true() {
         let reg: HandlerRegistry<String, String> = HandlerRegistry::new();
         reg.register(stub("a"));
         assert!(reg.deregister("a"));
-        assert!(!reg.deregister("a"));
+        assert!(reg.get("a").is_none());
     }
 
+    /// @covers: list_ids
     #[test]
-    fn test_register_replaces_existing() {
-        let reg: HandlerRegistry<String, String> = HandlerRegistry::new();
-        reg.register(stub("a"));
-        reg.register(stub("a"));
-        assert_eq!(reg.len(), 1);
-    }
-
-    #[test]
-    fn test_list_ids_reports_all_registered() {
+    fn test_list_ids_returns_all_registered_ids() {
         let reg: HandlerRegistry<String, String> = HandlerRegistry::new();
         reg.register(stub("a"));
         reg.register(stub("b"));
         let mut ids = reg.list_ids();
         ids.sort();
-        assert_eq!(ids, vec!["a".to_string(), "b".to_string()]);
+        assert_eq!(ids, vec!["a", "b"]);
     }
 
+    /// @covers: len
     #[test]
-    fn test_empty_registry_is_empty() {
+    fn test_len_returns_correct_count() {
+        let reg: HandlerRegistry<String, String> = HandlerRegistry::new();
+        assert_eq!(reg.len(), 0);
+        reg.register(stub("a"));
+        assert_eq!(reg.len(), 1);
+    }
+
+    /// @covers: is_empty
+    #[test]
+    fn test_is_empty_reflects_registry_state() {
         let reg: HandlerRegistry<String, String> = HandlerRegistry::new();
         assert!(reg.is_empty());
-        assert_eq!(reg.len(), 0);
+        reg.register(stub("a"));
+        assert!(!reg.is_empty());
     }
 }

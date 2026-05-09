@@ -20,8 +20,9 @@ where
 mod tests {
     use super::*;
 
+    /// @covers: new_handler_registry
     #[test]
-    fn test_factory_returns_empty_registry() {
+    fn test_new_handler_registry_returns_empty_registry() {
         let reg: Arc<HandlerRegistry<String, String>> = new_handler_registry();
         assert!(reg.is_empty());
     }
