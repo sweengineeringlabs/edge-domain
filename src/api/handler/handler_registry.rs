@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 use parking_lot::RwLock;
 
-use super::handler::Handler;
+use super::Handler;
 
 /// Registry of [`Handler`] instances keyed by [`Handler::id`].
 ///
