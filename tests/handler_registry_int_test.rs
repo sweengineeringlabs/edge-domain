@@ -1,6 +1,5 @@
 //! Integration tests for `HandlerRegistry`.
 
-use std::any::Any;
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -13,8 +12,6 @@ impl Handler<String, String> for EchoHandler {
     fn id(&self) -> &str { &self.id }
     fn pattern(&self) -> &str { "echo" }
     async fn execute(&self, req: String) -> Result<String, HandlerError> { Ok(req) }
-    async fn health_check(&self) -> bool { true }
-    fn as_any(&self) -> &dyn Any { self }
 }
 
 fn echo(id: &str) -> Arc<dyn Handler<String, String>> {

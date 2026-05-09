@@ -8,7 +8,6 @@
 //!
 //! SEA constraint: all imports come from the `edge_domain` SAF surface.
 
-use std::any::Any;
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -27,9 +26,6 @@ impl Handler<String, String> for GreetHandler {
         }
         Ok(format!("Hello, {req}!"))
     }
-
-    async fn health_check(&self) -> bool { true }
-    fn as_any(&self) -> &dyn Any { self }
 }
 
 #[tokio::main(flavor = "current_thread")]

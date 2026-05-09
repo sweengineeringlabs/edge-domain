@@ -74,16 +74,13 @@ mod tests {
     use super::*;
     use crate::api::handler_error::HandlerError;
     use async_trait::async_trait;
-    use std::any::Any;
-
+    
     struct HandlerStub { id: String }
     #[async_trait]
     impl Handler<String, String> for HandlerStub {
         fn id(&self) -> &str { &self.id }
         fn pattern(&self) -> &str { "stub" }
         async fn execute(&self, req: String) -> Result<String, HandlerError> { Ok(req) }
-        async fn health_check(&self) -> bool { true }
-        fn as_any(&self) -> &dyn Any { self }
     }
     fn stub(id: &str) -> Arc<dyn Handler<String, String>> {
         Arc::new(HandlerStub { id: id.to_string() })

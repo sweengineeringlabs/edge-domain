@@ -23,16 +23,13 @@ mod tests {
     use crate::api::handler::request_context::RequestContext;
     use crate::api::handler_error::HandlerError;
     use async_trait::async_trait;
-    use std::any::Any;
-
+    
     struct HandlerLookupStub;
     #[async_trait]
     impl Handler<String, String> for HandlerLookupStub {
         fn id(&self) -> &str { "stub" }
         fn pattern(&self) -> &str { "stub" }
         async fn execute(&self, req: String) -> Result<String, HandlerError> { Ok(req) }
-        async fn health_check(&self) -> bool { true }
-        fn as_any(&self) -> &dyn Any { self }
     }
 
     /// @covers: find_handler

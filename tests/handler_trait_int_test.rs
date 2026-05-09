@@ -1,6 +1,5 @@
 //! Integration tests for the `Handler` trait contract.
 
-use std::any::Any;
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -16,8 +15,15 @@ impl Handler<u32, u32> for Counter {
         self.calls.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
         Ok(req * 2)
     }
-    async fn health_check(&self) -> bool { true }
-    fn as_any(&self) -> &dyn Any { self }
+}
+
+struct SickHandler;
+#[async_trait]
+impl Handler<u32, u32> for SickHandler {
+    fn id(&self) -> &str { "sick" }
+    fn pattern(&self) -> &str { "sick" }
+    async fn execute(&self, _: u32) -> Result<u32, HandlerError> { Err(HandlerError::Unhealthy) }
+    async fn health_check(&self) -> bool { false }
 }
 
 /// @covers: Handler::execute
@@ -28,17 +34,16 @@ async fn test_handler_trait_execute_returns_transformed_value() {
     assert_eq!(result, 42);
 }
 
-/// @covers: Handler::health_check
+/// @covers: Handler::health_check — default is true
 #[tokio::test]
-async fn test_handler_trait_health_check_returns_true_for_healthy_handler() {
+async fn test_handler_trait_health_check_defaults_to_true() {
     let h = Counter { id: "ctr".into(), calls: Default::default() };
     assert!(h.health_check().await);
 }
 
-/// @covers: Handler::as_any
+/// @covers: Handler::health_check — override to false
 #[tokio::test]
-async fn test_handler_trait_as_any_supports_downcast_to_concrete_type() {
-    let h: Arc<dyn Handler<u32, u32>> =
-        Arc::new(Counter { id: "ctr".into(), calls: Default::default() });
-    assert!(h.as_any().downcast_ref::<Counter>().is_some());
+async fn test_handler_trait_health_check_override_returns_false() {
+    let h: Arc<dyn Handler<u32, u32>> = Arc::new(SickHandler);
+    assert!(!h.health_check().await);
 }
