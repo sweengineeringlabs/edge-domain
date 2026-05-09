@@ -12,7 +12,7 @@ use std::any::Any;
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain::{Handler, HandlerError, RequestContext, new_handler_registry};
+use edge_domain::{Handler, HandlerError, new_handler_registry};
 
 struct GreetHandler;
 
@@ -21,7 +21,7 @@ impl Handler<String, String> for GreetHandler {
     fn id(&self)      -> &str { "greet" }
     fn pattern(&self) -> &str { "direct" }
 
-    async fn execute(&self, req: String, _ctx: RequestContext) -> Result<String, HandlerError> {
+    async fn execute(&self, req: String) -> Result<String, HandlerError> {
         if req.is_empty() {
             return Err(HandlerError::InvalidRequest("name must not be empty".into()));
         }
@@ -41,11 +41,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("registered:   {:?}", registry.list_ids());
 
     let handler = registry.get("greet").expect("handler must be present");
-    let ctx     = RequestContext::unauthenticated();
-    let resp    = handler.execute("world".into(), ctx.clone()).await?;
+    let resp    = handler.execute("world".into()).await?;
     println!("execute       → {resp}");
 
-    let err = handler.execute("".into(), ctx).await.unwrap_err();
+    let err = handler.execute("".into()).await.unwrap_err();
     println!("empty name    → {err}");
 
     let healthy = handler.health_check().await;

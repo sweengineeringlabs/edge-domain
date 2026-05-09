@@ -25,13 +25,22 @@ where
     /// Human-readable pattern or service name (e.g. `"ReAct"`, `"AuthN"`, `"KVM"`).
     fn pattern(&self) -> &str;
 
-    /// Execute the handler with the given request and per-request context.
+    /// Execute the handler with the given request.
     ///
-    /// `ctx` carries the authenticated identity, tenant, and trace metadata
-    /// extracted by the ingress middleware stack.  Stable infrastructure
-    /// dependencies (egress clients, registries) are injected at
-    /// construction time, not via `ctx`.
-    async fn execute(&self, req: Request, ctx: RequestContext) -> Result<Response, HandlerError>;
+    /// This is the required implementation entrypoint.  Handlers that do
+    /// not need per-request auth context implement only this method.
+    async fn execute(&self, req: Request) -> Result<Response, HandlerError>;
+
+    /// Execute the handler with per-request context.
+    ///
+    /// Override this when the handler needs `ctx` (authenticated subject,
+    /// tenant ID, trace ID).  The default falls through to [`execute`](Self::execute).
+    ///
+    /// The dispatch layer always calls `execute_with_context`, so overriding
+    /// it is sufficient — no need to also override `execute`.
+    async fn execute_with_context(&self, req: Request, _ctx: RequestContext) -> Result<Response, HandlerError> {
+        self.execute(req).await
+    }
 
     /// Probe whether the handler is healthy and responsive.
     async fn health_check(&self) -> bool;

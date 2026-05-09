@@ -4,7 +4,7 @@ use std::any::Any;
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain::{Handler, HandlerError, RequestContext};
+use edge_domain::{Handler, HandlerError};
 
 struct Counter { id: String, calls: std::sync::atomic::AtomicUsize }
 
@@ -12,7 +12,7 @@ struct Counter { id: String, calls: std::sync::atomic::AtomicUsize }
 impl Handler<u32, u32> for Counter {
     fn id(&self) -> &str { &self.id }
     fn pattern(&self) -> &str { "counter" }
-    async fn execute(&self, req: u32, _ctx: RequestContext) -> Result<u32, HandlerError> {
+    async fn execute(&self, req: u32) -> Result<u32, HandlerError> {
         self.calls.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
         Ok(req * 2)
     }
@@ -24,7 +24,7 @@ impl Handler<u32, u32> for Counter {
 #[tokio::test]
 async fn test_handler_trait_execute_returns_transformed_value() {
     let h = Counter { id: "ctr".into(), calls: Default::default() };
-    let result = h.execute(21, RequestContext::unauthenticated()).await.unwrap();
+    let result = h.execute(21).await.unwrap();
     assert_eq!(result, 42);
 }
 
