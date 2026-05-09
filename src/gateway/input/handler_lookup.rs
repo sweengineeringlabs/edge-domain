@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use crate::api::handler::Handler;
-use crate::api::handler_registry::HandlerRegistry;
+use crate::api::handler::handler_registry::HandlerRegistry;
 
 /// Look up a handler by id from the given registry.
 pub fn find_handler<Req, Resp>(

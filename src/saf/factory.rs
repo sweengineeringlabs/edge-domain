@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use crate::api::handler_registry::HandlerRegistry;
+use crate::api::handler::handler_registry::HandlerRegistry;
 
 /// Construct a fresh empty [`HandlerRegistry`].
 ///
