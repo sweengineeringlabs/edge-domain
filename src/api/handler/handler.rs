@@ -4,6 +4,7 @@ use std::any::Any;
 
 use async_trait::async_trait;
 
+use crate::api::handler::request_context::RequestContext;
 use crate::api::handler_error::HandlerError;
 
 /// A single execution unit that processes a request and returns a response.
@@ -24,8 +25,13 @@ where
     /// Human-readable pattern or service name (e.g. `"ReAct"`, `"AuthN"`, `"KVM"`).
     fn pattern(&self) -> &str;
 
-    /// Execute the handler with the given request.
-    async fn execute(&self, req: Request) -> Result<Response, HandlerError>;
+    /// Execute the handler with the given request and per-request context.
+    ///
+    /// `ctx` carries the authenticated identity, tenant, and trace metadata
+    /// extracted by the ingress middleware stack.  Stable infrastructure
+    /// dependencies (egress clients, registries) are injected at
+    /// construction time, not via `ctx`.
+    async fn execute(&self, req: Request, ctx: RequestContext) -> Result<Response, HandlerError>;
 
     /// Probe whether the handler is healthy and responsive.
     async fn health_check(&self) -> bool;
