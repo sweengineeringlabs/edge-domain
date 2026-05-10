@@ -14,6 +14,10 @@ pub struct RequestContextBuilder {
     claims:        HashMap<String, String>,
 }
 
+impl Default for RequestContextBuilder {
+    fn default() -> Self { Self::new() }
+}
+
 impl RequestContextBuilder {
     /// Start with an unauthenticated context.
     pub fn new() -> Self {

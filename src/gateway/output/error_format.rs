@@ -3,6 +3,7 @@
 use crate::api::handler_error::HandlerError;
 
 /// Wrap a handler error as a human-readable string for inbound transport layers.
+#[allow(dead_code)]
 pub fn format_error(err: &HandlerError) -> String {
     format!("handler error: {err}")
 }

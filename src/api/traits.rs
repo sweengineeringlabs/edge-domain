@@ -5,8 +5,6 @@
 //! | [`Handler`] | Business logic execution unit |
 //! | [`Validator`] | Configuration validation contract |
 
-pub use crate::api::handler::Handler;
-
 /// Configuration validation contract.
 ///
 /// Implemented by configuration types to validate their fields before use.
@@ -44,6 +42,7 @@ mod tests {
 
     #[test]
     fn test_handler_is_object_safe() {
+        use crate::api::handler::Handler;
         fn _assert(_: &dyn Handler<String, String>) {}
     }
 }

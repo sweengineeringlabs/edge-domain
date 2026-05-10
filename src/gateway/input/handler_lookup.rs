@@ -6,6 +6,7 @@ use crate::api::handler::Handler;
 use crate::api::handler::handler_registry::HandlerRegistry;
 
 /// Look up a handler by id from the given registry.
+#[allow(dead_code)]
 pub fn find_handler<Req, Resp>(
     registry: &HandlerRegistry<Req, Resp>,
     id: &str,

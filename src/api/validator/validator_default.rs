@@ -4,6 +4,7 @@
 ///
 /// The concrete [`Validator`](super::Validator) implementation lives in
 /// `core/validator/validator_default`.
+#[allow(dead_code)]
 pub struct ValidatorDefault;
 
 #[cfg(test)]
