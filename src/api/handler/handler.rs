@@ -2,7 +2,7 @@
 
 use async_trait::async_trait;
 
-use crate::api::handler::request_context::RequestContext;
+use crate::api::handler::request::RequestContext;
 use crate::api::handler_error::HandlerError;
 
 /// A single execution unit that processes a request and returns a response.

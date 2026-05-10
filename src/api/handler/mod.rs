@@ -2,7 +2,8 @@
 
 pub mod handler;
 pub mod handler_registry;
-pub mod request_context;
+pub mod request;
 
 pub use handler::Handler;
-pub use request_context::RequestContext;
+pub use request::RequestContext;
+pub use request::RequestContextBuilder;

@@ -66,7 +66,7 @@ mod tests {
         assert_eq!(HandlerError::Unhealthy.to_string(), "handler unhealthy");
     }
 
-    /// @covers: HandlerError::internal
+    /// @covers: internal
     #[test]
     fn test_internal_produces_execution_failed_variant() {
         let err = HandlerError::internal("connection refused");
@@ -74,7 +74,7 @@ mod tests {
         assert!(err.to_string().contains("connection refused"));
     }
 
-    /// @covers: HandlerError::internal — usable as map_err argument
+    /// @covers: internal
     #[test]
     fn test_internal_usable_as_map_err() {
         let result: Result<(), &str> = Err("boom");
@@ -82,7 +82,7 @@ mod tests {
         assert!(matches!(mapped, Err(HandlerError::ExecutionFailed(_))));
     }
 
-    /// @covers: HandlerError::invalid
+    /// @covers: invalid
     #[test]
     fn test_invalid_produces_invalid_request_variant() {
         let err = HandlerError::invalid("missing field: prompt");

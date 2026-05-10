@@ -20,7 +20,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::api::handler::request_context::RequestContext;
+    use crate::api::handler::request::RequestContext;
     use crate::api::handler_error::HandlerError;
     use async_trait::async_trait;
     
