@@ -1,7 +1,6 @@
-layout = "library"
-
-[package.metadata.struct-engine]
-application_type = "lib"
+[project]
+name = "edge-domain"
+layout = "single"
 
 [whitelist]
 allow = ["Cargo.lock", "struct.toml", "architecture.toml"]
