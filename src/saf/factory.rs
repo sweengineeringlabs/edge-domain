@@ -3,6 +3,7 @@
 use std::sync::Arc;
 
 use crate::api::handler::handler_registry::HandlerRegistry;
+use crate::api::service_registry::ServiceRegistry;
 
 /// Construct a fresh empty [`HandlerRegistry`].
 ///
@@ -16,6 +17,15 @@ where
     Arc::new(HandlerRegistry::new())
 }
 
+/// Construct a fresh empty [`ServiceRegistry`].
+pub fn new_service_registry<Request, Response>() -> Arc<ServiceRegistry<Request, Response>>
+where
+    Request: Send + 'static,
+    Response: Send + 'static,
+{
+    Arc::new(ServiceRegistry::new())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -24,6 +34,13 @@ mod tests {
     #[test]
     fn test_new_handler_registry_returns_empty_registry() {
         let reg: Arc<HandlerRegistry<String, String>> = new_handler_registry();
+        assert!(reg.is_empty());
+    }
+
+    /// @covers: new_service_registry
+    #[test]
+    fn test_new_service_registry_returns_empty_registry() {
+        let reg: Arc<ServiceRegistry<String, String>> = new_service_registry();
         assert!(reg.is_empty());
     }
 }

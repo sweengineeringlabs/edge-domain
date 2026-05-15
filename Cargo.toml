@@ -6,7 +6,7 @@ license = "MIT"
 repository = "https://github.com/sweengineeringlabs/edge"
 authors = ["SWE Engineering Labs"]
 rust-version = "1.75"
-description = "edge — L2 Domain: business logic contracts (Handler, HandlerRegistry)"
+description = "edge — L2 Domain: business logic contracts (Handler, Service, Repository, Event, Command/Query)"
 keywords = ["domain", "handler", "business-logic", "sea", "swe"]
 categories = ["development-tools"]
 
@@ -16,7 +16,8 @@ async-trait = "0.1"
 parking_lot = "0.12"
 
 [dev-dependencies]
-tokio = { version = "1", features = ["macros", "rt"] }
+tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread"] }
+async-trait = "0.1"
 
 [[test]]
 name = "handler_registry_int_test"
@@ -37,6 +38,22 @@ path = "tests/handler_trait_int_test.rs"
 [[test]]
 name = "validator_int_test"
 path = "tests/validator_int_test.rs"
+
+[[test]]
+name = "repository_int_test"
+path = "tests/repository_int_test.rs"
+
+[[test]]
+name = "service_int_test"
+path = "tests/service_int_test.rs"
+
+[[test]]
+name = "event_publisher_int_test"
+path = "tests/event_publisher_int_test.rs"
+
+[[test]]
+name = "command_query_int_test"
+path = "tests/command_query_int_test.rs"
 
 [package.metadata.struct-engine]
 application_type = "lib"

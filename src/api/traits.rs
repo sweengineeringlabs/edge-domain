@@ -8,7 +8,8 @@
 /// Configuration validation contract.
 ///
 /// Implemented by configuration types to validate their fields before use.
-pub trait Validator {
+#[allow(dead_code)]
+pub(crate) trait Validator {
     /// Validate the configuration.
     ///
     /// Returns `Err` with a human-readable description when the configuration
