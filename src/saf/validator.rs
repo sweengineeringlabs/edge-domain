@@ -13,11 +13,26 @@ pub fn validate<V: Validator>(v: &V) -> Result<(), String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::api::traits::Validator;
     use crate::core::validator::validator_default::ValidatorDefault;
+
+    struct AlwaysErr;
+    impl Validator for AlwaysErr {
+        fn validate(&self) -> Result<(), String> {
+            Err("always fails".into())
+        }
+    }
 
     /// @covers: validate
     #[test]
-    fn test_validate_delegates_to_validator_trait() {
+    fn test_validate_ok_delegates_to_validator_trait() {
         assert!(validate(&ValidatorDefault).is_ok());
+    }
+
+    /// @covers: validate
+    #[test]
+    fn test_validate_err_surfaces_reason_from_impl() {
+        let err = validate(&AlwaysErr).unwrap_err();
+        assert_eq!(err, "always fails");
     }
 }
