@@ -13,7 +13,7 @@ use crate::api::repository_error::RepositoryError;
 /// #[async_trait]
 /// impl Repository<Order, OrderId> for PostgresOrderRepo {
 ///     async fn find(&self, id: &OrderId) -> Result<Option<Order>, RepositoryError> { ... }
-///     async fn save(&self, entity: Order) -> Result<(), RepositoryError> { ... }
+///     async fn save(&self, id: OrderId, entity: Order) -> Result<(), RepositoryError> { ... }
 ///     async fn delete(&self, id: &OrderId) -> Result<bool, RepositoryError> { ... }
 ///     async fn list(&self) -> Result<Vec<Order>, RepositoryError> { ... }
 /// }
@@ -27,8 +27,8 @@ where
     /// Find an entity by its identity. Returns `None` when not found.
     async fn find(&self, id: &Id) -> Result<Option<T>, RepositoryError>;
 
-    /// Persist an entity, inserting or updating as appropriate.
-    async fn save(&self, entity: T) -> Result<(), RepositoryError>;
+    /// Persist an entity under the given identity, inserting or updating.
+    async fn save(&self, id: Id, entity: T) -> Result<(), RepositoryError>;
 
     /// Remove the entity with the given identity.
     ///

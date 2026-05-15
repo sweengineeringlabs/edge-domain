@@ -1,9 +1,18 @@
 //! Factory functions for domain building blocks.
 
+use std::hash::Hash;
 use std::sync::Arc;
 
+use crate::api::command_bus::CommandBus;
+use crate::api::event_publisher::EventPublisher;
+use crate::api::query_bus::QueryBus;
 use crate::api::handler::handler_registry::HandlerRegistry;
+use crate::api::repository::Repository;
 use crate::api::service_registry::ServiceRegistry;
+use crate::core::command::direct_command_bus::DirectCommandBus;
+use crate::core::event::noop_event_publisher::NoopEventPublisher;
+use crate::core::query::direct_query_bus::DirectQueryBus;
+use crate::core::repository::in_memory_repository::InMemoryRepository;
 
 /// Construct a fresh empty [`HandlerRegistry`].
 ///
@@ -24,6 +33,35 @@ where
     Response: Send + 'static,
 {
     Arc::new(ServiceRegistry::new())
+}
+
+/// Construct a thread-safe in-memory [`Repository`].
+///
+/// Suitable for development and testing. Not for production persistence.
+pub fn in_memory_repository<T, Id>() -> Arc<dyn Repository<T, Id>>
+where
+    Id: Hash + Eq + Clone + Send + Sync + 'static,
+    T: Clone + Send + Sync + 'static,
+{
+    Arc::new(InMemoryRepository::new())
+}
+
+/// Construct a [`CommandBus`] that dispatches commands inline.
+pub fn direct_command_bus() -> Arc<dyn CommandBus> {
+    Arc::new(DirectCommandBus)
+}
+
+/// Construct an [`EventPublisher`] that discards all events silently.
+///
+/// Use during development or in services that do not yet require
+/// event publishing infrastructure.
+pub fn noop_event_publisher() -> Arc<dyn EventPublisher> {
+    Arc::new(NoopEventPublisher)
+}
+
+/// Construct a [`QueryBus`] that dispatches queries inline.
+pub fn direct_query_bus<R: Send + 'static>() -> Arc<dyn QueryBus<R>> {
+    Arc::new(DirectQueryBus)
 }
 
 #[cfg(test)]

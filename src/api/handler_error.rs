@@ -32,6 +32,40 @@ pub enum HandlerError {
     Other(String),
 }
 
+impl From<crate::api::service_error::ServiceError> for HandlerError {
+    fn from(e: crate::api::service_error::ServiceError) -> Self {
+        use crate::api::service_error::ServiceError::*;
+        match e {
+            InvalidRequest(m) => HandlerError::InvalidRequest(m),
+            RuleViolation(m)  => HandlerError::FailedPrecondition(m),
+            Unavailable(m) | Internal(m) => HandlerError::ExecutionFailed(m),
+        }
+    }
+}
+
+impl From<crate::api::repository_error::RepositoryError> for HandlerError {
+    fn from(e: crate::api::repository_error::RepositoryError) -> Self {
+        use crate::api::repository_error::RepositoryError::*;
+        match e {
+            NotFound(m)                        => HandlerError::Other(format!("not found: {m}")),
+            Conflict(m)                        => HandlerError::FailedPrecondition(m),
+            Unavailable(m) | Internal(m)       => HandlerError::ExecutionFailed(m),
+        }
+    }
+}
+
+impl From<crate::api::command_error::CommandError> for HandlerError {
+    fn from(e: crate::api::command_error::CommandError) -> Self {
+        use crate::api::command_error::CommandError::*;
+        match e {
+            InvalidInput(m)                  => HandlerError::InvalidRequest(m),
+            RuleViolation(m)                 => HandlerError::FailedPrecondition(m),
+            NotFound(m)                      => HandlerError::Other(format!("not found: {m}")),
+            Internal(m)                      => HandlerError::ExecutionFailed(m),
+        }
+    }
+}
+
 impl HandlerError {
     /// Wrap any error as an internal execution failure.
     ///

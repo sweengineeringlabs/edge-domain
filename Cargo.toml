@@ -55,6 +55,14 @@ path = "tests/event_publisher_int_test.rs"
 name = "command_query_int_test"
 path = "tests/command_query_int_test.rs"
 
+[[test]]
+name = "error_bridge_int_test"
+path = "tests/error_bridge_int_test.rs"
+
+[[test]]
+name = "default_impls_int_test"
+path = "tests/default_impls_int_test.rs"
+
 [package.metadata.struct-engine]
 application_type = "lib"
 service_type     = "handler"

@@ -2,7 +2,10 @@
 
 mod factory;
 
-pub use factory::{new_handler_registry, new_service_registry};
+pub use factory::{
+    direct_command_bus, direct_query_bus, in_memory_repository,
+    new_handler_registry, new_service_registry, noop_event_publisher,
+};
 
 pub use crate::api::command::Command;
 pub use crate::api::command_bus::CommandBus;
