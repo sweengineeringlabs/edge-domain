@@ -2,10 +2,10 @@
 
 use std::sync::Arc;
 use edge_domain::{
-    direct_command_bus, direct_query_bus, in_memory_repository, new_handler_registry,
-    new_service_registry, noop_event_publisher,
+    direct_command_bus, direct_query_bus, in_memory_queryable_repository,
+    in_memory_repository, new_handler_registry, new_service_registry, noop_event_publisher,
     Command, CommandBus, CommandError, HandlerRegistry, QueryBus, QueryError,
-    Repository, ServiceRegistry,
+    QueryableRepository, Repository, ServiceRegistry,
 };
 
 /// @covers: new_handler_registry
@@ -25,12 +25,40 @@ fn test_factory_fn_new_service_registry_returns_empty_arc_registry() {
 }
 
 /// @covers: in_memory_repository
+#[test]
+fn test_in_memory_repository_returns_arc_repository() {
+    let _: Arc<dyn Repository<String, u32>> = in_memory_repository();
+}
+
+/// @covers: in_memory_queryable_repository
+#[test]
+fn test_in_memory_queryable_repository_returns_arc_queryable_repository() {
+    let _: Arc<dyn QueryableRepository<String, u32>> = in_memory_queryable_repository();
+}
+
+/// @covers: in_memory_repository
 #[tokio::test]
-async fn test_factory_fn_in_memory_repository_returns_working_repository() {
+async fn test_in_memory_repository_saves_and_finds_entity() {
     let repo: Arc<dyn Repository<String, u32>> = in_memory_repository();
     repo.save(1u32, "hello".to_string()).await.unwrap();
     let found = repo.find(&1u32).await.unwrap();
     assert_eq!(found.as_deref(), Some("hello"));
+}
+
+/// @covers: in_memory_queryable_repository
+#[tokio::test]
+async fn test_in_memory_queryable_repository_finds_by_spec() {
+    use edge_domain::Spec;
+    struct LongStr;
+    impl Spec<String> for LongStr {
+        fn matches(&self, s: &String) -> bool { s.len() > 3 }
+    }
+    let repo: Arc<dyn QueryableRepository<String, u32>> = in_memory_queryable_repository();
+    repo.save(1u32, "hi".to_string()).await.unwrap();
+    repo.save(2u32, "hello".to_string()).await.unwrap();
+    let results = repo.find_by(&LongStr).await.unwrap();
+    assert_eq!(results.len(), 1);
+    assert_eq!(results[0], "hello");
 }
 
 /// @covers: direct_command_bus

@@ -6,6 +6,7 @@ use std::hash::Hash;
 use async_trait::async_trait;
 use parking_lot::RwLock;
 
+use crate::api::queryable_repository::QueryableRepository;
 use crate::api::repository::Repository;
 use crate::api::repository_error::RepositoryError;
 
@@ -55,6 +56,12 @@ where
     }
 }
 
+impl<T, Id> QueryableRepository<T, Id> for InMemoryRepository<T, Id>
+where
+    Id: Hash + Eq + Clone + Send + Sync + 'static,
+    T: Clone + Send + Sync + 'static,
+{}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -63,14 +70,12 @@ mod tests {
         InMemoryRepository::new()
     }
 
-    /// @covers: new
     #[test]
     fn test_new_creates_empty_repository() {
         let r: InMemoryRepository<String, u64> = InMemoryRepository::new();
         assert!(r.store.read().is_empty());
     }
 
-    /// @covers: save, find
     #[tokio::test]
     async fn test_save_and_find_round_trips_entity() {
         let r = repo();
@@ -78,13 +83,11 @@ mod tests {
         assert_eq!(r.find(&1).await.unwrap().as_deref(), Some("hello"));
     }
 
-    /// @covers: find
     #[tokio::test]
     async fn test_find_returns_none_for_missing_id() {
         assert!(repo().find(&99).await.unwrap().is_none());
     }
 
-    /// @covers: delete
     #[tokio::test]
     async fn test_delete_removes_entity_and_returns_true() {
         let r = repo();
@@ -93,13 +96,11 @@ mod tests {
         assert!(r.find(&1).await.unwrap().is_none());
     }
 
-    /// @covers: delete
     #[tokio::test]
     async fn test_delete_returns_false_for_missing_id() {
         assert!(!repo().delete(&99).await.unwrap());
     }
 
-    /// @covers: list
     #[tokio::test]
     async fn test_list_returns_all_saved_entities() {
         let r = repo();

@@ -83,6 +83,18 @@ path = "tests/repository_error_int_test.rs"
 name = "service_error_int_test"
 path = "tests/service_error_int_test.rs"
 
+[[test]]
+name = "repository_page_int_test"
+path = "tests/repository_page_int_test.rs"
+
+[[test]]
+name = "queryable_repository_int_test"
+path = "tests/queryable_repository_int_test.rs"
+
+[[test]]
+name = "in_memory_repository_int_test"
+path = "tests/in_memory_repository_int_test.rs"
+
 [package.metadata.struct-engine]
 application_type = "lib"
 service_type     = "handler"

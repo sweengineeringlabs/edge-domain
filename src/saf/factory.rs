@@ -7,6 +7,7 @@ use crate::api::command::CommandBus;
 use crate::api::event::EventPublisher;
 use crate::api::query::QueryBus;
 use crate::api::handler::handler_registry::HandlerRegistry;
+use crate::api::queryable_repository::QueryableRepository;
 use crate::api::repository::Repository;
 use crate::api::service::ServiceRegistry;
 use crate::core::command::direct_command_bus::DirectCommandBus;
@@ -46,6 +47,19 @@ where
     Arc::new(InMemoryRepository::new())
 }
 
+/// Construct a thread-safe in-memory [`QueryableRepository`].
+///
+/// Supports specification-based queries via [`QueryableRepository::find_by`],
+/// [`find_one_by`](QueryableRepository::find_one_by), and
+/// [`count_by`](QueryableRepository::count_by).
+pub fn in_memory_queryable_repository<T, Id>() -> Arc<dyn QueryableRepository<T, Id>>
+where
+    Id: std::hash::Hash + Eq + Clone + Send + Sync + 'static,
+    T: Clone + Send + Sync + 'static,
+{
+    Arc::new(InMemoryRepository::new())
+}
+
 /// Construct a [`CommandBus`] that dispatches commands inline.
 pub fn direct_command_bus() -> Arc<dyn CommandBus> {
     Arc::new(DirectCommandBus)
@@ -62,6 +76,14 @@ pub fn noop_event_publisher() -> Arc<dyn EventPublisher> {
 /// Construct a [`QueryBus`] that dispatches queries inline.
 pub fn direct_query_bus<R: Send + 'static>() -> Arc<dyn QueryBus<R>> {
     Arc::new(DirectQueryBus)
+}
+
+/// Validate a configuration value using its [`Validator`](crate::api::traits::Validator) implementation.
+///
+/// Returns `Ok(())` when valid, or `Err` with a human-readable description
+/// of the first validation failure.
+pub fn validate_config<V: crate::api::traits::Validator>(config: &V) -> Result<(), String> {
+    config.validate()
 }
 
 #[cfg(test)]
@@ -82,12 +104,56 @@ mod tests {
         assert!(reg.is_empty());
     }
 
+    /// @covers: in_memory_queryable_repository
+    #[tokio::test]
+    async fn test_in_memory_queryable_repository_returns_functional_store() {
+        use crate::api::spec::Spec;
+        struct Any;
+        impl Spec<String> for Any { fn matches(&self, _: &String) -> bool { true } }
+        let repo = in_memory_queryable_repository::<String, u32>();
+        repo.save(1u32, "x".to_string()).await.unwrap();
+        assert_eq!(repo.count_by(&Any).await.unwrap(), 1);
+    }
+
     /// @covers: in_memory_repository
     #[tokio::test]
-    async fn test_in_memory_repository_returns_functional_store() {
+    async fn test_in_memory_repository_saves_and_finds_entity() {
         let repo = in_memory_repository::<String, u32>();
         repo.save(1u32, "x".to_string()).await.unwrap();
         assert!(repo.find(&1u32).await.unwrap().is_some());
+    }
+
+    /// @covers: in_memory_queryable_repository
+    #[tokio::test]
+    async fn test_in_memory_queryable_repository_supports_count_by() {
+        use crate::api::spec::Spec;
+        struct Any;
+        impl Spec<String> for Any { fn matches(&self, _: &String) -> bool { true } }
+        let repo = in_memory_queryable_repository::<String, u32>();
+        repo.save(1u32, "x".to_string()).await.unwrap();
+        assert_eq!(repo.count_by(&Any).await.unwrap(), 1);
+    }
+
+    /// @covers: validate_config
+    #[test]
+    fn test_validate_config_returns_ok_for_valid_input() {
+        use crate::api::traits::Validator;
+        struct AlwaysValid;
+        impl Validator for AlwaysValid {
+            fn validate(&self) -> Result<(), String> { Ok(()) }
+        }
+        assert!(validate_config(&AlwaysValid).is_ok());
+    }
+
+    /// @covers: validate_config
+    #[test]
+    fn test_validate_config_returns_err_for_invalid_input() {
+        use crate::api::traits::Validator;
+        struct AlwaysInvalid;
+        impl Validator for AlwaysInvalid {
+            fn validate(&self) -> Result<(), String> { Err("bad".into()) }
+        }
+        assert!(validate_config(&AlwaysInvalid).is_err());
     }
 
     /// @covers: direct_command_bus

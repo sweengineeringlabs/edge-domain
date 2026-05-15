@@ -1,12 +1,8 @@
 //! `Query` trait — a read operation that never mutates domain state.
 
-pub mod query_bus;
-pub mod query_error;
-
-pub use query_bus::QueryBus;
-pub use query_error::QueryError;
-
 use async_trait::async_trait;
+
+use super::query_error::QueryError;
 
 /// A named read operation that returns data without mutating state.
 ///

@@ -21,9 +21,9 @@ mod tests {
     use super::*;
     use async_trait::async_trait;
 
-    struct EchoQuery(String);
+    struct DirectQueryBusEcho(String);
     #[async_trait]
-    impl Query<String> for EchoQuery {
+    impl Query<String> for DirectQueryBusEcho {
         fn name(&self) -> &str { "echo" }
         async fn execute(&self) -> Result<String, QueryError> { Ok(self.0.clone()) }
     }
@@ -32,7 +32,7 @@ mod tests {
     #[tokio::test]
     async fn test_dispatch_returns_query_result() {
         let bus = DirectQueryBus;
-        let result = bus.dispatch(Box::new(EchoQuery("pong".into()))).await.unwrap();
+        let result = bus.dispatch(Box::new(DirectQueryBusEcho("pong".into()))).await.unwrap();
         assert_eq!(result, "pong");
     }
 }

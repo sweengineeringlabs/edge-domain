@@ -2,8 +2,8 @@
 
 use async_trait::async_trait;
 
-use crate::api::query::Query;
-use crate::api::query::QueryError;
+use super::query::Query;
+use super::query_error::QueryError;
 
 /// Dispatches [`Query`] instances and returns their results.
 ///

@@ -1,11 +1,5 @@
 //! `DomainEvent` trait — immutable record of something that happened in the domain.
 
-pub mod event_error;
-pub mod event_publisher;
-
-pub use event_error::EventError;
-pub use event_publisher::EventPublisher;
-
 use std::time::SystemTime;
 
 /// An immutable record of something that happened within the domain.

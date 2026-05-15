@@ -2,8 +2,8 @@
 
 use async_trait::async_trait;
 
-use crate::api::event::DomainEvent;
-use crate::api::event::EventError;
+use super::domain_event::DomainEvent;
+use super::event_error::EventError;
 
 /// Emits domain events to subscribers.
 ///

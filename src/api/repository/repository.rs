@@ -2,6 +2,7 @@
 
 use async_trait::async_trait;
 
+use crate::api::page::Page;
 use crate::api::repository_error::RepositoryError;
 
 /// Data access contract for a domain entity of type `T` keyed by `Id`.
@@ -37,8 +38,31 @@ where
 
     /// Return all entities in the repository.
     async fn list(&self) -> Result<Vec<T>, RepositoryError>;
-}
 
+    /// Check whether an entity with `id` exists.
+    ///
+    /// Override in production backends — the default issues a `find`.
+    async fn exists(&self, id: &Id) -> Result<bool, RepositoryError> {
+        self.find(id).await.map(|opt| opt.is_some())
+    }
+
+    /// Count all entities in the repository.
+    ///
+    /// Override in production backends — the default loads all entities.
+    async fn count(&self) -> Result<usize, RepositoryError> {
+        self.list().await.map(|v| v.len())
+    }
+
+    /// Return a page of entities ordered by insertion.
+    ///
+    /// Override in production backends — the default loads all entities.
+    async fn list_page(&self, offset: usize, limit: usize) -> Result<Page<T>, RepositoryError> {
+        let all = self.list().await?;
+        let total = all.len();
+        let items = all.into_iter().skip(offset).take(limit).collect();
+        Ok(Page::new(items, total, offset, limit))
+    }
+}
 
 #[cfg(test)]
 mod tests {
