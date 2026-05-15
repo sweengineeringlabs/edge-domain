@@ -1,9 +1,9 @@
-//! Error type for [`Command`](super::command::Command) and [`Query`](super::query::Query) operations.
+//! Error type for [`Command`](super::Command) operations.
 
-/// Error produced by command or query execution.
+/// Error produced by command execution.
 #[derive(Debug, thiserror::Error)]
 pub enum CommandError {
-    /// The command or query input was invalid.
+    /// The command input was invalid.
     #[error("invalid input: {0}")]
     InvalidInput(String),
     /// A business rule prevented execution.

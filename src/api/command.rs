@@ -1,8 +1,12 @@
 //! `Command` trait — a write operation that mutates domain state.
 
-use async_trait::async_trait;
+pub mod command_bus;
+pub mod command_error;
 
-use crate::api::command_error::CommandError;
+pub use command_bus::CommandBus;
+pub use command_error::CommandError;
+
+use async_trait::async_trait;
 
 /// A named write operation that mutates domain state and returns no value.
 ///

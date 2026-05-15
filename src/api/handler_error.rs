@@ -40,9 +40,9 @@ pub enum HandlerError {
     Other(String),
 }
 
-impl From<crate::api::service_error::ServiceError> for HandlerError {
-    fn from(e: crate::api::service_error::ServiceError) -> Self {
-        use crate::api::service_error::ServiceError::*;
+impl From<crate::api::service::ServiceError> for HandlerError {
+    fn from(e: crate::api::service::ServiceError) -> Self {
+        use crate::api::service::ServiceError::*;
         match e {
             InvalidRequest(m) => HandlerError::InvalidRequest(m),
             RuleViolation(m)  => HandlerError::FailedPrecondition(m),
@@ -53,7 +53,7 @@ impl From<crate::api::service_error::ServiceError> for HandlerError {
 
 impl From<crate::api::repository_error::RepositoryError> for HandlerError {
     fn from(e: crate::api::repository_error::RepositoryError) -> Self {
-        use crate::api::repository_error::RepositoryError::*;
+        use crate::api::repository_error::RepositoryError::*; // repository not regrouped
         match e {
             NotFound(m)                    => HandlerError::NotFound(m),
             Conflict(m)                    => HandlerError::Conflict(m),
@@ -62,9 +62,9 @@ impl From<crate::api::repository_error::RepositoryError> for HandlerError {
     }
 }
 
-impl From<crate::api::command_error::CommandError> for HandlerError {
-    fn from(e: crate::api::command_error::CommandError) -> Self {
-        use crate::api::command_error::CommandError::*;
+impl From<crate::api::command::CommandError> for HandlerError {
+    fn from(e: crate::api::command::CommandError) -> Self {
+        use crate::api::command::CommandError::*;
         match e {
             InvalidInput(m)  => HandlerError::InvalidRequest(m),
             RuleViolation(m) => HandlerError::FailedPrecondition(m),
@@ -74,18 +74,18 @@ impl From<crate::api::command_error::CommandError> for HandlerError {
     }
 }
 
-impl From<crate::api::event_error::EventError> for HandlerError {
-    fn from(e: crate::api::event_error::EventError) -> Self {
-        use crate::api::event_error::EventError::*;
+impl From<crate::api::event::EventError> for HandlerError {
+    fn from(e: crate::api::event::EventError) -> Self {
+        use crate::api::event::EventError::*;
         match e {
             SerializationFailed(m) | Unavailable(m) | Internal(m) => HandlerError::ExecutionFailed(m),
         }
     }
 }
 
-impl From<crate::api::query_error::QueryError> for HandlerError {
-    fn from(e: crate::api::query_error::QueryError) -> Self {
-        use crate::api::query_error::QueryError::*;
+impl From<crate::api::query::QueryError> for HandlerError {
+    fn from(e: crate::api::query::QueryError) -> Self {
+        use crate::api::query::QueryError::*;
         match e {
             InvalidInput(m) => HandlerError::InvalidRequest(m),
             NotFound(m)     => HandlerError::NotFound(m),

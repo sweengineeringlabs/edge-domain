@@ -1,7 +1,7 @@
-//! Error type for [`Query`](super::query::Query) and [`QueryBus`](super::query_bus::QueryBus) operations.
+//! Error type for [`Query`](super::Query) operations.
 //!
 //! Queries are read-only — `RuleViolation` is intentionally absent because
-//! business rules are a write concern enforced by [`Command`](super::command::Command).
+//! business rules are a write concern enforced by [`Command`](crate::api::command::Command).
 
 /// Error produced by query execution.
 #[derive(Debug, thiserror::Error)]

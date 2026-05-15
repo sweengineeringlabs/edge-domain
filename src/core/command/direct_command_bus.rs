@@ -3,8 +3,8 @@
 use async_trait::async_trait;
 
 use crate::api::command::Command;
-use crate::api::command_bus::CommandBus;
-use crate::api::command_error::CommandError;
+use crate::api::command::CommandBus;
+use crate::api::command::CommandError;
 
 /// Dispatches commands by calling `cmd.execute()` directly in the same task.
 ///

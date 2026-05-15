@@ -3,8 +3,8 @@
 use async_trait::async_trait;
 
 use crate::api::event::DomainEvent;
-use crate::api::event_error::EventError;
-use crate::api::event_publisher::EventPublisher;
+use crate::api::event::EventError;
+use crate::api::event::EventPublisher;
 
 /// Accepts events and discards them without side effects.
 ///

@@ -1,8 +1,12 @@
 //! `Query` trait — a read operation that never mutates domain state.
 
-use async_trait::async_trait;
+pub mod query_bus;
+pub mod query_error;
 
-use crate::api::query_error::QueryError;
+pub use query_bus::QueryBus;
+pub use query_error::QueryError;
+
+use async_trait::async_trait;
 
 /// A named read operation that returns data without mutating state.
 ///

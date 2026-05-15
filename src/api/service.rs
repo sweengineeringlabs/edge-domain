@@ -1,8 +1,12 @@
 //! `Service` trait — named domain operation contract.
 
-use async_trait::async_trait;
+pub mod service_error;
+pub mod service_registry;
 
-use crate::api::service_error::ServiceError;
+pub use service_error::ServiceError;
+pub use service_registry::ServiceRegistry;
+
+use async_trait::async_trait;
 
 /// A named, executable domain operation.
 ///

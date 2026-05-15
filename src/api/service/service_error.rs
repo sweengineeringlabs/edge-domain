@@ -1,4 +1,4 @@
-//! Error type for [`Service`](super::service::Service) operations.
+//! Error type for [`Service`](super::Service) operations.
 
 /// Error produced by domain service operations.
 #[derive(Debug, thiserror::Error)]

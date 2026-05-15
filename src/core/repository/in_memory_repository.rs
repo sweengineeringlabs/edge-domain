@@ -63,6 +63,13 @@ mod tests {
         InMemoryRepository::new()
     }
 
+    /// @covers: new
+    #[test]
+    fn test_new_creates_empty_repository() {
+        let r: InMemoryRepository<String, u64> = InMemoryRepository::new();
+        assert!(r.store.read().is_empty());
+    }
+
     /// @covers: save, find
     #[tokio::test]
     async fn test_save_and_find_round_trips_entity() {

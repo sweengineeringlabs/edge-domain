@@ -1,4 +1,4 @@
-//! Error type for [`EventPublisher`](super::event_publisher::EventPublisher) operations.
+//! Error type for [`EventPublisher`](super::EventPublisher) operations.
 
 /// Error produced when publishing a domain event fails.
 #[derive(Debug, thiserror::Error)]

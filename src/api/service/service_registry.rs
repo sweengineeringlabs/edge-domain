@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 use parking_lot::RwLock;
 
-use super::service::Service;
+use crate::api::service::Service;
 
 /// Registry of [`Service`] instances keyed by [`Service::name`].
 ///
@@ -72,7 +72,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::api::service_error::ServiceError;
+    use crate::api::service::ServiceError;
     use async_trait::async_trait;
 
     struct ServiceStub { name: String }

@@ -63,6 +63,26 @@ path = "tests/error_bridge_int_test.rs"
 name = "default_impls_int_test"
 path = "tests/default_impls_int_test.rs"
 
+[[test]]
+name = "command_error_int_test"
+path = "tests/command_error_int_test.rs"
+
+[[test]]
+name = "event_error_int_test"
+path = "tests/event_error_int_test.rs"
+
+[[test]]
+name = "query_error_int_test"
+path = "tests/query_error_int_test.rs"
+
+[[test]]
+name = "repository_error_int_test"
+path = "tests/repository_error_int_test.rs"
+
+[[test]]
+name = "service_error_int_test"
+path = "tests/service_error_int_test.rs"
+
 [package.metadata.struct-engine]
 application_type = "lib"
 service_type     = "handler"

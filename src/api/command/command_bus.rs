@@ -3,7 +3,7 @@
 use async_trait::async_trait;
 
 use crate::api::command::Command;
-use crate::api::command_error::CommandError;
+use crate::api::command::CommandError;
 
 /// Dispatches [`Command`] instances to their executors.
 ///

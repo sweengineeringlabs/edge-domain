@@ -3,8 +3,8 @@
 use async_trait::async_trait;
 
 use crate::api::query::Query;
-use crate::api::query_bus::QueryBus;
-use crate::api::query_error::QueryError;
+use crate::api::query::QueryBus;
+use crate::api::query::QueryError;
 
 /// Dispatches queries by calling `query.execute()` directly in the same task.
 pub(crate) struct DirectQueryBus;
