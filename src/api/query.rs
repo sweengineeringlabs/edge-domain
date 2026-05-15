@@ -2,7 +2,7 @@
 
 use async_trait::async_trait;
 
-use crate::api::command_error::CommandError;
+use crate::api::query_error::QueryError;
 
 /// A named read operation that returns data without mutating state.
 ///
@@ -16,7 +16,7 @@ use crate::api::command_error::CommandError;
 /// #[async_trait]
 /// impl Query<Order> for GetOrder {
 ///     fn name(&self) -> &str { "get-order" }
-///     async fn execute(&self) -> Result<Order, CommandError> {
+///     async fn execute(&self) -> Result<Order, QueryError> {
 ///         // read state, never mutate
 ///     }
 /// }
@@ -27,7 +27,7 @@ pub trait Query<R: Send + 'static>: Send + Sync {
     fn name(&self) -> &str;
 
     /// Execute the query and return the result.
-    async fn execute(&self) -> Result<R, CommandError>;
+    async fn execute(&self) -> Result<R, QueryError>;
 }
 
 #[cfg(test)]

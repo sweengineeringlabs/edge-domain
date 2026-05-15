@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 use async_trait::async_trait;
-use edge_domain::{Command, CommandBus, CommandError, Query, QueryBus};
+use edge_domain::{Command, CommandBus, CommandError, Query, QueryBus, QueryError};
 
 // ── Command fixtures ─────────────────────────────────────────────────────────
 
@@ -31,7 +31,17 @@ struct EchoQuery { value: String }
 #[async_trait]
 impl Query<String> for EchoQuery {
     fn name(&self) -> &str { "echo" }
-    async fn execute(&self) -> Result<String, CommandError> { Ok(self.value.clone()) }
+    async fn execute(&self) -> Result<String, QueryError> { Ok(self.value.clone()) }
+}
+
+struct MissingQuery;
+
+#[async_trait]
+impl Query<String> for MissingQuery {
+    fn name(&self) -> &str { "missing" }
+    async fn execute(&self) -> Result<String, QueryError> {
+        Err(QueryError::NotFound("resource-42".into()))
+    }
 }
 
 // ── CommandBus fixture ───────────────────────────────────────────────────────
@@ -51,7 +61,7 @@ struct DirectQueryBus;
 
 #[async_trait]
 impl QueryBus<String> for DirectQueryBus {
-    async fn dispatch(&self, query: Box<dyn Query<String>>) -> Result<String, CommandError> {
+    async fn dispatch(&self, query: Box<dyn Query<String>>) -> Result<String, QueryError> {
         query.execute().await
     }
 }
@@ -83,6 +93,14 @@ async fn test_query_trait_execute_returns_result_without_mutation() {
     assert_eq!(q.execute().await.unwrap(), "pong");
 }
 
+/// @covers: Query::execute
+#[tokio::test]
+async fn test_query_trait_execute_returns_not_found_error() {
+    let err = MissingQuery.execute().await.unwrap_err();
+    assert!(matches!(err, QueryError::NotFound(_)));
+    assert!(err.to_string().contains("resource-42"));
+}
+
 /// @covers: CommandBus::dispatch
 #[tokio::test]
 async fn test_command_bus_trait_dispatch_delegates_to_command_execute() {
@@ -103,4 +121,12 @@ async fn test_query_bus_trait_dispatch_returns_query_result() {
     let bus: Arc<dyn QueryBus<String>> = Arc::new(DirectQueryBus);
     let result = bus.dispatch(Box::new(EchoQuery { value: "hello".into() })).await.unwrap();
     assert_eq!(result, "hello");
+}
+
+/// @covers: QueryBus::dispatch
+#[tokio::test]
+async fn test_query_bus_trait_dispatch_propagates_query_error() {
+    let bus: Arc<dyn QueryBus<String>> = Arc::new(DirectQueryBus);
+    let err = bus.dispatch(Box::new(MissingQuery)).await.unwrap_err();
+    assert!(matches!(err, QueryError::NotFound(_)));
 }

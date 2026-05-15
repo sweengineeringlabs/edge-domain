@@ -11,6 +11,7 @@ pub mod handler_error;
 pub mod outbound_registry;
 pub mod query;
 pub mod query_bus;
+pub mod query_error;
 pub mod repository;
 pub mod repository_error;
 pub mod service;

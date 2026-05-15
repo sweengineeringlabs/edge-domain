@@ -2,7 +2,7 @@
 
 use async_trait::async_trait;
 
-use crate::api::command_error::CommandError;
+use crate::api::query_error::QueryError;
 use crate::api::query::Query;
 
 /// Dispatches [`Query`] instances and returns their results.
@@ -12,7 +12,7 @@ use crate::api::query::Query;
 /// ```rust,ignore
 /// #[async_trait]
 /// impl QueryBus<Order> for DirectQueryBus<Order> {
-///     async fn dispatch(&self, query: Box<dyn Query<Order>>) -> Result<Order, CommandError> {
+///     async fn dispatch(&self, query: Box<dyn Query<Order>>) -> Result<Order, QueryError> {
 ///         query.execute().await
 ///     }
 /// }
@@ -20,7 +20,7 @@ use crate::api::query::Query;
 #[async_trait]
 pub trait QueryBus<R: Send + 'static>: Send + Sync {
     /// Dispatch a query and return its result.
-    async fn dispatch(&self, query: Box<dyn Query<R>>) -> Result<R, CommandError>;
+    async fn dispatch(&self, query: Box<dyn Query<R>>) -> Result<R, QueryError>;
 }
 
 #[cfg(test)]

@@ -20,6 +20,7 @@ pub use crate::api::handler::handler_registry::HandlerRegistry;
 pub use crate::api::outbound_registry::OutboundRegistry;
 pub use crate::api::query::Query;
 pub use crate::api::query_bus::QueryBus;
+pub use crate::api::query_error::QueryError;
 pub use crate::api::repository::Repository;
 pub use crate::api::repository_error::RepositoryError;
 pub use crate::api::service::Service;

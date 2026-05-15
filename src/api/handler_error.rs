@@ -13,6 +13,14 @@ pub enum HandlerError {
     #[error("invalid request: {0}")]
     InvalidRequest(String),
 
+    /// The requested resource does not exist.
+    #[error("not found: {0}")]
+    NotFound(String),
+
+    /// The operation would create a duplicate or violate a uniqueness constraint.
+    #[error("conflict: {0}")]
+    Conflict(String),
+
     /// Handler ran to completion but the execution did not succeed.
     #[error("execution failed: {0}")]
     ExecutionFailed(String),
@@ -47,9 +55,9 @@ impl From<crate::api::repository_error::RepositoryError> for HandlerError {
     fn from(e: crate::api::repository_error::RepositoryError) -> Self {
         use crate::api::repository_error::RepositoryError::*;
         match e {
-            NotFound(m)                        => HandlerError::Other(format!("not found: {m}")),
-            Conflict(m)                        => HandlerError::FailedPrecondition(m),
-            Unavailable(m) | Internal(m)       => HandlerError::ExecutionFailed(m),
+            NotFound(m)                    => HandlerError::NotFound(m),
+            Conflict(m)                    => HandlerError::Conflict(m),
+            Unavailable(m) | Internal(m)   => HandlerError::ExecutionFailed(m),
         }
     }
 }
@@ -58,10 +66,30 @@ impl From<crate::api::command_error::CommandError> for HandlerError {
     fn from(e: crate::api::command_error::CommandError) -> Self {
         use crate::api::command_error::CommandError::*;
         match e {
-            InvalidInput(m)                  => HandlerError::InvalidRequest(m),
-            RuleViolation(m)                 => HandlerError::FailedPrecondition(m),
-            NotFound(m)                      => HandlerError::Other(format!("not found: {m}")),
-            Internal(m)                      => HandlerError::ExecutionFailed(m),
+            InvalidInput(m)  => HandlerError::InvalidRequest(m),
+            RuleViolation(m) => HandlerError::FailedPrecondition(m),
+            NotFound(m)      => HandlerError::NotFound(m),
+            Internal(m)      => HandlerError::ExecutionFailed(m),
+        }
+    }
+}
+
+impl From<crate::api::event_error::EventError> for HandlerError {
+    fn from(e: crate::api::event_error::EventError) -> Self {
+        use crate::api::event_error::EventError::*;
+        match e {
+            SerializationFailed(m) | Unavailable(m) | Internal(m) => HandlerError::ExecutionFailed(m),
+        }
+    }
+}
+
+impl From<crate::api::query_error::QueryError> for HandlerError {
+    fn from(e: crate::api::query_error::QueryError) -> Self {
+        use crate::api::query_error::QueryError::*;
+        match e {
+            InvalidInput(m) => HandlerError::InvalidRequest(m),
+            NotFound(m)     => HandlerError::NotFound(m),
+            Internal(m)     => HandlerError::ExecutionFailed(m),
         }
     }
 }
