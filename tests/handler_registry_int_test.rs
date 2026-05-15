@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain::{Handler, HandlerError, HandlerRegistry, RequestContext};
+use edge_domain::{Handler, HandlerError, HandlerRegistry};
 
 struct EchoHandler { id: String }
 
