@@ -11,4 +11,3 @@ pub use crate::api::handler::{RequestContext, RequestContextBuilder};
 pub use crate::api::handler_error::HandlerError;
 pub use crate::api::handler::handler_registry::HandlerRegistry;
 pub use crate::api::outbound_registry::OutboundRegistry;
-pub use crate::api::traits::Validator;
