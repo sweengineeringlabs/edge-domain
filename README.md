@@ -103,7 +103,8 @@ Provided for development and testing — swap with real infrastructure in produc
 
 | Factory | Returns | Use case |
 |---------|---------|---------|
-| `in_memory_repository::<T, Id>()` | `Arc<dyn Repository<T, Id>>` | Tests, local dev |
+| `new_in_memory_repository::<T, Id>()` | `Arc<dyn Repository<T, Id>>` | Tests, local dev |
+| `new_in_memory_queryable_repository::<T, Id>()` | `Arc<dyn QueryableRepository<T, Id>>` | Tests with spec-based queries |
 | `direct_command_bus()` | `Arc<dyn CommandBus>` | In-process command dispatch |
 | `direct_query_bus::<R>()` | `Arc<dyn QueryBus<R>>` | In-process query dispatch |
 | `noop_event_publisher()` | `Arc<dyn EventPublisher>` | Drop events (dev/test) |

@@ -1,7 +1,7 @@
 //! Integration tests for `QueryableRepository` — spec-based queries.
 
 use std::sync::Arc;
-use edge_domain::{in_memory_queryable_repository, QueryableRepository, Repository, Spec};
+use edge_domain::{new_in_memory_queryable_repository, QueryableRepository, Spec};
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 
@@ -19,7 +19,7 @@ impl Spec<Product> for NameStartsWith {
 }
 
 async fn seeded_repo() -> Arc<dyn QueryableRepository<Product, u32>> {
-    let repo = in_memory_queryable_repository::<Product, u32>();
+    let repo = new_in_memory_queryable_repository::<Product, u32>();
     repo.save(1, Product { name: "Apple".into(),     price_cents: 150 }).await.unwrap();
     repo.save(2, Product { name: "Avocado".into(),   price_cents: 300 }).await.unwrap();
     repo.save(3, Product { name: "Banana".into(),    price_cents: 80  }).await.unwrap();
@@ -100,3 +100,4 @@ async fn test_queryable_repository_count_by_matches_find_by_len() {
     let count = repo.count_by(&NameStartsWith("B".into())).await.unwrap();
     assert_eq!(found.len(), count);
 }
+

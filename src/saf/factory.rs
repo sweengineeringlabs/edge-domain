@@ -39,7 +39,7 @@ where
 /// Construct a thread-safe in-memory [`Repository`].
 ///
 /// Suitable for development and testing. Not for production persistence.
-pub fn in_memory_repository<T, Id>() -> Arc<dyn Repository<T, Id>>
+pub fn new_in_memory_repository<T, Id>() -> Arc<dyn Repository<T, Id>>
 where
     Id: Hash + Eq + Clone + Send + Sync + 'static,
     T: Clone + Send + Sync + 'static,
@@ -52,7 +52,7 @@ where
 /// Supports specification-based queries via [`QueryableRepository::find_by`],
 /// [`find_one_by`](QueryableRepository::find_one_by), and
 /// [`count_by`](QueryableRepository::count_by).
-pub fn in_memory_queryable_repository<T, Id>() -> Arc<dyn QueryableRepository<T, Id>>
+pub fn new_in_memory_queryable_repository<T, Id>() -> Arc<dyn QueryableRepository<T, Id>>
 where
     Id: std::hash::Hash + Eq + Clone + Send + Sync + 'static,
     T: Clone + Send + Sync + 'static,
@@ -104,32 +104,45 @@ mod tests {
         assert!(reg.is_empty());
     }
 
-    /// @covers: in_memory_queryable_repository
+    /// @covers: new_in_memory_repository
+    #[test]
+    fn test_new_in_memory_repository() {
+        let _: Arc<dyn crate::api::repository::Repository<String, u32>> = new_in_memory_repository();
+    }
+
+    /// @covers: new_in_memory_queryable_repository
+    #[test]
+    fn test_new_in_memory_queryable_repository() {
+        let _: Arc<dyn crate::api::queryable_repository::QueryableRepository<String, u32>> =
+            new_in_memory_queryable_repository();
+    }
+
+    /// @covers: new_in_memory_queryable_repository
     #[tokio::test]
-    async fn test_in_memory_queryable_repository_returns_functional_store() {
+    async fn test_new_in_memory_queryable_repository_returns_functional_store() {
         use crate::api::spec::Spec;
         struct Any;
         impl Spec<String> for Any { fn matches(&self, _: &String) -> bool { true } }
-        let repo = in_memory_queryable_repository::<String, u32>();
+        let repo = new_in_memory_queryable_repository::<String, u32>();
         repo.save(1u32, "x".to_string()).await.unwrap();
         assert_eq!(repo.count_by(&Any).await.unwrap(), 1);
     }
 
-    /// @covers: in_memory_repository
+    /// @covers: new_in_memory_repository
     #[tokio::test]
-    async fn test_in_memory_repository_saves_and_finds_entity() {
-        let repo = in_memory_repository::<String, u32>();
+    async fn test_new_in_memory_repository_saves_and_finds_entity() {
+        let repo = new_in_memory_repository::<String, u32>();
         repo.save(1u32, "x".to_string()).await.unwrap();
         assert!(repo.find(&1u32).await.unwrap().is_some());
     }
 
-    /// @covers: in_memory_queryable_repository
+    /// @covers: new_in_memory_queryable_repository
     #[tokio::test]
-    async fn test_in_memory_queryable_repository_supports_count_by() {
+    async fn test_new_in_memory_queryable_repository_supports_count_by() {
         use crate::api::spec::Spec;
         struct Any;
         impl Spec<String> for Any { fn matches(&self, _: &String) -> bool { true } }
-        let repo = in_memory_queryable_repository::<String, u32>();
+        let repo = new_in_memory_queryable_repository::<String, u32>();
         repo.save(1u32, "x".to_string()).await.unwrap();
         assert_eq!(repo.count_by(&Any).await.unwrap(), 1);
     }
@@ -177,3 +190,4 @@ mod tests {
         let _: Arc<dyn QueryBus<String>> = bus;
     }
 }
+

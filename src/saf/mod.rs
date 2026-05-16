@@ -3,8 +3,8 @@
 mod factory;
 
 pub use factory::{
-    direct_command_bus, direct_query_bus, in_memory_queryable_repository,
-    in_memory_repository, new_handler_registry, new_service_registry,
+    direct_command_bus, direct_query_bus, new_in_memory_queryable_repository,
+    new_in_memory_repository, new_handler_registry, new_service_registry,
     noop_event_publisher, validate_config,
 };
 
@@ -30,3 +30,4 @@ pub use crate::api::spec::Spec;
 pub use crate::api::service::Service;
 pub use crate::api::service::ServiceError;
 pub use crate::api::service::ServiceRegistry;
+
