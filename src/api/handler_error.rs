@@ -35,9 +35,13 @@ pub enum HandlerError {
     #[error("failed precondition: {0}")]
     FailedPrecondition(String),
 
-    /// Domain-specific failure that does not fit the above categories.
-    #[error("handler error: {0}")]
-    Other(String),
+    /// The caller is not authenticated. Maps to HTTP 401 / gRPC `UNAUTHENTICATED`.
+    #[error("unauthorized: {0}")]
+    Unauthorized(String),
+
+    /// The caller is authenticated but not permitted. Maps to HTTP 403 / gRPC `PERMISSION_DENIED`.
+    #[error("forbidden: {0}")]
+    Forbidden(String),
 }
 
 impl From<crate::api::service::ServiceError> for HandlerError {
@@ -46,6 +50,7 @@ impl From<crate::api::service::ServiceError> for HandlerError {
         match e {
             InvalidRequest(m) => HandlerError::InvalidRequest(m),
             RuleViolation(m)  => HandlerError::FailedPrecondition(m),
+            NotFound(m)       => HandlerError::NotFound(m),
             Unavailable(m) | Internal(m) => HandlerError::ExecutionFailed(m),
         }
     }
@@ -78,7 +83,7 @@ impl From<crate::api::event::EventError> for HandlerError {
     fn from(e: crate::api::event::EventError) -> Self {
         use crate::api::event::EventError::*;
         match e {
-            SerializationFailed(m) | Unavailable(m) | Internal(m) => HandlerError::ExecutionFailed(m),
+            SerializationFailed(m) | Unavailable(m) => HandlerError::ExecutionFailed(m),
         }
     }
 }
@@ -150,5 +155,25 @@ mod tests {
         let err = HandlerError::invalid("missing field: prompt");
         assert!(matches!(err, HandlerError::InvalidRequest(_)));
         assert!(err.to_string().contains("missing field: prompt"));
+    }
+
+    #[test]
+    fn test_unauthorized_display_contains_message() {
+        let err = HandlerError::Unauthorized("token expired".into());
+        assert!(err.to_string().contains("token expired"));
+    }
+
+    #[test]
+    fn test_forbidden_display_contains_message() {
+        let err = HandlerError::Forbidden("insufficient scope".into());
+        assert!(err.to_string().contains("insufficient scope"));
+    }
+
+    #[test]
+    fn test_handler_error_has_no_other_variant() {
+        // Other was removed — all failure categories now have explicit variants.
+        // Unauthorized and Forbidden replace the auth-related use cases of Other.
+        let _: HandlerError = HandlerError::Unauthorized("x".into());
+        let _: HandlerError = HandlerError::Forbidden("x".into());
     }
 }

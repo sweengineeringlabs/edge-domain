@@ -18,15 +18,7 @@ fn test_event_error_unavailable_display_contains_message() {
 
 /// @covers: EventError
 #[test]
-fn test_event_error_internal_display_contains_message() {
-    let e = EventError::Internal("unexpected".into());
-    assert!(e.to_string().contains("unexpected"));
-}
-
-/// @covers: EventError
-#[test]
 fn test_event_error_variants_are_distinct() {
     assert!(matches!(EventError::SerializationFailed("x".into()), EventError::SerializationFailed(_)));
     assert!(matches!(EventError::Unavailable("x".into()), EventError::Unavailable(_)));
-    assert!(matches!(EventError::Internal("x".into()), EventError::Internal(_)));
 }

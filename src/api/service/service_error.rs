@@ -9,6 +9,9 @@ pub enum ServiceError {
     /// A business rule was violated.
     #[error("business rule violation: {0}")]
     RuleViolation(String),
+    /// The requested resource was not found.
+    #[error("not found: {0}")]
+    NotFound(String),
     /// The service is temporarily unavailable.
     #[error("unavailable: {0}")]
     Unavailable(String),

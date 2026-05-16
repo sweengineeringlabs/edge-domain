@@ -18,6 +18,14 @@ fn test_service_error_rule_violation_maps_to_handler_failed_precondition() {
 
 /// @covers: From<ServiceError> for HandlerError
 #[test]
+fn test_service_error_not_found_maps_to_handler_not_found() {
+    let e: HandlerError = ServiceError::NotFound("customer-42".into()).into();
+    assert!(matches!(e, HandlerError::NotFound(_)));
+    assert!(e.to_string().contains("customer-42"));
+}
+
+/// @covers: From<ServiceError> for HandlerError
+#[test]
 fn test_service_error_internal_maps_to_handler_execution_failed() {
     let e: HandlerError = ServiceError::Internal("boom".into()).into();
     assert!(matches!(e, HandlerError::ExecutionFailed(_)));
@@ -124,4 +132,15 @@ fn test_question_mark_operator_converts_query_error_to_handler_error() {
         Ok(result?)
     }
     assert!(matches!(simulate_handler(), Err(HandlerError::NotFound(_))));
+}
+
+/// @covers: HandlerError::Unauthorized
+#[test]
+fn test_unauthorized_is_distinct_from_forbidden() {
+    let unauth = HandlerError::Unauthorized("token expired".into());
+    let forbidden = HandlerError::Forbidden("insufficient scope".into());
+    assert!(matches!(unauth,   HandlerError::Unauthorized(_)));
+    assert!(matches!(forbidden, HandlerError::Forbidden(_)));
+    assert!(unauth.to_string().contains("token expired"));
+    assert!(forbidden.to_string().contains("insufficient scope"));
 }

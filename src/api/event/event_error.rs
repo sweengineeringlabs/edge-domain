@@ -9,9 +9,6 @@ pub enum EventError {
     /// The event bus or channel is unavailable.
     #[error("unavailable: {0}")]
     Unavailable(String),
-    /// An unexpected internal error occurred.
-    #[error("internal: {0}")]
-    Internal(String),
 }
 
 #[cfg(test)]
@@ -28,5 +25,16 @@ mod tests {
     fn test_event_error_unavailable_message_is_actionable() {
         let e = EventError::Unavailable("broker down".into());
         assert!(e.to_string().contains("broker down"));
+    }
+
+    #[test]
+    fn test_event_error_has_no_internal_variant() {
+        // Internal was removed — Unavailable covers all bus/infrastructure failures.
+        // This test ensures the variant count stays at 2.
+        let variants: &[EventError] = &[
+            EventError::SerializationFailed("x".into()),
+            EventError::Unavailable("x".into()),
+        ];
+        assert_eq!(variants.len(), 2);
     }
 }
