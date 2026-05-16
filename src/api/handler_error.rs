@@ -40,8 +40,8 @@ pub enum HandlerError {
     Unauthorized(String),
 
     /// The caller is authenticated but not permitted. Maps to HTTP 403 / gRPC `PERMISSION_DENIED`.
-    #[error("forbidden: {0}")]
-    Forbidden(String),
+    #[error("permission denied: {0}")]
+    PermissionDenied(String),
 }
 
 impl From<crate::api::service::ServiceError> for HandlerError {
@@ -165,15 +165,15 @@ mod tests {
 
     #[test]
     fn test_forbidden_display_contains_message() {
-        let err = HandlerError::Forbidden("insufficient scope".into());
+        let err = HandlerError::PermissionDenied("insufficient scope".into());
         assert!(err.to_string().contains("insufficient scope"));
     }
 
     #[test]
     fn test_handler_error_has_no_other_variant() {
         // Other was removed — all failure categories now have explicit variants.
-        // Unauthorized and Forbidden replace the auth-related use cases of Other.
+        // Unauthorized and permission_denied replace the auth-related use cases of Other.
         let _: HandlerError = HandlerError::Unauthorized("x".into());
-        let _: HandlerError = HandlerError::Forbidden("x".into());
+        let _: HandlerError = HandlerError::PermissionDenied("x".into());
     }
 }

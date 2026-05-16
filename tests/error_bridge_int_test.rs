@@ -136,11 +136,11 @@ fn test_question_mark_operator_converts_query_error_to_handler_error() {
 
 /// @covers: HandlerError::Unauthorized
 #[test]
-fn test_unauthorized_is_distinct_from_forbidden() {
+fn test_unauthorized_is_distinct_from_permission_denied() {
     let unauth = HandlerError::Unauthorized("token expired".into());
-    let forbidden = HandlerError::Forbidden("insufficient scope".into());
+    let permission_denied = HandlerError::PermissionDenied("insufficient scope".into());
     assert!(matches!(unauth,   HandlerError::Unauthorized(_)));
-    assert!(matches!(forbidden, HandlerError::Forbidden(_)));
+    assert!(matches!(permission_denied, HandlerError::PermissionDenied(_)));
     assert!(unauth.to_string().contains("token expired"));
-    assert!(forbidden.to_string().contains("insufficient scope"));
+    assert!(permission_denied.to_string().contains("insufficient scope"));
 }
