@@ -1,6 +1,8 @@
 //! Integration tests for error bridging: domain errors → HandlerError.
 
-use edge_domain::{CommandError, EventError, HandlerError, QueryError, RepositoryError, ServiceError};
+use edge_domain::{
+    CommandError, EventError, HandlerError, QueryError, RepositoryError, ServiceError,
+};
 
 /// @covers: From<ServiceError> for HandlerError
 #[test]
@@ -84,7 +86,10 @@ fn test_question_mark_operator_converts_command_error_to_handler_error() {
         result?;
         Ok(())
     }
-    assert!(matches!(simulate_handler(), Err(HandlerError::ExecutionFailed(_))));
+    assert!(matches!(
+        simulate_handler(),
+        Err(HandlerError::ExecutionFailed(_))
+    ));
 }
 
 /// @covers: From<EventError> for HandlerError
@@ -139,8 +144,11 @@ fn test_question_mark_operator_converts_query_error_to_handler_error() {
 fn test_unauthorized_is_distinct_from_permission_denied() {
     let unauth = HandlerError::Unauthorized("token expired".into());
     let permission_denied = HandlerError::PermissionDenied("insufficient scope".into());
-    assert!(matches!(unauth,   HandlerError::Unauthorized(_)));
-    assert!(matches!(permission_denied, HandlerError::PermissionDenied(_)));
+    assert!(matches!(unauth, HandlerError::Unauthorized(_)));
+    assert!(matches!(
+        permission_denied,
+        HandlerError::PermissionDenied(_)
+    ));
     assert!(unauth.to_string().contains("token expired"));
     assert!(permission_denied.to_string().contains("insufficient scope"));
 }

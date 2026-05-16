@@ -44,14 +44,20 @@ where
     /// `ctx.subject`, `ctx.tenant_id`, or `ctx.trace_id`.
     ///
     /// Default: ignores context and calls `execute(req)`.
-    async fn execute_with_context(&self, req: Request, _ctx: RequestContext) -> Result<Response, HandlerError> {
+    async fn execute_with_context(
+        &self,
+        req: Request,
+        _ctx: RequestContext,
+    ) -> Result<Response, HandlerError> {
         self.execute(req).await
     }
 
     /// Return `false` when the handler is not ready to serve traffic.
     ///
     /// Default: always healthy.
-    async fn health_check(&self) -> bool { true }
+    async fn health_check(&self) -> bool {
+        true
+    }
 }
 
 #[cfg(test)]

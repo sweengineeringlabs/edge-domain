@@ -1,10 +1,10 @@
 //! Integration tests for `InMemoryRepository` api type and `new_in_memory_repository` factory.
 
-use std::sync::Arc;
 use edge_domain::{
-    new_in_memory_queryable_repository, new_in_memory_repository,
-    QueryableRepository, Repository, Spec,
+    new_in_memory_queryable_repository, new_in_memory_repository, QueryableRepository, Repository,
+    Spec,
 };
+use std::sync::Arc;
 
 /// @covers: new_in_memory_repository
 #[test]
@@ -43,7 +43,9 @@ async fn test_new_in_memory_repository_save_find_round_trip() {
 async fn test_new_in_memory_queryable_repository_find_by_spec() {
     struct LongStr;
     impl Spec<String> for LongStr {
-        fn matches(&self, s: &String) -> bool { s.len() > 3 }
+        fn matches(&self, s: &String) -> bool {
+            s.len() > 3
+        }
     }
     let repo: Arc<dyn QueryableRepository<String, u32>> = new_in_memory_queryable_repository();
     repo.save(1u32, "hi".to_string()).await.unwrap();
@@ -51,4 +53,3 @@ async fn test_new_in_memory_queryable_repository_find_by_spec() {
     let results = repo.find_by(&LongStr).await.unwrap();
     assert_eq!(results.len(), 1);
 }
-

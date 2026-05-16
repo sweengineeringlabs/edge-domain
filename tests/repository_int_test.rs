@@ -1,8 +1,8 @@
 //! Integration tests for the `Repository` trait contract and `new_in_memory_repository()`.
 
-use std::sync::Arc;
 use async_trait::async_trait;
 use edge_domain::{new_in_memory_repository, Repository, RepositoryError};
+use std::sync::Arc;
 
 // ── custom implementation ────────────────────────────────────────────────────
 
@@ -76,4 +76,3 @@ async fn test_new_in_memory_repository_list_returns_all_saved_entities() {
     items.sort();
     assert_eq!(items, vec!["a", "b"]);
 }
-

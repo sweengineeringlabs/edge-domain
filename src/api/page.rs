@@ -19,7 +19,12 @@ pub struct Page<T> {
 impl<T> Page<T> {
     /// Construct a page result.
     pub fn new(items: Vec<T>, total: usize, offset: usize, limit: usize) -> Self {
-        Self { items, total, offset, limit }
+        Self {
+            items,
+            total,
+            offset,
+            limit,
+        }
     }
 
     /// `true` when more items exist beyond this page.

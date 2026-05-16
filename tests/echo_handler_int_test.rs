@@ -1,7 +1,7 @@
 //! Integration tests for `EchoHandler` and the `echo_handler` factory.
 
-use std::sync::Arc;
 use edge_domain::{echo_handler, EchoHandler, Handler};
+use std::sync::Arc;
 
 /// @covers: echo_handler
 #[test]

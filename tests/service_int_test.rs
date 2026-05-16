@@ -1,22 +1,28 @@
 //! Integration tests for `Service` and `ServiceRegistry`.
 
-use std::sync::Arc;
 use async_trait::async_trait;
-use edge_domain::{Service, ServiceError, ServiceRegistry, new_service_registry};
+use edge_domain::{new_service_registry, Service, ServiceError, ServiceRegistry};
+use std::sync::Arc;
 
 struct EchoService;
 
 #[async_trait]
 impl Service<String, String> for EchoService {
-    fn name(&self) -> &str { "echo" }
-    async fn execute(&self, req: String) -> Result<String, ServiceError> { Ok(req) }
+    fn name(&self) -> &str {
+        "echo"
+    }
+    async fn execute(&self, req: String) -> Result<String, ServiceError> {
+        Ok(req)
+    }
 }
 
 struct FailingService;
 
 #[async_trait]
 impl Service<String, String> for FailingService {
-    fn name(&self) -> &str { "failing" }
+    fn name(&self) -> &str {
+        "failing"
+    }
     async fn execute(&self, _req: String) -> Result<String, ServiceError> {
         Err(ServiceError::RuleViolation("always fails".into()))
     }

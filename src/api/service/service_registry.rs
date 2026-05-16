@@ -26,7 +26,9 @@ where
 {
     /// Construct an empty registry.
     pub fn new() -> Self {
-        Self { services: RwLock::new(HashMap::new()) }
+        Self {
+            services: RwLock::new(HashMap::new()),
+        }
     }
 
     /// Register a service, replacing any existing entry with the same name.
@@ -66,7 +68,9 @@ where
     Request: Send + 'static,
     Response: Send + 'static,
 {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 #[cfg(test)]
@@ -75,14 +79,22 @@ mod tests {
     use crate::api::service::ServiceError;
     use async_trait::async_trait;
 
-    struct ServiceStub { name: String }
+    struct ServiceStub {
+        name: String,
+    }
     #[async_trait]
     impl Service<String, String> for ServiceStub {
-        fn name(&self) -> &str { &self.name }
-        async fn execute(&self, req: String) -> Result<String, ServiceError> { Ok(req) }
+        fn name(&self) -> &str {
+            &self.name
+        }
+        async fn execute(&self, req: String) -> Result<String, ServiceError> {
+            Ok(req)
+        }
     }
     fn stub(name: &str) -> Arc<dyn Service<String, String>> {
-        Arc::new(ServiceStub { name: name.to_string() })
+        Arc::new(ServiceStub {
+            name: name.to_string(),
+        })
     }
 
     /// @covers: register

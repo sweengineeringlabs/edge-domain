@@ -27,7 +27,9 @@ mod tests {
 
     #[test]
     fn test_in_memory_repository_custom_capacity_is_stored() {
-        let cfg = InMemoryRepository { initial_capacity: 64 };
+        let cfg = InMemoryRepository {
+            initial_capacity: 64,
+        };
         assert_eq!(cfg.initial_capacity, 64);
     }
 }

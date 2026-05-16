@@ -40,9 +40,24 @@ fn test_service_error_internal_display_contains_message() {
 /// @covers: ServiceError
 #[test]
 fn test_service_error_variants_are_distinct() {
-    assert!(matches!(ServiceError::InvalidRequest("x".into()), ServiceError::InvalidRequest(_)));
-    assert!(matches!(ServiceError::RuleViolation("x".into()), ServiceError::RuleViolation(_)));
-    assert!(matches!(ServiceError::NotFound("x".into()), ServiceError::NotFound(_)));
-    assert!(matches!(ServiceError::Unavailable("x".into()), ServiceError::Unavailable(_)));
-    assert!(matches!(ServiceError::Internal("x".into()), ServiceError::Internal(_)));
+    assert!(matches!(
+        ServiceError::InvalidRequest("x".into()),
+        ServiceError::InvalidRequest(_)
+    ));
+    assert!(matches!(
+        ServiceError::RuleViolation("x".into()),
+        ServiceError::RuleViolation(_)
+    ));
+    assert!(matches!(
+        ServiceError::NotFound("x".into()),
+        ServiceError::NotFound(_)
+    ));
+    assert!(matches!(
+        ServiceError::Unavailable("x".into()),
+        ServiceError::Unavailable(_)
+    ));
+    assert!(matches!(
+        ServiceError::Internal("x".into()),
+        ServiceError::Internal(_)
+    ));
 }

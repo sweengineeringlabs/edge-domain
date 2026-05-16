@@ -49,8 +49,8 @@ impl From<crate::api::service::ServiceError> for HandlerError {
         use crate::api::service::ServiceError::*;
         match e {
             InvalidRequest(m) => HandlerError::InvalidRequest(m),
-            RuleViolation(m)  => HandlerError::FailedPrecondition(m),
-            NotFound(m)       => HandlerError::NotFound(m),
+            RuleViolation(m) => HandlerError::FailedPrecondition(m),
+            NotFound(m) => HandlerError::NotFound(m),
             Unavailable(m) | Internal(m) => HandlerError::ExecutionFailed(m),
         }
     }
@@ -60,9 +60,9 @@ impl From<crate::api::repository_error::RepositoryError> for HandlerError {
     fn from(e: crate::api::repository_error::RepositoryError) -> Self {
         use crate::api::repository_error::RepositoryError::*; // repository not regrouped
         match e {
-            NotFound(m)                    => HandlerError::NotFound(m),
-            Conflict(m)                    => HandlerError::Conflict(m),
-            Unavailable(m) | Internal(m)   => HandlerError::ExecutionFailed(m),
+            NotFound(m) => HandlerError::NotFound(m),
+            Conflict(m) => HandlerError::Conflict(m),
+            Unavailable(m) | Internal(m) => HandlerError::ExecutionFailed(m),
         }
     }
 }
@@ -71,10 +71,10 @@ impl From<crate::api::command::CommandError> for HandlerError {
     fn from(e: crate::api::command::CommandError) -> Self {
         use crate::api::command::CommandError::*;
         match e {
-            InvalidInput(m)  => HandlerError::InvalidRequest(m),
+            InvalidInput(m) => HandlerError::InvalidRequest(m),
             RuleViolation(m) => HandlerError::FailedPrecondition(m),
-            NotFound(m)      => HandlerError::NotFound(m),
-            Internal(m)      => HandlerError::ExecutionFailed(m),
+            NotFound(m) => HandlerError::NotFound(m),
+            Internal(m) => HandlerError::ExecutionFailed(m),
         }
     }
 }
@@ -93,8 +93,8 @@ impl From<crate::api::query::QueryError> for HandlerError {
         use crate::api::query::QueryError::*;
         match e {
             InvalidInput(m) => HandlerError::InvalidRequest(m),
-            NotFound(m)     => HandlerError::NotFound(m),
-            Internal(m)     => HandlerError::ExecutionFailed(m),
+            NotFound(m) => HandlerError::NotFound(m),
+            Internal(m) => HandlerError::ExecutionFailed(m),
         }
     }
 }

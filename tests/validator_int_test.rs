@@ -8,7 +8,7 @@
 /// Compile-time proof that the domain crate builds and exports its public API.
 #[test]
 fn test_domain_public_api_compiles() {
-    use edge_domain::{HandlerRegistry, HandlerError, Handler, RequestContext};
+    use edge_domain::{Handler, HandlerError, HandlerRegistry, RequestContext};
     fn _assert_handler_registry_exists() {
         let _: HandlerRegistry<String, String> = HandlerRegistry::new();
     }

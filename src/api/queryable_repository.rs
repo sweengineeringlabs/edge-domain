@@ -56,6 +56,7 @@ mod tests {
         where
             T: Send + Sync + 'static,
             Id: Send + Sync + 'static,
-        {}
+        {
+        }
     }
 }

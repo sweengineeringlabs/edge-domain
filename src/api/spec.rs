@@ -37,7 +37,9 @@ mod tests {
     fn test_spec_matches_evaluates_predicate() {
         struct LongString;
         impl Spec<String> for LongString {
-            fn matches(&self, s: &String) -> bool { s.len() > 5 }
+            fn matches(&self, s: &String) -> bool {
+                s.len() > 5
+            }
         }
         assert!(LongString.matches(&"hello world".to_string()));
         assert!(!LongString.matches(&"hi".to_string()));

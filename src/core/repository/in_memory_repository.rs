@@ -28,7 +28,9 @@ where
     T: Clone + Send + Sync + 'static,
 {
     pub(crate) fn new() -> Self {
-        Self { store: RwLock::new(HashMap::new()) }
+        Self {
+            store: RwLock::new(HashMap::new()),
+        }
     }
 }
 
@@ -60,7 +62,8 @@ impl<T, Id> QueryableRepository<T, Id> for InMemoryRepository<T, Id>
 where
     Id: Hash + Eq + Clone + Send + Sync + 'static,
     T: Clone + Send + Sync + 'static,
-{}
+{
+}
 
 #[cfg(test)]
 mod tests {

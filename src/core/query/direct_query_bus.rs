@@ -24,15 +24,22 @@ mod tests {
     struct DirectQueryBusEcho(String);
     #[async_trait]
     impl Query<String> for DirectQueryBusEcho {
-        fn name(&self) -> &str { "echo" }
-        async fn execute(&self) -> Result<String, QueryError> { Ok(self.0.clone()) }
+        fn name(&self) -> &str {
+            "echo"
+        }
+        async fn execute(&self) -> Result<String, QueryError> {
+            Ok(self.0.clone())
+        }
     }
 
     /// @covers: dispatch
     #[tokio::test]
     async fn test_dispatch_returns_query_result() {
         let bus = DirectQueryBus;
-        let result = bus.dispatch(Box::new(DirectQueryBusEcho("pong".into()))).await.unwrap();
+        let result = bus
+            .dispatch(Box::new(DirectQueryBusEcho("pong".into())))
+            .await
+            .unwrap();
         assert_eq!(result, "pong");
     }
 }

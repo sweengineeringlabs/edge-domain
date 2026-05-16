@@ -28,14 +28,20 @@ mod tests {
     struct DirectCommandBusOk;
     #[async_trait]
     impl Command for DirectCommandBusOk {
-        fn name(&self) -> &str { "ok" }
-        async fn execute(&self) -> Result<(), CommandError> { Ok(()) }
+        fn name(&self) -> &str {
+            "ok"
+        }
+        async fn execute(&self) -> Result<(), CommandError> {
+            Ok(())
+        }
     }
 
     struct DirectCommandBusErr;
     #[async_trait]
     impl Command for DirectCommandBusErr {
-        fn name(&self) -> &str { "err" }
+        fn name(&self) -> &str {
+            "err"
+        }
         async fn execute(&self) -> Result<(), CommandError> {
             Err(CommandError::RuleViolation("blocked".into()))
         }
@@ -44,12 +50,18 @@ mod tests {
     /// @covers: dispatch
     #[tokio::test]
     async fn test_dispatch_ok_command_returns_ok() {
-        assert!(DirectCommandBus.dispatch(Box::new(DirectCommandBusOk)).await.is_ok());
+        assert!(DirectCommandBus
+            .dispatch(Box::new(DirectCommandBusOk))
+            .await
+            .is_ok());
     }
 
     /// @covers: dispatch
     #[tokio::test]
     async fn test_dispatch_err_command_returns_err() {
-        assert!(DirectCommandBus.dispatch(Box::new(DirectCommandBusErr)).await.is_err());
+        assert!(DirectCommandBus
+            .dispatch(Box::new(DirectCommandBusErr))
+            .await
+            .is_err());
     }
 }

@@ -15,8 +15,12 @@ impl<T> Handler<T, T> for EchoHandler<T>
 where
     T: Send + 'static,
 {
-    fn id(&self)      -> &str { &self.id }
-    fn pattern(&self) -> &str { &self.pattern }
+    fn id(&self) -> &str {
+        &self.id
+    }
+    fn pattern(&self) -> &str {
+        &self.pattern
+    }
 
     async fn execute(&self, req: T) -> Result<T, HandlerError> {
         Ok(req)

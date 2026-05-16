@@ -6,7 +6,9 @@ use edge_domain::{new_in_memory_repository, Page};
 #[tokio::test]
 async fn test_repository_list_page_returns_correct_window() {
     let repo = new_in_memory_repository::<String, u32>();
-    for i in 0..10u32 { repo.save(i, format!("item-{i}")).await.unwrap(); }
+    for i in 0..10u32 {
+        repo.save(i, format!("item-{i}")).await.unwrap();
+    }
     let page: Page<String> = repo.list_page(0, 3).await.unwrap();
     assert_eq!(page.items.len(), 3);
     assert_eq!(page.total, 10);
@@ -20,7 +22,9 @@ async fn test_repository_list_page_returns_correct_window() {
 #[tokio::test]
 async fn test_repository_list_page_last_page_has_no_more() {
     let repo = new_in_memory_repository::<String, u32>();
-    for i in 0..5u32 { repo.save(i, format!("item-{i}")).await.unwrap(); }
+    for i in 0..5u32 {
+        repo.save(i, format!("item-{i}")).await.unwrap();
+    }
     let page: Page<String> = repo.list_page(3, 10).await.unwrap();
     assert_eq!(page.items.len(), 2);
     assert_eq!(page.total, 5);
@@ -79,4 +83,3 @@ async fn test_repository_count_decrements_after_delete() {
     repo.delete(&1u32).await.unwrap();
     assert_eq!(repo.count().await.unwrap(), 1);
 }
-

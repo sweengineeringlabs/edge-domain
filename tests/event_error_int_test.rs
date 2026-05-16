@@ -19,6 +19,12 @@ fn test_event_error_unavailable_display_contains_message() {
 /// @covers: EventError
 #[test]
 fn test_event_error_variants_are_distinct() {
-    assert!(matches!(EventError::SerializationFailed("x".into()), EventError::SerializationFailed(_)));
-    assert!(matches!(EventError::Unavailable("x".into()), EventError::Unavailable(_)));
+    assert!(matches!(
+        EventError::SerializationFailed("x".into()),
+        EventError::SerializationFailed(_)
+    ));
+    assert!(matches!(
+        EventError::Unavailable("x".into()),
+        EventError::Unavailable(_)
+    ));
 }

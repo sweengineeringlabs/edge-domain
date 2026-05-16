@@ -33,8 +33,20 @@ fn test_command_error_internal_display_contains_message() {
 /// @covers: CommandError
 #[test]
 fn test_command_error_variants_are_distinct() {
-    assert!(matches!(CommandError::InvalidInput("x".into()), CommandError::InvalidInput(_)));
-    assert!(matches!(CommandError::RuleViolation("x".into()), CommandError::RuleViolation(_)));
-    assert!(matches!(CommandError::NotFound("x".into()), CommandError::NotFound(_)));
-    assert!(matches!(CommandError::Internal("x".into()), CommandError::Internal(_)));
+    assert!(matches!(
+        CommandError::InvalidInput("x".into()),
+        CommandError::InvalidInput(_)
+    ));
+    assert!(matches!(
+        CommandError::RuleViolation("x".into()),
+        CommandError::RuleViolation(_)
+    ));
+    assert!(matches!(
+        CommandError::NotFound("x".into()),
+        CommandError::NotFound(_)
+    ));
+    assert!(matches!(
+        CommandError::Internal("x".into()),
+        CommandError::Internal(_)
+    ));
 }

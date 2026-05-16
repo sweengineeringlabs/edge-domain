@@ -1,27 +1,33 @@
 //! Integration tests for default domain implementations:
 //! direct_command_bus, noop_event_publisher.
 
-use std::sync::Arc;
-use std::time::SystemTime;
 use async_trait::async_trait;
 use edge_domain::{
-    Command, CommandBus, CommandError, DomainEvent, EventError,
-    EventPublisher, direct_command_bus, noop_event_publisher,
+    direct_command_bus, noop_event_publisher, Command, CommandBus, CommandError, DomainEvent,
+    EventError, EventPublisher,
 };
+use std::sync::Arc;
+use std::time::SystemTime;
 
 // ── fixtures ─────────────────────────────────────────────────────────────────
 
 struct OkCommand;
 #[async_trait]
 impl Command for OkCommand {
-    fn name(&self) -> &str { "ok" }
-    async fn execute(&self) -> Result<(), CommandError> { Ok(()) }
+    fn name(&self) -> &str {
+        "ok"
+    }
+    async fn execute(&self) -> Result<(), CommandError> {
+        Ok(())
+    }
 }
 
 struct ErrCommand;
 #[async_trait]
 impl Command for ErrCommand {
-    fn name(&self) -> &str { "err" }
+    fn name(&self) -> &str {
+        "err"
+    }
     async fn execute(&self) -> Result<(), CommandError> {
         Err(CommandError::RuleViolation("blocked".into()))
     }
@@ -29,9 +35,15 @@ impl Command for ErrCommand {
 
 struct AnyEvent;
 impl DomainEvent for AnyEvent {
-    fn event_type(&self)   -> &str       { "test.event" }
-    fn aggregate_id(&self) -> &str       { "agg-1" }
-    fn occurred_at(&self)  -> SystemTime { SystemTime::now() }
+    fn event_type(&self) -> &str {
+        "test.event"
+    }
+    fn aggregate_id(&self) -> &str {
+        "agg-1"
+    }
+    fn occurred_at(&self) -> SystemTime {
+        SystemTime::now()
+    }
 }
 
 struct FailingPublisher;

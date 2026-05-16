@@ -6,10 +6,10 @@ use std::sync::Arc;
 use crate::api::command::CommandBus;
 use crate::api::event::EventPublisher;
 use crate::api::handler::echo_handler::EchoHandler;
-use crate::api::handler::Handler;
 use crate::api::handler::handler_registry::HandlerRegistry;
-use crate::api::queryable_repository::QueryableRepository;
+use crate::api::handler::Handler;
 use crate::api::query::QueryBus;
+use crate::api::queryable_repository::QueryableRepository;
 use crate::api::repository::Repository;
 use crate::api::service::ServiceRegistry;
 use crate::core::command::direct_command_bus::DirectCommandBus;
@@ -21,10 +21,7 @@ use crate::core::repository::in_memory_repository::InMemoryRepository;
 ///
 /// Useful for transport-layer integration tests — verifies routing and codec
 /// wiring without requiring any business logic.
-pub fn echo_handler<T>(
-    id:      impl Into<String>,
-    pattern: impl Into<String>,
-) -> Arc<dyn Handler<T, T>>
+pub fn echo_handler<T>(id: impl Into<String>, pattern: impl Into<String>) -> Arc<dyn Handler<T, T>>
 where
     T: Send + 'static,
 {
@@ -136,7 +133,8 @@ mod tests {
     /// @covers: new_in_memory_repository
     #[test]
     fn test_new_in_memory_repository() {
-        let _: Arc<dyn crate::api::repository::Repository<String, u32>> = new_in_memory_repository();
+        let _: Arc<dyn crate::api::repository::Repository<String, u32>> =
+            new_in_memory_repository();
     }
 
     /// @covers: new_in_memory_queryable_repository
@@ -151,7 +149,11 @@ mod tests {
     async fn test_new_in_memory_queryable_repository_returns_functional_store() {
         use crate::api::spec::Spec;
         struct Any;
-        impl Spec<String> for Any { fn matches(&self, _: &String) -> bool { true } }
+        impl Spec<String> for Any {
+            fn matches(&self, _: &String) -> bool {
+                true
+            }
+        }
         let repo = new_in_memory_queryable_repository::<String, u32>();
         repo.save(1u32, "x".to_string()).await.unwrap();
         assert_eq!(repo.count_by(&Any).await.unwrap(), 1);
@@ -170,7 +172,11 @@ mod tests {
     async fn test_new_in_memory_queryable_repository_supports_count_by() {
         use crate::api::spec::Spec;
         struct Any;
-        impl Spec<String> for Any { fn matches(&self, _: &String) -> bool { true } }
+        impl Spec<String> for Any {
+            fn matches(&self, _: &String) -> bool {
+                true
+            }
+        }
         let repo = new_in_memory_queryable_repository::<String, u32>();
         repo.save(1u32, "x".to_string()).await.unwrap();
         assert_eq!(repo.count_by(&Any).await.unwrap(), 1);
@@ -182,7 +188,9 @@ mod tests {
         use crate::api::traits::Validator;
         struct AlwaysValid;
         impl Validator for AlwaysValid {
-            fn validate(&self) -> Result<(), String> { Ok(()) }
+            fn validate(&self) -> Result<(), String> {
+                Ok(())
+            }
         }
         assert!(validate_config(&AlwaysValid).is_ok());
     }
@@ -193,7 +201,9 @@ mod tests {
         use crate::api::traits::Validator;
         struct AlwaysInvalid;
         impl Validator for AlwaysInvalid {
-            fn validate(&self) -> Result<(), String> { Err("bad".into()) }
+            fn validate(&self) -> Result<(), String> {
+                Err("bad".into())
+            }
         }
         assert!(validate_config(&AlwaysInvalid).is_err());
     }
@@ -219,4 +229,3 @@ mod tests {
         let _: Arc<dyn QueryBus<String>> = bus;
     }
 }
-

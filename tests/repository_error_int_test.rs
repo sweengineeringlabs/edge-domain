@@ -33,8 +33,20 @@ fn test_repository_error_internal_display_contains_message() {
 /// @covers: RepositoryError
 #[test]
 fn test_repository_error_variants_are_distinct() {
-    assert!(matches!(RepositoryError::NotFound("x".into()), RepositoryError::NotFound(_)));
-    assert!(matches!(RepositoryError::Conflict("x".into()), RepositoryError::Conflict(_)));
-    assert!(matches!(RepositoryError::Unavailable("x".into()), RepositoryError::Unavailable(_)));
-    assert!(matches!(RepositoryError::Internal("x".into()), RepositoryError::Internal(_)));
+    assert!(matches!(
+        RepositoryError::NotFound("x".into()),
+        RepositoryError::NotFound(_)
+    ));
+    assert!(matches!(
+        RepositoryError::Conflict("x".into()),
+        RepositoryError::Conflict(_)
+    ));
+    assert!(matches!(
+        RepositoryError::Unavailable("x".into()),
+        RepositoryError::Unavailable(_)
+    ));
+    assert!(matches!(
+        RepositoryError::Internal("x".into()),
+        RepositoryError::Internal(_)
+    ));
 }

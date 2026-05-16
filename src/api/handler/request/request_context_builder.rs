@@ -6,28 +6,30 @@ use crate::api::handler::request::RequestContext;
 
 /// Builds a [`RequestContext`] step-by-step.
 pub struct RequestContextBuilder {
-    subject:       Option<String>,
-    issuer:        Option<String>,
-    tenant_id:     Option<String>,
-    trace_id:      String,
+    subject: Option<String>,
+    issuer: Option<String>,
+    tenant_id: Option<String>,
+    trace_id: String,
     authenticated: bool,
-    claims:        HashMap<String, String>,
+    claims: HashMap<String, String>,
 }
 
 impl Default for RequestContextBuilder {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl RequestContextBuilder {
     /// Start with an unauthenticated context.
     pub fn new() -> Self {
         Self {
-            subject:       None,
-            issuer:        None,
-            tenant_id:     None,
-            trace_id:      String::new(),
+            subject: None,
+            issuer: None,
+            tenant_id: None,
+            trace_id: String::new(),
             authenticated: false,
-            claims:        HashMap::new(),
+            claims: HashMap::new(),
         }
     }
 
@@ -70,12 +72,12 @@ impl RequestContextBuilder {
     /// @covers: build
     pub fn build(self) -> RequestContext {
         RequestContext {
-            subject:       self.subject,
-            issuer:        self.issuer,
-            tenant_id:     self.tenant_id,
-            trace_id:      self.trace_id,
+            subject: self.subject,
+            issuer: self.issuer,
+            tenant_id: self.tenant_id,
+            trace_id: self.trace_id,
             authenticated: self.authenticated,
-            claims:        self.claims,
+            claims: self.claims,
         }
     }
 }
@@ -101,7 +103,9 @@ mod tests {
     /// @covers: with_issuer
     #[test]
     fn test_with_issuer_sets_issuer() {
-        let ctx = RequestContextBuilder::new().with_issuer("auth.example.com").build();
+        let ctx = RequestContextBuilder::new()
+            .with_issuer("auth.example.com")
+            .build();
         assert_eq!(ctx.issuer.as_deref(), Some("auth.example.com"));
     }
 
@@ -124,7 +128,9 @@ mod tests {
     fn test_with_claims_sets_claims() {
         let mut claims = HashMap::new();
         claims.insert("role".into(), "admin".into());
-        let ctx = RequestContextBuilder::new().with_claims(claims.clone()).build();
+        let ctx = RequestContextBuilder::new()
+            .with_claims(claims.clone())
+            .build();
         assert_eq!(ctx.claims.get("role").map(String::as_str), Some("admin"));
     }
 

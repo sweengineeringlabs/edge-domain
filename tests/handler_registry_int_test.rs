@@ -5,13 +5,21 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use edge_domain::{Handler, HandlerError, HandlerRegistry};
 
-struct EchoHandler { id: String }
+struct EchoHandler {
+    id: String,
+}
 
 #[async_trait]
 impl Handler<String, String> for EchoHandler {
-    fn id(&self) -> &str { &self.id }
-    fn pattern(&self) -> &str { "echo" }
-    async fn execute(&self, req: String) -> Result<String, HandlerError> { Ok(req) }
+    fn id(&self) -> &str {
+        &self.id
+    }
+    fn pattern(&self) -> &str {
+        "echo"
+    }
+    async fn execute(&self, req: String) -> Result<String, HandlerError> {
+        Ok(req)
+    }
 }
 
 fn echo(id: &str) -> Arc<dyn Handler<String, String>> {

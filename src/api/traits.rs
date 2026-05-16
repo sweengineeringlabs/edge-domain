@@ -23,12 +23,16 @@ mod tests {
 
     struct AlwaysValid;
     impl Validator for AlwaysValid {
-        fn validate(&self) -> Result<(), String> { Ok(()) }
+        fn validate(&self) -> Result<(), String> {
+            Ok(())
+        }
     }
 
     struct AlwaysInvalid;
     impl Validator for AlwaysInvalid {
-        fn validate(&self) -> Result<(), String> { Err("invalid".into()) }
+        fn validate(&self) -> Result<(), String> {
+            Err("invalid".into())
+        }
     }
 
     #[test]

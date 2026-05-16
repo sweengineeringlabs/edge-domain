@@ -26,14 +26,23 @@ mod tests {
 
     struct NoopEventPublisherEvent;
     impl DomainEvent for NoopEventPublisherEvent {
-        fn event_type(&self)   -> &str       { "any" }
-        fn aggregate_id(&self) -> &str       { "id-1" }
-        fn occurred_at(&self)  -> SystemTime { SystemTime::now() }
+        fn event_type(&self) -> &str {
+            "any"
+        }
+        fn aggregate_id(&self) -> &str {
+            "id-1"
+        }
+        fn occurred_at(&self) -> SystemTime {
+            SystemTime::now()
+        }
     }
 
     /// @covers: publish
     #[tokio::test]
     async fn test_publish_always_returns_ok() {
-        assert!(NoopEventPublisher.publish(&NoopEventPublisherEvent).await.is_ok());
+        assert!(NoopEventPublisher
+            .publish(&NoopEventPublisherEvent)
+            .await
+            .is_ok());
     }
 }

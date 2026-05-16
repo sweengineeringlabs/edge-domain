@@ -1,12 +1,12 @@
 //! Integration tests for saf factory functions.
 
-use std::sync::Arc;
 use edge_domain::{
-    direct_command_bus, direct_query_bus, new_in_memory_queryable_repository,
-    new_in_memory_repository, new_handler_registry, new_service_registry, noop_event_publisher,
-    Command, CommandBus, CommandError, HandlerRegistry, QueryBus, QueryError,
-    QueryableRepository, Repository, ServiceRegistry,
+    direct_command_bus, direct_query_bus, new_handler_registry, new_in_memory_queryable_repository,
+    new_in_memory_repository, new_service_registry, noop_event_publisher, Command, CommandBus,
+    CommandError, HandlerRegistry, QueryBus, QueryError, QueryableRepository, Repository,
+    ServiceRegistry,
 };
+use std::sync::Arc;
 
 /// @covers: new_handler_registry
 #[test]
@@ -51,7 +51,9 @@ async fn test_new_in_memory_queryable_repository_finds_by_spec() {
     use edge_domain::Spec;
     struct LongStr;
     impl Spec<String> for LongStr {
-        fn matches(&self, s: &String) -> bool { s.len() > 3 }
+        fn matches(&self, s: &String) -> bool {
+            s.len() > 3
+        }
     }
     let repo: Arc<dyn QueryableRepository<String, u32>> = new_in_memory_queryable_repository();
     repo.save(1u32, "hi".to_string()).await.unwrap();
@@ -68,8 +70,12 @@ async fn test_factory_fn_direct_command_bus_dispatches_command_inline() {
     struct PingCommand;
     #[async_trait]
     impl Command for PingCommand {
-        fn name(&self) -> &str { "ping" }
-        async fn execute(&self) -> Result<(), CommandError> { Ok(()) }
+        fn name(&self) -> &str {
+            "ping"
+        }
+        async fn execute(&self) -> Result<(), CommandError> {
+            Ok(())
+        }
     }
     let bus: Arc<dyn CommandBus> = direct_command_bus();
     assert!(bus.dispatch(Box::new(PingCommand)).await.is_ok());
@@ -78,13 +84,19 @@ async fn test_factory_fn_direct_command_bus_dispatches_command_inline() {
 /// @covers: noop_event_publisher
 #[tokio::test]
 async fn test_factory_fn_noop_event_publisher_silently_discards_events() {
-    use std::time::SystemTime;
     use edge_domain::DomainEvent;
+    use std::time::SystemTime;
     struct AnyEvent;
     impl DomainEvent for AnyEvent {
-        fn event_type(&self)   -> &str       { "any" }
-        fn aggregate_id(&self) -> &str       { "id-1" }
-        fn occurred_at(&self)  -> SystemTime { SystemTime::now() }
+        fn event_type(&self) -> &str {
+            "any"
+        }
+        fn aggregate_id(&self) -> &str {
+            "id-1"
+        }
+        fn occurred_at(&self) -> SystemTime {
+            SystemTime::now()
+        }
     }
     let publisher = noop_event_publisher();
     assert!(publisher.publish(&AnyEvent).await.is_ok());
@@ -98,11 +110,17 @@ async fn test_factory_fn_direct_query_bus_dispatches_query_inline() {
     struct EchoQuery(String);
     #[async_trait]
     impl Query<String> for EchoQuery {
-        fn name(&self) -> &str { "echo" }
-        async fn execute(&self) -> Result<String, QueryError> { Ok(self.0.clone()) }
+        fn name(&self) -> &str {
+            "echo"
+        }
+        async fn execute(&self) -> Result<String, QueryError> {
+            Ok(self.0.clone())
+        }
     }
     let bus: Arc<dyn QueryBus<String>> = direct_query_bus();
-    let result = bus.dispatch(Box::new(EchoQuery("pong".into()))).await.unwrap();
+    let result = bus
+        .dispatch(Box::new(EchoQuery("pong".into())))
+        .await
+        .unwrap();
     assert_eq!(result, "pong");
 }
-

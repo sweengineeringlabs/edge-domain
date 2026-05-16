@@ -13,7 +13,7 @@ use std::marker::PhantomData;
 /// ```
 #[derive(Debug)]
 pub struct EchoHandler<T> {
-    pub(crate) id:      String,
+    pub(crate) id: String,
     pub(crate) pattern: String,
     pub(crate) _marker: PhantomData<fn(T) -> T>,
 }
@@ -21,7 +21,11 @@ pub struct EchoHandler<T> {
 impl<T> EchoHandler<T> {
     /// Construct an `EchoHandler` with the given handler id and route pattern.
     pub fn new(id: impl Into<String>, pattern: impl Into<String>) -> Self {
-        Self { id: id.into(), pattern: pattern.into(), _marker: PhantomData }
+        Self {
+            id: id.into(),
+            pattern: pattern.into(),
+            _marker: PhantomData,
+        }
     }
 }
 
