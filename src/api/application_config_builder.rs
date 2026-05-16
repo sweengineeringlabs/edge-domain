@@ -11,6 +11,7 @@ pub struct ApplicationConfigBuilder {
 }
 
 impl ApplicationConfigBuilder {
+    #[cfg(test)]
     pub(crate) fn new() -> Self {
         Self { _private: () }
     }
