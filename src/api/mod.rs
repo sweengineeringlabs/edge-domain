@@ -1,5 +1,6 @@
 //! API layer — domain execution-unit contracts.
 
+pub mod application_config_builder;
 pub mod command;
 pub mod event;
 pub mod handler;

@@ -1,8 +1,8 @@
 //! SAF layer — domain public facade.
 
-mod factory;
+mod edge_domain_svc;
 
-pub use factory::{
+pub use edge_domain_svc::{
     direct_command_bus, direct_query_bus, echo_handler,
     new_in_memory_queryable_repository, new_in_memory_repository,
     new_handler_registry, new_service_registry,
@@ -28,6 +28,7 @@ pub use crate::api::page::Page;
 pub use crate::api::queryable_repository::QueryableRepository;
 pub use crate::api::repository::Repository;
 pub use crate::api::repository_error::RepositoryError;
+pub use crate::api::application_config_builder::ApplicationConfigBuilder;
 pub use crate::api::spec::Spec;
 pub use crate::api::service::Service;
 pub use crate::api::service::ServiceError;
