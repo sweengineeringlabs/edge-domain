@@ -3,8 +3,9 @@
 mod factory;
 
 pub use factory::{
-    direct_command_bus, direct_query_bus, new_in_memory_queryable_repository,
-    new_in_memory_repository, new_handler_registry, new_service_registry,
+    direct_command_bus, direct_query_bus, echo_handler,
+    new_in_memory_queryable_repository, new_in_memory_repository,
+    new_handler_registry, new_service_registry,
     noop_event_publisher, validate_config,
 };
 
@@ -14,6 +15,7 @@ pub use crate::api::command::CommandError;
 pub use crate::api::event::DomainEvent;
 pub use crate::api::event::EventError;
 pub use crate::api::event::EventPublisher;
+pub use crate::api::handler::EchoHandler;
 pub use crate::api::handler::Handler;
 pub use crate::api::handler::{RequestContext, RequestContextBuilder};
 pub use crate::api::handler_error::HandlerError;

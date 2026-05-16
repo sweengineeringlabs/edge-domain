@@ -5,15 +5,31 @@ use std::sync::Arc;
 
 use crate::api::command::CommandBus;
 use crate::api::event::EventPublisher;
-use crate::api::query::QueryBus;
+use crate::api::handler::echo_handler::EchoHandler;
+use crate::api::handler::Handler;
 use crate::api::handler::handler_registry::HandlerRegistry;
 use crate::api::queryable_repository::QueryableRepository;
+use crate::api::query::QueryBus;
 use crate::api::repository::Repository;
 use crate::api::service::ServiceRegistry;
 use crate::core::command::direct_command_bus::DirectCommandBus;
 use crate::core::event::noop_event_publisher::NoopEventPublisher;
 use crate::core::query::direct_query_bus::DirectQueryBus;
 use crate::core::repository::in_memory_repository::InMemoryRepository;
+
+/// Construct an [`EchoHandler`] that returns its input as its output.
+///
+/// Useful for transport-layer integration tests — verifies routing and codec
+/// wiring without requiring any business logic.
+pub fn echo_handler<T>(
+    id:      impl Into<String>,
+    pattern: impl Into<String>,
+) -> Arc<dyn Handler<T, T>>
+where
+    T: Send + 'static,
+{
+    Arc::new(EchoHandler::new(id, pattern))
+}
 
 /// Construct a fresh empty [`HandlerRegistry`].
 ///
@@ -89,6 +105,19 @@ pub fn validate_config<V: crate::api::traits::Validator>(config: &V) -> Result<(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// @covers: echo_handler
+    #[test]
+    fn test_echo_handler() {
+        let _: Arc<dyn Handler<String, String>> = echo_handler("id", "/path");
+    }
+
+    /// @covers: echo_handler
+    #[tokio::test]
+    async fn test_echo_handler_returns_input_as_output() {
+        let h = echo_handler::<String>("echo", "/echo");
+        assert_eq!(h.execute("ping".into()).await.unwrap(), "ping");
+    }
 
     /// @covers: new_handler_registry
     #[test]

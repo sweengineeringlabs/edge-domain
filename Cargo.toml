@@ -20,6 +20,10 @@ tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread"] }
 async-trait = "0.1"
 
 [[test]]
+name = "echo_handler_int_test"
+path = "tests/echo_handler_int_test.rs"
+
+[[test]]
 name = "handler_registry_int_test"
 path = "tests/handler_registry_int_test.rs"
 
