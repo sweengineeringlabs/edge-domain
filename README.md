@@ -12,6 +12,7 @@ No knowledge of transport protocols, databases, or messaging infrastructure.
 | `Handler<Req, Resp>` | Ingress-facing execution unit — receives a request, returns a response |
 | `Service<Req, Resp>` | Domain operation — called by handlers, other services, or background jobs |
 | `Repository<T, Id>` | Data access — find, save, delete, list entities |
+| `QueryableRepository<T, Id>` | Spec-based queries — `find_by`, `find_one_by`, `count_by` |
 | `DomainEvent` | Immutable fact that something happened |
 | `EventPublisher` | Emits domain events to subscribers |
 | `Command` | Write operation — mutates state, returns `()` |
@@ -29,7 +30,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use edge_domain::{
     Handler, HandlerError, HandlerRegistry, Repository, Service, ServiceError,
-    EventPublisher, in_memory_repository, noop_event_publisher, new_handler_registry,
+    EventPublisher, new_in_memory_repository, noop_event_publisher, new_handler_registry,
 };
 
 // 1. Define your domain types
@@ -70,8 +71,7 @@ impl Handler<CreateOrderReq, OrderId> for CreateOrderHandler {
 // 4. Bootstrap — wire concrete impls into the handler, register with the runtime
 #[tokio::main]
 async fn main() {
-    // Development defaults (swap with real infrastructure in production)
-    let repo      = in_memory_repository::<String, String>();
+    let repo      = new_in_memory_repository::<String, String>();
     let publisher = noop_event_publisher();
 
     let service = Arc::new(CreateOrderService { repo, publisher });
@@ -91,11 +91,26 @@ All domain error types convert to `HandlerError` via `?`:
 ```rust
 async fn execute(&self, req: Req) -> Result<Resp, HandlerError> {
     let item = self.repo.find(&req.id).await?;    // RepositoryError → HandlerError
-    let resp = self.service.execute(req).await?;  // ServiceError   → HandlerError
-    self.bus.dispatch(Box::new(cmd)).await?;       // CommandError   → HandlerError
+    let resp = self.service.execute(req).await?;  // ServiceError    → HandlerError
+    self.bus.dispatch(Box::new(cmd)).await?;       // CommandError    → HandlerError
+    self.verifier.verify(&token)?;                 // VerifierError   → HandlerError
     Ok(resp)
 }
 ```
+
+## Error types
+
+| Error | Variants |
+|-------|---------|
+| `HandlerError` | `InvalidRequest`, `NotFound`, `Conflict`, `ExecutionFailed`, `Unsupported`, `Unhealthy`, `FailedPrecondition`, `Unauthorized`, `PermissionDenied` |
+| `ServiceError` | `InvalidRequest`, `RuleViolation`, `NotFound`, `Unavailable`, `Internal` |
+| `RepositoryError` | `NotFound`, `Conflict`, `Unavailable`, `Internal` |
+| `CommandError` | `InvalidInput`, `RuleViolation`, `NotFound`, `Internal` |
+| `QueryError` | `InvalidInput`, `NotFound`, `Internal` |
+| `EventError` | `SerializationFailed`, `Unavailable` |
+
+`HandlerError::Unauthorized` maps to HTTP 401 / gRPC `UNAUTHENTICATED`.
+`HandlerError::PermissionDenied` maps to HTTP 403 / gRPC `PERMISSION_DENIED`.
 
 ## Default implementations
 
@@ -105,6 +120,7 @@ Provided for development and testing — swap with real infrastructure in produc
 |---------|---------|---------|
 | `new_in_memory_repository::<T, Id>()` | `Arc<dyn Repository<T, Id>>` | Tests, local dev |
 | `new_in_memory_queryable_repository::<T, Id>()` | `Arc<dyn QueryableRepository<T, Id>>` | Tests with spec-based queries |
+| `echo_handler(id, pattern)` | `Arc<dyn Handler<T, T>>` | Transport-layer tests (returns input unchanged) |
 | `direct_command_bus()` | `Arc<dyn CommandBus>` | In-process command dispatch |
 | `direct_query_bus::<R>()` | `Arc<dyn QueryBus<R>>` | In-process query dispatch |
 | `noop_event_publisher()` | `Arc<dyn EventPublisher>` | Drop events (dev/test) |
