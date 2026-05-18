@@ -77,18 +77,17 @@ where
 mod tests {
     use super::*;
     use crate::api::service::ServiceError;
-    use async_trait::async_trait;
+    use futures::future::BoxFuture;
 
     struct ServiceStub {
         name: String,
     }
-    #[async_trait]
     impl Service<String, String> for ServiceStub {
         fn name(&self) -> &str {
             &self.name
         }
-        async fn execute(&self, req: String) -> Result<String, ServiceError> {
-            Ok(req)
+        fn execute(&self, req: String) -> BoxFuture<'_, Result<String, ServiceError>> {
+            Box::pin(async move { Ok(req) })
         }
     }
     fn stub(name: &str) -> Arc<dyn Service<String, String>> {

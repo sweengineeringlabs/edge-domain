@@ -1,6 +1,6 @@
 //! `CommandBus` trait — dispatches commands to their executors.
 
-use async_trait::async_trait;
+use futures::future::BoxFuture;
 
 use super::command::Command;
 use super::command_error::CommandError;
@@ -12,17 +12,15 @@ use super::command_error::CommandError;
 /// bus may serialize and route to a remote worker.
 ///
 /// ```rust,ignore
-/// #[async_trait]
 /// impl CommandBus for DirectCommandBus {
-///     async fn dispatch(&self, cmd: Box<dyn Command>) -> Result<(), CommandError> {
-///         cmd.execute().await
+///     fn dispatch(&self, cmd: Box<dyn Command>) -> BoxFuture<'_, Result<(), CommandError>> {
+///         Box::pin(async move { cmd.execute().await })
 ///     }
 /// }
 /// ```
-#[async_trait]
 pub trait CommandBus: Send + Sync {
     /// Dispatch a command. Returns `Err` if execution fails.
-    async fn dispatch(&self, cmd: Box<dyn Command>) -> Result<(), CommandError>;
+    fn dispatch(&self, cmd: Box<dyn Command>) -> BoxFuture<'_, Result<(), CommandError>>;
 }
 
 #[cfg(test)]
@@ -32,5 +30,30 @@ mod tests {
     #[test]
     fn test_command_bus_is_object_safe() {
         fn _assert(_: &dyn CommandBus) {}
+    }
+
+    struct NoopCommandBus;
+    impl CommandBus for NoopCommandBus {
+        fn dispatch(&self, cmd: Box<dyn Command>) -> BoxFuture<'_, Result<(), CommandError>> {
+            Box::pin(async move { cmd.execute().await })
+        }
+    }
+
+    struct NoopCommand;
+    impl Command for NoopCommand {
+        fn name(&self) -> &str {
+            "noop"
+        }
+        fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+            Box::pin(async { Ok(()) })
+        }
+    }
+
+    #[tokio::test]
+    async fn test_dispatch_delegates_to_command() {
+        assert!(NoopCommandBus
+            .dispatch(Box::new(NoopCommand))
+            .await
+            .is_ok());
     }
 }

@@ -77,12 +77,11 @@ where
 mod tests {
     use super::*;
     use crate::api::handler_error::HandlerError;
-    use async_trait::async_trait;
+    use futures::future::BoxFuture;
 
     struct HandlerStub {
         id: String,
     }
-    #[async_trait]
     impl Handler<String, String> for HandlerStub {
         fn id(&self) -> &str {
             &self.id
@@ -90,8 +89,8 @@ mod tests {
         fn pattern(&self) -> &str {
             "stub"
         }
-        async fn execute(&self, req: String) -> Result<String, HandlerError> {
-            Ok(req)
+        fn execute(&self, req: String) -> BoxFuture<'_, Result<String, HandlerError>> {
+            Box::pin(async move { Ok(req) })
         }
     }
     fn stub(id: &str) -> Arc<dyn Handler<String, String>> {

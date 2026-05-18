@@ -1,6 +1,6 @@
 //! `Service` trait — named domain operation contract.
 
-use async_trait::async_trait;
+use futures::future::BoxFuture;
 
 use super::service_error::ServiceError;
 
@@ -11,13 +11,13 @@ use super::service_error::ServiceError;
 /// services, or background jobs.
 ///
 /// ```rust,ignore
-/// #[async_trait]
 /// impl Service<CreateOrderRequest, OrderId> for CreateOrderService {
 ///     fn name(&self) -> &str { "create-order" }
-///     async fn execute(&self, req: CreateOrderRequest) -> Result<OrderId, ServiceError> { ... }
+///     fn execute(&self, req: CreateOrderRequest) -> BoxFuture<'_, Result<OrderId, ServiceError>> {
+///         Box::pin(async move { ... })
+///     }
 /// }
 /// ```
-#[async_trait]
 pub trait Service<Request, Response>: Send + Sync
 where
     Request: Send + 'static,
@@ -27,7 +27,7 @@ where
     fn name(&self) -> &str;
 
     /// Execute the service operation.
-    async fn execute(&self, req: Request) -> Result<Response, ServiceError>;
+    fn execute(&self, req: Request) -> BoxFuture<'_, Result<Response, ServiceError>>;
 }
 
 #[cfg(test)]
@@ -37,5 +37,23 @@ mod tests {
     #[test]
     fn test_service_trait_is_object_safe() {
         fn _assert(_: &dyn Service<String, String>) {}
+    }
+
+    struct EchoService;
+    impl Service<String, String> for EchoService {
+        fn name(&self) -> &str {
+            "echo"
+        }
+        fn execute(&self, req: String) -> BoxFuture<'_, Result<String, ServiceError>> {
+            Box::pin(async move { Ok(req) })
+        }
+    }
+
+    #[tokio::test]
+    async fn test_execute_returns_input() {
+        assert_eq!(
+            EchoService.execute("hi".into()).await.unwrap(),
+            "hi"
+        );
     }
 }

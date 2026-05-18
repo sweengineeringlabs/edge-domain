@@ -1,6 +1,6 @@
 //! `DirectCommandBus` — inline command dispatch with no queuing.
 
-use async_trait::async_trait;
+use futures::future::BoxFuture;
 
 use crate::api::command::Command;
 use crate::api::command::CommandBus;
@@ -13,37 +13,33 @@ use crate::api::command::CommandError;
 /// infrastructure crate.
 pub(crate) struct DirectCommandBus;
 
-#[async_trait]
 impl CommandBus for DirectCommandBus {
-    async fn dispatch(&self, cmd: Box<dyn Command>) -> Result<(), CommandError> {
-        cmd.execute().await
+    fn dispatch(&self, cmd: Box<dyn Command>) -> BoxFuture<'_, Result<(), CommandError>> {
+        Box::pin(async move { cmd.execute().await })
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use async_trait::async_trait;
 
     struct DirectCommandBusOk;
-    #[async_trait]
     impl Command for DirectCommandBusOk {
         fn name(&self) -> &str {
             "ok"
         }
-        async fn execute(&self) -> Result<(), CommandError> {
-            Ok(())
+        fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+            Box::pin(async { Ok(()) })
         }
     }
 
     struct DirectCommandBusErr;
-    #[async_trait]
     impl Command for DirectCommandBusErr {
         fn name(&self) -> &str {
             "err"
         }
-        async fn execute(&self) -> Result<(), CommandError> {
-            Err(CommandError::RuleViolation("blocked".into()))
+        fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+            Box::pin(async { Err(CommandError::RuleViolation("blocked".into())) })
         }
     }
 
