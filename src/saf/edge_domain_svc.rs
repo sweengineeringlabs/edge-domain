@@ -7,6 +7,8 @@ use crate::api::command::CommandBus;
 use crate::api::event::event_store_error::EventStoreError;
 use crate::api::event::Aggregate;
 use crate::api::event::DomainEvent;
+use crate::api::event::EventBus;
+use crate::api::event::EventBusConfig;
 use crate::api::event::EventPublisher;
 use crate::api::event::EventStore;
 use crate::api::handler::echo_handler::EchoHandler;
@@ -18,7 +20,9 @@ use crate::api::repository::Repository;
 use crate::api::service::ServiceRegistry;
 use crate::core::command::direct_command_bus::DirectCommandBus;
 use crate::core::event::in_memory_event_store::InMemoryEventStore;
+use crate::core::event::noop_event_bus::NoopEventBus;
 use crate::core::event::noop_event_publisher::NoopEventPublisher;
+use crate::core::event::tokio_event_bus::TokioEventBus;
 use crate::core::query::direct_query_bus::DirectQueryBus;
 use crate::core::repository::in_memory_repository::InMemoryRepository;
 
@@ -136,6 +140,22 @@ where
 /// Construct a [`QueryBus`] that dispatches queries inline.
 pub fn direct_query_bus<R: Send + 'static>() -> Arc<dyn QueryBus<R>> {
     Arc::new(DirectQueryBus)
+}
+
+/// Construct a tokio broadcast-backed in-process [`EventBus`].
+///
+/// All subscribers receive every event published.  Slow subscribers that fall
+/// behind by more than `config.capacity` events will receive
+/// [`crate::EventError::BroadcastLagged`] on their next receive.
+pub fn tokio_event_bus(config: EventBusConfig) -> impl EventBus + Clone {
+    TokioEventBus::new(config)
+}
+
+/// Construct an [`EventBus`] that silently discards all events.
+///
+/// Use in tests that require an `EventBus` but have no interest in the events.
+pub fn noop_event_bus() -> impl EventBus {
+    NoopEventBus
 }
 
 /// Validate a configuration value using its [`Validator`](crate::api::traits::Validator) implementation.
@@ -274,5 +294,93 @@ mod tests {
     fn test_direct_query_bus_returns_arc_query_bus() {
         let bus = direct_query_bus::<String>();
         let _: Arc<dyn QueryBus<String>> = bus;
+    }
+
+    #[derive(Clone)]
+    struct AnyEvent;
+    impl crate::api::event::DomainEvent for AnyEvent {
+        fn event_type(&self) -> &str {
+            "test.any"
+        }
+        fn aggregate_id(&self) -> &str {
+            "id"
+        }
+        fn occurred_at(&self) -> std::time::SystemTime {
+            std::time::SystemTime::now()
+        }
+    }
+
+    /// @covers: new_in_memory_event_store
+    #[test]
+    fn test_new_in_memory_event_store_returns_arc_event_store() {
+        let _: Arc<dyn EventStore<AnyEvent>> = new_in_memory_event_store::<AnyEvent>();
+    }
+
+    /// @covers: tokio_event_bus
+    #[test]
+    fn test_tokio_event_bus_factory_returns_working_bus() {
+        use futures::executor::block_on;
+        let bus = tokio_event_bus(EventBusConfig::default());
+        block_on(async move {
+            assert!(bus.publish(std::sync::Arc::new(AnyEvent)).await.is_ok());
+        });
+    }
+
+    /// @covers: noop_event_bus
+    #[test]
+    fn test_noop_event_bus_factory_returns_working_bus() {
+        use futures::executor::block_on;
+        let bus = noop_event_bus();
+        block_on(async move {
+            assert!(bus.publish(std::sync::Arc::new(AnyEvent)).await.is_ok());
+        });
+    }
+
+    /// @covers: reconstitute
+    #[test]
+    fn test_reconstitute_returns_none_for_unknown_id() {
+        let rt = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap();
+        #[derive(Default)]
+        struct AnyAgg {
+            id: String,
+        }
+        impl crate::api::event::Aggregate for AnyAgg {
+            type Event = AnyEvent;
+            fn apply(&mut self, e: &AnyEvent) {
+                self.id = e.aggregate_id().into();
+            }
+            fn id(&self) -> &str {
+                &self.id
+            }
+        }
+        let store = new_in_memory_event_store::<AnyEvent>();
+        let result = rt
+            .block_on(reconstitute::<AnyAgg>(&*store, "none"))
+            .unwrap();
+        assert!(result.is_none());
+    }
+
+    /// @covers: reconstitute
+    #[tokio::test]
+    async fn test_reconstitute_returns_none_for_empty_store() {
+        #[derive(Default)]
+        struct AnyAgg {
+            id: String,
+        }
+        impl crate::api::event::Aggregate for AnyAgg {
+            type Event = AnyEvent;
+            fn apply(&mut self, e: &AnyEvent) {
+                self.id = e.aggregate_id().into();
+            }
+            fn id(&self) -> &str {
+                &self.id
+            }
+        }
+        let store = new_in_memory_event_store::<AnyEvent>();
+        let result = reconstitute::<AnyAgg>(&*store, "none").await.unwrap();
+        assert!(result.is_none());
     }
 }

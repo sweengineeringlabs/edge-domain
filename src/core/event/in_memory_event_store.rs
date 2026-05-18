@@ -107,3 +107,46 @@ where
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::time::SystemTime;
+
+    #[derive(Clone)]
+    struct InMemoryEventStoreTestEvt {
+        id: String,
+    }
+    impl DomainEvent for InMemoryEventStoreTestEvt {
+        fn event_type(&self) -> &str {
+            "test.evt"
+        }
+        fn aggregate_id(&self) -> &str {
+            &self.id
+        }
+        fn occurred_at(&self) -> SystemTime {
+            SystemTime::now()
+        }
+    }
+
+    #[test]
+    fn test_new_creates_empty_store() {
+        let store = InMemoryEventStore::<InMemoryEventStoreTestEvt>::new();
+        drop(store);
+    }
+
+    #[tokio::test]
+    async fn test_append_and_load_roundtrip() {
+        let store = InMemoryEventStore::new();
+        store
+            .append(
+                "a1",
+                vec![InMemoryEventStoreTestEvt { id: "a1".into() }],
+                ExpectedVersion::NoStream,
+            )
+            .await
+            .unwrap();
+        let events = store.load("a1").await.unwrap();
+        assert_eq!(events.len(), 1);
+    }
+}
