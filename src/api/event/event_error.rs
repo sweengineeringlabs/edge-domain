@@ -1,6 +1,6 @@
-//! Error type for [`EventPublisher`](super::EventPublisher) operations.
+//! Error type for [`EventPublisher`](super::EventPublisher) and [`crate::EventBus`] operations.
 
-/// Error produced when publishing a domain event fails.
+/// Error produced when publishing or receiving a domain event fails.
 #[derive(Debug, thiserror::Error)]
 pub enum EventError {
     /// The event could not be serialized.
@@ -9,6 +9,9 @@ pub enum EventError {
     /// The event bus or channel is unavailable.
     #[error("unavailable: {0}")]
     Unavailable(String),
+    /// The subscriber fell behind; `{0}` messages were dropped by the broadcast channel.
+    #[error("broadcast lagged: {0} messages dropped")]
+    BroadcastLagged(u64),
 }
 
 #[cfg(test)]
@@ -28,13 +31,8 @@ mod tests {
     }
 
     #[test]
-    fn test_event_error_has_no_internal_variant() {
-        // Internal was removed — Unavailable covers all bus/infrastructure failures.
-        // This test ensures the variant count stays at 2.
-        let variants: &[EventError] = &[
-            EventError::SerializationFailed("x".into()),
-            EventError::Unavailable("x".into()),
-        ];
-        assert_eq!(variants.len(), 2);
+    fn test_event_error_broadcast_lagged_includes_count() {
+        let e = EventError::BroadcastLagged(42);
+        assert!(e.to_string().contains("42"));
     }
 }

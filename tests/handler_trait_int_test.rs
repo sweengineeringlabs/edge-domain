@@ -2,8 +2,8 @@
 
 use std::sync::Arc;
 
-use futures::future::BoxFuture;
 use edge_domain::{Handler, HandlerError};
+use futures::future::BoxFuture;
 
 struct Counter {
     id: String,

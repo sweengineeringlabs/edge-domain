@@ -104,8 +104,8 @@ async fn test_factory_fn_noop_event_publisher_silently_discards_events() {
 /// @covers: direct_query_bus
 #[tokio::test]
 async fn test_factory_fn_direct_query_bus_dispatches_query_inline() {
-    use futures::future::BoxFuture;
     use edge_domain::Query;
+    use futures::future::BoxFuture;
     struct EchoQuery(String);
     impl Query<String> for EchoQuery {
         fn name(&self) -> &str {

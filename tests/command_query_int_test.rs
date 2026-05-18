@@ -1,7 +1,7 @@
 //! Integration tests for `Command`, `Query`, `CommandBus`, and `QueryBus`.
 
-use futures::future::BoxFuture;
 use edge_domain::{Command, CommandBus, CommandError, Query, QueryBus, QueryError};
+use futures::future::BoxFuture;
 use std::sync::Arc;
 
 // ── Command fixtures ─────────────────────────────────────────────────────────
@@ -70,10 +70,7 @@ impl CommandBus for DirectCommandBus {
 struct DirectQueryBus;
 
 impl QueryBus<String> for DirectQueryBus {
-    fn dispatch(
-        &self,
-        query: Box<dyn Query<String>>,
-    ) -> BoxFuture<'_, Result<String, QueryError>> {
+    fn dispatch(&self, query: Box<dyn Query<String>>) -> BoxFuture<'_, Result<String, QueryError>> {
         Box::pin(async move { query.execute().await })
     }
 }
