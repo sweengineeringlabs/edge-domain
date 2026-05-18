@@ -2,7 +2,7 @@
 name = "edge-domain"
 version = "0.1.0"
 edition = "2021"
-license = "MIT"
+license      = "MIT OR Apache-2.0"
 repository = "https://github.com/sweengineeringlabs/edge"
 authors = ["SWE Engineering Labs"]
 rust-version = "1.95"
