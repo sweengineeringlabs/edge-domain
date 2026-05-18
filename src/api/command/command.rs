@@ -1,6 +1,6 @@
 //! `Command` trait — a write operation that mutates domain state.
 
-use async_trait::async_trait;
+use futures::future::BoxFuture;
 
 use super::command_error::CommandError;
 
@@ -12,22 +12,22 @@ use super::command_error::CommandError;
 /// ```rust,ignore
 /// struct CreateOrder { customer_id: String, items: Vec<Item> }
 ///
-/// #[async_trait]
 /// impl Command for CreateOrder {
 ///     fn name(&self) -> &str { "create-order" }
-///     async fn execute(&self) -> Result<(), CommandError> {
-///         // mutate state
-///         Ok(())
+///     fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+///         Box::pin(async move {
+///             // mutate state
+///             Ok(())
+///         })
 ///     }
 /// }
 /// ```
-#[async_trait]
 pub trait Command: Send + Sync {
     /// Stable name identifying this command type.
     fn name(&self) -> &str;
 
     /// Execute the command, mutating domain state.
-    async fn execute(&self) -> Result<(), CommandError>;
+    fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>>;
 }
 
 #[cfg(test)]
@@ -37,5 +37,20 @@ mod tests {
     #[test]
     fn test_command_is_object_safe() {
         fn _assert(_: &dyn Command) {}
+    }
+
+    struct NoopCommand;
+    impl Command for NoopCommand {
+        fn name(&self) -> &str {
+            "noop"
+        }
+        fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+            Box::pin(async { Ok(()) })
+        }
+    }
+
+    #[tokio::test]
+    async fn test_execute_returns_ok() {
+        assert!(NoopCommand.execute().await.is_ok());
     }
 }

@@ -1,6 +1,6 @@
 //! `EventPublisher` trait — contract for emitting domain events.
 
-use async_trait::async_trait;
+use futures::future::BoxFuture;
 
 use super::domain_event::DomainEvent;
 use super::event_error::EventError;
@@ -11,17 +11,15 @@ use super::event_error::EventError;
 /// message broker, etc.) — never in `edge-domain`.
 ///
 /// ```rust,ignore
-/// #[async_trait]
 /// impl EventPublisher for InProcessEventBus {
-///     async fn publish(&self, event: &dyn DomainEvent) -> Result<(), EventError> {
-///         self.dispatch(event).await
+///     fn publish<'a>(&'a self, event: &'a dyn DomainEvent) -> BoxFuture<'a, Result<(), EventError>> {
+///         Box::pin(async move { self.dispatch(event).await })
 ///     }
 /// }
 /// ```
-#[async_trait]
 pub trait EventPublisher: Send + Sync {
     /// Emit a domain event. Returns `Err` if delivery fails.
-    async fn publish(&self, event: &dyn DomainEvent) -> Result<(), EventError>;
+    fn publish<'a>(&'a self, event: &'a dyn DomainEvent) -> BoxFuture<'a, Result<(), EventError>>;
 }
 
 #[cfg(test)]
