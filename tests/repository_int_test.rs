@@ -1,7 +1,7 @@
 //! Integration tests for the `Repository` trait contract and `new_in_memory_repository()`.
 
-use futures::future::BoxFuture;
 use edge_domain::{new_in_memory_repository, Repository, RepositoryError};
+use futures::future::BoxFuture;
 use std::sync::Arc;
 
 // ── custom implementation ────────────────────────────────────────────────────

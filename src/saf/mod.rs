@@ -5,7 +5,8 @@ mod edge_domain_svc;
 pub use edge_domain_svc::{
     direct_command_bus, direct_query_bus, echo_handler, new_handler_registry,
     new_in_memory_event_store, new_in_memory_queryable_repository, new_in_memory_repository,
-    new_service_registry, noop_event_publisher, reconstitute, validate_config,
+    new_service_registry, noop_event_bus, noop_event_publisher, reconstitute, tokio_event_bus,
+    validate_config,
 };
 
 pub use crate::api::application_config_builder::ApplicationConfigBuilder;
@@ -14,9 +15,12 @@ pub use crate::api::command::CommandBus;
 pub use crate::api::command::CommandError;
 pub use crate::api::event::Aggregate;
 pub use crate::api::event::DomainEvent;
+pub use crate::api::event::EventBus;
+pub use crate::api::event::EventBusConfig;
 pub use crate::api::event::EventEnvelope;
 pub use crate::api::event::EventError;
 pub use crate::api::event::EventPublisher;
+pub use crate::api::event::EventReceiver;
 pub use crate::api::event::EventStore;
 pub use crate::api::event::EventStoreError;
 pub use crate::api::event::ExpectedVersion;

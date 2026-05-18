@@ -51,9 +51,6 @@ mod tests {
 
     #[tokio::test]
     async fn test_dispatch_delegates_to_command() {
-        assert!(NoopCommandBus
-            .dispatch(Box::new(NoopCommand))
-            .await
-            .is_ok());
+        assert!(NoopCommandBus.dispatch(Box::new(NoopCommand)).await.is_ok());
     }
 }

@@ -50,6 +50,12 @@ impl Aggregate for Counter {
 
 // ── append / load ─────────────────────────────────────────────────────────────
 
+/// @covers: new_in_memory_event_store
+#[test]
+fn test_new_in_memory_event_store_is_constructible() {
+    let _store = new_in_memory_event_store::<CounterIncremented>();
+}
+
 /// @covers: EventStore::append — returns version 1 after first event.
 #[tokio::test]
 async fn test_append_returns_new_stream_version() {

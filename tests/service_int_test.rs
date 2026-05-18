@@ -1,7 +1,7 @@
 //! Integration tests for `Service` and `ServiceRegistry`.
 
-use futures::future::BoxFuture;
 use edge_domain::{new_service_registry, Service, ServiceError, ServiceRegistry};
+use futures::future::BoxFuture;
 use std::sync::Arc;
 
 struct EchoService;
