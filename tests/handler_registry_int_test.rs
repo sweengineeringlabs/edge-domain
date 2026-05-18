@@ -2,14 +2,13 @@
 
 use std::sync::Arc;
 
-use async_trait::async_trait;
+use futures::future::BoxFuture;
 use edge_domain::{Handler, HandlerError, HandlerRegistry};
 
 struct EchoHandler {
     id: String,
 }
 
-#[async_trait]
 impl Handler<String, String> for EchoHandler {
     fn id(&self) -> &str {
         &self.id
@@ -17,8 +16,8 @@ impl Handler<String, String> for EchoHandler {
     fn pattern(&self) -> &str {
         "echo"
     }
-    async fn execute(&self, req: String) -> Result<String, HandlerError> {
-        Ok(req)
+    fn execute(&self, req: String) -> BoxFuture<'_, Result<String, HandlerError>> {
+        Box::pin(async move { Ok(req) })
     }
 }
 

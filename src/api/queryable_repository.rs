@@ -1,6 +1,6 @@
 //! `QueryableRepository<T, Id>` — specification-based query extension to [`Repository`].
 
-use async_trait::async_trait;
+use futures::future::BoxFuture;
 
 use crate::api::repository::Repository;
 use crate::api::repository_error::RepositoryError;
@@ -21,28 +21,39 @@ use crate::api::spec::Spec;
 /// let paid = repo.find_by(&PaidOrders).await?;
 /// let count = repo.count_by(&PaidOrders).await?;
 /// ```
-#[async_trait]
 pub trait QueryableRepository<T, Id>: Repository<T, Id>
 where
     T: Send + Sync + 'static,
     Id: Send + Sync + 'static,
 {
     /// Return all entities satisfying `spec`.
-    async fn find_by(&self, spec: &dyn Spec<T>) -> Result<Vec<T>, RepositoryError> {
-        let all = self.list().await?;
-        Ok(all.into_iter().filter(|e| spec.matches(e)).collect())
+    fn find_by<'a>(&'a self, spec: &'a dyn Spec<T>) -> BoxFuture<'a, Result<Vec<T>, RepositoryError>> {
+        Box::pin(async move {
+            let all = self.list().await?;
+            Ok(all.into_iter().filter(|e| spec.matches(e)).collect())
+        })
     }
 
     /// Return the first entity satisfying `spec`, or `None`.
-    async fn find_one_by(&self, spec: &dyn Spec<T>) -> Result<Option<T>, RepositoryError> {
-        let all = self.list().await?;
-        Ok(all.into_iter().find(|e| spec.matches(e)))
+    fn find_one_by<'a>(
+        &'a self,
+        spec: &'a dyn Spec<T>,
+    ) -> BoxFuture<'a, Result<Option<T>, RepositoryError>> {
+        Box::pin(async move {
+            let all = self.list().await?;
+            Ok(all.into_iter().find(|e| spec.matches(e)))
+        })
     }
 
     /// Count entities satisfying `spec`.
-    async fn count_by(&self, spec: &dyn Spec<T>) -> Result<usize, RepositoryError> {
-        let all = self.list().await?;
-        Ok(all.into_iter().filter(|e| spec.matches(e)).count())
+    fn count_by<'a>(
+        &'a self,
+        spec: &'a dyn Spec<T>,
+    ) -> BoxFuture<'a, Result<usize, RepositoryError>> {
+        Box::pin(async move {
+            let all = self.list().await?;
+            Ok(all.into_iter().filter(|e| spec.matches(e)).count())
+        })
     }
 }
 

@@ -1,6 +1,6 @@
 //! `Query` trait — a read operation that never mutates domain state.
 
-use async_trait::async_trait;
+use futures::future::BoxFuture;
 
 use super::query_error::QueryError;
 
@@ -13,21 +13,21 @@ use super::query_error::QueryError;
 /// ```rust,ignore
 /// struct GetOrder { order_id: String }
 ///
-/// #[async_trait]
 /// impl Query<Order> for GetOrder {
 ///     fn name(&self) -> &str { "get-order" }
-///     async fn execute(&self) -> Result<Order, QueryError> {
-///         // read state, never mutate
+///     fn execute(&self) -> BoxFuture<'_, Result<Order, QueryError>> {
+///         Box::pin(async move {
+///             // read state, never mutate
+///         })
 ///     }
 /// }
 /// ```
-#[async_trait]
 pub trait Query<R: Send + 'static>: Send + Sync {
     /// Stable name identifying this query type.
     fn name(&self) -> &str;
 
     /// Execute the query and return the result.
-    async fn execute(&self) -> Result<R, QueryError>;
+    fn execute(&self) -> BoxFuture<'_, Result<R, QueryError>>;
 }
 
 #[cfg(test)]
@@ -37,5 +37,20 @@ mod tests {
     #[test]
     fn test_query_is_object_safe() {
         fn _assert(_: &dyn Query<String>) {}
+    }
+
+    struct PingQuery;
+    impl Query<String> for PingQuery {
+        fn name(&self) -> &str {
+            "ping"
+        }
+        fn execute(&self) -> BoxFuture<'_, Result<String, QueryError>> {
+            Box::pin(async { Ok("pong".into()) })
+        }
+    }
+
+    #[tokio::test]
+    async fn test_execute_returns_result() {
+        assert_eq!(PingQuery.execute().await.unwrap(), "pong");
     }
 }

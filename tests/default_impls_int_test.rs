@@ -1,7 +1,7 @@
 //! Integration tests for default domain implementations:
 //! direct_command_bus, noop_event_publisher.
 
-use async_trait::async_trait;
+use futures::future::BoxFuture;
 use edge_domain::{
     direct_command_bus, noop_event_publisher, Command, CommandBus, CommandError, DomainEvent,
     EventError, EventPublisher,
@@ -12,24 +12,22 @@ use std::time::SystemTime;
 // ── fixtures ─────────────────────────────────────────────────────────────────
 
 struct OkCommand;
-#[async_trait]
 impl Command for OkCommand {
     fn name(&self) -> &str {
         "ok"
     }
-    async fn execute(&self) -> Result<(), CommandError> {
-        Ok(())
+    fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+        Box::pin(async { Ok(()) })
     }
 }
 
 struct ErrCommand;
-#[async_trait]
 impl Command for ErrCommand {
     fn name(&self) -> &str {
         "err"
     }
-    async fn execute(&self) -> Result<(), CommandError> {
-        Err(CommandError::RuleViolation("blocked".into()))
+    fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+        Box::pin(async { Err(CommandError::RuleViolation("blocked".into())) })
     }
 }
 
@@ -47,10 +45,12 @@ impl DomainEvent for AnyEvent {
 }
 
 struct FailingPublisher;
-#[async_trait]
 impl EventPublisher for FailingPublisher {
-    async fn publish(&self, _: &dyn DomainEvent) -> Result<(), EventError> {
-        Err(EventError::Unavailable("bus down".into()))
+    fn publish<'a>(
+        &'a self,
+        _: &'a dyn DomainEvent,
+    ) -> BoxFuture<'a, Result<(), EventError>> {
+        Box::pin(async { Err(EventError::Unavailable("bus down".into())) })
     }
 }
 

@@ -66,15 +66,14 @@ async fn test_new_in_memory_queryable_repository_finds_by_spec() {
 /// @covers: direct_command_bus
 #[tokio::test]
 async fn test_factory_fn_direct_command_bus_dispatches_command_inline() {
-    use async_trait::async_trait;
+    use futures::future::BoxFuture;
     struct PingCommand;
-    #[async_trait]
     impl Command for PingCommand {
         fn name(&self) -> &str {
             "ping"
         }
-        async fn execute(&self) -> Result<(), CommandError> {
-            Ok(())
+        fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+            Box::pin(async { Ok(()) })
         }
     }
     let bus: Arc<dyn CommandBus> = direct_command_bus();
@@ -105,16 +104,16 @@ async fn test_factory_fn_noop_event_publisher_silently_discards_events() {
 /// @covers: direct_query_bus
 #[tokio::test]
 async fn test_factory_fn_direct_query_bus_dispatches_query_inline() {
-    use async_trait::async_trait;
+    use futures::future::BoxFuture;
     use edge_domain::Query;
     struct EchoQuery(String);
-    #[async_trait]
     impl Query<String> for EchoQuery {
         fn name(&self) -> &str {
             "echo"
         }
-        async fn execute(&self) -> Result<String, QueryError> {
-            Ok(self.0.clone())
+        fn execute(&self) -> BoxFuture<'_, Result<String, QueryError>> {
+            let v = self.0.clone();
+            Box::pin(async move { Ok(v) })
         }
     }
     let bus: Arc<dyn QueryBus<String>> = direct_query_bus();

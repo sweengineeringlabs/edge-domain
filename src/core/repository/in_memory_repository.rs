@@ -3,7 +3,7 @@
 use std::collections::HashMap;
 use std::hash::Hash;
 
-use async_trait::async_trait;
+use futures::future::BoxFuture;
 use parking_lot::RwLock;
 
 use crate::api::queryable_repository::QueryableRepository;
@@ -34,27 +34,28 @@ where
     }
 }
 
-#[async_trait]
 impl<T, Id> Repository<T, Id> for InMemoryRepository<T, Id>
 where
     Id: Hash + Eq + Clone + Send + Sync + 'static,
     T: Clone + Send + Sync + 'static,
 {
-    async fn find(&self, id: &Id) -> Result<Option<T>, RepositoryError> {
-        Ok(self.store.read().get(id).cloned())
+    fn find<'a>(&'a self, id: &'a Id) -> BoxFuture<'a, Result<Option<T>, RepositoryError>> {
+        Box::pin(async move { Ok(self.store.read().get(id).cloned()) })
     }
 
-    async fn save(&self, id: Id, entity: T) -> Result<(), RepositoryError> {
-        self.store.write().insert(id, entity);
-        Ok(())
+    fn save(&self, id: Id, entity: T) -> BoxFuture<'_, Result<(), RepositoryError>> {
+        Box::pin(async move {
+            self.store.write().insert(id, entity);
+            Ok(())
+        })
     }
 
-    async fn delete(&self, id: &Id) -> Result<bool, RepositoryError> {
-        Ok(self.store.write().remove(id).is_some())
+    fn delete<'a>(&'a self, id: &'a Id) -> BoxFuture<'a, Result<bool, RepositoryError>> {
+        Box::pin(async move { Ok(self.store.write().remove(id).is_some()) })
     }
 
-    async fn list(&self) -> Result<Vec<T>, RepositoryError> {
-        Ok(self.store.read().values().cloned().collect())
+    fn list(&self) -> BoxFuture<'_, Result<Vec<T>, RepositoryError>> {
+        Box::pin(async move { Ok(self.store.read().values().cloned().collect()) })
     }
 }
 
