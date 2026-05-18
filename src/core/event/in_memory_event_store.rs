@@ -4,7 +4,8 @@
 //! State is lost when the process stops.
 
 use std::collections::HashMap;
-use std::sync::RwLock;
+
+use parking_lot::RwLock;
 
 use futures::future::BoxFuture;
 
@@ -38,11 +39,7 @@ where
     ) -> BoxFuture<'_, Result<u64, EventStoreError>> {
         let aggregate_id = aggregate_id.to_string();
         Box::pin(async move {
-            let mut streams = self
-                .streams
-                .write()
-                .map_err(|e| EventStoreError::Internal(format!("lock poisoned: {e}")))?;
-
+            let mut streams = self.streams.write();
             let stream = streams.entry(aggregate_id.clone()).or_default();
             let current_ver = stream.len() as u64;
 
@@ -85,10 +82,7 @@ where
     ) -> BoxFuture<'_, Result<Vec<EventEnvelope<E>>, EventStoreError>> {
         let aggregate_id = aggregate_id.to_string();
         Box::pin(async move {
-            let streams = self
-                .streams
-                .read()
-                .map_err(|e| EventStoreError::Internal(format!("lock poisoned: {e}")))?;
+            let streams = self.streams.read();
             Ok(streams.get(&aggregate_id).cloned().unwrap_or_default())
         })
     }
@@ -100,10 +94,7 @@ where
     ) -> BoxFuture<'_, Result<Vec<EventEnvelope<E>>, EventStoreError>> {
         let aggregate_id = aggregate_id.to_string();
         Box::pin(async move {
-            let streams = self
-                .streams
-                .read()
-                .map_err(|e| EventStoreError::Internal(format!("lock poisoned: {e}")))?;
+            let streams = self.streams.read();
             Ok(streams
                 .get(&aggregate_id)
                 .map(|s| {
