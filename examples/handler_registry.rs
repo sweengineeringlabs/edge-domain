@@ -10,12 +10,11 @@
 
 use std::sync::Arc;
 
-use async_trait::async_trait;
+use futures::future::BoxFuture;
 use edge_domain::{new_handler_registry, Handler, HandlerError};
 
 struct GreetHandler;
 
-#[async_trait]
 impl Handler<String, String> for GreetHandler {
     fn id(&self) -> &str {
         "greet"
@@ -24,13 +23,15 @@ impl Handler<String, String> for GreetHandler {
         "direct"
     }
 
-    async fn execute(&self, req: String) -> Result<String, HandlerError> {
-        if req.is_empty() {
-            return Err(HandlerError::InvalidRequest(
-                "name must not be empty".into(),
-            ));
-        }
-        Ok(format!("Hello, {req}!"))
+    fn execute(&self, req: String) -> BoxFuture<'_, Result<String, HandlerError>> {
+        Box::pin(async move {
+            if req.is_empty() {
+                return Err(HandlerError::InvalidRequest(
+                    "name must not be empty".into(),
+                ));
+            }
+            Ok(format!("Hello, {req}!"))
+        })
     }
 }
 

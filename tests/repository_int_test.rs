@@ -1,6 +1,6 @@
 //! Integration tests for the `Repository` trait contract and `new_in_memory_repository()`.
 
-use async_trait::async_trait;
+use futures::future::BoxFuture;
 use edge_domain::{new_in_memory_repository, Repository, RepositoryError};
 use std::sync::Arc;
 
@@ -8,19 +8,18 @@ use std::sync::Arc;
 
 struct ReadOnlyRepo;
 
-#[async_trait]
 impl Repository<String, u64> for ReadOnlyRepo {
-    async fn find(&self, _id: &u64) -> Result<Option<String>, RepositoryError> {
-        Ok(Some("fixed".into()))
+    fn find<'a>(&'a self, _id: &'a u64) -> BoxFuture<'a, Result<Option<String>, RepositoryError>> {
+        Box::pin(async { Ok(Some("fixed".into())) })
     }
-    async fn save(&self, _id: u64, _entity: String) -> Result<(), RepositoryError> {
-        Err(RepositoryError::Internal("read-only".into()))
+    fn save(&self, _id: u64, _entity: String) -> BoxFuture<'_, Result<(), RepositoryError>> {
+        Box::pin(async { Err(RepositoryError::Internal("read-only".into())) })
     }
-    async fn delete(&self, _id: &u64) -> Result<bool, RepositoryError> {
-        Ok(false)
+    fn delete<'a>(&'a self, _id: &'a u64) -> BoxFuture<'a, Result<bool, RepositoryError>> {
+        Box::pin(async { Ok(false) })
     }
-    async fn list(&self) -> Result<Vec<String>, RepositoryError> {
-        Ok(vec!["fixed".into()])
+    fn list(&self) -> BoxFuture<'_, Result<Vec<String>, RepositoryError>> {
+        Box::pin(async { Ok(vec!["fixed".into()]) })
     }
 }
 
