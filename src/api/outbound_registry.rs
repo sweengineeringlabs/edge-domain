@@ -22,7 +22,9 @@ pub struct OutboundRegistry<H: Clone + Send + Sync> {
 impl<H: Clone + Send + Sync> OutboundRegistry<H> {
     /// Construct an empty registry.
     pub fn new() -> Self {
-        Self { handles: RwLock::new(HashMap::new()) }
+        Self {
+            handles: RwLock::new(HashMap::new()),
+        }
     }
 
     /// Register a handle under `name`, replacing any existing entry.
@@ -57,7 +59,9 @@ impl<H: Clone + Send + Sync> OutboundRegistry<H> {
 }
 
 impl<H: Clone + Send + Sync> Default for OutboundRegistry<H> {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 #[cfg(test)]

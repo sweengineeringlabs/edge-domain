@@ -36,16 +36,16 @@ impl RequestContext {
 
     /// Build a fully-authenticated context from individual claim values.
     pub fn authenticated(
-        subject:   impl Into<String>,
-        issuer:    Option<String>,
+        subject: impl Into<String>,
+        issuer: Option<String>,
         tenant_id: Option<String>,
-        claims:    HashMap<String, String>,
+        claims: HashMap<String, String>,
     ) -> Self {
         Self {
-            subject:       Some(subject.into()),
+            subject: Some(subject.into()),
             issuer,
             tenant_id,
-            trace_id:      String::new(),
+            trace_id: String::new(),
             authenticated: true,
             claims,
         }
@@ -65,7 +65,11 @@ impl RequestContext {
 
     /// Return the subject, or an error string if the request is unauthenticated.
     pub fn require_subject(&self) -> Option<&str> {
-        if self.authenticated { self.subject.as_deref() } else { None }
+        if self.authenticated {
+            self.subject.as_deref()
+        } else {
+            None
+        }
     }
 }
 
@@ -85,7 +89,12 @@ mod tests {
     /// @covers: authenticated
     #[test]
     fn test_authenticated_sets_subject_and_flag() {
-        let ctx = RequestContext::authenticated("alice", Some("auth.example".into()), None, HashMap::new());
+        let ctx = RequestContext::authenticated(
+            "alice",
+            Some("auth.example".into()),
+            None,
+            HashMap::new(),
+        );
         assert!(ctx.authenticated);
         assert_eq!(ctx.subject.as_deref(), Some("alice"));
         assert_eq!(ctx.issuer.as_deref(), Some("auth.example"));
@@ -108,7 +117,9 @@ mod tests {
     /// @covers: require_subject
     #[test]
     fn test_require_subject_returns_none_for_unauthenticated() {
-        assert!(RequestContext::unauthenticated().require_subject().is_none());
+        assert!(RequestContext::unauthenticated()
+            .require_subject()
+            .is_none());
     }
 
     /// @covers: require_subject

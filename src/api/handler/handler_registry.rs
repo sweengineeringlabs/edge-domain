@@ -26,7 +26,9 @@ where
 {
     /// Construct an empty registry.
     pub fn new() -> Self {
-        Self { handlers: RwLock::new(HashMap::new()) }
+        Self {
+            handlers: RwLock::new(HashMap::new()),
+        }
     }
 
     /// Register a handler, replacing any existing entry with the same id.
@@ -66,21 +68,30 @@ where
     Request: Send + 'static,
     Response: Send + 'static,
 {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::api::handler_error::HandlerError;
-    use async_trait::async_trait;
-    
-    struct HandlerStub { id: String }
-    #[async_trait]
+    use futures::future::BoxFuture;
+
+    struct HandlerStub {
+        id: String,
+    }
     impl Handler<String, String> for HandlerStub {
-        fn id(&self) -> &str { &self.id }
-        fn pattern(&self) -> &str { "stub" }
-        async fn execute(&self, req: String) -> Result<String, HandlerError> { Ok(req) }
+        fn id(&self) -> &str {
+            &self.id
+        }
+        fn pattern(&self) -> &str {
+            "stub"
+        }
+        fn execute(&self, req: String) -> BoxFuture<'_, Result<String, HandlerError>> {
+            Box::pin(async move { Ok(req) })
+        }
     }
     fn stub(id: &str) -> Arc<dyn Handler<String, String>> {
         Arc::new(HandlerStub { id: id.to_string() })
