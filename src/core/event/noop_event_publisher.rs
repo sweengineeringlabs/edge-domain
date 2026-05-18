@@ -1,4 +1,4 @@
-//! `NoopEventPublisher` — discards events silently.
+//! [`NoopEventPublisher`] — discards events silently.
 
 use futures::future::BoxFuture;
 
@@ -7,16 +7,10 @@ use crate::api::event::EventError;
 use crate::api::event::EventPublisher;
 
 /// Accepts events and discards them without side effects.
-///
-/// Use during development, testing, or in services that do not yet
-/// require event publishing infrastructure.
 pub(crate) struct NoopEventPublisher;
 
 impl EventPublisher for NoopEventPublisher {
-    fn publish<'a>(
-        &'a self,
-        _event: &'a dyn DomainEvent,
-    ) -> BoxFuture<'a, Result<(), EventError>> {
+    fn publish<'a>(&'a self, _event: &'a dyn DomainEvent) -> BoxFuture<'a, Result<(), EventError>> {
         Box::pin(async { Ok(()) })
     }
 }
@@ -39,9 +33,13 @@ mod tests {
         }
     }
 
-    /// @covers: publish
+    #[test]
+    fn test_noop_event_publisher_is_constructible() {
+        let _ = NoopEventPublisher;
+    }
+
     #[tokio::test]
-    async fn test_publish_always_returns_ok() {
+    async fn test_publish_returns_ok() {
         assert!(NoopEventPublisher
             .publish(&NoopEventPublisherEvent)
             .await

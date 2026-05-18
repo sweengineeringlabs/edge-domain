@@ -1,11 +1,11 @@
 //! Integration tests for default domain implementations:
 //! direct_command_bus, noop_event_publisher.
 
-use futures::future::BoxFuture;
 use edge_domain::{
     direct_command_bus, noop_event_publisher, Command, CommandBus, CommandError, DomainEvent,
     EventError, EventPublisher,
 };
+use futures::future::BoxFuture;
 use std::sync::Arc;
 use std::time::SystemTime;
 
@@ -46,10 +46,7 @@ impl DomainEvent for AnyEvent {
 
 struct FailingPublisher;
 impl EventPublisher for FailingPublisher {
-    fn publish<'a>(
-        &'a self,
-        _: &'a dyn DomainEvent,
-    ) -> BoxFuture<'a, Result<(), EventError>> {
+    fn publish<'a>(&'a self, _: &'a dyn DomainEvent) -> BoxFuture<'a, Result<(), EventError>> {
         Box::pin(async { Err(EventError::Unavailable("bus down".into())) })
     }
 }

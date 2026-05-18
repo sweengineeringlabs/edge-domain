@@ -84,6 +84,9 @@ impl From<crate::api::event::EventError> for HandlerError {
         use crate::api::event::EventError::*;
         match e {
             SerializationFailed(m) | Unavailable(m) => HandlerError::ExecutionFailed(m),
+            BroadcastLagged(n) => {
+                HandlerError::ExecutionFailed(format!("broadcast lagged: {n} messages dropped"))
+            }
         }
     }
 }

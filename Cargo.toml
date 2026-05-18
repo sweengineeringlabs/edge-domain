@@ -14,6 +14,7 @@ categories = ["development-tools"]
 thiserror   = "2"
 futures     = "0.3"
 parking_lot = "0.12"
+tokio       = { version = "1", features = ["sync"] }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread"] }
@@ -54,6 +55,18 @@ path = "tests/service_int_test.rs"
 [[test]]
 name = "event_publisher_int_test"
 path = "tests/event_publisher_int_test.rs"
+
+[[test]]
+name = "event_store_int_test"
+path = "tests/event_store_int_test.rs"
+
+[[test]]
+name = "event_bus_int_test"
+path = "tests/event_bus_int_test.rs"
+
+[[test]]
+name = "in_memory_event_store_int_test"
+path = "tests/in_memory_event_store_int_test.rs"
 
 [[test]]
 name = "command_query_int_test"
