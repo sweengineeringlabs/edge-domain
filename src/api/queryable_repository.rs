@@ -27,7 +27,10 @@ where
     Id: Send + Sync + 'static,
 {
     /// Return all entities satisfying `spec`.
-    fn find_by<'a>(&'a self, spec: &'a dyn Spec<T>) -> BoxFuture<'a, Result<Vec<T>, RepositoryError>> {
+    fn find_by<'a>(
+        &'a self,
+        spec: &'a dyn Spec<T>,
+    ) -> BoxFuture<'a, Result<Vec<T>, RepositoryError>> {
         Box::pin(async move {
             let all = self.list().await?;
             Ok(all.into_iter().filter(|e| spec.matches(e)).collect())

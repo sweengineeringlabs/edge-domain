@@ -10,8 +10,8 @@
 
 use std::sync::Arc;
 
-use futures::future::BoxFuture;
 use edge_domain::{new_handler_registry, Handler, HandlerError};
+use futures::future::BoxFuture;
 
 struct GreetHandler;
 

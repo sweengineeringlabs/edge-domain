@@ -2,8 +2,8 @@
 
 use std::sync::Arc;
 
-use futures::future::BoxFuture;
 use edge_domain::{Handler, HandlerError, HandlerRegistry};
+use futures::future::BoxFuture;
 
 struct EchoHandler {
     id: String,

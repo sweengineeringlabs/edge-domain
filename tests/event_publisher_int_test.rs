@@ -1,7 +1,7 @@
 //! Integration tests for `DomainEvent` and `EventPublisher`.
 
-use futures::future::BoxFuture;
 use edge_domain::{DomainEvent, EventError, EventPublisher};
+use futures::future::BoxFuture;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 use std::time::SystemTime;
@@ -28,10 +28,7 @@ struct CountingPublisher {
 }
 
 impl EventPublisher for CountingPublisher {
-    fn publish<'a>(
-        &'a self,
-        _event: &'a dyn DomainEvent,
-    ) -> BoxFuture<'a, Result<(), EventError>> {
+    fn publish<'a>(&'a self, _event: &'a dyn DomainEvent) -> BoxFuture<'a, Result<(), EventError>> {
         self.count.fetch_add(1, Ordering::SeqCst);
         Box::pin(async { Ok(()) })
     }
@@ -40,10 +37,7 @@ impl EventPublisher for CountingPublisher {
 struct FailingPublisher;
 
 impl EventPublisher for FailingPublisher {
-    fn publish<'a>(
-        &'a self,
-        _event: &'a dyn DomainEvent,
-    ) -> BoxFuture<'a, Result<(), EventError>> {
+    fn publish<'a>(&'a self, _event: &'a dyn DomainEvent) -> BoxFuture<'a, Result<(), EventError>> {
         Box::pin(async { Err(EventError::Unavailable("bus down".into())) })
     }
 }

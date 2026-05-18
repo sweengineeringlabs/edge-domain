@@ -51,9 +51,6 @@ mod tests {
 
     #[tokio::test]
     async fn test_execute_returns_input() {
-        assert_eq!(
-            EchoService.execute("hi".into()).await.unwrap(),
-            "hi"
-        );
+        assert_eq!(EchoService.execute("hi".into()).await.unwrap(), "hi");
     }
 }
