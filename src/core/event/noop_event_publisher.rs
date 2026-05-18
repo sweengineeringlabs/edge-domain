@@ -1,6 +1,6 @@
 //! `NoopEventPublisher` — discards events silently.
 
-use async_trait::async_trait;
+use futures::future::BoxFuture;
 
 use crate::api::event::DomainEvent;
 use crate::api::event::EventError;
@@ -12,10 +12,12 @@ use crate::api::event::EventPublisher;
 /// require event publishing infrastructure.
 pub(crate) struct NoopEventPublisher;
 
-#[async_trait]
 impl EventPublisher for NoopEventPublisher {
-    async fn publish(&self, _event: &dyn DomainEvent) -> Result<(), EventError> {
-        Ok(())
+    fn publish<'a>(
+        &'a self,
+        _event: &'a dyn DomainEvent,
+    ) -> BoxFuture<'a, Result<(), EventError>> {
+        Box::pin(async { Ok(()) })
     }
 }
 

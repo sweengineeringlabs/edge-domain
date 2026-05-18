@@ -1,6 +1,6 @@
 //! Integration tests for `Command`, `Query`, `CommandBus`, and `QueryBus`.
 
-use async_trait::async_trait;
+use futures::future::BoxFuture;
 use edge_domain::{Command, CommandBus, CommandError, Query, QueryBus, QueryError};
 use std::sync::Arc;
 
@@ -8,25 +8,23 @@ use std::sync::Arc;
 
 struct NoopCommand;
 
-#[async_trait]
 impl Command for NoopCommand {
     fn name(&self) -> &str {
         "noop"
     }
-    async fn execute(&self) -> Result<(), CommandError> {
-        Ok(())
+    fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+        Box::pin(async { Ok(()) })
     }
 }
 
 struct FailingCommand;
 
-#[async_trait]
 impl Command for FailingCommand {
     fn name(&self) -> &str {
         "failing"
     }
-    async fn execute(&self) -> Result<(), CommandError> {
-        Err(CommandError::RuleViolation("blocked".into()))
+    fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+        Box::pin(async { Err(CommandError::RuleViolation("blocked".into())) })
     }
 }
 
@@ -36,25 +34,24 @@ struct EchoQuery {
     value: String,
 }
 
-#[async_trait]
 impl Query<String> for EchoQuery {
     fn name(&self) -> &str {
         "echo"
     }
-    async fn execute(&self) -> Result<String, QueryError> {
-        Ok(self.value.clone())
+    fn execute(&self) -> BoxFuture<'_, Result<String, QueryError>> {
+        let v = self.value.clone();
+        Box::pin(async move { Ok(v) })
     }
 }
 
 struct MissingQuery;
 
-#[async_trait]
 impl Query<String> for MissingQuery {
     fn name(&self) -> &str {
         "missing"
     }
-    async fn execute(&self) -> Result<String, QueryError> {
-        Err(QueryError::NotFound("resource-42".into()))
+    fn execute(&self) -> BoxFuture<'_, Result<String, QueryError>> {
+        Box::pin(async { Err(QueryError::NotFound("resource-42".into())) })
     }
 }
 
@@ -62,10 +59,9 @@ impl Query<String> for MissingQuery {
 
 struct DirectCommandBus;
 
-#[async_trait]
 impl CommandBus for DirectCommandBus {
-    async fn dispatch(&self, cmd: Box<dyn Command>) -> Result<(), CommandError> {
-        cmd.execute().await
+    fn dispatch(&self, cmd: Box<dyn Command>) -> BoxFuture<'_, Result<(), CommandError>> {
+        Box::pin(async move { cmd.execute().await })
     }
 }
 
@@ -73,10 +69,12 @@ impl CommandBus for DirectCommandBus {
 
 struct DirectQueryBus;
 
-#[async_trait]
 impl QueryBus<String> for DirectQueryBus {
-    async fn dispatch(&self, query: Box<dyn Query<String>>) -> Result<String, QueryError> {
-        query.execute().await
+    fn dispatch(
+        &self,
+        query: Box<dyn Query<String>>,
+    ) -> BoxFuture<'_, Result<String, QueryError>> {
+        Box::pin(async move { query.execute().await })
     }
 }
 

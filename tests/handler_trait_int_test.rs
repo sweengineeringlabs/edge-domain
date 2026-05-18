@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use async_trait::async_trait;
+use futures::future::BoxFuture;
 use edge_domain::{Handler, HandlerError};
 
 struct Counter {
@@ -10,7 +10,6 @@ struct Counter {
     calls: std::sync::atomic::AtomicUsize,
 }
 
-#[async_trait]
 impl Handler<u32, u32> for Counter {
     fn id(&self) -> &str {
         &self.id
@@ -18,14 +17,13 @@ impl Handler<u32, u32> for Counter {
     fn pattern(&self) -> &str {
         "counter"
     }
-    async fn execute(&self, req: u32) -> Result<u32, HandlerError> {
+    fn execute(&self, req: u32) -> BoxFuture<'_, Result<u32, HandlerError>> {
         self.calls.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
-        Ok(req * 2)
+        Box::pin(async move { Ok(req * 2) })
     }
 }
 
 struct SickHandler;
-#[async_trait]
 impl Handler<u32, u32> for SickHandler {
     fn id(&self) -> &str {
         "sick"
@@ -33,11 +31,11 @@ impl Handler<u32, u32> for SickHandler {
     fn pattern(&self) -> &str {
         "sick"
     }
-    async fn execute(&self, _: u32) -> Result<u32, HandlerError> {
-        Err(HandlerError::Unhealthy)
+    fn execute(&self, _: u32) -> BoxFuture<'_, Result<u32, HandlerError>> {
+        Box::pin(async { Err(HandlerError::Unhealthy) })
     }
-    async fn health_check(&self) -> bool {
-        false
+    fn health_check(&self) -> BoxFuture<'_, bool> {
+        Box::pin(async { false })
     }
 }
 
