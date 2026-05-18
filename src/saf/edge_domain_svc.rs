@@ -4,7 +4,11 @@ use std::hash::Hash;
 use std::sync::Arc;
 
 use crate::api::command::CommandBus;
+use crate::api::event::event_store_error::EventStoreError;
+use crate::api::event::Aggregate;
+use crate::api::event::DomainEvent;
 use crate::api::event::EventPublisher;
+use crate::api::event::EventStore;
 use crate::api::handler::echo_handler::EchoHandler;
 use crate::api::handler::handler_registry::HandlerRegistry;
 use crate::api::handler::Handler;
@@ -13,6 +17,7 @@ use crate::api::queryable_repository::QueryableRepository;
 use crate::api::repository::Repository;
 use crate::api::service::ServiceRegistry;
 use crate::core::command::direct_command_bus::DirectCommandBus;
+use crate::core::event::in_memory_event_store::InMemoryEventStore;
 use crate::core::event::noop_event_publisher::NoopEventPublisher;
 use crate::core::query::direct_query_bus::DirectQueryBus;
 use crate::core::repository::in_memory_repository::InMemoryRepository;
@@ -84,6 +89,48 @@ pub fn direct_command_bus() -> Arc<dyn CommandBus> {
 /// event publishing infrastructure.
 pub fn noop_event_publisher() -> Arc<dyn EventPublisher> {
     Arc::new(NoopEventPublisher)
+}
+
+/// Construct a thread-safe in-memory [`EventStore`].
+///
+/// Suitable for development and testing. State is lost when the process stops.
+///
+/// ```rust,ignore
+/// let store = swe_edge_domain::new_in_memory_event_store::<OrderEvent>();
+/// store.append("order-1", vec![event], ExpectedVersion::NoStream).await?;
+/// ```
+pub fn new_in_memory_event_store<E>() -> Arc<dyn EventStore<E>>
+where
+    E: DomainEvent + Send + Sync + Clone + 'static,
+{
+    Arc::new(InMemoryEventStore::new())
+}
+
+/// Reconstitute an aggregate by replaying all events from an [`EventStore`].
+///
+/// Returns `None` when no events exist for `aggregate_id` (aggregate was never
+/// created).  Returns `Some(aggregate)` with state rebuilt by calling
+/// [`Aggregate::apply`] on every event in sequence order.
+///
+/// ```rust,ignore
+/// let order = swe_edge_domain::reconstitute::<Order>(&*store, "order-1").await?;
+/// ```
+pub async fn reconstitute<A>(
+    store: &dyn EventStore<A::Event>,
+    aggregate_id: &str,
+) -> Result<Option<A>, EventStoreError>
+where
+    A: Aggregate,
+{
+    let envelopes = store.load(aggregate_id).await?;
+    if envelopes.is_empty() {
+        return Ok(None);
+    }
+    let mut aggregate = A::default();
+    for envelope in &envelopes {
+        aggregate.apply(&envelope.event);
+    }
+    Ok(Some(aggregate))
 }
 
 /// Construct a [`QueryBus`] that dispatches queries inline.

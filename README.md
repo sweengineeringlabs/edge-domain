@@ -15,6 +15,10 @@ No knowledge of transport protocols, databases, or messaging infrastructure.
 | `QueryableRepository<T, Id>` | Spec-based queries — `find_by`, `find_one_by`, `count_by` |
 | `DomainEvent` | Immutable fact that something happened |
 | `EventPublisher` | Emits domain events to subscribers |
+| `Aggregate` | State rebuilt entirely by replaying a sequence of domain events |
+| `EventStore<E>` | Append-only event stream store — `append`, `load`, `load_from` |
+| `EventEnvelope<E>` | Domain event with store metadata (sequence, aggregate_id, occurred_at) |
+| `ExpectedVersion` | Optimistic concurrency guard — `Any`, `NoStream`, `Exact(u64)` |
 | `Command` | Write operation — mutates state, returns `()` |
 | `Query<R>` | Read operation — returns data, never mutates |
 | `CommandBus` | Dispatches commands |
@@ -112,6 +116,56 @@ async fn execute(&self, req: Req) -> Result<Resp, HandlerError> {
 `HandlerError::Unauthorized` maps to HTTP 401 / gRPC `UNAUTHENTICATED`.
 `HandlerError::PermissionDenied` maps to HTTP 403 / gRPC `PERMISSION_DENIED`.
 
+## Event sourcing
+
+`edge-domain` provides provider-agnostic event sourcing contracts. Persistence backends
+(EventStoreDB, PostgreSQL, etc.) implement `EventStore<E>` in infrastructure crates.
+
+```rust
+use edge_domain::{
+    new_in_memory_event_store, reconstitute,
+    Aggregate, DomainEvent, ExpectedVersion,
+};
+use std::time::SystemTime;
+
+// 1. Define your event
+#[derive(Clone)]
+struct OrderPlaced { order_id: String }
+
+impl DomainEvent for OrderPlaced {
+    fn event_type(&self) -> &str { "order.placed" }
+    fn aggregate_id(&self) -> &str { &self.order_id }
+    fn occurred_at(&self) -> SystemTime { SystemTime::now() }
+}
+
+// 2. Define your aggregate
+#[derive(Default)]
+struct Order { id: String, placed: bool }
+
+impl Aggregate for Order {
+    type Event = OrderPlaced;
+    fn apply(&mut self, event: &OrderPlaced) {
+        self.id = event.order_id.clone();
+        self.placed = true;
+    }
+    fn id(&self) -> &str { &self.id }
+}
+
+// 3. Append events and reconstitute
+let store = new_in_memory_event_store::<OrderPlaced>();
+store.append("order-1", vec![OrderPlaced { order_id: "order-1".into() }],
+             ExpectedVersion::NoStream).await?;
+
+let order = reconstitute::<Order>(&*store, "order-1").await?
+    .expect("aggregate exists");
+assert!(order.placed);
+```
+
+`ExpectedVersion` provides optimistic concurrency control:
+- `Any` — always appends
+- `NoStream` — rejects if stream already exists
+- `Exact(n)` — rejects if stream version ≠ n (concurrent-write protection)
+
 ## Default implementations
 
 Provided for development and testing — swap with real infrastructure in production:
@@ -120,6 +174,8 @@ Provided for development and testing — swap with real infrastructure in produc
 |---------|---------|---------|
 | `new_in_memory_repository::<T, Id>()` | `Arc<dyn Repository<T, Id>>` | Tests, local dev |
 | `new_in_memory_queryable_repository::<T, Id>()` | `Arc<dyn QueryableRepository<T, Id>>` | Tests with spec-based queries |
+| `new_in_memory_event_store::<E>()` | `Arc<dyn EventStore<E>>` | Tests, local dev |
+| `reconstitute::<A>(store, id)` | `Result<Option<A>, EventStoreError>` | Replay events into aggregate |
 | `echo_handler(id, pattern)` | `Arc<dyn Handler<T, T>>` | Transport-layer tests (returns input unchanged) |
 | `direct_command_bus()` | `Arc<dyn CommandBus>` | In-process command dispatch |
 | `direct_query_bus::<R>()` | `Arc<dyn QueryBus<R>>` | In-process query dispatch |
@@ -130,4 +186,4 @@ Provided for development and testing — swap with real infrastructure in produc
 ## Dependencies
 
 `edge-domain` has no dependency on ingress, egress, runtime, or any infrastructure
-library. It depends only on `thiserror`, `async-trait`, and `parking_lot`.
+library. It depends only on `thiserror`, `futures`, `async-trait`, and `parking_lot`.
