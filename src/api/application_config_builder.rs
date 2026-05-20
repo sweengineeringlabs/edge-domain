@@ -6,6 +6,7 @@
 /// Builder for domain application configuration.
 ///
 /// Construct via [`crate::saf::builder`]. Finalize with [`ApplicationConfigBuilder::build`].
+#[allow(dead_code)]
 pub struct ApplicationConfigBuilder {
     _private: (),
 }
