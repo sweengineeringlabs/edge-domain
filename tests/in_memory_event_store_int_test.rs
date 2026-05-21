@@ -2,7 +2,7 @@
 
 use std::time::SystemTime;
 
-use edge_domain::{new_in_memory_event_store, DomainEvent, EventStore, ExpectedVersion};
+use edge_domain::{new_in_memory_event_store, DomainEvent, ExpectedVersion};
 
 #[derive(Clone)]
 struct Incremented {

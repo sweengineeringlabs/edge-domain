@@ -27,4 +27,3 @@ pub use event_receiver::EventReceiver;
 pub use event_store::EventStore;
 pub use event_store_error::EventStoreError;
 pub use expected_version::ExpectedVersion;
-pub use noop::NoopEventPublisher;
