@@ -9,7 +9,6 @@ pub use edge_domain_svc::{
     validate_config,
 };
 
-pub use crate::api::application_config_builder::ApplicationConfigBuilder;
 pub use crate::api::command::Command;
 pub use crate::api::command::CommandBus;
 pub use crate::api::command::CommandError;
