@@ -6,13 +6,3 @@
 /// Consumers obtain it via [`crate::noop_event_bus`].
 #[allow(dead_code)]
 pub struct NoopEventBus;
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_noop_event_bus_api_marker_is_constructible() {
-        let _ = NoopEventBus;
-    }
-}

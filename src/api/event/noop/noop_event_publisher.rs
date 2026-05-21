@@ -5,13 +5,3 @@
 /// The concrete implementation lives in `core::event::noop::noop_event_publisher`.
 #[allow(dead_code)]
 pub struct NoopEventPublisher;
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_noop_event_publisher_api_marker_is_constructible() {
-        let _ = NoopEventPublisher;
-    }
-}

@@ -13,8 +13,6 @@ pub mod event_store_error;
 pub mod expected_version;
 pub mod in_memory_event_store;
 pub mod noop;
-pub mod noop_event_bus;
-pub mod tokio_event_bus;
 
 pub use aggregate::Aggregate;
 pub use domain_event::DomainEvent;
