@@ -15,3 +15,5 @@ pub mod service;
 pub mod spec;
 pub mod traits;
 pub mod validator;
+
+pub use application_config_builder::ApplicationConfigBuilder;
