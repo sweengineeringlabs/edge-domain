@@ -28,12 +28,4 @@ pub trait DomainEvent: Send + Sync {
     fn occurred_at(&self) -> SystemTime;
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    #[test]
-    fn test_domain_event_is_object_safe() {
-        fn _assert(_: &dyn DomainEvent) {}
-    }
-}

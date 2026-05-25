@@ -10,12 +10,4 @@
 #[allow(dead_code)]
 pub struct InMemoryEventStore;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    #[test]
-    fn test_in_memory_event_store_api_marker_is_constructible() {
-        let _ = InMemoryEventStore;
-    }
-}

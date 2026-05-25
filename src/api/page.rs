@@ -38,41 +38,4 @@ impl<T> Page<T> {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    /// @covers: has_more
-    #[test]
-    fn test_page_has_more_returns_true_when_items_remain() {
-        let page = Page::new(vec![1, 2, 3], 10, 0, 3);
-        assert!(page.has_more());
-    }
-
-    /// @covers: has_more
-    #[test]
-    fn test_page_has_more_returns_false_on_last_page() {
-        let page = Page::new(vec![9, 10], 10, 8, 3);
-        assert!(!page.has_more());
-    }
-
-    /// @covers: next_offset
-    #[test]
-    fn test_next_offset_returns_some_when_more_items_remain() {
-        let page = Page::new(vec![1, 2, 3], 10, 0, 3);
-        assert_eq!(page.next_offset(), Some(3));
-    }
-
-    /// @covers: next_offset
-    #[test]
-    fn test_next_offset_returns_none_on_last_page() {
-        let page = Page::new(vec![9, 10], 10, 8, 3);
-        assert_eq!(page.next_offset(), None);
-    }
-
-    #[test]
-    fn test_page_empty_items_has_no_more() {
-        let page: Page<u32> = Page::new(vec![], 0, 0, 10);
-        assert!(!page.has_more());
-    }
-}

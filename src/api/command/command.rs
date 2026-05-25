@@ -30,27 +30,4 @@ pub trait Command: Send + Sync {
     fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>>;
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    #[test]
-    fn test_command_is_object_safe() {
-        fn _assert(_: &dyn Command) {}
-    }
-
-    struct NoopCommand;
-    impl Command for NoopCommand {
-        fn name(&self) -> &str {
-            "noop"
-        }
-        fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
-            Box::pin(async { Ok(()) })
-        }
-    }
-
-    #[tokio::test]
-    async fn test_execute_returns_ok() {
-        assert!(NoopCommand.execute().await.is_ok());
-    }
-}

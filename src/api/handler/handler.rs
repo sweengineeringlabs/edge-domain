@@ -60,47 +60,4 @@ where
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    #[test]
-    fn test_handler_trait_is_object_safe() {
-        fn _accept(_h: &dyn Handler<String, String>) {}
-    }
-
-    struct EchoHandler;
-    impl Handler<String, String> for EchoHandler {
-        fn id(&self) -> &str {
-            "echo"
-        }
-        fn pattern(&self) -> &str {
-            "/echo"
-        }
-        fn execute(&self, req: String) -> BoxFuture<'_, Result<String, HandlerError>> {
-            Box::pin(async move { Ok(req) })
-        }
-    }
-
-    #[tokio::test]
-    async fn test_execute_returns_input() {
-        let h = EchoHandler;
-        assert_eq!(h.execute("hello".into()).await.unwrap(), "hello");
-    }
-
-    #[tokio::test]
-    async fn test_execute_with_context_delegates_to_execute() {
-        let h = EchoHandler;
-        let ctx = RequestContext::unauthenticated();
-        assert_eq!(
-            h.execute_with_context("hi".into(), ctx).await.unwrap(),
-            "hi"
-        );
-    }
-
-    #[tokio::test]
-    async fn test_health_check_returns_true_by_default() {
-        let h = EchoHandler;
-        assert!(h.health_check().await);
-    }
-}

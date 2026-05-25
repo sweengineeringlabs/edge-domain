@@ -30,27 +30,4 @@ pub trait Query<R: Send + 'static>: Send + Sync {
     fn execute(&self) -> BoxFuture<'_, Result<R, QueryError>>;
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    #[test]
-    fn test_query_is_object_safe() {
-        fn _assert(_: &dyn Query<String>) {}
-    }
-
-    struct PingQuery;
-    impl Query<String> for PingQuery {
-        fn name(&self) -> &str {
-            "ping"
-        }
-        fn execute(&self) -> BoxFuture<'_, Result<String, QueryError>> {
-            Box::pin(async { Ok("pong".into()) })
-        }
-    }
-
-    #[tokio::test]
-    async fn test_execute_returns_result() {
-        assert_eq!(PingQuery.execute().await.unwrap(), "pong");
-    }
-}

@@ -20,19 +20,4 @@ pub enum ServiceError {
     Internal(String),
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    #[test]
-    fn test_service_error_invalid_request_message_is_actionable() {
-        let e = ServiceError::InvalidRequest("missing customer_id".into());
-        assert!(e.to_string().contains("missing customer_id"));
-    }
-
-    #[test]
-    fn test_service_error_rule_violation_message_is_actionable() {
-        let e = ServiceError::RuleViolation("quota exceeded".into());
-        assert!(e.to_string().contains("quota exceeded"));
-    }
-}

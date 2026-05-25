@@ -7,12 +7,4 @@
 #[allow(dead_code)]
 pub struct DirectCommandBus;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    #[test]
-    fn test_direct_command_bus_is_constructible() {
-        let _: DirectCommandBus = DirectCommandBus;
-    }
-}

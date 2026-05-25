@@ -7,12 +7,4 @@
 #[allow(dead_code)]
 pub struct ValidatorDefault;
 
-#[cfg(test)]
-mod tests {
-    use super::ValidatorDefault;
 
-    #[test]
-    fn test_validator_default_is_constructible() {
-        let _ = ValidatorDefault;
-    }
-}

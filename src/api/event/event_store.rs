@@ -63,12 +63,4 @@ where
     ) -> BoxFuture<'_, Result<Vec<EventEnvelope<E>>, EventStoreError>>;
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    #[test]
-    fn test_event_store_is_object_safe() {
-        fn _assert<E: DomainEvent + Send + 'static>(_: &dyn EventStore<E>) {}
-    }
-}

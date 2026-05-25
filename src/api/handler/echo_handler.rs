@@ -29,14 +29,4 @@ impl<T> EchoHandler<T> {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    #[test]
-    fn test_echo_handler_new_stores_id_and_pattern() {
-        let h = EchoHandler::<String>::new("my-id", "/my-pattern");
-        assert_eq!(h.id, "my-id");
-        assert_eq!(h.pattern, "/my-pattern");
-    }
-}

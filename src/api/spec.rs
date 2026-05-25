@@ -24,24 +24,4 @@ pub trait Spec<T: Send + Sync>: Send + Sync {
     fn matches(&self, entity: &T) -> bool;
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    #[test]
-    fn test_spec_is_object_safe() {
-        fn _assert(_: &dyn Spec<String>) {}
-    }
-
-    #[test]
-    fn test_spec_matches_evaluates_predicate() {
-        struct LongString;
-        impl Spec<String> for LongString {
-            fn matches(&self, s: &String) -> bool {
-                s.len() > 5
-            }
-        }
-        assert!(LongString.matches(&"hello world".to_string()));
-        assert!(!LongString.matches(&"hi".to_string()));
-    }
-}

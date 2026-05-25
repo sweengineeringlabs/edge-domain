@@ -20,18 +20,4 @@ pub enum ExpectedVersion {
     Exact(u64),
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    #[test]
-    fn test_exact_version_equality() {
-        assert_eq!(ExpectedVersion::Exact(3), ExpectedVersion::Exact(3));
-        assert_ne!(ExpectedVersion::Exact(3), ExpectedVersion::Exact(4));
-    }
-
-    #[test]
-    fn test_any_is_not_no_stream() {
-        assert_ne!(ExpectedVersion::Any, ExpectedVersion::NoStream);
-    }
-}

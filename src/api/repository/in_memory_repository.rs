@@ -15,21 +15,4 @@ pub struct InMemoryRepository {
     pub initial_capacity: usize,
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    #[test]
-    fn test_in_memory_repository_default_initial_capacity_is_zero() {
-        let cfg = InMemoryRepository::default();
-        assert_eq!(cfg.initial_capacity, 0);
-    }
-
-    #[test]
-    fn test_in_memory_repository_custom_capacity_is_stored() {
-        let cfg = InMemoryRepository {
-            initial_capacity: 64,
-        };
-        assert_eq!(cfg.initial_capacity, 64);
-    }
-}

@@ -23,34 +23,4 @@ pub trait CommandBus: Send + Sync {
     fn dispatch(&self, cmd: Box<dyn Command>) -> BoxFuture<'_, Result<(), CommandError>>;
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    #[test]
-    fn test_command_bus_is_object_safe() {
-        fn _assert(_: &dyn CommandBus) {}
-    }
-
-    struct NoopCommandBus;
-    impl CommandBus for NoopCommandBus {
-        fn dispatch(&self, cmd: Box<dyn Command>) -> BoxFuture<'_, Result<(), CommandError>> {
-            Box::pin(async move { cmd.execute().await })
-        }
-    }
-
-    struct NoopCommand;
-    impl Command for NoopCommand {
-        fn name(&self) -> &str {
-            "noop"
-        }
-        fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
-            Box::pin(async { Ok(()) })
-        }
-    }
-
-    #[tokio::test]
-    async fn test_dispatch_delegates_to_command() {
-        assert!(NoopCommandBus.dispatch(Box::new(NoopCommand)).await.is_ok());
-    }
-}

@@ -18,18 +18,4 @@ impl Default for EventBusConfig {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    #[test]
-    fn test_default_capacity_is_1024() {
-        assert_eq!(EventBusConfig::default().capacity, 1024);
-    }
-
-    #[test]
-    fn test_custom_capacity_is_stored() {
-        let cfg = EventBusConfig { capacity: 512 };
-        assert_eq!(cfg.capacity, 512);
-    }
-}

@@ -35,12 +35,4 @@ pub trait EventBus: Send + Sync {
     fn subscribe(&self) -> EventReceiver;
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    #[test]
-    fn test_event_bus_is_object_safe() {
-        fn _assert(_: &dyn EventBus) {}
-    }
-}

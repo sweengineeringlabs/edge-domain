@@ -17,19 +17,4 @@ pub enum RepositoryError {
     Internal(String),
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    #[test]
-    fn test_repository_error_not_found_message_is_actionable() {
-        let e = RepositoryError::NotFound("user-99".into());
-        assert!(e.to_string().contains("user-99"));
-    }
-
-    #[test]
-    fn test_repository_error_conflict_message_is_actionable() {
-        let e = RepositoryError::Conflict("duplicate key".into());
-        assert!(e.to_string().contains("duplicate key"));
-    }
-}

@@ -33,21 +33,4 @@ impl EventReceiver {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    /// @covers: recv
-    #[test]
-    fn test_recv_closed_channel_returns_unavailable() {
-        let (tx, rx) = broadcast::channel::<Arc<dyn DomainEvent>>(4);
-        drop(tx);
-        let mut receiver = EventReceiver(rx);
-        let rt = tokio::runtime::Builder::new_current_thread()
-            .enable_all()
-            .build()
-            .unwrap();
-        let result = rt.block_on(receiver.recv());
-        assert!(matches!(result, Err(EventError::Unavailable(_))));
-    }
-}

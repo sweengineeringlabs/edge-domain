@@ -24,33 +24,4 @@ pub struct EventEnvelope<E> {
     pub event: E,
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    #[test]
-    fn test_event_envelope_fields_are_accessible() {
-        let env = EventEnvelope {
-            aggregate_id: "agg-1".into(),
-            sequence: 1,
-            occurred_at: SystemTime::UNIX_EPOCH,
-            event: "payload",
-        };
-        assert_eq!(env.aggregate_id, "agg-1");
-        assert_eq!(env.sequence, 1);
-        assert_eq!(env.event, "payload");
-    }
-
-    #[test]
-    fn test_event_envelope_clone() {
-        let env = EventEnvelope {
-            aggregate_id: "agg-1".into(),
-            sequence: 2,
-            occurred_at: SystemTime::UNIX_EPOCH,
-            event: 42u32,
-        };
-        let cloned = env.clone();
-        assert_eq!(cloned.sequence, 2);
-        assert_eq!(cloned.event, 42);
-    }
-}

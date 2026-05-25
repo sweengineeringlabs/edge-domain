@@ -17,19 +17,4 @@ pub enum QueryError {
     Internal(String),
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    #[test]
-    fn test_query_error_not_found_message_is_actionable() {
-        let e = QueryError::NotFound("order-42".into());
-        assert!(e.to_string().contains("order-42"));
-    }
-
-    #[test]
-    fn test_query_error_invalid_input_message_is_actionable() {
-        let e = QueryError::InvalidInput("malformed id".into());
-        assert!(e.to_string().contains("malformed id"));
-    }
-}

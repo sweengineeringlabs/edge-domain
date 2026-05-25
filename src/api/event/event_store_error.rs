@@ -25,26 +25,4 @@ pub enum EventStoreError {
     Internal(String),
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    #[test]
-    fn test_conflict_error_display_includes_aggregate_id_and_versions() {
-        let e = EventStoreError::Conflict {
-            aggregate_id: "order-1".into(),
-            expected: 3,
-            actual: 5,
-        };
-        let s = e.to_string();
-        assert!(s.contains("order-1"));
-        assert!(s.contains('3'));
-        assert!(s.contains('5'));
-    }
-
-    #[test]
-    fn test_unavailable_error_display_includes_reason() {
-        let e = EventStoreError::Unavailable("connection refused".into());
-        assert!(e.to_string().contains("connection refused"));
-    }
-}

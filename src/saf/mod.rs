@@ -1,8 +1,8 @@
 //! SAF layer — domain public facade.
 
-mod edge_domain_svc;
+mod domain_svc;
 
-pub use edge_domain_svc::{
+pub use domain_svc::{
     direct_command_bus, direct_query_bus, echo_handler, new_handler_registry,
     new_in_memory_event_store, new_in_memory_queryable_repository, new_in_memory_repository,
     new_service_registry, noop_event_bus, noop_event_publisher, reconstitute, tokio_event_bus,

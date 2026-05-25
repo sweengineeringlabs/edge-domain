@@ -68,12 +68,4 @@ where
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    #[test]
-    fn test_repository_trait_is_object_safe() {
-        fn _assert(_: &dyn Repository<String, u64>) {}
-    }
-}

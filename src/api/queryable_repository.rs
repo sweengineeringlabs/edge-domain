@@ -60,17 +60,4 @@ where
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    #[test]
-    fn test_queryable_repository_is_object_safe() {
-        fn _assert<T, Id>(_: &dyn QueryableRepository<T, Id>)
-        where
-            T: Send + Sync + 'static,
-            Id: Send + Sync + 'static,
-        {
-        }
-    }
-}

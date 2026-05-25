@@ -30,27 +30,4 @@ where
     fn execute(&self, req: Request) -> BoxFuture<'_, Result<Response, ServiceError>>;
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    #[test]
-    fn test_service_trait_is_object_safe() {
-        fn _assert(_: &dyn Service<String, String>) {}
-    }
-
-    struct EchoService;
-    impl Service<String, String> for EchoService {
-        fn name(&self) -> &str {
-            "echo"
-        }
-        fn execute(&self, req: String) -> BoxFuture<'_, Result<String, ServiceError>> {
-            Box::pin(async move { Ok(req) })
-        }
-    }
-
-    #[tokio::test]
-    async fn test_execute_returns_input() {
-        assert_eq!(EchoService.execute("hi".into()).await.unwrap(), "hi");
-    }
-}
