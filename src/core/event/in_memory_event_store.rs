@@ -9,10 +9,10 @@ use parking_lot::RwLock;
 
 use futures::future::BoxFuture;
 
-use crate::api::event::event_envelope::EventEnvelope;
 use crate::api::event::event_store::EventStore;
 use crate::api::event::event_store_error::EventStoreError;
 use crate::api::event::expected_version::ExpectedVersion;
+use crate::api::types::EventEnvelope;
 use crate::api::event::DomainEvent;
 
 pub(crate) struct InMemoryEventStore<E> {

@@ -2,8 +2,8 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::handler::request::RequestContext;
 use crate::api::handler_error::HandlerError;
+use crate::api::types::RequestContext;
 
 /// A single execution unit that processes a request and returns a response.
 ///

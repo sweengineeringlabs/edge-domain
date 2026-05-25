@@ -34,7 +34,7 @@ pub use crate::api::spec::Spec;
 
 pub use crate::api::types::{
     ApplicationConfig, DirectCommandBus, DirectQueryBus, EchoHandler, EventBusConfig,
-    EventEnvelope, EventReceiver, HandlerRegistry, InMemoryEventStore, InMemoryRepository,
+    EventReceiver, HandlerRegistry, InMemoryEventStore, InMemoryRepository,
     NoopEventBus, NoopEventPublisher, OutboundRegistry, Page, RequestContext,
     RequestContextBuilder, ServiceRegistry, TokioEventBus, ValidatorDefault,
 };

@@ -6,7 +6,7 @@ use futures::future::BoxFuture;
 
 use crate::api::event::domain_event::DomainEvent;
 use crate::api::event::event_error::EventError;
-use crate::api::event::event_receiver::EventReceiver;
+use crate::api::types::EventReceiver;
 
 /// In-process publish/subscribe bus for domain events.
 ///

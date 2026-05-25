@@ -2,9 +2,9 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::handler::echo_handler::EchoHandler;
 use crate::api::handler::Handler;
 use crate::api::handler_error::HandlerError;
+use crate::api::types::EchoHandler;
 
 /// Primary type for this module (matches filename for Rule 89).
 #[allow(dead_code)]

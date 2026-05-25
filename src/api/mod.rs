@@ -1,13 +1,10 @@
 //! API layer — domain execution-unit contracts.
 
-pub mod application_config;
 pub mod command;
 pub mod error;
 pub mod event;
 pub mod handler;
 pub mod handler_error;
-pub mod outbound_registry;
-pub mod page;
 pub mod query;
 pub mod queryable_repository;
 pub mod repository;

@@ -2,7 +2,7 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::page::Page;
+use crate::api::types::Page;
 use crate::api::repository_error::RepositoryError;
 
 /// Data access contract for a domain entity of type `T` keyed by `Id`.
