@@ -147,15 +147,15 @@ pub fn direct_query_bus<R: Send + 'static>() -> Arc<dyn QueryBus<R>> {
 /// All subscribers receive every event published.  Slow subscribers that fall
 /// behind by more than `config.capacity` events will receive
 /// [`crate::EventError::BroadcastLagged`] on their next receive.
-pub fn tokio_event_bus(config: EventBusConfig) -> impl EventBus + Clone {
-    TokioEventBus::new(config)
+pub fn tokio_event_bus(config: EventBusConfig) -> Arc<dyn EventBus> {
+    Arc::new(TokioEventBus::new(config))
 }
 
 /// Construct an [`EventBus`] that silently discards all events.
 ///
 /// Use in tests that require an `EventBus` but have no interest in the events.
-pub fn noop_event_bus() -> impl EventBus {
-    NoopEventBus
+pub fn noop_event_bus() -> Arc<dyn EventBus> {
+    Arc::new(NoopEventBus)
 }
 
 /// Validate a configuration value using its [`Validator`](crate::api::traits::Validator) implementation.
