@@ -124,6 +124,30 @@ path = "tests/domain_svc_int_test.rs"
 name = "page_int_test"
 path = "tests/page_int_test.rs"
 
+[[test]]
+name = "application_config_int_test"
+path = "tests/application_config_int_test.rs"
+
+[[test]]
+name = "command_int_test"
+path = "tests/command_int_test.rs"
+
+[[test]]
+name = "command_bus_int_test"
+path = "tests/command_bus_int_test.rs"
+
+[[test]]
+name = "aggregate_int_test"
+path = "tests/aggregate_int_test.rs"
+
+[[test]]
+name = "domain_event_int_test"
+path = "tests/domain_event_int_test.rs"
+
+[[test]]
+name = "query_int_test"
+path = "tests/query_int_test.rs"
+
 [[example]]
 name = "handler_registry"
 path = "examples/handler_registry.rs"
