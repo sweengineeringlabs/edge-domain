@@ -117,8 +117,8 @@ name = "in_memory_repository_int_test"
 path = "tests/in_memory_repository_int_test.rs"
 
 [[test]]
-name = "saf_domain_svc_e2e_test"
-path = "tests/saf_domain_svc_e2e_test.rs"
+name = "domain_svc_e2e_test"
+path = "tests/domain_svc_e2e_test.rs"
 
 [[example]]
 name = "handler_registry"

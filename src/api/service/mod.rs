@@ -7,4 +7,4 @@ pub mod service_registry;
 
 pub use service::Service;
 pub use service_error::ServiceError;
-pub use service_registry::ServiceRegistry;
+pub use crate::api::types::ServiceRegistry;

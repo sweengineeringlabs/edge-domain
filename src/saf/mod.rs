@@ -9,31 +9,19 @@ pub use domain_svc::{
     validate_config,
 };
 
-pub use crate::api::application_config::ApplicationConfig;
 pub use crate::api::command::Command;
 pub use crate::api::command::CommandBus;
 pub use crate::api::command::CommandError;
 pub use crate::api::event::Aggregate;
 pub use crate::api::event::DomainEvent;
 pub use crate::api::event::EventBus;
-pub use crate::api::event::EventBusConfig;
-pub use crate::api::types::NoopEventBus;
-pub use crate::api::types::NoopEventPublisher;
-pub use crate::api::types::TokioEventBus;
-pub use crate::api::event::EventEnvelope;
 pub use crate::api::event::EventError;
 pub use crate::api::event::EventPublisher;
-pub use crate::api::event::EventReceiver;
 pub use crate::api::event::EventStore;
 pub use crate::api::event::EventStoreError;
 pub use crate::api::event::ExpectedVersion;
-pub use crate::api::handler::handler_registry::HandlerRegistry;
-pub use crate::api::handler::EchoHandler;
 pub use crate::api::handler::Handler;
-pub use crate::api::handler::{RequestContext, RequestContextBuilder};
 pub use crate::api::handler_error::HandlerError;
-pub use crate::api::outbound_registry::OutboundRegistry;
-pub use crate::api::page::Page;
 pub use crate::api::query::Query;
 pub use crate::api::query::QueryBus;
 pub use crate::api::query::QueryError;
@@ -42,5 +30,11 @@ pub use crate::api::repository::Repository;
 pub use crate::api::repository_error::RepositoryError;
 pub use crate::api::service::Service;
 pub use crate::api::service::ServiceError;
-pub use crate::api::service::ServiceRegistry;
 pub use crate::api::spec::Spec;
+
+pub use crate::api::types::{
+    ApplicationConfig, DirectCommandBus, DirectQueryBus, EchoHandler, EventBusConfig,
+    EventEnvelope, EventReceiver, HandlerRegistry, InMemoryEventStore, InMemoryRepository,
+    NoopEventBus, NoopEventPublisher, OutboundRegistry, Page, RequestContext,
+    RequestContextBuilder, ServiceRegistry, TokioEventBus, ValidatorDefault,
+};

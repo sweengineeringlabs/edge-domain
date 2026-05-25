@@ -6,7 +6,7 @@ pub mod handler;
 pub mod handler_registry;
 pub mod request;
 
-pub use echo_handler::EchoHandler;
+pub use crate::api::types::EchoHandler;
 pub use handler::Handler;
-pub use request::RequestContext;
-pub use request::RequestContextBuilder;
+pub use crate::api::types::RequestContext;
+pub use crate::api::types::RequestContextBuilder;
