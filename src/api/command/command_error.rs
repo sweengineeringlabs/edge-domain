@@ -1,20 +1,3 @@
-//! Error type for [`Command`](super::Command) operations.
+//! Bridge file for `CommandError`.
 
-/// Error produced by command execution.
-#[derive(Debug, thiserror::Error)]
-pub enum CommandError {
-    /// The command input was invalid.
-    #[error("invalid input: {0}")]
-    InvalidInput(String),
-    /// A business rule prevented execution.
-    #[error("rule violation: {0}")]
-    RuleViolation(String),
-    /// The target resource was not found.
-    #[error("not found: {0}")]
-    NotFound(String),
-    /// An unexpected internal error occurred.
-    #[error("internal: {0}")]
-    Internal(String),
-}
-
-
+pub use crate::api::error::CommandError;
