@@ -137,12 +137,12 @@ name = "command_bus_int_test"
 path = "tests/command_bus_int_test.rs"
 
 [[test]]
-name = "aggregate_int_test"
-path = "tests/aggregate_int_test.rs"
+name = "event_aggregate_int_test"
+path = "tests/event_aggregate_int_test.rs"
 
 [[test]]
-name = "domain_event_int_test"
-path = "tests/domain_event_int_test.rs"
+name = "event_domain_event_int_test"
+path = "tests/event_domain_event_int_test.rs"
 
 [[test]]
 name = "query_int_test"
