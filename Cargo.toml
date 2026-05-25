@@ -20,6 +20,10 @@ tokio       = { version = "1", features = ["sync"] }
 tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread"] }
 futures = "0.3"
 
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+
 [[test]]
 name = "echo_handler_int_test"
 path = "tests/echo_handler_int_test.rs"
@@ -111,6 +115,10 @@ path = "tests/queryable_repository_int_test.rs"
 [[test]]
 name = "in_memory_repository_int_test"
 path = "tests/in_memory_repository_int_test.rs"
+
+[[test]]
+name = "saf_edge_domain_svc_int_test"
+path = "tests/saf_edge_domain_svc_int_test.rs"
 
 [[example]]
 name = "handler_registry"

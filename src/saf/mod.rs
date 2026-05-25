@@ -40,3 +40,4 @@ pub use crate::api::service::Service;
 pub use crate::api::service::ServiceError;
 pub use crate::api::service::ServiceRegistry;
 pub use crate::api::spec::Spec;
+pub use crate::api::traits::Validator;
