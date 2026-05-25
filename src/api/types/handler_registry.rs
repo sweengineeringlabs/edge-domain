@@ -6,6 +6,7 @@ use std::sync::Arc;
 use parking_lot::RwLock;
 
 use crate::api::handler::Handler;
+use crate::api::handler::HandlerRegistry as HandlerRegistryTrait;
 
 /// Registry of [`Handler`] instances keyed by [`Handler::id`].
 ///
@@ -73,4 +74,29 @@ where
     }
 }
 
+impl<Request, Response> HandlerRegistryTrait<Request, Response> for HandlerRegistry<Request, Response>
+where
+    Request: Send + 'static,
+    Response: Send + 'static,
+{
+    fn register(&self, handler: Arc<dyn Handler<Request, Response>>) {
+        HandlerRegistry::register(self, handler);
+    }
+
+    fn deregister(&self, id: &str) -> bool {
+        HandlerRegistry::deregister(self, id)
+    }
+
+    fn get(&self, id: &str) -> Option<Arc<dyn Handler<Request, Response>>> {
+        HandlerRegistry::get(self, id)
+    }
+
+    fn list_ids(&self) -> Vec<String> {
+        HandlerRegistry::list_ids(self)
+    }
+
+    fn len(&self) -> usize {
+        HandlerRegistry::len(self)
+    }
+}
 

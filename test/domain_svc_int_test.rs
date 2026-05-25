@@ -21,14 +21,14 @@ async fn test_echo_handler_returns_input_as_output() {
 /// @covers: new_handler_registry
 #[test]
 fn test_new_handler_registry_returns_empty_registry() {
-    let reg: Arc<edge_domain::HandlerRegistry<String, String>> = new_handler_registry();
+    let reg = new_handler_registry::<String, String>();
     assert!(reg.is_empty());
 }
 
 /// @covers: new_service_registry
 #[test]
 fn test_new_service_registry_returns_empty_registry() {
-    let reg: Arc<edge_domain::ServiceRegistry<String, String>> = new_service_registry();
+    let reg = new_service_registry::<String, String>();
     assert!(reg.is_empty());
 }
 

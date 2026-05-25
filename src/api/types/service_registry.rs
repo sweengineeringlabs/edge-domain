@@ -6,6 +6,7 @@ use std::sync::Arc;
 use parking_lot::RwLock;
 
 use crate::api::service::Service;
+use crate::api::service::ServiceRegistry as ServiceRegistryTrait;
 
 /// Registry of [`Service`] instances keyed by [`Service::name`].
 ///
@@ -73,4 +74,29 @@ where
     }
 }
 
+impl<Request, Response> ServiceRegistryTrait<Request, Response> for ServiceRegistry<Request, Response>
+where
+    Request: Send + 'static,
+    Response: Send + 'static,
+{
+    fn register(&self, service: Arc<dyn Service<Request, Response>>) {
+        ServiceRegistry::register(self, service);
+    }
+
+    fn deregister(&self, name: &str) -> bool {
+        ServiceRegistry::deregister(self, name)
+    }
+
+    fn get(&self, name: &str) -> Option<Arc<dyn Service<Request, Response>>> {
+        ServiceRegistry::get(self, name)
+    }
+
+    fn list_names(&self) -> Vec<String> {
+        ServiceRegistry::list_names(self)
+    }
+
+    fn len(&self) -> usize {
+        ServiceRegistry::len(self)
+    }
+}
 

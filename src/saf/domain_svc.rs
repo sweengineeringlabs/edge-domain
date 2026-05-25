@@ -12,9 +12,11 @@ use crate::api::event::EventBusConfig;
 use crate::api::event::EventPublisher;
 use crate::api::event::EventStore;
 use crate::api::handler::Handler;
+use crate::api::handler::HandlerRegistry as HandlerRegistryTrait;
 use crate::api::query::QueryBus;
 use crate::api::queryable_repository::QueryableRepository;
 use crate::api::repository::Repository;
+use crate::api::service::ServiceRegistry as ServiceRegistryTrait;
 use crate::api::types::EchoHandler;
 use crate::api::types::HandlerRegistry;
 use crate::api::types::ServiceRegistry;
@@ -41,7 +43,7 @@ where
 ///
 /// Returned as `Arc<_>` because the registry is typically shared between
 /// a `Job` impl and operator tooling that lists or mutates the handler set.
-pub fn new_handler_registry<Request, Response>() -> Arc<HandlerRegistry<Request, Response>>
+pub fn new_handler_registry<Request, Response>() -> Arc<dyn HandlerRegistryTrait<Request, Response>>
 where
     Request: Send + 'static,
     Response: Send + 'static,
@@ -50,7 +52,7 @@ where
 }
 
 /// Construct a fresh empty [`ServiceRegistry`].
-pub fn new_service_registry<Request, Response>() -> Arc<ServiceRegistry<Request, Response>>
+pub fn new_service_registry<Request, Response>() -> Arc<dyn ServiceRegistryTrait<Request, Response>>
 where
     Request: Send + 'static,
     Response: Send + 'static,
