@@ -3,6 +3,8 @@
 #[allow(clippy::module_inception)]
 pub mod service;
 pub mod service_error;
+pub mod service_registry;
 
 pub use service::Service;
 pub use service_error::ServiceError;
+pub use crate::api::types::ServiceRegistry;
