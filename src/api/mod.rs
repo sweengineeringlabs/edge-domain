@@ -15,4 +15,5 @@ pub mod repository_error;
 pub mod service;
 pub mod spec;
 pub mod traits;
+pub mod types;
 pub mod validator;
