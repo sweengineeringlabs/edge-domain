@@ -5,7 +5,7 @@ use std::sync::Arc;
 use tokio::sync::broadcast;
 
 use crate::api::event::domain_event::DomainEvent;
-use crate::api::event::event_error::EventError;
+use crate::api::error::EventError;
 
 /// Subscriber-side handle for receiving events from an [`crate::EventBus`].
 ///

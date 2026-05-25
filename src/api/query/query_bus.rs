@@ -3,7 +3,7 @@
 use futures::future::BoxFuture;
 
 use super::query::Query;
-use super::query_error::QueryError;
+use crate::api::error::QueryError;
 
 /// Dispatches [`Query`] instances and returns their results.
 ///

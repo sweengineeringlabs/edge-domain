@@ -3,7 +3,7 @@
 use futures::future::BoxFuture;
 
 use super::command::Command;
-use super::command_error::CommandError;
+use crate::api::error::CommandError;
 
 /// Dispatches [`Command`] instances to their executors.
 ///

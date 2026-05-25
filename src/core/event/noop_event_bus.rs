@@ -7,7 +7,7 @@ use tokio::sync::broadcast;
 
 use crate::api::event::domain_event::DomainEvent;
 use crate::api::event::event_bus::EventBus;
-use crate::api::event::event_error::EventError;
+use crate::api::error::EventError;
 use crate::api::types::EventReceiver;
 
 /// Event bus that discards all published events.

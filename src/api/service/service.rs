@@ -2,7 +2,7 @@
 
 use futures::future::BoxFuture;
 
-use super::service_error::ServiceError;
+use crate::api::error::ServiceError;
 
 /// A named, executable domain operation.
 ///

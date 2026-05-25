@@ -2,7 +2,7 @@
 
 use futures::future::BoxFuture;
 
-use super::query_error::QueryError;
+use crate::api::error::QueryError;
 
 /// A named read operation that returns data without mutating state.
 ///

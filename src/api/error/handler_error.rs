@@ -56,9 +56,9 @@ impl From<crate::api::service::ServiceError> for HandlerError {
     }
 }
 
-impl From<crate::api::repository_error::RepositoryError> for HandlerError {
-    fn from(e: crate::api::repository_error::RepositoryError) -> Self {
-        use crate::api::repository_error::RepositoryError::*; // repository not regrouped
+impl From<crate::api::error::RepositoryError> for HandlerError {
+    fn from(e: crate::api::error::RepositoryError) -> Self {
+        use crate::api::error::RepositoryError::*;
         match e {
             NotFound(m) => HandlerError::NotFound(m),
             Conflict(m) => HandlerError::Conflict(m),

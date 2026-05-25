@@ -8,7 +8,7 @@ use parking_lot::RwLock;
 
 use crate::api::queryable_repository::QueryableRepository;
 use crate::api::repository::Repository;
-use crate::api::repository_error::RepositoryError;
+use crate::api::error::RepositoryError;
 
 /// Thread-safe in-memory repository backed by a `HashMap`.
 ///

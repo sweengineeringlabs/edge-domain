@@ -4,7 +4,7 @@ use std::hash::Hash;
 use std::sync::Arc;
 
 use crate::api::command::CommandBus;
-use crate::api::event::event_store_error::EventStoreError;
+use crate::api::error::EventStoreError;
 use crate::api::event::Aggregate;
 use crate::api::event::DomainEvent;
 use crate::api::event::EventBus;

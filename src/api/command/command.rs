@@ -2,7 +2,7 @@
 
 use futures::future::BoxFuture;
 
-use super::command_error::CommandError;
+use crate::api::error::CommandError;
 
 /// A named write operation that mutates domain state and returns no value.
 ///

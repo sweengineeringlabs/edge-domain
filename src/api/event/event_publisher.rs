@@ -3,7 +3,7 @@
 use futures::future::BoxFuture;
 
 use super::domain_event::DomainEvent;
-use super::event_error::EventError;
+use crate::api::error::EventError;
 
 /// Emits domain events to subscribers.
 ///
