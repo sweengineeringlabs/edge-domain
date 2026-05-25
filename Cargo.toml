@@ -26,23 +26,23 @@ expect_used = "deny"
 
 [[test]]
 name = "echo_handler_int_test"
-path = "tests/echo_handler_int_test.rs"
+path = "test/echo_handler_int_test.rs"
 
 [[test]]
 name = "handler_registry_int_test"
-path = "tests/handler_registry_int_test.rs"
+path = "test/handler_registry_int_test.rs"
 
 [[test]]
 name = "outbound_registry_int_test"
-path = "tests/outbound_registry_int_test.rs"
+path = "test/outbound_registry_int_test.rs"
 
 [[test]]
 name = "edge_domain_svc_int_test"
-path = "tests/edge_domain_svc_int_test.rs"
+path = "test/edge_domain_svc_int_test.rs"
 
 [[test]]
 name = "handler_trait_int_test"
-path = "tests/handler_trait_int_test.rs"
+path = "test/handler_trait_int_test.rs"
 
 [[test]]
 name = "validator_test"
@@ -50,75 +50,75 @@ path = "test/validator_test.rs"
 
 [[test]]
 name = "repository_int_test"
-path = "tests/repository_int_test.rs"
+path = "test/repository_int_test.rs"
 
 [[test]]
 name = "service_int_test"
-path = "tests/service_int_test.rs"
+path = "test/service_int_test.rs"
 
 [[test]]
 name = "event_publisher_int_test"
-path = "tests/event_publisher_int_test.rs"
+path = "test/event_publisher_int_test.rs"
 
 [[test]]
 name = "event_store_int_test"
-path = "tests/event_store_int_test.rs"
+path = "test/event_store_int_test.rs"
 
 [[test]]
 name = "event_bus_int_test"
-path = "tests/event_bus_int_test.rs"
+path = "test/event_bus_int_test.rs"
 
 [[test]]
 name = "in_memory_event_store_int_test"
-path = "tests/in_memory_event_store_int_test.rs"
+path = "test/in_memory_event_store_int_test.rs"
 
 [[test]]
 name = "command_query_int_test"
-path = "tests/command_query_int_test.rs"
+path = "test/command_query_int_test.rs"
 
 [[test]]
 name = "error_bridge_int_test"
-path = "tests/error_bridge_int_test.rs"
+path = "test/error_bridge_int_test.rs"
 
 [[test]]
 name = "default_impls_int_test"
-path = "tests/default_impls_int_test.rs"
+path = "test/default_impls_int_test.rs"
 
 [[test]]
 name = "command_error_int_test"
-path = "tests/command_error_int_test.rs"
+path = "test/command_error_int_test.rs"
 
 [[test]]
 name = "event_error_int_test"
-path = "tests/event_error_int_test.rs"
+path = "test/event_error_int_test.rs"
 
 [[test]]
 name = "query_error_int_test"
-path = "tests/query_error_int_test.rs"
+path = "test/query_error_int_test.rs"
 
 [[test]]
 name = "repository_error_int_test"
-path = "tests/repository_error_int_test.rs"
+path = "test/repository_error_int_test.rs"
 
 [[test]]
 name = "service_error_int_test"
-path = "tests/service_error_int_test.rs"
+path = "test/service_error_int_test.rs"
 
 [[test]]
 name = "repository_page_int_test"
-path = "tests/repository_page_int_test.rs"
+path = "test/repository_page_int_test.rs"
 
 [[test]]
 name = "queryable_repository_int_test"
-path = "tests/queryable_repository_int_test.rs"
+path = "test/queryable_repository_int_test.rs"
 
 [[test]]
 name = "in_memory_repository_int_test"
-path = "tests/in_memory_repository_int_test.rs"
+path = "test/in_memory_repository_int_test.rs"
 
 [[test]]
 name = "domain_svc_int_test"
-path = "tests/domain_svc_int_test.rs"
+path = "test/domain_svc_int_test.rs"
 
 [[example]]
 name = "handler_registry"
