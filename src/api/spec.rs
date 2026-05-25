@@ -21,7 +21,9 @@
 /// ```
 pub trait Spec<T: Send + Sync>: Send + Sync {
     /// Return `true` when `entity` satisfies this specification.
-    fn matches(&self, entity: &T) -> bool;
+    fn matches(&self, _entity: &T) -> bool {
+        false
+    }
 }
 
 

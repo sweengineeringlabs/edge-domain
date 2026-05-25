@@ -24,7 +24,9 @@ where
     Response: Send + 'static,
 {
     /// Stable name used as the lookup key in [`ServiceRegistry`](crate::ServiceRegistry).
-    fn name(&self) -> &str;
+    fn name(&self) -> &str {
+        "service"
+    }
 
     /// Execute the service operation.
     fn execute(&self, req: Request) -> BoxFuture<'_, Result<Response, ServiceError>>;

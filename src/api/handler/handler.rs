@@ -28,10 +28,14 @@ where
     Response: Send + 'static,
 {
     /// Stable identifier used as the lookup key in [`HandlerRegistry`](crate::HandlerRegistry).
-    fn id(&self) -> &str;
+    fn id(&self) -> &str {
+        "handler"
+    }
 
     /// URL pattern or service name used for routing (e.g. `"/api/v1/users/:id"`).
-    fn pattern(&self) -> &str;
+    fn pattern(&self) -> &str {
+        ""
+    }
 
     /// Execute the handler.  Required.
     ///

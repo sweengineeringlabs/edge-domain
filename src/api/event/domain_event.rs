@@ -19,13 +19,19 @@ use std::time::SystemTime;
 /// ```
 pub trait DomainEvent: Send + Sync {
     /// Fully-qualified event type name (e.g. `"order.created"`).
-    fn event_type(&self) -> &str;
+    fn event_type(&self) -> &str {
+        "event"
+    }
 
     /// Identity of the aggregate that produced this event.
-    fn aggregate_id(&self) -> &str;
+    fn aggregate_id(&self) -> &str {
+        ""
+    }
 
     /// Wall-clock time at which the event occurred.
-    fn occurred_at(&self) -> SystemTime;
+    fn occurred_at(&self) -> SystemTime {
+        SystemTime::now()
+    }
 }
 
 

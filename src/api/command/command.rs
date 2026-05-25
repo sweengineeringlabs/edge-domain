@@ -24,7 +24,9 @@ use super::command_error::CommandError;
 /// ```
 pub trait Command: Send + Sync {
     /// Stable name identifying this command type.
-    fn name(&self) -> &str;
+    fn name(&self) -> &str {
+        "command"
+    }
 
     /// Execute the command, mutating domain state.
     fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>>;

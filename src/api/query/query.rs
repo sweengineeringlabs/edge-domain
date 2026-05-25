@@ -24,7 +24,9 @@ use super::query_error::QueryError;
 /// ```
 pub trait Query<R: Send + 'static>: Send + Sync {
     /// Stable name identifying this query type.
-    fn name(&self) -> &str;
+    fn name(&self) -> &str {
+        "query"
+    }
 
     /// Execute the query and return the result.
     fn execute(&self) -> BoxFuture<'_, Result<R, QueryError>>;

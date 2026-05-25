@@ -31,10 +31,12 @@ pub trait Aggregate: Default + Send + Sync + 'static {
     ///
     /// Called in version order during reconstitution.  Must be deterministic —
     /// the same sequence of events must always produce the same state.
-    fn apply(&mut self, event: &Self::Event);
+    fn apply(&mut self, _event: &Self::Event) {}
 
     /// Return the aggregate's identity.
-    fn id(&self) -> &str;
+    fn id(&self) -> &str {
+        ""
+    }
 }
 
 
