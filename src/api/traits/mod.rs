@@ -5,16 +5,8 @@
 //! | [`Handler`] | Business logic execution unit |
 //! | [`Validator`] | Configuration validation contract |
 
-/// Configuration validation contract.
-///
-/// Implemented by configuration types to validate their fields before use.
-#[allow(dead_code)]
-pub trait Validator {
-    /// Validate the configuration.
-    ///
-    /// Returns `Err` with a human-readable description when the configuration
-    /// contains an invalid combination of fields.
-    fn validate(&self) -> Result<(), String>;
-}
+pub mod validator;
+
+pub use validator::Validator;
 
 
