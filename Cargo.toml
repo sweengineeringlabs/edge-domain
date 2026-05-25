@@ -112,6 +112,18 @@ path = "tests/queryable_repository_int_test.rs"
 name = "in_memory_repository_int_test"
 path = "tests/in_memory_repository_int_test.rs"
 
+[[example]]
+name = "handler_registry"
+path = "examples/handler_registry.rs"
+
+[[example]]
+name = "event_bus_consumer"
+path = "examples/event_bus_consumer.rs"
+
+[[example]]
+name = "custom_event_bus"
+path = "examples/custom_event_bus.rs"
+
 [package.metadata.struct-engine]
 application_type = "lib"
 service_type     = "handler"
