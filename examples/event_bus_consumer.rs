@@ -14,6 +14,7 @@ use edge_domain::tokio_event_bus;
 use std::sync::Arc;
 
 #[derive(Clone)]
+#[allow(dead_code)]
 struct OrderEvent {
     order_id: String,
     status: String,
