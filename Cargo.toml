@@ -45,8 +45,8 @@ name = "handler_trait_int_test"
 path = "tests/handler_trait_int_test.rs"
 
 [[test]]
-name = "validator_int_test"
-path = "tests/validator_int_test.rs"
+name = "validator_test"
+path = "test/validator_test.rs"
 
 [[test]]
 name = "repository_int_test"
