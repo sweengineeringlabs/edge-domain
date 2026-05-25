@@ -1,5 +1,7 @@
 //! API layer — domain execution-unit contracts.
 
+#![allow(unused_imports)]
+
 pub mod application_config;
 pub mod command;
 pub mod error;
