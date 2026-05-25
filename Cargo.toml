@@ -120,6 +120,14 @@ path = "test/in_memory_repository_int_test.rs"
 name = "domain_svc_int_test"
 path = "test/domain_svc_int_test.rs"
 
+[[test]]
+name = "api_types_coverage_int_test"
+path = "test/api_types_coverage_int_test.rs"
+
+[[test]]
+name = "api_config_types_int_test"
+path = "test/api_config_types_int_test.rs"
+
 [[example]]
 name = "handler_registry"
 path = "examples/handler_registry.rs"
