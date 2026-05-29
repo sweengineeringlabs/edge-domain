@@ -4,8 +4,8 @@ use std::sync::Arc;
 
 use futures::future::BoxFuture;
 
-use crate::api::event::domain_event::DomainEvent;
 use crate::api::error::EventError;
+use crate::api::event::domain_event::DomainEvent;
 use crate::api::types::EventReceiver;
 
 /// In-process publish/subscribe bus for domain events.
@@ -34,5 +34,3 @@ pub trait EventBus: Send + Sync {
     /// Subscriptions are independent — each subscriber has its own queue.
     fn subscribe(&self) -> EventReceiver;
 }
-
-

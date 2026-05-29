@@ -13,13 +13,13 @@ pub mod noop_event_bus;
 pub mod noop_event_publisher;
 pub mod tokio_event_bus;
 
+pub use crate::api::error::EventError;
+pub use crate::api::error::EventStoreError;
+pub use crate::api::types::EventBusConfig;
+pub use crate::api::types::EventReceiver;
 pub use aggregate::Aggregate;
 pub use domain_event::DomainEvent;
 pub use event_bus::EventBus;
-pub use crate::api::types::EventBusConfig;
-pub use crate::api::error::EventError;
 pub use event_publisher::EventPublisher;
-pub use crate::api::types::EventReceiver;
 pub use event_store::EventStore;
-pub use crate::api::error::EventStoreError;
 pub use expected_version::ExpectedVersion;

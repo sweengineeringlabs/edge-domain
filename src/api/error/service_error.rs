@@ -19,5 +19,3 @@ pub enum ServiceError {
     #[error("internal: {0}")]
     Internal(String),
 }
-
-

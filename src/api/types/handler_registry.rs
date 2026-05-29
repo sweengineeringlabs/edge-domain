@@ -74,7 +74,8 @@ where
     }
 }
 
-impl<Request, Response> HandlerRegistryTrait<Request, Response> for HandlerRegistry<Request, Response>
+impl<Request, Response> HandlerRegistryTrait<Request, Response>
+    for HandlerRegistry<Request, Response>
 where
     Request: Send + 'static,
     Response: Send + 'static,
@@ -99,4 +100,3 @@ where
         HandlerRegistry::len(self)
     }
 }
-

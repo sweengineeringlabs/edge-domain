@@ -22,5 +22,3 @@ pub trait CommandBus: Send + Sync {
     /// Dispatch a command. Returns `Err` if execution fails.
     fn dispatch(&self, cmd: Box<dyn Command>) -> BoxFuture<'_, Result<(), CommandError>>;
 }
-
-

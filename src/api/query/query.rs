@@ -31,5 +31,3 @@ pub trait Query<R: Send + 'static>: Send + Sync {
     /// Execute the query and return the result.
     fn execute(&self) -> BoxFuture<'_, Result<R, QueryError>>;
 }
-
-

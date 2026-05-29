@@ -33,5 +33,3 @@ pub trait DomainEvent: Send + Sync {
         SystemTime::now()
     }
 }
-
-

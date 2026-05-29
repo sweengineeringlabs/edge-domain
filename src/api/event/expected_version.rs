@@ -19,5 +19,3 @@ pub enum ExpectedVersion {
     /// Use when updating an existing aggregate to detect concurrent modifications.
     Exact(u64),
 }
-
-

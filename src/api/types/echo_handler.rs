@@ -28,5 +28,3 @@ impl<T> EchoHandler<T> {
         }
     }
 }
-
-

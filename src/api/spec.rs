@@ -25,5 +25,3 @@ pub trait Spec<T: Send + Sync>: Send + Sync {
         false
     }
 }
-
-

@@ -6,5 +6,3 @@
 /// The concrete implementation lives in `core::command::direct_command_bus`.
 #[allow(dead_code)]
 pub struct DirectCommandBus;
-
-

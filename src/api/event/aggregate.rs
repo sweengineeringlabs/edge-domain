@@ -38,5 +38,3 @@ pub trait Aggregate: Default + Send + Sync + 'static {
         ""
     }
 }
-
-

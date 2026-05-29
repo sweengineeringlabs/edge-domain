@@ -4,8 +4,7 @@ use std::sync::Arc;
 use std::time::SystemTime;
 
 use edge_domain::{
-    noop_event_bus, tokio_event_bus, DomainEvent, EventBusConfig, EventError,
-    EventReceiver,
+    noop_event_bus, tokio_event_bus, DomainEvent, EventBusConfig, EventError, EventReceiver,
 };
 
 // ── test fixtures ────────────────────────────────────────────────────────────

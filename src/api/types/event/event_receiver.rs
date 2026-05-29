@@ -4,8 +4,8 @@ use std::sync::Arc;
 
 use tokio::sync::broadcast;
 
-use crate::api::event::domain_event::DomainEvent;
 use crate::api::error::EventError;
+use crate::api::event::domain_event::DomainEvent;
 
 /// Subscriber-side handle for receiving events from an [`crate::EventBus`].
 ///
@@ -32,5 +32,3 @@ impl EventReceiver {
         }
     }
 }
-
-

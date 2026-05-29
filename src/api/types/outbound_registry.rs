@@ -63,5 +63,3 @@ impl<H: Clone + Send + Sync> Default for OutboundRegistry<H> {
         Self::new()
     }
 }
-
-

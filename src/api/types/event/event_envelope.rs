@@ -23,5 +23,3 @@ pub struct EventEnvelope<E> {
     /// The domain event payload.
     pub event: E,
 }
-
-

@@ -20,5 +20,3 @@ pub trait QueryBus<R: Send + 'static>: Send + Sync {
     /// Dispatch a query and return its result.
     fn dispatch(&self, query: Box<dyn Query<R>>) -> BoxFuture<'_, Result<R, QueryError>>;
 }
-
-

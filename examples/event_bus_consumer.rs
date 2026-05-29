@@ -58,9 +58,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Real-world service using the factory result
     println!("3. Service using factory result...");
-    let service = OrderService {
-        bus: event_bus,
-    };
+    let service = OrderService { bus: event_bus };
     service.update_order("order-123", "completed").await?;
     println!();
 
@@ -80,7 +78,11 @@ struct OrderService {
 }
 
 impl OrderService {
-    async fn update_order(&self, order_id: &str, status: &str) -> Result<(), Box<dyn std::error::Error>> {
+    async fn update_order(
+        &self,
+        order_id: &str,
+        status: &str,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         let event = Arc::new(OrderEvent {
             order_id: order_id.to_string(),
             status: status.to_string(),

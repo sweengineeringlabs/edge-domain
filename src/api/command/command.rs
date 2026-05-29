@@ -31,5 +31,3 @@ pub trait Command: Send + Sync {
     /// Execute the command, mutating domain state.
     fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>>;
 }
-
-

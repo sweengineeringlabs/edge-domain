@@ -16,5 +16,3 @@ pub enum QueryError {
     #[error("internal: {0}")]
     Internal(String),
 }
-
-

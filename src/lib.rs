@@ -13,5 +13,5 @@ mod api;
 mod core;
 mod saf;
 
-pub use saf::*;
 pub use api::traits;
+pub use saf::*;

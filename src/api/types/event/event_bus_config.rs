@@ -17,5 +17,3 @@ impl Default for EventBusConfig {
         Self { capacity: 1024 }
     }
 }
-
-

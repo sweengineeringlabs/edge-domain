@@ -31,5 +31,3 @@ where
     /// Execute the service operation.
     fn execute(&self, req: Request) -> BoxFuture<'_, Result<Response, ServiceError>>;
 }
-
-

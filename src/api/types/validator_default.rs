@@ -6,5 +6,3 @@
 /// `core/validator/validator_default`.
 #[allow(dead_code)]
 pub struct ValidatorDefault;
-
-

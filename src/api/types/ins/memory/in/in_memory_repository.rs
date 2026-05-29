@@ -14,5 +14,3 @@ pub struct InMemoryRepository {
     /// during warmup.
     pub initial_capacity: usize,
 }
-
-

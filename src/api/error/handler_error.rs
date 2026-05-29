@@ -120,5 +120,3 @@ impl HandlerError {
         HandlerError::InvalidRequest(e.to_string())
     }
 }
-
-

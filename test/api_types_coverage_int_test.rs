@@ -1,9 +1,6 @@
 //! Comprehensive coverage tests for api/ types and configuration modules.
 
-use edge_domain::{
-    ApplicationConfig, RequestContext,
-    Aggregate, DomainEvent, Spec,
-};
+use edge_domain::{Aggregate, ApplicationConfig, DomainEvent, RequestContext, Spec};
 use std::time::SystemTime;
 
 /// @covers: ApplicationConfig
@@ -44,9 +41,15 @@ fn test_aggregate_trait_apply_default() {
     struct TestEvent;
 
     impl DomainEvent for TestEvent {
-        fn event_type(&self) -> &str { "test" }
-        fn aggregate_id(&self) -> &str { "id" }
-        fn occurred_at(&self) -> SystemTime { SystemTime::now() }
+        fn event_type(&self) -> &str {
+            "test"
+        }
+        fn aggregate_id(&self) -> &str {
+            "id"
+        }
+        fn occurred_at(&self) -> SystemTime {
+            SystemTime::now()
+        }
     }
 
     impl Aggregate for TestAggregate {
@@ -63,7 +66,9 @@ fn test_aggregate_trait_apply_default() {
 fn test_spec_matches_default() {
     struct AlwaysFalseSpec;
     impl Spec<String> for AlwaysFalseSpec {
-        fn matches(&self, _s: &String) -> bool { false }
+        fn matches(&self, _s: &String) -> bool {
+            false
+        }
     }
 
     let spec = AlwaysFalseSpec;

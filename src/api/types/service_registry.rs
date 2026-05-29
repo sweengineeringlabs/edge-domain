@@ -74,7 +74,8 @@ where
     }
 }
 
-impl<Request, Response> ServiceRegistryTrait<Request, Response> for ServiceRegistry<Request, Response>
+impl<Request, Response> ServiceRegistryTrait<Request, Response>
+    for ServiceRegistry<Request, Response>
 where
     Request: Send + 'static,
     Response: Send + 'static,
@@ -99,4 +100,3 @@ where
         ServiceRegistry::len(self)
     }
 }
-

@@ -24,5 +24,3 @@ pub enum EventStoreError {
     #[error("internal error: {0}")]
     Internal(String),
 }
-
-

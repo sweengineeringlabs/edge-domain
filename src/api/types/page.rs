@@ -37,5 +37,3 @@ impl<T> Page<T> {
         self.has_more().then_some(self.offset + self.items.len())
     }
 }
-
-

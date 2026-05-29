@@ -57,10 +57,7 @@ impl AuditingEventBus {
 }
 
 impl EventBus for AuditingEventBus {
-    fn publish(
-        &self,
-        event: Arc<dyn DomainEvent>,
-    ) -> BoxFuture<'static, Result<(), EventError>> {
+    fn publish(&self, event: Arc<dyn DomainEvent>) -> BoxFuture<'static, Result<(), EventError>> {
         let audit_log = Arc::clone(&self.audit_log);
         let event_type = event.event_type().to_string();
         let aggregate_id = event.aggregate_id().to_string();
@@ -68,7 +65,8 @@ impl EventBus for AuditingEventBus {
 
         Box::pin(async move {
             // Custom behavior: log to audit trail
-            let entry = format!("[{}] {} → {}",
+            let entry = format!(
+                "[{}] {} → {}",
                 std::time::SystemTime::now()
                     .duration_since(std::time::UNIX_EPOCH)
                     .unwrap_or_default()

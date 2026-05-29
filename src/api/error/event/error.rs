@@ -13,5 +13,3 @@ pub enum EventError {
     #[error("broadcast lagged: {0} messages dropped")]
     BroadcastLagged(u64),
 }
-
-

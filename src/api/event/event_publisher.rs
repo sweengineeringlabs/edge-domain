@@ -21,5 +21,3 @@ pub trait EventPublisher: Send + Sync {
     /// Emit a domain event. Returns `Err` if delivery fails.
     fn publish<'a>(&'a self, event: &'a dyn DomainEvent) -> BoxFuture<'a, Result<(), EventError>>;
 }
-
-

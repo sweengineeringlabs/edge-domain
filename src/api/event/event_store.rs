@@ -62,5 +62,3 @@ where
         from_sequence: u64,
     ) -> BoxFuture<'_, Result<Vec<EventEnvelope<E>>, EventStoreError>>;
 }
-
-

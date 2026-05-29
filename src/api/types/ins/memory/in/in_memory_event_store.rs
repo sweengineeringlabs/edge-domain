@@ -9,5 +9,3 @@
 /// Consumers obtain it via the SAF factory [`crate::new_in_memory_event_store`].
 #[allow(dead_code)]
 pub struct InMemoryEventStore;
-
-

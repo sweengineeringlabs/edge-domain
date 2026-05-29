@@ -16,5 +16,3 @@ pub enum CommandError {
     #[error("internal: {0}")]
     Internal(String),
 }
-
-
