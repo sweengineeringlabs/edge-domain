@@ -6,7 +6,6 @@ use crate::api::traits::Validator;
 ///
 /// Useful for configuration types that have no field-level invariants
 /// to enforce at construction time.
-#[allow(dead_code)]
 pub(crate) struct ValidatorDefault;
 
 impl Validator for ValidatorDefault {

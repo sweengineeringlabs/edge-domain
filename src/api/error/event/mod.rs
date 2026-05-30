@@ -1,7 +1,7 @@
 //! Event-related error types.
 
-pub mod error;
-pub mod store_error;
+pub mod event_error;
+pub mod event_store_error;
 
-pub use error::EventError;
-pub use store_error::EventStoreError;
+pub use event_error::EventError;
+pub use event_store_error::EventStoreError;

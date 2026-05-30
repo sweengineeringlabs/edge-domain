@@ -5,7 +5,6 @@
 /// The concrete implementation lives in `core::repository::in_memory_repository`.
 /// Pass this to infrastructure bootstrapping when you need to tune the
 /// initial `HashMap` capacity without naming the `pub(crate)` core struct.
-#[allow(dead_code)]
 #[derive(Debug, Clone, Default)]
 pub struct InMemoryRepository {
     /// Initial capacity of the underlying `HashMap`.

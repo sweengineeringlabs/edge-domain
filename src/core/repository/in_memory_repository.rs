@@ -7,7 +7,7 @@ use futures::future::BoxFuture;
 use parking_lot::RwLock;
 
 use crate::api::error::RepositoryError;
-use crate::api::queryable_repository::QueryableRepository;
+use crate::api::repository::QueryableRepository;
 use crate::api::repository::Repository;
 
 /// Thread-safe in-memory repository backed by a `HashMap`.

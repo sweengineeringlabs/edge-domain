@@ -1,6 +1,8 @@
 //! Value objects and concrete implementation types for the domain layer.
 
 pub mod application_config;
+pub mod domain;
+pub mod noop_domain_extension;
 pub mod direct;
 pub mod echo_handler;
 pub mod event;
@@ -15,6 +17,8 @@ pub mod tokio_event_bus;
 pub mod validator_default;
 
 pub use application_config::ApplicationConfig;
+pub use domain::Domain;
+pub use noop_domain_extension::NoopDomainExtension;
 pub use direct::{DirectCommandBus, DirectQueryBus};
 pub use echo_handler::EchoHandler;
 pub use event::{EventBusConfig, EventEnvelope, EventReceiver};

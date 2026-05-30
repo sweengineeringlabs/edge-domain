@@ -3,7 +3,6 @@
 /// Configuration validation contract.
 ///
 /// Implemented by configuration types to validate their fields before use.
-#[allow(dead_code)]
 pub trait Validator {
     /// Validate the configuration.
     ///

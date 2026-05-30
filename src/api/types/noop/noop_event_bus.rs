@@ -4,5 +4,4 @@
 ///
 /// The implementation lives in `core::event::noop::noop_event_bus`.
 /// Consumers obtain it via [`crate::noop_event_bus`].
-#[allow(dead_code)]
 pub struct NoopEventBus;

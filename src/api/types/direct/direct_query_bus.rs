@@ -4,5 +4,4 @@
 /// calling `query.execute()` directly in the same task with no queuing.
 ///
 /// The concrete implementation lives in `core::query::direct_query_bus`.
-#[allow(dead_code)]
 pub struct DirectQueryBus;

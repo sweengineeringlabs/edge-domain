@@ -7,5 +7,4 @@
 ///
 /// The concrete implementation lives in `core::event::in_memory_event_store`.
 /// Consumers obtain it via the SAF factory [`crate::new_in_memory_event_store`].
-#[allow(dead_code)]
 pub struct InMemoryEventStore;

@@ -5,7 +5,6 @@
 /// Marker type for the noop event publisher (rule 89 compliance).
 ///
 /// Implementation is provided by [`crate::core::event::noop_event_publisher::NoopEventPublisher`].
-#[allow(dead_code)]
 pub(crate) struct NoopEventPublisher;
 
 #[cfg(test)]

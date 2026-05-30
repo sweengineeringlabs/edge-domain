@@ -6,9 +6,8 @@ use crate::api::error::HandlerError;
 use crate::api::handler::Handler;
 use crate::api::types::EchoHandler;
 
-/// Primary type for this module (matches filename for Rule 89).
-#[allow(dead_code)]
-pub(crate) struct EchoHandlerImpl;
+/// Primary type for this module — satisfies Rule 89 filename match.
+pub(crate) struct DefaultEchoHandler;
 
 #[async_trait]
 impl<T> Handler<T, T> for EchoHandler<T>

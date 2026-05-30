@@ -8,7 +8,7 @@ use std::sync::Arc;
 /// @covers: echo_handler
 #[test]
 fn test_echo_handler() {
-    let _: Arc<dyn edge_domain::Handler<String, String>> = echo_handler("id", "/path");
+    let _: Arc<dyn edge_domain::Handler<String, String>> = Domain::echo_handler("id", "/path");
 }
 
 /// @covers: echo_handler
@@ -35,14 +35,14 @@ fn test_new_service_registry_returns_empty_registry() {
 /// @covers: new_in_memory_repository
 #[test]
 fn test_new_in_memory_repository() {
-    let _: Arc<dyn edge_domain::Repository<String, u32>> = new_in_memory_repository();
+    let _: Arc<dyn edge_domain::Repository<String, u32>> = Domain::new_in_memory_repository();
 }
 
 /// @covers: new_in_memory_queryable_repository
 #[test]
 fn test_new_in_memory_queryable_repository() {
     let _: Arc<dyn edge_domain::QueryableRepository<String, u32>> =
-        new_in_memory_queryable_repository();
+        Domain::new_in_memory_queryable_repository();
 }
 
 /// @covers: new_in_memory_queryable_repository
@@ -93,7 +93,7 @@ fn test_validate_config_returns_ok_for_valid_input() {
             Ok(())
         }
     }
-    assert!(validate_config(&AlwaysValid).is_ok());
+    assert!(Domain::validate_config(&AlwaysValid).is_ok());
 }
 
 /// @covers: validate_config
@@ -106,20 +106,20 @@ fn test_validate_config_returns_err_for_invalid_input() {
             Err("bad".into())
         }
     }
-    assert!(validate_config(&AlwaysInvalid).is_err());
+    assert!(Domain::validate_config(&AlwaysInvalid).is_err());
 }
 
 /// @covers: direct_command_bus
 #[test]
 fn test_direct_command_bus_returns_arc_command_bus() {
-    let bus = direct_command_bus();
+    let bus = Domain::direct_command_bus();
     let _: Arc<dyn edge_domain::CommandBus> = bus;
 }
 
 /// @covers: noop_event_publisher
 #[test]
 fn test_noop_event_publisher_returns_arc_event_publisher() {
-    let pub_ = noop_event_publisher();
+    let pub_ = Domain::noop_event_publisher();
     let _: Arc<dyn edge_domain::EventPublisher> = pub_;
 }
 
@@ -154,7 +154,7 @@ fn test_new_in_memory_event_store_returns_arc_event_store() {
 #[test]
 fn test_tokio_event_bus_factory_returns_working_bus() {
     use futures::executor::block_on;
-    let bus = tokio_event_bus(EventBusConfig::default());
+    let bus = Domain::tokio_event_bus(EventBusConfig::default());
     block_on(async move {
         assert!(bus.publish(Arc::new(AnyEvent)).await.is_ok());
     });
@@ -164,7 +164,7 @@ fn test_tokio_event_bus_factory_returns_working_bus() {
 #[test]
 fn test_noop_event_bus_factory_returns_working_bus() {
     use futures::executor::block_on;
-    let bus = noop_event_bus();
+    let bus = Domain::noop_event_bus();
     block_on(async move {
         assert!(bus.publish(Arc::new(AnyEvent)).await.is_ok());
     });

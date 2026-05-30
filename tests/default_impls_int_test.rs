@@ -56,14 +56,14 @@ impl EventPublisher for FailingPublisher {
 /// @covers: direct_command_bus
 #[tokio::test]
 async fn test_direct_command_bus_dispatches_ok_command_successfully() {
-    let bus: Arc<dyn CommandBus> = direct_command_bus();
+    let bus: Arc<dyn CommandBus> = Domain::direct_command_bus();
     assert!(bus.dispatch(Box::new(OkCommand)).await.is_ok());
 }
 
 /// @covers: direct_command_bus
 #[tokio::test]
 async fn test_direct_command_bus_propagates_command_error() {
-    let bus: Arc<dyn CommandBus> = direct_command_bus();
+    let bus: Arc<dyn CommandBus> = Domain::direct_command_bus();
     assert!(bus.dispatch(Box::new(ErrCommand)).await.is_err());
 }
 
@@ -72,7 +72,7 @@ async fn test_direct_command_bus_propagates_command_error() {
 /// @covers: noop_event_publisher
 #[tokio::test]
 async fn test_noop_event_publisher_always_returns_ok() {
-    let pub_: Arc<dyn EventPublisher> = noop_event_publisher();
+    let pub_: Arc<dyn EventPublisher> = Domain::noop_event_publisher();
     assert!(pub_.publish(&AnyEvent).await.is_ok());
 }
 

@@ -1,4 +1,4 @@
-//! Integration tests for the `Repository` trait contract and `new_in_memory_repository()`.
+//! Integration tests for the `Repository` trait contract and `Domain::new_in_memory_repository()`.
 
 use edge_domain::{new_in_memory_repository, Repository, RepositoryError};
 use futures::future::BoxFuture;
@@ -44,7 +44,7 @@ async fn test_repository_trait_save_propagates_error_from_impl() {
 /// @covers: new_in_memory_repository
 #[tokio::test]
 async fn test_new_in_memory_repository_save_and_find_round_trips_entity() {
-    let repo: Arc<dyn Repository<String, u64>> = new_in_memory_repository();
+    let repo: Arc<dyn Repository<String, u64>> = Domain::new_in_memory_repository();
     repo.save(1, "hello".into()).await.unwrap();
     assert_eq!(repo.find(&1).await.unwrap().as_deref(), Some("hello"));
 }
@@ -52,14 +52,14 @@ async fn test_new_in_memory_repository_save_and_find_round_trips_entity() {
 /// @covers: new_in_memory_repository
 #[tokio::test]
 async fn test_new_in_memory_repository_find_returns_none_for_missing_id() {
-    let repo: Arc<dyn Repository<String, u64>> = new_in_memory_repository();
+    let repo: Arc<dyn Repository<String, u64>> = Domain::new_in_memory_repository();
     assert!(repo.find(&99).await.unwrap().is_none());
 }
 
 /// @covers: new_in_memory_repository
 #[tokio::test]
 async fn test_new_in_memory_repository_delete_removes_entity() {
-    let repo: Arc<dyn Repository<String, u64>> = new_in_memory_repository();
+    let repo: Arc<dyn Repository<String, u64>> = Domain::new_in_memory_repository();
     repo.save(1, "bye".into()).await.unwrap();
     assert!(repo.delete(&1).await.unwrap());
     assert!(repo.find(&1).await.unwrap().is_none());
@@ -68,7 +68,7 @@ async fn test_new_in_memory_repository_delete_removes_entity() {
 /// @covers: new_in_memory_repository
 #[tokio::test]
 async fn test_new_in_memory_repository_list_returns_all_saved_entities() {
-    let repo: Arc<dyn Repository<String, u64>> = new_in_memory_repository();
+    let repo: Arc<dyn Repository<String, u64>> = Domain::new_in_memory_repository();
     repo.save(1, "a".into()).await.unwrap();
     repo.save(2, "b".into()).await.unwrap();
     let mut items = repo.list().await.unwrap();
