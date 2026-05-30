@@ -1,6 +1,0 @@
-[project]
-name = "edge-domain"
-layout = "single"
-
-[whitelist]
-allow = ["architecture.toml", "SECURITY.md", "scripts"]
