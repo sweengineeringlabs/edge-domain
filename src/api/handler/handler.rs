@@ -1,6 +1,6 @@
 //! Handler trait — the domain execution-unit contract.
 
-use futures::future::BoxFuture;
+use async_trait::async_trait;
 
 use crate::api::error::HandlerError;
 use crate::api::types::RequestContext;
@@ -12,16 +12,16 @@ use crate::api::types::RequestContext;
 /// auth/tenant context.
 ///
 /// ```rust,ignore
+/// #[async_trait]
 /// impl Handler<MyReq, MyResp> for MyHandler {
 ///     fn id(&self)      -> &str { "my-handler" }
 ///     fn pattern(&self) -> &str { "/api/v1/thing" }
-///     fn execute<'a>(&'a self, req: MyReq) -> BoxFuture<'a, Result<MyResp, HandlerError>> {
-///         Box::pin(async move {
-///             // business logic
-///         })
+///     async fn execute(&self, req: MyReq) -> Result<MyResp, HandlerError> {
+///         // business logic
 ///     }
 /// }
 /// ```
+#[async_trait]
 pub trait Handler<Request, Response>: Send + Sync
 where
     Request: Send + 'static,
@@ -42,24 +42,24 @@ where
     /// Handlers that do not need per-request auth context implement only this
     /// method.  The dispatch layer calls [`execute_with_context`](Self::execute_with_context),
     /// which defaults to forwarding here.
-    fn execute(&self, req: Request) -> BoxFuture<'_, Result<Response, HandlerError>>;
+    async fn execute(&self, req: Request) -> Result<Response, HandlerError>;
 
     /// Execute with per-request context.  Override when you need
     /// `ctx.subject`, `ctx.tenant_id`, or `ctx.trace_id`.
     ///
     /// Default: ignores context and calls `execute(req)`.
-    fn execute_with_context(
+    async fn execute_with_context(
         &self,
         req: Request,
         _ctx: RequestContext,
-    ) -> BoxFuture<'_, Result<Response, HandlerError>> {
-        self.execute(req)
+    ) -> Result<Response, HandlerError> {
+        self.execute(req).await
     }
 
     /// Return `false` when the handler is not ready to serve traffic.
     ///
     /// Default: always healthy.
-    fn health_check(&self) -> BoxFuture<'_, bool> {
-        Box::pin(async { true })
+    async fn health_check(&self) -> bool {
+        true
     }
 }

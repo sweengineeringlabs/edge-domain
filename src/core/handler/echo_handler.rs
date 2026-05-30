@@ -1,6 +1,6 @@
 //! [`Handler<T, T>`] impl for [`EchoHandler`].
 
-use futures::future::BoxFuture;
+use async_trait::async_trait;
 
 use crate::api::error::HandlerError;
 use crate::api::handler::Handler;
@@ -10,6 +10,7 @@ use crate::api::types::EchoHandler;
 #[allow(dead_code)]
 pub(crate) struct EchoHandlerImpl;
 
+#[async_trait]
 impl<T> Handler<T, T> for EchoHandler<T>
 where
     T: Send + 'static,
@@ -21,8 +22,8 @@ where
         &self.pattern
     }
 
-    fn execute(&self, req: T) -> BoxFuture<'_, Result<T, HandlerError>> {
-        Box::pin(async move { Ok(req) })
+    async fn execute(&self, req: T) -> Result<T, HandlerError> {
+        Ok(req)
     }
 }
 
