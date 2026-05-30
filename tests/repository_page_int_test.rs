@@ -1,7 +1,6 @@
-use edge_domain::Domain;
 //! Integration tests for `Repository` pagination — `list_page`, `exists`, `count`.
 
-use edge_domain::{new_in_memory_repository, Page};
+use edge_domain::Domain;
 
 /// @covers: list_page
 #[tokio::test]

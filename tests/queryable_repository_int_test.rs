@@ -1,7 +1,6 @@
-use edge_domain::Domain;
 //! Integration tests for `QueryableRepository` — spec-based queries.
 
-use edge_domain::{new_in_memory_queryable_repository, QueryableRepository, Spec};
+use edge_domain::Domain;
 use std::sync::Arc;
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────

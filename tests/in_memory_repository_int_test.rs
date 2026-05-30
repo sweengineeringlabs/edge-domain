@@ -47,7 +47,8 @@ async fn test_new_in_memory_queryable_repository_find_by_spec() {
             s.len() > 3
         }
     }
-    let repo: Arc<dyn QueryableRepository<String, u32>> = Domain::new_in_memory_queryable_repository();
+    let repo: Arc<dyn QueryableRepository<String, u32>> =
+        Domain::new_in_memory_queryable_repository();
     repo.save(1u32, "hi".to_string()).await.unwrap();
     repo.save(2u32, "hello".to_string()).await.unwrap();
     let results = repo.find_by(&LongStr).await.unwrap();

@@ -4,7 +4,6 @@ use std::hash::Hash;
 use std::sync::Arc;
 
 use crate::api::command::CommandBus;
-use crate::api::types::Domain;
 use crate::api::error::EventStoreError;
 use crate::api::event::Aggregate;
 use crate::api::event::DomainEvent;
@@ -18,6 +17,7 @@ use crate::api::query::QueryBus;
 use crate::api::repository::QueryableRepository;
 use crate::api::repository::Repository;
 use crate::api::service::ServiceRegistry as ServiceRegistryTrait;
+use crate::api::types::Domain;
 use crate::api::types::EchoHandler;
 use crate::api::types::HandlerRegistry;
 use crate::api::types::ServiceRegistry;

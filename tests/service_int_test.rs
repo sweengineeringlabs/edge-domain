@@ -1,7 +1,6 @@
-use edge_domain::Domain;
 //! Integration tests for `Service` and `ServiceRegistry`.
 
-use edge_domain::{new_service_registry, Service, ServiceError, ServiceRegistry};
+use edge_domain::Domain;
 use futures::future::BoxFuture;
 use std::sync::Arc;
 

@@ -23,9 +23,9 @@ pub use crate::api::query::QueryBus;
 pub use crate::api::query::QueryError;
 pub use crate::api::repository::QueryableRepository;
 pub use crate::api::repository::Repository;
+pub use crate::api::repository::Spec;
 pub use crate::api::service::Service;
 pub use crate::api::service::ServiceError;
-pub use crate::api::repository::Spec;
 
 pub use crate::api::types::{
     ApplicationConfig, DirectCommandBus, DirectQueryBus, EchoHandler, EventBusConfig,
