@@ -11,10 +11,9 @@
 
 mod api;
 mod core;
-mod gateway;
 mod saf;
 mod spi;
 
 pub use api::traits;
 pub use api::types::NoopDomainExtension;
-pub use gateway::*;
+pub use saf::*;
