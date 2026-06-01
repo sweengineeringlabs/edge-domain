@@ -145,6 +145,9 @@ path = "examples/custom_event_bus.rs"
 application_type = "lib"
 service_type     = "handler"
 
+[package.metadata.struct-engine.config.whitelist.project]
+entries = ["Cargo.lock"]
+
 [lib]
 path = "src/lib.rs"
 
