@@ -1,3 +1,6 @@
+[workspace]
+members = ["."]
+
 [package]
 name = "edge-domain"
 version = "0.1.0"
