@@ -1,163 +1,21 @@
 [workspace]
-members = ["."]
+resolver = "2"
+members  = ["main/features/domain"]
 
-[package]
-name = "edge-domain"
-version = "0.1.0"
-edition = "2021"
+[workspace.package]
+version      = "0.1.0"
+edition      = "2021"
 license      = "MIT OR Apache-2.0"
-repository = "https://github.com/sweengineeringlabs/edge"
-authors = ["SWE Engineering Labs"]
 rust-version = "1.95"
-description = "edge — L2 Domain: business logic contracts (Handler, Service, Repository, Event, Command/Query)"
-keywords = ["domain", "handler", "business-logic", "sea", "swe"]
-categories = ["development-tools"]
+authors      = ["SWE Engineering Labs"]
+repository   = "https://github.com/sweengineeringlabs/edge"
 
-[dependencies]
-thiserror   = "2"
-async-trait = "0.1"
-futures     = "0.3"
-parking_lot = "0.12"
-tokio       = { version = "1", features = ["sync"] }
-
-[dev-dependencies]
-tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread"] }
-futures = "0.3"
-
-[lints.clippy]
-unwrap_used = "deny"
-expect_used = "deny"
-
-[[test]]
-name = "echo_handler_int_test"
-path = "tests/echo_handler_int_test.rs"
-
-[[test]]
-name = "handler_registry_int_test"
-path = "tests/handler_registry_int_test.rs"
-
-[[test]]
-name = "outbound_registry_int_test"
-path = "tests/outbound_registry_int_test.rs"
-
-[[test]]
-name = "edge_domain_svc_int_test"
-path = "tests/edge_domain_svc_int_test.rs"
-
-[[test]]
-name = "handler_trait_int_test"
-path = "tests/handler_trait_int_test.rs"
-
-[[test]]
-name = "validator_test"
-path = "tests/validator_test.rs"
-
-[[test]]
-name = "repository_int_test"
-path = "tests/repository_int_test.rs"
-
-[[test]]
-name = "service_int_test"
-path = "tests/service_int_test.rs"
-
-[[test]]
-name = "event_publisher_int_test"
-path = "tests/event_publisher_int_test.rs"
-
-[[test]]
-name = "event_store_int_test"
-path = "tests/event_store_int_test.rs"
-
-[[test]]
-name = "event_bus_int_test"
-path = "tests/event_bus_int_test.rs"
-
-[[test]]
-name = "in_memory_event_store_int_test"
-path = "tests/in_memory_event_store_int_test.rs"
-
-[[test]]
-name = "command_query_int_test"
-path = "tests/command_query_int_test.rs"
-
-[[test]]
-name = "error_bridge_int_test"
-path = "tests/error_bridge_int_test.rs"
-
-[[test]]
-name = "default_impls_int_test"
-path = "tests/default_impls_int_test.rs"
-
-[[test]]
-name = "command_error_int_test"
-path = "tests/command_error_int_test.rs"
-
-[[test]]
-name = "event_error_int_test"
-path = "tests/event_error_int_test.rs"
-
-[[test]]
-name = "query_error_int_test"
-path = "tests/query_error_int_test.rs"
-
-[[test]]
-name = "repository_error_int_test"
-path = "tests/repository_error_int_test.rs"
-
-[[test]]
-name = "service_error_int_test"
-path = "tests/service_error_int_test.rs"
-
-[[test]]
-name = "repository_page_int_test"
-path = "tests/repository_page_int_test.rs"
-
-[[test]]
-name = "queryable_repository_int_test"
-path = "tests/queryable_repository_int_test.rs"
-
-[[test]]
-name = "in_memory_repository_int_test"
-path = "tests/in_memory_repository_int_test.rs"
-
-[[test]]
-name = "domain_svc_int_test"
-path = "tests/domain_svc_int_test.rs"
-
-[[test]]
-name = "api_types_coverage_int_test"
-path = "tests/api_types_coverage_int_test.rs"
-
-[[test]]
-name = "api_config_types_int_test"
-path = "tests/api_config_types_int_test.rs"
-
-[[example]]
-name = "handler_registry"
-path = "examples/handler_registry.rs"
-
-[[example]]
-name = "event_bus_consumer"
-path = "examples/event_bus_consumer.rs"
-
-[[example]]
-name = "custom_event_bus"
-path = "examples/custom_event_bus.rs"
-
-[package.metadata.struct-engine]
-application_type = "lib"
-service_type     = "handler"
-
-[package.metadata.struct-engine.config.whitelist.project]
+[workspace.metadata.struct-engine.config.whitelist.project]
 entries = ["Cargo.lock"]
 
-[lib]
-path = "src/lib.rs"
+[workspace.lints.rust]
+unsafe_code  = "deny"
 
-[[test]]
-name = "domain_extension_int_test"
-path = "tests/domain_extension_int_test.rs"
-
-[[test]]
-name = "noop_domain_extension_int_test"
-path = "tests/noop_domain_extension_int_test.rs"
+[workspace.lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
