@@ -3,6 +3,46 @@
 use thiserror::Error;
 
 /// Errors raised by [`Handler::execute`](crate::Handler::execute).
+///
+/// All variants carry a human-readable message. Use the helper constructors
+/// [`HandlerError::internal`] and [`HandlerError::invalid`] to wrap arbitrary
+/// errors without choosing a variant at the call site.
+///
+/// Map to HTTP/gRPC status codes at the ingress layer:
+/// `NotFound` → 404/NOT_FOUND, `Unauthorized` → 401/UNAUTHENTICATED,
+/// `PermissionDenied` → 403/PERMISSION_DENIED, `Conflict` → 409/ALREADY_EXISTS.
+///
+/// # Examples
+///
+/// ```rust
+/// use edge_domain::HandlerError;
+///
+/// // Constructor helpers.
+/// let e = HandlerError::internal("database unavailable");
+/// assert!(e.to_string().contains("database unavailable"));
+///
+/// let e = HandlerError::invalid("id must be a UUID");
+/// assert!(matches!(e, HandlerError::InvalidRequest(_)));
+///
+/// // Direct variant construction.
+/// let e = HandlerError::NotFound("order-123".to_string());
+/// assert!(e.to_string().contains("order-123"));
+///
+/// // Exhaustive match.
+/// let e = HandlerError::Unauthorized("JWT expired".to_string());
+/// let status = match &e {
+///     HandlerError::Unauthorized(_)    => 401,
+///     HandlerError::PermissionDenied(_) => 403,
+///     HandlerError::NotFound(_)         => 404,
+///     HandlerError::Conflict(_)         => 409,
+///     HandlerError::InvalidRequest(_)
+///     | HandlerError::FailedPrecondition(_) => 400,
+///     HandlerError::Unsupported(_)
+///     | HandlerError::ExecutionFailed(_)
+///     | HandlerError::Unhealthy         => 500,
+/// };
+/// assert_eq!(status, 401);
+/// ```
 #[derive(Debug, Error)]
 pub enum HandlerError {
     /// The handler was asked to do something it does not support.
@@ -105,11 +145,15 @@ impl From<crate::api::query::QueryError> for HandlerError {
 impl HandlerError {
     /// Wrap any error as an internal execution failure.
     ///
-    /// Consumers use this to convert domain errors into `HandlerError`
-    /// without choosing a variant:
+    /// Use as `.map_err(HandlerError::internal)` to convert any `Display` error
+    /// into `HandlerError::ExecutionFailed` without picking a variant at the call site.
     ///
-    /// ```rust,ignore
-    /// self.complete(req).await.map_err(HandlerError::internal)
+    /// # Examples
+    ///
+    /// ```rust
+    /// use edge_domain::HandlerError;
+    /// let e = HandlerError::internal("pool exhausted");
+    /// assert!(matches!(e, HandlerError::ExecutionFailed(_)));
     /// ```
     pub fn internal(e: impl ToString) -> Self {
         HandlerError::ExecutionFailed(e.to_string())

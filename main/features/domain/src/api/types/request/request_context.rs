@@ -9,6 +9,32 @@ use std::collections::HashMap;
 /// middleware stack (JWT verification, mTLS peer identity, trace
 /// propagation). Stable infrastructure dependencies — egress clients,
 /// registries — are injected at handler construction time, not here.
+///
+/// # Examples
+///
+/// ```rust
+/// use edge_domain::RequestContext;
+///
+/// // Unauthenticated — default for health checks or anonymous requests.
+/// let ctx = RequestContext::unauthenticated();
+/// assert!(!ctx.authenticated);
+/// assert!(ctx.subject.is_none());
+/// assert!(ctx.require_subject().is_none());
+///
+/// // Authenticated from JWT claims.
+/// let ctx = RequestContext::authenticated(
+///     "user-123",
+///     Some("https://auth.example.com".to_string()),
+///     Some("tenant-abc".to_string()),
+///     std::collections::HashMap::new(),
+/// )
+/// .with_trace_id("trace-xyz");
+///
+/// assert!(ctx.authenticated);
+/// assert_eq!(ctx.require_subject(), Some("user-123"));
+/// assert_eq!(ctx.trace_id, "trace-xyz");
+/// assert_eq!(ctx.tenant_id.as_deref(), Some("tenant-abc"));
+/// ```
 #[derive(Debug, Clone, Default)]
 pub struct RequestContext {
     /// Authenticated subject from the JWT `sub` claim or API key identity.

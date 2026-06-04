@@ -12,6 +12,39 @@ use crate::api::handler::HandlerRegistry as HandlerRegistryTrait;
 ///
 /// Concurrency: guarded by a `parking_lot::RwLock` — lookups proceed in
 /// parallel while registration and deregistration are serialized.
+///
+/// The factory function `new_handler_registry()` (from the SAF layer) is the
+/// preferred entry point; `HandlerRegistry::new()` is equivalent.
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use std::sync::Arc;
+/// use async_trait::async_trait;
+/// use edge_domain::{Handler, HandlerError, HandlerRegistry};
+///
+/// struct PingHandler;
+///
+/// #[async_trait]
+/// impl Handler<String, String> for PingHandler {
+///     fn id(&self) -> &str { "ping" }
+///     async fn execute(&self, _req: String) -> Result<String, HandlerError> {
+///         Ok("pong".to_string())
+///     }
+/// }
+///
+/// let registry: HandlerRegistry<String, String> = HandlerRegistry::new();
+/// assert!(registry.is_empty());
+///
+/// registry.register(Arc::new(PingHandler));
+/// assert_eq!(registry.len(), 1);
+/// assert!(registry.get("ping").is_some());
+/// assert!(registry.get("missing").is_none());
+///
+/// let removed = registry.deregister("ping");
+/// assert!(removed);
+/// assert!(registry.is_empty());
+/// ```
 pub struct HandlerRegistry<Request, Response>
 where
     Request: Send + 'static,

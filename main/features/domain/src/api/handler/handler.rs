@@ -11,13 +11,24 @@ use crate::api::types::RequestContext;
 /// default.  Override `execute_with_context` only when you need the per-request
 /// auth/tenant context.
 ///
-/// ```rust,ignore
+/// # Examples
+///
+/// ```rust,no_run
+/// use async_trait::async_trait;
+/// use edge_domain::{Handler, HandlerError};
+///
+/// struct GreetHandler;
+///
 /// #[async_trait]
-/// impl Handler<MyReq, MyResp> for MyHandler {
-///     fn id(&self)      -> &str { "my-handler" }
-///     fn pattern(&self) -> &str { "/api/v1/thing" }
-///     async fn execute(&self, req: MyReq) -> Result<MyResp, HandlerError> {
-///         // business logic
+/// impl Handler<String, String> for GreetHandler {
+///     fn id(&self)      -> &str { "greet" }
+///     fn pattern(&self) -> &str { "/api/v1/greet" }
+///
+///     async fn execute(&self, req: String) -> Result<String, HandlerError> {
+///         if req.is_empty() {
+///             return Err(HandlerError::invalid("name must not be empty"));
+///         }
+///         Ok(format!("Hello, {}!", req))
 ///     }
 /// }
 /// ```
