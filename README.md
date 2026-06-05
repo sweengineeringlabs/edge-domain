@@ -187,3 +187,4 @@ Provided for development and testing — swap with real infrastructure in produc
 
 `edge-domain` has no dependency on ingress, egress, runtime, or any infrastructure
 library. It depends only on `thiserror`, `futures`, `async-trait`, and `parking_lot`.
+# test
