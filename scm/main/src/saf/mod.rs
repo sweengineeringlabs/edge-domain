@@ -15,6 +15,7 @@ pub use crate::api::event::EventPublisher;
 pub use crate::api::event::EventStore;
 pub use crate::api::event::EventStoreError;
 pub use crate::api::event::ExpectedVersion;
+pub use edge_dispatch::Dispatch;
 pub use crate::api::handler::Handler;
 pub use crate::api::handler::HandlerError;
 pub use crate::api::query::Query;
@@ -32,8 +33,7 @@ pub use crate::api::event::{
     EventBusConfig, EventReceiver, InMemoryEventStore, InProcessEventBus, NoopEventBus,
     NoopEventPublisher,
 };
-pub use crate::api::handler::types::HandlerRegistry;
-pub use crate::api::handler::{EchoHandler, RequestContext, RequestContextBuilder};
+pub use edge_dispatch::{EchoHandler, HandlerRegistry, RequestContext, RequestContextBuilder};
 pub use crate::api::query::DirectQueryBus;
 pub use crate::api::repository::{InMemoryRepository, Page};
 pub use crate::api::service::types::ServiceRegistry;

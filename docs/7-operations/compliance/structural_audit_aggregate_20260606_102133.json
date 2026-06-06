@@ -1,0 +1,15 @@
+{
+  "members": [
+    {
+      "failed": 7,
+      "member": "main/domain",
+      "passed": 143,
+      "skipped": 0
+    }
+  ],
+  "mode": "package",
+  "timestamp": "2026-06-06T10:21:33.349839300+02:00",
+  "total_failed": 7,
+  "total_members": 1,
+  "total_passed": 143
+}

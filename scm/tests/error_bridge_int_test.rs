@@ -1,154 +1,127 @@
-//! Integration tests for error bridging: domain errors → HandlerError.
+//! Integration tests for domain error → HandlerError conversion.
+//!
+//! `From<DomainError>` impls were removed when dispatch types moved to
+//! `edge-dispatch` (orphan rules prevent cross-crate From impls).
+//! The supported pattern is `.map_err(HandlerError::internal)` or
+//! `.map_err(HandlerError::invalid)`.
 
 use edge_domain::{
     CommandError, EventError, HandlerError, QueryError, RepositoryError, ServiceError,
 };
 
-/// @covers: From<ServiceError> for HandlerError
-#[test]
-fn test_service_error_invalid_request_maps_to_handler_invalid_request() {
-    let e: HandlerError = ServiceError::InvalidRequest("bad".into()).into();
-    assert!(matches!(e, HandlerError::InvalidRequest(_)));
-}
+// ── HandlerError::internal helper ────────────────────────────────────────────
 
-/// @covers: From<ServiceError> for HandlerError
+/// @covers: HandlerError::internal
 #[test]
-fn test_service_error_rule_violation_maps_to_handler_failed_precondition() {
-    let e: HandlerError = ServiceError::RuleViolation("no".into()).into();
-    assert!(matches!(e, HandlerError::FailedPrecondition(_)));
-}
-
-/// @covers: From<ServiceError> for HandlerError
-#[test]
-fn test_service_error_not_found_maps_to_handler_not_found() {
-    let e: HandlerError = ServiceError::NotFound("customer-42".into()).into();
-    assert!(matches!(e, HandlerError::NotFound(_)));
-    assert!(e.to_string().contains("customer-42"));
-}
-
-/// @covers: From<ServiceError> for HandlerError
-#[test]
-fn test_service_error_internal_maps_to_handler_execution_failed() {
-    let e: HandlerError = ServiceError::Internal("boom".into()).into();
+fn test_internal_wraps_any_display_as_execution_failed() {
+    let e = HandlerError::internal("database unavailable");
     assert!(matches!(e, HandlerError::ExecutionFailed(_)));
+    assert!(e.to_string().contains("database unavailable"));
 }
 
-/// @covers: From<RepositoryError> for HandlerError
+/// @covers: HandlerError::invalid
 #[test]
-fn test_repository_error_not_found_maps_to_handler_not_found() {
-    let e: HandlerError = RepositoryError::NotFound("id-1".into()).into();
-    assert!(matches!(e, HandlerError::NotFound(_)));
-    assert!(e.to_string().contains("id-1"));
+fn test_invalid_wraps_any_display_as_invalid_request() {
+    let e = HandlerError::invalid("id must be a UUID");
+    assert!(matches!(e, HandlerError::InvalidRequest(_)));
+    assert!(e.to_string().contains("id must be a UUID"));
 }
 
-/// @covers: From<RepositoryError> for HandlerError
+// ── .map_err(HandlerError::internal) pattern ─────────────────────────────────
+
+/// @covers: map_err pattern for CommandError
 #[test]
-fn test_repository_error_conflict_maps_to_handler_conflict() {
-    let e: HandlerError = RepositoryError::Conflict("dup key".into()).into();
+fn test_map_err_internal_converts_command_error_to_execution_failed() {
+    fn simulate() -> Result<(), HandlerError> {
+        let result: Result<(), CommandError> = Err(CommandError::Internal("oops".into()));
+        result.map_err(HandlerError::internal)?;
+        Ok(())
+    }
+    assert!(matches!(simulate(), Err(HandlerError::ExecutionFailed(_))));
+}
+
+/// @covers: map_err pattern for QueryError
+#[test]
+fn test_map_err_internal_converts_query_error_to_execution_failed() {
+    fn simulate() -> Result<String, HandlerError> {
+        let result: Result<String, QueryError> = Err(QueryError::NotFound("x".into()));
+        result.map_err(HandlerError::internal)
+    }
+    assert!(matches!(simulate(), Err(HandlerError::ExecutionFailed(_))));
+}
+
+/// @covers: map_err pattern for RepositoryError
+#[test]
+fn test_map_err_internal_converts_repository_error_to_execution_failed() {
+    fn simulate() -> Result<(), HandlerError> {
+        let result: Result<(), RepositoryError> = Err(RepositoryError::Unavailable("db down".into()));
+        result.map_err(HandlerError::internal)?;
+        Ok(())
+    }
+    assert!(matches!(simulate(), Err(HandlerError::ExecutionFailed(_))));
+}
+
+/// @covers: map_err pattern for ServiceError
+#[test]
+fn test_map_err_internal_converts_service_error_to_execution_failed() {
+    fn simulate() -> Result<(), HandlerError> {
+        let result: Result<(), ServiceError> = Err(ServiceError::Internal("boom".into()));
+        result.map_err(HandlerError::internal)?;
+        Ok(())
+    }
+    assert!(matches!(simulate(), Err(HandlerError::ExecutionFailed(_))));
+}
+
+/// @covers: map_err pattern for EventError
+#[test]
+fn test_map_err_internal_converts_event_error_to_execution_failed() {
+    fn simulate() -> Result<(), HandlerError> {
+        let result: Result<(), EventError> = Err(EventError::Unavailable("bus down".into()));
+        result.map_err(HandlerError::internal)?;
+        Ok(())
+    }
+    assert!(matches!(simulate(), Err(HandlerError::ExecutionFailed(_))));
+}
+
+// ── HandlerError variant messages ─────────────────────────────────────────────
+
+/// @covers: HandlerError variants and Display
+#[test]
+fn test_not_found_message_is_preserved() {
+    let e = HandlerError::NotFound("order-99".into());
+    assert!(e.to_string().contains("order-99"));
+}
+
+/// @covers: HandlerError variants
+#[test]
+fn test_unauthorized_is_distinct_from_permission_denied() {
+    let unauth = HandlerError::Unauthorized("token expired".into());
+    let denied = HandlerError::PermissionDenied("insufficient scope".into());
+    assert!(matches!(unauth, HandlerError::Unauthorized(_)));
+    assert!(matches!(denied, HandlerError::PermissionDenied(_)));
+    assert!(unauth.to_string().contains("token expired"));
+    assert!(denied.to_string().contains("insufficient scope"));
+}
+
+/// @covers: HandlerError::Conflict
+#[test]
+fn test_conflict_message_is_preserved() {
+    let e = HandlerError::Conflict("dup key".into());
     assert!(matches!(e, HandlerError::Conflict(_)));
     assert!(e.to_string().contains("dup key"));
 }
 
-/// @covers: From<RepositoryError> for HandlerError
+/// @covers: HandlerError::FailedPrecondition
 #[test]
-fn test_repository_error_unavailable_maps_to_handler_execution_failed() {
-    let e: HandlerError = RepositoryError::Unavailable("db down".into()).into();
-    assert!(matches!(e, HandlerError::ExecutionFailed(_)));
-}
-
-/// @covers: From<CommandError> for HandlerError
-#[test]
-fn test_command_error_invalid_input_maps_to_handler_invalid_request() {
-    let e: HandlerError = CommandError::InvalidInput("missing".into()).into();
-    assert!(matches!(e, HandlerError::InvalidRequest(_)));
-}
-
-/// @covers: From<CommandError> for HandlerError
-#[test]
-fn test_command_error_rule_violation_maps_to_handler_failed_precondition() {
-    let e: HandlerError = CommandError::RuleViolation("blocked".into()).into();
+fn test_failed_precondition_message_is_preserved() {
+    let e = HandlerError::FailedPrecondition("state invalid".into());
     assert!(matches!(e, HandlerError::FailedPrecondition(_)));
 }
 
-/// @covers: From<CommandError> for HandlerError
+/// @covers: HandlerError::Unhealthy
 #[test]
-fn test_command_error_not_found_maps_to_handler_not_found() {
-    let e: HandlerError = CommandError::NotFound("order-99".into()).into();
-    assert!(matches!(e, HandlerError::NotFound(_)));
-    assert!(e.to_string().contains("order-99"));
-}
-
-/// @covers: From<CommandError> for HandlerError — ? operator works in handlers
-#[test]
-fn test_question_mark_operator_converts_command_error_to_handler_error() {
-    fn simulate_handler() -> Result<(), HandlerError> {
-        let result: Result<(), CommandError> = Err(CommandError::Internal("oops".into()));
-        result?;
-        Ok(())
-    }
-    assert!(matches!(
-        simulate_handler(),
-        Err(HandlerError::ExecutionFailed(_))
-    ));
-}
-
-/// @covers: From<EventError> for HandlerError
-#[test]
-fn test_event_error_serialization_failed_maps_to_handler_execution_failed() {
-    let e: HandlerError = EventError::SerializationFailed("bad json".into()).into();
-    assert!(matches!(e, HandlerError::ExecutionFailed(_)));
-    assert!(e.to_string().contains("bad json"));
-}
-
-/// @covers: From<EventError> for HandlerError
-#[test]
-fn test_event_error_unavailable_maps_to_handler_execution_failed() {
-    let e: HandlerError = EventError::Unavailable("bus down".into()).into();
-    assert!(matches!(e, HandlerError::ExecutionFailed(_)));
-}
-
-/// @covers: From<QueryError> for HandlerError
-#[test]
-fn test_query_error_not_found_maps_to_handler_not_found() {
-    let e: HandlerError = QueryError::NotFound("item-7".into()).into();
-    assert!(matches!(e, HandlerError::NotFound(_)));
-    assert!(e.to_string().contains("item-7"));
-}
-
-/// @covers: From<QueryError> for HandlerError
-#[test]
-fn test_query_error_invalid_input_maps_to_handler_invalid_request() {
-    let e: HandlerError = QueryError::InvalidInput("bad id".into()).into();
-    assert!(matches!(e, HandlerError::InvalidRequest(_)));
-}
-
-/// @covers: From<QueryError> for HandlerError
-#[test]
-fn test_query_error_internal_maps_to_handler_execution_failed() {
-    let e: HandlerError = QueryError::Internal("db error".into()).into();
-    assert!(matches!(e, HandlerError::ExecutionFailed(_)));
-}
-
-/// @covers: From<QueryError> for HandlerError — ? operator works in handlers
-#[test]
-fn test_question_mark_operator_converts_query_error_to_handler_error() {
-    fn simulate_handler() -> Result<String, HandlerError> {
-        let result: Result<String, QueryError> = Err(QueryError::NotFound("x".into()));
-        Ok(result?)
-    }
-    assert!(matches!(simulate_handler(), Err(HandlerError::NotFound(_))));
-}
-
-/// @covers: HandlerError::Unauthorized
-#[test]
-fn test_unauthorized_is_distinct_from_permission_denied() {
-    let unauth = HandlerError::Unauthorized("token expired".into());
-    let permission_denied = HandlerError::PermissionDenied("insufficient scope".into());
-    assert!(matches!(unauth, HandlerError::Unauthorized(_)));
-    assert!(matches!(
-        permission_denied,
-        HandlerError::PermissionDenied(_)
-    ));
-    assert!(unauth.to_string().contains("token expired"));
-    assert!(permission_denied.to_string().contains("insufficient scope"));
+fn test_unhealthy_has_no_message_field() {
+    let e = HandlerError::Unhealthy;
+    assert!(matches!(e, HandlerError::Unhealthy));
+    assert!(e.to_string().contains("unhealthy"));
 }

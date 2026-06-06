@@ -11,10 +11,9 @@ use crate::api::event::EventBusConfig;
 use crate::api::event::EventPublisher;
 use crate::api::event::EventStore;
 use crate::api::event::EventStoreError;
-use crate::api::handler::types::EchoHandler;
-use crate::api::handler::types::HandlerRegistry;
-use crate::api::handler::Handler;
-use crate::api::handler::HandlerRegistry as HandlerRegistryTrait;
+use edge_dispatch::Dispatch;
+use edge_dispatch::Handler;
+use edge_dispatch::HandlerRegistry as HandlerRegistryTrait;
 use crate::api::query::QueryBus;
 use crate::api::repository::QueryableRepository;
 use crate::api::repository::Repository;
@@ -41,8 +40,7 @@ impl Domain {
     where
         T: Send + 'static,
     {
-        let h = EchoHandler::new(id, pattern);
-        Arc::new(h)
+        Dispatch::echo_handler(id, pattern)
     }
 
     /// Construct a fresh empty [`HandlerRegistry`].
@@ -52,8 +50,39 @@ impl Domain {
         Request: Send + 'static,
         Response: Send + 'static,
     {
-        let r = HandlerRegistry::new();
-        Arc::new(r)
+        Dispatch::new_handler_registry()
+    }
+
+    /// Construct a paired `(H1, H2)` from a shared backend `Arc<B>`.
+    ///
+    /// Both closures receive `Arc::clone(&backend)`, ensuring writes through
+    /// `H1` are visible to reads through `H2` when both share an in-memory
+    /// store. Without this, two separate `from_config()` calls create
+    /// independent backend instances and writes are invisible across them.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use std::sync::Arc;
+    /// use edge_domain::{Domain, Repository};
+    ///
+    /// struct WriteHandler { repo: Arc<dyn Repository<String, String>> }
+    /// struct ReadHandler  { repo: Arc<dyn Repository<String, String>> }
+    ///
+    /// let (writer, reader) = Domain::paired(
+    ///     Domain::new_in_memory_repository::<String, String>(),
+    ///     |repo| WriteHandler { repo },
+    ///     |repo| ReadHandler  { repo },
+    /// );
+    /// ```
+    pub fn paired<B: ?Sized, H1, H2>(
+        backend: Arc<B>,
+        make_first: impl FnOnce(Arc<B>) -> H1,
+        make_second: impl FnOnce(Arc<B>) -> H2,
+    ) -> (H1, H2) {
+        let first = make_first(Arc::clone(&backend));
+        let second = make_second(backend);
+        (first, second)
     }
 
     /// Construct a fresh empty [`ServiceRegistry`].
