@@ -1,11 +1,11 @@
 [package]
 name         = "edge-domain"
-version.workspace     = true
-edition.workspace     = true
-license.workspace     = true
-rust-version.workspace = true
-authors.workspace     = true
-repository.workspace  = true
+version      = "0.1.0"
+edition      = "2021"
+license      = "MIT OR Apache-2.0"
+rust-version = "1.95"
+authors      = ["SWE Engineering Labs"]
+repository   = "https://github.com/sweengineeringlabs/edge-domain"
 description  = "edge — L2 Domain: business logic contracts (Handler, Service, Repository, Event, Command/Query)"
 keywords     = ["domain", "handler", "business-logic", "sea", "swe"]
 categories   = ["development-tools"]
@@ -15,7 +15,7 @@ application_type = "lib"
 service_type     = "handler"
 
 [lib]
-path = "src/lib.rs"
+path = "main/src/lib.rs"
 
 [dependencies]
 thiserror   = "2"
@@ -28,5 +28,9 @@ tokio       = { version = "1", features = ["sync"] }
 tokio   = { version = "1", features = ["macros", "rt", "rt-multi-thread"] }
 futures = "0.3"
 
-[lints]
-workspace = true
+[lints.rust]
+unsafe_code = "deny"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
