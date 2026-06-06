@@ -1,12 +1,12 @@
-//! Handler module — trait, registry, and request context.
+//! `Handler` theme — execution-unit contract, registry, and request context.
 
-pub mod echo_handler;
-#[allow(clippy::module_inception)]
-pub mod handler;
-pub mod handler_registry;
-pub mod request;
+pub mod error;
+pub mod traits;
+pub mod types;
+pub mod vo;
 
-pub use crate::api::types::RequestContext;
-pub use crate::api::types::RequestContextBuilder;
-pub use handler::Handler;
-pub use handler_registry::HandlerRegistry;
+pub use error::HandlerError;
+pub use traits::Handler;
+pub use traits::HandlerRegistry;
+pub use types::EchoHandler;
+pub use vo::{RequestContext, RequestContextBuilder};

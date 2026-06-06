@@ -33,12 +33,12 @@ fn test_event_bus_config_default_capacity_is_1024() {
     assert_eq!(EventBusConfig::default().capacity, 1024);
 }
 
-// ── tokio_event_bus ───────────────────────────────────────────────────────────
+// ── in_process_event_bus ───────────────────────────────────────────────────────────
 
-/// @covers: tokio_event_bus
+/// @covers: in_process_event_bus
 #[tokio::test]
-async fn test_tokio_event_bus_subscribe_then_publish_delivers_event() {
-    let bus = Domain::tokio_event_bus(EventBusConfig::default());
+async fn test_in_process_event_bus_subscribe_then_publish_delivers_event() {
+    let bus = Domain::in_process_event_bus(EventBusConfig::default());
     let mut rx: EventReceiver = bus.subscribe();
     bus.publish(Arc::new(OrderCreated {
         order_id: "ord-1".into(),
@@ -50,10 +50,10 @@ async fn test_tokio_event_bus_subscribe_then_publish_delivers_event() {
     assert_eq!(event.aggregate_id(), "ord-1");
 }
 
-/// @covers: tokio_event_bus
+/// @covers: in_process_event_bus
 #[tokio::test]
-async fn test_tokio_event_bus_publish_with_no_subscribers_returns_ok() {
-    let bus = Domain::tokio_event_bus(EventBusConfig::default());
+async fn test_in_process_event_bus_publish_with_no_subscribers_returns_ok() {
+    let bus = Domain::in_process_event_bus(EventBusConfig::default());
     let result = bus
         .publish(Arc::new(OrderCreated {
             order_id: "ord-1".into(),
@@ -62,10 +62,10 @@ async fn test_tokio_event_bus_publish_with_no_subscribers_returns_ok() {
     assert!(result.is_ok());
 }
 
-/// @covers: tokio_event_bus
+/// @covers: in_process_event_bus
 #[tokio::test]
-async fn test_tokio_event_bus_fan_out_delivers_to_all_subscribers() {
-    let bus = Domain::tokio_event_bus(EventBusConfig::default());
+async fn test_in_process_event_bus_fan_out_delivers_to_all_subscribers() {
+    let bus = Domain::in_process_event_bus(EventBusConfig::default());
     let mut rx1 = bus.subscribe();
     let mut rx2 = bus.subscribe();
     bus.publish(Arc::new(OrderCreated {
@@ -77,10 +77,10 @@ async fn test_tokio_event_bus_fan_out_delivers_to_all_subscribers() {
     assert_eq!(rx2.recv().await.unwrap().aggregate_id(), "ord-2");
 }
 
-/// @covers: tokio_event_bus
+/// @covers: in_process_event_bus
 #[tokio::test]
-async fn test_tokio_event_bus_clone_shares_channel() {
-    let bus = Domain::tokio_event_bus(EventBusConfig::default());
+async fn test_in_process_event_bus_clone_shares_channel() {
+    let bus = Domain::in_process_event_bus(EventBusConfig::default());
     let clone = bus.clone();
     let mut rx = bus.subscribe();
     clone
@@ -119,7 +119,7 @@ async fn test_noop_event_bus_subscribe_returns_closed_receiver() {
 /// @covers: EventReceiver
 #[tokio::test]
 async fn test_event_receiver_recv_returns_event_in_order() {
-    let bus = Domain::tokio_event_bus(EventBusConfig::default());
+    let bus = Domain::in_process_event_bus(EventBusConfig::default());
     let mut rx = bus.subscribe();
     for i in 0u32..3 {
         let id = format!("ord-{i}");

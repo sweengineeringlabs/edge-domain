@@ -1,3 +1,7 @@
-//! Validator interface — declarations for the `core/validator` implementation.
+//! `Validator` theme — default implementation of the crate-level
+//! [`Validator`](crate::api::traits::Validator) contract.
 
-pub mod validator_default;
+pub mod types;
+
+pub use crate::api::traits::Validator;
+pub use types::ValidatorDefault;

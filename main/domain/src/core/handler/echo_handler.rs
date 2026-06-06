@@ -2,9 +2,9 @@
 
 use async_trait::async_trait;
 
-use crate::api::error::HandlerError;
+use crate::api::handler::types::EchoHandler;
 use crate::api::handler::Handler;
-use crate::api::types::EchoHandler;
+use crate::api::handler::HandlerError;
 
 /// Primary type for this module — satisfies Rule 89 filename match.
 #[expect(

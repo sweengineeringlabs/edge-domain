@@ -1,9 +1,9 @@
-//! `Service` module — named domain operation contracts.
+//! `Service` theme — named domain operation contracts.
 
-#[allow(clippy::module_inception)]
-pub mod service;
-pub mod service_registry;
+pub mod error;
+pub mod traits;
+pub mod types;
 
-pub use crate::api::error::ServiceError;
-pub use service::Service;
-pub use service_registry::ServiceRegistry;
+pub use error::ServiceError;
+pub use traits::Service;
+pub use traits::ServiceRegistry;

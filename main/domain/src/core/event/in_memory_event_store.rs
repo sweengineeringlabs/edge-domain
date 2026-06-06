@@ -9,11 +9,11 @@ use parking_lot::RwLock;
 
 use futures::future::BoxFuture;
 
-use crate::api::error::EventStoreError;
-use crate::api::event::event_store::EventStore;
-use crate::api::event::expected_version::ExpectedVersion;
+use crate::api::event::traits::event_store::EventStore;
+use crate::api::event::vo::expected_version::ExpectedVersion;
 use crate::api::event::DomainEvent;
-use crate::api::types::EventEnvelope;
+use crate::api::event::EventEnvelope;
+use crate::api::event::EventStoreError;
 
 pub(crate) struct InMemoryEventStore<E> {
     streams: RwLock<HashMap<String, Vec<EventEnvelope<E>>>>,

@@ -3,12 +3,12 @@
 use std::sync::Arc;
 
 use futures::future::BoxFuture;
-use tokio::sync::broadcast;
 
-use crate::api::error::EventError;
-use crate::api::event::domain_event::DomainEvent;
-use crate::api::event::event_bus::EventBus;
-use crate::api::types::EventReceiver;
+use crate::api::event::error::EventError;
+use crate::api::event::traits::domain_event::DomainEvent;
+use crate::api::event::traits::event_bus::EventBus;
+use crate::api::event::vo::event_receiver::EventReceiver;
+use crate::core::event::closed_event_source::ClosedEventSource;
 
 /// Event bus that discards all published events.
 ///
@@ -21,8 +21,7 @@ impl EventBus for NoopEventBus {
     }
 
     fn subscribe(&self) -> EventReceiver {
-        let (_, rx) = broadcast::channel(1);
-        EventReceiver(rx)
+        EventReceiver::new(ClosedEventSource)
     }
 }
 
@@ -55,5 +54,11 @@ mod tests {
             .publish(Arc::new(NoopEventBusEvent))
             .await
             .is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_subscribe_then_recv_returns_unavailable() {
+        let mut rx = NoopEventBus.subscribe();
+        assert!(matches!(rx.recv().await, Err(EventError::Unavailable(_))));
     }
 }

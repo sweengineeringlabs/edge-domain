@@ -1,25 +1,11 @@
-//! `Event` module — domain event contracts and event sourcing infrastructure.
+//! `Event` theme — domain event contracts and event sourcing infrastructure.
 
-pub mod aggregate;
-pub mod domain_event;
-pub mod event_bus;
-pub mod event_bus_config;
-pub mod event_publisher;
-pub mod event_store;
-pub mod expected_version;
-pub mod in_memory_event_store;
-pub mod noop;
-pub mod noop_event_bus;
-pub mod noop_event_publisher;
-pub mod tokio_event_bus;
+pub mod error;
+pub mod traits;
+pub mod types;
+pub mod vo;
 
-pub use crate::api::error::EventError;
-pub use crate::api::error::EventStoreError;
-pub use crate::api::types::EventBusConfig;
-pub use crate::api::types::EventReceiver;
-pub use aggregate::Aggregate;
-pub use domain_event::DomainEvent;
-pub use event_bus::EventBus;
-pub use event_publisher::EventPublisher;
-pub use event_store::EventStore;
-pub use expected_version::ExpectedVersion;
+pub use error::{EventError, EventStoreError};
+pub use traits::{Aggregate, DomainEvent, EventBus, EventPublisher, EventStore};
+pub use types::{InMemoryEventStore, InProcessEventBus, NoopEventBus, NoopEventPublisher};
+pub use vo::{EventBusConfig, EventEnvelope, EventReceiver, ExpectedVersion};

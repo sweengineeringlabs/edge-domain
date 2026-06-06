@@ -1,11 +1,11 @@
-//! `Repository` module — data access contracts for domain entities.
+//! `Repository` theme — data access contracts for domain entities.
 
-pub mod in_memory_repository;
-pub mod queryable_repository;
-#[allow(clippy::module_inception)]
-pub mod repository;
-pub mod spec;
+pub mod error;
+pub mod traits;
+pub mod types;
+pub mod vo;
 
-pub use queryable_repository::QueryableRepository;
-pub use repository::Repository;
-pub use spec::Spec;
+pub use error::RepositoryError;
+pub use traits::{QueryableRepository, Repository};
+pub use types::InMemoryRepository;
+pub use vo::{Page, Spec};

@@ -1,10 +1,9 @@
-//! `Command` module — write operations that mutate domain state.
+//! `Command` theme — write operations that mutate domain state.
 
-#[allow(clippy::module_inception)]
-pub mod command;
-pub mod command_bus;
-pub mod direct_command_bus;
+pub mod error;
+pub mod traits;
+pub mod types;
 
-pub use crate::api::error::CommandError;
-pub use command::Command;
-pub use command_bus::CommandBus;
+pub use error::CommandError;
+pub use traits::{Command, CommandBus};
+pub use types::DirectCommandBus;

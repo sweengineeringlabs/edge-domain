@@ -41,7 +41,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // KEY: No EventBus import needed — just call the factory
     println!("1. Creating event bus via factory...");
     let config = EventBusConfig::default();
-    let event_bus = Domain::tokio_event_bus(config);
+    let event_bus = Domain::in_process_event_bus(config);
     println!("   ✓ Got Arc<dyn EventBus> without importing trait\n");
 
     // Use the bus — no type knowledge of concrete implementation

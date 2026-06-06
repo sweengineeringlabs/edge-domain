@@ -152,11 +152,11 @@ fn test_new_in_memory_event_store_returns_arc_event_store() {
         Domain::new_in_memory_event_store::<AnyEvent>();
 }
 
-/// @covers: tokio_event_bus
+/// @covers: in_process_event_bus
 #[test]
-fn test_tokio_event_bus_factory_returns_working_bus() {
+fn test_in_process_event_bus_factory_returns_working_bus() {
     use futures::executor::block_on;
-    let bus = Domain::tokio_event_bus(EventBusConfig::default());
+    let bus = Domain::in_process_event_bus(EventBusConfig::default());
     block_on(async move {
         assert!(bus.publish(Arc::new(AnyEvent)).await.is_ok());
     });

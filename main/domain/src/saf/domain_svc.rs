@@ -4,30 +4,30 @@ use std::hash::Hash;
 use std::sync::Arc;
 
 use crate::api::command::CommandBus;
-use crate::api::error::EventStoreError;
 use crate::api::event::Aggregate;
 use crate::api::event::DomainEvent;
 use crate::api::event::EventBus;
 use crate::api::event::EventBusConfig;
 use crate::api::event::EventPublisher;
 use crate::api::event::EventStore;
+use crate::api::event::EventStoreError;
+use crate::api::handler::types::EchoHandler;
+use crate::api::handler::types::HandlerRegistry;
 use crate::api::handler::Handler;
 use crate::api::handler::HandlerRegistry as HandlerRegistryTrait;
 use crate::api::query::QueryBus;
 use crate::api::repository::QueryableRepository;
 use crate::api::repository::Repository;
+use crate::api::service::types::ServiceRegistry;
 use crate::api::service::ServiceRegistry as ServiceRegistryTrait;
 use crate::api::types::Domain;
-use crate::api::types::EchoHandler;
-use crate::api::types::HandlerRegistry;
-use crate::api::types::ServiceRegistry;
 use crate::core::command::direct_command_bus::DirectCommandBus;
 use crate::core::event::in_memory_event_store::InMemoryEventStore;
 use crate::core::event::noop_event_bus::NoopEventBus;
 use crate::core::event::noop_event_publisher::NoopEventPublisher;
-use crate::core::event::tokio_event_bus::TokioEventBus;
 use crate::core::query::direct_query_bus::DirectQueryBus;
 use crate::core::repository::in_memory_repository::InMemoryRepository;
+use crate::spi::event::tokio::tokio_event_bus::TokioEventBus;
 
 impl Domain {
     /// Construct an [`EchoHandler`] that returns its input as its output.
@@ -135,8 +135,10 @@ impl Domain {
         Arc::new(b)
     }
 
-    /// Construct a tokio broadcast-backed in-process [`EventBus`].
-    pub fn tokio_event_bus(config: EventBusConfig) -> Arc<dyn EventBus> {
+    /// Construct an in-process broadcast-backed [`EventBus`].
+    ///
+    /// Backed by the tokio broadcast implementation in `spi/event/tokio`.
+    pub fn in_process_event_bus(config: EventBusConfig) -> Arc<dyn EventBus> {
         let b = TokioEventBus::new(config);
         Arc::new(b)
     }

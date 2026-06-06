@@ -96,7 +96,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Create the underlying event bus (edge/domain factory)
     println!("1. Creating underlying tokio event bus...");
     let config = EventBusConfig::default();
-    let underlying_bus = Domain::tokio_event_bus(config);
+    let underlying_bus = Domain::in_process_event_bus(config);
     println!("   ✓ Underlying bus created\n");
 
     // Consumer implements their own EventBus by wrapping/decorating
