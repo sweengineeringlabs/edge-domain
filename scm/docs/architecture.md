@@ -199,6 +199,50 @@ by Postgres, Kafka, or any other store — the `Aggregate` and domain code are u
 
 ---
 
+## Sequence
+
+> A `Handler` is registered at startup and invoked per request via `HandlerRegistry`; the domain layer has no transport dependency.
+
+```mermaid
+sequenceDiagram
+    participant App
+    participant Domain
+    participant HandlerRegistry
+    participant Handler
+
+    App->>Domain: new_handler_registry()
+    Domain-->>App: Arc<HandlerRegistry<Req, Resp>>
+
+    App->>HandlerRegistry: register(Arc<dyn Handler<Req, Resp>>)
+
+    Note over App,HandlerRegistry: per request
+    App->>HandlerRegistry: get(handler_id)
+    HandlerRegistry-->>App: Option<Arc<dyn Handler>>
+
+    App->>+Handler: execute(request: Req)
+    Handler-->>-App: Result<Resp, HandlerError>
+```
+
+## Data Flow
+
+> A `RequestContext` (or typed `Req`) flows into `Handler::execute`; a typed `Resp` or `HandlerError` exits — no transport types cross this boundary.
+
+```mermaid
+flowchart LR
+    A["Req\n(deserialized from\nRequestContext by ingress)"] --> B["Handler::execute(req)"]
+    B --> C{business logic}
+    C -->|Ok| D["Resp"]
+    C -->|Err| E["HandlerError\n::Internal(msg)\n::NotFound\n::Validation(msg)"]
+    D --> F["Result<Resp, HandlerError>"]
+    E --> F
+
+    subgraph EventSourcing["Optional: event sourcing path"]
+        G["Aggregate::apply(event)"]
+        H["EventStore::append\n(aggregate_id, events,\nExpectedVersion)"]
+        I["reconstitute::<A>(store, id)\n→ Option<A>"]
+    end
+```
+
 ## See Also
 
 - [Architecture Overview](../../docs/3-architecture/architecture.md)
