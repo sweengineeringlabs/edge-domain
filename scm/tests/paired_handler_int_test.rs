@@ -22,7 +22,11 @@ async fn test_paired_write_is_visible_to_read() {
         |repo| ReadHandler { repo },
     );
 
-    writer.repo.save("k".to_string(), "v".to_string()).await.unwrap();
+    writer
+        .repo
+        .save("k".to_string(), "v".to_string())
+        .await
+        .unwrap();
     let found = reader.repo.find(&"k".to_string()).await.unwrap();
     assert_eq!(found, Some("v".to_string()));
 }
@@ -42,8 +46,12 @@ async fn test_independent_backends_do_not_share_state() {
 /// @covers: Domain::paired — different handler types allowed
 #[test]
 fn test_paired_accepts_heterogeneous_handler_types() {
-    struct CmdHandler { _repo: Arc<dyn Repository<u32, u32>> }
-    struct QryHandler { _repo: Arc<dyn Repository<u32, u32>> }
+    struct CmdHandler {
+        _repo: Arc<dyn Repository<u32, u32>>,
+    }
+    struct QryHandler {
+        _repo: Arc<dyn Repository<u32, u32>>,
+    }
 
     let (cmd, qry) = Domain::paired(
         Domain::new_in_memory_repository::<u32, u32>(),

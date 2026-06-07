@@ -54,7 +54,8 @@ fn test_map_err_internal_converts_query_error_to_execution_failed() {
 #[test]
 fn test_map_err_internal_converts_repository_error_to_execution_failed() {
     fn simulate() -> Result<(), HandlerError> {
-        let result: Result<(), RepositoryError> = Err(RepositoryError::Unavailable("db down".into()));
+        let result: Result<(), RepositoryError> =
+            Err(RepositoryError::Unavailable("db down".into()));
         result.map_err(HandlerError::internal)?;
         Ok(())
     }

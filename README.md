@@ -1,9 +1,6 @@
 # edge-domain
 
-L2 Domain contract for the `swe-edge` framework.
-
-Defines the business logic contracts consumed by ingress, egress, and the runtime.
-No knowledge of transport protocols, databases, or messaging infrastructure.
+> **TLDR:** L2 domain port contracts for swe-edge — `Handler`, `Service`, `Repository`, `EventBus`, CQRS buses, and error bridging. See [Overview](docs/README.md) for details.
 
 ## Contracts
 
@@ -24,7 +21,7 @@ No knowledge of transport protocols, databases, or messaging infrastructure.
 | `CommandBus` | Dispatches commands |
 | `QueryBus<R>` | Dispatches queries |
 
-## Application bootstrap pattern
+## Quick Start
 
 Wire concrete implementations into handlers at startup. `edge-domain` owns the
 traits; your application crate (or an infrastructure crate) supplies the implementations.
@@ -187,3 +184,10 @@ Provided for development and testing — swap with real infrastructure in produc
 
 `edge-domain` has no dependency on ingress, egress, runtime, or any infrastructure
 library. It depends only on `thiserror`, `futures`, `async-trait`, and `parking_lot`.
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [Overview](docs/README.md) | WHAT and WHY — capabilities and design rationale |
+| [Architecture](scm/docs/architecture.md) | Internal module layout and data flow |

@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain::{Dispatch, Handler, HandlerError, HandlerRegistry};
+use edge_domain::{Domain, Handler, HandlerError, HandlerRegistry};
 
 struct EchoHandler {
     id: String,
@@ -27,7 +27,7 @@ fn echo(id: &str) -> Arc<dyn Handler<String, String>> {
 }
 
 fn registry() -> Arc<dyn HandlerRegistry<String, String>> {
-    Dispatch::new_handler_registry()
+    Domain::new_handler_registry()
 }
 
 /// @covers: HandlerRegistry — starts empty

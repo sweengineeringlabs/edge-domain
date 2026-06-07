@@ -2,10 +2,10 @@
 
 use std::sync::Arc;
 
-use async_trait::async_trait;
+use crate::api::handler::vo::RequestContext;
 use crate::api::handler::Handler;
 use crate::api::handler::HandlerError;
-use crate::api::handler::vo::RequestContext;
+use async_trait::async_trait;
 
 use crate::api::event::vo::StageCompleted;
 use crate::api::event::vo::StageFailed;
@@ -32,7 +32,10 @@ async fn emit_events<Resp>(
     match &result {
         Ok(_) => {
             let _ = publisher
-                .publish(Arc::new(StageCompleted::new(stage, handler_id, duration_ms)) as Arc<dyn DomainEvent>)
+                .publish(
+                    Arc::new(StageCompleted::new(stage, handler_id, duration_ms))
+                        as Arc<dyn DomainEvent>,
+                )
                 .await;
         }
         Err(HandlerError::Skipped) => {
@@ -42,7 +45,12 @@ async fn emit_events<Resp>(
         }
         Err(e) => {
             let _ = publisher
-                .publish(Arc::new(StageFailed::new(stage, handler_id, duration_ms, e.to_string())) as Arc<dyn DomainEvent>)
+                .publish(Arc::new(StageFailed::new(
+                    stage,
+                    handler_id,
+                    duration_ms,
+                    e.to_string(),
+                )) as Arc<dyn DomainEvent>)
                 .await;
         }
     }
@@ -68,7 +76,13 @@ where
     #[tracing::instrument(skip_all, fields(stage = %self.stage, handler_id = %self.inner.id()))]
     async fn execute(&self, req: Req) -> Result<Resp, HandlerError> {
         let handler_id = self.inner.id().to_owned();
-        emit_events(&self.stage, &handler_id, &self.publisher, self.inner.execute(req)).await
+        emit_events(
+            &self.stage,
+            &handler_id,
+            &self.publisher,
+            self.inner.execute(req),
+        )
+        .await
     }
 
     #[tracing::instrument(skip_all, fields(stage = %self.stage, handler_id = %self.inner.id()))]
@@ -113,9 +127,15 @@ mod tests {
     }
     #[async_trait::async_trait]
     impl Handler<String, String> for TestEcho {
-        fn id(&self) -> &str { self.id }
-        fn pattern(&self) -> &str { self.pattern }
-        async fn execute(&self, req: String) -> Result<String, HandlerError> { Ok(req) }
+        fn id(&self) -> &str {
+            self.id
+        }
+        fn pattern(&self) -> &str {
+            self.pattern
+        }
+        async fn execute(&self, req: String) -> Result<String, HandlerError> {
+            Ok(req)
+        }
     }
 
     struct CollectingBus {
@@ -125,7 +145,12 @@ mod tests {
     impl CollectingBus {
         fn new() -> (Arc<Self>, Arc<Mutex<Vec<String>>>) {
             let emitted = Arc::new(Mutex::new(Vec::new()));
-            (Arc::new(Self { emitted: Arc::clone(&emitted) }), emitted)
+            (
+                Arc::new(Self {
+                    emitted: Arc::clone(&emitted),
+                }),
+                emitted,
+            )
         }
     }
 
@@ -144,8 +169,12 @@ mod tests {
 
     #[async_trait]
     impl Handler<String, String> for FailingHandler {
-        fn id(&self) -> &str { "fail" }
-        fn pattern(&self) -> &str { "/fail" }
+        fn id(&self) -> &str {
+            "fail"
+        }
+        fn pattern(&self) -> &str {
+            "/fail"
+        }
         async fn execute(&self, _req: String) -> Result<String, HandlerError> {
             Err(HandlerError::ExecutionFailed("inner error".to_string()))
         }
@@ -155,8 +184,12 @@ mod tests {
 
     #[async_trait]
     impl Handler<String, String> for SkippingHandler {
-        fn id(&self) -> &str { "skip" }
-        fn pattern(&self) -> &str { "/skip" }
+        fn id(&self) -> &str {
+            "skip"
+        }
+        fn pattern(&self) -> &str {
+            "/skip"
+        }
         async fn execute(&self, _req: String) -> Result<String, HandlerError> {
             Err(HandlerError::Skipped)
         }
@@ -168,8 +201,12 @@ mod tests {
 
     #[async_trait]
     impl Handler<String, String> for SlowHandler {
-        fn id(&self) -> &str { "slow" }
-        fn pattern(&self) -> &str { "/slow" }
+        fn id(&self) -> &str {
+            "slow"
+        }
+        fn pattern(&self) -> &str {
+            "/slow"
+        }
         async fn execute(&self, req: String) -> Result<String, HandlerError> {
             tokio::time::sleep(self.delay).await;
             Ok(req)
@@ -223,7 +260,9 @@ mod tests {
     async fn test_execute_records_nonzero_duration_in_completed_event() {
         let (bus, emitted) = CollectingBus::new();
         let h = EventEmittingHandler::new(
-            SlowHandler { delay: Duration::from_millis(5) },
+            SlowHandler {
+                delay: Duration::from_millis(5),
+            },
             bus,
             "render",
         );
@@ -246,7 +285,9 @@ mod tests {
         let (bus, emitted) = CollectingBus::new();
         let h = EventEmittingHandler::new(FailingHandler, bus, "guard");
         let ctx = RequestContext::unauthenticated();
-        h.execute_with_context("x".to_string(), ctx).await.unwrap_err();
+        h.execute_with_context("x".to_string(), ctx)
+            .await
+            .unwrap_err();
         let events = emitted.lock().clone();
         assert_eq!(events, ["stage.started", "stage.failed"]);
     }

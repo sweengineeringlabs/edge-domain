@@ -11,6 +11,9 @@ use crate::api::event::EventBusConfig;
 use crate::api::event::EventPublisher;
 use crate::api::event::EventStore;
 use crate::api::event::EventStoreError;
+use crate::api::handler::traits::handler_registry::HandlerRegistry as HandlerRegistryTrait;
+use crate::api::handler::types::echo_handler::EchoHandler;
+use crate::api::handler::Handler;
 use crate::api::query::QueryBus;
 use crate::api::repository::QueryableRepository;
 use crate::api::repository::Repository;
@@ -21,11 +24,55 @@ use crate::core::command::direct_command_bus::DirectCommandBus;
 use crate::core::event::in_memory_event_store::InMemoryEventStore;
 use crate::core::event::noop_event_bus::NoopEventBus;
 use crate::core::event::noop_event_publisher::NoopEventPublisher;
+use crate::core::handler::in_process_handler_registry::InProcessHandlerRegistry;
 use crate::core::query::direct_query_bus::DirectQueryBus;
 use crate::core::repository::in_memory_repository::InMemoryRepository;
 use crate::spi::event::tokio::tokio_event_bus::TokioEventBus;
 
 impl Domain {
+    /// Construct a handler that returns its input unchanged.
+    ///
+    /// Useful for transport-layer integration tests — verifies routing and
+    /// codec wiring without requiring any business logic implementation.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use edge_domain::Domain;
+    ///
+    /// let h = Domain::echo_handler::<String>("echo", "/ping");
+    /// ```
+    pub fn echo_handler<T>(
+        id: impl Into<String>,
+        pattern: impl Into<String>,
+    ) -> Arc<dyn Handler<T, T>>
+    where
+        T: Send + 'static,
+    {
+        Arc::new(EchoHandler::new(id, pattern))
+    }
+
+    /// Construct a fresh empty handler registry.
+    ///
+    /// Backed by a `parking_lot::RwLock<HashMap>` — safe for concurrent
+    /// registration and lookup across threads.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use edge_domain::Domain;
+    ///
+    /// let registry = Domain::new_handler_registry::<String, String>();
+    /// assert!(registry.is_empty());
+    /// ```
+    pub fn new_handler_registry<Req, Resp>() -> Arc<dyn HandlerRegistryTrait<Req, Resp>>
+    where
+        Req: Send + 'static,
+        Resp: Send + 'static,
+    {
+        Arc::new(InProcessHandlerRegistry::new())
+    }
+
     /// Construct a paired `(H1, H2)` from a shared backend `Arc<B>`.
     ///
     /// Both closures receive `Arc::clone(&backend)`, ensuring writes through
