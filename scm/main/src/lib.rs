@@ -17,7 +17,16 @@ mod saf;
 mod spi;
 
 pub use api::event::{StageCompleted, StageFailed, StageSkipped, StageStarted};
+pub use api::handler::Cache;
+pub use api::handler::CacheAsideHandler;
+pub use api::handler::CacheAsideResponse;
 pub use api::handler::EventEmittingHandler;
+pub use api::handler::FallbackHandler;
+pub use api::handler::FallbackPolicy;
+pub use api::handler::InMemoryCache;
+pub use api::handler::OptionalHandler;
+pub use api::handler::TimeoutHandler;
+pub use api::handler::TimeoutPolicy;
 pub use api::traits;
 pub use api::types::NoopDomainExtension;
 pub use gateway::*;
