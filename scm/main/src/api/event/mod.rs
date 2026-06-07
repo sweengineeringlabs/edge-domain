@@ -8,4 +8,7 @@ pub mod vo;
 pub use error::{EventError, EventStoreError};
 pub use traits::{Aggregate, DomainEvent, EventBus, EventPublisher, EventStore};
 pub use types::{InMemoryEventStore, InProcessEventBus, NoopEventBus, NoopEventPublisher};
-pub use vo::{EventBusConfig, EventEnvelope, EventReceiver, ExpectedVersion};
+pub use vo::{
+    EventBusConfig, EventEnvelope, EventReceiver, ExpectedVersion, StageCompleted, StageFailed,
+    StageSkipped, StageStarted,
+};

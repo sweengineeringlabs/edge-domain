@@ -18,12 +18,13 @@ service_type     = "handler"
 path = "main/src/lib.rs"
 
 [dependencies]
-edge-dispatch = { git = "https://github.com/sweengineeringlabs/edge-dispatch.git", tag = "v0.1.0" }
+edge-dispatch = { git = "https://github.com/sweengineeringlabs/edge-dispatch.git", tag = "v0.2.0" }
 thiserror     = "2"
 async-trait   = "0.1"
 futures       = "0.3"
 parking_lot   = "0.12"
-tokio         = { version = "1", features = ["sync"] }
+tokio         = { version = "1", features = ["sync", "time"] }
+tracing       = "0.1"
 
 [dev-dependencies]
 tokio   = { version = "1", features = ["macros", "rt", "rt-multi-thread"] }

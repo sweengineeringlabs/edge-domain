@@ -16,6 +16,8 @@ mod gateway;
 mod saf;
 mod spi;
 
+pub use api::event::{StageCompleted, StageFailed, StageSkipped, StageStarted};
+pub use api::handler::EventEmittingHandler;
 pub use api::traits;
 pub use api::types::NoopDomainExtension;
 pub use gateway::*;
