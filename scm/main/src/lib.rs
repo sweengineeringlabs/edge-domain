@@ -18,6 +18,7 @@ mod spi;
 
 pub use api::event::{StageCompleted, StageFailed, StageSkipped, StageStarted};
 pub use api::handler::Cache;
+pub use api::handler::HandlerFactory;
 pub use api::handler::CacheAsideHandler;
 pub use api::handler::CacheAsideResponse;
 pub use api::handler::EventEmittingHandler;
