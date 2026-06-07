@@ -19,11 +19,19 @@ use crate::api::event::EventBus;
 ///
 /// ```rust,no_run
 /// use std::sync::Arc;
-/// use edge_domain::{Domain, EchoHandler, EventEmittingHandler};
+/// use async_trait::async_trait;
+/// use edge_domain::{Domain, EventEmittingHandler, Handler, HandlerError};
+///
+/// struct PingHandler;
+/// #[async_trait]
+/// impl Handler<String, String> for PingHandler {
+///     fn id(&self) -> &str { "ping" }
+///     fn pattern(&self) -> &str { "/ping" }
+///     async fn execute(&self, req: String) -> Result<String, HandlerError> { Ok(req) }
+/// }
 ///
 /// let bus = Domain::in_process_event_bus(Default::default());
-/// let inner = EchoHandler::<String>::new("echo", "/echo");
-/// let handler = EventEmittingHandler::new(inner, bus, "cache");
+/// let handler = EventEmittingHandler::new(PingHandler, bus, "cache");
 /// ```
 pub struct EventEmittingHandler<H> {
     pub(crate) inner: H,

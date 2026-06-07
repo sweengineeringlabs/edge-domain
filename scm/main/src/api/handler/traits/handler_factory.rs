@@ -1,17 +1,16 @@
 //! [`HandlerFactory`] — config-driven handler constructor contract.
 
-use edge_dispatch::HandlerError;
+use crate::api::handler::HandlerError;
 
-/// Constructs a [`Handler`](edge_dispatch::Handler) from a typed configuration value.
+/// Constructs a [`Handler`](crate::Handler) from a typed configuration value.
 ///
 /// Implement this trait on your handler type to enable config-driven assembly via
-/// [`FeatureRegistryExt::build_handler`](swe_edge_bootstrap::FeatureRegistryExt::build_handler).
+/// `FeatureRegistryExt::build_handler` in the assembler.
 ///
 /// # Example
 ///
 /// ```rust,no_run
-/// use edge_dispatch::{Handler, HandlerError};
-/// use edge_domain::HandlerFactory;
+/// use edge_domain::{Handler, HandlerError, HandlerFactory};
 /// use async_trait::async_trait;
 ///
 /// struct GuardConfig { token: String }

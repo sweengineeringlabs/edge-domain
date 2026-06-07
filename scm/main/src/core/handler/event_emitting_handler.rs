@@ -3,9 +3,9 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_dispatch::Handler;
-use edge_dispatch::HandlerError;
-use edge_dispatch::RequestContext;
+use crate::api::handler::Handler;
+use crate::api::handler::HandlerError;
+use crate::api::handler::vo::RequestContext;
 
 use crate::api::event::vo::StageCompleted;
 use crate::api::event::vo::StageFailed;
@@ -101,7 +101,22 @@ mod tests {
     use crate::api::event::EventBus;
     use crate::api::event::EventError;
     use crate::api::event::EventReceiver;
-    use edge_dispatch::EchoHandler;
+
+    struct TestEcho {
+        id: &'static str,
+        pattern: &'static str,
+    }
+    impl TestEcho {
+        fn new(id: &'static str, pattern: &'static str) -> Self {
+            Self { id, pattern }
+        }
+    }
+    #[async_trait::async_trait]
+    impl Handler<String, String> for TestEcho {
+        fn id(&self) -> &str { self.id }
+        fn pattern(&self) -> &str { self.pattern }
+        async fn execute(&self, req: String) -> Result<String, HandlerError> { Ok(req) }
+    }
 
     struct CollectingBus {
         emitted: Arc<Mutex<Vec<String>>>,
@@ -164,7 +179,7 @@ mod tests {
     #[tokio::test]
     async fn test_execute_success_emits_started_then_completed() {
         let (bus, emitted) = CollectingBus::new();
-        let h = EventEmittingHandler::new(EchoHandler::<String>::new("e", "/e"), bus, "cache");
+        let h = EventEmittingHandler::new(TestEcho::new("e", "/e"), bus, "cache");
         let _ = h.execute("x".to_string()).await.unwrap();
         let events = emitted.lock().clone();
         assert_eq!(events, ["stage.started", "stage.completed"]);
@@ -192,7 +207,7 @@ mod tests {
     #[tokio::test]
     async fn test_execute_propagates_success_result() {
         let (bus, _) = CollectingBus::new();
-        let h = EventEmittingHandler::new(EchoHandler::<String>::new("e", "/e"), bus, "render");
+        let h = EventEmittingHandler::new(TestEcho::new("e", "/e"), bus, "render");
         assert_eq!(h.execute("hello".to_string()).await.unwrap(), "hello");
     }
 
@@ -219,7 +234,7 @@ mod tests {
     #[tokio::test]
     async fn test_execute_with_context_success_emits_started_then_completed() {
         let (bus, emitted) = CollectingBus::new();
-        let h = EventEmittingHandler::new(EchoHandler::<String>::new("e", "/e"), bus, "cache");
+        let h = EventEmittingHandler::new(TestEcho::new("e", "/e"), bus, "cache");
         let ctx = RequestContext::unauthenticated();
         h.execute_with_context("x".to_string(), ctx).await.unwrap();
         let events = emitted.lock().clone();
@@ -239,21 +254,21 @@ mod tests {
     #[test]
     fn test_id_delegates_to_inner() {
         let (bus, _) = CollectingBus::new();
-        let h = EventEmittingHandler::new(EchoHandler::<String>::new("my-id", "/p"), bus, "s");
+        let h = EventEmittingHandler::new(TestEcho::new("my-id", "/p"), bus, "s");
         assert_eq!(h.id(), "my-id");
     }
 
     #[test]
     fn test_pattern_delegates_to_inner() {
         let (bus, _) = CollectingBus::new();
-        let h = EventEmittingHandler::new(EchoHandler::<String>::new("id", "/api/v1/foo"), bus, "s");
+        let h = EventEmittingHandler::new(TestEcho::new("id", "/api/v1/foo"), bus, "s");
         assert_eq!(h.pattern(), "/api/v1/foo");
     }
 
     #[test]
     fn test_stage_accessor_returns_configured_label() {
         let (bus, _) = CollectingBus::new();
-        let h = EventEmittingHandler::new(EchoHandler::<String>::new("id", "/p"), bus, "cache");
+        let h = EventEmittingHandler::new(TestEcho::new("id", "/p"), bus, "cache");
         assert_eq!(h.stage(), "cache");
     }
 }

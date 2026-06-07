@@ -11,9 +11,6 @@ use crate::api::event::EventBusConfig;
 use crate::api::event::EventPublisher;
 use crate::api::event::EventStore;
 use crate::api::event::EventStoreError;
-use edge_dispatch::Dispatch;
-use edge_dispatch::Handler;
-use edge_dispatch::HandlerRegistry as HandlerRegistryTrait;
 use crate::api::query::QueryBus;
 use crate::api::repository::QueryableRepository;
 use crate::api::repository::Repository;
@@ -29,30 +26,6 @@ use crate::core::repository::in_memory_repository::InMemoryRepository;
 use crate::spi::event::tokio::tokio_event_bus::TokioEventBus;
 
 impl Domain {
-    /// Construct an [`EchoHandler`] that returns its input as its output.
-    ///
-    /// Useful for transport-layer integration tests — verifies routing and codec
-    /// wiring without requiring any business logic.
-    pub fn echo_handler<T>(
-        id: impl Into<String>,
-        pattern: impl Into<String>,
-    ) -> Arc<dyn Handler<T, T>>
-    where
-        T: Send + 'static,
-    {
-        Dispatch::echo_handler(id, pattern)
-    }
-
-    /// Construct a fresh empty [`HandlerRegistry`].
-    pub fn new_handler_registry<Request, Response>(
-    ) -> Arc<dyn HandlerRegistryTrait<Request, Response>>
-    where
-        Request: Send + 'static,
-        Response: Send + 'static,
-    {
-        Dispatch::new_handler_registry()
-    }
-
     /// Construct a paired `(H1, H2)` from a shared backend `Arc<B>`.
     ///
     /// Both closures receive `Arc::clone(&backend)`, ensuring writes through
