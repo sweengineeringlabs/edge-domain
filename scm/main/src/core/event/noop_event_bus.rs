@@ -7,7 +7,7 @@ use futures::future::BoxFuture;
 use crate::api::event::error::EventError;
 use crate::api::event::traits::domain_event::DomainEvent;
 use crate::api::event::traits::event_bus::EventBus;
-use crate::api::event::vo::event_receiver::EventReceiver;
+use crate::api::event::types::event_receiver::EventReceiver;
 use crate::core::event::closed_event_source::ClosedEventSource;
 
 /// Event bus that discards all published events.

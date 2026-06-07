@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use crate::api::event::error::EventError;
 use crate::api::event::traits::domain_event::DomainEvent;
-use crate::api::event::vo::event_source::EventSource;
+use crate::api::event::types::event_source::EventSource;
 
 /// Subscriber-side handle for receiving events from an [`crate::EventBus`].
 ///

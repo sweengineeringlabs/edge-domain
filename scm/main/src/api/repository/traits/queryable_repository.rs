@@ -3,7 +3,7 @@
 use futures::future::BoxFuture;
 
 use super::Repository;
-use crate::api::repository::vo::Spec;
+use crate::api::repository::types::Spec;
 use crate::api::repository::RepositoryError;
 
 /// Extension of [`Repository`] that supports specification-based queries.

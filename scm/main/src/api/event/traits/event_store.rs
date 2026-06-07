@@ -2,7 +2,7 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::event::vo::expected_version::ExpectedVersion;
+use crate::api::event::types::expected_version::ExpectedVersion;
 use crate::api::event::DomainEvent;
 use crate::api::event::EventEnvelope;
 use crate::api::event::EventStoreError;

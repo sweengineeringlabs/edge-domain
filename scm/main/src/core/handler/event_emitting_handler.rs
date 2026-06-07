@@ -2,15 +2,15 @@
 
 use std::sync::Arc;
 
-use crate::api::handler::vo::RequestContext;
+use crate::api::handler::types::RequestContext;
 use crate::api::handler::Handler;
 use crate::api::handler::HandlerError;
 use async_trait::async_trait;
 
-use crate::api::event::vo::StageCompleted;
-use crate::api::event::vo::StageFailed;
-use crate::api::event::vo::StageSkipped;
-use crate::api::event::vo::StageStarted;
+use crate::api::event::types::StageCompleted;
+use crate::api::event::types::StageFailed;
+use crate::api::event::types::StageSkipped;
+use crate::api::event::types::StageStarted;
 use crate::api::event::DomainEvent;
 use crate::api::event::EventBus;
 use crate::api::handler::types::EventEmittingHandler;
