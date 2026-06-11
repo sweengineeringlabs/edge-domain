@@ -9,12 +9,14 @@ use crate::api::event::Aggregate;
 use crate::api::event::DomainEvent;
 use crate::api::event::EventBus;
 use crate::api::event::EventBusConfig;
+use crate::api::event::EventEnvelope;
 use crate::api::event::EventPublisher;
 use crate::api::event::EventStore;
 use crate::api::event::EventStoreError;
 use crate::api::handler::types::echo_handler::EchoHandler;
 use crate::api::handler::Handler;
 use crate::api::handler::HandlerRegistry as HandlerRegistryTrait;
+use crate::api::projection::Projection;
 use crate::api::query::QueryBus;
 use crate::api::repository::QueryableRepository;
 use crate::api::repository::Repository;
@@ -25,6 +27,7 @@ use crate::core::event::in_memory_event_store::InMemoryEventStore;
 use crate::core::event::noop::noop_event_bus::NoopEventBus;
 use crate::core::event::noop::noop_event_publisher::NoopEventPublisher;
 use crate::core::handler::in_process_handler_registry::InProcessHandlerRegistry;
+use crate::core::projection::in_memory_projection::InMemoryProjection;
 use crate::core::query::direct_query_bus::DirectQueryBus;
 use crate::core::repository::in_memory_repository::InMemoryRepository;
 use crate::spi::event::tokio::tokio_event_bus::TokioEventBus;
@@ -155,6 +158,32 @@ impl Domain {
     {
         let s = InMemoryEventStore::new();
         Arc::new(s)
+    }
+
+    /// Construct an in-memory [`Projection`] that folds events into a read model.
+    ///
+    /// `initial` seeds the read model; `reducer` is invoked once per applied
+    /// event to update it.  The returned projection takes `&mut self` on
+    /// [`apply`](Projection::apply) — wrap it in a `Mutex` for shared ownership.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,ignore
+    /// let mut p = Domain::new_in_memory_projection::<OrderEvent, u64, _>(
+    ///     0,
+    ///     |total, env| *total += 1,
+    /// );
+    /// ```
+    pub fn new_in_memory_projection<E, R, F>(
+        initial: R,
+        reducer: F,
+    ) -> Box<dyn Projection<Event = E, ReadModel = R>>
+    where
+        E: DomainEvent + Send + Sync + 'static,
+        R: Send + Sync + 'static,
+        F: Fn(&mut R, &EventEnvelope<E>) + Send + Sync + 'static,
+    {
+        Box::new(InMemoryProjection::new(initial, reducer))
     }
 
     /// Reconstitute an aggregate by replaying all events from an [`EventStore`].

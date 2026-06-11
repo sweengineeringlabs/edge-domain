@@ -12,6 +12,7 @@ pub mod domain;
 pub mod event;
 pub mod extension;
 pub mod handler;
+pub mod projection;
 pub mod query;
 pub mod repository;
 pub mod service;
