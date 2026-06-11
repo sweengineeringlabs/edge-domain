@@ -11,6 +11,7 @@ mod repository_svc;
 mod service;
 mod spec_svc;
 mod validator_svc;
+mod value_object_svc;
 
 pub use crate::api::domain::types::Domain;
 
@@ -53,3 +54,5 @@ pub use crate::api::repository::{InMemoryRepository, Page};
 pub use crate::api::service::types::ServiceRegistry;
 pub use crate::api::validator::traits::Validator;
 pub use crate::api::validator::ValidatorDefault;
+pub use crate::api::valueobject::NonEmptyString;
+pub use crate::api::valueobject::ValueObject;
