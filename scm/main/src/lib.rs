@@ -16,19 +16,18 @@
 
 mod api;
 mod core;
-mod gateway;
 mod saf;
 mod spi;
 
-pub use api::event::{StageCompleted, StageFailed, StageSkipped, StageStarted};
+pub use api::event::ClosedEventSource;
+pub use api::event::{StageCompleted, StageFailed, StageFailedBuilder, StageSkipped, StageStarted};
 pub use api::handler::EchoHandler;
 pub use api::handler::EventEmittingHandler;
 pub use api::handler::HandlerFactory;
-pub use api::traits;
-pub use api::types::NoopDomainExtension;
-pub use gateway::*;
+pub use api::handler::InProcessHandlerRegistry;
 pub use saf::Handler;
 pub use saf::HandlerError;
 pub use saf::HandlerRegistry;
 pub use saf::RequestContext;
 pub use saf::RequestContextBuilder;
+pub use saf::*;

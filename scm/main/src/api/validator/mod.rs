@@ -1,7 +1,9 @@
-//! `Validator` theme — default implementation of the crate-level
-//! [`Validator`](crate::api::traits::Validator) contract.
+//! `Validator` theme — default implementation of the
+//! [`Validator`](crate::api::validator::traits::Validator) contract.
 
+pub mod traits;
 pub mod types;
+pub mod validator_default;
 
-pub use crate::api::traits::Validator;
+pub use traits::Validator;
 pub use types::ValidatorDefault;

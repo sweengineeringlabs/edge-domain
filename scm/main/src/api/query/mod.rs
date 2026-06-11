@@ -1,9 +1,10 @@
 //! `Query` theme — read operations that never mutate domain state.
 
-pub mod error;
+pub mod direct_query_bus;
+pub mod errors;
 pub mod traits;
 pub mod types;
 
-pub use error::QueryError;
+pub use errors::QueryError;
 pub use traits::{Query, QueryBus};
 pub use types::DirectQueryBus;

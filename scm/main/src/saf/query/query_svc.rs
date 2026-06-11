@@ -1,0 +1,1 @@
+//! SAF — query service facade.

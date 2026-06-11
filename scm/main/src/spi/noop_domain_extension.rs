@@ -1,6 +1,6 @@
-//! [`DomainExtension`](crate::api::traits::DomainExtension) impl for [`NoopDomainExtension`].
+//! [`DomainExtension`](crate::api::extension::traits::DomainExtension) impl for [`NoopDomainExtension`].
 
-use crate::api::traits::DomainExtension;
-use crate::api::types::NoopDomainExtension;
+use crate::api::extension::traits::DomainExtension;
+use crate::api::extension::types::NoopDomainExtension;
 
 impl DomainExtension for NoopDomainExtension {}

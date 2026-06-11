@@ -2,6 +2,6 @@
 
 /// Public interface type representing a configuration with no field-level invariants.
 ///
-/// The concrete [`Validator`](crate::api::traits::Validator) implementation lives in
+/// The concrete [`Validator`](crate::api::validator::traits::Validator) implementation lives in
 /// `core/validator/validator_default`.
 pub struct ValidatorDefault;

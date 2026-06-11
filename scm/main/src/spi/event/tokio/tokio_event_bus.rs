@@ -5,11 +5,11 @@ use std::sync::Arc;
 use futures::future::BoxFuture;
 use tokio::sync::broadcast;
 
-use crate::api::event::error::EventError;
+use crate::api::event::errors::EventError;
 use crate::api::event::traits::domain_event::DomainEvent;
-use crate::api::event::traits::event_bus::EventBus;
-use crate::api::event::types::event_bus_config::EventBusConfig;
-use crate::api::event::types::event_receiver::EventReceiver;
+use crate::api::event::EventBus;
+use crate::api::event::EventBusConfig;
+use crate::api::event::EventReceiver;
 use crate::spi::event::tokio::tokio_event_source::TokioEventSource;
 
 /// In-process event bus backed by a tokio broadcast channel.

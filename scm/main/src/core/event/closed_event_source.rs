@@ -4,9 +4,9 @@ use std::sync::Arc;
 
 use futures::future::BoxFuture;
 
-use crate::api::event::error::EventError;
+use crate::api::event::errors::EventError;
 use crate::api::event::traits::domain_event::DomainEvent;
-use crate::api::event::types::event_source::EventSource;
+use crate::api::event::EventSource;
 
 /// [`EventSource`] that never yields an event — the channel is closed from the
 /// outset, so the first

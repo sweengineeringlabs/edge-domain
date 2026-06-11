@@ -5,9 +5,9 @@ use std::sync::Arc;
 use futures::future::BoxFuture;
 use tokio::sync::broadcast;
 
-use crate::api::event::error::EventError;
+use crate::api::event::errors::EventError;
 use crate::api::event::traits::domain_event::DomainEvent;
-use crate::api::event::types::event_source::EventSource;
+use crate::api::event::EventSource;
 
 /// Tokio broadcast [`EventSource`] — the subscriber side of
 /// [`TokioEventBus`](super::tokio_event_bus::TokioEventBus).

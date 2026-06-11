@@ -1,8 +1,18 @@
 //! SAF layer — domain public facade.
 
-mod domain_svc;
+mod aggregate_svc;
+mod command;
+mod domain;
+mod event;
+mod handler;
+mod query;
+mod queryable_repository_svc;
+mod repository_svc;
+mod service;
+mod spec_svc;
+mod validator_svc;
 
-pub use crate::api::types::Domain;
+pub use crate::api::domain::types::Domain;
 
 pub use crate::api::command::Command;
 pub use crate::api::command::CommandBus;
@@ -31,12 +41,15 @@ pub use crate::api::service::Service;
 pub use crate::api::service::ServiceError;
 
 pub use crate::api::command::DirectCommandBus;
+pub use crate::api::domain::types::{ApplicationConfig, OutboundRegistry};
 pub use crate::api::event::{
     EventBusConfig, EventReceiver, InMemoryEventStore, InProcessEventBus, NoopEventBus,
     NoopEventPublisher,
 };
+pub use crate::api::extension::traits::DomainExtension;
+pub use crate::api::extension::types::NoopDomainExtension;
 pub use crate::api::query::DirectQueryBus;
 pub use crate::api::repository::{InMemoryRepository, Page};
 pub use crate::api::service::types::ServiceRegistry;
-pub use crate::api::types::{ApplicationConfig, OutboundRegistry};
+pub use crate::api::validator::traits::Validator;
 pub use crate::api::validator::ValidatorDefault;

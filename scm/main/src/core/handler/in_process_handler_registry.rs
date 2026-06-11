@@ -5,8 +5,8 @@ use std::sync::Arc;
 
 use parking_lot::RwLock;
 
-use crate::api::handler::traits::handler_registry::HandlerRegistry;
 use crate::api::handler::Handler;
+use crate::api::handler::HandlerRegistry;
 
 /// Thread-safe, in-process handler registry backed by a `RwLock<HashMap>`.
 pub(crate) struct InProcessHandlerRegistry<Req, Resp> {
@@ -50,5 +50,16 @@ where
 
     fn len(&self) -> usize {
         self.handlers.read().len()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_new_registry_is_empty() {
+        let registry = InProcessHandlerRegistry::<String, String>::new();
+        assert_eq!(registry.len(), 0);
     }
 }

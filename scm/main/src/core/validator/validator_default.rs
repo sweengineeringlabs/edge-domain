@@ -1,6 +1,6 @@
 //! `ValidatorDefault` — no-op validator for configurations with no invariants.
 
-use crate::api::traits::Validator;
+use crate::api::validator::traits::Validator;
 
 /// A validator that always returns `Ok(())`.
 ///

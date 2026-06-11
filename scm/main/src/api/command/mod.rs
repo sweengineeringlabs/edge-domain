@@ -1,9 +1,10 @@
 //! `Command` theme — write operations that mutate domain state.
 
-pub mod error;
+pub mod direct_command_bus;
+pub mod errors;
 pub mod traits;
 pub mod types;
 
-pub use error::CommandError;
+pub use errors::CommandError;
 pub use traits::{Command, CommandBus};
 pub use types::DirectCommandBus;

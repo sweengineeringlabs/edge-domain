@@ -8,11 +8,11 @@
 #![allow(unused_imports)]
 
 pub mod command;
+pub mod domain;
 pub mod event;
+pub mod extension;
 pub mod handler;
 pub mod query;
 pub mod repository;
 pub mod service;
-pub mod traits;
-pub mod types;
 pub mod validator;
