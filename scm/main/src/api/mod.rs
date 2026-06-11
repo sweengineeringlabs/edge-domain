@@ -15,6 +15,7 @@ pub mod handler;
 pub mod projection;
 pub mod query;
 pub mod repository;
+pub mod saga;
 pub mod service;
 pub mod validator;
 pub mod valueobject;

@@ -9,6 +9,7 @@ mod projection_svc;
 mod query;
 mod queryable_repository_svc;
 mod repository_svc;
+mod saga;
 mod service;
 mod spec_svc;
 mod validator_svc;
@@ -41,6 +42,10 @@ pub use crate::api::repository::QueryableRepository;
 pub use crate::api::repository::Repository;
 pub use crate::api::repository::RepositoryError;
 pub use crate::api::repository::Spec;
+pub use crate::api::saga::InMemorySagaRegistry;
+pub use crate::api::saga::Saga;
+pub use crate::api::saga::SagaError;
+pub use crate::api::saga::SagaRegistry;
 pub use crate::api::service::Service;
 pub use crate::api::service::ServiceError;
 

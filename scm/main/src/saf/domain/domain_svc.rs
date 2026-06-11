@@ -20,6 +20,8 @@ use crate::api::projection::Projection;
 use crate::api::query::QueryBus;
 use crate::api::repository::QueryableRepository;
 use crate::api::repository::Repository;
+use crate::api::saga::Saga;
+use crate::api::saga::SagaRegistry;
 use crate::api::service::types::ServiceRegistry;
 use crate::api::service::ServiceRegistry as ServiceRegistryTrait;
 use crate::core::command::direct_command_bus::DirectCommandBus;
@@ -30,6 +32,7 @@ use crate::core::handler::in_process_handler_registry::InProcessHandlerRegistry;
 use crate::core::projection::in_memory_projection::InMemoryProjection;
 use crate::core::query::direct_query_bus::DirectQueryBus;
 use crate::core::repository::in_memory_repository::InMemoryRepository;
+use crate::core::saga::in_memory_saga_registry::InMemorySagaRegistry;
 use crate::spi::event::tokio::tokio_event_bus::TokioEventBus;
 
 impl Domain {
@@ -184,6 +187,27 @@ impl Domain {
         F: Fn(&mut R, &EventEnvelope<E>) + Send + Sync + 'static,
     {
         Box::new(InMemoryProjection::new(initial, reducer))
+    }
+
+    /// Construct a fresh in-memory [`SagaRegistry`] for saga type `S`.
+    ///
+    /// Sagas are stored keyed by their [`SagaId`](Saga::SagaId).  The registry
+    /// returns [`SagaError`](crate::SagaError) on duplicate registration or
+    /// missing lookup; dispatching the commands a saga emits remains the
+    /// caller's responsibility.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,ignore
+    /// let mut registry = Domain::new_in_memory_saga_registry::<OrderSaga>();
+    /// registry.register(order_id, OrderSaga::default())?;
+    /// ```
+    pub fn new_in_memory_saga_registry<S>() -> Box<dyn SagaRegistry<S>>
+    where
+        S: Saga + 'static,
+        S::SagaId: std::fmt::Display + 'static,
+    {
+        Box::new(InMemorySagaRegistry::new())
     }
 
     /// Reconstitute an aggregate by replaying all events from an [`EventStore`].
