@@ -6,7 +6,6 @@
 use std::marker::PhantomData;
 
 use crate::api::event::DomainEvent;
-use crate::api::event::EventEnvelope;
 use crate::api::projection::Projection;
 
 /// Builds a read model `R` by folding each event through a reducer `F`.
@@ -35,12 +34,12 @@ impl<E, R, F> Projection for InMemoryProjection<E, R, F>
 where
     E: DomainEvent + Send + Sync,
     R: Send + Sync,
-    F: Fn(&mut R, &EventEnvelope<E>) + Send + Sync,
+    F: Fn(&mut R, &E) + Send + Sync,
 {
     type Event = E;
     type ReadModel = R;
 
-    fn apply(&mut self, event: &EventEnvelope<Self::Event>) {
+    fn apply(&mut self, event: &Self::Event) {
         (self.reducer)(&mut self.read_model, event);
     }
 
@@ -72,15 +71,10 @@ mod tests {
         }
     }
 
-    fn envelope(seq: u64, amount: u64) -> EventEnvelope<InMemoryProjectionTestEvt> {
-        EventEnvelope {
-            aggregate_id: "acct-1".to_string(),
-            sequence: seq,
-            occurred_at: SystemTime::now(),
-            event: InMemoryProjectionTestEvt {
-                id: "acct-1".to_string(),
-                amount,
-            },
+    fn event(amount: u64) -> InMemoryProjectionTestEvt {
+        InMemoryProjectionTestEvt {
+            id: "acct-1".to_string(),
+            amount,
         }
     }
 
@@ -88,8 +82,8 @@ mod tests {
     fn test_new_seeds_read_model_with_initial_value() {
         let p = InMemoryProjection::<InMemoryProjectionTestEvt, u64, _>::new(
             7u64,
-            |total: &mut u64, e: &EventEnvelope<InMemoryProjectionTestEvt>| {
-                *total += e.event.amount;
+            |total: &mut u64, e: &InMemoryProjectionTestEvt| {
+                *total += e.amount;
             },
         );
         assert_eq!(*p.read_model(), 7);
@@ -97,14 +91,12 @@ mod tests {
 
     #[test]
     fn test_apply_folds_event_into_read_model() {
-        let mut p = InMemoryProjection::new(
-            0u64,
-            |total: &mut u64, e: &EventEnvelope<InMemoryProjectionTestEvt>| {
-                *total += e.event.amount;
-            },
-        );
-        p.apply(&envelope(1, 10));
-        p.apply(&envelope(2, 32));
+        let mut p =
+            InMemoryProjection::new(0u64, |total: &mut u64, e: &InMemoryProjectionTestEvt| {
+                *total += e.amount;
+            });
+        p.apply(&event(10));
+        p.apply(&event(32));
         assert_eq!(*p.read_model(), 42);
     }
 
@@ -112,8 +104,8 @@ mod tests {
     fn test_apply_no_events_leaves_initial_read_model_unchanged() {
         let p = InMemoryProjection::<InMemoryProjectionTestEvt, u64, _>::new(
             5u64,
-            |total: &mut u64, e: &EventEnvelope<InMemoryProjectionTestEvt>| {
-                *total += e.event.amount;
+            |total: &mut u64, e: &InMemoryProjectionTestEvt| {
+                *total += e.amount;
             },
         );
         assert_eq!(*p.read_model(), 5);

@@ -10,7 +10,7 @@ use crate::api::event::stage::types::StageSkipped;
 use crate::api::event::stage::types::StageStarted;
 use crate::api::event::DomainEvent;
 use crate::api::event::EventBus;
-use crate::api::handler::request::types::RequestContext;
+use crate::api::handler::types::RequestContext;
 use crate::api::handler::Handler;
 use crate::api::handler::HandlerError;
 

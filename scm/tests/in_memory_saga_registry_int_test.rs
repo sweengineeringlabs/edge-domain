@@ -1,7 +1,7 @@
 //! Integration tests for the in-memory saga registry implementation.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{Command, Domain, DomainEvent, EventEnvelope, Saga, SagaError, SagaRegistry};
+use edge_domain::{Command, Domain, DomainEvent, Saga, SagaError, SagaRegistry};
 
 #[derive(Clone)]
 struct Pulse {
@@ -29,7 +29,7 @@ impl Saga for PulseSaga {
     type SagaId = String;
     type Event = Pulse;
     type Command = Step;
-    fn handle(&mut self, _event: &EventEnvelope<Self::Event>) -> Vec<Self::Command> {
+    fn handle(&mut self, _event: &Self::Event) -> Vec<Self::Command> {
         self.steps += 1;
         vec![Step]
     }

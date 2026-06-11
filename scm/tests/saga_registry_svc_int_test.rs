@@ -2,7 +2,7 @@
 //! SAF factory.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{Command, Domain, DomainEvent, EventEnvelope, Saga, SagaError, SagaRegistry};
+use edge_domain::{Command, Domain, DomainEvent, Saga, SagaError, SagaRegistry};
 
 #[derive(Clone)]
 struct Tick {
@@ -30,7 +30,7 @@ impl Saga for CounterSaga {
     type SagaId = String;
     type Event = Tick;
     type Command = Advance;
-    fn handle(&mut self, _event: &EventEnvelope<Self::Event>) -> Vec<Self::Command> {
+    fn handle(&mut self, _event: &Self::Event) -> Vec<Self::Command> {
         self.ticks += 1;
         vec![Advance]
     }

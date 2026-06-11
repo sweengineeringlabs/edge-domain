@@ -4,7 +4,7 @@
 
 use std::time::SystemTime;
 
-use edge_domain::{DomainEvent, EventEnvelope, Projection};
+use edge_domain::{DomainEvent, Projection};
 
 #[derive(Clone)]
 struct AccountCredited {
@@ -41,8 +41,8 @@ impl Projection for BalanceProjection {
     type Event = AccountCredited;
     type ReadModel = BalanceReadModel;
 
-    fn apply(&mut self, event: &EventEnvelope<Self::Event>) {
-        self.model.balance_cents += event.event.cents;
+    fn apply(&mut self, event: &Self::Event) {
+        self.model.balance_cents += event.cents;
         self.model.events_seen += 1;
     }
 
@@ -51,15 +51,10 @@ impl Projection for BalanceProjection {
     }
 }
 
-fn envelope(seq: u64, cents: u64) -> EventEnvelope<AccountCredited> {
-    EventEnvelope {
-        aggregate_id: "acct-1".to_string(),
-        sequence: seq,
-        occurred_at: SystemTime::now(),
-        event: AccountCredited {
-            id: "acct-1".to_string(),
-            cents,
-        },
+fn event(cents: u64) -> AccountCredited {
+    AccountCredited {
+        id: "acct-1".to_string(),
+        cents,
     }
 }
 
@@ -68,8 +63,8 @@ fn envelope(seq: u64, cents: u64) -> EventEnvelope<AccountCredited> {
 #[test]
 fn test_projection_svc_facade_read_model_reflects_applied_events() {
     let mut p = BalanceProjection::default();
-    p.apply(&envelope(1, 500));
-    p.apply(&envelope(2, 250));
+    p.apply(&event(500));
+    p.apply(&event(250));
     assert_eq!(p.read_model().balance_cents, 750);
     assert_eq!(p.read_model().events_seen, 2);
 }

@@ -5,9 +5,7 @@
 //! `_error` scenarios exercise a real rollback, not a contrived assertion.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use std::time::SystemTime;
-
-use edge_domain::{Command, DomainEvent, EventEnvelope, Saga};
+use edge_domain::{Command, DomainEvent, Saga};
 
 /// Events the saga reacts to.
 #[derive(Clone)]
@@ -64,8 +62,8 @@ impl Saga for OrderSaga {
     type Event = OrderEvent;
     type Command = OrderCommand;
 
-    fn handle(&mut self, event: &EventEnvelope<Self::Event>) -> Vec<Self::Command> {
-        match &event.event {
+    fn handle(&mut self, event: &Self::Event) -> Vec<Self::Command> {
+        match event {
             OrderEvent::Placed { order_id } => {
                 vec![OrderCommand::ReserveStock {
                     order_id: order_id.clone(),
@@ -90,22 +88,13 @@ impl Saga for OrderSaga {
     }
 }
 
-fn envelope(event: OrderEvent) -> EventEnvelope<OrderEvent> {
-    EventEnvelope {
-        aggregate_id: "order-1".to_string(),
-        sequence: 1,
-        occurred_at: SystemTime::now(),
-        event,
-    }
-}
-
 /// @covers: Saga::handle
 #[test]
 fn test_handle_order_placed_stages_reserve_stock_happy() {
     let mut saga = OrderSaga::default();
-    let cmds = saga.handle(&envelope(OrderEvent::Placed {
+    let cmds = saga.handle(&OrderEvent::Placed {
         order_id: "order-1".to_string(),
-    }));
+    });
     assert_eq!(
         cmds,
         vec![OrderCommand::ReserveStock {
@@ -118,9 +107,9 @@ fn test_handle_order_placed_stages_reserve_stock_happy() {
 #[test]
 fn test_handle_order_confirmed_stages_no_commands_edge() {
     let mut saga = OrderSaga::default();
-    let cmds = saga.handle(&envelope(OrderEvent::Confirmed {
+    let cmds = saga.handle(&OrderEvent::Confirmed {
         order_id: "order-1".to_string(),
-    }));
+    });
     assert!(cmds.is_empty());
 }
 
@@ -128,9 +117,9 @@ fn test_handle_order_confirmed_stages_no_commands_edge() {
 #[test]
 fn test_handle_payment_failed_stages_compensating_refund_error() {
     let mut saga = OrderSaga::default();
-    let cmds = saga.handle(&envelope(OrderEvent::PaymentFailed {
+    let cmds = saga.handle(&OrderEvent::PaymentFailed {
         order_id: "order-1".to_string(),
-    }));
+    });
     assert_eq!(
         cmds,
         vec![OrderCommand::RefundCustomer {
@@ -144,9 +133,9 @@ fn test_handle_payment_failed_stages_compensating_refund_error() {
 #[test]
 fn test_is_complete_after_confirmation_returns_true_happy() {
     let mut saga = OrderSaga::default();
-    saga.handle(&envelope(OrderEvent::Confirmed {
+    saga.handle(&OrderEvent::Confirmed {
         order_id: "order-1".to_string(),
-    }));
+    });
     assert!(saga.is_complete());
 }
 
@@ -161,8 +150,8 @@ fn test_is_complete_before_any_event_returns_false_edge() {
 #[test]
 fn test_is_complete_after_compensation_returns_true_error() {
     let mut saga = OrderSaga::default();
-    saga.handle(&envelope(OrderEvent::PaymentFailed {
+    saga.handle(&OrderEvent::PaymentFailed {
         order_id: "order-1".to_string(),
-    }));
+    });
     assert!(saga.is_complete());
 }

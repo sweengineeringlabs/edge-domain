@@ -9,7 +9,6 @@ use crate::api::event::Aggregate;
 use crate::api::event::DomainEvent;
 use crate::api::event::EventBus;
 use crate::api::event::EventBusConfig;
-use crate::api::event::EventEnvelope;
 use crate::api::event::EventPublisher;
 use crate::api::event::EventStore;
 use crate::api::event::EventStoreError;
@@ -187,7 +186,7 @@ impl Domain {
     where
         E: DomainEvent + Send + Sync + 'static,
         R: Send + Sync + 'static,
-        F: Fn(&mut R, &EventEnvelope<E>) + Send + Sync + 'static,
+        F: Fn(&mut R, &E) + Send + Sync + 'static,
     {
         Box::new(InMemoryProjection::new(initial, reducer))
     }

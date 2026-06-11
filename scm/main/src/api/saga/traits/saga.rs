@@ -4,7 +4,6 @@ use std::hash::Hash;
 
 use crate::api::command::Command;
 use crate::api::event::DomainEvent;
-use crate::api::event::EventEnvelope;
 
 /// Orchestrates a long-running business process (a.k.a. ProcessManager).
 ///
@@ -37,8 +36,9 @@ pub trait Saga: Send + Sync {
     /// Handle an incoming event; return zero or more commands to dispatch.
     ///
     /// Returning an empty `Vec` is valid — it means the event advanced (or did
-    /// not affect) the saga's state without staging new work.
-    fn handle(&mut self, event: &EventEnvelope<Self::Event>) -> Vec<Self::Command>;
+    /// not affect) the saga's state without staging new work.  The event exposes
+    /// its aggregate id and timestamp via [`DomainEvent`].
+    fn handle(&mut self, event: &Self::Event) -> Vec<Self::Command>;
 
     /// Whether this saga has reached a terminal state.
     ///

@@ -48,7 +48,6 @@ mod tests {
     use crate::api::command::Command;
     use crate::api::command::CommandError;
     use crate::api::event::DomainEvent;
-    use crate::api::event::EventEnvelope;
     use futures::future::BoxFuture;
 
     #[derive(Clone)]
@@ -72,7 +71,7 @@ mod tests {
         type SagaId = String;
         type Event = InMemorySagaRegistryTestSignal;
         type Command = InMemorySagaRegistryTestSignal;
-        fn handle(&mut self, _event: &EventEnvelope<Self::Event>) -> Vec<Self::Command> {
+        fn handle(&mut self, _event: &Self::Event) -> Vec<Self::Command> {
             self.done = true;
             vec![]
         }

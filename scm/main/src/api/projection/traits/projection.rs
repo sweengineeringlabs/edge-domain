@@ -1,7 +1,6 @@
 //! `Projection` — the read side of CQRS.
 
 use crate::api::event::DomainEvent;
-use crate::api::event::EventEnvelope;
 
 /// Consumes domain events and maintains a read model.
 ///
@@ -32,8 +31,10 @@ pub trait Projection: Send + Sync {
     /// Apply an event to update the read model.
     ///
     /// Called once per event in stream order.  Must be deterministic — the same
-    /// sequence of events must always produce the same read model.
-    fn apply(&mut self, event: &EventEnvelope<Self::Event>);
+    /// sequence of events must always produce the same read model.  The event
+    /// exposes its aggregate id and timestamp via [`DomainEvent`]; callers that
+    /// need stream position should carry it on the event payload itself.
+    fn apply(&mut self, event: &Self::Event);
 
     /// Return the current read model state.
     fn read_model(&self) -> &Self::ReadModel;
