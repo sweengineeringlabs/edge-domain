@@ -38,7 +38,7 @@ impl Saga for PulseSaga {
     }
 }
 
-/// @covers: InMemorySagaRegistry
+/// @covers: new_in_memory_saga_registry
 #[test]
 fn test_in_memory_saga_registry_stores_and_retrieves_saga() {
     let mut reg: Box<dyn SagaRegistry<PulseSaga>> =
@@ -49,7 +49,7 @@ fn test_in_memory_saga_registry_stores_and_retrieves_saga() {
     assert!(!saga.is_complete());
 }
 
-/// @covers: InMemorySagaRegistry
+/// @covers: new_in_memory_saga_registry
 #[test]
 fn test_in_memory_saga_registry_rejects_duplicate_registration() {
     let mut reg: Box<dyn SagaRegistry<PulseSaga>> =
@@ -63,7 +63,7 @@ fn test_in_memory_saga_registry_rejects_duplicate_registration() {
     );
 }
 
-/// @covers: InMemorySagaRegistry
+/// @covers: new_in_memory_saga_registry
 #[test]
 fn test_in_memory_saga_registry_lookup_of_unknown_id_is_not_found() {
     let reg: Box<dyn SagaRegistry<PulseSaga>> = Domain::new_in_memory_saga_registry::<PulseSaga>();
