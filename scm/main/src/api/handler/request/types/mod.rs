@@ -1,4 +1,4 @@
-//! Handler theme — request context types.
+//! Request sub-theme — handler request context types.
 
 pub mod request_context;
 pub mod request_context_builder;

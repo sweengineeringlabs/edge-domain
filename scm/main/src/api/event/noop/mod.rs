@@ -1,6 +1,6 @@
-//! SEA api/ counterpart for `core/event/noop/`.
-//!
-//! Re-exports noop event types from the canonical `api/event/types/noop/` module.
+//! Noop sub-theme — no-op event bus and publisher implementations.
 
-pub use crate::api::event::types::noop::NoopEventBus;
-pub use crate::api::event::types::noop::NoopEventPublisher;
+pub mod types;
+
+pub use types::NoopEventBus;
+pub use types::NoopEventPublisher;

@@ -1,4 +1,4 @@
-//! No-op event implementations for development and testing.
+//! Noop event implementations.
 
 pub mod noop_event_bus;
 pub mod noop_event_publisher;

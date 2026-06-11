@@ -1,6 +1,6 @@
 //! `StageFailedBuilder` — fluent constructor for [`StageFailed`](super::StageFailed).
 
-use crate::api::event::types::stage::StageFailed;
+use super::stage_failed::StageFailed;
 
 /// Fluent builder for [`StageFailed`] events.
 ///

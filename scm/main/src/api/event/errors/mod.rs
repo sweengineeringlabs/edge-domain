@@ -1,6 +1,7 @@
 //! Event theme — error types.
 
-pub mod event;
+pub mod event_error;
+pub mod event_store_error;
 
-pub use event::EventError;
-pub use event::EventStoreError;
+pub use event_error::EventError;
+pub use event_store_error::EventStoreError;

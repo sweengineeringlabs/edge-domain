@@ -1,4 +1,4 @@
-//! In-process and in-memory event implementation types.
+//! In-process implementations — in-memory event store and in-process event bus.
 
 pub mod in_memory_event_store;
 pub mod in_process_event_bus;

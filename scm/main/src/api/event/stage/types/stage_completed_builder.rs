@@ -1,6 +1,6 @@
 //! `StageCompletedBuilder` — fluent constructor for [`StageCompleted`](super::StageCompleted).
 
-use crate::api::event::types::stage::StageCompleted;
+use super::stage_completed::StageCompleted;
 
 /// Fluent builder for [`StageCompleted`] events.
 ///
