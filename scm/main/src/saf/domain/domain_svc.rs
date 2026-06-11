@@ -24,6 +24,8 @@ use crate::api::saga::Saga;
 use crate::api::saga::SagaRegistry;
 use crate::api::service::types::ServiceRegistry;
 use crate::api::service::ServiceRegistry as ServiceRegistryTrait;
+use crate::api::snapshot::Snapshot;
+use crate::api::snapshot::SnapshotStore;
 use crate::core::command::direct_command_bus::DirectCommandBus;
 use crate::core::event::in_memory_event_store::InMemoryEventStore;
 use crate::core::event::noop::noop_event_bus::NoopEventBus;
@@ -33,6 +35,7 @@ use crate::core::projection::in_memory_projection::InMemoryProjection;
 use crate::core::query::direct_query_bus::DirectQueryBus;
 use crate::core::repository::in_memory_repository::InMemoryRepository;
 use crate::core::saga::in_memory_saga_registry::InMemorySagaRegistry;
+use crate::core::snapshot::in_memory_snapshot_store::InMemorySnapshotStore;
 use crate::spi::event::tokio::tokio_event_bus::TokioEventBus;
 
 impl Domain {
@@ -208,6 +211,28 @@ impl Domain {
         S::SagaId: std::fmt::Display + 'static,
     {
         Box::new(InMemorySagaRegistry::new())
+    }
+
+    /// Construct a thread-safe in-memory [`SnapshotStore`] for snapshot type `S`.
+    ///
+    /// Keeps the latest snapshot per aggregate.  `save` rejects snapshots at
+    /// version `0` with [`SnapshotError::InvalidVersion`](crate::SnapshotError);
+    /// `load` returns `Ok(None)` when no snapshot exists for an aggregate.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,ignore
+    /// let store = Domain::new_in_memory_snapshot_store::<OrderSnapshot>();
+    /// store.save(snapshot).await?;
+    /// let restored = store.load(&order_id).await?;
+    /// ```
+    pub fn new_in_memory_snapshot_store<S>(
+    ) -> Arc<dyn SnapshotStore<AggregateId = S::AggregateId, Snap = S>>
+    where
+        S: Snapshot + Clone + 'static,
+        S::AggregateId: std::fmt::Display + 'static,
+    {
+        Arc::new(InMemorySnapshotStore::new())
     }
 
     /// Reconstitute an aggregate by replaying all events from an [`EventStore`].

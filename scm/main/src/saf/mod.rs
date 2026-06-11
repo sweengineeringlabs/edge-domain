@@ -11,6 +11,7 @@ mod queryable_repository_svc;
 mod repository_svc;
 mod saga;
 mod service;
+mod snapshot;
 mod spec_svc;
 mod validator_svc;
 mod value_object_svc;
@@ -48,6 +49,9 @@ pub use crate::api::saga::SagaError;
 pub use crate::api::saga::SagaRegistry;
 pub use crate::api::service::Service;
 pub use crate::api::service::ServiceError;
+pub use crate::api::snapshot::Snapshot;
+pub use crate::api::snapshot::SnapshotError;
+pub use crate::api::snapshot::SnapshotStore;
 
 pub use crate::api::command::DirectCommandBus;
 pub use crate::api::domain::types::{ApplicationConfig, OutboundRegistry};

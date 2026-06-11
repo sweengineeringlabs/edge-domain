@@ -17,5 +17,6 @@ pub mod query;
 pub mod repository;
 pub mod saga;
 pub mod service;
+pub mod snapshot;
 pub mod validator;
 pub mod valueobject;
