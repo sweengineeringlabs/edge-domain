@@ -4,10 +4,9 @@ use crate::api::event::DomainEvent;
 
 /// An aggregate whose state is derived entirely from a sequence of domain events.
 ///
-/// Consumers implement this trait on their state type.  The
-/// [`Domain::reconstitute`](crate::Domain::reconstitute) SAF helper loads all
-/// events from an [`crate::EventStore`] and calls
-/// [`apply`](Aggregate::apply) in sequence to rebuild the aggregate.
+/// Consumers implement this trait on their state type.  The SAF
+/// reconstitution helper loads all events from an [`crate::EventStore`] and
+/// calls [`apply`](Aggregate::apply) in sequence to rebuild the aggregate.
 ///
 /// ```rust,ignore
 /// #[derive(Default)]

@@ -52,13 +52,13 @@ pub use crate::api::snapshot::SnapshotError;
 pub use crate::api::snapshot::SnapshotStore;
 
 pub use crate::api::command::DirectCommandBus;
+pub use crate::api::domain::traits::DomainExtension;
+pub use crate::api::domain::types::NoopDomainExtension;
 pub use crate::api::domain::types::{ApplicationConfig, OutboundRegistry};
 pub use crate::api::event::{
     EventBusConfig, EventEnvelope, EventReceiver, InMemoryEventStore, InProcessEventBus,
     NoopEventBus, NoopEventPublisher,
 };
-pub use crate::api::extension::traits::DomainExtension;
-pub use crate::api::extension::types::NoopDomainExtension;
 pub use crate::api::query::DirectQueryBus;
 pub use crate::api::repository::{InMemoryRepository, Page};
 pub use crate::api::service::types::ServiceRegistry;

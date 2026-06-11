@@ -7,8 +7,10 @@ use crate::api::repository::RepositoryError;
 
 /// Data access contract for a domain entity of type `T` keyed by `Id`.
 ///
-/// Implementations live in infrastructure crates — never in `edge-domain`.
-/// `edge-domain` owns only this contract.
+/// Production implementations live in infrastructure crates — never in
+/// `edge-domain`. `edge-domain` owns only this contract and a tunable
+/// in-memory test double configured via
+/// [`crate::api::repository::types::in_memory_repository::InMemoryRepository`].
 ///
 /// ```rust,ignore
 /// impl Repository<Order, OrderId> for PostgresOrderRepo {

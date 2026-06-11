@@ -8,10 +8,12 @@ use crate::api::event::EventError;
 /// Emits domain events to subscribers.
 ///
 /// Implementations live in infrastructure crates (in-process bus,
-/// message broker, etc.) — never in `edge-domain`.
+/// message broker, etc.) — never in `edge-domain`.  A discard-everything
+/// implementation is
+/// [`crate::api::event::types::noop_event_publisher::NoopEventPublisher`].
 ///
 /// ```rust,ignore
-/// impl EventPublisher for InProcessEventBus {
+/// impl EventPublisher for MyMessageBroker {
 ///     fn publish<'a>(&'a self, event: &'a dyn DomainEvent) -> BoxFuture<'a, Result<(), EventError>> {
 ///         Box::pin(async move { self.dispatch(event).await })
 ///     }

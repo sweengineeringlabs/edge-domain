@@ -13,11 +13,16 @@ use crate::api::event::EventReceiver;
 /// All active subscribers receive every event published after they subscribed.
 /// No events are buffered for subscribers that haven't subscribed yet.
 ///
+/// The in-process implementation is selected via the marker
+/// [`crate::api::event::types::in_process_event_bus::InProcessEventBus`]; a
+/// discard-everything implementation is
+/// [`crate::api::event::types::noop_event_bus::NoopEventBus`].
+///
 /// Use `Arc<dyn EventBus>` to share a bus across handlers, background tasks,
 /// and middleware:
 ///
 /// ```rust,ignore
-/// let bus: Arc<dyn EventBus> = Domain::in_process_event_bus(EventBusConfig::default());
+/// let bus: Arc<dyn EventBus> = in_process_event_bus(EventBusConfig::default());
 /// bus.publish(Arc::new(OrderCreated { .. })).await?;
 /// let mut rx = bus.subscribe();
 /// let event = rx.recv().await?;

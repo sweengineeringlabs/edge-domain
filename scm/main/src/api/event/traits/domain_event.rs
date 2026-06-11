@@ -8,6 +8,14 @@ use std::time::SystemTime;
 /// Implementations must be `Send + Sync` and carry no mutable state after
 /// construction.
 ///
+/// `edge-domain` ships pipeline stage lifecycle events implementing this trait:
+/// [`crate::api::event::types::stage_started::StageStarted`],
+/// [`crate::api::event::types::stage_completed::StageCompleted`] (built with
+/// [`crate::api::event::types::stage_completed_builder::StageCompletedBuilder`]),
+/// [`crate::api::event::types::stage_failed::StageFailed`] (built with
+/// [`crate::api::event::types::stage_failed_builder::StageFailedBuilder`]), and
+/// [`crate::api::event::types::stage_skipped::StageSkipped`].
+///
 /// ```rust,ignore
 /// struct OrderCreated { order_id: String, occurred_at: SystemTime }
 ///

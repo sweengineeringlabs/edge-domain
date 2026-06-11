@@ -11,7 +11,9 @@ use crate::api::event::traits::domain_event::DomainEvent;
 ///
 /// Implemented by the backing channel adapter in the `spi/` layer. Keeping
 /// this trait in `api/` lets [`EventReceiver`](super::event_receiver::EventReceiver)
-/// stay free of any concrete channel technology.
+/// stay free of any concrete channel technology.  A terminal, already-closed
+/// source is provided by
+/// [`crate::api::event::types::closed_event_source::ClosedEventSource`].
 pub trait EventSource: Send {
     /// Wait for the next event from the underlying channel.
     ///

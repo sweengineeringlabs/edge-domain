@@ -10,7 +10,9 @@ use crate::api::event::ExpectedVersion;
 /// Append-only store for domain events, keyed by aggregate stream ID.
 ///
 /// Implementations are provider-specific (EventStoreDB, PostgreSQL, in-memory, …)
-/// and live in infrastructure crates.  The domain layer only depends on this trait.
+/// and live in infrastructure crates.  The domain layer only depends on this trait
+/// and ships an in-memory test double behind the marker
+/// [`crate::api::event::types::in_memory_event_store::InMemoryEventStore`].
 ///
 /// ## Optimistic concurrency
 ///

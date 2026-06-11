@@ -1,4 +1,4 @@
-//! Extension theme — port contracts.
+//! Domain theme — port contracts.
 
 pub mod domain_extension;
 

@@ -5,6 +5,9 @@ use std::sync::Arc;
 use crate::api::handler::Handler;
 
 /// Thread-safe registry of [`Handler`] instances keyed by id.
+///
+/// The in-process reference implementation is
+/// [`crate::api::handler::types::in_process_handler_registry::InProcessHandlerRegistry`].
 pub trait HandlerRegistry<Request, Response>: Send + Sync
 where
     Request: Send + 'static,
