@@ -15,7 +15,5 @@ pub use stage::{
     StageCompleted, StageCompletedBuilder, StageFailed, StageFailedBuilder, StageSkipped,
     StageStarted,
 };
-pub use traits::{Aggregate, DomainEvent, EventBus, EventPublisher, EventStore};
-pub use types::{
-    ClosedEventSource, EventBusConfig, EventEnvelope, EventReceiver, EventSource, ExpectedVersion,
-};
+pub use traits::{Aggregate, DomainEvent, EventBus, EventPublisher, EventSource, EventStore};
+pub use types::{ClosedEventSource, EventBusConfig, EventEnvelope, EventReceiver, ExpectedVersion};
