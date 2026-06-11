@@ -11,6 +11,7 @@ use crate::api::event::DomainEvent;
 /// RFC-001 `Pipeline` treats it as "continue to next stage"; observability
 /// consumers treat it as a non-error bypass rather than a fault.
 pub struct StageSkipped {
+    kind: &'static str,
     stage: String,
     handler_id: String,
     occurred_at: SystemTime,
@@ -20,6 +21,7 @@ impl StageSkipped {
     /// Construct a new `StageSkipped` event.
     pub fn new(stage: impl Into<String>, handler_id: impl Into<String>) -> Self {
         Self {
+            kind: "stage.skipped",
             stage: stage.into(),
             handler_id: handler_id.into(),
             occurred_at: SystemTime::now(),
@@ -39,7 +41,7 @@ impl StageSkipped {
 
 impl DomainEvent for StageSkipped {
     fn event_type(&self) -> &str {
-        "stage.skipped"
+        self.kind
     }
 
     fn aggregate_id(&self) -> &str {

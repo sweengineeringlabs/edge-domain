@@ -9,6 +9,7 @@ use crate::api::event::DomainEvent;
 ///
 /// Consumers use this to open a tracing span or start a latency timer.
 pub struct StageStarted {
+    kind: &'static str,
     stage: String,
     handler_id: String,
     occurred_at: SystemTime,
@@ -18,6 +19,7 @@ impl StageStarted {
     /// Construct a new `StageStarted` event.
     pub fn new(stage: impl Into<String>, handler_id: impl Into<String>) -> Self {
         Self {
+            kind: "stage.started",
             stage: stage.into(),
             handler_id: handler_id.into(),
             occurred_at: SystemTime::now(),
@@ -37,7 +39,7 @@ impl StageStarted {
 
 impl DomainEvent for StageStarted {
     fn event_type(&self) -> &str {
-        "stage.started"
+        self.kind
     }
 
     fn aggregate_id(&self) -> &str {

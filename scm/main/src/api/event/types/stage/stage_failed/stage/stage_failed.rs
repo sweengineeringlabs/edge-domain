@@ -10,6 +10,7 @@ use crate::api::event::DomainEvent;
 ///
 /// For `Skipped`, see [`StageSkipped`](crate::StageSkipped) instead.
 pub struct StageFailed {
+    kind: &'static str,
     stage: String,
     handler_id: String,
     duration_ms: u64,
@@ -26,6 +27,7 @@ impl StageFailed {
         error: impl Into<String>,
     ) -> Self {
         Self {
+            kind: "stage.failed",
             stage: stage.into(),
             handler_id: handler_id.into(),
             duration_ms,
@@ -57,7 +59,7 @@ impl StageFailed {
 
 impl DomainEvent for StageFailed {
     fn event_type(&self) -> &str {
-        "stage.failed"
+        self.kind
     }
 
     fn aggregate_id(&self) -> &str {

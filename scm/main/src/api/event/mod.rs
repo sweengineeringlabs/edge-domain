@@ -11,6 +11,6 @@ pub use traits::{Aggregate, DomainEvent, EventBus, EventPublisher, EventStore};
 pub use types::ClosedEventSource;
 pub use types::{
     EventBusConfig, EventEnvelope, EventReceiver, EventSource, ExpectedVersion, InMemoryEventStore,
-    InProcessEventBus, NoopEventBus, NoopEventPublisher, StageCompleted, StageFailed,
-    StageFailedBuilder, StageSkipped, StageStarted,
+    InProcessEventBus, NoopEventBus, NoopEventPublisher, StageCompleted, StageCompletedBuilder,
+    StageFailed, StageFailedBuilder, StageSkipped, StageStarted,
 };

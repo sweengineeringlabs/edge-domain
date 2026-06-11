@@ -43,8 +43,8 @@ pub use crate::api::service::ServiceError;
 pub use crate::api::command::DirectCommandBus;
 pub use crate::api::domain::types::{ApplicationConfig, OutboundRegistry};
 pub use crate::api::event::{
-    EventBusConfig, EventReceiver, InMemoryEventStore, InProcessEventBus, NoopEventBus,
-    NoopEventPublisher,
+    EventBusConfig, EventEnvelope, EventReceiver, InMemoryEventStore, InProcessEventBus,
+    NoopEventBus, NoopEventPublisher,
 };
 pub use crate::api::extension::traits::DomainExtension;
 pub use crate::api::extension::types::NoopDomainExtension;

@@ -1,0 +1,69 @@
+{
+  "timestamp": "2026-06-11T08:50:09.722178500+00:00",
+  "results": [
+    {
+      "id": 91,
+      "category": "naming",
+      "description": "Suggest Builder pattern for complex structs (advisory)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 91,
+            "path": "main\\src\\api\\event\\types\\stage\\stage_failed.rs",
+            "message": "Struct 'StageFailed' has 5 fields (0 optional) - consider Builder pattern",
+            "severity": "info",
+            "rule_type": "builtin:suggest_builder_pattern",
+            "expected": "StageFailedBuilder companion struct",
+            "actual": "5 fields, 0 optional",
+            "fix_hint": "Add 'StageFailedBuilder' with fluent setters",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "total": 1,
+    "passed": 0,
+    "failed": 1,
+    "skipped": 0,
+    "duration_ms": 46.1737
+  },
+  "project_layout": "library",
+  "application_type": "lib",
+  "rule_labels": {
+    "113": [
+      "core",
+      "spi"
+    ],
+    "51": [
+      "core",
+      "spi"
+    ],
+    "89": [
+      "core",
+      "spi"
+    ],
+    "86": [
+      "core",
+      "spi"
+    ],
+    "90": [
+      "core",
+      "spi"
+    ],
+    "124": [
+      "core",
+      "spi"
+    ],
+    "50": [
+      "core",
+      "spi"
+    ],
+    "111": [
+      "core",
+      "spi"
+    ]
+  }
+}

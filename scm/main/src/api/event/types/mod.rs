@@ -18,6 +18,7 @@ pub use ins::InProcessEventBus;
 pub use noop::NoopEventBus;
 pub use noop::NoopEventPublisher;
 pub use stage::StageCompleted;
+pub use stage::StageCompletedBuilder;
 pub use stage::StageFailed;
 pub use stage::StageFailedBuilder;
 pub use stage::StageSkipped;

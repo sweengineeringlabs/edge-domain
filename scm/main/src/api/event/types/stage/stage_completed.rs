@@ -7,6 +7,7 @@ use crate::api::event::DomainEvent;
 /// Emitted by [`EventEmittingHandler`](crate::EventEmittingHandler) after the inner
 /// handler returns `Ok(_)`.
 pub struct StageCompleted {
+    kind: &'static str,
     stage: String,
     handler_id: String,
     duration_ms: u64,
@@ -17,6 +18,7 @@ impl StageCompleted {
     /// Construct a new `StageCompleted` event.
     pub fn new(stage: impl Into<String>, handler_id: impl Into<String>, duration_ms: u64) -> Self {
         Self {
+            kind: "stage.completed",
             stage: stage.into(),
             handler_id: handler_id.into(),
             duration_ms,
@@ -42,7 +44,7 @@ impl StageCompleted {
 
 impl DomainEvent for StageCompleted {
     fn event_type(&self) -> &str {
-        "stage.completed"
+        self.kind
     }
 
     fn aggregate_id(&self) -> &str {

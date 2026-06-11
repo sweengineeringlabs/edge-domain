@@ -1,0 +1,448 @@
+{
+  "timestamp": "2026-06-11T08:22:02.055617100+00:00",
+  "results": [
+    {
+      "id": 89,
+      "category": "naming",
+      "description": "L2 module filenames must match their primary struct/trait name (with suffix tolerance)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 89,
+            "path": "main\\src\\core\\handler\\event_emitting_handler.rs",
+            "message": "L2 file 'main\\src\\core\\handler\\event_emitting_handler.rs' types [\"TestEcho\", \"CollectingBus\", \"FailingHandler\", \"SkippingHandler\", \"SlowHandler\"] don't match filename 'EventEmittingHandler'",
+            "severity": "warning",
+            "rule_type": "builtin:core_filename_matches_type",
+            "expected": "Type containing or matching 'EventEmittingHandler'",
+            "actual": "TestEcho, CollectingBus, FailingHandler, SkippingHandler, SlowHandler",
+            "fix_hint": "Rename file to match primary type, or rename type to include 'EventEmittingHandler'",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": 90,
+      "category": "naming",
+      "description": "Types in L2 modules must be name-cohesive (SRP enforcement)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 90,
+            "path": "main\\src\\core\\handler\\event_emitting_handler.rs",
+            "message": "Type 'CollectingBus' is not cohesive with primary type 'TestEcho'",
+            "severity": "warning",
+            "rule_type": "builtin:core_types_name_cohesive",
+            "expected": "Type related to 'TestEcho' (e.g., TestEchoBuilder, TestEchoError)",
+            "actual": "CollectingBus",
+            "fix_hint": "Move 'CollectingBus' to its own file 'collecting_bus.rs'",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 90,
+            "path": "main\\src\\core\\handler\\event_emitting_handler.rs",
+            "message": "Type 'FailingHandler' is not cohesive with primary type 'TestEcho'",
+            "severity": "warning",
+            "rule_type": "builtin:core_types_name_cohesive",
+            "expected": "Type related to 'TestEcho' (e.g., TestEchoBuilder, TestEchoError)",
+            "actual": "FailingHandler",
+            "fix_hint": "Move 'FailingHandler' to its own file 'failing_handler.rs'",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 90,
+            "path": "main\\src\\core\\handler\\event_emitting_handler.rs",
+            "message": "Type 'SkippingHandler' is not cohesive with primary type 'TestEcho'",
+            "severity": "warning",
+            "rule_type": "builtin:core_types_name_cohesive",
+            "expected": "Type related to 'TestEcho' (e.g., TestEchoBuilder, TestEchoError)",
+            "actual": "SkippingHandler",
+            "fix_hint": "Move 'SkippingHandler' to its own file 'skipping_handler.rs'",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 90,
+            "path": "main\\src\\core\\handler\\event_emitting_handler.rs",
+            "message": "Type 'SlowHandler' is not cohesive with primary type 'TestEcho'",
+            "severity": "warning",
+            "rule_type": "builtin:core_types_name_cohesive",
+            "expected": "Type related to 'TestEcho' (e.g., TestEchoBuilder, TestEchoError)",
+            "actual": "SlowHandler",
+            "fix_hint": "Move 'SlowHandler' to its own file 'slow_handler.rs'",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": 91,
+      "category": "naming",
+      "description": "Suggest Builder pattern for complex structs (advisory)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 91,
+            "path": "main\\src\\api\\event\\types\\stage\\stage_failed.rs",
+            "message": "Struct 'StageFailed' has 5 fields (0 optional) - consider Builder pattern",
+            "severity": "info",
+            "rule_type": "builtin:suggest_builder_pattern",
+            "expected": "StageFailedBuilder companion struct",
+            "actual": "5 fields, 0 optional",
+            "fix_hint": "Add 'StageFailedBuilder' with fluent setters",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": 92,
+      "category": "application_type",
+      "description": "application_type must be defined in project metadata",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 110,
+      "category": "code_organization",
+      "description": "mod.rs must contain only module declarations and re-exports — no struct/impl/fn logic",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 110,
+            "path": "main\\src\\api\\handler\\traits\\handler\\mod.rs",
+            "message": "mod.rs contains logic: type definitions (struct/enum/trait/impl) and function definitions",
+            "severity": "warning",
+            "rule_type": "builtin:module_entry_declarations_only",
+            "expected": "Only module declarations (pub mod) and re-exports (pub use)",
+            "actual": "type definitions (struct/enum/trait/impl), function definitions",
+            "fix_hint": "Move logic (structs, impls, functions) out of mod.rs into named files; mod.rs should only have `pub mod` and `pub use` statements",
+            "remediation_strategy": "manual",
+            "principles": [
+              "single_responsibility",
+              "humble_object"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 112,
+      "category": "code_organization",
+      "description": "Sibling files sharing a common prefix must be grouped into a subdirectory module (e.g., check_runner.rs + check_result.rs → check/runner.rs + check/result.rs)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 112,
+            "path": "main\\src\\core\\event\\noop_event_bus.rs",
+            "message": "2 files in main/src/core/event/ share prefix 'noop': noop_event_bus, noop_event_publisher — group into main/src/core/event/noop/",
+            "severity": "warning",
+            "rule_type": "builtin:shared_prefix_grouping",
+            "expected": "Subdirectory module: main/src/core/event/noop/",
+            "actual": "noop_event_bus, noop_event_publisher",
+            "fix_hint": "Create a subdirectory named after the shared prefix and move files into it (e.g., `check_runner.rs` → `check/runner.rs`)",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 112,
+            "path": "main\\src\\api\\event\\types\\in_memory_event_store.rs",
+            "message": "2 files in main/src/api/event/types/ share prefix 'in': in_memory_event_store, in_process_event_bus — group into main/src/api/event/types/ins/",
+            "severity": "warning",
+            "rule_type": "builtin:shared_prefix_grouping",
+            "expected": "Subdirectory module: main/src/api/event/types/ins/",
+            "actual": "in_memory_event_store, in_process_event_bus",
+            "fix_hint": "Create a subdirectory named after the shared prefix and move files into it (e.g., `check_runner.rs` → `check/runner.rs`)",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 112,
+            "path": "main\\src\\saf\\domain_event_svc.rs",
+            "message": "3 files in main/src/saf/ share prefix 'domain': domain_event_svc, domain_extension_svc, domain_svc — group into main/src/saf/domain/",
+            "severity": "warning",
+            "rule_type": "builtin:shared_prefix_grouping",
+            "expected": "Subdirectory module: main/src/saf/domain/",
+            "actual": "domain_event_svc, domain_extension_svc, domain_svc",
+            "fix_hint": "Create a subdirectory named after the shared prefix and move files into it (e.g., `check_runner.rs` → `check/runner.rs`)",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 112,
+            "path": "main\\src\\saf\\service_registry_svc.rs",
+            "message": "2 files in main/src/saf/ share prefix 'service': service_registry_svc, service_svc — group into main/src/saf/service/",
+            "severity": "warning",
+            "rule_type": "builtin:shared_prefix_grouping",
+            "expected": "Subdirectory module: main/src/saf/service/",
+            "actual": "service_registry_svc, service_svc",
+            "fix_hint": "Create a subdirectory named after the shared prefix and move files into it (e.g., `check_runner.rs` → `check/runner.rs`)",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 112,
+            "path": "main\\src\\saf\\event_bus_svc.rs",
+            "message": "4 files in main/src/saf/ share prefix 'event': event_bus_svc, event_publisher_svc, event_source_svc, event_store_svc — group into main/src/saf/event/",
+            "severity": "warning",
+            "rule_type": "builtin:shared_prefix_grouping",
+            "expected": "Subdirectory module: main/src/saf/event/",
+            "actual": "event_bus_svc, event_publisher_svc, event_source_svc, event_store_svc",
+            "fix_hint": "Create a subdirectory named after the shared prefix and move files into it (e.g., `check_runner.rs` → `check/runner.rs`)",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 112,
+            "path": "main\\src\\saf\\handler_factory_svc.rs",
+            "message": "3 files in main/src/saf/ share prefix 'handler': handler_factory_svc, handler_registry_svc, handler_svc — group into main/src/saf/handler/",
+            "severity": "warning",
+            "rule_type": "builtin:shared_prefix_grouping",
+            "expected": "Subdirectory module: main/src/saf/handler/",
+            "actual": "handler_factory_svc, handler_registry_svc, handler_svc",
+            "fix_hint": "Create a subdirectory named after the shared prefix and move files into it (e.g., `check_runner.rs` → `check/runner.rs`)",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 112,
+            "path": "main\\src\\saf\\command_bus_svc.rs",
+            "message": "2 files in main/src/saf/ share prefix 'command': command_bus_svc, command_svc — group into main/src/saf/command/",
+            "severity": "warning",
+            "rule_type": "builtin:shared_prefix_grouping",
+            "expected": "Subdirectory module: main/src/saf/command/",
+            "actual": "command_bus_svc, command_svc",
+            "fix_hint": "Create a subdirectory named after the shared prefix and move files into it (e.g., `check_runner.rs` → `check/runner.rs`)",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 112,
+            "path": "main\\src\\saf\\query_bus_svc.rs",
+            "message": "2 files in main/src/saf/ share prefix 'query': query_bus_svc, query_svc — group into main/src/saf/query/",
+            "severity": "warning",
+            "rule_type": "builtin:shared_prefix_grouping",
+            "expected": "Subdirectory module: main/src/saf/query/",
+            "actual": "query_bus_svc, query_svc",
+            "fix_hint": "Create a subdirectory named after the shared prefix and move files into it (e.g., `check_runner.rs` → `check/runner.rs`)",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": 121,
+      "category": "structure",
+      "description": "Every {implementation_layer}/ submodule must have a corresponding {interface_layer}/ submodule defining its types or traits",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 121,
+            "path": "main\\src\\core\\command\\direct_command_bus.rs",
+            "message": "main\\src\\core\\command\\direct_command_bus.rs has no corresponding api interface counterpart",
+            "severity": "warning",
+            "rule_type": "builtin:core_api_module_correspondence",
+            "expected": "direct_command_bus.rs or direct_command_bus/mod.rs",
+            "actual": "not found",
+            "fix_hint": "Create 'main\\src\\api\\command\\direct_command_bus.rs' with type/trait definitions that main\\src\\core\\command\\direct_command_bus.rs implements against",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 121,
+            "path": "main\\src\\core\\event\\closed_event_source.rs",
+            "message": "main\\src\\core\\event\\closed_event_source.rs has no corresponding api interface counterpart",
+            "severity": "warning",
+            "rule_type": "builtin:core_api_module_correspondence",
+            "expected": "closed_event_source.rs or closed_event_source/mod.rs",
+            "actual": "not found",
+            "fix_hint": "Create 'main\\src\\api\\event\\closed_event_source.rs' with type/trait definitions that main\\src\\core\\event\\closed_event_source.rs implements against",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 121,
+            "path": "main\\src\\core\\handler\\event_emitting_handler.rs",
+            "message": "main\\src\\core\\handler\\event_emitting_handler.rs has no corresponding api interface counterpart",
+            "severity": "warning",
+            "rule_type": "builtin:core_api_module_correspondence",
+            "expected": "event_emitting_handler.rs or event_emitting_handler/mod.rs",
+            "actual": "not found",
+            "fix_hint": "Create 'main\\src\\api\\handler\\event_emitting_handler.rs' with type/trait definitions that main\\src\\core\\handler\\event_emitting_handler.rs implements against",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 121,
+            "path": "main\\src\\core\\handler\\in_process_handler_registry.rs",
+            "message": "main\\src\\core\\handler\\in_process_handler_registry.rs has no corresponding api interface counterpart",
+            "severity": "warning",
+            "rule_type": "builtin:core_api_module_correspondence",
+            "expected": "in_process_handler_registry.rs or in_process_handler_registry/mod.rs",
+            "actual": "not found",
+            "fix_hint": "Create 'main\\src\\api\\handler\\in_process_handler_registry.rs' with type/trait definitions that main\\src\\core\\handler\\in_process_handler_registry.rs implements against",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 121,
+            "path": "main\\src\\core\\query\\direct_query_bus.rs",
+            "message": "main\\src\\core\\query\\direct_query_bus.rs has no corresponding api interface counterpart",
+            "severity": "warning",
+            "rule_type": "builtin:core_api_module_correspondence",
+            "expected": "direct_query_bus.rs or direct_query_bus/mod.rs",
+            "actual": "not found",
+            "fix_hint": "Create 'main\\src\\api\\query\\direct_query_bus.rs' with type/trait definitions that main\\src\\core\\query\\direct_query_bus.rs implements against",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 121,
+            "path": "main\\src\\core\\validator\\validator_default.rs",
+            "message": "main\\src\\core\\validator\\validator_default.rs has no corresponding api interface counterpart",
+            "severity": "warning",
+            "rule_type": "builtin:core_api_module_correspondence",
+            "expected": "validator_default.rs or validator_default/mod.rs",
+            "actual": "not found",
+            "fix_hint": "Create 'main\\src\\api\\validator\\validator_default.rs' with type/trait definitions that main\\src\\core\\validator\\validator_default.rs implements against",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": 124,
+      "category": "test_org",
+      "description": "Every pub/pub(crate) fn in L2 layers must have an inline unit test (#[cfg(test)] block with #[test])",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 124,
+            "path": null,
+            "message": "L2 unit test coverage: 75% (3/4 functions have inline tests)",
+            "severity": "warning",
+            "rule_type": "builtin:core_fns_have_unit_tests",
+            "expected": "100% of L2/ functions with inline unit tests",
+            "actual": "75% coverage",
+            "fix_hint": "Add #[cfg(test)] mod tests { #[test] fn test_<name>() { ... } } to each core/ source file",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": 124,
+            "path": "main\\src\\core\\handler\\in_process_handler_registry.rs",
+            "message": "Function 'new' in 'main/src/core/handler/in_process_handler_registry.rs' has no inline unit test — file has no #[cfg(test)] block",
+            "severity": "warning",
+            "rule_type": "builtin:core_fns_have_unit_tests",
+            "expected": "#[test] fn test_new()",
+            "actual": "no #[cfg(test)] block",
+            "fix_hint": "Add a `#[cfg(test)] mod tests { #[test] fn test_<fn_name>() { ... } }` block to the source file",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": 161,
+      "category": "naming",
+      "description": "Each pub type/trait in api/ must be in its own standalone file with the file stem matching the snake_case name",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 161,
+            "path": "main\\src\\api\\handler\\traits\\handler\\factory.rs",
+            "message": "api/ file 'main/src/api/handler/traits/handler/factory.rs' contains `pub trait HandlerFactory` but the file stem 'factory' does not match — expected 'api/handler_factory.rs'",
+            "severity": "warning",
+            "rule_type": "builtin:api_filename_matches_type",
+            "expected": "file stem == 'handler_factory'",
+            "actual": "file stem == 'factory'",
+            "fix_hint": "Rename the file to 'api/handler_factory.rs' (matching the snake_case of 'HandlerFactory'). Update the parent mod.rs to reference the new filename and update any `use` paths across the crate.",
+            "remediation_strategy": "imperative",
+            "principles": [
+              "screaming_architecture",
+              "locality_of_reference"
+            ]
+          },
+          {
+            "check_id": 161,
+            "path": "main\\src\\api\\handler\\traits\\handler\\registry.rs",
+            "message": "api/ file 'main/src/api/handler/traits/handler/registry.rs' contains `pub trait HandlerRegistry` but the file stem 'registry' does not match — expected 'api/handler_registry.rs'",
+            "severity": "warning",
+            "rule_type": "builtin:api_filename_matches_type",
+            "expected": "file stem == 'handler_registry'",
+            "actual": "file stem == 'registry'",
+            "fix_hint": "Rename the file to 'api/handler_registry.rs' (matching the snake_case of 'HandlerRegistry'). Update the parent mod.rs to reference the new filename and update any `use` paths across the crate.",
+            "remediation_strategy": "imperative",
+            "principles": [
+              "screaming_architecture",
+              "locality_of_reference"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 198,
+      "category": "interface",
+      "description": "api/ must contain error types — either a flat api/error/ subdirectory or domain-grouped api/<domain>/errors/ directories; at least one must exist",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 198,
+            "path": "main/src/api/error/",
+            "message": "No error directory found in api project root — expected api/error/ or api/{theme}/errors/",
+            "severity": "error",
+            "rule_type": "builtin:api_has_error_dir",
+            "expected": "api/error/ directory (or api/{theme}/errors/)",
+            "actual": "no error dir found",
+            "fix_hint": "Create main/src/api/error/ with domain error type definitions",
+            "remediation_strategy": "auto",
+            "principles": [
+              "programming_to_interface",
+              "single_responsibility"
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "passed": 1,
+    "failed": 9,
+    "skipped": 0,
+    "duration_ms": 57.151199999999996
+  },
+  "project_layout": "library",
+  "application_type": "lib",
+  "rule_labels": {
+    "86": [
+      "core",
+      "spi"
+    ],
+    "124": [
+      "core",
+      "spi"
+    ],
+    "50": [
+      "core",
+      "spi"
+    ],
+    "111": [
+      "core",
+      "spi"
+    ],
+    "90": [
+      "core",
+      "spi"
+    ],
+    "89": [
+      "core",
+      "spi"
+    ],
+    "113": [
+      "core",
+      "spi"
+    ],
+    "51": [
+      "core",
+      "spi"
+    ]
+  }
+}

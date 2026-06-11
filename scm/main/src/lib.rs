@@ -20,7 +20,10 @@ mod saf;
 mod spi;
 
 pub use api::event::ClosedEventSource;
-pub use api::event::{StageCompleted, StageFailed, StageFailedBuilder, StageSkipped, StageStarted};
+pub use api::event::{
+    StageCompleted, StageCompletedBuilder, StageFailed, StageFailedBuilder, StageSkipped,
+    StageStarted,
+};
 pub use api::handler::EchoHandler;
 pub use api::handler::EventEmittingHandler;
 pub use api::handler::HandlerFactory;
