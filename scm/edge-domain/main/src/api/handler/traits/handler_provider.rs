@@ -2,7 +2,6 @@
 
 use crate::api::handler::types::echo_handler::EchoHandler;
 use crate::api::handler::types::in_process_handler_registry::InProcessHandlerRegistry;
-use crate::api::handler::types::request_context_builder::RequestContextBuilder;
 
 /// Factory trait for the standard handler-infrastructure types.
 pub trait HandlerProvider {
@@ -14,10 +13,5 @@ pub trait HandlerProvider {
     /// Construct the [`InProcessHandlerRegistry`] marker type.
     fn in_process_registry() -> InProcessHandlerRegistry {
         InProcessHandlerRegistry
-    }
-
-    /// Construct a fresh [`RequestContextBuilder`].
-    fn request_context_builder() -> RequestContextBuilder {
-        RequestContextBuilder::new()
     }
 }

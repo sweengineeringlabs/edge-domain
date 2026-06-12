@@ -1,28 +1,24 @@
 //! Comprehensive coverage tests for api/ types and configuration modules.
 
-use edge_domain::{Aggregate, DomainEvent, RequestContext, Spec};
+use edge_domain::{Aggregate, DomainEvent, Spec};
+use edge_domain_security::SecurityContext;
 use std::time::SystemTime;
 
-/// @covers: RequestContext
+/// @covers: SecurityContext — unauthenticated constructor
 #[test]
-fn test_request_context_unauthenticated() {
-    let ctx = RequestContext::unauthenticated();
+fn test_security_context_unauthenticated() {
+    let ctx = SecurityContext::unauthenticated();
     assert!(!ctx.authenticated);
-    assert!(ctx.subject.is_none());
+    assert!(ctx.principal.is_none());
 }
 
-/// @covers: RequestContext
+/// @covers: SecurityContext — authenticated_with constructor
 #[test]
-fn test_request_context_authenticated() {
-    let ctx = RequestContext::authenticated(
-        "user123",
-        None,
-        Some("tenant456".to_string()),
-        Default::default(),
-    );
+fn test_security_context_authenticated_with_principal() {
+    use edge_domain_security::AnonymousPrincipal;
+    let ctx = SecurityContext::authenticated_with(Box::new(AnonymousPrincipal));
     assert!(ctx.authenticated);
-    assert_eq!(ctx.subject, Some("user123".to_string()));
-    assert_eq!(ctx.tenant_id, Some("tenant456".to_string()));
+    assert!(ctx.principal.is_some());
 }
 
 /// @covers: Aggregate

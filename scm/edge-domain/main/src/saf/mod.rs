@@ -170,10 +170,6 @@ pub use edge_domain_handler::HandlerProvider;
 pub use edge_domain_handler::HandlerRegistry;
 #[cfg(feature = "handler")]
 pub use edge_domain_handler::InProcessHandlerRegistry;
-#[cfg(feature = "handler")]
-pub use edge_domain_handler::RequestContext;
-#[cfg(feature = "handler")]
-pub use edge_domain_handler::RequestContextBuilder;
 
 // ── event (sub-crate when feature enabled) ────────────────────────────────────
 #[cfg(feature = "event")]

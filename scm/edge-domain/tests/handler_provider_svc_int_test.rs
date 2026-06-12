@@ -53,31 +53,3 @@ fn test_in_process_registry_independent_calls_edge() {
     let _b = TestHandlers::in_process_registry::<String, String>();
 }
 
-// --- HandlerProvider::request_context_builder ---
-
-/// @covers HandlerProvider::request_context_builder — happy path: returns a fresh builder
-#[test]
-fn test_request_context_builder_returns_fresh_builder_happy() {
-    let ctx = TestHandlers::request_context_builder().build();
-    assert!(!ctx.authenticated);
-}
-
-/// @covers HandlerProvider::request_context_builder — error: builder with no subject yields None
-#[test]
-fn test_request_context_builder_no_subject_yields_none_error() {
-    let ctx = TestHandlers::request_context_builder().build();
-    assert!(ctx.subject.is_none());
-}
-
-/// @covers HandlerProvider::request_context_builder — edge: builder accepts all fields
-#[test]
-fn test_request_context_builder_full_fields_edge() {
-    let ctx = TestHandlers::request_context_builder()
-        .with_subject("alice")
-        .with_trace_id("trace-42")
-        .authenticated()
-        .build();
-    assert_eq!(ctx.subject.as_deref(), Some("alice"));
-    assert_eq!(ctx.trace_id, "trace-42");
-    assert!(ctx.authenticated);
-}

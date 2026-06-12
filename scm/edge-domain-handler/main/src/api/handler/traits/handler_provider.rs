@@ -2,7 +2,6 @@
 
 use crate::api::handler::types::echo_handler::EchoHandler;
 use crate::api::handler::types::in_process_handler_registry::InProcessHandlerRegistry;
-use crate::api::handler::types::request_context_builder::RequestContextBuilder;
 
 /// Factory trait providing standard handler constructs without requiring
 /// callers to name concrete types from `core/`.
@@ -19,11 +18,6 @@ pub trait HandlerProvider {
         Resp: Send + 'static,
     {
         InProcessHandlerRegistry::new()
-    }
-
-    /// Construct a [`RequestContextBuilder`] for assembling request context.
-    fn request_context_builder() -> RequestContextBuilder {
-        RequestContextBuilder::new()
     }
 }
 
@@ -45,10 +39,5 @@ mod tests {
     fn test_in_process_registry_creates_empty_registry_happy() {
         let reg = Prov::in_process_registry::<String, String>();
         assert_eq!(reg.handler_count(), 0);
-    }
-
-    #[test]
-    fn test_request_context_builder_creates_builder_happy() {
-        let _b = Prov::request_context_builder();
     }
 }

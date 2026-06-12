@@ -1,7 +1,8 @@
 //! Integration tests — `Handler` trait via SAF facade.
 
 use async_trait::async_trait;
-use edge_domain_handler::{Handler, HandlerError, RequestContext};
+use edge_domain_handler::{Handler, HandlerError};
+use edge_domain_security::SecurityContext;
 use futures::executor::block_on;
 
 struct OkHandler;
@@ -93,7 +94,7 @@ fn test_health_check_unhealthy_handler_returns_false_error() {
 /// @covers: Handler::execute_with_context delegates to execute
 #[test]
 fn test_execute_with_context_delegates_to_execute_happy() {
-    let ctx = RequestContext::unauthenticated();
+    let ctx = SecurityContext::unauthenticated();
     let result = block_on(OkHandler.execute_with_context("world".into(), ctx));
     assert_eq!(result.unwrap(), "WORLD");
 }
@@ -101,8 +102,8 @@ fn test_execute_with_context_delegates_to_execute_happy() {
 /// @covers: Handler::execute_with_context with authenticated context
 #[test]
 fn test_execute_with_context_authenticated_context_still_executes_edge() {
-    use std::collections::HashMap;
-    let ctx = RequestContext::authenticated("user", None, None, HashMap::new());
+    use edge_domain_security::AnonymousPrincipal;
+    let ctx = SecurityContext::authenticated_with(Box::new(AnonymousPrincipal));
     let result = block_on(OkHandler.execute_with_context("test".into(), ctx));
     assert_eq!(result.unwrap(), "TEST");
 }

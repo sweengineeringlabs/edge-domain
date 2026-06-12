@@ -1,3 +1,3 @@
 mod handler;
 
-pub use handler::{EchoHandler, Handler, HandlerError, HandlerFactory, HandlerProvider, HandlerRegistry, InProcessHandlerRegistry, RequestContext, RequestContextBuilder};
+pub use handler::{EchoHandler, Handler, HandlerError, HandlerFactory, HandlerProvider, HandlerRegistry, InProcessHandlerRegistry};

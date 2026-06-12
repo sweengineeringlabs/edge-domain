@@ -12,4 +12,3 @@ pub use handler_registry::HandlerRegistry;
 
 pub use crate::api::handler::types::EchoHandler;
 pub use crate::api::handler::types::InProcessHandlerRegistry;
-pub use crate::api::handler::types::RequestContextBuilder;

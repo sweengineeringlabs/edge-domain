@@ -6,4 +6,4 @@ pub mod types;
 
 pub use errors::HandlerError;
 pub use traits::{Handler, HandlerFactory, HandlerProvider, HandlerRegistry};
-pub use types::{EchoHandler, InProcessHandlerRegistry, RequestContext, RequestContextBuilder};
+pub use types::{EchoHandler, InProcessHandlerRegistry};

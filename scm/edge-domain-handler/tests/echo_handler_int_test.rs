@@ -1,6 +1,7 @@
 //! Integration tests — `EchoHandler` type.
 
-use edge_domain_handler::{EchoHandler, Handler, RequestContext};
+use edge_domain_handler::{EchoHandler, Handler};
+use edge_domain_security::SecurityContext;
 use futures::executor::block_on;
 
 /// @covers: EchoHandler::execute — returns request unchanged
@@ -43,7 +44,7 @@ fn test_health_check_returns_true_happy() {
 #[test]
 fn test_execute_with_context_returns_same_value_happy() {
     let h = EchoHandler::<String>::new("e", "/");
-    let ctx = RequestContext::unauthenticated();
+    let ctx = SecurityContext::unauthenticated();
     let result = block_on(h.execute_with_context("world".into(), ctx));
     assert_eq!(result.unwrap(), "world");
 }

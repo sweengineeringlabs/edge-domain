@@ -1,9 +1,9 @@
 //! `Handler` trait — an async request/response execution unit.
 
 use async_trait::async_trait;
+use edge_domain_security::SecurityContext;
 
 use crate::api::handler::errors::HandlerError;
-use crate::api::handler::types::RequestContext;
 
 /// An async request/response execution unit identified by an id and pattern.
 #[async_trait]
@@ -25,13 +25,13 @@ where
     /// Execute the handler with the given request.
     async fn execute(&self, req: Request) -> Result<Response, HandlerError>;
 
-    /// Execute the handler with an explicit [`RequestContext`].
+    /// Execute the handler with an explicit [`SecurityContext`].
     ///
     /// The default implementation ignores the context and delegates to [`execute`](Handler::execute).
     async fn execute_with_context(
         &self,
         req: Request,
-        _ctx: RequestContext,
+        _ctx: SecurityContext,
     ) -> Result<Response, HandlerError> {
         self.execute(req).await
     }
@@ -91,7 +91,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_execute_with_context_delegates_to_execute_happy() {
-        let ctx = RequestContext::default();
+        let ctx = SecurityContext::unauthenticated();
         let result = AlwaysOk
             .execute_with_context("hello".into(), ctx)
             .await;

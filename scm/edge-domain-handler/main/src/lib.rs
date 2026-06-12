@@ -17,5 +17,3 @@ pub use saf::HandlerFactory;
 pub use saf::HandlerProvider;
 pub use saf::HandlerRegistry;
 pub use saf::InProcessHandlerRegistry;
-pub use saf::RequestContext;
-pub use saf::RequestContextBuilder;

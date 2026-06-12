@@ -83,24 +83,6 @@ fn test_in_process_registry_empty_after_deregister_edge() {
     assert!(reg.is_empty());
 }
 
-/// @covers: HandlerProvider::request_context_builder — creates builder
-#[test]
-fn test_request_context_builder_creates_builder_happy() {
-    let ctx = Prov::request_context_builder()
-        .with_subject("alice")
-        .authenticated()
-        .build();
-    assert!(ctx.authenticated);
-    assert_eq!(ctx.subject.as_deref(), Some("alice"));
-}
-
-/// @covers: HandlerProvider::request_context_builder — unauthenticated default
-#[test]
-fn test_request_context_builder_default_is_unauthenticated_edge() {
-    let ctx = Prov::request_context_builder().build();
-    assert!(!ctx.authenticated);
-}
-
 /// @covers: HandlerProvider::echo_handler — infallible (no error path; demonstrates it never panics)
 #[test]
 fn test_echo_handler_always_constructs_without_error_error() {
@@ -115,12 +97,4 @@ fn test_in_process_registry_empty_state_is_not_an_error_error() {
     // in_process_registry is infallible — an empty registry is not an error condition.
     let reg = Prov::in_process_registry::<String, String>();
     assert_eq!(reg.len(), 0);
-}
-
-/// @covers: HandlerProvider::request_context_builder — infallible (no error path)
-#[test]
-fn test_request_context_builder_always_builds_without_error_error() {
-    // request_context_builder is infallible — build() always returns a value.
-    let ctx = Prov::request_context_builder().build();
-    assert!(!ctx.authenticated);
 }

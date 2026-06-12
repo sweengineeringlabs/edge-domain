@@ -1,6 +1,6 @@
 [package]
 name                   = "edge-domain"
-version                = "0.8.18"
+version                = "0.8.19"
 edition.workspace      = true
 license.workspace      = true
 rust-version.workspace = true
@@ -39,7 +39,7 @@ handler     = ["dep:edge-domain-handler"]
 event       = ["dep:edge-domain-event"]
 projection  = ["dep:edge-domain-projection", "event"]
 saga        = ["dep:edge-domain-saga",        "event", "command"]
-security    = ["dep:edge-domain-security"]
+security    = []
 full        = [
     "entity", "valueobject",
     "clock", "validator", "policy",
@@ -71,7 +71,7 @@ edge-domain-handler     = { workspace = true, optional = true }
 edge-domain-event       = { workspace = true, optional = true }
 edge-domain-projection  = { workspace = true, optional = true }
 edge-domain-saga        = { workspace = true, optional = true }
-edge-domain-security    = { workspace = true, optional = true }
+edge-domain-security.workspace = true
 
 [dev-dependencies]
 tokio   = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }

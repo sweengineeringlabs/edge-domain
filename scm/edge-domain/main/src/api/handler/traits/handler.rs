@@ -1,17 +1,15 @@
 //! [`Handler`] — execution-unit port contract.
 
 use async_trait::async_trait;
+use edge_domain_security::SecurityContext;
 
 use crate::api::handler::HandlerError;
-use crate::api::handler::RequestContext;
 
 /// A single execution unit that processes a request and returns a response.
 ///
 /// Implement `id`, `pattern`, and `execute` — everything else has a sensible
 /// default. Override `execute_with_context` only when you need per-request
-/// auth/tenant context, which is carried by a
-/// [`crate::api::handler::types::request_context::RequestContext`] built with a
-/// [`crate::api::handler::types::request_context_builder::RequestContextBuilder`].
+/// auth/tenant context, which is carried by a [`SecurityContext`].
 ///
 /// Reference implementation shipped with `edge-domain`:
 /// [`crate::api::handler::types::echo_handler::EchoHandler`] (returns its input).
@@ -56,14 +54,14 @@ where
     /// Execute the handler. Required.
     async fn execute(&self, req: Request) -> Result<Response, HandlerError>;
 
-    /// Execute with per-request context. Override when you need
-    /// `ctx.subject`, `ctx.tenant_id`, or `ctx.trace_id`.
+    /// Execute with per-request security context. Override when you need
+    /// `ctx.principal`, `ctx.tenant_id`, or `ctx.trace_id`.
     ///
     /// Default: ignores context and calls `execute(req)`.
     async fn execute_with_context(
         &self,
         req: Request,
-        _ctx: RequestContext,
+        _ctx: SecurityContext,
     ) -> Result<Response, HandlerError> {
         self.execute(req).await
     }

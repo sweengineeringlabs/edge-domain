@@ -152,8 +152,6 @@ pub mod handler {
     pub use edge_domain_handler::HandlerProvider;
     pub use edge_domain_handler::HandlerRegistry;
     pub use edge_domain_handler::InProcessHandlerRegistry;
-    pub use edge_domain_handler::RequestContext;
-    pub use edge_domain_handler::RequestContextBuilder;
 }
 #[cfg(not(feature = "handler"))]
 pub mod handler;
