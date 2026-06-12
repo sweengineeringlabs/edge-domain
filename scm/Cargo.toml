@@ -17,6 +17,11 @@ service_type     = "handler"
 [lib]
 path = "main/src/lib.rs"
 
+[features]
+default = ["entity", "valueobject"]
+entity      = ["dep:edge-domain-entity"]
+valueobject = ["dep:edge-domain-valueobject"]
+
 [dependencies]
 thiserror   = "2"
 async-trait = "0.1"
@@ -25,9 +30,14 @@ parking_lot = "0.12"
 tokio       = { version = "1", features = ["sync", "time"] }
 tracing     = "0.1"
 
+edge-domain-entity      = { path = "../features/edge-domain-entity",      optional = true }
+edge-domain-valueobject = { path = "../features/edge-domain-valueobject", optional = true }
+
 [dev-dependencies]
 tokio   = { version = "1", features = ["macros", "rt", "rt-multi-thread"] }
 futures = "0.3"
+edge-domain-entity      = { path = "../features/edge-domain-entity" }
+edge-domain-valueobject = { path = "../features/edge-domain-valueobject" }
 
 [lints.rust]
 unsafe_code = "deny"

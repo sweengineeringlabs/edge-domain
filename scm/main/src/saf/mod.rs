@@ -27,6 +27,9 @@ pub use crate::api::clock::SystemClock;
 pub use crate::api::command::Command;
 pub use crate::api::command::CommandBus;
 pub use crate::api::command::CommandError;
+// When `entity` feature enabled, re-export from the extracted sub-crate.
+// When disabled, fall back to the inlined api/entity/ definition.
+#[cfg(not(feature = "entity"))]
 pub use crate::api::entity::Entity;
 pub use crate::api::event::Aggregate;
 pub use crate::api::event::DomainEvent;
@@ -60,6 +63,8 @@ pub use crate::api::service::ServiceError;
 pub use crate::api::snapshot::Snapshot;
 pub use crate::api::snapshot::SnapshotError;
 pub use crate::api::snapshot::SnapshotStore;
+#[cfg(feature = "entity")]
+pub use edge_domain_entity::Entity;
 
 pub use crate::api::command::DirectCommandBus;
 pub use crate::api::domain::traits::DomainExtension;
@@ -73,5 +78,12 @@ pub use crate::api::query::DirectQueryBus;
 pub use crate::api::repository::{InMemoryRepository, Page};
 pub use crate::api::service::types::ServiceRegistry;
 pub use crate::api::validator::traits::Validator;
+#[cfg(not(feature = "valueobject"))]
 pub use crate::api::valueobject::NonEmptyString;
+#[cfg(feature = "valueobject")]
+pub use edge_domain_valueobject::NonEmptyString;
+
+#[cfg(not(feature = "valueobject"))]
 pub use crate::api::valueobject::ValueObject;
+#[cfg(feature = "valueobject")]
+pub use edge_domain_valueobject::ValueObject;

@@ -10,6 +10,7 @@
 pub mod clock;
 pub mod command;
 pub mod domain;
+#[cfg(not(feature = "entity"))]
 pub mod entity;
 pub mod event;
 pub mod handler;
@@ -21,4 +22,5 @@ pub mod saga;
 pub mod service;
 pub mod snapshot;
 pub mod validator;
+#[cfg(not(feature = "valueobject"))]
 pub mod valueobject;

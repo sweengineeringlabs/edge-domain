@@ -1,0 +1,1 @@
+//! SAF — entity service facade.
