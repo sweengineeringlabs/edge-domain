@@ -64,7 +64,7 @@ pub use crate::api::snapshot::SnapshotStore;
 pub use crate::api::command::DirectCommandBus;
 pub use crate::api::domain::traits::DomainExtension;
 pub use crate::api::domain::types::NoopDomainExtension;
-pub use crate::api::domain::types::{ApplicationConfig, OutboundRegistry};
+pub use crate::api::domain::types::OutboundRegistry;
 pub use crate::api::event::{
     EventBusConfig, EventEnvelope, EventReceiver, InMemoryEventStore, InProcessEventBus,
     NoopEventBus, NoopEventPublisher,
@@ -73,6 +73,5 @@ pub use crate::api::query::DirectQueryBus;
 pub use crate::api::repository::{InMemoryRepository, Page};
 pub use crate::api::service::types::ServiceRegistry;
 pub use crate::api::validator::traits::Validator;
-pub use crate::api::validator::ValidatorDefault;
 pub use crate::api::valueobject::NonEmptyString;
 pub use crate::api::valueobject::ValueObject;

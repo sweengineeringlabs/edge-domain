@@ -9,8 +9,6 @@
 /// [`crate::api::domain::types::noop_domain_extension::NoopDomainExtension`].
 ///
 /// Extensions wrap the domain composition primitives assembled through the
-/// [`crate::api::domain::types::domain::Domain`] factory: runtime settings
-/// carried by [`crate::api::domain::types::application_config::ApplicationConfig`]
-/// and outbound handles held in a
-/// [`crate::api::domain::types::outbound_registry::OutboundRegistry`].
+/// [`crate::api::domain::types::domain::Domain`] factory and outbound handles
+/// held in a [`crate::api::domain::types::outbound_registry::OutboundRegistry`].
 pub trait DomainExtension: Send + Sync {}

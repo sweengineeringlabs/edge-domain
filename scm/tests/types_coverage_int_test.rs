@@ -1,13 +1,7 @@
 //! Comprehensive coverage tests for api/ types and configuration modules.
 
-use edge_domain::{Aggregate, ApplicationConfig, DomainEvent, RequestContext, Spec};
+use edge_domain::{Aggregate, DomainEvent, RequestContext, Spec};
 use std::time::SystemTime;
-
-/// @covers: ApplicationConfig
-#[test]
-fn test_application_config_type_exists() {
-    let _config = ApplicationConfig;
-}
 
 /// @covers: RequestContext
 #[test]

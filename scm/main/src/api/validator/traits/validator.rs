@@ -3,8 +3,6 @@
 /// Configuration validation contract.
 ///
 /// Implemented by configuration types to validate their fields before use.
-/// A permissive default implementation is provided by
-/// [`crate::api::validator::types::validator_default::ValidatorDefault`].
 pub trait Validator {
     /// Validate the configuration.
     ///

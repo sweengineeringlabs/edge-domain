@@ -10,4 +10,3 @@ pub(crate) mod query;
 pub(crate) mod repository;
 pub(crate) mod saga;
 pub(crate) mod snapshot;
-pub(crate) mod validator;
