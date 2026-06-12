@@ -1,8 +1,10 @@
 //! SAF layer — domain public facade.
 
 mod aggregate_svc;
+mod clock_svc;
 mod command;
 mod domain;
+mod entity_svc;
 mod event;
 mod handler;
 mod policy_svc;
@@ -19,9 +21,13 @@ mod value_object_svc;
 
 pub use crate::api::domain::types::Domain;
 
+pub use crate::api::clock::Clock;
+pub use crate::api::clock::FixedClock;
+pub use crate::api::clock::SystemClock;
 pub use crate::api::command::Command;
 pub use crate::api::command::CommandBus;
 pub use crate::api::command::CommandError;
+pub use crate::api::entity::Entity;
 pub use crate::api::event::Aggregate;
 pub use crate::api::event::DomainEvent;
 pub use crate::api::event::EventBus;

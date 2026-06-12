@@ -1,5 +1,6 @@
 //! Core implementations.
 
+pub(crate) mod clock;
 pub(crate) mod command;
 pub(crate) mod event;
 pub(crate) mod handler;

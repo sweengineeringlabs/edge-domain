@@ -7,8 +7,10 @@
 
 #![allow(unused_imports)]
 
+pub mod clock;
 pub mod command;
 pub mod domain;
+pub mod entity;
 pub mod event;
 pub mod handler;
 pub mod policy;
