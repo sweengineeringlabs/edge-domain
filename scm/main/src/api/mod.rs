@@ -11,6 +11,7 @@ pub mod command;
 pub mod domain;
 pub mod event;
 pub mod handler;
+pub mod policy;
 pub mod projection;
 pub mod query;
 pub mod repository;
