@@ -63,3 +63,9 @@ Default impl: unchanged — delegates to `execute()` with `SecurityContext::unau
 ## Invariant (P7 from ADR-017)
 
 `edge-domain-security` must never import from `swe-edge-security` or any ingress/egress crate. It is the contract layer; infrastructure implements it.
+
+---
+
+## Cascade position
+
+Steps **1–3 of 11** in the ADR-017 migration. This repo is the root of the cascade — all other repos are blocked on steps 1–3 completing and a new `edge-domain` tag being cut. Unblocks: dispatch (step 4), swe-edge-security (step 5), proxy (step 8), egress/grpc (step 7).
