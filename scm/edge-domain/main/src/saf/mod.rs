@@ -40,10 +40,14 @@ pub use crate::api::entity::Entity;
 pub use edge_domain_valueobject::NonEmptyString;
 #[cfg(feature = "valueobject")]
 pub use edge_domain_valueobject::ValueObject;
+#[cfg(feature = "valueobject")]
+pub use edge_domain_valueobject::ValueObjectError;
 #[cfg(not(feature = "valueobject"))]
 pub use crate::api::valueobject::NonEmptyString;
 #[cfg(not(feature = "valueobject"))]
 pub use crate::api::valueobject::ValueObject;
+#[cfg(not(feature = "valueobject"))]
+pub use crate::api::valueobject::ValueObjectError;
 
 // ── clock ────────────────────────────────────────────────────────────────────
 #[cfg(feature = "clock")]
