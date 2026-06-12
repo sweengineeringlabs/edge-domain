@@ -1,18 +1,24 @@
-//! Coverage for api/validator/types/validator_default.rs
-use edge_domain::ValidatorDefault;
+//! Integration tests for `ValidatorDefault`.
 
+use edge_domain::{Validator, ValidatorDefault};
+
+/// @covers: ValidatorDefault (Validator::validate)
 #[test]
-fn test_validator_default_is_constructible_happy() {
-    let _v = ValidatorDefault;
+fn test_validate_returns_ok_happy() {
+    assert!(ValidatorDefault.validate().is_ok());
 }
 
+/// @covers: ValidatorDefault (Validator::validate repeated)
 #[test]
-fn test_validator_default_zst_size_edge() {
-    assert_eq!(std::mem::size_of::<ValidatorDefault>(), 0);
+fn test_validate_always_returns_ok_on_repeated_calls_edge() {
+    for _ in 0..3 {
+        assert!(ValidatorDefault.validate().is_ok());
+    }
 }
 
+/// @covers: ValidatorDefault (dyn Validator dispatch)
 #[test]
-fn test_validator_default_two_instances_are_independent_edge() {
-    let _a = ValidatorDefault;
-    let _b = ValidatorDefault;
+fn test_validate_via_trait_object_returns_ok_error() {
+    let v: &dyn Validator = &ValidatorDefault;
+    assert!(v.validate().is_ok());
 }
