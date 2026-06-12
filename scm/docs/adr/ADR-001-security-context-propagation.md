@@ -27,6 +27,7 @@ pub trait Principal: Send + Sync {
     fn kind(&self) -> &str;
 }
 
+#[derive(Debug)]
 pub struct SecurityContext {
     pub principal: Option<Box<dyn Principal>>,
     pub tenant_id: Option<String>,
@@ -34,14 +35,35 @@ pub struct SecurityContext {
     pub trace_id: Option<String>,
     pub authenticated: bool,
 }
+
+impl SecurityContext {
+    /// Zero-cost anonymous context. All identity fields are None / empty.
+    pub fn unauthenticated() -> Self { ... }
+
+    /// Authenticated context with a verified principal. Chain builder methods
+    /// to populate remaining fields.
+    pub fn authenticated_with(principal: Box<dyn Principal>) -> Self { ... }
+
+    /// Set the tenant scope; returns `self` for chaining.
+    pub fn with_tenant(mut self, tenant_id: impl Into<String>) -> Self { ... }
+
+    /// Set the trace identifier; returns `self` for chaining.
+    pub fn with_trace_id(mut self, id: impl Into<String>) -> Self { ... }
+
+    /// Insert a single claim key/value pair; returns `self` for chaining.
+    pub fn with_claim(mut self, key: impl Into<String>, value: impl Into<String>) -> Self { ... }
+}
 ```
 
 ## Feature gate in `edge-domain`
 
+`edge-domain-security` is a **required** (always-on) dependency — `Handler::execute_with_context` directly imports `SecurityContext`. The `security` feature is a **SAF re-export gate** only: enabling it exposes `Principal` and `SecurityContext` in the public `saf/` surface.
+
 ```toml
 [features]
 default     = ["entity", "valueobject"]
-security    = ["dep:edge-domain-security"]   # opt-in — not in default
+security    = []                             # SAF re-export gate — not a dep gate
+# edge-domain-security is always present as a required dep (Handler coupling)
 ```
 
 ## What is removed
