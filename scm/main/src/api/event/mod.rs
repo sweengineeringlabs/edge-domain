@@ -7,9 +7,9 @@ pub mod traits;
 pub mod types;
 
 pub use errors::{EventError, EventStoreError};
-pub use traits::{Aggregate, DomainEvent, EventBus, EventPublisher, EventSource, EventStore};
-pub use types::{
-    ClosedEventSource, EventBusConfig, EventEnvelope, EventReceiver, ExpectedVersion,
-    InMemoryEventStore, InProcessEventBus, NoopEventBus, NoopEventPublisher, StageCompleted,
-    StageCompletedBuilder, StageFailed, StageFailedBuilder, StageSkipped, StageStarted,
+pub use traits::{
+    Aggregate, ClosedEventSource, DomainEvent, EventBus, EventBusConfig, EventPublisher,
+    EventSource, EventStore, InMemoryEventStore, InProcessEventBus, NoopEventBus,
+    NoopEventPublisher,
 };
+pub use types::{EventEnvelope, EventReceiver, ExpectedVersion};

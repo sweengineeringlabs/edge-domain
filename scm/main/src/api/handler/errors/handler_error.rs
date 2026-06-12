@@ -102,8 +102,6 @@ pub enum HandlerError {
 
     /// The handler was disabled and skipped execution. Pipeline-internal sentinel —
     /// not a real failure. RFC-001 `Pipeline` treats this as "continue to next stage".
-    /// `EventEmittingHandler` should emit `StageSkipped`, not `StageFailed`, when it
-    /// sees this variant.
     #[error("handler skipped")]
     Skipped,
 }

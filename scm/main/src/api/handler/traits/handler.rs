@@ -13,10 +13,8 @@ use crate::api::handler::RequestContext;
 /// [`crate::api::handler::types::request_context::RequestContext`] built with a
 /// [`crate::api::handler::types::request_context_builder::RequestContextBuilder`].
 ///
-/// Reference implementations shipped with `edge-domain`:
-/// [`crate::api::handler::types::echo_handler::EchoHandler`] (returns its input)
-/// and [`crate::api::handler::types::event_emitting_handler::EventEmittingHandler`]
-/// (emits a domain event around an inner handler).
+/// Reference implementation shipped with `edge-domain`:
+/// [`crate::api::handler::types::echo_handler::EchoHandler`] (returns its input).
 ///
 /// # Examples
 ///

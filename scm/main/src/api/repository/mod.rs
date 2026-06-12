@@ -5,5 +5,5 @@ pub mod traits;
 pub mod types;
 
 pub use errors::RepositoryError;
-pub use traits::{QueryableRepository, Repository};
-pub use types::{InMemoryRepository, Page, Spec};
+pub use traits::{InMemoryRepository, QueryableRepository, Repository};
+pub use types::{Page, Spec};

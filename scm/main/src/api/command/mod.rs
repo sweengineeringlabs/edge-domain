@@ -6,5 +6,4 @@ pub mod traits;
 pub mod types;
 
 pub use errors::CommandError;
-pub use traits::{Command, CommandBus};
-pub use types::DirectCommandBus;
+pub use traits::{Command, CommandBus, DirectCommandBus};

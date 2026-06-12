@@ -8,5 +8,4 @@
 pub mod traits;
 pub mod types;
 
-pub use traits::ValueObject;
-pub use types::NonEmptyString;
+pub use traits::{NonEmptyString, ValueObject};

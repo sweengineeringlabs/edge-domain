@@ -6,3 +6,5 @@ pub mod repository;
 
 pub use queryable_repository::QueryableRepository;
 pub use repository::Repository;
+
+pub use crate::api::repository::types::InMemoryRepository;

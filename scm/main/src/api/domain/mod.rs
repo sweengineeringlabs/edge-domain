@@ -3,7 +3,4 @@
 pub mod traits;
 pub mod types;
 
-pub use traits::DomainExtension;
-pub use types::Domain;
-pub use types::NoopDomainExtension;
-pub use types::OutboundRegistry;
+pub use traits::{Domain, DomainExtension, NoopDomainExtension, OutboundRegistry};

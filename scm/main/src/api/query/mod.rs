@@ -6,5 +6,4 @@ pub mod traits;
 pub mod types;
 
 pub use errors::QueryError;
-pub use traits::{Query, QueryBus};
-pub use types::DirectQueryBus;
+pub use traits::{DirectQueryBus, Query, QueryBus};

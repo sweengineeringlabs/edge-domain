@@ -6,3 +6,5 @@ pub mod query_bus;
 
 pub use query::Query;
 pub use query_bus::QueryBus;
+
+pub use crate::api::query::types::DirectQueryBus;

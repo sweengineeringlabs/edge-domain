@@ -13,3 +13,10 @@ pub use event_bus::EventBus;
 pub use event_publisher::EventPublisher;
 pub use event_source::EventSource;
 pub use event_store::EventStore;
+
+pub use crate::api::event::types::ClosedEventSource;
+pub use crate::api::event::types::EventBusConfig;
+pub use crate::api::event::types::InMemoryEventStore;
+pub use crate::api::event::types::InProcessEventBus;
+pub use crate::api::event::types::NoopEventBus;
+pub use crate::api::event::types::NoopEventPublisher;

@@ -16,5 +16,5 @@
 pub mod traits;
 pub mod types;
 
-pub use traits::Policy;
-pub use types::{CompositePolicy, PolicyViolation};
+pub use traits::{CompositePolicy, Policy};
+pub use types::PolicyViolation;
