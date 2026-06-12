@@ -4,6 +4,18 @@ members  = [
     "edge-domain",
     "edge-domain-entity",
     "edge-domain-valueobject",
+    "edge-domain-validator",
+    "edge-domain-clock",
+    "edge-domain-policy",
+    "edge-domain-command",
+    "edge-domain-query",
+    "edge-domain-snapshot",
+    "edge-domain-service",
+    "edge-domain-repository",
+    "edge-domain-handler",
+    "edge-domain-event",
+    "edge-domain-projection",
+    "edge-domain-saga",
 ]
 
 [workspace.package]

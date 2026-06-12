@@ -1,0 +1,21 @@
+//! Tests for the `ClockError` error type.
+
+use edge_domain_clock::ClockError;
+
+/// @covers: ClockError::BeforeEpoch — Display
+#[test]
+fn test_before_epoch_display_mentions_epoch_happy() {
+    assert!(ClockError::BeforeEpoch.to_string().contains("epoch"));
+}
+
+/// @covers: ClockError — equality
+#[test]
+fn test_before_epoch_equals_itself_error() {
+    assert_eq!(ClockError::BeforeEpoch, ClockError::BeforeEpoch);
+}
+
+/// @covers: ClockError — Debug formatting
+#[test]
+fn test_before_epoch_debug_is_variant_name_edge() {
+    assert_eq!(format!("{:?}", ClockError::BeforeEpoch), "BeforeEpoch");
+}

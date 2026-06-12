@@ -1,0 +1,1 @@
+//! SAF — Policy trait facade.

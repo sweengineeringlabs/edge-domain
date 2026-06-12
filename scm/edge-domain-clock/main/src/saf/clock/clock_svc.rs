@@ -1,0 +1,1 @@
+//! SAF — Clock trait facade.

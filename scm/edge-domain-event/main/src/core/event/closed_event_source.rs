@@ -1,0 +1,53 @@
+//! [`EventSource`] impl for [`ClosedEventSource`] — immediately returns `Unavailable`.
+
+use std::sync::Arc;
+
+use futures::future::BoxFuture;
+
+use crate::api::event::errors::EventError;
+use crate::api::event::traits::{DomainEvent, EventSource};
+use crate::api::event::types::ClosedEventSource;
+
+impl EventSource for ClosedEventSource {
+    fn recv_next(&mut self) -> BoxFuture<'_, Result<Arc<dyn DomainEvent>, EventError>> {
+        Box::pin(async { Err(EventError::Unavailable("event bus closed".into())) })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    struct ClosedEventSourceFixture;
+
+    /// @covers: recv_next
+    #[test]
+    fn test_recv_next_closed_source_returns_unavailable_happy() {
+        let mut src = ClosedEventSource;
+        let result = futures::executor::block_on(src.recv_next());
+        assert!(matches!(result, Err(EventError::Unavailable(_))));
+    }
+
+    /// @covers: recv_next
+    #[test]
+    fn test_recv_next_unavailable_message_contains_closed_error() {
+        let mut src = ClosedEventSource;
+        let err = match futures::executor::block_on(src.recv_next()) {
+            Err(e) => e,
+            Ok(_) => panic!("expected Err"),
+        };
+        let msg = err.to_string();
+        assert!(msg.contains("closed"), "expected 'closed' in: {msg}");
+    }
+
+    /// @covers: recv_next
+    #[test]
+    fn test_recv_next_repeated_calls_all_unavailable_edge() {
+        let _ = ClosedEventSourceFixture;
+        let mut src = ClosedEventSource;
+        for _ in 0..3 {
+            let result = futures::executor::block_on(src.recv_next());
+            assert!(matches!(result, Err(EventError::Unavailable(_))));
+        }
+    }
+}

@@ -1,0 +1,1 @@
+//! SAF — Validator trait facade.

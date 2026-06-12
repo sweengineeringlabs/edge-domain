@@ -1,0 +1,34 @@
+//! Integration tests for `NoopEventBus`.
+
+use std::sync::Arc;
+use edge_domain_event::{DomainEvent, EventBus, EventError, EventFactory, NoopEventBus};
+
+struct Events;
+impl EventFactory for Events {}
+
+struct SignalEvt;
+impl DomainEvent for SignalEvt {}
+
+/// @covers: NoopEventBus::publish — always returns Ok
+#[test]
+fn test_noop_event_bus_publish_returns_ok_happy() {
+    let result = futures::executor::block_on(NoopEventBus.publish(Arc::new(SignalEvt)));
+    assert!(result.is_ok());
+}
+
+/// @covers: NoopEventBus::publish — repeated publishes never error
+#[test]
+fn test_noop_event_bus_publish_repeated_never_errors_error() {
+    for _ in 0..5 {
+        let result = futures::executor::block_on(NoopEventBus.publish(Arc::new(SignalEvt)));
+        assert!(result.is_ok(), "noop publish must never error");
+    }
+}
+
+/// @covers: NoopEventBus::subscribe — subscribe returns immediately-closed receiver
+#[test]
+fn test_noop_event_bus_subscribe_returns_closed_receiver_edge() {
+    let mut rx = Events::noop_bus().subscribe();
+    let result = futures::executor::block_on(rx.recv());
+    assert!(matches!(result, Err(EventError::Unavailable(_))));
+}

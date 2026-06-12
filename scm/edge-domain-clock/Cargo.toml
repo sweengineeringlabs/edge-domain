@@ -1,0 +1,31 @@
+[package]
+name                   = "edge-domain-clock"
+version                = "0.1.0"
+edition.workspace      = true
+license.workspace      = true
+rust-version.workspace = true
+authors.workspace      = true
+repository.workspace   = true
+description = "edge-domain — Clock port contract: injectable time source with SystemClock and FixedClock"
+keywords    = ["domain", "clock", "time", "sea", "swe"]
+categories  = ["development-tools"]
+
+[package.metadata.struct-engine]
+application_type = "lib"
+service_type     = "clock"
+
+[lib]
+path = "main/src/lib.rs"
+
+[dependencies]
+thiserror.workspace = true
+
+[dev-dependencies]
+# no async needed for clock tests
+
+[lints.rust]
+unsafe_code = "deny"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"

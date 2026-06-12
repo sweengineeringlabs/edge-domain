@@ -1,0 +1,1 @@
+//! SAF — snapshot service facade.

@@ -1,0 +1,1 @@
+//! SAF — CommandBusFactory facade.
