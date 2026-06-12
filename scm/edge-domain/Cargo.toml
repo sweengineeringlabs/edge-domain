@@ -6,8 +6,8 @@ license.workspace      = true
 rust-version.workspace = true
 authors.workspace      = true
 repository.workspace   = true
-description = "edge — L2 Domain: lean port contracts (Handler, HandlerRegistry, RequestContext, HandlerError) with no infrastructure dependencies"
-keywords    = ["domain", "handler", "business-logic", "sea", "swe"]
+description = "edge — L2 Domain: umbrella crate; activate individual features (handler, event, command …) or `full` for all 14 port contracts"
+keywords    = ["domain", "handler", "event-sourcing", "sea", "swe"]
 categories  = ["development-tools"]
 
 [package.metadata.struct-engine]
@@ -18,9 +18,34 @@ service_type     = "handler"
 path = "main/src/lib.rs"
 
 [features]
-default     = ["entity", "valueobject"]
+default     = [
+    "entity", "valueobject",
+    "clock", "validator", "policy",
+    "command", "query", "snapshot", "service",
+    "repository", "handler", "event",
+    "projection", "saga",
+]
 entity      = ["dep:edge-domain-entity"]
 valueobject = ["dep:edge-domain-valueobject"]
+clock       = ["dep:edge-domain-clock"]
+validator   = ["dep:edge-domain-validator"]
+policy      = ["dep:edge-domain-policy"]
+command     = ["dep:edge-domain-command"]
+query       = ["dep:edge-domain-query"]
+snapshot    = ["dep:edge-domain-snapshot"]
+service     = ["dep:edge-domain-service"]
+repository  = ["dep:edge-domain-repository"]
+handler     = ["dep:edge-domain-handler"]
+event       = ["dep:edge-domain-event"]
+projection  = ["dep:edge-domain-projection", "event"]
+saga        = ["dep:edge-domain-saga",        "event", "command"]
+full        = [
+    "entity", "valueobject",
+    "clock", "validator", "policy",
+    "command", "query", "snapshot", "service",
+    "repository", "handler", "event",
+    "projection", "saga",
+]
 
 [dependencies]
 thiserror.workspace   = true
@@ -32,12 +57,36 @@ tracing.workspace     = true
 
 edge-domain-entity      = { workspace = true, optional = true }
 edge-domain-valueobject = { workspace = true, optional = true }
+edge-domain-clock       = { workspace = true, optional = true }
+edge-domain-validator   = { workspace = true, optional = true }
+edge-domain-policy      = { workspace = true, optional = true }
+edge-domain-command     = { workspace = true, optional = true }
+edge-domain-query       = { workspace = true, optional = true }
+edge-domain-snapshot    = { workspace = true, optional = true }
+edge-domain-service     = { workspace = true, optional = true }
+edge-domain-repository  = { workspace = true, optional = true }
+edge-domain-handler     = { workspace = true, optional = true }
+edge-domain-event       = { workspace = true, optional = true }
+edge-domain-projection  = { workspace = true, optional = true }
+edge-domain-saga        = { workspace = true, optional = true }
 
 [dev-dependencies]
 tokio   = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
-futures.workspace               = true
-edge-domain-entity.workspace    = true
-edge-domain-valueobject.workspace = true
+futures.workspace                  = true
+edge-domain-entity.workspace       = true
+edge-domain-valueobject.workspace  = true
+edge-domain-clock.workspace        = true
+edge-domain-validator.workspace    = true
+edge-domain-policy.workspace       = true
+edge-domain-command.workspace      = true
+edge-domain-query.workspace        = true
+edge-domain-snapshot.workspace     = true
+edge-domain-service.workspace      = true
+edge-domain-repository.workspace   = true
+edge-domain-handler.workspace      = true
+edge-domain-event.workspace        = true
+edge-domain-projection.workspace   = true
+edge-domain-saga.workspace         = true
 
 [lints.rust]
 unsafe_code = "deny"

@@ -32,23 +32,25 @@ fn test_handler_provider_echo_handler_arbitrary_strings_edge() {
 
 // --- HandlerProvider::in_process_registry ---
 
-/// @covers HandlerProvider::in_process_registry — happy path: returns the registry marker
+/// @covers HandlerProvider::in_process_registry — happy path: returns the registry
 #[test]
-fn test_in_process_registry_returns_marker_happy() {
-    let _: InProcessHandlerRegistry = TestHandlers::in_process_registry();
+fn test_in_process_registry_returns_registry_happy() {
+    let _: InProcessHandlerRegistry<String, String> =
+        TestHandlers::in_process_registry::<String, String>();
 }
 
-/// @covers HandlerProvider::in_process_registry — error: marker is zero-size
+/// @covers HandlerProvider::in_process_registry — error: registry starts empty
 #[test]
-fn test_in_process_registry_is_zero_size_error() {
-    assert_eq!(std::mem::size_of::<InProcessHandlerRegistry>(), 0);
+fn test_in_process_registry_starts_empty_error() {
+    let reg = TestHandlers::in_process_registry::<String, String>();
+    assert_eq!(reg.handler_count(), 0);
 }
 
 /// @covers HandlerProvider::in_process_registry — edge: successive calls are independent
 #[test]
 fn test_in_process_registry_independent_calls_edge() {
-    let _a = TestHandlers::in_process_registry();
-    let _b = TestHandlers::in_process_registry();
+    let _a = TestHandlers::in_process_registry::<String, String>();
+    let _b = TestHandlers::in_process_registry::<String, String>();
 }
 
 // --- HandlerProvider::request_context_builder ---

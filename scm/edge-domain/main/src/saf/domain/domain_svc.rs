@@ -12,7 +12,7 @@ use crate::api::event::EventBusConfig;
 use crate::api::event::EventPublisher;
 use crate::api::event::EventStore;
 use crate::api::event::EventStoreError;
-use crate::api::handler::types::echo_handler::EchoHandler;
+use crate::api::handler::EchoHandler;
 use crate::api::handler::Handler;
 use crate::api::handler::HandlerRegistry as HandlerRegistryTrait;
 use crate::api::projection::Projection;
@@ -55,7 +55,7 @@ impl Domain {
         pattern: impl Into<String>,
     ) -> Arc<dyn Handler<T, T>>
     where
-        T: Send + 'static,
+        T: Clone + Send + 'static,
     {
         Arc::new(EchoHandler::new(id, pattern))
     }
@@ -279,6 +279,6 @@ impl Domain {
     pub fn validate_config<V: crate::api::validator::traits::Validator>(
         config: &V,
     ) -> Result<(), String> {
-        config.validate()
+        config.validate().map_err(|e| e.to_string())
     }
 }

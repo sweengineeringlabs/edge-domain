@@ -87,10 +87,10 @@ async fn test_new_in_memory_queryable_repository_supports_count_by() {
 /// @covers: validate_config
 #[test]
 fn test_validate_config_returns_ok_for_valid_input() {
-    use edge_domain::Validator;
+    use edge_domain::{Validator, ValidatorError};
     struct AlwaysValid;
     impl Validator for AlwaysValid {
-        fn validate(&self) -> Result<(), String> {
+        fn validate(&self) -> Result<(), ValidatorError> {
             Ok(())
         }
     }
@@ -100,11 +100,11 @@ fn test_validate_config_returns_ok_for_valid_input() {
 /// @covers: validate_config
 #[test]
 fn test_validate_config_returns_err_for_invalid_input() {
-    use edge_domain::Validator;
+    use edge_domain::{Validator, ValidatorError};
     struct AlwaysInvalid;
     impl Validator for AlwaysInvalid {
-        fn validate(&self) -> Result<(), String> {
-            Err("bad".into())
+        fn validate(&self) -> Result<(), ValidatorError> {
+            Err(ValidatorError::Invalid("bad".into()))
         }
     }
     assert!(Domain::validate_config(&AlwaysInvalid).is_err());

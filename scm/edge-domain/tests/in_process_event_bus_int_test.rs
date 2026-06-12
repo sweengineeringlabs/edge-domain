@@ -1,30 +1,54 @@
 //! Coverage for api/event/types/ins/in_process_event_bus.rs
-use edge_domain::{Domain, EventBusConfig, InProcessEventBus};
+#![allow(clippy::unwrap_used)]
+
+use edge_domain::{Domain, DomainEvent, EventBusConfig, InProcessEventBus};
 use futures::executor::block_on;
 use std::sync::Arc;
 
-#[test]
-fn test_in_process_event_bus_marker_type_is_constructible() {
-    let _marker = InProcessEventBus;
+#[derive(Clone)]
+struct AnyEvent;
+impl DomainEvent for AnyEvent {
+    fn event_type(&self) -> &str {
+        "test.any"
+    }
+    fn aggregate_id(&self) -> &str {
+        "agg-1"
+    }
+    fn occurred_at(&self) -> std::time::SystemTime {
+        std::time::SystemTime::now()
+    }
 }
 
+/// @covers InProcessEventBus — happy path: constructible via default
 #[test]
-fn test_in_process_event_bus_factory_publishes_successfully() {
+fn test_in_process_event_bus_is_constructible_happy() {
+    let _bus = InProcessEventBus::default();
+}
+
+/// @covers InProcessEventBus — happy path: factory publishes successfully
+#[test]
+fn test_in_process_event_bus_factory_publishes_successfully_happy() {
     block_on(async {
-        use edge_domain::DomainEvent;
-        struct AnyEvent;
-        impl DomainEvent for AnyEvent {}
         let bus = Domain::in_process_event_bus(EventBusConfig::default());
         assert!(bus.publish(Arc::new(AnyEvent)).await.is_ok());
     });
 }
 
+/// @covers InProcessEventBus — error: publish with no active subscribers returns Ok
 #[test]
-fn test_in_process_event_bus_subscriber_receives_published_event() {
+fn test_in_process_event_bus_publish_no_subscribers_returns_ok_error() {
     block_on(async {
-        use edge_domain::DomainEvent;
-        struct AnyEvent;
-        impl DomainEvent for AnyEvent {}
+        let bus = Domain::in_process_event_bus(EventBusConfig::default());
+        // No subscriber — dropped immediately. Publish must not error.
+        let result = bus.publish(Arc::new(AnyEvent)).await;
+        assert!(result.is_ok(), "publish with no active subscribers must return Ok");
+    });
+}
+
+/// @covers InProcessEventBus — edge: subscriber receives published event
+#[test]
+fn test_in_process_event_bus_subscriber_receives_published_event_edge() {
+    block_on(async {
         let bus = Domain::in_process_event_bus(EventBusConfig::default());
         let mut rx = bus.subscribe();
         assert!(bus.publish(Arc::new(AnyEvent)).await.is_ok());

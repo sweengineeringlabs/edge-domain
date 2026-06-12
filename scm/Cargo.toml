@@ -42,3 +42,15 @@ tokio       = { version = "1", features = ["sync", "time"] }
 tracing     = "0.1"
 edge-domain-entity      = { path = "edge-domain-entity" }
 edge-domain-valueobject = { path = "edge-domain-valueobject" }
+edge-domain-clock       = { path = "edge-domain-clock" }
+edge-domain-validator   = { path = "edge-domain-validator" }
+edge-domain-policy      = { path = "edge-domain-policy" }
+edge-domain-command     = { path = "edge-domain-command" }
+edge-domain-query       = { path = "edge-domain-query" }
+edge-domain-snapshot    = { path = "edge-domain-snapshot" }
+edge-domain-service     = { path = "edge-domain-service" }
+edge-domain-repository  = { path = "edge-domain-repository" }
+edge-domain-handler     = { path = "edge-domain-handler" }
+edge-domain-event       = { path = "edge-domain-event" }
+edge-domain-projection  = { path = "edge-domain-projection" }
+edge-domain-saga        = { path = "edge-domain-saga" }

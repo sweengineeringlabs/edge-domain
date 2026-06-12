@@ -1,12 +1,12 @@
 //! SAF facade tests — `Validator` trait exported from the crate root.
 
-use edge_domain::Validator;
+use edge_domain::{Validator, ValidatorError};
 
 struct NonEmpty(String);
 impl Validator for NonEmpty {
-    fn validate(&self) -> Result<(), String> {
+    fn validate(&self) -> Result<(), ValidatorError> {
         if self.0.is_empty() {
-            Err("must not be empty".into())
+            Err(ValidatorError::Invalid("must not be empty".into()))
         } else {
             Ok(())
         }
@@ -24,7 +24,7 @@ fn test_validate_valid_input_returns_ok_happy() {
 fn test_validate_empty_input_returns_err_error() {
     let result = NonEmpty("".into()).validate();
     assert!(result.is_err());
-    if let Err(msg) = result {
+    if let Err(ValidatorError::Invalid(msg)) = result {
         assert!(msg.contains("empty"));
     }
 }

@@ -1,33 +1,49 @@
 //! Integration tests for the `EventFactory` SAF facade.
+#![allow(clippy::unwrap_used)]
 
 use edge_domain::{
-    ClosedEventSource, EventBusConfig, EventFactory, InProcessEventBus,
-    NoopEventBus, NoopEventPublisher,
+    ClosedEventSource, DomainEvent, EventBusConfig, EventFactory,
+    InProcessEventBus, NoopEventBus, NoopEventPublisher,
 };
 
 struct TestEvents;
 impl EventFactory for TestEvents {}
 
+#[derive(Clone)]
+struct AnyEvent;
+impl DomainEvent for AnyEvent {
+    fn event_type(&self) -> &str {
+        "test.any"
+    }
+    fn aggregate_id(&self) -> &str {
+        "agg-1"
+    }
+    fn occurred_at(&self) -> std::time::SystemTime {
+        std::time::SystemTime::now()
+    }
+}
+
 // --- EventFactory::in_process_bus ---
 
-/// @covers EventFactory::in_process_bus — happy path: returns an InProcessEventBus marker
+/// @covers EventFactory::in_process_bus — happy path: returns an InProcessEventBus
 #[test]
-fn test_in_process_bus_returns_marker_happy() {
+fn test_in_process_bus_returns_bus_happy() {
     let config = EventBusConfig { capacity: 256 };
     let _: InProcessEventBus = TestEvents::in_process_bus(config);
 }
 
-/// @covers EventFactory::in_process_bus — error: zero-capacity config still constructs
+/// @covers EventFactory::in_process_bus — error: minimum valid capacity (1) constructs without panic
 #[test]
-fn test_in_process_bus_zero_capacity_still_constructs_error() {
-    let config = EventBusConfig { capacity: 0 };
+fn test_in_process_bus_min_capacity_constructs_error() {
+    let config = EventBusConfig { capacity: 1 };
     let _: InProcessEventBus = TestEvents::in_process_bus(config);
 }
 
-/// @covers EventFactory::in_process_bus — edge: InProcessEventBus is a unit struct
+/// @covers EventFactory::in_process_bus — edge: successive calls produce independent buses
 #[test]
-fn test_in_process_bus_is_unit_struct_edge() {
-    assert_eq!(std::mem::size_of::<InProcessEventBus>(), 0);
+fn test_in_process_bus_independent_calls_edge() {
+    let _a = TestEvents::in_process_bus(EventBusConfig { capacity: 16 });
+    let _b = TestEvents::in_process_bus(EventBusConfig { capacity: 32 });
 }
 
 // --- EventFactory::noop_bus ---
@@ -74,25 +90,26 @@ fn test_noop_publisher_independent_calls_edge() {
 
 // --- EventFactory::in_memory_store ---
 
-/// @covers EventFactory::in_memory_store — happy path: returns a zero-size marker
+/// @covers EventFactory::in_memory_store — happy path: constructs successfully
 #[test]
-fn test_in_memory_store_returns_zero_size_marker_happy() {
-    let store = TestEvents::in_memory_store();
-    assert_eq!(std::mem::size_of_val(&store), 0);
+fn test_in_memory_store_constructs_successfully_happy() {
+    let _ = TestEvents::in_memory_store::<AnyEvent>();
 }
 
-/// @covers EventFactory::in_memory_store — error: marker has no state to corrupt
+/// @covers EventFactory::in_memory_store — error: store is non-zero-size (heap-backed)
 #[test]
-fn test_in_memory_store_marker_has_no_state_error() {
-    let store = TestEvents::in_memory_store();
-    assert_eq!(std::mem::size_of_val(&store), 0);
+fn test_in_memory_store_is_nonzero_size_error() {
+    assert_ne!(
+        std::mem::size_of_val(&TestEvents::in_memory_store::<AnyEvent>()),
+        0,
+    );
 }
 
-/// @covers EventFactory::in_memory_store — edge: successive calls produce independent values
+/// @covers EventFactory::in_memory_store — edge: successive calls produce independent stores
 #[test]
 fn test_in_memory_store_successive_calls_independent_edge() {
-    let _a = TestEvents::in_memory_store();
-    let _b = TestEvents::in_memory_store();
+    let _a = TestEvents::in_memory_store::<AnyEvent>();
+    let _b = TestEvents::in_memory_store::<AnyEvent>();
 }
 
 // --- EventFactory::closed_source ---

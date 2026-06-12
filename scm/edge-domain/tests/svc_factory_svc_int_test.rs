@@ -79,15 +79,15 @@ impl Query<String> for ErrQuery {
 
 struct AlwaysValid;
 impl Validator for AlwaysValid {
-    fn validate(&self) -> Result<(), String> {
+    fn validate(&self) -> Result<(), ValidatorError> {
         Ok(())
     }
 }
 
 struct AlwaysInvalid;
 impl Validator for AlwaysInvalid {
-    fn validate(&self) -> Result<(), String> {
-        Err("invalid config".into())
+    fn validate(&self) -> Result<(), ValidatorError> {
+        Err(ValidatorError::Invalid("invalid config".into()))
     }
 }
 
