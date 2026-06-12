@@ -322,3 +322,29 @@ pub use crate::api::saga::Saga;
 pub use crate::api::saga::SagaError;
 #[cfg(not(feature = "saga"))]
 pub use crate::api::saga::SagaRegistry;
+
+// ── security (opt-in; NOT in default features) ───────────────────────────────
+#[cfg(feature = "security")]
+pub use edge_domain_security::AnonymousPrincipal;
+#[cfg(feature = "security")]
+pub use edge_domain_security::NoopSecurity;
+#[cfg(feature = "security")]
+pub use edge_domain_security::Principal;
+#[cfg(feature = "security")]
+pub use edge_domain_security::Security;
+#[cfg(feature = "security")]
+pub use edge_domain_security::SecurityContext;
+#[cfg(feature = "security")]
+pub use edge_domain_security::SecurityContextBuilder;
+#[cfg(feature = "security")]
+pub use edge_domain_security::SecurityError;
+#[cfg(feature = "security")]
+pub use edge_domain_security::SecurityFactory;
+#[cfg(feature = "security")]
+pub use edge_domain_security::SecurityServices;
+#[cfg(feature = "security")]
+pub use edge_domain_security::ANONYMOUS;
+#[cfg(feature = "security")]
+pub use edge_domain_security::DEFAULT_SERVICES;
+#[cfg(feature = "security")]
+pub use edge_domain_security::NOOP_SECURITY;

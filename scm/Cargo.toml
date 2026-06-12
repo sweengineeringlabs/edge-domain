@@ -16,6 +16,7 @@ members  = [
     "edge-domain-event",
     "edge-domain-projection",
     "edge-domain-saga",
+    "edge-domain-security",
 ]
 
 [workspace.package]
@@ -54,3 +55,4 @@ edge-domain-handler     = { path = "edge-domain-handler" }
 edge-domain-event       = { path = "edge-domain-event" }
 edge-domain-projection  = { path = "edge-domain-projection" }
 edge-domain-saga        = { path = "edge-domain-saga" }
+edge-domain-security    = { path = "edge-domain-security" }

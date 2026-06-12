@@ -39,12 +39,14 @@ handler     = ["dep:edge-domain-handler"]
 event       = ["dep:edge-domain-event"]
 projection  = ["dep:edge-domain-projection", "event"]
 saga        = ["dep:edge-domain-saga",        "event", "command"]
+security    = ["dep:edge-domain-security"]
 full        = [
     "entity", "valueobject",
     "clock", "validator", "policy",
     "command", "query", "snapshot", "service",
     "repository", "handler", "event",
     "projection", "saga",
+    "security",
 ]
 
 [dependencies]
@@ -69,6 +71,7 @@ edge-domain-handler     = { workspace = true, optional = true }
 edge-domain-event       = { workspace = true, optional = true }
 edge-domain-projection  = { workspace = true, optional = true }
 edge-domain-saga        = { workspace = true, optional = true }
+edge-domain-security    = { workspace = true, optional = true }
 
 [dev-dependencies]
 tokio   = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
@@ -87,6 +90,7 @@ edge-domain-handler.workspace      = true
 edge-domain-event.workspace        = true
 edge-domain-projection.workspace   = true
 edge-domain-saga.workspace         = true
+edge-domain-security.workspace     = true
 
 [lints.rust]
 unsafe_code = "deny"
