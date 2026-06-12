@@ -1,47 +1,32 @@
-[package]
-name         = "edge-domain"
-version      = "0.8.15"
+[workspace]
+resolver = "2"
+members  = [
+    "edge-domain",
+    "edge-domain-entity",
+    "edge-domain-valueobject",
+]
+
+[workspace.package]
 edition      = "2021"
 license      = "MIT OR Apache-2.0"
 rust-version = "1.95"
 authors      = ["SWE Engineering Labs"]
 repository   = "https://github.com/sweengineeringlabs/edge-domain"
-description  = "edge — L2 Domain: lean port contracts (Handler, HandlerRegistry, RequestContext, HandlerError) with no infrastructure dependencies"
-keywords     = ["domain", "handler", "business-logic", "sea", "swe"]
-categories   = ["development-tools"]
 
-[package.metadata.struct-engine]
-application_type = "lib"
-service_type     = "handler"
+[workspace.lints.rust]
+unsafe_code  = "deny"
+missing_docs = "warn"
 
-[lib]
-path = "main/src/lib.rs"
+[workspace.lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
 
-[features]
-default = ["entity", "valueobject"]
-entity      = ["dep:edge-domain-entity"]
-valueobject = ["dep:edge-domain-valueobject"]
-
-[dependencies]
+[workspace.dependencies]
 thiserror   = "2"
 async-trait = "0.1"
 futures     = "0.3"
 parking_lot = "0.12"
 tokio       = { version = "1", features = ["sync", "time"] }
 tracing     = "0.1"
-
-edge-domain-entity      = { path = "../features/edge-domain-entity",      optional = true }
-edge-domain-valueobject = { path = "../features/edge-domain-valueobject", optional = true }
-
-[dev-dependencies]
-tokio   = { version = "1", features = ["macros", "rt", "rt-multi-thread"] }
-futures = "0.3"
-edge-domain-entity      = { path = "../features/edge-domain-entity" }
-edge-domain-valueobject = { path = "../features/edge-domain-valueobject" }
-
-[lints.rust]
-unsafe_code = "deny"
-
-[lints.clippy]
-unwrap_used = "deny"
-expect_used = "deny"
+edge-domain-entity      = { path = "edge-domain-entity" }
+edge-domain-valueobject = { path = "edge-domain-valueobject" }

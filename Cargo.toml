@@ -1,3 +1,0 @@
-[workspace]
-members  = ["scm", "features/*"]
-resolver = "2"

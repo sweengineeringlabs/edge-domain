@@ -1,0 +1,47 @@
+[package]
+name                   = "edge-domain"
+version                = "0.8.15"
+edition.workspace      = true
+license.workspace      = true
+rust-version.workspace = true
+authors.workspace      = true
+repository.workspace   = true
+description = "edge — L2 Domain: lean port contracts (Handler, HandlerRegistry, RequestContext, HandlerError) with no infrastructure dependencies"
+keywords    = ["domain", "handler", "business-logic", "sea", "swe"]
+categories  = ["development-tools"]
+
+[package.metadata.struct-engine]
+application_type = "lib"
+service_type     = "handler"
+
+[lib]
+path = "main/src/lib.rs"
+
+[features]
+default     = ["entity", "valueobject"]
+entity      = ["dep:edge-domain-entity"]
+valueobject = ["dep:edge-domain-valueobject"]
+
+[dependencies]
+thiserror.workspace   = true
+async-trait.workspace = true
+futures.workspace     = true
+parking_lot.workspace = true
+tokio.workspace       = true
+tracing.workspace     = true
+
+edge-domain-entity      = { workspace = true, optional = true }
+edge-domain-valueobject = { workspace = true, optional = true }
+
+[dev-dependencies]
+tokio   = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
+futures.workspace               = true
+edge-domain-entity.workspace    = true
+edge-domain-valueobject.workspace = true
+
+[lints.rust]
+unsafe_code = "deny"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"

@@ -1,0 +1,1 @@
+//! SAF — repository service facade.
