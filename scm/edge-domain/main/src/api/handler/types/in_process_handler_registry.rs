@@ -3,4 +3,5 @@
 /// In-process handler registry backed by `parking_lot::RwLock<HashMap>`.
 ///
 /// Access via [`Domain::new_handler_registry`](crate::Domain::new_handler_registry).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct InProcessHandlerRegistry;

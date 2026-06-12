@@ -1,2 +1,3 @@
-//! SEA api/ counterpart for `core/event/closed_event_source.rs`.
-pub use crate::api::event::types::closed_event_source::ClosedEventSource;
+//! `ClosedEventSource` — type alias re-exporting from the designated struct home.
+/// Marker for a never-emitting event source.
+pub type ClosedEventSource = crate::api::event::types::ClosedEventSource;

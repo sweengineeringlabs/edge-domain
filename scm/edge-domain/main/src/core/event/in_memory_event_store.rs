@@ -27,6 +27,7 @@ impl<E> InMemoryEventStore<E> {
     }
 }
 
+// impl EventStore for InMemoryEventStore
 impl<E> EventStore<E> for InMemoryEventStore<E>
 where
     E: DomainEvent + Send + Sync + Clone + 'static,

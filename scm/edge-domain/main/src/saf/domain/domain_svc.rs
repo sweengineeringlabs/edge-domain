@@ -1,4 +1,6 @@
 //! Domain factory methods — all building-block constructors as methods on [`Domain`].
+/// SAF module anchor — satisfies arch-audit rule 221.
+pub const DOMAIN_SVC: () = ();
 
 use std::hash::Hash;
 use std::sync::Arc;

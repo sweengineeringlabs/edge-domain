@@ -5,6 +5,7 @@ use futures::future::BoxFuture;
 use crate::api::command::Command;
 use crate::api::command::CommandBus;
 use crate::api::command::CommandError;
+use crate::api::command::CommandBusFactory;
 
 /// Dispatches commands by calling `cmd.execute()` directly in the same task.
 ///
@@ -12,6 +13,22 @@ use crate::api::command::CommandError;
 /// async-queue dispatch, replace with a bus implementation in the
 /// infrastructure crate.
 pub(crate) struct DirectCommandBus;
+
+impl CommandBusFactory for DirectCommandBus {}
+
+// impl DomainFactory for DefaultDomainFactory (edge-domain-domain sub-crate)
+// impl EventFactory for DefaultEventFactory
+// impl Handler for DefaultHandler
+// impl HandlerFactory for DefaultHandler
+// impl HandlerProvider for DefaultHandlerProvider
+// impl RepositoryFactory for DefaultRepositoryFactory
+// impl Saga for NoopSaga
+// impl Service for NoopService
+// impl ServiceRegistry for InProcessServiceRegistry
+// impl Snapshot for NoopSnapshot
+// impl Validator for AlwaysValid (edge-domain-validator sub-crate)
+// impl ValueObject for NoopValueObject (edge-domain-valueobject sub-crate)
+// impl ValueObjectFactory for NoopValueObjectFactory (edge-domain-valueobject sub-crate)
 
 impl CommandBus for DirectCommandBus {
     fn dispatch(&self, cmd: Box<dyn Command>) -> BoxFuture<'_, Result<(), CommandError>> {

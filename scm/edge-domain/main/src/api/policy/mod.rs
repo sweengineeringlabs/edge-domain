@@ -13,8 +13,10 @@
 //! | [`PolicyViolation`] | struct | Carries the violated rule name and reason |
 //! | [`CompositePolicy`] | struct | AND-composition of multiple policies |
 
+pub mod composite_policy;
 pub mod traits;
 pub mod types;
 
-pub use traits::{CompositePolicy, Policy, PolicyFactory};
+pub use composite_policy::CompositePolicy;
+pub use traits::{Policy, PolicyFactory};
 pub use types::PolicyViolation;

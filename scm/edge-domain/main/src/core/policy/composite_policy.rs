@@ -1,6 +1,7 @@
 //! [`Policy`] impl for [`CompositePolicy`].
 
 use crate::api::policy::traits::Policy;
+use crate::api::policy::traits::PolicyFactory;
 use crate::api::policy::types::CompositePolicy;
 use crate::api::policy::types::PolicyViolation;
 
@@ -24,3 +25,5 @@ impl<I: Send + Sync + 'static> Policy for CompositePolicy<I> {
         Ok(())
     }
 }
+
+impl PolicyFactory for DefaultCompositePolicy {}

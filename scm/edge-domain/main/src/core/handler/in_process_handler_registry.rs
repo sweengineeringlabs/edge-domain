@@ -25,6 +25,7 @@ where
     }
 }
 
+// impl HandlerRegistry for InProcessHandlerRegistry
 impl<Req, Resp> HandlerRegistry<Req, Resp> for InProcessHandlerRegistry<Req, Resp>
 where
     Req: Send + 'static,

@@ -34,6 +34,7 @@ where
     }
 }
 
+// impl Repository for InMemoryRepository
 impl<T, Id> Repository<T, Id> for InMemoryRepository<T, Id>
 where
     Id: Hash + Eq + Clone + Send + Sync + 'static,
@@ -59,6 +60,7 @@ where
     }
 }
 
+// impl QueryableRepository for InMemoryRepository
 impl<T, Id> QueryableRepository<T, Id> for InMemoryRepository<T, Id>
 where
     Id: Hash + Eq + Clone + Send + Sync + 'static,

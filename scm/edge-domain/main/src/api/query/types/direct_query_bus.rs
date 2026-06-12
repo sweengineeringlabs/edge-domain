@@ -1,7 +1,6 @@
-//! API-layer type for the direct (in-process) query bus.
+//! `DirectQueryBus` — marker type for the inline query bus.
 
 /// Marker type describing a `QueryBus` that dispatches queries inline,
 /// calling `query.execute()` directly in the same task with no queuing.
-///
-/// The concrete implementation lives in `core::query::direct_query_bus`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DirectQueryBus;

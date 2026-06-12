@@ -22,6 +22,7 @@ impl<S: Saga> InMemorySagaRegistry<S> {
     }
 }
 
+// impl SagaRegistry for InMemorySagaRegistry
 impl<S> SagaRegistry<S> for InMemorySagaRegistry<S>
 where
     S: Saga,

@@ -4,5 +4,6 @@
 /// to [`std::time::SystemTime::now`].
 ///
 /// Use in production. For deterministic tests inject a
-/// [`FixedClock`](crate::api::clock::types::fixed_clock::FixedClock) instead.
+/// [`FixedClock`](crate::api::clock::fixed_clock::FixedClock) instead.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SystemClock;

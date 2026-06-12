@@ -1,2 +1,3 @@
-//! `FixedClock` — Rule 121 api/core mirror.
-pub use crate::api::clock::types::FixedClock;
+//! `FixedClock` — type alias re-exporting from the designated struct home.
+/// Deterministic [`Clock`](crate::api::clock::traits::clock::Clock) for tests.
+pub type FixedClock = crate::api::clock::types::FixedClock;

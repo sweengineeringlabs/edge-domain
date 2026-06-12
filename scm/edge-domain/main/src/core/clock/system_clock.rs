@@ -3,6 +3,7 @@
 use std::time::SystemTime;
 
 use crate::api::clock::traits::Clock;
+use crate::api::clock::traits::ClockFactory;
 use crate::api::clock::types::SystemClock;
 
 #[expect(
@@ -16,3 +17,5 @@ impl Clock for SystemClock {
         SystemTime::now()
     }
 }
+
+impl ClockFactory for DefaultSystemClock {}

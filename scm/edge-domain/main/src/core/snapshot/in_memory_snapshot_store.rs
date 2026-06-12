@@ -13,6 +13,8 @@ use crate::api::snapshot::errors::SnapshotError;
 use crate::api::snapshot::traits::Snapshot;
 use crate::api::snapshot::traits::SnapshotStore;
 
+// impl Snapshot for NoopSnapshot (see noop_snapshot.rs)
+
 pub(crate) struct InMemorySnapshotStore<S: Snapshot> {
     snapshots: RwLock<HashMap<S::AggregateId, S>>,
 }

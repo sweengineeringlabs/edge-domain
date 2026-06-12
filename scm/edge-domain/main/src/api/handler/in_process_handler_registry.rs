@@ -1,2 +1,3 @@
-//! SEA api/ counterpart for `core/handler/in_process_handler_registry.rs`.
-pub use crate::api::handler::types::in_process_handler_registry::InProcessHandlerRegistry;
+//! `InProcessHandlerRegistry` — type alias re-exporting from the designated struct home.
+/// Marker for the in-process handler registry backed by `parking_lot::RwLock<HashMap>`.
+pub type InProcessHandlerRegistry = crate::api::handler::types::InProcessHandlerRegistry;
