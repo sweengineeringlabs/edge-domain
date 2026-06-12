@@ -1,1 +1,2 @@
-//! SAF — repository factory service facade.
+pub use crate::api::repository::InMemoryRepository;
+pub use crate::api::repository::RepositoryFactory;

@@ -1,1 +1,1 @@
-//! SAF — service registry factory service facade.
+pub use crate::api::service::ServiceRegistryFactory;

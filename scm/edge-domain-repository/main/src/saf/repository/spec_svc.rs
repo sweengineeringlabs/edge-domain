@@ -1,1 +1,1 @@
-//! SAF — spec service facade.
+pub use crate::api::repository::Spec;

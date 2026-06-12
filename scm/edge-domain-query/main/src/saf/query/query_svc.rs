@@ -1,1 +1,2 @@
-//! SAF — query service facade.
+pub use crate::api::query::Query;
+pub use crate::api::query::QueryError;

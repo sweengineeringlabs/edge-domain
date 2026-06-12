@@ -1,1 +1,1 @@
-//! SAF — aggregate service facade.
+pub use crate::api::event::traits::Aggregate;

@@ -1,1 +1,2 @@
-//! SAF — service service facade.
+pub use crate::api::service::Service;
+pub use crate::api::service::ServiceError;

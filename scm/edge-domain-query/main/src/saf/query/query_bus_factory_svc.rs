@@ -1,1 +1,1 @@
-//! SAF — query bus factory service facade.
+pub use crate::api::query::QueryBusFactory;

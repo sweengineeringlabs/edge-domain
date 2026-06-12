@@ -1,1 +1,2 @@
-//! SAF facade for the [`ProjectionFactory`](crate::ProjectionFactory) trait.
+pub use crate::api::projection::InMemoryProjection;
+pub use crate::api::projection::ProjectionFactory;

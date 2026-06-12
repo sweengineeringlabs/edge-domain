@@ -1,1 +1,2 @@
-//! SAF facade for the [`Projection`](crate::Projection) trait.
+pub use crate::api::projection::Projection;
+pub use crate::api::projection::ProjectionError;

@@ -1,1 +1,4 @@
-//! SAF — event source service facade.
+pub use crate::api::event::errors::EventError;
+pub use crate::api::event::traits::EventSource;
+pub use crate::api::event::types::ClosedEventSource;
+pub use crate::api::event::types::EventReceiver;

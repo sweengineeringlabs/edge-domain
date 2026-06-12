@@ -1,12 +1,8 @@
-//! SAF — event service facade.
-
 mod event;
 
-pub use crate::api::event::traits::{
-    Aggregate, DomainEvent, EventBus, EventFactory, EventPublisher, EventSource, EventStore,
+pub use event::{
+    Aggregate, ClosedEventSource, DomainEvent, EventBus, EventBusConfig, EventEnvelope,
+    EventError, EventFactory, EventPublisher, EventReceiver, EventSource, EventStore,
+    EventStoreError, ExpectedVersion, InMemoryEventStore, InProcessEventBus, NoopEventBus,
+    NoopEventPublisher,
 };
-pub use crate::api::event::types::{
-    ClosedEventSource, EventBusConfig, EventEnvelope, EventReceiver, ExpectedVersion,
-    InMemoryEventStore, InProcessEventBus, NoopEventBus, NoopEventPublisher,
-};
-pub use crate::api::event::errors::{EventError, EventStoreError};

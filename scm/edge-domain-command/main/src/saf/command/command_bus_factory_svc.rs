@@ -1,1 +1,1 @@
-//! SAF — CommandBusFactory facade.
+pub use crate::api::command::CommandBusFactory;

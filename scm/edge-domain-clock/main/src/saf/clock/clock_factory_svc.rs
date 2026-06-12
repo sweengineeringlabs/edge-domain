@@ -1,1 +1,1 @@
-//! SAF — ClockFactory facade.
+pub use crate::api::clock::ClockFactory;

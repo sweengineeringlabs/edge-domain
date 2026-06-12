@@ -1,1 +1,3 @@
-//! SAF facade for the [`SagaRegistry`](crate::SagaRegistry) trait.
+pub use crate::api::saga::InMemorySagaRegistry;
+pub use crate::api::saga::SagaError;
+pub use crate::api::saga::SagaRegistry;

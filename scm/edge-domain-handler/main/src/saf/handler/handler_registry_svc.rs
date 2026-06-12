@@ -1,1 +1,1 @@
-//! SAF — handler registry service facade.
+pub use crate::api::handler::HandlerRegistry;

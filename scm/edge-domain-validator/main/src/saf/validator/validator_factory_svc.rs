@@ -1,1 +1,1 @@
-//! SAF — ValidatorFactory facade.
+pub use crate::api::validator::ValidatorFactory;

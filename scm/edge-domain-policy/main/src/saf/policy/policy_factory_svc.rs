@@ -1,1 +1,1 @@
-//! SAF — PolicyFactory facade.
+pub use crate::api::policy::PolicyFactory;

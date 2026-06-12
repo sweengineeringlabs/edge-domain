@@ -1,1 +1,1 @@
-//! SAF — handler factory service facade.
+pub use crate::api::handler::HandlerFactory;

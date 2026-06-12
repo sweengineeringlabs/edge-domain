@@ -1,1 +1,1 @@
-//! SAF — event factory service facade.
+pub use crate::api::event::traits::EventFactory;

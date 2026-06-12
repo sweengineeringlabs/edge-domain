@@ -1,1 +1,1 @@
-//! SAF — snapshot store factory service facade.
+pub use crate::api::snapshot::SnapshotStoreFactory;

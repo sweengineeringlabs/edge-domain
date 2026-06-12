@@ -1,1 +1,1 @@
-//! SAF facade for the [`Saga`](crate::Saga) trait.
+pub use crate::api::saga::Saga;
