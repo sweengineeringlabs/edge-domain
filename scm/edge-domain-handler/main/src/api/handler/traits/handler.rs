@@ -7,11 +7,13 @@ use crate::api::handler::errors::HandlerError;
 
 /// An async request/response execution unit identified by an id and pattern.
 #[async_trait]
-pub trait Handler<Request, Response>: Send + Sync
-where
-    Request: Send + 'static,
-    Response: Send + 'static,
-{
+pub trait Handler: Send + Sync {
+    /// The request type this handler accepts.
+    type Request: Send + 'static;
+
+    /// The response type this handler produces.
+    type Response: Send + 'static;
+
     /// Stable identifier for this handler.
     fn id(&self) -> &str {
         "handler"
@@ -23,16 +25,16 @@ where
     }
 
     /// Execute the handler with the given request.
-    async fn execute(&self, req: Request) -> Result<Response, HandlerError>;
+    async fn execute(&self, req: Self::Request) -> Result<Self::Response, HandlerError>;
 
     /// Execute the handler with an explicit [`SecurityContext`].
     ///
     /// The default implementation ignores the context and delegates to [`execute`](Handler::execute).
     async fn execute_with_context(
         &self,
-        req: Request,
+        req: Self::Request,
         _ctx: SecurityContext,
-    ) -> Result<Response, HandlerError> {
+    ) -> Result<Self::Response, HandlerError> {
         self.execute(req).await
     }
 
@@ -49,7 +51,10 @@ mod tests {
     struct AlwaysOk;
 
     #[async_trait]
-    impl Handler<String, String> for AlwaysOk {
+    impl Handler for AlwaysOk {
+        type Request = String;
+        type Response = String;
+
         async fn execute(&self, req: String) -> Result<String, HandlerError> {
             Ok(req)
         }
@@ -58,7 +63,10 @@ mod tests {
     struct AlwaysFail;
 
     #[async_trait]
-    impl Handler<String, String> for AlwaysFail {
+    impl Handler for AlwaysFail {
+        type Request = String;
+        type Response = String;
+
         async fn execute(&self, _req: String) -> Result<String, HandlerError> {
             Err(HandlerError::ExecutionFailed("fail".into()))
         }

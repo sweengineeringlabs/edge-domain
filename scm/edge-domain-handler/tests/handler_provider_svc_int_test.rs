@@ -46,7 +46,10 @@ fn test_in_process_registry_register_and_retrieve_happy() {
 
     struct Ping;
     #[async_trait]
-    impl Handler<String, String> for Ping {
+    impl Handler for Ping {
+        type Request = String;
+        type Response = String;
+
         fn id(&self) -> &str {
             "ping"
         }
@@ -68,7 +71,10 @@ fn test_in_process_registry_empty_after_deregister_edge() {
 
     struct Tmp;
     #[async_trait]
-    impl Handler<String, String> for Tmp {
+    impl Handler for Tmp {
+        type Request = String;
+        type Response = String;
+
         fn id(&self) -> &str {
             "tmp"
         }
@@ -97,4 +103,30 @@ fn test_in_process_registry_empty_state_is_not_an_error_error() {
     // in_process_registry is infallible — an empty registry is not an error condition.
     let reg = Prov::in_process_registry::<String, String>();
     assert_eq!(reg.len(), 0);
+}
+
+/// @covers: HandlerProvider::noop_handler_factory — constructs a NoopHandlerFactory
+#[test]
+fn test_noop_handler_factory_constructs_instance_happy() {
+    use edge_domain_handler::NoopHandlerFactory;
+    let _f: NoopHandlerFactory = Prov::noop_handler_factory();
+}
+
+/// @covers: HandlerProvider::noop_handler_factory — infallible (no error path; documents absence)
+#[test]
+fn test_noop_handler_factory_is_always_infallible_error() {
+    // noop_handler_factory is infallible — unit type has no invalid state.
+    // This test documents the absence of an error path explicitly.
+    use edge_domain_handler::NoopHandlerFactory;
+    let _f: NoopHandlerFactory = Prov::noop_handler_factory();
+}
+
+/// @covers: HandlerProvider::noop_handler_factory — Copy semantics allow multiple uses
+#[test]
+fn test_noop_handler_factory_copy_allows_multiple_uses_edge() {
+    use edge_domain_handler::{HandlerFactory, NoopHandlerFactory};
+    let f: NoopHandlerFactory = Prov::noop_handler_factory();
+    let g = f; // Copy
+    let _r1 = NoopHandlerFactory::build(()).unwrap();
+    let _ = (f, g);
 }

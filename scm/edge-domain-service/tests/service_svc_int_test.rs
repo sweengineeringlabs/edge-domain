@@ -5,7 +5,10 @@ use futures::executor::block_on;
 use futures::future::BoxFuture;
 
 struct Echo(String);
-impl Service<String, String> for Echo {
+impl Service for Echo {
+    type Request = String;
+    type Response = String;
+
     fn name(&self) -> &str {
         &self.0
     }
@@ -15,7 +18,10 @@ impl Service<String, String> for Echo {
 }
 
 struct AlwaysFails;
-impl Service<String, String> for AlwaysFails {
+impl Service for AlwaysFails {
+    type Request = String;
+    type Response = String;
+
     fn execute(&self, _req: String) -> BoxFuture<'_, Result<String, ServiceError>> {
         Box::pin(async { Err(ServiceError::RuleViolation("blocked".into())) })
     }
@@ -36,7 +42,7 @@ fn test_name_default_impl_returns_service_error() {
 /// @covers: Service::name — via dyn dispatch
 #[test]
 fn test_name_via_dyn_dispatch_returns_name_edge() {
-    let svc: &dyn Service<String, String> = &Echo("ping".into());
+    let svc: &dyn Service<Request = String, Response = String> = &Echo("ping".into());
     assert_eq!(svc.name(), "ping");
 }
 

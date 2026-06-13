@@ -8,16 +8,17 @@ use crate::api::service::ServiceError;
 ///
 /// Services are the primary abstraction for application-layer logic. They are
 /// identified by name and invoked via the [`ServiceRegistry`](super::service_registry::ServiceRegistry).
-pub trait Service<Request, Response>: Send + Sync
-where
-    Request: Send + 'static,
-    Response: Send + 'static,
-{
+pub trait Service: Send + Sync {
+    /// The request type this service accepts.
+    type Request: Send + 'static;
+    /// The response type this service produces.
+    type Response: Send + 'static;
+
     /// Stable name identifying this service.
     fn name(&self) -> &str {
         "service"
     }
 
     /// Execute the service with the given request.
-    fn execute(&self, req: Request) -> BoxFuture<'_, Result<Response, ServiceError>>;
+    fn execute(&self, req: Self::Request) -> BoxFuture<'_, Result<Self::Response, ServiceError>>;
 }

@@ -16,7 +16,8 @@ where
     Resp: Send + 'static,
 {
     /// The backing store.
-    pub(crate) handlers: RwLock<HashMap<String, Arc<dyn Handler<Req, Resp>>>>,
+    pub(crate) handlers:
+        RwLock<HashMap<String, Arc<dyn Handler<Request = Req, Response = Resp>>>>,
 }
 
 impl<Req, Resp> InProcessHandlerRegistry<Req, Resp>

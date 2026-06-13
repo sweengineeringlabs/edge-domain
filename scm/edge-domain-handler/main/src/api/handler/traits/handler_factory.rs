@@ -3,9 +3,12 @@
 use crate::api::handler::errors::HandlerError;
 
 /// Constructor contract for building typed handler implementations from config.
-pub trait HandlerFactory<Config>: Sized {
+pub trait HandlerFactory: Sized {
+    /// The configuration type used to construct this handler.
+    type Config;
+
     /// Build a handler from the given configuration.
-    fn build(cfg: Config) -> Result<Self, HandlerError>;
+    fn build(cfg: Self::Config) -> Result<Self, HandlerError>;
 }
 
 #[cfg(test)]
@@ -18,7 +21,9 @@ mod tests {
 
     struct MyHandler;
 
-    impl HandlerFactory<Cfg> for MyHandler {
+    impl HandlerFactory for MyHandler {
+        type Config = Cfg;
+
         fn build(cfg: Cfg) -> Result<Self, HandlerError> {
             if cfg.valid {
                 Ok(MyHandler)

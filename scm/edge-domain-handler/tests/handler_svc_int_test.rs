@@ -8,7 +8,10 @@ use futures::executor::block_on;
 struct OkHandler;
 
 #[async_trait]
-impl Handler<String, String> for OkHandler {
+impl Handler for OkHandler {
+    type Request = String;
+    type Response = String;
+
     fn id(&self) -> &str {
         "ok-handler"
     }
@@ -23,7 +26,10 @@ impl Handler<String, String> for OkHandler {
 struct FailHandler;
 
 #[async_trait]
-impl Handler<String, String> for FailHandler {
+impl Handler for FailHandler {
+    type Request = String;
+    type Response = String;
+
     async fn execute(&self, _req: String) -> Result<String, HandlerError> {
         Err(HandlerError::ExecutionFailed("deliberate".into()))
     }
@@ -32,7 +38,10 @@ impl Handler<String, String> for FailHandler {
 struct UnhealthyHandler;
 
 #[async_trait]
-impl Handler<String, String> for UnhealthyHandler {
+impl Handler for UnhealthyHandler {
+    type Request = String;
+    type Response = String;
+
     async fn execute(&self, _req: String) -> Result<String, HandlerError> {
         Err(HandlerError::Unhealthy)
     }

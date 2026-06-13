@@ -11,7 +11,10 @@ struct Fixed {
 }
 
 #[async_trait]
-impl Handler<String, String> for Fixed {
+impl Handler for Fixed {
+    type Request = String;
+    type Response = String;
+
     fn id(&self) -> &str {
         self.id
     }

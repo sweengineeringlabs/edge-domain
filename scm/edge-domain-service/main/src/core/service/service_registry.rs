@@ -2,16 +2,19 @@
 
 use std::sync::Arc;
 
-use crate::api::service::traits::service_registry::ServiceRegistry as ServiceRegistryTrait;
-use crate::api::service::types::ServiceRegistry;
+use crate::api::service::traits::service_registry::ServiceRegistry;
+use crate::api::service::types::ServiceRegistry as ServiceRegistryStore;
 use crate::api::service::Service;
 
-impl<Req, Resp> ServiceRegistryTrait<Req, Resp> for ServiceRegistry<Req, Resp>
+impl<Req, Resp> ServiceRegistry for ServiceRegistryStore<Req, Resp>
 where
     Req: Send + 'static,
     Resp: Send + 'static,
 {
-    fn register(&self, service: Arc<dyn Service<Req, Resp>>) {
+    type Request = Req;
+    type Response = Resp;
+
+    fn register(&self, service: Arc<dyn Service<Request = Req, Response = Resp>>) {
         self.register(service);
     }
 
@@ -19,7 +22,7 @@ where
         self.deregister(name)
     }
 
-    fn get(&self, name: &str) -> Option<Arc<dyn Service<Req, Resp>>> {
+    fn get(&self, name: &str) -> Option<Arc<dyn Service<Request = Req, Response = Resp>>> {
         self.get(name)
     }
 
@@ -34,13 +37,21 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::api::service::errors::ServiceError;
+    use std::sync::Arc;
+
     use futures::future::BoxFuture;
+
+    use crate::api::service::errors::ServiceError;
+    use crate::api::service::traits::service_registry::ServiceRegistry as ServiceRegistryTrait;
+    use crate::api::service::types::ServiceRegistry;
+    use crate::api::service::Service;
 
     struct ServiceRegistryFixture;
 
-    impl Service<String, String> for ServiceRegistryFixture {
+    impl Service for ServiceRegistryFixture {
+        type Request = String;
+        type Response = String;
+
         fn name(&self) -> &str {
             "fixture"
         }

@@ -9,9 +9,16 @@ impl HandlerProvider for Handlers {}
 struct Greet;
 
 #[async_trait]
-impl Handler<String, String> for Greet {
-    fn id(&self) -> &str { "greet" }
-    fn pattern(&self) -> &str { "/greet" }
+impl Handler for Greet {
+    type Request = String;
+    type Response = String;
+
+    fn id(&self) -> &str {
+        "greet"
+    }
+    fn pattern(&self) -> &str {
+        "/greet"
+    }
     async fn execute(&self, req: String) -> Result<String, HandlerError> {
         Ok(format!("Hello, {}!", req))
     }

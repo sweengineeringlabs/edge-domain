@@ -11,10 +11,10 @@ use crate::api::event::types::{EventEnvelope, ExpectedVersion};
 /// Optimistic concurrency is enforced via [`ExpectedVersion`]: callers
 /// declare what version they read before appending so conflicting writes
 /// are detected and rejected.
-pub trait EventStore<E>: Send + Sync
-where
-    E: DomainEvent + Send + 'static,
-{
+pub trait EventStore: Send + Sync {
+    /// The domain event type stored in this store.
+    type Event: DomainEvent + Send + 'static;
+
     /// Append `events` to the stream for `aggregate_id`.
     ///
     /// `expected` is checked before writing; a mismatch yields
@@ -22,7 +22,7 @@ where
     fn append(
         &self,
         aggregate_id: &str,
-        events: Vec<E>,
+        events: Vec<Self::Event>,
         expected: ExpectedVersion,
     ) -> BoxFuture<'_, Result<u64, EventStoreError>>;
 
@@ -30,12 +30,12 @@ where
     fn load(
         &self,
         aggregate_id: &str,
-    ) -> BoxFuture<'_, Result<Vec<EventEnvelope<E>>, EventStoreError>>;
+    ) -> BoxFuture<'_, Result<Vec<EventEnvelope<Self::Event>>, EventStoreError>>;
 
     /// Load events for `aggregate_id` starting at `from_sequence` (inclusive).
     fn load_from(
         &self,
         aggregate_id: &str,
         from_sequence: u64,
-    ) -> BoxFuture<'_, Result<Vec<EventEnvelope<E>>, EventStoreError>>;
+    ) -> BoxFuture<'_, Result<Vec<EventEnvelope<Self::Event>>, EventStoreError>>;
 }

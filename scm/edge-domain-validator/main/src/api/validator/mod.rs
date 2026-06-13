@@ -6,3 +6,4 @@ pub use errors::ValidatorError;
 pub use traits::Validator;
 pub use traits::ValidatorFactory;
 pub use types::AlwaysValid;
+pub use types::StdValidatorFactory;

@@ -5,10 +5,13 @@ use futures::executor::block_on;
 use futures::future::BoxFuture;
 
 struct GetStr(String);
-impl Query<String> for GetStr {
+impl Query for GetStr {
+    type Result = String;
+
     fn name(&self) -> &str {
         &self.0
     }
+
     fn execute(&self) -> BoxFuture<'_, Result<String, QueryError>> {
         let v = self.0.clone();
         Box::pin(async move { Ok(v) })
@@ -16,7 +19,9 @@ impl Query<String> for GetStr {
 }
 
 struct Fail;
-impl Query<String> for Fail {
+impl Query for Fail {
+    type Result = String;
+
     fn execute(&self) -> BoxFuture<'_, Result<String, QueryError>> {
         Box::pin(async { Err(QueryError::NotFound("x".into())) })
     }
@@ -37,7 +42,7 @@ fn test_name_default_impl_returns_query_error() {
 /// @covers: Query::name — via dyn dispatch
 #[test]
 fn test_name_via_dyn_dispatch_returns_name_edge() {
-    let q: &dyn Query<String> = &GetStr("x".into());
+    let q: &dyn Query<Result = String> = &GetStr("x".into());
     assert_eq!(q.name(), "x");
 }
 

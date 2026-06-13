@@ -7,8 +7,8 @@
 
 use crate::api::event::traits::DomainEvent;
 use crate::api::event::types::{
-    ClosedEventSource, EventBusConfig, InMemoryEventStore, InProcessEventBus, NoopEventBus,
-    NoopEventPublisher,
+    ClosedEventSource, DefaultEventFactory, EventBusConfig, InMemoryEventStore, InProcessEventBus,
+    NoopAggregate, NoopDomainEvent, NoopEventBus, NoopEventPublisher, StdEventFactory,
 };
 
 /// Factory for the standard event infrastructure implementations.
@@ -42,5 +42,29 @@ pub trait EventFactory {
     /// Construct a closed event source that immediately returns `Unavailable`.
     fn closed_source() -> ClosedEventSource {
         ClosedEventSource
+    }
+
+    /// Construct the standard event factory itself.
+    ///
+    /// Returns a [`DefaultEventFactory`] (an alias for [`StdEventFactory`]) which
+    /// can be used to call factory methods in a value-passing context.
+    fn std() -> DefaultEventFactory {
+        StdEventFactory
+    }
+
+    /// Construct a no-op domain event that carries no state.
+    ///
+    /// Useful as a placeholder when a [`DomainEvent`] value is required but
+    /// no meaningful event data exists (e.g. test fixtures, structural stubs).
+    fn noop_event() -> NoopDomainEvent {
+        NoopDomainEvent
+    }
+
+    /// Construct a no-op aggregate root that holds no state.
+    ///
+    /// Useful as a placeholder when an [`Aggregate`] impl is required but
+    /// no meaningful aggregate logic is needed.
+    fn noop_aggregate() -> NoopAggregate {
+        NoopAggregate
     }
 }

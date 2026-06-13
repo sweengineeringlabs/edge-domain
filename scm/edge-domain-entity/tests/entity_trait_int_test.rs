@@ -33,6 +33,28 @@ fn test_id_two_instances_different_ids_are_not_equal_error() {
     assert_ne!(a.id(), b.id());
 }
 
+/// @covers: Entity::validate — default implementation always passes
+#[test]
+fn test_validate_default_impl_returns_ok_happy() {
+    let line = OrderLine { id: 1, quantity: 1 };
+    assert!(line.validate().is_ok());
+}
+
+/// @covers: Entity::validate — EntityError is currently uninhabited; no error path exists
+#[test]
+fn test_validate_no_error_variant_exists_error() {
+    // EntityError has zero variants — validate() can only ever return Ok(())
+    let line = OrderLine { id: 0, quantity: 0 };
+    assert!(line.validate().is_ok());
+}
+
+/// @covers: Entity::validate — default validate passes for any id value
+#[test]
+fn test_validate_with_max_u64_id_passes_default_impl_edge() {
+    let line = OrderLine { id: u64::MAX, quantity: 0 };
+    assert!(line.validate().is_ok());
+}
+
 /// @covers: Entity::id — Id type parameter is generic (works with String)
 #[test]
 fn test_id_with_string_id_type_returns_correct_value_edge() {

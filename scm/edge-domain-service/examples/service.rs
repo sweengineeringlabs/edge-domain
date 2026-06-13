@@ -5,7 +5,10 @@ use futures::future::BoxFuture;
 
 struct EchoService;
 
-impl Service<String, String> for EchoService {
+impl Service for EchoService {
+    type Request = String;
+    type Response = String;
+
     fn name(&self) -> &str { "echo" }
     fn execute(&self, req: String) -> BoxFuture<'_, Result<String, ServiceError>> {
         Box::pin(async move { Ok(req) })

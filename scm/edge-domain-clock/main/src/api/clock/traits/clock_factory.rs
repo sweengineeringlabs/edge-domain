@@ -2,8 +2,7 @@
 
 use std::time::SystemTime;
 
-use crate::api::clock::types::fixed_clock::FixedClock;
-use crate::api::clock::types::system_clock::SystemClock;
+use crate::api::clock::types::{FixedClock, StdClockFactory, SystemClock};
 
 /// Factory trait for the two standard `Clock` implementations.
 pub trait ClockFactory {
@@ -15,5 +14,10 @@ pub trait ClockFactory {
     /// Construct a `FixedClock` frozen at `at`.
     fn fixed(at: SystemTime) -> FixedClock {
         FixedClock::new(at)
+    }
+
+    /// Return the standard clock-factory instance.
+    fn std_factory() -> StdClockFactory {
+        StdClockFactory
     }
 }

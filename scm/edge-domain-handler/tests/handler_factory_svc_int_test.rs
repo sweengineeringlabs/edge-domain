@@ -12,7 +12,9 @@ struct NamedHandler {
     name: String,
 }
 
-impl HandlerFactory<Cfg> for NamedHandler {
+impl HandlerFactory for NamedHandler {
+    type Config = Cfg;
+
     fn build(cfg: Cfg) -> Result<Self, HandlerError> {
         if cfg.valid {
             Ok(NamedHandler { name: cfg.name })

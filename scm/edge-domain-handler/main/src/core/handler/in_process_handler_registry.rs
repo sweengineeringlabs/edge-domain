@@ -6,12 +6,13 @@ use crate::api::handler::traits::Handler;
 use crate::api::handler::traits::HandlerRegistry;
 use crate::api::handler::types::InProcessHandlerRegistry;
 
-impl<Req, Resp> HandlerRegistry<Req, Resp> for InProcessHandlerRegistry<Req, Resp>
-where
-    Req: Send + 'static,
-    Resp: Send + 'static,
+impl<Req: Send + 'static, Resp: Send + 'static> HandlerRegistry
+    for InProcessHandlerRegistry<Req, Resp>
 {
-    fn register(&self, handler: Arc<dyn Handler<Req, Resp>>) {
+    type Request = Req;
+    type Response = Resp;
+
+    fn register(&self, handler: Arc<dyn Handler<Request = Req, Response = Resp>>) {
         self.handlers
             .write()
             .insert(handler.id().to_string(), handler);
@@ -21,7 +22,7 @@ where
         self.handlers.write().remove(id).is_some()
     }
 
-    fn get(&self, id: &str) -> Option<Arc<dyn Handler<Req, Resp>>> {
+    fn get(&self, id: &str) -> Option<Arc<dyn Handler<Request = Req, Response = Resp>>> {
         self.handlers.read().get(id).cloned()
     }
 
@@ -46,7 +47,10 @@ mod tests {
     struct InProcessHandlerRegistryFixture;
 
     #[async_trait]
-    impl Handler<String, String> for InProcessHandlerRegistryFixture {
+    impl Handler for InProcessHandlerRegistryFixture {
+        type Request = String;
+        type Response = String;
+
         fn id(&self) -> &str {
             "fixture"
         }

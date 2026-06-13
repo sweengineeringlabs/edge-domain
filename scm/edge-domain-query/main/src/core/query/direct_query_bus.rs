@@ -7,8 +7,13 @@ use crate::api::query::traits::QueryBus;
 use crate::api::query::types::DirectQueryBus;
 use crate::api::query::QueryError;
 
-impl<R: Send + 'static> QueryBus<R> for DirectQueryBus {
-    fn dispatch(&self, query: Box<dyn Query<R>>) -> BoxFuture<'_, Result<R, QueryError>> {
+impl<R: Send + 'static> QueryBus for DirectQueryBus<R> {
+    type Result = R;
+
+    fn dispatch(
+        &self,
+        query: Box<dyn Query<Result = R>>,
+    ) -> BoxFuture<'_, Result<R, QueryError>> {
         Box::pin(async move { query.execute().await })
     }
 }
@@ -18,7 +23,9 @@ mod tests {
     use super::*;
 
     struct DirectQueryBusOk(String);
-    impl Query<String> for DirectQueryBusOk {
+    impl Query for DirectQueryBusOk {
+        type Result = String;
+
         fn execute(&self) -> BoxFuture<'_, Result<String, QueryError>> {
             let v = self.0.clone();
             Box::pin(async move { Ok(v) })
@@ -27,7 +34,7 @@ mod tests {
 
     #[test]
     fn test_dispatch_ok_query_returns_value() {
-        let bus = DirectQueryBus;
+        let bus = DirectQueryBus::<String>::new();
         let result = futures::executor::block_on(
             bus.dispatch(Box::new(DirectQueryBusOk("pong".into())))
         );

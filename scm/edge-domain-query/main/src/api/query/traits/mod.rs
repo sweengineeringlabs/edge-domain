@@ -8,5 +8,3 @@ pub mod query_bus_factory;
 pub use query::Query;
 pub use query_bus::QueryBus;
 pub use query_bus_factory::QueryBusFactory;
-
-pub use crate::api::query::types::DirectQueryBus;

@@ -157,3 +157,75 @@ fn test_in_process_bus_publish_subscribe_round_trip_error() {
         assert!(!e.event_type().is_empty());
     });
 }
+
+/// @covers: EventFactory::std — constructs the standard factory instance
+#[test]
+fn test_std_returns_std_event_factory_happy() {
+    use edge_domain_event::StdEventFactory;
+    let _f: StdEventFactory = Events::std();
+}
+
+/// @covers: EventFactory::std — std factory is zero-sized (pure dispatch)
+#[test]
+fn test_std_factory_is_zero_sized_error() {
+    let f = Events::std();
+    assert_eq!(std::mem::size_of_val(&f), 0);
+}
+
+/// @covers: EventFactory::std — std factory can immediately call noop_bus
+#[test]
+fn test_std_factory_can_call_noop_bus_immediately_edge() {
+    use edge_domain_event::{EventFactory, StdEventFactory};
+    let _ = StdEventFactory::noop_bus();
+}
+
+/// @covers: EventFactory::noop_aggregate — returns a NoopAggregate
+#[test]
+fn test_noop_aggregate_returns_noop_aggregate_happy() {
+    use edge_domain_event::Aggregate;
+    let agg = Events::noop_aggregate();
+    assert_eq!(agg.id(), "");
+}
+
+/// @covers: EventFactory::noop_aggregate — apply is a no-op
+#[test]
+fn test_noop_aggregate_apply_is_noop_error() {
+    use edge_domain_event::{Aggregate, NoopDomainEvent};
+    let mut agg = Events::noop_aggregate();
+    agg.apply(&NoopDomainEvent);
+    assert_eq!(agg.id(), "");
+}
+
+/// @covers: EventFactory::noop_aggregate — multiple factory calls are independent
+#[test]
+fn test_noop_aggregate_multiple_calls_are_independent_edge() {
+    use edge_domain_event::Aggregate;
+    let a = Events::noop_aggregate();
+    let b = Events::noop_aggregate();
+    assert_eq!(a.id(), b.id());
+}
+
+/// @covers: EventFactory::noop_event — returns a NoopDomainEvent
+#[test]
+fn test_noop_event_returns_noop_domain_event_happy() {
+    use edge_domain_event::DomainEvent;
+    let evt = Events::noop_event();
+    assert_eq!(evt.event_type(), "event");
+}
+
+/// @covers: EventFactory::noop_event — aggregate_id is empty string
+#[test]
+fn test_noop_event_aggregate_id_is_empty_error() {
+    use edge_domain_event::DomainEvent;
+    let evt = Events::noop_event();
+    assert_eq!(evt.aggregate_id(), "");
+}
+
+/// @covers: EventFactory::noop_event — multiple calls produce independent values
+#[test]
+fn test_noop_event_multiple_calls_are_independent_edge() {
+    use edge_domain_event::DomainEvent;
+    let a = Events::noop_event();
+    let b = Events::noop_event();
+    assert_eq!(a.event_type(), b.event_type());
+}

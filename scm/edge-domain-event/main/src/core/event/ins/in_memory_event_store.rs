@@ -8,14 +8,16 @@ use crate::api::event::errors::EventStoreError;
 use crate::api::event::traits::{DomainEvent, EventStore};
 use crate::api::event::types::{EventEnvelope, ExpectedVersion, InMemoryEventStore};
 
-impl<E> EventStore<E> for InMemoryEventStore<E>
+impl<E> EventStore for InMemoryEventStore<E>
 where
     E: DomainEvent + Clone + Send + Sync + 'static,
 {
+    type Event = E;
+
     fn append(
         &self,
         aggregate_id: &str,
-        events: Vec<E>,
+        events: Vec<Self::Event>,
         expected: ExpectedVersion,
     ) -> BoxFuture<'_, Result<u64, EventStoreError>> {
         let aggregate_id = aggregate_id.to_owned();
@@ -65,7 +67,7 @@ where
     fn load(
         &self,
         aggregate_id: &str,
-    ) -> BoxFuture<'_, Result<Vec<EventEnvelope<E>>, EventStoreError>> {
+    ) -> BoxFuture<'_, Result<Vec<EventEnvelope<Self::Event>>, EventStoreError>> {
         let aggregate_id = aggregate_id.to_owned();
         Box::pin(async move {
             let streams = self.streams.read();
@@ -80,7 +82,7 @@ where
         &self,
         aggregate_id: &str,
         from_sequence: u64,
-    ) -> BoxFuture<'_, Result<Vec<EventEnvelope<E>>, EventStoreError>> {
+    ) -> BoxFuture<'_, Result<Vec<EventEnvelope<Self::Event>>, EventStoreError>> {
         let aggregate_id = aggregate_id.to_owned();
         Box::pin(async move {
             let streams = self.streams.read();
