@@ -1,0 +1,9 @@
+# architecture.policy.toml — custom arch audit rules for edge-domain-valueobject
+#
+# Run: arch audit --rs -r architecture.policy.toml
+
+[rules]
+
+vo_type_partial_eq = [{ id = 233, category = "structure", description = "Value object types in api/valueobject/types/ must derive PartialEq", severity = "error", type = "glob_content_matches", glob = "main/src/api/valueobject/types/*_*.rs", pattern = "PartialEq", fix_hint = "Add PartialEq to #[derive(...)] — VO equality is a core invariant required for assert_eq! in tests" }]
+
+vo_error_partial_eq = [{ id = 234, category = "structure", description = "Value object errors in api/valueobject/errors/ must derive PartialEq", severity = "error", type = "glob_content_matches", glob = "main/src/api/valueobject/errors/*_*.rs", pattern = "PartialEq", fix_hint = "Add PartialEq to #[derive(...)] — error equality is required for assert_eq! and matches! in tests" }]
