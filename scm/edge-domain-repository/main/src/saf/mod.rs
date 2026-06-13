@@ -1,3 +1,6 @@
 mod repository;
 
-pub use repository::{InMemoryRepository, Page, QueryableRepository, Repository, RepositoryError, RepositoryFactory, Spec};
+pub use repository::{
+    InMemoryRepository, Page, QueryableRepository, QUERYABLE_REPOSITORY_SVC, Repository,
+    REPOSITORY_FACTORY_SVC, REPOSITORY_SVC, RepositoryError, RepositoryFactory, Spec, SPEC_SVC,
+};
