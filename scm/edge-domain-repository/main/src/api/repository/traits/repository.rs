@@ -5,32 +5,37 @@ use futures::future::BoxFuture;
 use crate::api::repository::errors::RepositoryError;
 use crate::api::repository::types::Page;
 
-/// Core async CRUD contract for a typed repository keyed by `Id`.
+/// Core async CRUD contract for a typed repository.
+///
+/// Associated types enforce that each implementor is bound to exactly one
+/// entity type and one id type — a `UserRepository` can never accidentally
+/// store a `Product`.
 ///
 /// All methods return `BoxFuture` so implementations are not required to use
 /// `#[async_trait]`.  Default methods for `exists`, `count`, and `list_page`
 /// are provided in terms of the required methods.
-pub trait Repository<T, Id>: Send + Sync
-where
-    T: Send + 'static,
-    Id: Send + Sync + 'static,
-{
+pub trait Repository: Send + Sync {
+    /// The entity type stored in this repository.
+    type Entity: Send + 'static;
+    /// The identifier type used to key entities.
+    type Id: Send + Sync + 'static;
+
     /// Returns the entity with the given `id`, or `None` if it does not exist.
-    fn find<'a>(&'a self, id: &'a Id) -> BoxFuture<'a, Result<Option<T>, RepositoryError>>;
+    fn find<'a>(&'a self, id: &'a Self::Id) -> BoxFuture<'a, Result<Option<Self::Entity>, RepositoryError>>;
 
     /// Persists `entity` under `id`, replacing any existing entry.
-    fn save(&self, id: Id, entity: T) -> BoxFuture<'_, Result<(), RepositoryError>>;
+    fn save(&self, id: Self::Id, entity: Self::Entity) -> BoxFuture<'_, Result<(), RepositoryError>>;
 
     /// Removes the entity with the given `id`.
     ///
     /// Returns `true` if an entry was removed, `false` if it did not exist.
-    fn delete<'a>(&'a self, id: &'a Id) -> BoxFuture<'a, Result<bool, RepositoryError>>;
+    fn delete<'a>(&'a self, id: &'a Self::Id) -> BoxFuture<'a, Result<bool, RepositoryError>>;
 
     /// Returns all entities in the repository.
-    fn list(&self) -> BoxFuture<'_, Result<Vec<T>, RepositoryError>>;
+    fn list(&self) -> BoxFuture<'_, Result<Vec<Self::Entity>, RepositoryError>>;
 
     /// Returns `true` if an entity with the given `id` exists.
-    fn exists<'a>(&'a self, id: &'a Id) -> BoxFuture<'a, Result<bool, RepositoryError>> {
+    fn exists<'a>(&'a self, id: &'a Self::Id) -> BoxFuture<'a, Result<bool, RepositoryError>> {
         Box::pin(async move { self.find(id).await.map(|opt| opt.is_some()) })
     }
 
@@ -40,9 +45,9 @@ where
     }
 
     /// Returns a paginated slice of entities.
-    fn list_page(&self, offset: usize, limit: usize) -> BoxFuture<'_, Result<Page<T>, RepositoryError>>
+    fn list_page(&self, offset: usize, limit: usize) -> BoxFuture<'_, Result<Page<Self::Entity>, RepositoryError>>
     where
-        T: Clone,
+        Self::Entity: Clone,
     {
         Box::pin(async move {
             let all = self.list().await?;
@@ -68,7 +73,10 @@ mod tests {
         }
     }
 
-    impl Repository<String, u32> for MapRepo {
+    impl Repository for MapRepo {
+        type Entity = String;
+        type Id = u32;
+
         fn find<'a>(&'a self, id: &'a u32) -> BoxFuture<'a, Result<Option<String>, RepositoryError>> {
             let val = self.store.lock().unwrap_or_else(|e| e.into_inner()).get(id).cloned();
             Box::pin(async move { Ok(val) })

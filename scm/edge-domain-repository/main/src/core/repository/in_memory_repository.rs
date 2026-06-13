@@ -6,11 +6,14 @@ use crate::api::repository::errors::RepositoryError;
 use crate::api::repository::traits::{QueryableRepository, Repository};
 use crate::api::repository::types::InMemoryRepository;
 
-impl<T, Id> Repository<T, Id> for InMemoryRepository<T, Id>
+impl<T, Id> Repository for InMemoryRepository<T, Id>
 where
     T: Clone + Send + Sync + 'static,
     Id: std::hash::Hash + Eq + Clone + Send + Sync + 'static,
 {
+    type Entity = T;
+    type Id = Id;
+
     fn find<'a>(&'a self, id: &'a Id) -> BoxFuture<'a, Result<Option<T>, RepositoryError>> {
         let found = self.store.read().get(id).cloned();
         Box::pin(async move { Ok(found) })
@@ -32,7 +35,7 @@ where
     }
 }
 
-impl<T, Id> QueryableRepository<T, Id> for InMemoryRepository<T, Id>
+impl<T, Id> QueryableRepository for InMemoryRepository<T, Id>
 where
     T: Clone + Send + Sync + 'static,
     Id: std::hash::Hash + Eq + Clone + Send + Sync + 'static,

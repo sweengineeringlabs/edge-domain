@@ -8,18 +8,18 @@ use crate::api::repository::types::Spec;
 
 /// Extends [`Repository`] with specification-based query methods.
 ///
-/// Default implementations load the full list and filter in-process.
+/// The `Self::Entity: Clone` supertrait bound is required because the default
+/// implementations load the full entity list and clone matching entries.
 /// Concrete implementations may override these with more efficient queries.
-pub trait QueryableRepository<T, Id>: Repository<T, Id>
+pub trait QueryableRepository: Repository
 where
-    T: Clone + Send + Sync + 'static,
-    Id: Send + Sync + 'static,
+    Self::Entity: Clone + Send + Sync + 'static,
 {
     /// Returns all entities that satisfy the given specification.
     fn find_by<'a>(
         &'a self,
-        spec: &'a dyn Spec<T>,
-    ) -> BoxFuture<'a, Result<Vec<T>, RepositoryError>> {
+        spec: &'a dyn Spec<Self::Entity>,
+    ) -> BoxFuture<'a, Result<Vec<Self::Entity>, RepositoryError>> {
         Box::pin(async move {
             let all = self.list().await?;
             Ok(all.into_iter().filter(|e| spec.matches(e)).collect())
@@ -29,8 +29,8 @@ where
     /// Returns the first entity that satisfies the given specification, or `None`.
     fn find_one_by<'a>(
         &'a self,
-        spec: &'a dyn Spec<T>,
-    ) -> BoxFuture<'a, Result<Option<T>, RepositoryError>> {
+        spec: &'a dyn Spec<Self::Entity>,
+    ) -> BoxFuture<'a, Result<Option<Self::Entity>, RepositoryError>> {
         Box::pin(async move {
             let all = self.list().await?;
             Ok(all.into_iter().find(|e| spec.matches(e)))
@@ -40,7 +40,7 @@ where
     /// Returns the count of entities that satisfy the given specification.
     fn count_by<'a>(
         &'a self,
-        spec: &'a dyn Spec<T>,
+        spec: &'a dyn Spec<Self::Entity>,
     ) -> BoxFuture<'a, Result<usize, RepositoryError>> {
         Box::pin(async move {
             let all = self.list().await?;
@@ -58,7 +58,10 @@ mod tests {
         items: Vec<u32>,
     }
 
-    impl Repository<u32, usize> for VecRepo {
+    impl Repository for VecRepo {
+        type Entity = u32;
+        type Id = usize;
+
         fn find<'a>(&'a self, id: &'a usize) -> BoxFuture<'a, Result<Option<u32>, RepositoryError>> {
             let val = self.items.get(*id).copied();
             Box::pin(async move { Ok(val) })
@@ -75,7 +78,7 @@ mod tests {
         }
     }
 
-    impl QueryableRepository<u32, usize> for VecRepo {}
+    impl QueryableRepository for VecRepo {}
 
     struct EvenSpec;
     impl Spec<u32> for EvenSpec {
