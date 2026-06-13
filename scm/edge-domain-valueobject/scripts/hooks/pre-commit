@@ -9,7 +9,7 @@ cargo fmt --all -- --check
 echo "  2/4 clippy..."
 cargo clippy --workspace --all-targets -- -D warnings
 echo "  3/4 arch audit..."
-arch audit --rs -r architecture.policy.toml
+arch audit --rs -r main/config/arch/architecture.policy.toml
 echo "  4/4 cargo audit..."
 cargo audit --deny unsound --deny yanked
 echo "pre-commit: all checks passed."
