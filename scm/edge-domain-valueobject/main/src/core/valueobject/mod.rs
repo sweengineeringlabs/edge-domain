@@ -1,1 +1,3 @@
-//! `ValueObject` — no separate default implementation; `NonEmptyString` ships in api/.
+//! Core value-object implementations.
+
+pub(crate) mod non_empty_string;

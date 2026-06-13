@@ -1,7 +1,5 @@
 //! `NonEmptyString` — reference value object implementation.
 
-use crate::api::valueobject::traits::ValueObject;
-
 /// A non-empty `String` that satisfies the [`ValueObject`] contract.
 ///
 /// Equality and hashing are by value — two instances with the same content
@@ -28,4 +26,3 @@ impl NonEmptyString {
     }
 }
 
-impl ValueObject for NonEmptyString {}
