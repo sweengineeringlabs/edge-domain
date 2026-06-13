@@ -7,7 +7,10 @@ use futures::executor::block_on;
 use futures::future::BoxFuture;
 
 struct Constant(String, i32);
-impl Service<i32, i32> for Constant {
+impl Service for Constant {
+    type Request = i32;
+    type Response = i32;
+
     fn name(&self) -> &str {
         &self.0
     }

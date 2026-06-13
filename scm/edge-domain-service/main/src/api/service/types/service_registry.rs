@@ -17,7 +17,7 @@ where
     Req: Send + 'static,
     Resp: Send + 'static,
 {
-    inner: RwLock<HashMap<String, Arc<dyn Service<Req, Resp>>>>,
+    inner: RwLock<HashMap<String, Arc<dyn Service<Request = Req, Response = Resp>>>>,
 }
 
 impl<Req, Resp> ServiceRegistry<Req, Resp>
@@ -33,7 +33,7 @@ where
     }
 
     /// Register a service under its reported name.
-    pub fn register(&self, service: Arc<dyn Service<Req, Resp>>) {
+    pub fn register(&self, service: Arc<dyn Service<Request = Req, Response = Resp>>) {
         self.inner.write().insert(service.name().to_owned(), service);
     }
 
@@ -43,7 +43,7 @@ where
     }
 
     /// Look up a service by name.
-    pub fn get(&self, name: &str) -> Option<Arc<dyn Service<Req, Resp>>> {
+    pub fn get(&self, name: &str) -> Option<Arc<dyn Service<Request = Req, Response = Resp>>> {
         self.inner.read().get(name).cloned()
     }
 

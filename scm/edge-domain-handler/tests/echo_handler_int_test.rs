@@ -53,7 +53,8 @@ fn test_execute_with_context_returns_same_value_happy() {
 #[test]
 fn test_echo_handler_usable_as_dyn_handler_edge() {
     use std::sync::Arc;
-    let h: Arc<dyn Handler<String, String>> = Arc::new(EchoHandler::new("dyn", "/"));
+    let h: Arc<dyn Handler<Request = String, Response = String>> =
+        Arc::new(EchoHandler::new("dyn", "/"));
     let result = block_on(h.execute("dyn-test".into()));
     assert_eq!(result.unwrap(), "dyn-test");
 }

@@ -12,7 +12,10 @@ struct Stub {
 }
 
 #[async_trait]
-impl Handler<String, String> for Stub {
+impl Handler for Stub {
+    type Request = String;
+    type Response = String;
+
     fn id(&self) -> &str {
         self.id
     }
@@ -65,10 +68,7 @@ fn test_register_duplicate_id_replaces_handler_edge() {
     }));
     assert_eq!(reg.len(), 1);
     let h = reg.get("dup").unwrap();
-    assert_eq!(
-        block_on(h.execute("".into())).unwrap(),
-        "second"
-    );
+    assert_eq!(block_on(h.execute("".into())).unwrap(), "second");
 }
 
 /// @covers: InProcessHandlerRegistry::deregister — returns true for existing id

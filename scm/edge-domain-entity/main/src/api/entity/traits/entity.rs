@@ -2,6 +2,8 @@
 
 use std::hash::Hash;
 
+use crate::api::entity::errors::EntityError;
+
 /// A domain object with stable identity.
 ///
 /// An entity has an [`Id`](Entity::Id) that uniquely identifies it within its
@@ -29,4 +31,11 @@ pub trait Entity: Send + Sync {
 
     /// Return the entity's stable identifier.
     fn id(&self) -> &Self::Id;
+
+    /// Validate this entity's invariants.
+    ///
+    /// Returns `Ok(())` by default. Override to enforce domain rules.
+    fn validate(&self) -> Result<(), EntityError> {
+        Ok(())
+    }
 }

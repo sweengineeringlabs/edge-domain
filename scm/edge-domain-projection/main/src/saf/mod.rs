@@ -1,3 +1,6 @@
 mod projection;
 
-pub use projection::{InMemoryProjection, Projection, ProjectionError, ProjectionFactory};
+pub use projection::{
+    StdProjectionFactory, InMemoryProjection, Projection, ProjectionError, ProjectionFactory,
+    PROJECTION_FACTORY_SVC, PROJECTION_SVC,
+};

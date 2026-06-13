@@ -17,4 +17,6 @@ pub use saf::CompositePolicy;
 pub use saf::Policy;
 pub use saf::PolicyFactory;
 pub use saf::PolicyViolation;
-// PolicyViolation is the policy error type (see api/policy/errors/).
+pub use saf::StdPolicyFactory;
+pub use saf::POLICY_SVC;
+pub use saf::POLICY_FACTORY_SVC;

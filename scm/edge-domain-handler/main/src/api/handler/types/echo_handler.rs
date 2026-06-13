@@ -38,7 +38,10 @@ impl<T> EchoHandler<T> {
 }
 
 #[async_trait]
-impl<T: Clone + Send + 'static> Handler<T, T> for EchoHandler<T> {
+impl<T: Clone + Send + 'static> Handler for EchoHandler<T> {
+    type Request = T;
+    type Response = T;
+
     fn id(&self) -> &str {
         &self.id
     }

@@ -17,3 +17,8 @@ pub use saf::HandlerFactory;
 pub use saf::HandlerProvider;
 pub use saf::HandlerRegistry;
 pub use saf::InProcessHandlerRegistry;
+pub use saf::NoopHandlerFactory;
+pub use saf::HANDLER_FACTORY_SVC;
+pub use saf::HANDLER_PROVIDER_SVC;
+pub use saf::HANDLER_REGISTRY_SVC;
+pub use saf::HANDLER_SVC;

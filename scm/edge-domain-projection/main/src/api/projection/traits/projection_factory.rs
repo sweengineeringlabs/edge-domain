@@ -1,7 +1,7 @@
 use edge_domain_event::DomainEvent;
 
 use crate::api::projection::errors::ProjectionError;
-use crate::api::projection::types::InMemoryProjection;
+use crate::api::projection::types::{InMemoryProjection, StdProjectionFactory};
 
 /// Factory for creating and driving [`InMemoryProjection`] instances.
 pub trait ProjectionFactory {
@@ -34,5 +34,10 @@ pub trait ProjectionFactory {
             (projection.reducer)(&mut projection.read_model, e);
         }
         Ok(events.len())
+    }
+
+    /// Return the standard projection-factory instance.
+    fn std_factory() -> StdProjectionFactory {
+        StdProjectionFactory
     }
 }

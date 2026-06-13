@@ -18,6 +18,7 @@ service_type     = "saga"
 path = "main/src/lib.rs"
 
 [dependencies]
+futures.workspace     = true
 thiserror.workspace   = true
 edge-domain-event   = { path = "../edge-domain-event" }
 edge-domain-command = { path = "../edge-domain-command" }

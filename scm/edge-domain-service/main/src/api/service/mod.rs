@@ -6,4 +6,4 @@ pub mod types;
 
 pub use errors::ServiceError;
 pub use traits::{Service, ServiceRegistry as ServiceRegistryTrait, ServiceRegistryFactory};
-pub use types::ServiceRegistry;
+pub use types::{StdServiceRegistryFactory, NoopService, ServiceRegistry};
