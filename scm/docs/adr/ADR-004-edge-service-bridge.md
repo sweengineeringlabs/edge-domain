@@ -8,7 +8,9 @@
 
 ## Mandate
 
-`edge-domain-service` and `edge-domain-handler` are independent domain contracts. Neither imports from the other. The bridge between them lives in the infrastructure repo `edge-service` — this workspace provides only the contracts.
+`edge-domain-service` and `edge-domain-handler` are independent domain contracts. Neither imports from the other. This workspace provides only the contracts.
+
+The bridge between them lives in `edge-service` — a standalone infrastructure repo whose purpose is to enforce the workflow: `service_handler()` is the only sanctioned way to register a consumer's domain logic into the dispatch pipeline. The adapter code is thin by design; the value is the constraint, not the implementation. Consumers implement `Service`, call `service_handler()` in their `_svc.rs`, and the framework controls the rest.
 
 ---
 
