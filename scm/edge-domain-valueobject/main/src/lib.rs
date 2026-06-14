@@ -16,5 +16,5 @@ pub use saf::NonEmptyString;
 pub use saf::ValueObject;
 pub use saf::ValueObjectError;
 pub use saf::ValueObjectFactory;
-pub use saf::non_empty_string;
+pub use saf::VALUE_OBJECT_FACTORY_SVC;
 pub use saf::VALUE_OBJECT_SVC;

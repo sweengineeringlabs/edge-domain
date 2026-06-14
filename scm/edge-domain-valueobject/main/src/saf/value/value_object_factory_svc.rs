@@ -1,11 +1,11 @@
-//! SAF — [`ValueObjectFactory`] re-export and [`non_empty_string`] factory function.
+//! SAF — [`ValueObjectFactory`] re-export.
+//!
+//! Value-object construction is exposed as methods on the factory trait
+//! (`<T as ValueObjectFactory>::non_empty_string`), not as free functions —
+//! see SEA rule 191. `NonEmptyString` implements `ValueObjectFactory`, so
+//! callers construct via `NonEmptyString::non_empty_string(..)`.
 
 pub use crate::api::valueobject::traits::value_object_factory::ValueObjectFactory;
 
-use crate::api::valueobject::errors::ValueObjectError;
-use crate::api::valueobject::types::NonEmptyString;
-
-/// Construct a [`NonEmptyString`], returning [`ValueObjectError::Empty`] when `s` is empty.
-pub fn non_empty_string(s: String) -> Result<NonEmptyString, ValueObjectError> {
-    NonEmptyString::new(s).map_err(|_| ValueObjectError::Empty)
-}
+/// Identifies the value-object-factory SAF contract in this crate.
+pub const VALUE_OBJECT_FACTORY_SVC: &str = "value_object_factory";
