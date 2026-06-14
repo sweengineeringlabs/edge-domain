@@ -8,19 +8,20 @@ use crate::api::handler::Handler;
 ///
 /// The in-process reference implementation is
 /// [`crate::api::handler::types::in_process_handler_registry::InProcessHandlerRegistry`].
-pub trait HandlerRegistry<Request, Response>: Send + Sync
-where
-    Request: Send + 'static,
-    Response: Send + 'static,
-{
+pub trait HandlerRegistry: Send + Sync {
+    /// The request type accepted by handlers in this registry.
+    type Request: Send + 'static;
+    /// The response type produced by handlers in this registry.
+    type Response: Send + 'static;
+
     /// Register a handler, replacing any existing entry with the same id.
-    fn register(&self, handler: Arc<dyn Handler<Request, Response>>);
+    fn register(&self, handler: Arc<dyn Handler<Request = Self::Request, Response = Self::Response>>);
 
     /// Deregister the handler with the given id. Returns `true` if removed.
     fn deregister(&self, id: &str) -> bool;
 
     /// Look up a handler by id. Returns `None` if not registered.
-    fn get(&self, id: &str) -> Option<Arc<dyn Handler<Request, Response>>>;
+    fn get(&self, id: &str) -> Option<Arc<dyn Handler<Request = Self::Request, Response = Self::Response>>>;
 
     /// Snapshot of registered handler ids. Order is unspecified.
     fn list_ids(&self) -> Vec<String>;

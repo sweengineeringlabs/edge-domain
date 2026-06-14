@@ -23,7 +23,10 @@ use crate::api::handler::HandlerError;
 /// struct GreetHandler;
 ///
 /// #[async_trait]
-/// impl Handler<String, String> for GreetHandler {
+/// impl Handler for GreetHandler {
+///     type Request = String;
+///     type Response = String;
+///
 ///     fn id(&self)      -> &str { "greet" }
 ///     fn pattern(&self) -> &str { "/api/v1/greet" }
 ///
@@ -36,11 +39,12 @@ use crate::api::handler::HandlerError;
 /// }
 /// ```
 #[async_trait]
-pub trait Handler<Request, Response>: Send + Sync
-where
-    Request: Send + 'static,
-    Response: Send + 'static,
-{
+pub trait Handler: Send + Sync {
+    /// The request type this handler accepts.
+    type Request: Send + 'static;
+    /// The response type this handler produces.
+    type Response: Send + 'static;
+
     /// Stable identifier used as the lookup key in [`HandlerRegistry`](crate::HandlerRegistry).
     fn id(&self) -> &str {
         "handler"
@@ -52,7 +56,7 @@ where
     }
 
     /// Execute the handler. Required.
-    async fn execute(&self, req: Request) -> Result<Response, HandlerError>;
+    async fn execute(&self, req: Self::Request) -> Result<Self::Response, HandlerError>;
 
     /// Execute with per-request security context. Override when you need
     /// `ctx.principal`, `ctx.tenant_id`, or `ctx.trace_id`.
@@ -60,9 +64,9 @@ where
     /// Default: ignores context and calls `execute(req)`.
     async fn execute_with_context(
         &self,
-        req: Request,
+        req: Self::Request,
         _ctx: SecurityContext,
-    ) -> Result<Response, HandlerError> {
+    ) -> Result<Self::Response, HandlerError> {
         self.execute(req).await
     }
 

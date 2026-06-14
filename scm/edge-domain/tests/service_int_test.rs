@@ -7,7 +7,9 @@ use std::sync::Arc;
 
 struct EchoService;
 
-impl Service<String, String> for EchoService {
+impl Service for EchoService {
+    type Request = String;
+    type Response = String;
     fn name(&self) -> &str {
         "echo"
     }
@@ -18,7 +20,9 @@ impl Service<String, String> for EchoService {
 
 struct FailingService;
 
-impl Service<String, String> for FailingService {
+impl Service for FailingService {
+    type Request = String;
+    type Response = String;
     fn name(&self) -> &str {
         "failing"
     }

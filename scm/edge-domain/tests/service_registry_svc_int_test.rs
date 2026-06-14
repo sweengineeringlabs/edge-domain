@@ -7,7 +7,9 @@ use edge_domain::ServiceError;
 use std::sync::Arc;
 
 struct Greeter;
-impl Service<(), String> for Greeter {
+impl Service for Greeter {
+    type Request = ();
+    type Response = String;
     fn name(&self) -> &str {
         "greeter"
     }

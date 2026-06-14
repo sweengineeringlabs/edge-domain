@@ -90,7 +90,9 @@ impl Query for ErrQry {
 }
 
 struct OkSvc;
-impl Service<String, String> for OkSvc {
+impl Service for OkSvc {
+    type Request = String;
+    type Response = String;
     fn name(&self) -> &str {
         "ok-svc"
     }
@@ -100,7 +102,9 @@ impl Service<String, String> for OkSvc {
 }
 
 struct ErrSvc;
-impl Service<String, String> for ErrSvc {
+impl Service for ErrSvc {
+    type Request = String;
+    type Response = String;
     fn name(&self) -> &str {
         "err-svc"
     }
@@ -126,15 +130,21 @@ impl Spec<String> for NeverMatch {
 struct GoodCfg;
 struct BadCfg;
 #[derive(Debug)]
-struct CfgHandler {
+struct GoodCfgHandler {
     _marker: (),
 }
-impl HandlerFactory<GoodCfg> for CfgHandler {
+impl HandlerFactory for GoodCfgHandler {
+    type Config = GoodCfg;
     fn build(_: GoodCfg) -> Result<Self, HandlerError> {
-        Ok(CfgHandler { _marker: () })
+        Ok(GoodCfgHandler { _marker: () })
     }
 }
-impl HandlerFactory<BadCfg> for CfgHandler {
+#[derive(Debug)]
+struct BadCfgHandler {
+    _marker: (),
+}
+impl HandlerFactory for BadCfgHandler {
+    type Config = BadCfg;
     fn build(_: BadCfg) -> Result<Self, HandlerError> {
         Err(HandlerError::internal("bad config"))
     }
@@ -188,7 +198,9 @@ fn test_name_query_consistent_across_calls_not_error() {
 #[test]
 fn test_name_service_can_be_empty_string_edge() {
     struct EmptySvc;
-    impl Service<(), ()> for EmptySvc {
+    impl Service for EmptySvc {
+        type Request = ();
+        type Response = ();
         fn name(&self) -> &str {
             ""
         }
@@ -737,17 +749,17 @@ fn test_pattern_can_be_root_path_edge() {
 
 #[test]
 fn test_build_valid_config_returns_ok_happy() {
-    assert!(CfgHandler::build(GoodCfg).is_ok());
+    assert!(GoodCfgHandler::build(GoodCfg).is_ok());
 }
 
 #[test]
 fn test_build_invalid_config_returns_err_error() {
-    assert!(CfgHandler::build(BadCfg).is_err());
+    assert!(BadCfgHandler::build(BadCfg).is_err());
 }
 
 #[test]
 fn test_build_error_message_describes_failure_edge() {
-    let err = CfgHandler::build(BadCfg).unwrap_err();
+    let err = BadCfgHandler::build(BadCfg).unwrap_err();
     assert!(err.to_string().contains("bad config"));
 }
 

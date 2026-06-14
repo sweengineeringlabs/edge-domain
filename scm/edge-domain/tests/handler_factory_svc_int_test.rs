@@ -14,7 +14,8 @@ struct LabelHandler {
     label: String,
 }
 
-impl HandlerFactory<Cfg> for LabelHandler {
+impl HandlerFactory for LabelHandler {
+    type Config = Cfg;
     fn build(cfg: Cfg) -> Result<Self, HandlerError> {
         Ok(LabelHandler { label: cfg.label })
     }

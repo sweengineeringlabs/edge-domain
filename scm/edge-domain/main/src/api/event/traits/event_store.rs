@@ -29,10 +29,10 @@ use crate::api::event::ExpectedVersion;
 ///
 /// let order = swe_edge_domain::reconstitute::<Order>(&*store, "order-1").await?;
 /// ```
-pub trait EventStore<E>: Send + Sync
-where
-    E: DomainEvent + Send + 'static,
-{
+pub trait EventStore: Send + Sync {
+    /// The domain event type stored in this event store.
+    type Event: DomainEvent + Send + 'static;
+
     /// Append `events` to the stream identified by `aggregate_id`.
     ///
     /// `expected` controls optimistic concurrency — see [`ExpectedVersion`].
@@ -41,7 +41,7 @@ where
     fn append(
         &self,
         aggregate_id: &str,
-        events: Vec<E>,
+        events: Vec<Self::Event>,
         expected: ExpectedVersion,
     ) -> BoxFuture<'_, Result<u64, EventStoreError>>;
 
@@ -52,7 +52,7 @@ where
     fn load(
         &self,
         aggregate_id: &str,
-    ) -> BoxFuture<'_, Result<Vec<EventEnvelope<E>>, EventStoreError>>;
+    ) -> BoxFuture<'_, Result<Vec<EventEnvelope<Self::Event>>, EventStoreError>>;
 
     /// Load events for `aggregate_id` starting at `from_sequence` (inclusive).
     ///
@@ -62,5 +62,5 @@ where
         &self,
         aggregate_id: &str,
         from_sequence: u64,
-    ) -> BoxFuture<'_, Result<Vec<EventEnvelope<E>>, EventStoreError>>;
+    ) -> BoxFuture<'_, Result<Vec<EventEnvelope<Self::Event>>, EventStoreError>>;
 }

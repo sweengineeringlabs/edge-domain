@@ -10,13 +10,18 @@ use crate::api::query::QueryError;
 /// The bus decouples the caller from the query implementation.
 ///
 /// ```rust,ignore
-/// impl QueryBus<Order> for DirectQueryBus<Order> {
-///     fn dispatch(&self, query: Box<dyn Query<Order>>) -> BoxFuture<'_, Result<Order, QueryError>> {
+/// impl QueryBus for DirectQueryBus<Order> {
+///     type Result = Order;
+///
+///     fn dispatch(&self, query: Box<dyn Query<Result = Order>>) -> BoxFuture<'_, Result<Order, QueryError>> {
 ///         Box::pin(async move { query.execute().await })
 ///     }
 /// }
 /// ```
-pub trait QueryBus<R: Send + 'static>: Send + Sync {
+pub trait QueryBus: Send + Sync {
+    /// The result type returned by queries dispatched through this bus.
+    type Result: Send + 'static;
+
     /// Dispatch a query and return its result.
-    fn dispatch(&self, query: Box<dyn Query<R>>) -> BoxFuture<'_, Result<R, QueryError>>;
+    fn dispatch(&self, query: Box<dyn Query<Result = Self::Result>>) -> BoxFuture<'_, Result<Self::Result, QueryError>>;
 }

@@ -10,7 +10,7 @@ fn test_direct_command_bus_type_satisfies_command_bus_trait() {
 
 #[test]
 fn test_direct_command_bus_marker_type_is_constructible() {
-    let _marker = DirectCommandBus;
+    assert_eq!(std::mem::size_of::<DirectCommandBus>(), 0);
 }
 
 #[test]

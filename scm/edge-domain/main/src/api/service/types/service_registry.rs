@@ -17,7 +17,7 @@ where
     Request: Send + 'static,
     Response: Send + 'static,
 {
-    pub(crate) services: RwLock<HashMap<String, Arc<dyn Service<Request, Response>>>>,
+    pub(crate) services: RwLock<HashMap<String, Arc<dyn Service<Request = Request, Response = Response>>>>,
 }
 
 impl<Request, Response> ServiceRegistry<Request, Response>
@@ -33,7 +33,7 @@ where
     }
 
     /// Register a service, replacing any existing entry with the same name.
-    pub fn register(&self, service: Arc<dyn Service<Request, Response>>) {
+    pub fn register(&self, service: Arc<dyn Service<Request = Request, Response = Response>>) {
         let name = service.name().to_string();
         self.services.write().insert(name, service);
     }
@@ -44,7 +44,7 @@ where
     }
 
     /// Look up a service by name. Returns `None` if not registered.
-    pub fn get(&self, name: &str) -> Option<Arc<dyn Service<Request, Response>>> {
+    pub fn get(&self, name: &str) -> Option<Arc<dyn Service<Request = Request, Response = Response>>> {
         self.services.read().get(name).cloned()
     }
 
@@ -74,13 +74,15 @@ where
     }
 }
 
-impl<Request, Response> ServiceRegistryTrait<Request, Response>
-    for ServiceRegistry<Request, Response>
+impl<Request, Response> ServiceRegistryTrait for ServiceRegistry<Request, Response>
 where
     Request: Send + 'static,
     Response: Send + 'static,
 {
-    fn register(&self, service: Arc<dyn Service<Request, Response>>) {
+    type Request = Request;
+    type Response = Response;
+
+    fn register(&self, service: Arc<dyn Service<Request = Request, Response = Response>>) {
         ServiceRegistry::register(self, service);
     }
 
@@ -88,7 +90,7 @@ where
         ServiceRegistry::deregister(self, name)
     }
 
-    fn get(&self, name: &str) -> Option<Arc<dyn Service<Request, Response>>> {
+    fn get(&self, name: &str) -> Option<Arc<dyn Service<Request = Request, Response = Response>>> {
         ServiceRegistry::get(self, name)
     }
 

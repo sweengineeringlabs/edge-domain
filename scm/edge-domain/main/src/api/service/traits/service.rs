@@ -11,23 +11,27 @@ use crate::api::service::ServiceError;
 /// services, or background jobs.
 ///
 /// ```rust,ignore
-/// impl Service<CreateOrderRequest, OrderId> for CreateOrderService {
+/// impl Service for CreateOrderService {
+///     type Request = CreateOrderRequest;
+///     type Response = OrderId;
+///
 ///     fn name(&self) -> &str { "create-order" }
 ///     fn execute(&self, req: CreateOrderRequest) -> BoxFuture<'_, Result<OrderId, ServiceError>> {
 ///         Box::pin(async move { ... })
 ///     }
 /// }
 /// ```
-pub trait Service<Request, Response>: Send + Sync
-where
-    Request: Send + 'static,
-    Response: Send + 'static,
-{
+pub trait Service: Send + Sync {
+    /// The request type accepted by this service.
+    type Request: Send + 'static;
+    /// The response type produced by this service.
+    type Response: Send + 'static;
+
     /// Stable name used as the lookup key in [`ServiceRegistry`](crate::ServiceRegistry).
     fn name(&self) -> &str {
         "service"
     }
 
     /// Execute the service operation.
-    fn execute(&self, req: Request) -> BoxFuture<'_, Result<Response, ServiceError>>;
+    fn execute(&self, req: Self::Request) -> BoxFuture<'_, Result<Self::Response, ServiceError>>;
 }

@@ -17,7 +17,10 @@ use edge_domain::{Domain, Handler, HandlerError};
 struct GreetHandler;
 
 #[async_trait]
-impl Handler<String, String> for GreetHandler {
+impl Handler for GreetHandler {
+    type Request = String;
+    type Response = String;
+
     fn id(&self) -> &str {
         "greet"
     }

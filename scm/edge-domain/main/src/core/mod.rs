@@ -3,12 +3,17 @@
 #[cfg(not(feature = "clock"))]
 pub(crate) mod clock;
 pub(crate) mod command;
+#[cfg(not(feature = "event"))]
 pub(crate) mod event;
+#[cfg(not(feature = "handler"))]
 pub(crate) mod handler;
 #[cfg(not(feature = "policy"))]
 pub(crate) mod policy;
 pub(crate) mod projection;
+#[cfg(not(feature = "query"))]
 pub(crate) mod query;
+#[cfg(not(feature = "repository"))]
 pub(crate) mod repository;
+#[cfg(not(feature = "saga"))]
 pub(crate) mod saga;
 pub(crate) mod snapshot;

@@ -1,4 +1,4 @@
-//! `QueryableRepository<T, Id>` — specification-based query extension to [`Repository`].
+//! `QueryableRepository` — specification-based query extension to [`Repository`].
 
 use futures::future::BoxFuture;
 
@@ -21,16 +21,15 @@ use crate::api::repository::RepositoryError;
 /// let paid = repo.find_by(&PaidOrders).await?;
 /// let count = repo.count_by(&PaidOrders).await?;
 /// ```
-pub trait QueryableRepository<T, Id>: Repository<T, Id>
+pub trait QueryableRepository: Repository
 where
-    T: Send + Sync + 'static,
-    Id: Send + Sync + 'static,
+    Self::Entity: Clone + Send + Sync + 'static,
 {
     /// Return all entities satisfying `spec`.
     fn find_by<'a>(
         &'a self,
-        spec: &'a dyn Spec<T>,
-    ) -> BoxFuture<'a, Result<Vec<T>, RepositoryError>> {
+        spec: &'a dyn Spec<Self::Entity>,
+    ) -> BoxFuture<'a, Result<Vec<Self::Entity>, RepositoryError>> {
         Box::pin(async move {
             let all = self.list().await?;
             Ok(all.into_iter().filter(|e| spec.matches(e)).collect())
@@ -40,8 +39,8 @@ where
     /// Return the first entity satisfying `spec`, or `None`.
     fn find_one_by<'a>(
         &'a self,
-        spec: &'a dyn Spec<T>,
-    ) -> BoxFuture<'a, Result<Option<T>, RepositoryError>> {
+        spec: &'a dyn Spec<Self::Entity>,
+    ) -> BoxFuture<'a, Result<Option<Self::Entity>, RepositoryError>> {
         Box::pin(async move {
             let all = self.list().await?;
             Ok(all.into_iter().find(|e| spec.matches(e)))
@@ -51,7 +50,7 @@ where
     /// Count entities satisfying `spec`.
     fn count_by<'a>(
         &'a self,
-        spec: &'a dyn Spec<T>,
+        spec: &'a dyn Spec<Self::Entity>,
     ) -> BoxFuture<'a, Result<usize, RepositoryError>> {
         Box::pin(async move {
             let all = self.list().await?;

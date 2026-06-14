@@ -13,7 +13,9 @@ use crate::api::query::QueryError;
 /// ```rust,ignore
 /// struct GetOrder { order_id: String }
 ///
-/// impl Query<Order> for GetOrder {
+/// impl Query for GetOrder {
+///     type Result = Order;
+///
 ///     fn name(&self) -> &str { "get-order" }
 ///     fn execute(&self) -> BoxFuture<'_, Result<Order, QueryError>> {
 ///         Box::pin(async move {
@@ -22,12 +24,15 @@ use crate::api::query::QueryError;
 ///     }
 /// }
 /// ```
-pub trait Query<R: Send + 'static>: Send + Sync {
+pub trait Query: Send + Sync {
+    /// The result type returned by this query.
+    type Result: Send + 'static;
+
     /// Stable name identifying this query type.
     fn name(&self) -> &str {
         "query"
     }
 
     /// Execute the query and return the result.
-    fn execute(&self) -> BoxFuture<'_, Result<R, QueryError>>;
+    fn execute(&self) -> BoxFuture<'_, Result<Self::Result, QueryError>>;
 }
