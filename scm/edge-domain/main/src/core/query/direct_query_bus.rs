@@ -45,13 +45,19 @@ mod tests {
         }
     }
 
+    /// @covers: new
+    #[test]
+    fn test_new_constructs_bus() {
+        let _bus = DirectQueryBus::<String>::new();
+    }
+
     /// @covers: dispatch
-    #[tokio::test]
-    async fn test_dispatch_returns_query_result() {
+    #[test]
+    fn test_dispatch_returns_query_result() {
+        let rt = tokio::runtime::Runtime::new().unwrap();
         let bus = DirectQueryBus::<String>::new();
-        let result = bus
-            .dispatch(Box::new(DirectQueryBusEcho("pong".into())))
-            .await
+        let result = rt
+            .block_on(bus.dispatch(Box::new(DirectQueryBusEcho("pong".into()))))
             .unwrap();
         assert_eq!(result, "pong");
     }
