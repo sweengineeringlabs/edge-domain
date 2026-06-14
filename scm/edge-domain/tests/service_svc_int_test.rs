@@ -5,7 +5,9 @@ use edge_domain::Service;
 use edge_domain::ServiceError;
 
 struct Echo;
-impl Service<String, String> for Echo {
+impl Service for Echo {
+    type Request = String;
+    type Response = String;
     fn name(&self) -> &str {
         "echo"
     }

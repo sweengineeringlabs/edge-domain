@@ -20,6 +20,6 @@ fn test_query_bus_factory_direct_is_zero_size_error() {
 /// @covers QueryBusFactory::direct — edge: successive calls produce independent instances
 #[test]
 fn test_query_bus_factory_direct_independent_instances_edge() {
-    let _a = TestQueryBuses::direct();
-    let _b = TestQueryBuses::direct();
+    let _a: DirectQueryBus<()> = TestQueryBuses::direct();
+    let _b: DirectQueryBus<()> = TestQueryBuses::direct();
 }
