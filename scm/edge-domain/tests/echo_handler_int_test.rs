@@ -7,7 +7,7 @@ use std::sync::Arc;
 /// @covers: echo_handler
 #[test]
 fn test_echo_handler_factory_returns_arc_handler() {
-    let _: Arc<dyn Handler<String, String>> = Domain::echo_handler("id", "/path");
+    let _: Arc<dyn Handler<Request = String, Response = String>> = Domain::echo_handler("id", "/path");
 }
 
 /// @covers: echo_handler
@@ -21,14 +21,14 @@ async fn test_echo_handler_returns_request_as_response() {
 /// @covers: echo_handler
 #[test]
 fn test_echo_handler_id_matches_constructor_arg() {
-    let h: Arc<dyn Handler<String, String>> = Domain::echo_handler("my-handler", "/api/v1");
+    let h: Arc<dyn Handler<Request = String, Response = String>> = Domain::echo_handler("my-handler", "/api/v1");
     assert_eq!(h.id(), "my-handler");
 }
 
 /// @covers: echo_handler
 #[test]
 fn test_echo_handler_pattern_matches_constructor_arg() {
-    let h: Arc<dyn Handler<String, String>> = Domain::echo_handler("id", "/api/v1/things");
+    let h: Arc<dyn Handler<Request = String, Response = String>> = Domain::echo_handler("id", "/api/v1/things");
     assert_eq!(h.pattern(), "/api/v1/things");
 }
 
@@ -42,6 +42,6 @@ async fn test_echo_handler_struct_health_check_defaults_to_true() {
 /// @covers: EchoHandler
 #[tokio::test]
 async fn test_echo_handler_works_with_numeric_type() {
-    let h: Arc<dyn Handler<u64, u64>> = Domain::echo_handler("num", "/num");
+    let h: Arc<dyn Handler<Request = u64, Response = u64>> = Domain::echo_handler("num", "/num");
     assert_eq!(h.execute(42u64).await.unwrap(), 42u64);
 }

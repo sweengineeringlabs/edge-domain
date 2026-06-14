@@ -12,7 +12,9 @@ struct Counter {
 }
 
 #[async_trait]
-impl Handler<u32, u32> for Counter {
+impl Handler for Counter {
+    type Request = u32;
+    type Response = u32;
     fn id(&self) -> &str {
         &self.id
     }
@@ -27,7 +29,9 @@ impl Handler<u32, u32> for Counter {
 
 struct SickHandler;
 #[async_trait]
-impl Handler<u32, u32> for SickHandler {
+impl Handler for SickHandler {
+    type Request = u32;
+    type Response = u32;
     fn id(&self) -> &str {
         "sick"
     }
@@ -66,6 +70,6 @@ async fn test_handler_trait_health_check_defaults_to_true() {
 /// @covers: Handler::health_check — override to false
 #[tokio::test]
 async fn test_handler_trait_health_check_override_returns_false() {
-    let h: Arc<dyn Handler<u32, u32>> = Arc::new(SickHandler);
+    let h: Arc<dyn Handler<Request = u32, Response = u32>> = Arc::new(SickHandler);
     assert!(!h.health_check().await);
 }

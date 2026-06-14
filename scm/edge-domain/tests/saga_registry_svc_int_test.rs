@@ -39,7 +39,7 @@ impl Saga for CounterSaga {
     }
 }
 
-fn registry() -> Box<dyn SagaRegistry<CounterSaga>> {
+fn registry() -> Box<dyn SagaRegistry<SagaInstance = CounterSaga>> {
     Domain::new_in_memory_saga_registry::<CounterSaga>()
 }
 

@@ -35,7 +35,8 @@ struct EchoQuery {
     value: String,
 }
 
-impl Query<String> for EchoQuery {
+impl Query for EchoQuery {
+    type Result = String;
     fn name(&self) -> &str {
         "echo"
     }
@@ -47,7 +48,8 @@ impl Query<String> for EchoQuery {
 
 struct MissingQuery;
 
-impl Query<String> for MissingQuery {
+impl Query for MissingQuery {
+    type Result = String;
     fn name(&self) -> &str {
         "missing"
     }
@@ -70,8 +72,9 @@ impl CommandBus for DirectCommandBus {
 
 struct DirectQueryBus;
 
-impl QueryBus<String> for DirectQueryBus {
-    fn dispatch(&self, query: Box<dyn Query<String>>) -> BoxFuture<'_, Result<String, QueryError>> {
+impl QueryBus for DirectQueryBus {
+    type Result = String;
+    fn dispatch(&self, query: Box<dyn Query<Result = String>>) -> BoxFuture<'_, Result<String, QueryError>> {
         Box::pin(async move { query.execute().await })
     }
 }
@@ -130,7 +133,7 @@ async fn test_command_bus_trait_dispatch_propagates_command_error() {
 /// @covers: QueryBus::dispatch
 #[tokio::test]
 async fn test_query_bus_trait_dispatch_returns_query_result() {
-    let bus: Arc<dyn QueryBus<String>> = Arc::new(DirectQueryBus);
+    let bus: Arc<dyn QueryBus<Result = String>> = Arc::new(DirectQueryBus);
     let result = bus
         .dispatch(Box::new(EchoQuery {
             value: "hello".into(),
@@ -143,7 +146,7 @@ async fn test_query_bus_trait_dispatch_returns_query_result() {
 /// @covers: QueryBus::dispatch
 #[tokio::test]
 async fn test_query_bus_trait_dispatch_propagates_query_error() {
-    let bus: Arc<dyn QueryBus<String>> = Arc::new(DirectQueryBus);
+    let bus: Arc<dyn QueryBus<Result = String>> = Arc::new(DirectQueryBus);
     let err = bus.dispatch(Box::new(MissingQuery)).await.unwrap_err();
     assert!(matches!(err, QueryError::NotFound(_)));
 }

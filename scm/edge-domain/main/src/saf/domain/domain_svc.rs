@@ -55,7 +55,7 @@ impl Domain {
     pub fn echo_handler<T>(
         id: impl Into<String>,
         pattern: impl Into<String>,
-    ) -> Arc<dyn Handler<T, T>>
+    ) -> Arc<dyn Handler<Request = T, Response = T>>
     where
         T: Clone + Send + 'static,
     {
@@ -75,7 +75,7 @@ impl Domain {
     /// let registry = Domain::new_handler_registry::<String, String>();
     /// assert!(registry.is_empty());
     /// ```
-    pub fn new_handler_registry<Req, Resp>() -> Arc<dyn HandlerRegistryTrait<Req, Resp>>
+    pub fn new_handler_registry<Req, Resp>() -> Arc<dyn HandlerRegistryTrait<Request = Req, Response = Resp>>
     where
         Req: Send + 'static,
         Resp: Send + 'static,
@@ -117,7 +117,7 @@ impl Domain {
 
     /// Construct a fresh empty [`ServiceRegistry`].
     pub fn new_service_registry<Request, Response>(
-    ) -> Arc<dyn ServiceRegistryTrait<Request, Response>>
+    ) -> Arc<dyn ServiceRegistryTrait<Request = Request, Response = Response>>
     where
         Request: Send + 'static,
         Response: Send + 'static,
@@ -127,7 +127,7 @@ impl Domain {
     }
 
     /// Construct a thread-safe in-memory [`Repository`].
-    pub fn new_in_memory_repository<T, Id>() -> Arc<dyn Repository<T, Id>>
+    pub fn new_in_memory_repository<T, Id>() -> Arc<dyn Repository<Entity = T, Id = Id>>
     where
         Id: Hash + Eq + Clone + Send + Sync + 'static,
         T: Clone + Send + Sync + 'static,
@@ -137,7 +137,7 @@ impl Domain {
     }
 
     /// Construct a thread-safe in-memory [`QueryableRepository`].
-    pub fn new_in_memory_queryable_repository<T, Id>() -> Arc<dyn QueryableRepository<T, Id>>
+    pub fn new_in_memory_queryable_repository<T, Id>() -> Arc<dyn QueryableRepository<Entity = T, Id = Id>>
     where
         Id: Hash + Eq + Clone + Send + Sync + 'static,
         T: Clone + Send + Sync + 'static,
@@ -159,7 +159,7 @@ impl Domain {
     }
 
     /// Construct a thread-safe in-memory [`EventStore`].
-    pub fn new_in_memory_event_store<E>() -> Arc<dyn EventStore<E>>
+    pub fn new_in_memory_event_store<E>() -> Arc<dyn EventStore<Event = E>>
     where
         E: DomainEvent + Send + Sync + Clone + 'static,
     {
@@ -206,7 +206,7 @@ impl Domain {
     /// let mut registry = Domain::new_in_memory_saga_registry::<OrderSaga>();
     /// registry.register(order_id, OrderSaga::default())?;
     /// ```
-    pub fn new_in_memory_saga_registry<S>() -> Box<dyn SagaRegistry<S>>
+    pub fn new_in_memory_saga_registry<S>() -> Box<dyn SagaRegistry<SagaInstance = S>>
     where
         S: Saga + 'static,
         S::SagaId: std::fmt::Display + 'static,
@@ -240,7 +240,7 @@ impl Domain {
     ///
     /// Returns `None` when no events exist for `aggregate_id`.
     pub async fn reconstitute<A>(
-        store: &dyn EventStore<A::Event>,
+        store: &dyn EventStore<Event = A::Event>,
         aggregate_id: &str,
     ) -> Result<Option<A>, EventStoreError>
     where
@@ -258,8 +258,8 @@ impl Domain {
     }
 
     /// Construct a [`QueryBus`] that dispatches queries inline.
-    pub fn direct_query_bus<R: Send + 'static>() -> Arc<dyn QueryBus<R>> {
-        let b = DirectQueryBus;
+    pub fn direct_query_bus<R: Send + 'static>() -> Arc<dyn QueryBus<Result = R>> {
+        let b = DirectQueryBus::<R>::new();
         Arc::new(b)
     }
 

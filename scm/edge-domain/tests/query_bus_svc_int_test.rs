@@ -7,7 +7,8 @@ use edge_domain::QueryBus;
 use edge_domain::QueryError;
 
 struct FindById(u32);
-impl Query<String> for FindById {
+impl Query for FindById {
+    type Result = String;
     fn name(&self) -> &str {
         "find-by-id"
     }

@@ -21,7 +21,9 @@ impl HandlerFactory<Cfg> for LabelHandler {
 }
 
 #[async_trait]
-impl Handler<(), String> for LabelHandler {
+impl Handler for LabelHandler {
+    type Request = ();
+    type Response = String;
     fn id(&self) -> &str {
         &self.label
     }

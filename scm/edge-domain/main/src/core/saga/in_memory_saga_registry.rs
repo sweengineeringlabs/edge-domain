@@ -23,11 +23,13 @@ impl<S: Saga> InMemorySagaRegistry<S> {
 }
 
 // impl SagaRegistry for InMemorySagaRegistry
-impl<S> SagaRegistry<S> for InMemorySagaRegistry<S>
+impl<S> SagaRegistry for InMemorySagaRegistry<S>
 where
     S: Saga,
     S::SagaId: Display,
 {
+    type SagaInstance = S;
+
     fn register(&mut self, id: S::SagaId, saga: S) -> Result<(), SagaError> {
         if self.sagas.contains_key(&id) {
             return Err(SagaError::AlreadyRegistered(id.to_string()));

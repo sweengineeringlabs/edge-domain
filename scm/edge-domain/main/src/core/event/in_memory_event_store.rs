@@ -28,10 +28,12 @@ impl<E> InMemoryEventStore<E> {
 }
 
 // impl EventStore for InMemoryEventStore
-impl<E> EventStore<E> for InMemoryEventStore<E>
+impl<E> EventStore for InMemoryEventStore<E>
 where
     E: DomainEvent + Send + Sync + Clone + 'static,
 {
+    type Event = E;
+
     fn append(
         &self,
         aggregate_id: &str,

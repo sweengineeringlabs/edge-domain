@@ -5,7 +5,8 @@ use edge_domain::Query;
 use edge_domain::QueryError;
 
 struct Count(u32);
-impl Query<u32> for Count {
+impl Query for Count {
+    type Result = u32;
     fn name(&self) -> &str {
         "count"
     }

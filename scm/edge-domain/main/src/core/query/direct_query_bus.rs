@@ -10,13 +10,21 @@ use crate::api::query::QueryBusFactory;
 // impl Query for NoopQuery (see noop_query.rs)
 
 /// Dispatches queries by calling `query.execute()` directly in the same task.
-pub(crate) struct DirectQueryBus;
+pub(crate) struct DirectQueryBus<R>(std::marker::PhantomData<fn() -> R>);
 
-impl QueryBusFactory for DirectQueryBus {}
+impl<R> DirectQueryBus<R> {
+    pub(crate) fn new() -> Self {
+        Self(std::marker::PhantomData)
+    }
+}
+
+impl<R: Send + 'static> QueryBusFactory for DirectQueryBus<R> {}
 
 // impl QueryBus for DirectQueryBus
-impl<R: Send + 'static> QueryBus<R> for DirectQueryBus {
-    fn dispatch(&self, query: Box<dyn Query<R>>) -> BoxFuture<'_, Result<R, QueryError>> {
+impl<R: Send + 'static> QueryBus for DirectQueryBus<R> {
+    type Result = R;
+
+    fn dispatch(&self, query: Box<dyn Query<Result = R>>) -> BoxFuture<'_, Result<R, QueryError>> {
         Box::pin(async move { query.execute().await })
     }
 }
@@ -26,7 +34,8 @@ mod tests {
     use super::*;
 
     struct DirectQueryBusEcho(String);
-    impl Query<String> for DirectQueryBusEcho {
+    impl Query for DirectQueryBusEcho {
+        type Result = String;
         fn name(&self) -> &str {
             "echo"
         }
@@ -39,7 +48,7 @@ mod tests {
     /// @covers: dispatch
     #[tokio::test]
     async fn test_dispatch_returns_query_result() {
-        let bus = DirectQueryBus;
+        let bus = DirectQueryBus::<String>::new();
         let result = bus
             .dispatch(Box::new(DirectQueryBusEcho("pong".into())))
             .await

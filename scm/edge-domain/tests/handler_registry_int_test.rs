@@ -10,7 +10,9 @@ struct EchoHandler {
 }
 
 #[async_trait]
-impl Handler<String, String> for EchoHandler {
+impl Handler for EchoHandler {
+    type Request = String;
+    type Response = String;
     fn id(&self) -> &str {
         &self.id
     }
@@ -22,11 +24,11 @@ impl Handler<String, String> for EchoHandler {
     }
 }
 
-fn echo(id: &str) -> Arc<dyn Handler<String, String>> {
+fn echo(id: &str) -> Arc<dyn Handler<Request = String, Response = String>> {
     Arc::new(EchoHandler { id: id.to_string() })
 }
 
-fn registry() -> Arc<dyn HandlerRegistry<String, String>> {
+fn registry() -> Arc<dyn HandlerRegistry<Request = String, Response = String>> {
     Domain::new_handler_registry()
 }
 

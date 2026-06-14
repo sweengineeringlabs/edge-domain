@@ -20,14 +20,14 @@ impl DomainEvent for E {
 
 #[tokio::test]
 async fn test_event_store_svc_facade_load_returns_empty_for_unknown() {
-    let store: Arc<dyn EventStore<E>> = Domain::new_in_memory_event_store();
+    let store: Arc<dyn EventStore<Event = E>> = Domain::new_in_memory_event_store();
     let events = store.load("none").await.unwrap();
     assert!(events.is_empty());
 }
 
 #[tokio::test]
 async fn test_event_store_svc_facade_append_and_load_roundtrip() {
-    let store: Arc<dyn EventStore<E>> = Domain::new_in_memory_event_store();
+    let store: Arc<dyn EventStore<Event = E>> = Domain::new_in_memory_event_store();
     store
         .append("agg", vec![E], ExpectedVersion::NoStream)
         .await

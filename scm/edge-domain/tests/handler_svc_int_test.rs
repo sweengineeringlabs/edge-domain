@@ -8,7 +8,9 @@ use edge_domain::HandlerError;
 struct Doubler;
 
 #[async_trait]
-impl Handler<i32, i32> for Doubler {
+impl Handler for Doubler {
+    type Request = i32;
+    type Response = i32;
     fn id(&self) -> &str {
         "doubler"
     }

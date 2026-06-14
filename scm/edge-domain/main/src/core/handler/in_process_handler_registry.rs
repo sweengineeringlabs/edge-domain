@@ -10,7 +10,7 @@ use crate::api::handler::HandlerRegistry;
 
 /// Thread-safe, in-process handler registry backed by a `RwLock<HashMap>`.
 pub(crate) struct InProcessHandlerRegistry<Req, Resp> {
-    handlers: RwLock<HashMap<String, Arc<dyn Handler<Req, Resp>>>>,
+    handlers: RwLock<HashMap<String, Arc<dyn Handler<Request = Req, Response = Resp>>>>,
 }
 
 impl<Req, Resp> InProcessHandlerRegistry<Req, Resp>
@@ -26,12 +26,15 @@ where
 }
 
 // impl HandlerRegistry for InProcessHandlerRegistry
-impl<Req, Resp> HandlerRegistry<Req, Resp> for InProcessHandlerRegistry<Req, Resp>
+impl<Req, Resp> HandlerRegistry for InProcessHandlerRegistry<Req, Resp>
 where
     Req: Send + 'static,
     Resp: Send + 'static,
 {
-    fn register(&self, handler: Arc<dyn Handler<Req, Resp>>) {
+    type Request = Req;
+    type Response = Resp;
+
+    fn register(&self, handler: Arc<dyn Handler<Request = Req, Response = Resp>>) {
         self.handlers
             .write()
             .insert(handler.id().to_owned(), handler);
@@ -41,7 +44,7 @@ where
         self.handlers.write().remove(id).is_some()
     }
 
-    fn get(&self, id: &str) -> Option<Arc<dyn Handler<Req, Resp>>> {
+    fn get(&self, id: &str) -> Option<Arc<dyn Handler<Request = Req, Response = Resp>>> {
         self.handlers.read().get(id).cloned()
     }
 

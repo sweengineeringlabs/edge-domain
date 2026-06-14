@@ -26,19 +26,19 @@ fn test_factory_fn_new_service_registry_returns_empty_arc_registry() {
 /// @covers: new_in_memory_repository
 #[test]
 fn test_new_in_memory_repository_returns_arc_repository() {
-    let _: Arc<dyn Repository<String, u32>> = Domain::new_in_memory_repository();
+    let _: Arc<dyn Repository<Entity = String, Id = u32>> = Domain::new_in_memory_repository();
 }
 
 /// @covers: new_in_memory_queryable_repository
 #[test]
 fn test_new_in_memory_queryable_repository_returns_arc_queryable_repository() {
-    let _: Arc<dyn QueryableRepository<String, u32>> = Domain::new_in_memory_queryable_repository();
+    let _: Arc<dyn QueryableRepository<Entity = String, Id = u32>> = Domain::new_in_memory_queryable_repository();
 }
 
 /// @covers: new_in_memory_repository
 #[tokio::test]
 async fn test_new_in_memory_repository_saves_and_finds_entity() {
-    let repo: Arc<dyn Repository<String, u32>> = Domain::new_in_memory_repository();
+    let repo: Arc<dyn Repository<Entity = String, Id = u32>> = Domain::new_in_memory_repository();
     repo.save(1u32, "hello".to_string()).await.unwrap();
     let found = repo.find(&1u32).await.unwrap();
     assert_eq!(found.as_deref(), Some("hello"));
@@ -54,7 +54,7 @@ async fn test_new_in_memory_queryable_repository_finds_by_spec() {
             s.len() > 3
         }
     }
-    let repo: Arc<dyn QueryableRepository<String, u32>> =
+    let repo: Arc<dyn QueryableRepository<Entity = String, Id = u32>> =
         Domain::new_in_memory_queryable_repository();
     repo.save(1u32, "hi".to_string()).await.unwrap();
     repo.save(2u32, "hello".to_string()).await.unwrap();
@@ -107,7 +107,8 @@ async fn test_factory_fn_direct_query_bus_dispatches_query_inline() {
     use edge_domain::Query;
     use futures::future::BoxFuture;
     struct EchoQuery(String);
-    impl Query<String> for EchoQuery {
+    impl Query for EchoQuery {
+        type Result = String;
         fn name(&self) -> &str {
             "echo"
         }
@@ -116,7 +117,7 @@ async fn test_factory_fn_direct_query_bus_dispatches_query_inline() {
             Box::pin(async move { Ok(v) })
         }
     }
-    let bus: Arc<dyn QueryBus<String>> = Domain::direct_query_bus();
+    let bus: Arc<dyn QueryBus<Result = String>> = Domain::direct_query_bus();
     let result = bus
         .dispatch(Box::new(EchoQuery("pong".into())))
         .await

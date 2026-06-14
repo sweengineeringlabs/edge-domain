@@ -14,7 +14,9 @@ struct ConstHandler {
 }
 
 #[async_trait]
-impl Handler<i32, i32> for ConstHandler {
+impl Handler for ConstHandler {
+    type Request = i32;
+    type Response = i32;
     fn id(&self) -> &str {
         self.id
     }
@@ -26,7 +28,7 @@ impl Handler<i32, i32> for ConstHandler {
     }
 }
 
-fn make_handler(id: &'static str) -> Arc<dyn Handler<i32, i32>> {
+fn make_handler(id: &'static str) -> Arc<dyn Handler<Request = i32, Response = i32>> {
     Arc::new(ConstHandler { id, response: 0 })
 }
 

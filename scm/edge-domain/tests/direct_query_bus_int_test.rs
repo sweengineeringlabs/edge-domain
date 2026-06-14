@@ -4,16 +4,16 @@ use std::sync::Arc;
 
 #[test]
 fn test_direct_query_bus_marker_type_is_constructible() {
-    let _marker = DirectQueryBus;
+    let _marker = DirectQueryBus::<String>::new();
 }
 
 #[test]
 fn test_direct_query_bus_factory_returns_arc_query_bus() {
-    let _: Arc<dyn QueryBus<String>> = Domain::direct_query_bus();
+    let _: Arc<dyn QueryBus<Result = String>> = Domain::direct_query_bus();
 }
 
 #[test]
 fn test_direct_query_bus_factory_usable_as_query_bus_trait_object() {
-    let bus: Arc<dyn QueryBus<String>> = Domain::direct_query_bus();
+    let bus: Arc<dyn QueryBus<Result = String>> = Domain::direct_query_bus();
     drop(bus);
 }

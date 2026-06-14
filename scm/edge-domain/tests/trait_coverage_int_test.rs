@@ -67,7 +67,8 @@ impl Command for ErrCmd {
 }
 
 struct OkQry(String);
-impl Query<String> for OkQry {
+impl Query for OkQry {
+    type Result = String;
     fn name(&self) -> &str {
         "ok-qry"
     }
@@ -78,7 +79,8 @@ impl Query<String> for OkQry {
 }
 
 struct ErrQry;
-impl Query<String> for ErrQry {
+impl Query for ErrQry {
+    type Result = String;
     fn name(&self) -> &str {
         "err-qry"
     }
@@ -139,7 +141,8 @@ impl HandlerFactory<BadCfg> for CfgHandler {
 }
 
 struct ErrEventStore;
-impl EventStore<TestEvent> for ErrEventStore {
+impl EventStore for ErrEventStore {
+    type Event = TestEvent;
     fn append(
         &self,
         _: &str,
@@ -163,7 +166,7 @@ impl EventStore<TestEvent> for ErrEventStore {
     }
 }
 
-fn make_test_handler() -> Arc<dyn Handler<String, String>> {
+fn make_test_handler() -> Arc<dyn Handler<Request = String, Response = String>> {
     Domain::echo_handler("test", "/test")
 }
 

@@ -57,7 +57,8 @@ impl Command for ErrCommand {
 }
 
 struct OkQuery(String);
-impl Query<String> for OkQuery {
+impl Query for OkQuery {
+    type Result = String;
     fn name(&self) -> &str {
         "ok"
     }
@@ -68,7 +69,8 @@ impl Query<String> for OkQuery {
 }
 
 struct ErrQuery;
-impl Query<String> for ErrQuery {
+impl Query for ErrQuery {
+    type Result = String;
     fn name(&self) -> &str {
         "err"
     }
@@ -106,7 +108,8 @@ impl Spec<String> for NoSpec {
 }
 
 struct ErrStore;
-impl EventStore<AnyEvent> for ErrStore {
+impl EventStore for ErrStore {
+    type Event = AnyEvent;
     fn append(
         &self,
         _: &str,

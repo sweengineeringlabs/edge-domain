@@ -41,7 +41,7 @@ impl Saga for PulseSaga {
 /// @covers: new_in_memory_saga_registry
 #[test]
 fn test_in_memory_saga_registry_stores_and_retrieves_saga() {
-    let mut reg: Box<dyn SagaRegistry<PulseSaga>> =
+    let mut reg: Box<dyn SagaRegistry<SagaInstance = PulseSaga>> =
         Domain::new_in_memory_saga_registry::<PulseSaga>();
     reg.register("p1".to_string(), PulseSaga::default())
         .unwrap();
@@ -52,7 +52,7 @@ fn test_in_memory_saga_registry_stores_and_retrieves_saga() {
 /// @covers: new_in_memory_saga_registry
 #[test]
 fn test_in_memory_saga_registry_rejects_duplicate_registration() {
-    let mut reg: Box<dyn SagaRegistry<PulseSaga>> =
+    let mut reg: Box<dyn SagaRegistry<SagaInstance = PulseSaga>> =
         Domain::new_in_memory_saga_registry::<PulseSaga>();
     reg.register("p1".to_string(), PulseSaga::default())
         .unwrap();
@@ -66,7 +66,7 @@ fn test_in_memory_saga_registry_rejects_duplicate_registration() {
 /// @covers: new_in_memory_saga_registry
 #[test]
 fn test_in_memory_saga_registry_lookup_of_unknown_id_is_not_found() {
-    let reg: Box<dyn SagaRegistry<PulseSaga>> = Domain::new_in_memory_saga_registry::<PulseSaga>();
+    let reg: Box<dyn SagaRegistry<SagaInstance = PulseSaga>> = Domain::new_in_memory_saga_registry::<PulseSaga>();
     assert_eq!(
         reg.get(&"unknown".to_string()).unwrap_err(),
         SagaError::NotFound("unknown".to_string())

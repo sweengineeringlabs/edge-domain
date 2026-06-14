@@ -35,11 +35,14 @@ where
 }
 
 // impl Repository for InMemoryRepository
-impl<T, Id> Repository<T, Id> for InMemoryRepository<T, Id>
+impl<T, Id> Repository for InMemoryRepository<T, Id>
 where
     Id: Hash + Eq + Clone + Send + Sync + 'static,
     T: Clone + Send + Sync + 'static,
 {
+    type Entity = T;
+    type Id = Id;
+
     fn find<'a>(&'a self, id: &'a Id) -> BoxFuture<'a, Result<Option<T>, RepositoryError>> {
         Box::pin(async move { Ok(self.store.read().get(id).cloned()) })
     }
@@ -61,7 +64,7 @@ where
 }
 
 // impl QueryableRepository for InMemoryRepository
-impl<T, Id> QueryableRepository<T, Id> for InMemoryRepository<T, Id>
+impl<T, Id> QueryableRepository for InMemoryRepository<T, Id>
 where
     Id: Hash + Eq + Clone + Send + Sync + 'static,
     T: Clone + Send + Sync + 'static,

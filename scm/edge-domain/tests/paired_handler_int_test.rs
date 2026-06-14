@@ -6,11 +6,11 @@ use std::sync::Arc;
 use edge_domain::{Domain, HandlerError, Repository};
 
 struct WriteHandler {
-    repo: Arc<dyn Repository<String, String>>,
+    repo: Arc<dyn Repository<Entity = String, Id = String>>,
 }
 
 struct ReadHandler {
-    repo: Arc<dyn Repository<String, String>>,
+    repo: Arc<dyn Repository<Entity = String, Id = String>>,
 }
 
 /// @covers: Domain::paired — both handlers share one Arc<Backend>
@@ -47,10 +47,10 @@ async fn test_independent_backends_do_not_share_state() {
 #[test]
 fn test_paired_accepts_heterogeneous_handler_types() {
     struct CmdHandler {
-        _repo: Arc<dyn Repository<u32, u32>>,
+        _repo: Arc<dyn Repository<Entity = u32, Id = u32>>,
     }
     struct QryHandler {
-        _repo: Arc<dyn Repository<u32, u32>>,
+        _repo: Arc<dyn Repository<Entity = u32, Id = u32>>,
     }
 
     let (cmd, qry) = Domain::paired(
