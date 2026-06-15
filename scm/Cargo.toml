@@ -17,6 +17,7 @@ members  = [
     "edge-domain-projection",
     "edge-domain-saga",
     "edge-domain-security",
+    "edge-domain-registry",
 ]
 
 [workspace.package]
