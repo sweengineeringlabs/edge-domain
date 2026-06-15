@@ -4,25 +4,30 @@ use std::sync::Arc;
 
 use crate::api::registry::errors::RegistryError;
 
-/// An id-keyed registry of shared `V` entries.
+/// An id-keyed registry of shared entries.
 ///
 /// Generalizes the resolution-registry family — handlers, services, and live
 /// task controllers: register a shared entry under a string id and resolve it
-/// later by id. Concurrent: every method takes `&self`.
-pub trait Registry<V: ?Sized + Send + Sync>: Send + Sync {
+/// later by id. Concurrent: every method takes `&self`. The stored entry type
+/// is the associated [`Value`](Registry::Value) (matching the `Repository` /
+/// `ServiceRegistry` convention).
+pub trait Registry: Send + Sync {
+    /// The (possibly unsized) entry type stored in this registry.
+    type Value: ?Sized + Send + Sync;
+
     /// Register `entry` under `id`, replacing any existing entry.
-    fn register(&self, id: &str, entry: Arc<V>);
+    fn register(&self, id: &str, entry: Arc<Self::Value>);
 
     /// Register `entry` under `id`, returning [`RegistryError::DuplicateId`]
     /// when an entry is already registered under `id` (the existing entry is
     /// left untouched).
-    fn try_register(&self, id: &str, entry: Arc<V>) -> Result<(), RegistryError>;
+    fn try_register(&self, id: &str, entry: Arc<Self::Value>) -> Result<(), RegistryError>;
 
     /// Remove the entry registered under `id`. Returns `true` if one existed.
     fn deregister(&self, id: &str) -> bool;
 
     /// Resolve the entry registered under `id`.
-    fn get(&self, id: &str) -> Option<Arc<V>>;
+    fn get(&self, id: &str) -> Option<Arc<Self::Value>>;
 
     /// Return all registered ids.
     fn list_ids(&self) -> Vec<String>;

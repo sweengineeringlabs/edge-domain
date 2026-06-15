@@ -6,7 +6,9 @@ use crate::api::registry::errors::RegistryError;
 use crate::api::registry::traits::Registry;
 use crate::api::registry::types::InMemoryRegistry;
 
-impl<V: ?Sized + Send + Sync> Registry<V> for InMemoryRegistry<V> {
+impl<V: ?Sized + Send + Sync> Registry for InMemoryRegistry<V> {
+    type Value = V;
+
     fn register(&self, id: &str, entry: Arc<V>) {
         // A poisoned lock means a prior holder panicked; the map is still
         // structurally sound, so recover the guard rather than propagate.
