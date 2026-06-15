@@ -1,0 +1,1402 @@
+{
+  "timestamp": "2026-06-15T09:32:58.212886700+00:00",
+  "results": [
+    {
+      "id": "all_methods_tested",
+      "category": "test_org",
+      "description": "All public functions have corresponding tests (name-based)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "api_cross_theme_impl",
+      "category": "api",
+      "description": "A type in api/<theme>/types/ must not implement — in core/ — a trait natively declared in a different theme's api/<other>/traits/; cross-theme impl coupling is a boundary violation in the same way cross-theme type references in trait signatures are",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "api_filename_matches_type",
+      "category": "naming",
+      "description": "Each pub type/trait in api/ must be in its own standalone file with the file stem matching the snake_case name",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "api_has_error_dir",
+      "category": "api",
+      "description": "api/ must contain error types — either a flat api/error/ subdirectory or domain-grouped api/<domain>/errors/ directories; at least one must exist",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "api_has_traits_dir",
+      "category": "api",
+      "description": "api/ must contain trait definitions — either a flat api/traits/ subdirectory or domain-grouped api/<domain>/traits/ directories; at least one must exist",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "api_no_core_import",
+      "category": "interface",
+      "description": "api/ layer must not import from core/ (L2 must not depend on L3)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 5.5985000000000005
+    },
+    {
+      "id": "api_no_default_prefix",
+      "category": "naming",
+      "description": "api/ files and types must not use the Default* prefix — Default* names signal a concrete implementation variant that belongs in core/, not in the contract layer",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "api_no_gateway_dep",
+      "category": "interface",
+      "description": "api/ must not import from gateway/ — api/ defines abstractions, it must not depend on implementations",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 3.7727
+    },
+    {
+      "id": "api_no_loose_rs_files",
+      "category": "api",
+      "description": "api/ root must not contain loose .rs files or mixed-layout directories — only mod.rs at root; no flat traits/types/error/ dirs when domain-grouped layout (api/<domain>/traits/) is active",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "api_no_orphan_types",
+      "category": "api",
+      "description": "Every type and error declared in api/ must appear in at least one native trait signature in api/ — pub use re-exports in traits/mod.rs do not satisfy this rule; only method parameters, return types, associated types, or supertrait bounds count",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "api_no_pub_struct",
+      "category": "api",
+      "description": "api/ layer must not contain `pub struct` outside designated struct homes — flat layout: api/error/, api/types/; domain-grouped layout: api/<domain>/errors/, api/<domain>/types/",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "api_no_spi_dep",
+      "category": "interface",
+      "description": "api/ must not import from spi/ — api/ defines abstractions, it must not depend on implementations",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 3.2413
+    },
+    {
+      "id": "api_terminal_leaf_no_subdir",
+      "category": "api",
+      "description": "Terminal SEA leaves (api/<domain>/types/, traits/, errors/) must not contain subdirectories — definitions live directly in the leaf; promote a theme one level up instead of nesting",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "api_theme_native_trait",
+      "category": "api",
+      "description": "Every api/<theme>/ directory that has a types/ subdirectory must also have a traits/ subdirectory containing at least one natively-declared pub trait — re-export-only or empty traits/ directories do not establish a theme contract",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "api_trait_fn_scenario_coverage",
+      "category": "saf_svc",
+      "description": "Every fn in a pub trait in api/ must have _happy, _error, and _edge test coverage in tests/",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "api_type_theme_cohesion",
+      "category": "api",
+      "description": "Types and errors declared under api/<theme>/types|errors/ must not be referenced by trait files from a different theme subtree — cross-theme type coupling violates domain isolation",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "application_type_defined",
+      "category": "application_type",
+      "description": "application_type must be defined in project metadata",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "bench_harness_false",
+      "category": "",
+      "description": "[[bench]] targets have harness = false",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "benches_dir_if_declared",
+      "category": "",
+      "description": "benches/ directory exists (if benchmarks declared)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "bin_names_valid",
+      "category": "naming",
+      "description": "Binary names use hyphens or underscores",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "bin_path_correct",
+      "category": "",
+      "description": "[[bin]] path matches existing file",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "boundary_adapter_implements_port",
+      "category": "boundary",
+      "description": "adapter crates must implement at least one domain port trait",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "boundary_dep_direction",
+      "category": "boundary",
+      "description": "domain crates must not depend on adapter crates",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "boundary_l2_no_l3_import",
+      "category": "interface",
+      "description": "L2 must not import from L3 (core/ and spi/ must not depend on saf/)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 2.7278
+    },
+    {
+      "id": "boundary_l2_no_l4_import",
+      "category": "interface",
+      "description": "L2 must not import from L4 (core/ and spi/ must not depend on gateway/)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 2.0357000000000003
+    },
+    {
+      "id": "boundary_no_antipattern_names",
+      "category": "boundary",
+      "description": "crate names must not end with generic responsibility suffixes (-core, -utils, -api, -common, -shared, -helpers)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "boundary_no_pub_trait_in_adapter",
+      "category": "boundary",
+      "description": "adapter crates must not define public traits — port traits belong in the domain crate",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "boundary_peer_isolation",
+      "category": "interface",
+      "description": "L2 peers must not import each other (core/ ↛ spi/, spi/ ↛ core/)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 2.888
+    },
+    {
+      "id": "build_bootstrap_exclusivity",
+      "category": "",
+      "description": "Root must not have both build and bootstrap scripts",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "cargo_pkg_authors_exists",
+      "category": "",
+      "description": "package.authors exists",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.0072
+    },
+    {
+      "id": "cargo_pkg_categories_exists",
+      "category": "",
+      "description": "package.categories exists (libraries)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.0013
+    },
+    {
+      "id": "cargo_pkg_description_exists",
+      "category": "",
+      "description": "package.description exists",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.001
+    },
+    {
+      "id": "cargo_pkg_edition_exists",
+      "category": "",
+      "description": "package.edition exists",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.0007
+    },
+    {
+      "id": "cargo_pkg_keywords_exists",
+      "category": "",
+      "description": "package.keywords exists (libraries)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.0046
+    },
+    {
+      "id": "cargo_pkg_name_exists",
+      "category": "",
+      "description": "package.name exists",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.0087
+    },
+    {
+      "id": "cargo_pkg_name_kebab_case",
+      "category": "naming",
+      "description": "Package name uses kebab-case",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.26739999999999997
+    },
+    {
+      "id": "cargo_pkg_repository_exists",
+      "category": "",
+      "description": "package.repository exists",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.001
+    },
+    {
+      "id": "cargo_pkg_rust_version_exists",
+      "category": "",
+      "description": "package.rust-version exists",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.0015
+    },
+    {
+      "id": "cargo_pkg_version_exists",
+      "category": "",
+      "description": "package.version exists",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.0061
+    },
+    {
+      "id": "cargo_toml_exists",
+      "category": "",
+      "description": "Cargo.toml exists at root",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.303
+    },
+    {
+      "id": "clippy_error_lints_configured",
+      "category": "",
+      "description": "Cargo.toml must configure clippy error-handling lints (unwrap_used, expect_used) as deny or warn",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "config_file_to_builder_naming",
+      "category": "naming",
+      "description": "Config files must map to corresponding ConfigBuilder struct names: <name>.toml → <Name>ConfigBuilder",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "config_methods_pub_crate",
+      "category": "interface",
+      "description": "Config struct methods must be pub(crate), not pub — configs are not for public consumption",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "core_api_module_correspondence",
+      "category": "core",
+      "description": "Every {implementation_layer}/ submodule must have a corresponding {interface_layer}/ submodule with real type or trait declarations — pure pub-use re-export stubs do not satisfy this rule",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "core_filename_matches_type",
+      "category": "core",
+      "description": "L2 module filenames must match their primary struct/trait name (with suffix tolerance)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "core_fns_have_unit_tests",
+      "category": "test_org",
+      "description": "Every pub/pub(crate) fn in L2 layers must have an inline unit test (#[cfg(test)] block with #[test])",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "core_impl_name_has_trait_suffix",
+      "category": "core",
+      "description": "L2 structs implementing an api trait must carry the trait name as suffix (e.g. impl Reviewer for DefaultReviewer)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "core_implements_api_traits",
+      "category": "core",
+      "description": "Core modules must implement their api traits (impl <Trait> for)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "core_no_impl_suffix",
+      "category": "core",
+      "description": "core/ (L2) struct names must not end with Impl — use the Default* prefix (or Local*, Remote*, InMemory*, Noop*, <Technology>*) to name concrete implementation variants",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "core_structs_have_trait",
+      "category": "core",
+      "description": "Every L2 struct with pub/pub(crate) methods must implement a trait defined in L1/api/ (program to the interface)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "core_structs_not_pub",
+      "category": "core",
+      "description": "L2 items (struct, enum, type, trait, fn, const, static) must use pub(crate) visibility, not bare pub",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "core_types_name_cohesive",
+      "category": "core",
+      "description": "Types in L2 modules must be name-cohesive (SRP enforcement)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "crate_root_exists",
+      "category": "",
+      "description": "main/src/lib.rs or main/src/main.rs exists",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "deprecated_trait_usage",
+      "category": "interface",
+      "description": "Reports deprecated trait definitions in api/traits.rs for tracking",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "deps_have_integration_tests",
+      "category": "test_org",
+      "description": "Dependencies used in main/src/ must have integration or e2e test coverage",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "deps_no_local_path",
+      "category": "",
+      "description": "Cargo dependencies must not use path = \"...\" — use git or registry sources instead",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "doc_dir_exists",
+      "category": "documentation",
+      "description": "doc/ or docs/ directory exists (if library)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "embed_config_needs_override",
+      "category": "hygiene",
+      "description": "include_str! embedding a config file must be paired with a runtime read — use embed as fallback, not sole source",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "error_types_in_api",
+      "category": "interface",
+      "description": "Error types that cross layer boundaries must be declared in api/, not in core/",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "example_targets_if_dir",
+      "category": "",
+      "description": "[[example]] targets exist if examples/ present",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "examples_dir_lib",
+      "category": "documentation",
+      "description": "examples/ directory exists (if library)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "file_names_are_nouns",
+      "category": "code_organization",
+      "description": "Rust source file names must be nouns (no verb or assertion names like check_exists.rs)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "folder_names_snake_case",
+      "category": "naming",
+      "description": "Directory names under main/src/ must use snake_case",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "gateway_no_core_dep",
+      "category": "interface",
+      "description": "gateway/ must not import from core/ — gateway/ calls saf/, not core/ directly",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 1.1112
+    },
+    {
+      "id": "gateway_no_spi_dep",
+      "category": "interface",
+      "description": "gateway/ must not import from spi/ — gateway/ depends on saf/ only, not on SPI implementations",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 1.1297
+    },
+    {
+      "id": "layer_module_no_underscore",
+      "category": "naming",
+      "description": "SEA layer directory names must not contain underscores — use nested directories instead of underscore-concatenated names",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "layer_scoped_test_source_correspondence",
+      "category": "test_org",
+      "description": "Layer-prefixed test files (e.g. core_foo_int_test.rs) must correspond to an existing source file in that SEA layer directory (src/core/foo.rs or src/core/foo/mod.rs)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "layers_no_free_standing_fn",
+      "category": "interface",
+      "description": "SEA layer files must not contain free-standing fn — all functions must be methods on a type (OOP violation)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "lib_delegates_to_saf",
+      "category": "saf",
+      "description": "lib.rs must delegate public surface to saf/ via pub use",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "lib_gateway_private_mod",
+      "category": "gateway_isolation",
+      "description": "lib.rs must declare gateway as a private module — pub mod and pub(crate) mod are forbidden",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.6402
+    },
+    {
+      "id": "lib_no_pub_mod_api",
+      "category": "interface",
+      "description": "lib.rs must not declare api as public (pub mod api is forbidden — all layers must be private)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.6423000000000001
+    },
+    {
+      "id": "lib_no_pub_mod_core",
+      "category": "interface",
+      "description": "lib.rs must not declare core as public (pub mod core is forbidden)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.8104
+    },
+    {
+      "id": "lib_path_correct",
+      "category": "",
+      "description": "[lib] path matches existing file",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "lib_path_inside_src",
+      "category": "shim_detection",
+      "description": "[lib] and [[bin]] paths must point inside main/src/",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "lib_rs_not_shim",
+      "category": "shim_detection",
+      "description": "lib.rs must be a real entry point, not a shim with only re-exports",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "library_entry_declarations_only",
+      "category": "code_organization",
+      "description": "lib.rs must contain only module declarations and re-exports — no struct/impl/fn/const definitions",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "license_field_exists",
+      "category": "",
+      "description": "package.license or package.license-file exists",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "mod_rs_not_reexport_shim",
+      "category": "mod",
+      "description": "SEA layer mod.rs must not be a crate-level re-export shim",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "module_entry_declarations_only",
+      "category": "mod",
+      "description": "mod.rs must contain only module declarations and re-exports — no struct/impl/fn logic",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "module_name_not_prefix_type",
+      "category": "naming",
+      "description": "Module name must not prefix the struct/trait name (e.g., config::Config not config::ConfigConfig)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "module_names_match",
+      "category": "naming",
+      "description": "Module file names match mod declarations",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "module_names_no_stutter",
+      "category": "naming",
+      "description": "Module and file names under src/ must not stutter: the first snake_case token must not equal the last",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_allow_dead_code",
+      "category": "hygiene",
+      "description": "Source files must not suppress the dead_code lint via #[allow(dead_code)] or #[expect(dead_code)] — dead code in production layers is a defect signal, not something to silence",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_allow_unused_imports",
+      "category": "hygiene",
+      "description": "Source files must not suppress the unused_imports lint via #[allow(unused_imports)]",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_bare_expect",
+      "category": "hygiene",
+      "description": "No bare .expect() with empty or placeholder message",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_bare_unwrap",
+      "category": "hygiene",
+      "description": "No bare .unwrap() calls in production source",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_default_suffix",
+      "category": "naming",
+      "description": "struct and enum names must not end with the Default suffix — the Default* prefix (DefaultValidator) is the reserved convention for the standard implementation variant; the *Default suffix (ValidatorDefault) is the ambiguous mirror",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_explicit_test_targets",
+      "category": "",
+      "description": "Cargo.toml must not declare [[test]] targets — integration tests in tests/ are auto-discovered",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_hardcoded_home_paths",
+      "category": "hygiene",
+      "description": "No hardcoded home directory paths in source code",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_loose_core_files",
+      "category": "code_organization",
+      "description": "No loose .rs files directly under L2 layer dirs — all code must live in subfolders",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_mocks_in_integration",
+      "category": "test_org",
+      "description": "Integration tests must not use mocking libraries or mock types",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_nested_src_dir",
+      "category": "",
+      "description": "No nested src/ dir inside the source dir (main/src/src/)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.14129999999999998
+    },
+    {
+      "id": "no_panic_in_lib",
+      "category": "hygiene",
+      "description": "No panic!() in library code",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_println_in_library_code",
+      "category": "hygiene",
+      "description": "Library code must not use println!/eprintln! — use tracing macros (info!, warn!, error!) instead",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_stub_fn_bodies",
+      "category": "hygiene",
+      "description": "Production functions must not have stub bodies (todo!(), unimplemented!(), or empty)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_test_in_src",
+      "category": "test_org",
+      "description": "No test code in main/src/ (non-#[cfg(test)])",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_traits_in_impl_layer",
+      "category": "interface",
+      "description": "L2 layers must not define traits (implementations only — traits belong in L1/api)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 4.9314
+    },
+    {
+      "id": "no_undeclared_benches",
+      "category": "",
+      "description": "No undeclared bench files",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_undeclared_tests",
+      "category": "",
+      "description": "No undeclared test files",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_unused_deps",
+      "category": "hygiene",
+      "description": "Dependencies declared in Cargo.toml must be used in main/src/",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_weak_fs_patterns",
+      "category": "hygiene",
+      "description": "Weak filesystem patterns — code that produces host-dependent paths (MAIN_SEPARATOR, hardcoded \\\\, replace-hacks, literal backslashes)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 5.4354
+    },
+    {
+      "id": "one_type_per_file",
+      "category": "code_organization",
+      "description": "Each public struct/trait/enum must have its own .rs file (one primary type per file)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "package_name_no_sea_suffix",
+      "category": "naming",
+      "description": "Package name must not use SEA layer suffixes as defined in sea_layers config",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "pub_layer_tests_standalone",
+      "category": "test_organization",
+      "description": "saf/ and api/ layer files must not contain #[cfg(test)] blocks — public-layer tests must live in standalone tests/ files",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "pub_types_in_api_only",
+      "category": "interface",
+      "description": "All public types (struct, enum, trait, type alias) must be declared under api/ — no other layer is a legal declaration site",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "root_whitelist",
+      "category": "",
+      "description": "Root contains only allowed entries (whitelist enforcement)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "rs_files_no_uppercase",
+      "category": "naming",
+      "description": "No uppercase in source file names",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.4501
+    },
+    {
+      "id": "rs_files_snake_case",
+      "category": "naming",
+      "description": "Source files use snake_case naming",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.8141
+    },
+    {
+      "id": "saf_free_fn_takes_local_type",
+      "category": "saf",
+      "description": "Free functions in saf/ or core/ taking an api-defined type as parameter should be methods on that type",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "saf_mod_exists",
+      "category": "saf",
+      "description": "saf/mod.rs must exist (SAF facade entry point)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "saf_mod_no_api_direct_reexport",
+      "category": "mod",
+      "description": "saf/mod.rs and saf/<theme>/mod.rs must not contain pub use crate::api:: — all api/ re-exports must flow through a _svc.rs file",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "saf_no_core_reexport",
+      "category": "interface",
+      "description": "saf/ must not re-export from core/ (SAF re-exports from api/ and spi/ only)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.522
+    },
+    {
+      "id": "saf_no_env_reads",
+      "category": "saf_svc",
+      "description": "saf/ must not read environment variables directly — env access is domain logic and belongs in core/",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "saf_no_gateway_dep",
+      "category": "interface",
+      "description": "saf/ must not import from gateway/ — gateway/ calls saf/, not the reverse",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 2.2889999999999997
+    },
+    {
+      "id": "saf_no_pub_struct",
+      "category": "interface",
+      "description": "saf/ must not define new pub structs (facade layer only re-exports and wires)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 1.3256
+    },
+    {
+      "id": "saf_no_trait_reexport",
+      "category": "interface",
+      "description": "saf/ must not re-export traits via pub use — this applies to both internal api/traits re-exports and external crate SPI extension points (Scheduler, Broker, Stream, Executor, Worker, Listener, etc.); wrap trait methods as standalone functions instead",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 3.4356999999999998
+    },
+    {
+      "id": "saf_no_wrapper_methods",
+      "category": "saf",
+      "description": "saf/ methods must not be thin wrappers — a saf/ method whose entire body delegates to a free function or another method adds no value and signals incomplete consolidation",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "saf_returns_api_types",
+      "category": "saf",
+      "description": "saf/ pub fn return types must be declared in api/types/ (when spi/ is absent)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "saf_signature_no_core_types",
+      "category": "saf",
+      "description": "saf/ public function signatures must not name types from core/ (signature leak)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "saf_svc_returns",
+      "category": "saf",
+      "description": "saf/ public function return types depend on crate extensibility: if spi/ exists, return `impl Trait` for downstream polymorphism; if spi/ does not exist, return concrete types only (no trait leaks)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "saf_svc_single_trait_surface",
+      "category": "saf_svc",
+      "description": "Each _svc.rs in saf/ must only re-export from api/ — pub use from core:: leaks implementation details",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "saf_trait_svc_correspondence",
+      "category": "saf_svc",
+      "description": "Every pub trait in api/ must have a corresponding <trait_snake>_svc.rs in saf/",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "saf_trait_svc_fn_scenario_coverage",
+      "category": "saf_svc",
+      "description": "Every _svc.rs must have at least one pub item; every pub fn must have _happy, _error, and _edge test coverage",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "saf_trait_svc_test_exists",
+      "category": "saf_svc",
+      "description": "Each <trait>_svc.rs in saf/ must have a corresponding test file in tests/",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "scripts_ci_build_exists",
+      "category": "",
+      "description": "scripts/ci/build.sh exists (if scripts/ci/ present)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "scripts_ci_dir_exists",
+      "category": "",
+      "description": "scripts/ci/ directory exists (if scripts/ present)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "scripts_ci_lint_exists",
+      "category": "",
+      "description": "scripts/ci/lint.sh exists (if scripts/ci/ present)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "scripts_ci_test_exists",
+      "category": "",
+      "description": "scripts/ci/test.sh exists (if scripts/ci/ present)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "sea_api_no_core_dep",
+      "category": "interface",
+      "description": "api/ must not import from core/ — api/ defines abstractions, it must not depend on implementations",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 3.1578
+    },
+    {
+      "id": "sea_layer_min_loc",
+      "category": "shim_detection",
+      "description": "SEA layer directories must meet minimum LOC threshold (api/>10, core/>20, saf/>5)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "sea_layer_substantive_code",
+      "category": "shim_detection",
+      "description": "SEA layer files must contain substantive code (not just comments or empty re-exports)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "sea_layer_test_coverage",
+      "category": "test_org",
+      "description": "Each source file in SEA layers has coverage via inline tests, a matching test file, or a layer-level test file in tests/ — reports per-layer coverage",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "sea_layers_no_crates",
+      "category": "interface",
+      "description": "SEA layer directories must not contain crates (no Cargo.toml inside api/, core/, saf/, spi/)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "security_dependency_audit_configured",
+      "category": "security",
+      "description": "Project must configure dependency vulnerability auditing via deny.toml or cargo audit in CI",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "security_no_hardcoded_secrets",
+      "category": "security",
+      "description": "Source files must not contain hardcoded secrets, credentials, or API keys",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "security_policy_file_exists",
+      "category": "security",
+      "description": "Project must have a security policy file (SECURITY.md, SECURITY.txt, or .github/SECURITY.md)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "security_unsafe_documented",
+      "category": "security",
+      "description": "Every unsafe block must be preceded by a // SAFETY: comment explaining the invariant",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "service_type_core_implements_trait",
+      "category": "service_type",
+      "description": "core/ must implement the primary api trait (impl <PrimaryTrait> for)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "service_type_defined",
+      "category": "service_type",
+      "description": "service_type must be defined in project metadata",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "service_type_has_validator",
+      "category": "service_type",
+      "description": "Every non-orchestrator crate must have a Validator trait in api/traits.rs",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "service_type_primary_trait_exists",
+      "category": "service_type",
+      "description": "api/traits.rs must contain the primary trait matching service_type",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "shared_prefix_grouping",
+      "category": "code_organization",
+      "description": "Sibling files sharing a common prefix must be grouped into a subdirectory module (e.g., check_runner.rs + check_result.rs → check/runner.rs + check/result.rs)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "single_architecture_config",
+      "category": "",
+      "description": "Only one architecture.toml location is allowed: either architecture.toml at root or main/config/architecture.toml, not both",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "spi_dir_not_empty",
+      "category": "spi",
+      "description": "spi must be a directory (main/src/spi/mod.rs) with real code — a flat main/src/spi.rs file or an empty/comment-only main/src/spi/mod.rs is invalid SEA structure",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "spi_private_mod_in_lib",
+      "category": "spi",
+      "description": "When spi/ exists, lib.rs must declare `mod spi` (private, not pub mod)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "src_dir_exists",
+      "category": "",
+      "description": "source directory exists",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.2561
+    },
+    {
+      "id": "src_no_path_stutter",
+      "category": "",
+      "description": "src/ directory paths must not repeat any path segment (path stutter)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "structural_checks_match_lib_path",
+      "category": "shim_detection",
+      "description": "Non-standard [lib] path with main/src/ present suggests shim directory",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "structure_matches_app_type",
+      "category": "",
+      "description": "Project structure must match declared application_type",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "suggest_builder_pattern",
+      "category": "naming",
+      "description": "Suggest Builder pattern for complex structs (advisory)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "test_covers_annotation",
+      "category": "test_org",
+      "description": "Tests use @covers: annotation for explicit 1:1 function linking",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "test_file_prefix_matches_source",
+      "category": "test_org",
+      "description": "Test file prefix must match a source module name, optionally followed by a pub fn name",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "test_file_suffixes",
+      "category": "test_org",
+      "description": "Test files use correct suffixes (_test.rs, _int_test.rs, _e2e_test.rs, etc.)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "test_fn_prefixes",
+      "category": "test_org",
+      "description": "Test function name prefix follows location-aware convention: <feature>_<type_kind>_<fn>_<suffix> for tests/<file>.rs; <type_kind>_<fn>_<suffix> for tests/<feature>/<file>.rs (type_kind ∈ {trait,struct,type,enum})",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "test_fn_scenario_path_coverage",
+      "category": "test_org",
+      "description": "Test files that use scenario labels (_happy, _error, _edge) must not cover only the happy path — at least one _error or _edge test must also exist",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "test_fn_suffixes",
+      "category": "test_org",
+      "description": "Test function name uses either the conventional test_ prefix or a recognised test-category suffix (_test, _int_test, _e2e_test, _perf_test, _security_test, _stress_test, _load_test, _unit_test, _smoke_test, _contract_test)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "test_location_by_deps",
+      "category": "test_org",
+      "description": "Test files use suffixes consistent with dependency scope (allowing integration-style *_int_test.rs / *_e2e_test.rs in tests/)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "test_not_placeholder",
+      "category": "test_org",
+      "description": "Test functions must not be placeholders (panic!/todo!/unimplemented!/unreachable!/empty body)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "test_paths_resolve",
+      "category": "",
+      "description": "[[test]] paths resolve to existing files",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "test_targets_declared",
+      "category": "",
+      "description": "[[test]] targets declared for tests/ files",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "tests_dir_exists",
+      "category": "test_org",
+      "description": "tests/ directory exists at same level as main/src/",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.1945
+    },
+    {
+      "id": "trait_has_test_file",
+      "category": "test_org",
+      "description": "Each api/ trait has a corresponding test file in tests/",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "trait_names_not_plural",
+      "category": "naming",
+      "description": "Trait names must be singular (not plural)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "unit_tests_colocated",
+      "category": "test_org",
+      "description": "Colocated #[cfg(test)] blocks only permitted when testing private methods — all other unit tests must live in standalone tests/<struct>_test.rs files",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "xdg_dirs_crate",
+      "category": "hygiene",
+      "description": "CLI projects should use dirs/directories crate for XDG-compliant paths",
+      "result": {
+        "status": "pass"
+      }
+    }
+  ],
+  "summary": {
+    "total": 165,
+    "passed": 165,
+    "failed": 0,
+    "skipped": 0,
+    "duration_ms": 173.9291
+  },
+  "project_layout": "library",
+  "application_type": "lib",
+  "rule_labels": {
+    "core_structs_have_trait": [
+      "core",
+      "spi"
+    ],
+    "core_structs_not_pub": [
+      "core",
+      "spi"
+    ],
+    "core_types_name_cohesive": [
+      "core",
+      "spi"
+    ],
+    "core_fns_have_unit_tests": [
+      "core",
+      "spi"
+    ],
+    "no_loose_core_files": [
+      "core",
+      "spi"
+    ],
+    "no_traits_in_impl_layer": [
+      "core",
+      "spi"
+    ],
+    "core_filename_matches_type": [
+      "core",
+      "spi"
+    ],
+    "core_impl_name_has_trait_suffix": [
+      "core",
+      "spi"
+    ]
+  }
+}

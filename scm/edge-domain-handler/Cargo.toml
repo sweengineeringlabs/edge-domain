@@ -21,6 +21,7 @@ path = "main/src/lib.rs"
 async-trait.workspace        = true
 thiserror.workspace          = true
 parking_lot.workspace        = true
+edge-domain-command.workspace  = true
 edge-domain-security.workspace = true
 
 [dev-dependencies]

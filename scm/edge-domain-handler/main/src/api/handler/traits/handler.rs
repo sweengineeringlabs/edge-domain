@@ -1,9 +1,9 @@
 //! `Handler` trait — an async request/response execution unit.
 
 use async_trait::async_trait;
-use edge_domain_security::SecurityContext;
 
 use crate::api::handler::errors::HandlerError;
+use crate::api::handler::types::HandlerContext;
 
 /// An async request/response execution unit identified by an id and pattern.
 #[async_trait]
@@ -24,19 +24,12 @@ pub trait Handler: Send + Sync {
         ""
     }
 
-    /// Execute the handler with the given request.
-    async fn execute(&self, req: Self::Request) -> Result<Self::Response, HandlerError>;
-
-    /// Execute the handler with an explicit [`SecurityContext`].
-    ///
-    /// The default implementation ignores the context and delegates to [`execute`](Handler::execute).
-    async fn execute_with_context(
+    /// Execute the handler with the given request and request-scoped context.
+    async fn execute(
         &self,
         req: Self::Request,
-        _ctx: SecurityContext,
-    ) -> Result<Self::Response, HandlerError> {
-        self.execute(req).await
-    }
+        ctx: HandlerContext<'_>,
+    ) -> Result<Self::Response, HandlerError>;
 
     /// Return `true` if the handler is healthy and able to process requests.
     async fn health_check(&self) -> bool {
@@ -47,6 +40,8 @@ pub trait Handler: Send + Sync {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+    use edge_domain_security::SecurityContext;
 
     struct AlwaysOk;
 
@@ -55,7 +50,11 @@ mod tests {
         type Request = String;
         type Response = String;
 
-        async fn execute(&self, req: String) -> Result<String, HandlerError> {
+        async fn execute(
+            &self,
+            req: String,
+            _ctx: HandlerContext<'_>,
+        ) -> Result<String, HandlerError> {
             Ok(req)
         }
     }
@@ -67,19 +66,29 @@ mod tests {
         type Request = String;
         type Response = String;
 
-        async fn execute(&self, _req: String) -> Result<String, HandlerError> {
+        async fn execute(
+            &self,
+            _req: String,
+            _ctx: HandlerContext<'_>,
+        ) -> Result<String, HandlerError> {
             Err(HandlerError::ExecutionFailed("fail".into()))
         }
     }
 
     #[tokio::test]
     async fn test_execute_ok_handler_returns_response_happy() {
-        assert!(AlwaysOk.execute("hi".into()).await.is_ok());
+        let security = SecurityContext::unauthenticated();
+        let bus = StdCommandBusFactory::direct();
+        let ctx = HandlerContext { security: &security, commands: &bus };
+        assert!(AlwaysOk.execute("hi".into(), ctx).await.is_ok());
     }
 
     #[tokio::test]
     async fn test_execute_failing_handler_returns_err_error() {
-        assert!(AlwaysFail.execute("hi".into()).await.is_err());
+        let security = SecurityContext::unauthenticated();
+        let bus = StdCommandBusFactory::direct();
+        let ctx = HandlerContext { security: &security, commands: &bus };
+        assert!(AlwaysFail.execute("hi".into(), ctx).await.is_err());
     }
 
     #[tokio::test]
@@ -95,14 +104,5 @@ mod tests {
     #[tokio::test]
     async fn test_health_check_default_returns_true_happy() {
         assert!(AlwaysOk.health_check().await);
-    }
-
-    #[tokio::test]
-    async fn test_execute_with_context_delegates_to_execute_happy() {
-        let ctx = SecurityContext::unauthenticated();
-        let result = AlwaysOk
-            .execute_with_context("hello".into(), ctx)
-            .await;
-        assert_eq!(result.unwrap(), "hello");
     }
 }

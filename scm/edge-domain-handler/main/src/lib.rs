@@ -12,6 +12,7 @@ mod saf;
 
 pub use saf::EchoHandler;
 pub use saf::Handler;
+pub use saf::HandlerContext;
 pub use saf::HandlerError;
 pub use saf::HandlerFactory;
 pub use saf::HandlerProvider;

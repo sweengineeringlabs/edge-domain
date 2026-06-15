@@ -1,15 +1,24 @@
 //! Integration tests — `EchoHandler` type.
 
-use edge_domain_handler::{EchoHandler, Handler};
+use std::sync::Arc;
+
+use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+use edge_domain_handler::{EchoHandler, Handler, HandlerContext};
 use edge_domain_security::SecurityContext;
 use futures::executor::block_on;
+
+fn unauth_ctx<'a>(security: &'a SecurityContext, bus: &'a dyn edge_domain_command::CommandBus) -> HandlerContext<'a> {
+    HandlerContext { security, commands: bus }
+}
 
 /// @covers: EchoHandler::execute — returns request unchanged
 #[test]
 fn test_execute_returns_request_unchanged_happy() {
     let h = EchoHandler::<String>::new("echo", "/");
-    let result = block_on(h.execute("hello".into()));
-    assert_eq!(result.unwrap(), "hello");
+    let security = SecurityContext::unauthenticated();
+    let bus = StdCommandBusFactory::direct();
+    let ctx = unauth_ctx(&security, &bus);
+    assert_eq!(block_on(h.execute("hello".into(), ctx)).unwrap(), "hello");
 }
 
 /// @covers: EchoHandler::id — returns configured id
@@ -30,7 +39,10 @@ fn test_pattern_returns_configured_pattern_happy() {
 #[test]
 fn test_execute_empty_string_returns_empty_string_edge() {
     let h = EchoHandler::<String>::new("e", "/");
-    assert_eq!(block_on(h.execute("".into())).unwrap(), "");
+    let security = SecurityContext::unauthenticated();
+    let bus = StdCommandBusFactory::direct();
+    let ctx = unauth_ctx(&security, &bus);
+    assert_eq!(block_on(h.execute("".into(), ctx)).unwrap(), "");
 }
 
 /// @covers: EchoHandler::health_check default
@@ -40,21 +52,23 @@ fn test_health_check_returns_true_happy() {
     assert!(block_on(h.health_check()));
 }
 
-/// @covers: EchoHandler::execute_with_context delegates to execute
+/// @covers: EchoHandler::execute — context is accepted and ignored (echo never inspects it)
 #[test]
-fn test_execute_with_context_returns_same_value_happy() {
+fn test_execute_with_security_context_returns_same_value_happy() {
     let h = EchoHandler::<String>::new("e", "/");
-    let ctx = SecurityContext::unauthenticated();
-    let result = block_on(h.execute_with_context("world".into(), ctx));
-    assert_eq!(result.unwrap(), "world");
+    let security = SecurityContext::unauthenticated();
+    let bus = StdCommandBusFactory::direct();
+    let ctx = unauth_ctx(&security, &bus);
+    assert_eq!(block_on(h.execute("world".into(), ctx)).unwrap(), "world");
 }
 
 /// @covers: EchoHandler — usable as dyn Handler
 #[test]
 fn test_echo_handler_usable_as_dyn_handler_edge() {
-    use std::sync::Arc;
     let h: Arc<dyn Handler<Request = String, Response = String>> =
         Arc::new(EchoHandler::new("dyn", "/"));
-    let result = block_on(h.execute("dyn-test".into()));
-    assert_eq!(result.unwrap(), "dyn-test");
+    let security = SecurityContext::unauthenticated();
+    let bus = StdCommandBusFactory::direct();
+    let ctx = unauth_ctx(&security, &bus);
+    assert_eq!(block_on(h.execute("dyn-test".into(), ctx)).unwrap(), "dyn-test");
 }

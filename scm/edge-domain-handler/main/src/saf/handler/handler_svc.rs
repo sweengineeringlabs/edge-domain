@@ -2,4 +2,5 @@
 pub const HANDLER_SVC: &str = "handler";
 
 pub use crate::api::handler::Handler;
+pub use crate::api::handler::HandlerContext;
 pub use crate::api::handler::HandlerError;

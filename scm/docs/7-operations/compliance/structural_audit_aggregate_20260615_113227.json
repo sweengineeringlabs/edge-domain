@@ -1,0 +1,105 @@
+{
+  "members": [
+    {
+      "failed": 0,
+      "member": "edge-domain",
+      "passed": 0,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-clock",
+      "passed": 0,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-command",
+      "passed": 0,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-entity",
+      "passed": 0,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-event",
+      "passed": 0,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-handler",
+      "passed": 0,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-policy",
+      "passed": 0,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-projection",
+      "passed": 0,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-query",
+      "passed": 0,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-repository",
+      "passed": 0,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-saga",
+      "passed": 0,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-security",
+      "passed": 0,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-service",
+      "passed": 0,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-snapshot",
+      "passed": 0,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-validator",
+      "passed": 0,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-valueobject",
+      "passed": 0,
+      "skipped": 0
+    }
+  ],
+  "mode": "package",
+  "timestamp": "2026-06-15T11:32:28.997358800+02:00",
+  "total_failed": 0,
+  "total_members": 16,
+  "total_passed": 0
+}

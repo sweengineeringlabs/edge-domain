@@ -6,6 +6,7 @@ use async_trait::async_trait;
 
 use crate::api::handler::errors::HandlerError;
 use crate::api::handler::traits::Handler;
+use crate::api::handler::types::HandlerContext;
 
 /// A handler that returns its request unchanged as the response.
 ///
@@ -50,7 +51,7 @@ impl<T: Clone + Send + 'static> Handler for EchoHandler<T> {
         &self.pattern
     }
 
-    async fn execute(&self, req: T) -> Result<T, HandlerError> {
+    async fn execute(&self, req: T, _ctx: HandlerContext<'_>) -> Result<T, HandlerError> {
         Ok(req)
     }
 }

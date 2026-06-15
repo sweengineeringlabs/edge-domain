@@ -3,7 +3,9 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain_handler::{Handler, HandlerError, HandlerRegistry, InProcessHandlerRegistry};
+use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+use edge_domain_handler::{Handler, HandlerContext, HandlerError, HandlerRegistry, InProcessHandlerRegistry};
+use edge_domain_security::SecurityContext;
 use futures::executor::block_on;
 
 struct Stub {
@@ -16,10 +18,8 @@ impl Handler for Stub {
     type Request = String;
     type Response = String;
 
-    fn id(&self) -> &str {
-        self.id
-    }
-    async fn execute(&self, _req: String) -> Result<String, HandlerError> {
+    fn id(&self) -> &str { self.id }
+    async fn execute(&self, _req: String, _ctx: HandlerContext<'_>) -> Result<String, HandlerError> {
         Ok(self.response.into())
     }
 }
@@ -47,10 +47,7 @@ fn test_default_creates_empty_registry_edge() {
 #[test]
 fn test_register_makes_handler_retrievable_happy() {
     let reg = make_reg();
-    reg.register(Arc::new(Stub {
-        id: "s1",
-        response: "r1",
-    }));
+    reg.register(Arc::new(Stub { id: "s1", response: "r1" }));
     assert!(reg.get("s1").is_some());
 }
 
@@ -58,27 +55,21 @@ fn test_register_makes_handler_retrievable_happy() {
 #[test]
 fn test_register_duplicate_id_replaces_handler_edge() {
     let reg = make_reg();
-    reg.register(Arc::new(Stub {
-        id: "dup",
-        response: "first",
-    }));
-    reg.register(Arc::new(Stub {
-        id: "dup",
-        response: "second",
-    }));
+    reg.register(Arc::new(Stub { id: "dup", response: "first" }));
+    reg.register(Arc::new(Stub { id: "dup", response: "second" }));
     assert_eq!(reg.len(), 1);
     let h = reg.get("dup").unwrap();
-    assert_eq!(block_on(h.execute("".into())).unwrap(), "second");
+    let security = SecurityContext::unauthenticated();
+    let bus = StdCommandBusFactory::direct();
+    let ctx = HandlerContext { security: &security, commands: &bus };
+    assert_eq!(block_on(h.execute("".into(), ctx)).unwrap(), "second");
 }
 
 /// @covers: InProcessHandlerRegistry::deregister — returns true for existing id
 #[test]
 fn test_deregister_existing_returns_true_happy() {
     let reg = make_reg();
-    reg.register(Arc::new(Stub {
-        id: "to-remove",
-        response: "x",
-    }));
+    reg.register(Arc::new(Stub { id: "to-remove", response: "x" }));
     assert!(reg.deregister("to-remove"));
     assert!(reg.get("to-remove").is_none());
 }
@@ -112,10 +103,10 @@ fn test_list_ids_empty_registry_returns_empty_vec_edge() {
 #[test]
 fn test_retrieved_handler_produces_expected_response_happy() {
     let reg = make_reg();
-    reg.register(Arc::new(Stub {
-        id: "exec",
-        response: "pong",
-    }));
+    reg.register(Arc::new(Stub { id: "exec", response: "pong" }));
     let h = reg.get("exec").unwrap();
-    assert_eq!(block_on(h.execute("ping".into())).unwrap(), "pong");
+    let security = SecurityContext::unauthenticated();
+    let bus = StdCommandBusFactory::direct();
+    let ctx = HandlerContext { security: &security, commands: &bus };
+    assert_eq!(block_on(h.execute("ping".into(), ctx)).unwrap(), "pong");
 }

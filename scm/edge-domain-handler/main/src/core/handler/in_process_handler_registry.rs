@@ -54,7 +54,7 @@ mod tests {
         fn id(&self) -> &str {
             "fixture"
         }
-        async fn execute(&self, req: String) -> Result<String, HandlerError> {
+        async fn execute(&self, req: String, _ctx: crate::api::handler::types::HandlerContext<'_>) -> Result<String, HandlerError> {
             Ok(req)
         }
     }

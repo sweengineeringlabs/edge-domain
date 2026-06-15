@@ -8,4 +8,4 @@ pub use handler_provider_svc::{
     EchoHandler, HandlerProvider, InProcessHandlerRegistry, HANDLER_PROVIDER_SVC,
 };
 pub use handler_registry_svc::{HandlerRegistry, HANDLER_REGISTRY_SVC};
-pub use handler_svc::{Handler, HandlerError, HANDLER_SVC};
+pub use handler_svc::{Handler, HandlerContext, HandlerError, HANDLER_SVC};

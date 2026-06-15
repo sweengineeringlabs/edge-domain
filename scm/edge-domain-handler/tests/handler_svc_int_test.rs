@@ -1,7 +1,8 @@
 //! Integration tests — `Handler` trait via SAF facade.
 
 use async_trait::async_trait;
-use edge_domain_handler::{Handler, HandlerError};
+use edge_domain_command::{CommandBus, CommandBusFactory, StdCommandBusFactory};
+use edge_domain_handler::{Handler, HandlerContext, HandlerError};
 use edge_domain_security::SecurityContext;
 use futures::executor::block_on;
 
@@ -12,13 +13,10 @@ impl Handler for OkHandler {
     type Request = String;
     type Response = String;
 
-    fn id(&self) -> &str {
-        "ok-handler"
-    }
-    fn pattern(&self) -> &str {
-        "/ok"
-    }
-    async fn execute(&self, req: String) -> Result<String, HandlerError> {
+    fn id(&self) -> &str { "ok-handler" }
+    fn pattern(&self) -> &str { "/ok" }
+
+    async fn execute(&self, req: String, _ctx: HandlerContext<'_>) -> Result<String, HandlerError> {
         Ok(req.to_uppercase())
     }
 }
@@ -30,7 +28,7 @@ impl Handler for FailHandler {
     type Request = String;
     type Response = String;
 
-    async fn execute(&self, _req: String) -> Result<String, HandlerError> {
+    async fn execute(&self, _req: String, _ctx: HandlerContext<'_>) -> Result<String, HandlerError> {
         Err(HandlerError::ExecutionFailed("deliberate".into()))
     }
 }
@@ -42,26 +40,32 @@ impl Handler for UnhealthyHandler {
     type Request = String;
     type Response = String;
 
-    async fn execute(&self, _req: String) -> Result<String, HandlerError> {
+    async fn execute(&self, _req: String, _ctx: HandlerContext<'_>) -> Result<String, HandlerError> {
         Err(HandlerError::Unhealthy)
     }
-    async fn health_check(&self) -> bool {
-        false
-    }
+    async fn health_check(&self) -> bool { false }
+}
+
+fn make_ctx<'a>(security: &'a SecurityContext, bus: &'a dyn CommandBus) -> HandlerContext<'a> {
+    HandlerContext { security, commands: bus }
 }
 
 /// @covers: Handler::execute — success path
 #[test]
 fn test_execute_ok_handler_returns_response_happy() {
-    let result = block_on(OkHandler.execute("hello".into()));
-    assert_eq!(result.unwrap(), "HELLO");
+    let security = SecurityContext::unauthenticated();
+    let bus = StdCommandBusFactory::direct();
+    let ctx = make_ctx(&security, &bus);
+    assert_eq!(block_on(OkHandler.execute("hello".into(), ctx)).unwrap(), "HELLO");
 }
 
 /// @covers: Handler::execute — error propagation
 #[test]
 fn test_execute_failing_handler_returns_err_error() {
-    let result = block_on(FailHandler.execute("x".into()));
-    assert!(result.is_err());
+    let security = SecurityContext::unauthenticated();
+    let bus = StdCommandBusFactory::direct();
+    let ctx = make_ctx(&security, &bus);
+    assert!(block_on(FailHandler.execute("x".into(), ctx)).is_err());
 }
 
 /// @covers: Handler::id default and override
@@ -100,34 +104,33 @@ fn test_health_check_unhealthy_handler_returns_false_error() {
     assert!(!block_on(UnhealthyHandler.health_check()));
 }
 
-/// @covers: Handler::execute_with_context delegates to execute
+/// @covers: Handler::execute — unauthenticated context threads through correctly
 #[test]
-fn test_execute_with_context_delegates_to_execute_happy() {
-    let ctx = SecurityContext::unauthenticated();
-    let result = block_on(OkHandler.execute_with_context("world".into(), ctx));
-    assert_eq!(result.unwrap(), "WORLD");
+fn test_execute_with_unauthenticated_context_returns_response_happy() {
+    let security = SecurityContext::unauthenticated();
+    let bus = StdCommandBusFactory::direct();
+    let ctx = make_ctx(&security, &bus);
+    assert_eq!(block_on(OkHandler.execute("world".into(), ctx)).unwrap(), "WORLD");
 }
 
-/// @covers: Handler::execute_with_context with authenticated context
+/// @covers: Handler::execute — authenticated context threads through correctly
 #[test]
-fn test_execute_with_context_authenticated_context_still_executes_edge() {
+fn test_execute_with_authenticated_context_still_executes_edge() {
     use edge_domain_security::AnonymousPrincipal;
-    let ctx = SecurityContext::authenticated_with(Box::new(AnonymousPrincipal));
-    let result = block_on(OkHandler.execute_with_context("test".into(), ctx));
-    assert_eq!(result.unwrap(), "TEST");
+    let security = SecurityContext::authenticated_with(Box::new(AnonymousPrincipal));
+    let bus = StdCommandBusFactory::direct();
+    let ctx = make_ctx(&security, &bus);
+    assert_eq!(block_on(OkHandler.execute("test".into(), ctx)).unwrap(), "TEST");
 }
 
 /// @covers: Handler::id — non-overriding impl always returns default (no error path)
 #[test]
 fn test_id_non_overriding_impl_returns_default_handler_error() {
-    // FailHandler does not override id(); the default "handler" is always returned.
-    // This tests that the absence of an override does not produce an error.
     assert_eq!(FailHandler.id(), "handler");
 }
 
 /// @covers: Handler::pattern — non-overriding impl always returns empty (no error path)
 #[test]
 fn test_pattern_non_overriding_impl_returns_empty_string_error() {
-    // FailHandler does not override pattern(); the default "" is always returned.
     assert_eq!(FailHandler.pattern(), "");
 }

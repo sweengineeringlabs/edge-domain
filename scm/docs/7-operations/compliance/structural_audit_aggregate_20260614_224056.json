@@ -1,0 +1,105 @@
+{
+  "members": [
+    {
+      "failed": 1,
+      "member": "edge-domain",
+      "passed": 165,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-clock",
+      "passed": 166,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-command",
+      "passed": 166,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-entity",
+      "passed": 166,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-event",
+      "passed": 166,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-handler",
+      "passed": 166,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-policy",
+      "passed": 166,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-projection",
+      "passed": 166,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-query",
+      "passed": 166,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-repository",
+      "passed": 166,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-saga",
+      "passed": 166,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-security",
+      "passed": 166,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-service",
+      "passed": 166,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-snapshot",
+      "passed": 166,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-validator",
+      "passed": 166,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-valueobject",
+      "passed": 166,
+      "skipped": 0
+    }
+  ],
+  "mode": "package",
+  "timestamp": "2026-06-14T22:41:04.591300800+02:00",
+  "total_failed": 1,
+  "total_members": 16,
+  "total_passed": 2655
+}

@@ -1,0 +1,105 @@
+{
+  "members": [
+    {
+      "failed": 8,
+      "member": "edge-domain",
+      "passed": 90,
+      "skipped": 52
+    },
+    {
+      "failed": 7,
+      "member": "edge-domain-clock",
+      "passed": 87,
+      "skipped": 56
+    },
+    {
+      "failed": 8,
+      "member": "edge-domain-command",
+      "passed": 86,
+      "skipped": 56
+    },
+    {
+      "failed": 7,
+      "member": "edge-domain-entity",
+      "passed": 87,
+      "skipped": 56
+    },
+    {
+      "failed": 8,
+      "member": "edge-domain-event",
+      "passed": 86,
+      "skipped": 56
+    },
+    {
+      "failed": 8,
+      "member": "edge-domain-handler",
+      "passed": 86,
+      "skipped": 56
+    },
+    {
+      "failed": 7,
+      "member": "edge-domain-policy",
+      "passed": 87,
+      "skipped": 56
+    },
+    {
+      "failed": 8,
+      "member": "edge-domain-projection",
+      "passed": 86,
+      "skipped": 56
+    },
+    {
+      "failed": 8,
+      "member": "edge-domain-query",
+      "passed": 86,
+      "skipped": 56
+    },
+    {
+      "failed": 8,
+      "member": "edge-domain-repository",
+      "passed": 86,
+      "skipped": 56
+    },
+    {
+      "failed": 8,
+      "member": "edge-domain-saga",
+      "passed": 86,
+      "skipped": 56
+    },
+    {
+      "failed": 7,
+      "member": "edge-domain-security",
+      "passed": 87,
+      "skipped": 56
+    },
+    {
+      "failed": 8,
+      "member": "edge-domain-service",
+      "passed": 86,
+      "skipped": 56
+    },
+    {
+      "failed": 8,
+      "member": "edge-domain-snapshot",
+      "passed": 86,
+      "skipped": 56
+    },
+    {
+      "failed": 7,
+      "member": "edge-domain-validator",
+      "passed": 87,
+      "skipped": 56
+    },
+    {
+      "failed": 7,
+      "member": "edge-domain-valueobject",
+      "passed": 91,
+      "skipped": 52
+    }
+  ],
+  "mode": "package",
+  "timestamp": "2026-06-13T21:51:32.840202+02:00",
+  "total_failed": 122,
+  "total_members": 16,
+  "total_passed": 1390
+}

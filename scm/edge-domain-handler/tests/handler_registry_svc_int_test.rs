@@ -3,7 +3,9 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain_handler::{Handler, HandlerError, HandlerRegistry, InProcessHandlerRegistry};
+use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+use edge_domain_handler::{Handler, HandlerContext, HandlerError, HandlerRegistry, InProcessHandlerRegistry};
+use edge_domain_security::SecurityContext;
 use futures::executor::block_on;
 
 struct Fixed {
@@ -15,10 +17,8 @@ impl Handler for Fixed {
     type Request = String;
     type Response = String;
 
-    fn id(&self) -> &str {
-        self.id
-    }
-    async fn execute(&self, req: String) -> Result<String, HandlerError> {
+    fn id(&self) -> &str { self.id }
+    async fn execute(&self, req: String, _ctx: HandlerContext<'_>) -> Result<String, HandlerError> {
         Ok(req)
     }
 }
@@ -109,14 +109,15 @@ fn test_retrieved_handler_executes_correctly_happy() {
     let reg = make_reg();
     reg.register(Arc::new(Fixed { id: "exec" }));
     let h = reg.get("exec").unwrap();
-    let result = block_on(h.execute("data".into()));
-    assert_eq!(result.unwrap(), "data");
+    let security = SecurityContext::unauthenticated();
+    let bus = StdCommandBusFactory::direct();
+    let ctx = HandlerContext { security: &security, commands: &bus };
+    assert_eq!(block_on(h.execute("data".into(), ctx)).unwrap(), "data");
 }
 
 /// @covers: HandlerRegistry::register — registering with a duplicate id does not produce an error
 #[test]
 fn test_register_duplicate_id_is_not_an_error_error() {
-    // register() is infallible — re-registering the same id silently replaces the entry.
     let reg = make_reg();
     reg.register(Arc::new(Fixed { id: "dup" }));
     reg.register(Arc::new(Fixed { id: "dup" }));
@@ -129,7 +130,6 @@ fn test_deregister_already_removed_id_returns_false_edge() {
     let reg = make_reg();
     reg.register(Arc::new(Fixed { id: "once" }));
     assert!(reg.deregister("once"));
-    // Second call: id is already gone — returns false, not an error.
     assert!(!reg.deregister("once"));
 }
 
@@ -153,7 +153,6 @@ fn test_get_after_deregister_returns_none_edge() {
 /// @covers: HandlerRegistry::list_ids — no error path; empty registry returns empty vec
 #[test]
 fn test_list_ids_on_empty_registry_returns_empty_vec_error() {
-    // list_ids is infallible — empty registry is a valid, non-error state.
     let reg = make_reg();
     assert!(reg.list_ids().is_empty());
 }
@@ -164,7 +163,6 @@ fn test_len_zero_after_all_deregistered_is_not_error_error() {
     let reg = make_reg();
     reg.register(Arc::new(Fixed { id: "ephemeral" }));
     reg.deregister("ephemeral");
-    // len() returning 0 after deregistering is correct behaviour, not an error.
     assert_eq!(reg.len(), 0);
 }
 
@@ -187,7 +185,6 @@ fn test_is_empty_on_empty_registry_returns_true_happy() {
 /// @covers: HandlerRegistry::is_empty — non-empty registry never returns true as an error
 #[test]
 fn test_is_empty_after_register_returns_false_not_an_error_error() {
-    // is_empty returning false for a populated registry is correct, not an error.
     let reg = make_reg();
     reg.register(Arc::new(Fixed { id: "item" }));
     assert!(!reg.is_empty());

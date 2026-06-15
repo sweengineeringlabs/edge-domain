@@ -8,4 +8,4 @@ pub mod types;
 pub use errors::HandlerError;
 pub use in_process_handler_registry::InProcessHandlerRegistry;
 pub use traits::{Handler, HandlerFactory, HandlerProvider, HandlerRegistry};
-pub use types::{EchoHandler, NoopHandlerFactory};
+pub use types::{EchoHandler, HandlerContext, NoopHandlerFactory};

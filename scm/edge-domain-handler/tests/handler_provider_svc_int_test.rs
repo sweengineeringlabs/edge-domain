@@ -1,8 +1,12 @@
 //! Integration tests — `HandlerProvider` trait.
 
-use edge_domain_handler::{Handler, HandlerProvider, HandlerRegistry};
-use futures::executor::block_on;
 use std::sync::Arc;
+
+use async_trait::async_trait;
+use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+use edge_domain_handler::{Handler, HandlerContext, HandlerError, HandlerProvider, HandlerRegistry};
+use edge_domain_security::SecurityContext;
+use futures::executor::block_on;
 
 struct Prov;
 impl HandlerProvider for Prov {}
@@ -19,8 +23,10 @@ fn test_echo_handler_id_and_pattern_set_correctly_happy() {
 #[test]
 fn test_echo_handler_reflects_request_happy() {
     let h = Prov::echo_handler("e", "/");
-    let result = block_on(h.execute("ping".into()));
-    assert_eq!(result.unwrap(), "ping");
+    let security = SecurityContext::unauthenticated();
+    let bus = StdCommandBusFactory::direct();
+    let ctx = HandlerContext { security: &security, commands: &bus };
+    assert_eq!(block_on(h.execute("ping".into(), ctx)).unwrap(), "ping");
 }
 
 /// @covers: HandlerProvider::echo_handler — empty id/pattern edge
@@ -41,19 +47,14 @@ fn test_in_process_registry_creates_empty_registry_happy() {
 /// @covers: HandlerProvider::in_process_registry — registry is usable
 #[test]
 fn test_in_process_registry_register_and_retrieve_happy() {
-    use async_trait::async_trait;
-    use edge_domain_handler::HandlerError;
-
     struct Ping;
     #[async_trait]
     impl Handler for Ping {
         type Request = String;
         type Response = String;
 
-        fn id(&self) -> &str {
-            "ping"
-        }
-        async fn execute(&self, _req: String) -> Result<String, HandlerError> {
+        fn id(&self) -> &str { "ping" }
+        async fn execute(&self, _req: String, _ctx: HandlerContext<'_>) -> Result<String, HandlerError> {
             Ok("pong".into())
         }
     }
@@ -66,19 +67,14 @@ fn test_in_process_registry_register_and_retrieve_happy() {
 /// @covers: HandlerProvider::in_process_registry — empty after deregister
 #[test]
 fn test_in_process_registry_empty_after_deregister_edge() {
-    use async_trait::async_trait;
-    use edge_domain_handler::HandlerError;
-
     struct Tmp;
     #[async_trait]
     impl Handler for Tmp {
         type Request = String;
         type Response = String;
 
-        fn id(&self) -> &str {
-            "tmp"
-        }
-        async fn execute(&self, _req: String) -> Result<String, HandlerError> {
+        fn id(&self) -> &str { "tmp" }
+        async fn execute(&self, _req: String, _ctx: HandlerContext<'_>) -> Result<String, HandlerError> {
             Ok(String::new())
         }
     }
@@ -92,7 +88,6 @@ fn test_in_process_registry_empty_after_deregister_edge() {
 /// @covers: HandlerProvider::echo_handler — infallible (no error path; demonstrates it never panics)
 #[test]
 fn test_echo_handler_always_constructs_without_error_error() {
-    // echo_handler is infallible — any id/pattern produces a handler without panic.
     let h = Prov::echo_handler("", "");
     assert_eq!(h.id(), "");
 }
@@ -100,7 +95,6 @@ fn test_echo_handler_always_constructs_without_error_error() {
 /// @covers: HandlerProvider::in_process_registry — infallible (no error path; empty state is valid)
 #[test]
 fn test_in_process_registry_empty_state_is_not_an_error_error() {
-    // in_process_registry is infallible — an empty registry is not an error condition.
     let reg = Prov::in_process_registry::<String, String>();
     assert_eq!(reg.len(), 0);
 }
@@ -115,8 +109,6 @@ fn test_noop_handler_factory_constructs_instance_happy() {
 /// @covers: HandlerProvider::noop_handler_factory — infallible (no error path; documents absence)
 #[test]
 fn test_noop_handler_factory_is_always_infallible_error() {
-    // noop_handler_factory is infallible — unit type has no invalid state.
-    // This test documents the absence of an error path explicitly.
     use edge_domain_handler::NoopHandlerFactory;
     let _f: NoopHandlerFactory = Prov::noop_handler_factory();
 }

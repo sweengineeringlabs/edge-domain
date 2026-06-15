@@ -1,0 +1,105 @@
+{
+  "members": [
+    {
+      "failed": 0,
+      "member": "edge-domain",
+      "passed": 166,
+      "skipped": 0
+    },
+    {
+      "failed": 2,
+      "member": "edge-domain-clock",
+      "passed": 164,
+      "skipped": 0
+    },
+    {
+      "failed": 3,
+      "member": "edge-domain-command",
+      "passed": 163,
+      "skipped": 0
+    },
+    {
+      "failed": 3,
+      "member": "edge-domain-entity",
+      "passed": 163,
+      "skipped": 0
+    },
+    {
+      "failed": 2,
+      "member": "edge-domain-event",
+      "passed": 164,
+      "skipped": 0
+    },
+    {
+      "failed": 3,
+      "member": "edge-domain-handler",
+      "passed": 163,
+      "skipped": 0
+    },
+    {
+      "failed": 3,
+      "member": "edge-domain-policy",
+      "passed": 163,
+      "skipped": 0
+    },
+    {
+      "failed": 2,
+      "member": "edge-domain-projection",
+      "passed": 164,
+      "skipped": 0
+    },
+    {
+      "failed": 3,
+      "member": "edge-domain-query",
+      "passed": 163,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-repository",
+      "passed": 166,
+      "skipped": 0
+    },
+    {
+      "failed": 2,
+      "member": "edge-domain-saga",
+      "passed": 164,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-security",
+      "passed": 166,
+      "skipped": 0
+    },
+    {
+      "failed": 3,
+      "member": "edge-domain-service",
+      "passed": 163,
+      "skipped": 0
+    },
+    {
+      "failed": 2,
+      "member": "edge-domain-snapshot",
+      "passed": 164,
+      "skipped": 0
+    },
+    {
+      "failed": 2,
+      "member": "edge-domain-validator",
+      "passed": 164,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "edge-domain-valueobject",
+      "passed": 166,
+      "skipped": 0
+    }
+  ],
+  "mode": "package",
+  "timestamp": "2026-06-13T20:39:29.051915400+02:00",
+  "total_failed": 30,
+  "total_members": 16,
+  "total_passed": 2626
+}

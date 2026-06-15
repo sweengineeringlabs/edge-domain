@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-06-15T09:32:28.446396500+00:00",
+  "results": [],
+  "summary": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "duration_ms": 0.0399
+  },
+  "project_layout": "library",
+  "application_type": "lib",
+  "rule_labels": {
+    "core_impl_name_has_trait_suffix": [
+      "core",
+      "spi"
+    ],
+    "core_fns_have_unit_tests": [
+      "core",
+      "spi"
+    ],
+    "core_structs_have_trait": [
+      "core",
+      "spi"
+    ],
+    "core_types_name_cohesive": [
+      "core",
+      "spi"
+    ],
+    "no_traits_in_impl_layer": [
+      "core",
+      "spi"
+    ],
+    "core_structs_not_pub": [
+      "core",
+      "spi"
+    ],
+    "no_loose_core_files": [
+      "core",
+      "spi"
+    ],
+    "core_filename_matches_type": [
+      "core",
+      "spi"
+    ]
+  }
+}
