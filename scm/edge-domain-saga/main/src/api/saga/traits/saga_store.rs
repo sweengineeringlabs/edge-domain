@@ -2,8 +2,8 @@ use crate::api::saga::errors::SagaError;
 use crate::api::saga::traits::Saga;
 
 /// Stores live [`Saga`] instances keyed by their `SagaId`.
-pub trait SagaRegistry: Send + Sync {
-    /// The concrete saga type stored in this registry.
+pub trait SagaStore: Send + Sync {
+    /// The concrete saga type stored in this store.
     type SagaInstance: Saga;
 
     /// Register a saga instance under `id`.

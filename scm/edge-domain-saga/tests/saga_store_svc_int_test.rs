@@ -1,7 +1,7 @@
-//! SAF tests — `SagaRegistry` trait via `InMemorySagaRegistry`.
+//! SAF tests — `SagaStore` trait via `InMemorySagaStore`.
 // @allow: no_mocks_in_integration
 
-use edge_domain_saga::{Command, CommandError, DomainEvent, InMemorySagaRegistry, Saga, SagaError, SagaRegistry};
+use edge_domain_saga::{Command, CommandError, DomainEvent, InMemorySagaStore, Saga, SagaError, SagaStore};
 use futures::future::BoxFuture;
 
 #[derive(Clone)]
@@ -42,23 +42,23 @@ impl Saga for PingSaga {
     }
 }
 
-fn new_reg() -> InMemorySagaRegistry<PingSaga> {
-    InMemorySagaRegistry::new()
+fn new_store() -> InMemorySagaStore<PingSaga> {
+    InMemorySagaStore::new()
 }
 
 /// @covers: register
 #[test]
 fn test_register_new_saga_returns_ok_happy() {
-    let mut reg = new_reg();
-    assert!(reg.register("s1".to_string(), PingSaga::default()).is_ok());
+    let mut store = new_store();
+    assert!(store.register("s1".to_string(), PingSaga::default()).is_ok());
 }
 
 /// @covers: register
 #[test]
 fn test_register_duplicate_id_returns_already_registered_error() {
-    let mut reg = new_reg();
-    reg.register("s1".to_string(), PingSaga::default()).ok();
-    let err = match reg.register("s1".to_string(), PingSaga::default()) {
+    let mut store = new_store();
+    store.register("s1".to_string(), PingSaga::default()).ok();
+    let err = match store.register("s1".to_string(), PingSaga::default()) {
         Err(e) => e,
         Ok(()) => panic!("expected Err"),
     };
@@ -68,26 +68,26 @@ fn test_register_duplicate_id_returns_already_registered_error() {
 /// @covers: register
 #[test]
 fn test_register_multiple_sagas_with_different_ids_edge() {
-    let mut reg = new_reg();
-    assert!(reg.register("a".to_string(), PingSaga::default()).is_ok());
-    assert!(reg.register("b".to_string(), PingSaga::default()).is_ok());
-    assert!(reg.get(&"a".to_string()).is_ok());
-    assert!(reg.get(&"b".to_string()).is_ok());
+    let mut store = new_store();
+    assert!(store.register("a".to_string(), PingSaga::default()).is_ok());
+    assert!(store.register("b".to_string(), PingSaga::default()).is_ok());
+    assert!(store.get(&"a".to_string()).is_ok());
+    assert!(store.get(&"b".to_string()).is_ok());
 }
 
 /// @covers: get
 #[test]
 fn test_get_registered_saga_returns_saga_happy() {
-    let mut reg = new_reg();
-    reg.register("s1".to_string(), PingSaga::default()).ok();
-    assert!(reg.get(&"s1".to_string()).is_ok());
+    let mut store = new_store();
+    store.register("s1".to_string(), PingSaga::default()).ok();
+    assert!(store.get(&"s1".to_string()).is_ok());
 }
 
 /// @covers: get
 #[test]
 fn test_get_unknown_id_returns_not_found_error() {
-    let reg = new_reg();
-    let err = match reg.get(&"ghost".to_string()) {
+    let store = new_store();
+    let err = match store.get(&"ghost".to_string()) {
         Err(e) => e,
         Ok(_) => panic!("expected Err"),
     };
@@ -97,9 +97,9 @@ fn test_get_unknown_id_returns_not_found_error() {
 /// @covers: get
 #[test]
 fn test_get_after_register_is_consistent_edge() {
-    let mut reg = new_reg();
-    reg.register("id1".to_string(), PingSaga::default()).ok();
-    let saga = match reg.get(&"id1".to_string()) {
+    let mut store = new_store();
+    store.register("id1".to_string(), PingSaga::default()).ok();
+    let saga = match store.get(&"id1".to_string()) {
         Ok(s) => s,
         Err(e) => panic!("expected Ok, got: {e}"),
     };

@@ -1,7 +1,7 @@
-//! Integration tests for `InMemorySagaRegistry`.
+//! Integration tests for `InMemorySagaStore`.
 // @allow: no_mocks_in_integration
 
-use edge_domain_saga::{Command, CommandError, DomainEvent, InMemorySagaRegistry, Saga, SagaRegistry};
+use edge_domain_saga::{Command, CommandError, DomainEvent, InMemorySagaStore, Saga, SagaStore};
 use futures::future::BoxFuture;
 
 #[derive(Clone)]
@@ -43,22 +43,22 @@ impl Saga for CountingSaga {
 }
 
 #[test]
-fn test_new_registry_is_empty_happy() {
-    let reg = InMemorySagaRegistry::<CountingSaga>::new();
-    assert!(reg.get(&"x".to_string()).is_err());
+fn test_new_store_is_empty_happy() {
+    let store = InMemorySagaStore::<CountingSaga>::new();
+    assert!(store.get(&"x".to_string()).is_err());
 }
 
 #[test]
-fn test_default_registry_is_empty_error() {
-    let reg = InMemorySagaRegistry::<CountingSaga>::default();
-    assert!(reg.get(&"x".to_string()).is_err());
+fn test_default_store_is_empty_error() {
+    let store = InMemorySagaStore::<CountingSaga>::default();
+    assert!(store.get(&"x".to_string()).is_err());
 }
 
 #[test]
-fn test_registry_stores_and_retrieves_saga_edge() {
-    let mut reg = InMemorySagaRegistry::<CountingSaga>::new();
-    reg.register("c1".to_string(), CountingSaga::default()).ok();
-    let saga = match reg.get(&"c1".to_string()) {
+fn test_store_stores_and_retrieves_saga_edge() {
+    let mut store = InMemorySagaStore::<CountingSaga>::new();
+    store.register("c1".to_string(), CountingSaga::default()).ok();
+    let saga = match store.get(&"c1".to_string()) {
         Ok(s) => s,
         Err(e) => panic!("expected saga, got: {e}"),
     };

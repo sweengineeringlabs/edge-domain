@@ -4,5 +4,5 @@ pub mod traits;
 pub mod types;
 
 pub use errors::SagaError;
-pub use traits::{Saga, SagaFactory, SagaRegistry};
-pub use types::{InMemorySagaRegistry, NoopSaga, NoopSagaCommand, NoopSagaEvent, StdSagaFactory};
+pub use traits::{Saga, SagaFactory, SagaStore};
+pub use types::InMemorySagaStore;
