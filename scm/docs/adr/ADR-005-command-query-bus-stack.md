@@ -68,7 +68,7 @@ impl CommandBus for LoggingCommandBus {
 }
 ```
 
-Each new implementation adds a factory method to `CommandBusFactory` / `QueryBusFactory`. Callers always receive `Arc<dyn CommandBus>` — never a concrete type.
+Each new bus implementation adds a factory method to `CommandBusFactory` / `QueryBusFactory`. The new command bus method is named `noop_bus()` to distinguish it from the existing `noop_command()` method (which returns a `NoopCommand`, not a bus). Callers always receive `Arc<dyn CommandBus>` — never a concrete type.
 
 ---
 
