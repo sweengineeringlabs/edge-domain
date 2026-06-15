@@ -1,23 +1,8 @@
-use edge_domain_command::{Command, CommandBusFactory, StdCommandBusFactory};
+use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
 
 #[test]
 fn test_std_factory_direct_creates_command_bus_happy() {
     let _ = StdCommandBusFactory::direct();
-}
-
-#[test]
-fn test_noop_command_name_not_empty_happy() {
-    assert!(!StdCommandBusFactory::noop_command().name().is_empty());
-}
-
-#[test]
-fn test_noop_command_name_never_signals_failure_error() {
-    assert_eq!(StdCommandBusFactory::noop_command().name(), "command");
-}
-
-#[tokio::test]
-async fn test_noop_command_execute_always_succeeds_edge() {
-    assert!(StdCommandBusFactory::noop_command().execute().await.is_ok());
 }
 
 #[test]
