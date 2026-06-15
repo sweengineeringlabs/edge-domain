@@ -17,7 +17,7 @@ fn test_handler_context_constructs_with_unauthenticated_security_happy() {
 /// @covers: HandlerContext — commands field rejects dispatch on NoopCommandBus (always ok, but bus is wired)
 #[test]
 fn test_handler_context_commands_field_is_accessible_error() {
-    use edge_domain_command::{Command, CommandError, NoopCommand};
+    use edge_domain_command::NoopCommand;
     use futures::executor::block_on;
 
     let security = SecurityContext::unauthenticated();

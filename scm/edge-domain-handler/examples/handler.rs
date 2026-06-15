@@ -26,5 +26,6 @@ impl Handler for Greet {
 
 fn main() {
     let _echo = Handlers::echo_handler("echo", "/echo");
+    let _greet = Greet;
     println!("handler sub-crate ready");
 }
