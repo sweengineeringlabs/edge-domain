@@ -2,10 +2,12 @@
 
 pub mod direct_command_bus;
 pub mod errors;
+pub mod logging_command_bus;
 pub mod traits;
 pub mod types;
 
 pub use direct_command_bus::DirectCommandBus;
 pub use errors::CommandError;
+pub use logging_command_bus::LoggingCommandBus;
 pub use traits::{Command, CommandBus, CommandBusFactory, CommandFactory};
-pub use types::{NoopCommand, StdCommandBusFactory};
+pub use types::{NoopCommand, NoopCommandBus, StdCommandBusFactory};
