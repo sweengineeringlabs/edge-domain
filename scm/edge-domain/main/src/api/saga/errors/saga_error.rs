@@ -1,4 +1,4 @@
-//! `SagaError` — errors returned by [`SagaRegistry`](crate::SagaRegistry) operations.
+//! `SagaError` — errors returned by [`SagaStore`](crate::SagaStore) operations.
 
 use thiserror::Error;
 

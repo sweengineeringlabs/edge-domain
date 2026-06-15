@@ -1,6 +1,6 @@
-//! In-memory saga registry — stores sagas in a `HashMap` keyed by `SagaId`.
+//! In-memory saga store — stores sagas in a `HashMap` keyed by `SagaId`.
 //!
-//! A reference [`SagaRegistry`] for development and testing.  State lives in
+//! A reference [`SagaStore`] for development and testing.  State lives in
 //! process memory and is lost when the process stops.
 
 use std::collections::HashMap;
@@ -8,13 +8,13 @@ use std::fmt::Display;
 
 use crate::api::saga::errors::SagaError;
 use crate::api::saga::traits::Saga;
-use crate::api::saga::traits::SagaRegistry;
+use crate::api::saga::traits::SagaStore;
 
-pub(crate) struct InMemorySagaRegistry<S: Saga> {
+pub(crate) struct InMemorySagaStore<S: Saga> {
     sagas: HashMap<S::SagaId, S>,
 }
 
-impl<S: Saga> InMemorySagaRegistry<S> {
+impl<S: Saga> InMemorySagaStore<S> {
     pub(crate) fn new() -> Self {
         Self {
             sagas: HashMap::new(),
@@ -22,8 +22,8 @@ impl<S: Saga> InMemorySagaRegistry<S> {
     }
 }
 
-// impl SagaRegistry for InMemorySagaRegistry
-impl<S> SagaRegistry for InMemorySagaRegistry<S>
+// impl SagaStore for InMemorySagaStore
+impl<S> SagaStore for InMemorySagaStore<S>
 where
     S: Saga,
     S::SagaId: Display,
@@ -54,26 +54,26 @@ mod tests {
     use futures::future::BoxFuture;
 
     #[derive(Clone)]
-    struct InMemorySagaRegistryTestSignal;
-    impl DomainEvent for InMemorySagaRegistryTestSignal {
+    struct InMemorySagaStoreTestSignal;
+    impl DomainEvent for InMemorySagaStoreTestSignal {
         fn aggregate_id(&self) -> &str {
             "saga-test"
         }
     }
-    impl Command for InMemorySagaRegistryTestSignal {
+    impl Command for InMemorySagaStoreTestSignal {
         fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
             Box::pin(async move { Ok(()) })
         }
     }
 
     #[derive(Debug, Default)]
-    struct InMemorySagaRegistryTestSaga {
+    struct InMemorySagaStoreTestSaga {
         done: bool,
     }
-    impl Saga for InMemorySagaRegistryTestSaga {
+    impl Saga for InMemorySagaStoreTestSaga {
         type SagaId = String;
-        type Event = InMemorySagaRegistryTestSignal;
-        type Command = InMemorySagaRegistryTestSignal;
+        type Event = InMemorySagaStoreTestSignal;
+        type Command = InMemorySagaStoreTestSignal;
         fn handle(&mut self, _event: &Self::Event) -> Vec<Self::Command> {
             self.done = true;
             vec![]
@@ -83,37 +83,37 @@ mod tests {
         }
     }
 
-    type TestRegistry = InMemorySagaRegistry<InMemorySagaRegistryTestSaga>;
+    type TestStore = InMemorySagaStore<InMemorySagaStoreTestSaga>;
 
     #[test]
-    fn test_new_creates_empty_registry() {
-        let reg = TestRegistry::new();
-        assert!(reg.get(&"missing".to_string()).is_err());
+    fn test_new_creates_empty_store() {
+        let store = TestStore::new();
+        assert!(store.get(&"missing".to_string()).is_err());
     }
 
     #[test]
     fn test_register_then_get_returns_saga() {
-        let mut reg = TestRegistry::new();
-        reg.register("s1".to_string(), InMemorySagaRegistryTestSaga::default())
+        let mut store = TestStore::new();
+        store.register("s1".to_string(), InMemorySagaStoreTestSaga::default())
             .unwrap();
-        assert!(reg.get(&"s1".to_string()).is_ok());
+        assert!(store.get(&"s1".to_string()).is_ok());
     }
 
     #[test]
     fn test_register_duplicate_id_returns_already_registered() {
-        let mut reg = TestRegistry::new();
-        reg.register("s1".to_string(), InMemorySagaRegistryTestSaga::default())
+        let mut store = TestStore::new();
+        store.register("s1".to_string(), InMemorySagaStoreTestSaga::default())
             .unwrap();
-        let err = reg
-            .register("s1".to_string(), InMemorySagaRegistryTestSaga::default())
+        let err = store
+            .register("s1".to_string(), InMemorySagaStoreTestSaga::default())
             .unwrap_err();
         assert_eq!(err, SagaError::AlreadyRegistered("s1".to_string()));
     }
 
     #[test]
     fn test_get_unknown_id_returns_not_found() {
-        let reg = TestRegistry::new();
-        let err = reg.get(&"ghost".to_string()).unwrap_err();
+        let store = TestStore::new();
+        let err = store.get(&"ghost".to_string()).unwrap_err();
         assert_eq!(err, SagaError::NotFound("ghost".to_string()));
     }
 }

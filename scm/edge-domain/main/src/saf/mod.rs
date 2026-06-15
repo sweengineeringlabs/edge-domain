@@ -235,7 +235,7 @@ pub use edge_domain_projection::ProjectionFactory;
 
 // ── saga (sub-crate when feature enabled) ─────────────────────────────────────
 #[cfg(feature = "saga")]
-pub use edge_domain_saga::InMemorySagaRegistry;
+pub use edge_domain_saga::InMemorySagaStore;
 #[cfg(feature = "saga")]
 pub use edge_domain_saga::Saga;
 #[cfg(feature = "saga")]
@@ -243,7 +243,7 @@ pub use edge_domain_saga::SagaError;
 #[cfg(feature = "saga")]
 pub use edge_domain_saga::SagaFactory;
 #[cfg(feature = "saga")]
-pub use edge_domain_saga::SagaRegistry;
+pub use edge_domain_saga::SagaStore;
 
 // ── registry (opt-in; NOT in default features) ────────────────────────────────
 #[cfg(feature = "registry")]

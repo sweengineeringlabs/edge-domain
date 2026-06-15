@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain::{Domain, Handler, HandlerError, HandlerRegistry};
+use edge_domain::{Domain, Handler, HandlerContext, HandlerError, HandlerRegistry};
 
 struct EchoHandler {
     id: String,
@@ -19,7 +19,7 @@ impl Handler for EchoHandler {
     fn pattern(&self) -> &str {
         "echo"
     }
-    async fn execute(&self, req: String) -> Result<String, HandlerError> {
+    async fn execute(&self, req: String, _ctx: HandlerContext<'_>) -> Result<String, HandlerError> {
         Ok(req)
     }
 }

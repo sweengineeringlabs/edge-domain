@@ -4,6 +4,8 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain::*;
+use edge_domain_handler::HandlerContext;
+use edge_domain_security::SecurityContext;
 use std::sync::Arc;
 
 /// @covers: echo_handler
@@ -16,7 +18,10 @@ fn test_echo_handler() {
 #[tokio::test]
 async fn test_echo_handler_returns_input_as_output() {
     let h = Domain::echo_handler::<String>("echo", "/echo");
-    assert_eq!(h.execute("ping".into()).await.unwrap(), "ping");
+    let security = SecurityContext::unauthenticated();
+    let bus = Domain::direct_command_bus();
+    let ctx = HandlerContext { security: &security, commands: bus.as_ref() };
+    assert_eq!(h.execute("ping".into(), ctx).await.unwrap(), "ping");
 }
 
 /// @covers: new_handler_registry

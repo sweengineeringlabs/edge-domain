@@ -1,4 +1,4 @@
-//! `SagaRegistry` — stores saga instances keyed by their [`SagaId`].
+//! `SagaStore` — stores saga instances keyed by their [`SagaId`].
 //!
 //! [`SagaId`]: crate::Saga::SagaId
 
@@ -7,12 +7,12 @@ use crate::api::saga::traits::Saga;
 
 /// Stores live [`Saga`] instances keyed by their `SagaId`.
 ///
-/// Unlike a string-keyed `HandlerRegistry`, this registry is keyed by the
+/// Unlike a string-keyed `HandlerRegistry`, this store is keyed by the
 /// saga's own [`SagaId`](Saga::SagaId) associated type and is generic over a
 /// single saga type via `SagaInstance`.  Dispatching the commands a saga emits
-/// is the caller's responsibility — the registry only stores and retrieves instances.
-pub trait SagaRegistry: Send + Sync {
-    /// The concrete saga type stored in this registry.
+/// is the caller's responsibility — the store only stores and retrieves instances.
+pub trait SagaStore: Send + Sync {
+    /// The concrete saga type stored in this store.
     type SagaInstance: Saga;
 
     /// Register a saga instance under `id`.

@@ -1,8 +1,13 @@
 //! Integration tests for `EchoHandler` and the `echo_handler` factory.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{Domain, EchoHandler, Handler};
+use edge_domain::{Domain, EchoHandler, Handler, HandlerContext};
+use edge_domain_security::SecurityContext;
 use std::sync::Arc;
+
+fn make_ctx<'a>(security: &'a SecurityContext, bus: &'a Arc<dyn edge_domain::CommandBus>) -> HandlerContext<'a> {
+    HandlerContext { security, commands: bus.as_ref() }
+}
 
 /// @covers: echo_handler
 #[test]
@@ -14,7 +19,9 @@ fn test_echo_handler_factory_returns_arc_handler() {
 #[tokio::test]
 async fn test_echo_handler_returns_request_as_response() {
     let h = Domain::echo_handler::<String>("echo", "/echo");
-    let result = h.execute("hello".to_string()).await.unwrap();
+    let security = SecurityContext::unauthenticated();
+    let bus = Domain::direct_command_bus();
+    let result = h.execute("hello".to_string(), make_ctx(&security, &bus)).await.unwrap();
     assert_eq!(result, "hello");
 }
 
@@ -43,5 +50,7 @@ async fn test_echo_handler_struct_health_check_defaults_to_true() {
 #[tokio::test]
 async fn test_echo_handler_works_with_numeric_type() {
     let h: Arc<dyn Handler<Request = u64, Response = u64>> = Domain::echo_handler("num", "/num");
-    assert_eq!(h.execute(42u64).await.unwrap(), 42u64);
+    let security = SecurityContext::unauthenticated();
+    let bus = Domain::direct_command_bus();
+    assert_eq!(h.execute(42u64, make_ctx(&security, &bus)).await.unwrap(), 42u64);
 }
