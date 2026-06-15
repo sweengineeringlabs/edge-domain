@@ -13,6 +13,8 @@ mod saf;
 pub use saf::Command;
 pub use saf::CommandBus;
 pub use saf::CommandBusFactory;
+pub use saf::CommandFactory;
+pub use saf::COMMAND_FACTORY_SVC;
 pub use saf::CommandError;
 pub use saf::StdCommandBusFactory;
 pub use saf::DirectCommandBus;
