@@ -21,10 +21,11 @@
 |---|---|---|
 | `Command` trait | Write operation contract — named, void, self-contained | Exists |
 | `CommandBus` trait | Single dispatch point for all write operations | Exists |
-| `CommandBusFactory` trait | Extensible factory for bus variants | Exists |
+| `CommandBusFactory` trait | Factory for `CommandBus` implementations only | Exists |
+| `CommandFactory` trait | Factory for `Command` implementations only | Exists |
 | `DirectCommandBus` | Inline dispatch, same task | Exists |
 | `NoopCommand` | Structural placeholder — always `Ok(())` | Exists |
-| `StdCommandBusFactory` | Standard factory marker | Exists |
+| `StdCommandBusFactory` | Standard factory — implements both `CommandBusFactory` and `CommandFactory` | Exists |
 | `NoopCommandBus` | Discards all commands silently | **To build** |
 | `LoggingCommandBus` | Wraps inner bus; traces `cmd.name()` + outcome | **To build** |
 
