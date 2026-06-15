@@ -245,6 +245,44 @@ pub use edge_domain_saga::SagaFactory;
 #[cfg(feature = "saga")]
 pub use edge_domain_saga::SagaRegistry;
 
+// ── registry (opt-in; NOT in default features) ────────────────────────────────
+#[cfg(feature = "registry")]
+pub use edge_domain_registry::InMemoryRegistry;
+#[cfg(feature = "registry")]
+pub use edge_domain_registry::Registry;
+#[cfg(feature = "registry")]
+pub use edge_domain_registry::RegistryError;
+#[cfg(feature = "registry")]
+pub use edge_domain_registry::RegistryFactory;
+#[cfg(feature = "registry")]
+pub use edge_domain_registry::StdRegistryFactory;
+#[cfg(feature = "registry")]
+pub use edge_domain_registry::REGISTRY_FACTORY_SVC;
+#[cfg(feature = "registry")]
+pub use edge_domain_registry::REGISTRY_SVC;
+
+// ── lifecycle (opt-in; NOT in default features) ───────────────────────────────
+#[cfg(feature = "lifecycle")]
+pub use edge_domain_lifecycle::Lifecycle;
+#[cfg(feature = "lifecycle")]
+pub use edge_domain_lifecycle::LifecycleError;
+#[cfg(feature = "lifecycle")]
+pub use edge_domain_lifecycle::LifecycleFactory;
+#[cfg(feature = "lifecycle")]
+pub use edge_domain_lifecycle::ManagedLifecycle;
+#[cfg(feature = "lifecycle")]
+pub use edge_domain_lifecycle::PermissivePolicy;
+#[cfg(feature = "lifecycle")]
+pub use edge_domain_lifecycle::StdLifecycleFactory;
+#[cfg(feature = "lifecycle")]
+pub use edge_domain_lifecycle::TransitionPolicy;
+#[cfg(feature = "lifecycle")]
+pub use edge_domain_lifecycle::LIFECYCLE_FACTORY_SVC;
+#[cfg(feature = "lifecycle")]
+pub use edge_domain_lifecycle::LIFECYCLE_SVC;
+#[cfg(feature = "lifecycle")]
+pub use edge_domain_lifecycle::TRANSITION_POLICY_SVC;
+
 // ── security (opt-in; NOT in default features) ───────────────────────────────
 #[cfg(feature = "security")]
 pub use edge_domain_security::AnonymousPrincipal;

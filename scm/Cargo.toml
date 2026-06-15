@@ -58,3 +58,5 @@ edge-domain-event       = { path = "edge-domain-event" }
 edge-domain-projection  = { path = "edge-domain-projection" }
 edge-domain-saga        = { path = "edge-domain-saga" }
 edge-domain-security    = { path = "edge-domain-security" }
+edge-domain-registry    = { path = "edge-domain-registry" }
+edge-domain-lifecycle   = { path = "edge-domain-lifecycle" }
