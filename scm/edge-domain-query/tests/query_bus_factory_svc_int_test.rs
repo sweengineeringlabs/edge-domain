@@ -71,3 +71,96 @@ fn test_noop_query_repeated_calls_are_independent_edge() {
     assert!(block_on(q1.execute()).is_ok());
     assert!(block_on(q2.execute()).is_ok());
 }
+
+/// @covers: QueryBusFactory::noop_query_bus — returns a NoopQueryBus that returns NotFound
+#[test]
+fn test_noop_query_bus_returns_not_found_on_dispatch_happy() {
+    use futures::future::BoxFuture;
+    use edge_domain_query::{NoopQueryBus, Query, QueryBus, QueryError};
+    struct StrQuery;
+    impl Query for StrQuery {
+        type Result = String;
+        fn name(&self) -> &str { "str" }
+        fn execute(&self) -> BoxFuture<'_, Result<String, QueryError>> {
+            Box::pin(async { Ok("x".into()) })
+        }
+    }
+    let bus: NoopQueryBus<String> = Buses::noop_query_bus();
+    let result = block_on(bus.dispatch(Box::new(StrQuery)));
+    assert!(result.is_err());
+}
+
+/// @covers: QueryBusFactory::noop_query_bus — usable as dyn QueryBus
+#[test]
+fn test_noop_query_bus_usable_as_dyn_query_bus_error() {
+    use std::sync::Arc;
+    use edge_domain_query::{NoopQueryBus, QueryBus};
+    let bus: Arc<dyn QueryBus<Result = String>> = Arc::new(Buses::noop_query_bus::<String>());
+    assert_eq!(std::mem::size_of::<NoopQueryBus<String>>(), 0);
+    drop(bus);
+}
+
+/// @covers: QueryBusFactory::noop_query_bus — independent calls return same-sized type
+#[test]
+fn test_noop_query_bus_independent_calls_edge() {
+    use edge_domain_query::NoopQueryBus;
+    let a: NoopQueryBus<String> = Buses::noop_query_bus();
+    let b: NoopQueryBus<u32> = Buses::noop_query_bus();
+    assert_eq!(std::mem::size_of_val(&a), 0);
+    assert_eq!(std::mem::size_of_val(&b), 0);
+}
+
+/// @covers: QueryBusFactory::logging_query — wraps inner bus and delegates dispatch
+#[test]
+fn test_logging_query_wraps_inner_bus_happy() {
+    use std::sync::Arc;
+    use futures::future::BoxFuture;
+    use edge_domain_query::{LoggingQueryBus, Query, QueryBus, QueryError};
+
+    struct OkQuery;
+    impl Query for OkQuery {
+        type Result = String;
+        fn name(&self) -> &str { "ok" }
+        fn execute(&self) -> BoxFuture<'_, Result<String, QueryError>> {
+            Box::pin(async { Ok("hello".into()) })
+        }
+    }
+
+    let inner: Arc<dyn QueryBus<Result = String>> = Arc::new(DirectQueryBus::<String>::new());
+    let bus: LoggingQueryBus<String> = Buses::logging_query(inner);
+    let result = block_on(bus.dispatch(Box::new(OkQuery)));
+    assert_eq!(result.unwrap(), "hello");
+}
+
+/// @covers: QueryBusFactory::logging_query — distinct instances for different inner types
+#[test]
+fn test_logging_query_distinct_instances_for_different_inner_error() {
+    use std::sync::Arc;
+    use edge_domain_query::{LoggingQueryBus, NoopQueryBus, QueryBus};
+
+    let inner_str: Arc<dyn QueryBus<Result = String>> = Arc::new(NoopQueryBus::new());
+    let inner_u32: Arc<dyn QueryBus<Result = u32>> = Arc::new(NoopQueryBus::new());
+    let _bus_str: LoggingQueryBus<String> = Buses::logging_query(inner_str);
+    let _bus_u32: LoggingQueryBus<u32> = Buses::logging_query(inner_u32);
+}
+
+/// @covers: QueryBusFactory::logging_query — delegates dispatch to inner on err path
+#[test]
+fn test_logging_query_delegates_dispatch_to_inner_edge() {
+    use std::sync::Arc;
+    use futures::future::BoxFuture;
+    use edge_domain_query::{LoggingQueryBus, Query, QueryBus, QueryError};
+
+    struct ErrQuery;
+    impl Query for ErrQuery {
+        type Result = String;
+        fn name(&self) -> &str { "err" }
+        fn execute(&self) -> BoxFuture<'_, Result<String, QueryError>> {
+            Box::pin(async { Err(QueryError::NotFound("gone".into())) })
+        }
+    }
+
+    let inner: Arc<dyn QueryBus<Result = String>> = Arc::new(DirectQueryBus::<String>::new());
+    let bus: LoggingQueryBus<String> = Buses::logging_query(inner);
+    assert!(block_on(bus.dispatch(Box::new(ErrQuery))).is_err());
+}

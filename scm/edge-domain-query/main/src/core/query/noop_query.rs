@@ -1,9 +1,12 @@
-//! `Query` impl for [`NoopQuery`] — no-op that always returns `Ok(())`.
+//! `Query` and `QueryBus` impls for noop types — NoopQuery always returns `Ok(())`;
+//! NoopQueryBus always returns `Err(QueryError::NotFound)`.
 
 use futures::future::BoxFuture;
 
 use crate::api::query::traits::Query;
+use crate::api::query::traits::QueryBus;
 use crate::api::query::types::NoopQuery;
+use crate::api::query::types::NoopQueryBus;
 use crate::api::query::QueryError;
 
 impl Query for NoopQuery {
@@ -11,5 +14,16 @@ impl Query for NoopQuery {
 
     fn execute(&self) -> BoxFuture<'_, Result<(), QueryError>> {
         Box::pin(async { Ok(()) })
+    }
+}
+
+impl<R: Send + 'static> QueryBus for NoopQueryBus<R> {
+    type Result = R;
+
+    fn dispatch(
+        &self,
+        _: Box<dyn Query<Result = R>>,
+    ) -> BoxFuture<'_, Result<R, QueryError>> {
+        Box::pin(async { Err(QueryError::NotFound("noop".into())) })
     }
 }

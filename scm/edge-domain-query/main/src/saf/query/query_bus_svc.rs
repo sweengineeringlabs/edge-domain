@@ -1,4 +1,6 @@
 pub use crate::api::query::DirectQueryBus;
+pub use crate::api::query::LoggingQueryBus;
+pub use crate::api::query::NoopQueryBus;
 pub use crate::api::query::QueryBus;
 
 /// SAF service name for the `QueryBus` port contract.
