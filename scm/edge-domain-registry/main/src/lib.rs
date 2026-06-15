@@ -11,6 +11,7 @@
 #![cfg_attr(test, allow(clippy::unwrap_used, clippy::expect_used))]
 
 mod api;
+mod core;
 
 pub use api::registry::InMemoryRegistry;
 pub use api::registry::Registry;
