@@ -102,10 +102,20 @@ pub use edge_domain_command::CommandBusFactory;
 pub use edge_domain_command::CommandError;
 #[cfg(feature = "command")]
 pub use edge_domain_command::DirectCommandBus;
+#[cfg(feature = "command")]
+pub use edge_domain_command::LoggingCommandBus;
+#[cfg(feature = "command")]
+pub use edge_domain_command::NoopCommandBus;
 
 // ── query (sub-crate when feature enabled) ────────────────────────────────────
 #[cfg(feature = "query")]
 pub use edge_domain_query::DirectQueryBus;
+#[cfg(feature = "query")]
+pub use edge_domain_query::LoggingQueryBus;
+#[cfg(feature = "query")]
+pub use edge_domain_query::NoopQuery;
+#[cfg(feature = "query")]
+pub use edge_domain_query::NoopQueryBus;
 #[cfg(feature = "query")]
 pub use edge_domain_query::Query;
 #[cfg(feature = "query")]
@@ -114,6 +124,8 @@ pub use edge_domain_query::QueryBus;
 pub use edge_domain_query::QueryBusFactory;
 #[cfg(feature = "query")]
 pub use edge_domain_query::QueryError;
+#[cfg(feature = "query")]
+pub use edge_domain_query::StdQueryBusFactory;
 
 // ── snapshot (sub-crate when feature enabled) ─────────────────────────────────
 #[cfg(feature = "snapshot")]
