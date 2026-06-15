@@ -167,6 +167,8 @@ pub use edge_domain_handler::HandlerFactory;
 #[cfg(feature = "handler")]
 pub use edge_domain_handler::HandlerProvider;
 #[cfg(feature = "handler")]
+pub use edge_domain_handler::HandlerContext;
+#[cfg(feature = "handler")]
 pub use edge_domain_handler::HandlerRegistry;
 #[cfg(feature = "handler")]
 pub use edge_domain_handler::InProcessHandlerRegistry;
