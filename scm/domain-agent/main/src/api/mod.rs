@@ -1,3 +1,4 @@
+pub(crate) mod builder;
 mod error;
 mod noop;
 mod traits;
