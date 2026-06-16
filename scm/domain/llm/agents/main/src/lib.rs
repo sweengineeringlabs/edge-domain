@@ -1,9 +1,9 @@
-//! # edge-domain-agent
+//! # edge_llm_agent
 //!
-//! Agent domain primitives: `Agent`, `Skill`, `AgentManager`, `AgentRegistry`.
+//! LLM Agent domain primitive: lifecycle state machine, messaging, tool governance.
 //!
-//! Agents are first-class domain concepts. This crate defines the contracts;
-//! concrete implementations live in plugins (e.g., `edge-plugin-llmboot`).
+//! Consolidates agent orchestration (Agent, Skill, AgentManager, AgentRegistry) with
+//! LLM-specific features (AgentLifecycle, Message, ToolChoice, SchemaValidator).
 
 #![deny(unsafe_code)]
 #![warn(missing_docs)]

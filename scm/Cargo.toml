@@ -63,4 +63,4 @@ edge-domain-saga        = { path = "domain-saga" }
 edge-domain-security    = { path = "domain-security" }
 edge-domain-registry    = { path = "domain-registry" }
 edge-domain-lifecycle   = { path = "domain-lifecycle" }
-edge-domain-agent       = { path = "domain/llm/agents" }
+edge_llm_agent          = { path = "domain/llm/agents" }

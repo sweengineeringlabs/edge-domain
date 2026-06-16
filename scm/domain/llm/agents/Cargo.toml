@@ -1,12 +1,12 @@
 [package]
-name                   = "edge-domain-agent"
+name                   = "edge_llm_agent"
 version                = "0.1.0"
 edition.workspace      = true
 license.workspace      = true
 rust-version.workspace = true
 authors.workspace      = true
 repository.workspace   = true
-description = "edge-domain — Agent domain primitive: Agent, Skill, AgentManager, AgentRegistry port contracts"
+description = "LLM Agent domain primitive: lifecycle state machine, messaging, tool governance"
 keywords    = ["domain", "agent", "skill", "orchestration", "sea"]
 categories  = ["development-tools"]
 
