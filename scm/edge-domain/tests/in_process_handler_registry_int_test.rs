@@ -6,6 +6,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use edge_domain::Domain;
 use edge_domain::Handler;
+use edge_domain::HandlerContext;
 use edge_domain::HandlerError;
 
 struct ConstHandler {
@@ -23,7 +24,7 @@ impl Handler for ConstHandler {
     fn pattern(&self) -> &str {
         "*"
     }
-    async fn execute(&self, _: i32) -> Result<i32, HandlerError> {
+    async fn execute(&self, _: i32, _ctx: HandlerContext<'_>) -> Result<i32, HandlerError> {
         Ok(self.response)
     }
 }

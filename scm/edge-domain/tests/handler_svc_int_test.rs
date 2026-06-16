@@ -2,8 +2,11 @@
 //! SAF facade smoke test — Handler trait is exported from the crate root.
 
 use async_trait::async_trait;
+use edge_domain::Domain;
 use edge_domain::Handler;
+use edge_domain::HandlerContext;
 use edge_domain::HandlerError;
+use edge_domain_security::SecurityContext;
 
 struct Doubler;
 
@@ -17,14 +20,17 @@ impl Handler for Doubler {
     fn pattern(&self) -> &str {
         "*"
     }
-    async fn execute(&self, req: i32) -> Result<i32, HandlerError> {
+    async fn execute(&self, req: i32, _ctx: HandlerContext<'_>) -> Result<i32, HandlerError> {
         Ok(req * 2)
     }
 }
 
 #[tokio::test]
 async fn test_handler_svc_facade_execute_doubles_input() {
-    assert_eq!(Doubler.execute(21).await.unwrap(), 42);
+    let security = SecurityContext::unauthenticated();
+    let bus = Domain::direct_command_bus();
+    let ctx = HandlerContext { security: &security, commands: bus.as_ref() };
+    assert_eq!(Doubler.execute(21, ctx).await.unwrap(), 42);
 }
 
 #[tokio::test]

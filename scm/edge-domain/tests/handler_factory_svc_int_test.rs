@@ -3,8 +3,10 @@
 
 use async_trait::async_trait;
 use edge_domain::Handler;
+use edge_domain::HandlerContext;
 use edge_domain::HandlerError;
 use edge_domain::HandlerFactory;
+use edge_domain_security::SecurityContext;
 
 struct Cfg {
     label: String,
@@ -31,7 +33,7 @@ impl Handler for LabelHandler {
     fn pattern(&self) -> &str {
         "*"
     }
-    async fn execute(&self, _: ()) -> Result<String, HandlerError> {
+    async fn execute(&self, _: (), _ctx: HandlerContext<'_>) -> Result<String, HandlerError> {
         Ok(self.label.clone())
     }
 }
@@ -51,5 +53,8 @@ async fn test_handler_factory_svc_facade_built_handler_executes() {
         label: "echo".into(),
     })
     .unwrap();
-    assert_eq!(h.execute(()).await.unwrap(), "echo");
+    let security = SecurityContext::unauthenticated();
+    let bus = edge_domain::Domain::direct_command_bus();
+    let ctx = HandlerContext { security: &security, commands: bus.as_ref() };
+    assert_eq!(h.execute((), ctx).await.unwrap(), "echo");
 }

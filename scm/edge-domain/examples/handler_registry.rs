@@ -12,7 +12,8 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain::{Domain, Handler, HandlerError};
+use edge_domain::{Domain, Handler, HandlerContext, HandlerError};
+use edge_domain_security::SecurityContext;
 
 struct GreetHandler;
 
@@ -28,7 +29,7 @@ impl Handler for GreetHandler {
         "direct"
     }
 
-    async fn execute(&self, req: String) -> Result<String, HandlerError> {
+    async fn execute(&self, req: String, _ctx: HandlerContext<'_>) -> Result<String, HandlerError> {
         if req.is_empty() {
             return Err(HandlerError::InvalidRequest(
                 "name must not be empty".into(),
@@ -47,10 +48,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("registered:   {:?}", registry.list_ids());
 
     let handler = registry.get("greet").expect("handler must be present");
-    let resp = handler.execute("world".into()).await?;
+    let security = SecurityContext::unauthenticated();
+    let bus = Domain::direct_command_bus();
+    let ctx = HandlerContext { security: &security, commands: bus.as_ref() };
+
+    let resp = handler.execute("world".into(), ctx).await?;
     println!("execute       → {resp}");
 
-    let err = handler.execute("".into()).await.unwrap_err();
+    let err = handler.execute("".into(), ctx).await.unwrap_err();
     println!("empty name    → {err}");
 
     let healthy = handler.health_check().await;

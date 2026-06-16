@@ -205,14 +205,14 @@ pub mod projection;
 // ── saga ──────────────────────────────────────────────────────────────────────
 #[cfg(feature = "saga")]
 pub mod saga {
-    pub use edge_domain_saga::InMemorySagaRegistry;
+    pub use edge_domain_saga::InMemorySagaStore;
     pub use edge_domain_saga::Saga;
     pub use edge_domain_saga::SagaError;
     pub use edge_domain_saga::SagaFactory;
-    pub use edge_domain_saga::SagaRegistry;
+    pub use edge_domain_saga::SagaStore;
     pub mod traits {
         pub use super::Saga;
-        pub use super::SagaRegistry;
+        pub use super::SagaStore;
     }
     pub mod errors {
         pub use super::SagaError;

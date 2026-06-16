@@ -2,12 +2,7 @@
 ///
 /// Useful as a placeholder or test double where a concrete `Saga` type is
 /// required but no actual processing should occur.
+#[derive(Default)]
 pub struct NoopSaga {
     pub(crate) complete: bool,
-}
-
-impl Default for NoopSaga {
-    fn default() -> Self {
-        Self { complete: false }
-    }
 }

@@ -22,7 +22,7 @@ use crate::api::query::QueryBus;
 use crate::api::repository::QueryableRepository;
 use crate::api::repository::Repository;
 use crate::api::saga::Saga;
-use crate::api::saga::SagaRegistry;
+use crate::api::saga::SagaStore;
 use crate::api::service::types::ServiceRegistry;
 use crate::api::service::ServiceRegistry as ServiceRegistryTrait;
 use crate::api::snapshot::Snapshot;
@@ -63,9 +63,9 @@ use crate::api::repository::InMemoryRepository;
 use crate::core::repository::in_memory_repository::InMemoryRepository;
 
 #[cfg(feature = "saga")]
-use crate::api::saga::InMemorySagaRegistry;
+use crate::api::saga::InMemorySagaStore;
 #[cfg(not(feature = "saga"))]
-use crate::core::saga::in_memory_saga_registry::InMemorySagaRegistry;
+use crate::core::saga::in_memory_saga_store::InMemorySagaStore;
 
 impl Domain {
     /// Construct a handler that returns its input unchanged.
@@ -271,9 +271,9 @@ impl Domain {
         Box::new(InMemoryProjection::new(initial, reducer))
     }
 
-    /// Construct a fresh in-memory [`SagaRegistry`] for saga type `S`.
+    /// Construct a fresh in-memory [`SagaStore`] for saga type `S`.
     ///
-    /// Sagas are stored keyed by their [`SagaId`](Saga::SagaId).  The registry
+    /// Sagas are stored keyed by their [`SagaId`](Saga::SagaId).  The store
     /// returns [`SagaError`](crate::SagaError) on duplicate registration or
     /// missing lookup; dispatching the commands a saga emits remains the
     /// caller's responsibility.
@@ -281,25 +281,25 @@ impl Domain {
     /// # Examples
     ///
     /// ```rust,ignore
-    /// let mut registry = Domain::new_in_memory_saga_registry::<OrderSaga>();
-    /// registry.register(order_id, OrderSaga::default())?;
+    /// let mut store = Domain::new_in_memory_saga_store::<OrderSaga>();
+    /// store.register(order_id, OrderSaga::default())?;
     /// ```
     #[cfg(feature = "saga")]
-    pub fn new_in_memory_saga_registry<S>() -> Box<dyn SagaRegistry<SagaInstance = S>>
+    pub fn new_in_memory_saga_store<S>() -> Box<dyn SagaStore<SagaInstance = S>>
     where
         S: Saga + 'static,
         S::SagaId: std::fmt::Display + 'static,
     {
-        Box::new(InMemorySagaRegistry::new())
+        Box::new(InMemorySagaStore::new())
     }
 
     #[cfg(not(feature = "saga"))]
-    pub fn new_in_memory_saga_registry<S>() -> Box<dyn SagaRegistry<SagaInstance = S>>
+    pub fn new_in_memory_saga_store<S>() -> Box<dyn SagaStore<SagaInstance = S>>
     where
         S: Saga + 'static,
         S::SagaId: std::fmt::Display + 'static,
     {
-        Box::new(InMemorySagaRegistry::new())
+        Box::new(InMemorySagaStore::new())
     }
 
     /// Construct a thread-safe in-memory [`SnapshotStore`] for snapshot type `S`.

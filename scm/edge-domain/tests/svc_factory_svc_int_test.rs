@@ -2,9 +2,14 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain::*;
+use edge_domain_security::SecurityContext;
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 use std::sync::Arc;
+
+fn test_ctx<'a>(security: &'a SecurityContext, bus: &'a Arc<dyn CommandBus>) -> HandlerContext<'a> {
+    HandlerContext { security, commands: bus.as_ref() }
+}
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -139,7 +144,9 @@ impl EventStore for ErrStore {
 fn test_echo_handler_string_roundtrip_happy() {
     block_on(async {
         let h = Domain::echo_handler::<String>("id", "/");
-        assert_eq!(h.execute("ping".into()).await.unwrap(), "ping");
+        let security = SecurityContext::unauthenticated();
+        let bus = Domain::direct_command_bus();
+        assert_eq!(h.execute("ping".into(), test_ctx(&security, &bus)).await.unwrap(), "ping");
     });
 }
 
@@ -148,7 +155,9 @@ fn test_echo_handler_always_returns_ok_not_error() {
     block_on(async {
         // echo_handler execution is infallible — documents no error path
         let h = Domain::echo_handler::<String>("id", "/");
-        assert!(h.execute("anything".into()).await.is_ok());
+        let security = SecurityContext::unauthenticated();
+        let bus = Domain::direct_command_bus();
+        assert!(h.execute("anything".into(), test_ctx(&security, &bus)).await.is_ok());
     });
 }
 
@@ -156,7 +165,9 @@ fn test_echo_handler_always_returns_ok_not_error() {
 fn test_echo_handler_empty_string_preserved_edge() {
     block_on(async {
         let h = Domain::echo_handler::<String>("id", "/");
-        assert_eq!(h.execute(String::new()).await.unwrap(), "");
+        let security = SecurityContext::unauthenticated();
+        let bus = Domain::direct_command_bus();
+        assert_eq!(h.execute(String::new(), test_ctx(&security, &bus)).await.unwrap(), "");
     });
 }
 

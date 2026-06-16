@@ -1,11 +1,11 @@
 use crate::api::saga::traits::Saga;
-use crate::api::saga::types::{InMemorySagaRegistry, NoopSaga, NoopSagaCommand, NoopSagaEvent, StdSagaFactory};
+use crate::api::saga::types::{InMemorySagaStore, NoopSaga, NoopSagaCommand, NoopSagaEvent, StdSagaFactory};
 
 /// Factory for creating saga infrastructure instances.
 pub trait SagaFactory {
-    /// Construct an empty in-memory saga registry for saga type `S`.
-    fn in_memory_registry<S: Saga>() -> InMemorySagaRegistry<S> {
-        InMemorySagaRegistry::new()
+    /// Construct an empty in-memory saga store for saga type `S`.
+    fn in_memory_store<S: Saga>() -> InMemorySagaStore<S> {
+        InMemorySagaStore::new()
     }
 
     /// Construct a [`NoopSaga`] that never processes events.

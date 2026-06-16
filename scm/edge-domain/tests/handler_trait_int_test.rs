@@ -4,7 +4,8 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain::{Handler, HandlerError};
+use edge_domain::{Domain, Handler, HandlerContext, HandlerError};
+use edge_domain_security::SecurityContext;
 
 struct Counter {
     id: String,
@@ -21,7 +22,7 @@ impl Handler for Counter {
     fn pattern(&self) -> &str {
         "counter"
     }
-    async fn execute(&self, req: u32) -> Result<u32, HandlerError> {
+    async fn execute(&self, req: u32, _ctx: HandlerContext<'_>) -> Result<u32, HandlerError> {
         self.calls.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
         Ok(req * 2)
     }
@@ -38,12 +39,16 @@ impl Handler for SickHandler {
     fn pattern(&self) -> &str {
         "sick"
     }
-    async fn execute(&self, _: u32) -> Result<u32, HandlerError> {
+    async fn execute(&self, _: u32, _ctx: HandlerContext<'_>) -> Result<u32, HandlerError> {
         Err(HandlerError::Unhealthy)
     }
     async fn health_check(&self) -> bool {
         false
     }
+}
+
+fn make_ctx<'a>(security: &'a SecurityContext, bus: &'a Arc<dyn edge_domain::CommandBus>) -> HandlerContext<'a> {
+    HandlerContext { security, commands: bus.as_ref() }
 }
 
 /// @covers: Handler::execute
@@ -53,7 +58,9 @@ async fn test_handler_trait_execute_returns_transformed_value() {
         id: "ctr".into(),
         calls: Default::default(),
     };
-    let result = h.execute(21).await.unwrap();
+    let security = SecurityContext::unauthenticated();
+    let bus = Domain::direct_command_bus();
+    let result = h.execute(21, make_ctx(&security, &bus)).await.unwrap();
     assert_eq!(result, 42);
 }
 

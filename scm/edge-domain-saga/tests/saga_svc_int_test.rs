@@ -1,7 +1,7 @@
 //! SAF tests — `Saga` trait.
 // @allow: no_mocks_in_integration
 
-use edge_domain_saga::{Command, CommandError, DomainEvent, Saga, SagaFactory, SagaRegistry};
+use edge_domain_saga::{Command, CommandError, DomainEvent, Saga, SagaFactory, SagaStore};
 use futures::future::BoxFuture;
 
 #[derive(Clone)]
@@ -109,7 +109,7 @@ fn test_is_complete_midway_through_returns_false_edge() {
 /// @covers: handle
 #[test]
 fn test_handle_via_dyn_registry_returns_ok_edge() {
-    let mut reg = Factories::in_memory_registry::<OrderSaga>();
+    let mut reg = Factories::in_memory_store::<OrderSaga>();
     reg.register("o1".to_string(), OrderSaga::new(2)).ok();
     if let Ok(saga) = reg.get(&"o1".to_string()) {
         assert!(!saga.is_complete());

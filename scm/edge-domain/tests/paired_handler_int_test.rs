@@ -3,7 +3,8 @@
 
 use std::sync::Arc;
 
-use edge_domain::{Domain, HandlerError, Repository};
+use edge_domain::{Domain, HandlerContext, HandlerError, Repository};
+use edge_domain_security::SecurityContext;
 
 struct WriteHandler {
     repo: Arc<dyn Repository<Entity = String, Id = String>>,
@@ -67,7 +68,10 @@ fn test_paired_accepts_heterogeneous_handler_types() {
 #[tokio::test]
 async fn test_domain_echo_handler_returns_input_unchanged() {
     let h = Domain::echo_handler::<String>("e", "/e");
-    let result = h.execute("hello".to_string()).await;
+    let security = SecurityContext::unauthenticated();
+    let bus = Domain::direct_command_bus();
+    let ctx = HandlerContext { security: &security, commands: bus.as_ref() };
+    let result = h.execute("hello".to_string(), ctx).await;
     assert_eq!(result.unwrap(), "hello");
 }
 
