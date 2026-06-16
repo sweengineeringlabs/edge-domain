@@ -8,7 +8,7 @@ use edge_domain_registry::Registry;
 use std::sync::Arc;
 
 /// Stub AgentRegistry implementation (not for production use).
-pub struct StubAgentRegistry;
+pub(crate) struct StubAgentRegistry;
 
 impl Registry for StubAgentRegistry {
     type Value = dyn Agent;

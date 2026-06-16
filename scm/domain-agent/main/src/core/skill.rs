@@ -7,7 +7,7 @@ use crate::api::Skill;
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
 
 /// Stub Skill implementation (not for production use).
-pub struct StubSkill;
+pub(crate) struct StubSkill;
 
 #[async_trait::async_trait]
 impl Handler for StubSkill {

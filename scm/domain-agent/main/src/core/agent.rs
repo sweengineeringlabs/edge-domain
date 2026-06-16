@@ -7,7 +7,7 @@ use crate::api::{Agent, AgentError, Skill};
 use std::sync::Arc;
 
 /// Stub Agent implementation (not for production use).
-pub struct StubAgent;
+pub(crate) struct StubAgent;
 
 #[async_trait::async_trait]
 impl Agent for StubAgent {
