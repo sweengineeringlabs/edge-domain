@@ -12,4 +12,4 @@ mod api;
 mod core;
 mod saf;
 
-pub use api::{Agent, AgentManager, AgentError, AgentMetadata, AgentRegistry, Skill, SkillMetadata};
+pub use saf::{Agent, AgentManager, AgentError, AgentMetadata, AgentRegistry, Skill, SkillMetadata};
