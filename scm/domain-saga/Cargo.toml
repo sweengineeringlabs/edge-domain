@@ -20,8 +20,8 @@ path = "main/src/lib.rs"
 [dependencies]
 futures.workspace     = true
 thiserror.workspace   = true
-edge-domain-event   = { path = "../edge-domain-event" }
-edge-domain-command = { path = "../edge-domain-command" }
+edge-domain-event   = { path = "../domain-event" }
+edge-domain-command = { path = "../domain-command" }
 
 [dev-dependencies]
 futures.workspace = true
