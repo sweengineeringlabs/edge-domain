@@ -5,6 +5,7 @@ mod agent_svc;
 mod agent_registry_svc;
 mod parameter_svc;
 mod skill;
+mod skill_svc;
 
 pub use agent_error_svc::{AgentError, AGENT_ERROR_SVC};
 pub use agent_manager_svc::{AgentManager, AGENT_MANAGER_SVC};
