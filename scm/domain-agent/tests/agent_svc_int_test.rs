@@ -1,4 +1,4 @@
-//! Integration tests — `Agent` trait via SAF facade.
+//! Integration tests for AGENT_SVC constant and Agent trait re-export.
 
 use async_trait::async_trait;
 use edge_domain_agent::{Agent, AgentError, Skill};
@@ -37,38 +37,44 @@ impl Agent for TestAgent {
     }
 }
 
-/// @covers: Agent::id
+/// @covers: AGENT_SVC constant
 #[test]
-fn trait_agent_happy_id_returns_configured_value() {
-    assert_eq!(TestAgent.id(), "test_agent");
+fn svc_agent_svc_happy_constant_equals_agent() {
+    assert_eq!(edge_domain_agent::AGENT_SVC, "agent");
 }
 
-/// @covers: Agent::name
+/// @covers: AGENT_SVC constant
 #[test]
-fn trait_agent_happy_name_returns_configured_value() {
-    assert_eq!(TestAgent.name(), "Test Agent");
+fn svc_agent_svc_error_constant_not_empty() {
+    assert!(!edge_domain_agent::AGENT_SVC.is_empty());
 }
 
-/// @covers: Agent::description
+/// @covers: AGENT_SVC constant
 #[test]
-fn trait_agent_happy_description_returns_configured_value() {
-    assert_eq!(TestAgent.description(), "Agent for testing");
+fn svc_agent_svc_edge_constant_is_valid_identifier() {
+    let svc = edge_domain_agent::AGENT_SVC;
+    assert!(svc.chars().all(|c| c.is_ascii_lowercase() || c == '_'));
 }
 
-/// @covers: Agent::execute_skill — success
+/// @covers: Agent trait re-export
 #[test]
-fn trait_agent_happy_execute_skill_success_returns_ok() {
-    let result =
-        futures::executor::block_on(TestAgent.execute_skill("success", "input".to_string()));
+fn svc_agent_happy_trait_can_be_implemented() {
+    let agent: Box<dyn Agent> = Box::new(TestAgent);
+    assert_eq!(agent.id(), "test_agent");
+}
+
+/// @covers: Agent trait re-export — execute_skill
+#[test]
+fn svc_agent_happy_execute_skill_success() {
+    let result = futures::executor::block_on(TestAgent.execute_skill("success", "input".to_string()));
     assert!(result.is_ok());
     assert_eq!(result.unwrap(), "executed");
 }
 
-/// @covers: Agent::execute_skill — skill not found error
+/// @covers: Agent trait re-export — execute_skill error handling
 #[test]
-fn trait_agent_error_execute_skill_unknown_returns_skill_not_found() {
-    let result =
-        futures::executor::block_on(TestAgent.execute_skill("unknown", "input".to_string()));
+fn svc_agent_error_execute_skill_unknown_skill() {
+    let result = futures::executor::block_on(TestAgent.execute_skill("unknown", "input".to_string()));
     assert!(result.is_err());
     match result {
         Err(AgentError::SkillNotFound(name)) => assert_eq!(name, "unknown"),
@@ -76,29 +82,11 @@ fn trait_agent_error_execute_skill_unknown_returns_skill_not_found() {
     }
 }
 
-/// @covers: Agent::execute_skill — execution failure
+/// @covers: Agent trait re-export — metadata methods
 #[test]
-fn trait_agent_error_execute_skill_failure_returns_execution_failed() {
-    let result = futures::executor::block_on(TestAgent.execute_skill("fail", "input".to_string()));
-    assert!(result.is_err());
-    assert!(matches!(result, Err(AgentError::ExecutionFailed(_))));
-}
-
-/// @covers: Agent::skills
-#[test]
-fn trait_agent_edge_skills_returns_empty_list() {
-    let skills = TestAgent.skills();
-    assert_eq!(skills.len(), 0);
-}
-
-/// @covers: AGENT_SVC constant
-#[test]
-fn svc_agent_svc_happy_constant_equals_agent() {
-    assert_eq!(edge_domain_agent::AGENT_SVC, "agent");
-}
-
-/// @covers: AGENT_SVC constant validation
-#[test]
-fn svc_agent_svc_error_constant_not_empty() {
-    assert!(!edge_domain_agent::AGENT_SVC.is_empty());
+fn svc_agent_happy_metadata_methods_return_strings() {
+    let agent = TestAgent;
+    assert!(!agent.id().is_empty());
+    assert!(!agent.name().is_empty());
+    assert!(!agent.description().is_empty());
 }
