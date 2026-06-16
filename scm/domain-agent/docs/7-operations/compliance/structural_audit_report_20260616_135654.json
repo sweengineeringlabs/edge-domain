@@ -1,0 +1,3292 @@
+{
+  "timestamp": "2026-06-16T11:56:54.035908100+00:00",
+  "results": [
+    {
+      "id": "all_methods_tested",
+      "category": "test_org",
+      "description": "All public functions have corresponding tests (name-based)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "api_cross_theme_impl",
+      "category": "api",
+      "description": "A type in api/<theme>/types/ must not implement — in core/ — a trait natively declared in a different theme's api/<other>/traits/; cross-theme impl coupling is a boundary violation in the same way cross-theme type references in trait signatures are",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "api_filename_matches_type",
+      "category": "naming",
+      "description": "Each pub type/trait in api/ must be in its own standalone file with the file stem matching the snake_case name",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "api_has_error_dir",
+      "category": "api",
+      "description": "api/ must contain error types — either a flat api/error/ subdirectory or domain-grouped api/<domain>/errors/ directories; at least one must exist",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "api_has_traits_dir",
+      "category": "api",
+      "description": "api/ must contain trait definitions — either a flat api/traits/ subdirectory or domain-grouped api/<domain>/traits/ directories; at least one must exist",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "api_internal_structure_hidden",
+      "category": "api",
+      "description": "Internal structure in api/ and saf/ layers must be hidden (mod, not pub mod) to prevent exposing implementation details",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "api_no_core_import",
+      "category": "interface",
+      "description": "api/ layer must not import from core/ (L2 must not depend on L3)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 5.1765
+    },
+    {
+      "id": "api_no_default_prefix",
+      "category": "naming",
+      "description": "api/ files and types must not use the Default* prefix — Default* names signal a concrete implementation variant that belongs in core/, not in the contract layer",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "api_no_gateway_dep",
+      "category": "interface",
+      "description": "api/ must not import from gateway/ — api/ defines abstractions, it must not depend on implementations",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 12.837100000000001
+    },
+    {
+      "id": "api_no_loose_rs_files",
+      "category": "api",
+      "description": "api/ root must not contain loose .rs files or mixed-layout directories — only mod.rs at root; no flat traits/types/error/ dirs when domain-grouped layout (api/<domain>/traits/) is active",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "api_no_orphan_types",
+      "category": "api",
+      "description": "Every type and error declared in api/ must appear in at least one native trait signature in api/ — pub use re-exports in traits/mod.rs do not satisfy this rule; only method parameters, return types, associated types, or supertrait bounds count",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "api_no_pub_struct",
+      "category": "api",
+      "description": "api/ layer must not contain `pub struct` outside designated struct homes — flat layout: api/error/, api/types/; domain-grouped layout: api/<domain>/errors/, api/<domain>/types/",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "api_no_spi_dep",
+      "category": "interface",
+      "description": "api/ must not import from spi/ — api/ defines abstractions, it must not depend on implementations",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 5.3167
+    },
+    {
+      "id": "api_terminal_leaf_no_subdir",
+      "category": "api",
+      "description": "Terminal SEA leaves (api/<domain>/types/, traits/, errors/) must not contain subdirectories — definitions live directly in the leaf; promote a theme one level up instead of nesting",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "api_theme_native_trait",
+      "category": "api",
+      "description": "Every api/<theme>/ directory that has a types/ subdirectory must also have a traits/ subdirectory containing at least one natively-declared pub trait — re-export-only or empty traits/ directories do not establish a theme contract",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "api_trait_fn_scenario_coverage",
+      "category": "saf_svc",
+      "description": "Every fn in a pub trait in api/ must have _happy, _error, and _edge test coverage in tests/",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\agent.rs",
+            "message": "trait fn 'id' in api/ is missing a _happy test — expected test_id_*_happy",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_id_<scenario>_happy",
+            "actual": "no happy test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\agent.rs",
+            "message": "trait fn 'id' in api/ is missing an _error test — expected test_id_*_error",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_id_<scenario>_error",
+            "actual": "no error test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\agent.rs",
+            "message": "trait fn 'id' in api/ is missing an _edge test — expected test_id_*_edge",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_id_<scenario>_edge",
+            "actual": "no edge test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\agent.rs",
+            "message": "trait fn 'name' in api/ is missing a _happy test — expected test_name_*_happy",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_name_<scenario>_happy",
+            "actual": "no happy test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\agent.rs",
+            "message": "trait fn 'name' in api/ is missing an _error test — expected test_name_*_error",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_name_<scenario>_error",
+            "actual": "no error test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\agent.rs",
+            "message": "trait fn 'name' in api/ is missing an _edge test — expected test_name_*_edge",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_name_<scenario>_edge",
+            "actual": "no edge test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\agent.rs",
+            "message": "trait fn 'description' in api/ is missing a _happy test — expected test_description_*_happy",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_description_<scenario>_happy",
+            "actual": "no happy test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\agent.rs",
+            "message": "trait fn 'description' in api/ is missing an _error test — expected test_description_*_error",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_description_<scenario>_error",
+            "actual": "no error test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\agent.rs",
+            "message": "trait fn 'description' in api/ is missing an _edge test — expected test_description_*_edge",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_description_<scenario>_edge",
+            "actual": "no edge test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\agent.rs",
+            "message": "trait fn 'skills' in api/ is missing a _happy test — expected test_skills_*_happy",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_skills_<scenario>_happy",
+            "actual": "no happy test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\agent.rs",
+            "message": "trait fn 'skills' in api/ is missing an _error test — expected test_skills_*_error",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_skills_<scenario>_error",
+            "actual": "no error test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\agent.rs",
+            "message": "trait fn 'skills' in api/ is missing an _edge test — expected test_skills_*_edge",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_skills_<scenario>_edge",
+            "actual": "no edge test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\agent.rs",
+            "message": "trait fn 'skill' in api/ is missing a _happy test — expected test_skill_*_happy",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_skill_<scenario>_happy",
+            "actual": "no happy test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\agent.rs",
+            "message": "trait fn 'skill' in api/ is missing an _error test — expected test_skill_*_error",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_skill_<scenario>_error",
+            "actual": "no error test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\agent.rs",
+            "message": "trait fn 'skill' in api/ is missing an _edge test — expected test_skill_*_edge",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_skill_<scenario>_edge",
+            "actual": "no edge test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\agent_manager.rs",
+            "message": "trait fn 'agent' in api/ is missing a _happy test — expected test_agent_*_happy",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_agent_<scenario>_happy",
+            "actual": "no happy test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\agent_manager.rs",
+            "message": "trait fn 'agent' in api/ is missing an _error test — expected test_agent_*_error",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_agent_<scenario>_error",
+            "actual": "no error test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\agent_manager.rs",
+            "message": "trait fn 'agent' in api/ is missing an _edge test — expected test_agent_*_edge",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_agent_<scenario>_edge",
+            "actual": "no edge test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\agent_manager.rs",
+            "message": "trait fn 'list_agent_ids' in api/ is missing a _happy test — expected test_list_agent_ids_*_happy",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_list_agent_ids_<scenario>_happy",
+            "actual": "no happy test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\agent_manager.rs",
+            "message": "trait fn 'list_agent_ids' in api/ is missing an _error test — expected test_list_agent_ids_*_error",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_list_agent_ids_<scenario>_error",
+            "actual": "no error test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\agent_manager.rs",
+            "message": "trait fn 'list_agent_ids' in api/ is missing an _edge test — expected test_list_agent_ids_*_edge",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_list_agent_ids_<scenario>_edge",
+            "actual": "no edge test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\agent_registry.rs",
+            "message": "trait fn 'metadata' in api/ is missing a _happy test — expected test_metadata_*_happy",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_metadata_<scenario>_happy",
+            "actual": "no happy test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\agent_registry.rs",
+            "message": "trait fn 'metadata' in api/ is missing an _error test — expected test_metadata_*_error",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_metadata_<scenario>_error",
+            "actual": "no error test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\agent_registry.rs",
+            "message": "trait fn 'metadata' in api/ is missing an _edge test — expected test_metadata_*_edge",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_metadata_<scenario>_edge",
+            "actual": "no edge test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\skill.rs",
+            "message": "trait fn 'name' in api/ is missing a _happy test — expected test_name_*_happy",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_name_<scenario>_happy",
+            "actual": "no happy test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\skill.rs",
+            "message": "trait fn 'name' in api/ is missing an _error test — expected test_name_*_error",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_name_<scenario>_error",
+            "actual": "no error test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\skill.rs",
+            "message": "trait fn 'name' in api/ is missing an _edge test — expected test_name_*_edge",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_name_<scenario>_edge",
+            "actual": "no edge test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\skill.rs",
+            "message": "trait fn 'description' in api/ is missing a _happy test — expected test_description_*_happy",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_description_<scenario>_happy",
+            "actual": "no happy test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\skill.rs",
+            "message": "trait fn 'description' in api/ is missing an _error test — expected test_description_*_error",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_description_<scenario>_error",
+            "actual": "no error test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\skill.rs",
+            "message": "trait fn 'description' in api/ is missing an _edge test — expected test_description_*_edge",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_description_<scenario>_edge",
+            "actual": "no edge test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\skill.rs",
+            "message": "trait fn 'parameters' in api/ is missing a _happy test — expected test_parameters_*_happy",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_parameters_<scenario>_happy",
+            "actual": "no happy test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\skill.rs",
+            "message": "trait fn 'parameters' in api/ is missing an _error test — expected test_parameters_*_error",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_parameters_<scenario>_error",
+            "actual": "no error test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\skill.rs",
+            "message": "trait fn 'parameters' in api/ is missing an _edge test — expected test_parameters_*_edge",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_parameters_<scenario>_edge",
+            "actual": "no edge test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\skill.rs",
+            "message": "trait fn 'metadata' in api/ is missing a _happy test — expected test_metadata_*_happy",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_metadata_<scenario>_happy",
+            "actual": "no happy test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\skill.rs",
+            "message": "trait fn 'metadata' in api/ is missing an _error test — expected test_metadata_*_error",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_metadata_<scenario>_error",
+            "actual": "no error test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          },
+          {
+            "check_id": "api_trait_fn_scenario_coverage",
+            "path": "main\\src\\api\\traits\\skill.rs",
+            "message": "trait fn 'metadata' in api/ is missing an _edge test — expected test_metadata_*_edge",
+            "severity": "error",
+            "rule_type": "builtin:api_trait_fn_scenario_coverage",
+            "expected": "test_metadata_<scenario>_edge",
+            "actual": "no edge test found",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file in tests/",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness",
+              "contract_verification"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "api_type_theme_cohesion",
+      "category": "api",
+      "description": "Types and errors declared under api/<theme>/types|errors/ must not be referenced by trait files from a different theme subtree — cross-theme type coupling violates domain isolation",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "application_type_defined",
+      "category": "application_type",
+      "description": "application_type must be defined in project metadata",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "bench_harness_false",
+      "category": "",
+      "description": "[[bench]] targets have harness = false",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "benches_dir_if_declared",
+      "category": "",
+      "description": "benches/ directory exists (if benchmarks declared)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "bin_names_valid",
+      "category": "naming",
+      "description": "Binary names use hyphens or underscores",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "bin_path_correct",
+      "category": "",
+      "description": "[[bin]] path matches existing file",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "bootstrap_ps1_exists",
+      "category": "",
+      "description": "bootstrap.ps1 or build.ps1 exists at root (Windows)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "bootstrap_sh_exists",
+      "category": "",
+      "description": "bootstrap.sh or build.sh exists at root",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "boundary_adapter_implements_port",
+      "category": "boundary",
+      "description": "adapter crates must implement at least one domain port trait",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "boundary_dep_direction",
+      "category": "boundary",
+      "description": "domain crates must not depend on adapter crates",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "boundary_l2_no_l3_import",
+      "category": "interface",
+      "description": "L2 must not import from L3 (core/ and spi/ must not depend on saf/)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 3.2986
+    },
+    {
+      "id": "boundary_l2_no_l4_import",
+      "category": "interface",
+      "description": "L2 must not import from L4 (core/ and spi/ must not depend on gateway/)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 3.4978000000000002
+    },
+    {
+      "id": "boundary_no_antipattern_names",
+      "category": "boundary",
+      "description": "crate names must not end with generic responsibility suffixes (-core, -utils, -api, -common, -shared, -helpers)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "boundary_no_pub_trait_in_adapter",
+      "category": "boundary",
+      "description": "adapter crates must not define public traits — port traits belong in the domain crate",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "boundary_peer_isolation",
+      "category": "interface",
+      "description": "L2 peers must not import each other (core/ ↛ spi/, spi/ ↛ core/)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 3.6439
+    },
+    {
+      "id": "build_bootstrap_exclusivity",
+      "category": "",
+      "description": "Root must not have both build and bootstrap scripts",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "cargo_pkg_authors_exists",
+      "category": "",
+      "description": "package.authors exists",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.0007999999999999999
+    },
+    {
+      "id": "cargo_pkg_categories_exists",
+      "category": "",
+      "description": "package.categories exists (libraries)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.0011
+    },
+    {
+      "id": "cargo_pkg_description_exists",
+      "category": "",
+      "description": "package.description exists",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.0012
+    },
+    {
+      "id": "cargo_pkg_edition_exists",
+      "category": "",
+      "description": "package.edition exists",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.0007
+    },
+    {
+      "id": "cargo_pkg_keywords_exists",
+      "category": "",
+      "description": "package.keywords exists (libraries)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.0040999999999999995
+    },
+    {
+      "id": "cargo_pkg_name_exists",
+      "category": "",
+      "description": "package.name exists",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.0048
+    },
+    {
+      "id": "cargo_pkg_name_kebab_case",
+      "category": "naming",
+      "description": "Package name uses kebab-case",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.8334
+    },
+    {
+      "id": "cargo_pkg_repository_exists",
+      "category": "",
+      "description": "package.repository exists",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.0009
+    },
+    {
+      "id": "cargo_pkg_rust_version_exists",
+      "category": "",
+      "description": "package.rust-version exists",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.0007999999999999999
+    },
+    {
+      "id": "cargo_pkg_version_exists",
+      "category": "",
+      "description": "package.version exists",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.0011
+    },
+    {
+      "id": "cargo_toml_exists",
+      "category": "",
+      "description": "Cargo.toml exists at root",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.2703
+    },
+    {
+      "id": "changelog_exists",
+      "category": "documentation",
+      "description": "CHANGELOG.md exists",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.1207
+    },
+    {
+      "id": "clippy_error_lints_configured",
+      "category": "",
+      "description": "Cargo.toml must configure clippy error-handling lints (unwrap_used, expect_used) as deny or warn",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "config_file_to_builder_naming",
+      "category": "naming",
+      "description": "Config files must map to corresponding ConfigBuilder struct names: <name>.toml → <Name>ConfigBuilder",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "config_methods_pub_crate",
+      "category": "interface",
+      "description": "Config struct methods must be pub(crate), not pub — configs are not for public consumption",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "core_api_module_correspondence",
+      "category": "core",
+      "description": "Every {implementation_layer}/ submodule must have a corresponding {interface_layer}/ submodule with real type or trait declarations — pure pub-use re-export stubs do not satisfy this rule",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": "core_api_module_correspondence",
+            "path": "main\\src\\core\\agent.rs",
+            "message": "main\\src\\core\\agent.rs has no corresponding api interface counterpart",
+            "severity": "warning",
+            "rule_type": "builtin:core_api_module_correspondence",
+            "expected": "agent.rs or agent/mod.rs",
+            "actual": "not found",
+            "fix_hint": "Create 'main\\src\\api\\agent.rs' with type/trait definitions that main\\src\\core\\agent.rs implements against",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": "core_api_module_correspondence",
+            "path": "main\\src\\core\\agent_manager.rs",
+            "message": "main\\src\\core\\agent_manager.rs has no corresponding api interface counterpart",
+            "severity": "warning",
+            "rule_type": "builtin:core_api_module_correspondence",
+            "expected": "agent_manager.rs or agent_manager/mod.rs",
+            "actual": "not found",
+            "fix_hint": "Create 'main\\src\\api\\agent_manager.rs' with type/trait definitions that main\\src\\core\\agent_manager.rs implements against",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": "core_api_module_correspondence",
+            "path": "main\\src\\core\\agent_registry.rs",
+            "message": "main\\src\\core\\agent_registry.rs has no corresponding api interface counterpart",
+            "severity": "warning",
+            "rule_type": "builtin:core_api_module_correspondence",
+            "expected": "agent_registry.rs or agent_registry/mod.rs",
+            "actual": "not found",
+            "fix_hint": "Create 'main\\src\\api\\agent_registry.rs' with type/trait definitions that main\\src\\core\\agent_registry.rs implements against",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": "core_api_module_correspondence",
+            "path": "main\\src\\core\\skill.rs",
+            "message": "main\\src\\core\\skill.rs has no corresponding api interface counterpart",
+            "severity": "warning",
+            "rule_type": "builtin:core_api_module_correspondence",
+            "expected": "skill.rs or skill/mod.rs",
+            "actual": "not found",
+            "fix_hint": "Create 'main\\src\\api\\skill.rs' with type/trait definitions that main\\src\\core\\skill.rs implements against",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": "core_filename_matches_type",
+      "category": "core",
+      "description": "L2 module filenames must match their primary struct/trait name (with suffix tolerance)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "core_fns_have_unit_tests",
+      "category": "test_org",
+      "description": "Every pub/pub(crate) fn in L2 layers must have an inline unit test (#[cfg(test)] block with #[test])",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "core_impl_name_has_trait_suffix",
+      "category": "core",
+      "description": "L2 structs implementing an api trait must carry the trait name as suffix (e.g. impl Reviewer for DefaultReviewer)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "core_implements_api_traits",
+      "category": "core",
+      "description": "Core modules must implement their api traits (impl <Trait> for)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "core_no_impl_suffix",
+      "category": "core",
+      "description": "core/ (L2) struct names must not end with Impl — use the Default* prefix (or Local*, Remote*, InMemory*, Noop*, <Technology>*) to name concrete implementation variants",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "core_structs_have_trait",
+      "category": "core",
+      "description": "Every L2 struct with pub/pub(crate) methods must implement a trait defined in L1/api/ (program to the interface)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "core_structs_not_pub",
+      "category": "core",
+      "description": "L2 items (struct, enum, type, trait, fn, const, static) must use pub(crate) visibility, not bare pub",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "core_types_name_cohesive",
+      "category": "core",
+      "description": "Types in L2 modules must be name-cohesive (SRP enforcement)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "crate_root_exists",
+      "category": "",
+      "description": "main/src/lib.rs or main/src/main.rs exists",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "cross_crate_error_coupling",
+      "category": "interface",
+      "description": "A crate's saf/ or api/ must not expose another crate's error type in a Result return position",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "deprecated_trait_usage",
+      "category": "interface",
+      "description": "Reports deprecated trait definitions in api/traits.rs for tracking",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "deps_have_integration_tests",
+      "category": "test_org",
+      "description": "Dependencies used in main/src/ must have integration or e2e test coverage",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "deps_no_local_path",
+      "category": "",
+      "description": "Cargo dependencies must not use path = \"...\" — use git or registry sources instead",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "doc_dir_exists",
+      "category": "documentation",
+      "description": "doc/ or docs/ directory exists (if library)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "docs_dir_exists",
+      "category": "",
+      "description": "docs/ directory exists at root",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.1214
+    },
+    {
+      "id": "embed_config_needs_override",
+      "category": "hygiene",
+      "description": "include_str! embedding a config file must be paired with a runtime read — use embed as fallback, not sole source",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "error_types_in_api",
+      "category": "interface",
+      "description": "Error types that cross layer boundaries must be declared in api/, not in core/",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "example_targets_if_dir",
+      "category": "",
+      "description": "[[example]] targets exist if examples/ present",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "examples_dir_lib",
+      "category": "documentation",
+      "description": "examples/ directory exists (if library)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "file_names_are_nouns",
+      "category": "code_organization",
+      "description": "Rust source file names must be nouns (no verb or assertion names like check_exists.rs)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "folder_names_snake_case",
+      "category": "naming",
+      "description": "Directory names under main/src/ must use snake_case",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "gateway_no_core_dep",
+      "category": "interface",
+      "description": "gateway/ must not import from core/ — gateway/ calls saf/, not core/ directly",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 2.0583
+    },
+    {
+      "id": "gateway_no_spi_dep",
+      "category": "interface",
+      "description": "gateway/ must not import from spi/ — gateway/ depends on saf/ only, not on SPI implementations",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 1.5621999999999998
+    },
+    {
+      "id": "gitignore_has_target",
+      "category": "hygiene",
+      "description": ".gitignore exists with target/",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.5458999999999999
+    },
+    {
+      "id": "layer_module_no_underscore",
+      "category": "naming",
+      "description": "SEA layer directory names must not contain underscores — use nested directories instead of underscore-concatenated names",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "layer_scoped_test_source_correspondence",
+      "category": "test_org",
+      "description": "Layer-prefixed test files (e.g. core_foo_int_test.rs) must correspond to an existing source file in that SEA layer directory (src/core/foo.rs or src/core/foo/mod.rs)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "layers_no_free_standing_fn",
+      "category": "interface",
+      "description": "SEA layer files must not contain free-standing fn — all functions must be methods on a type (OOP violation)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "lib_delegates_to_saf",
+      "category": "saf",
+      "description": "lib.rs must delegate public surface to saf/ via pub use",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "lib_no_pub_items",
+      "category": "saf",
+      "description": "lib.rs must not declare pub items directly — all public items must be declared in saf/ and re-exported via pub use",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "lib_no_pub_mod_api",
+      "category": "interface",
+      "description": "lib.rs must not declare api as public (pub mod api is forbidden — all layers must be private)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 1.03
+    },
+    {
+      "id": "lib_no_pub_mod_core",
+      "category": "interface",
+      "description": "lib.rs must not declare core as public (pub mod core is forbidden)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 1.2203
+    },
+    {
+      "id": "lib_path_correct",
+      "category": "",
+      "description": "[lib] path matches existing file",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "lib_path_inside_src",
+      "category": "shim_detection",
+      "description": "[lib] and [[bin]] paths must point inside main/src/",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "lib_rs_not_shim",
+      "category": "shim_detection",
+      "description": "lib.rs must be a real entry point, not a shim with only re-exports",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "library_entry_declarations_only",
+      "category": "code_organization",
+      "description": "lib.rs must contain only module declarations and re-exports — no struct/impl/fn/const definitions",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "license_field_exists",
+      "category": "",
+      "description": "package.license or package.license-file exists",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "mod_rs_not_reexport_shim",
+      "category": "mod",
+      "description": "SEA layer mod.rs must not be a crate-level re-export shim",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "module_entry_declarations_only",
+      "category": "mod",
+      "description": "mod.rs must contain only module declarations and re-exports — no struct/impl/fn logic",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "module_name_not_prefix_type",
+      "category": "naming",
+      "description": "Module name must not prefix the struct/trait name (e.g., config::Config not config::ConfigConfig)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "module_names_match",
+      "category": "naming",
+      "description": "Module file names match mod declarations",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "module_names_no_stutter",
+      "category": "naming",
+      "description": "Module and file names under src/ must not stutter: the first snake_case token must not equal the last",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_allow_dead_code",
+      "category": "hygiene",
+      "description": "Source files must not suppress the dead_code lint via #[allow(dead_code)] or #[expect(dead_code)] — dead code in production layers is a defect signal, not something to silence",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_allow_unused_imports",
+      "category": "hygiene",
+      "description": "Source files must not suppress the unused_imports lint via #[allow(unused_imports)]",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_bare_expect",
+      "category": "hygiene",
+      "description": "No bare .expect() with empty or placeholder message",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_bare_unwrap",
+      "category": "hygiene",
+      "description": "No bare .unwrap() calls in production source",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_default_suffix",
+      "category": "naming",
+      "description": "struct and enum names must not end with the Default suffix — the Default* prefix (DefaultValidator) is the reserved convention for the standard implementation variant; the *Default suffix (ValidatorDefault) is the ambiguous mirror",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_explicit_test_targets",
+      "category": "",
+      "description": "Cargo.toml must not declare [[test]] targets — integration tests in tests/ are auto-discovered",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_gateway_in_lib",
+      "category": "gateway_isolation",
+      "description": "lib crates must not have a gateway/ directory — gateway belongs in gateway-type crates",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.0871
+    },
+    {
+      "id": "no_hardcoded_home_paths",
+      "category": "hygiene",
+      "description": "No hardcoded home directory paths in source code",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_loose_core_files",
+      "category": "code_organization",
+      "description": "No loose .rs files directly under L2 layer dirs — all code must live in subfolders",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": "no_loose_core_files",
+            "path": "main\\src\\core\\agent.rs",
+            "message": "Loose file 'agent.rs' found directly under main/src/core/",
+            "severity": "warning",
+            "rule_type": "builtin:no_loose_core_files",
+            "expected": "All code under main/src/core/ must live in subfolders",
+            "actual": "main/src/core/agent.rs",
+            "fix_hint": "Move loose files into appropriate subfolders (e.g., `core/engine.rs` → `core/engine/scanner.rs`)",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": "no_loose_core_files",
+            "path": "main\\src\\core\\agent_manager.rs",
+            "message": "Loose file 'agent_manager.rs' found directly under main/src/core/",
+            "severity": "warning",
+            "rule_type": "builtin:no_loose_core_files",
+            "expected": "All code under main/src/core/ must live in subfolders",
+            "actual": "main/src/core/agent_manager.rs",
+            "fix_hint": "Move loose files into appropriate subfolders (e.g., `core/engine.rs` → `core/engine/scanner.rs`)",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": "no_loose_core_files",
+            "path": "main\\src\\core\\agent_registry.rs",
+            "message": "Loose file 'agent_registry.rs' found directly under main/src/core/",
+            "severity": "warning",
+            "rule_type": "builtin:no_loose_core_files",
+            "expected": "All code under main/src/core/ must live in subfolders",
+            "actual": "main/src/core/agent_registry.rs",
+            "fix_hint": "Move loose files into appropriate subfolders (e.g., `core/engine.rs` → `core/engine/scanner.rs`)",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": "no_loose_core_files",
+            "path": "main\\src\\core\\skill.rs",
+            "message": "Loose file 'skill.rs' found directly under main/src/core/",
+            "severity": "warning",
+            "rule_type": "builtin:no_loose_core_files",
+            "expected": "All code under main/src/core/ must live in subfolders",
+            "actual": "main/src/core/skill.rs",
+            "fix_hint": "Move loose files into appropriate subfolders (e.g., `core/engine.rs` → `core/engine/scanner.rs`)",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": "no_mocks_in_integration",
+      "category": "test_org",
+      "description": "Integration tests must not use mocking libraries or mock types",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_nested_src_dir",
+      "category": "",
+      "description": "No nested src/ dir inside the source dir (main/src/src/)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.0483
+    },
+    {
+      "id": "no_panic_in_lib",
+      "category": "hygiene",
+      "description": "No panic!() in library code",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_println_in_library_code",
+      "category": "hygiene",
+      "description": "Library code must not use println!/eprintln! — use tracing macros (info!, warn!, error!) instead",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_stub_fn_bodies",
+      "category": "hygiene",
+      "description": "Production functions must not have stub bodies (todo!(), unimplemented!(), or empty)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": "no_stub_fn_bodies",
+            "path": "main\\src\\core\\agent.rs",
+            "message": "fn `id` at line 15 has a stub body — implement it or remove it",
+            "severity": "error",
+            "rule_type": "builtin:no_stub_fn_bodies",
+            "expected": "Provide a real implementation",
+            "actual": "(empty)",
+            "fix_hint": "Implement the function body or remove the function",
+            "remediation_strategy": "auto",
+            "principles": [
+              "single_responsibility"
+            ]
+          },
+          {
+            "check_id": "no_stub_fn_bodies",
+            "path": "main\\src\\core\\agent.rs",
+            "message": "fn `name` at line 19 has a stub body — implement it or remove it",
+            "severity": "error",
+            "rule_type": "builtin:no_stub_fn_bodies",
+            "expected": "Provide a real implementation",
+            "actual": "(empty)",
+            "fix_hint": "Implement the function body or remove the function",
+            "remediation_strategy": "auto",
+            "principles": [
+              "single_responsibility"
+            ]
+          },
+          {
+            "check_id": "no_stub_fn_bodies",
+            "path": "main\\src\\core\\agent.rs",
+            "message": "fn `description` at line 23 has a stub body — implement it or remove it",
+            "severity": "error",
+            "rule_type": "builtin:no_stub_fn_bodies",
+            "expected": "Provide a real implementation",
+            "actual": "(empty)",
+            "fix_hint": "Implement the function body or remove the function",
+            "remediation_strategy": "auto",
+            "principles": [
+              "single_responsibility"
+            ]
+          },
+          {
+            "check_id": "no_stub_fn_bodies",
+            "path": "main\\src\\core\\agent_registry.rs",
+            "message": "fn `register` at line 17 has a stub body — implement it or remove it",
+            "severity": "error",
+            "rule_type": "builtin:no_stub_fn_bodies",
+            "expected": "Provide a real implementation",
+            "actual": "(empty)",
+            "fix_hint": "Implement the function body or remove the function",
+            "remediation_strategy": "auto",
+            "principles": [
+              "single_responsibility"
+            ]
+          },
+          {
+            "check_id": "no_stub_fn_bodies",
+            "path": "main\\src\\core\\skill.rs",
+            "message": "fn `id` at line 18 has a stub body — implement it or remove it",
+            "severity": "error",
+            "rule_type": "builtin:no_stub_fn_bodies",
+            "expected": "Provide a real implementation",
+            "actual": "(empty)",
+            "fix_hint": "Implement the function body or remove the function",
+            "remediation_strategy": "auto",
+            "principles": [
+              "single_responsibility"
+            ]
+          },
+          {
+            "check_id": "no_stub_fn_bodies",
+            "path": "main\\src\\core\\skill.rs",
+            "message": "fn `name` at line 34 has a stub body — implement it or remove it",
+            "severity": "error",
+            "rule_type": "builtin:no_stub_fn_bodies",
+            "expected": "Provide a real implementation",
+            "actual": "(empty)",
+            "fix_hint": "Implement the function body or remove the function",
+            "remediation_strategy": "auto",
+            "principles": [
+              "single_responsibility"
+            ]
+          },
+          {
+            "check_id": "no_stub_fn_bodies",
+            "path": "main\\src\\core\\skill.rs",
+            "message": "fn `description` at line 38 has a stub body — implement it or remove it",
+            "severity": "error",
+            "rule_type": "builtin:no_stub_fn_bodies",
+            "expected": "Provide a real implementation",
+            "actual": "(empty)",
+            "fix_hint": "Implement the function body or remove the function",
+            "remediation_strategy": "auto",
+            "principles": [
+              "single_responsibility"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "no_test_in_src",
+      "category": "test_org",
+      "description": "No test code in main/src/ (non-#[cfg(test)])",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_traits_in_impl_layer",
+      "category": "interface",
+      "description": "L2 layers must not define traits (implementations only — traits belong in L1/api)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 6.2037
+    },
+    {
+      "id": "no_undeclared_benches",
+      "category": "",
+      "description": "No undeclared bench files",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_undeclared_tests",
+      "category": "",
+      "description": "No undeclared test files",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "no_unused_deps",
+      "category": "hygiene",
+      "description": "Dependencies declared in Cargo.toml must be used in main/src/",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": "no_unused_deps",
+            "path": null,
+            "message": "Dependency 'edge-domain-command' is declared but not used in main/src/",
+            "severity": "warning",
+            "rule_type": "builtin:no_unused_deps",
+            "expected": "dependency imported via `use` in the source tree",
+            "actual": "'edge-domain-command' not found in any main/src/*.rs file",
+            "fix_hint": "Remove unused dependency from [dependencies] or move to [dev-dependencies] if only used in tests",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": "no_unused_deps",
+            "path": null,
+            "message": "Dependency 'edge-domain-security' is declared but not used in main/src/",
+            "severity": "warning",
+            "rule_type": "builtin:no_unused_deps",
+            "expected": "dependency imported via `use` in the source tree",
+            "actual": "'edge-domain-security' not found in any main/src/*.rs file",
+            "fix_hint": "Remove unused dependency from [dependencies] or move to [dev-dependencies] if only used in tests",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": "no_unused_deps",
+            "path": null,
+            "message": "Dependency 'futures' is declared but not used in main/src/",
+            "severity": "warning",
+            "rule_type": "builtin:no_unused_deps",
+            "expected": "dependency imported via `use` in the source tree",
+            "actual": "'futures' not found in any main/src/*.rs file",
+            "fix_hint": "Remove unused dependency from [dependencies] or move to [dev-dependencies] if only used in tests",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": "no_weak_fs_patterns",
+      "category": "hygiene",
+      "description": "Weak filesystem patterns — code that produces host-dependent paths (MAIN_SEPARATOR, hardcoded \\\\, replace-hacks, literal backslashes)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 16.299899999999997
+    },
+    {
+      "id": "one_type_per_file",
+      "category": "code_organization",
+      "description": "Each public struct/trait/enum must have its own .rs file (one primary type per file)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "package_name_no_sea_suffix",
+      "category": "naming",
+      "description": "Package name must not use SEA layer suffixes as defined in sea_layers config",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "pub_layer_tests_standalone",
+      "category": "test_organization",
+      "description": "saf/ and api/ layer files must not contain #[cfg(test)] blocks — public-layer tests must live in standalone tests/ files",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "pub_types_in_api_only",
+      "category": "interface",
+      "description": "All public types (struct, enum, trait, type alias) must be declared under api/ — no other layer is a legal declaration site",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "readme_exists",
+      "category": "documentation",
+      "description": "README.md exists",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.115
+    },
+    {
+      "id": "root_whitelist",
+      "category": "",
+      "description": "Root contains only allowed entries (whitelist enforcement)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "rs_files_no_uppercase",
+      "category": "naming",
+      "description": "No uppercase in source file names",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.7964
+    },
+    {
+      "id": "rs_files_snake_case",
+      "category": "naming",
+      "description": "Source files use snake_case naming",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 2.1037999999999997
+    },
+    {
+      "id": "saf_free_fn_takes_local_type",
+      "category": "saf",
+      "description": "Free functions in saf/ or core/ taking an api-defined type as parameter should be methods on that type",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "saf_mod_exists",
+      "category": "saf",
+      "description": "saf/mod.rs must exist (SAF facade entry point)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "saf_mod_no_api_direct_reexport",
+      "category": "mod",
+      "description": "saf/mod.rs and saf/<theme>/mod.rs must not contain pub use crate::api:: — all api/ re-exports must flow through a _svc.rs file",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "saf_no_core_reexport",
+      "category": "interface",
+      "description": "saf/ must not re-export from core/ (SAF re-exports from api/ and spi/ only)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 1.1045
+    },
+    {
+      "id": "saf_no_env_reads",
+      "category": "saf_svc",
+      "description": "saf/ must not read environment variables directly — env access is domain logic and belongs in core/",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "saf_no_gateway_dep",
+      "category": "interface",
+      "description": "saf/ must not import from gateway/ — gateway/ calls saf/, not the reverse",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 6.9692
+    },
+    {
+      "id": "saf_no_pub_struct",
+      "category": "interface",
+      "description": "saf/ must not define new pub structs (facade layer only re-exports and wires)",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 3.4646999999999997
+    },
+    {
+      "id": "saf_no_trait_reexport",
+      "category": "interface",
+      "description": "saf/ must not re-export traits via pub use — this applies to both internal api/traits re-exports and external crate SPI extension points (Scheduler, Broker, Stream, Executor, Worker, Listener, etc.); wrap trait methods as standalone functions instead",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 15.683499999999999
+    },
+    {
+      "id": "saf_no_wrapper_methods",
+      "category": "saf",
+      "description": "saf/ methods must not be thin wrappers — a saf/ method whose entire body delegates to a free function or another method adds no value and signals incomplete consolidation",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "saf_returns_api_types",
+      "category": "saf",
+      "description": "saf/ pub fn return types must be declared in api/types/ (when spi/ is absent)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "saf_signature_no_core_types",
+      "category": "saf",
+      "description": "saf/ public function signatures must not name types from core/ (signature leak)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "saf_svc_returns",
+      "category": "saf",
+      "description": "saf/ public function return types depend on crate extensibility: if spi/ exists, return `impl Trait` for downstream polymorphism; if spi/ does not exist, return concrete types only (no trait leaks)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "saf_svc_single_trait_surface",
+      "category": "saf_svc",
+      "description": "Each _svc.rs in saf/ must only re-export from api/ — pub use from core:: leaks implementation details",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "saf_trait_svc_correspondence",
+      "category": "saf_svc",
+      "description": "Every pub trait in api/ must have a corresponding <trait_snake>_svc.rs in saf/",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "saf_trait_svc_fn_scenario_coverage",
+      "category": "saf_svc",
+      "description": "Every _svc.rs must have at least one pub item; every pub fn must have _happy, _error, and _edge test coverage",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": "saf_trait_svc_fn_scenario_coverage",
+            "path": "main\\src\\saf\\agent\\agent_error_svc.rs",
+            "message": "'main\\src\\saf\\agent\\agent_error_svc.rs' has no pub items — _svc.rs must expose at least one pub fn, struct, enum, trait, type, const, or static",
+            "severity": "error",
+            "rule_type": "builtin:saf_trait_svc_fn_scenario_coverage",
+            "expected": "at least one pub item",
+            "actual": "empty _svc.rs",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness"
+            ]
+          },
+          {
+            "check_id": "saf_trait_svc_fn_scenario_coverage",
+            "path": "main\\src\\saf\\agent\\agent_metadata_svc.rs",
+            "message": "'main\\src\\saf\\agent\\agent_metadata_svc.rs' has no pub items — _svc.rs must expose at least one pub fn, struct, enum, trait, type, const, or static",
+            "severity": "error",
+            "rule_type": "builtin:saf_trait_svc_fn_scenario_coverage",
+            "expected": "at least one pub item",
+            "actual": "empty _svc.rs",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness"
+            ]
+          },
+          {
+            "check_id": "saf_trait_svc_fn_scenario_coverage",
+            "path": "main\\src\\saf\\agent\\parameter_svc.rs",
+            "message": "'main\\src\\saf\\agent\\parameter_svc.rs' has no pub items — _svc.rs must expose at least one pub fn, struct, enum, trait, type, const, or static",
+            "severity": "error",
+            "rule_type": "builtin:saf_trait_svc_fn_scenario_coverage",
+            "expected": "at least one pub item",
+            "actual": "empty _svc.rs",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness"
+            ]
+          },
+          {
+            "check_id": "saf_trait_svc_fn_scenario_coverage",
+            "path": "main\\src\\saf\\agent\\skill_metadata_svc.rs",
+            "message": "'main\\src\\saf\\agent\\skill_metadata_svc.rs' has no pub items — _svc.rs must expose at least one pub fn, struct, enum, trait, type, const, or static",
+            "severity": "error",
+            "rule_type": "builtin:saf_trait_svc_fn_scenario_coverage",
+            "expected": "at least one pub item",
+            "actual": "empty _svc.rs",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness"
+            ]
+          },
+          {
+            "check_id": "saf_trait_svc_fn_scenario_coverage",
+            "path": "main\\src\\saf\\agent\\skill_svc.rs",
+            "message": "'main\\src\\saf\\agent\\skill_svc.rs' has no pub items — _svc.rs must expose at least one pub fn, struct, enum, trait, type, const, or static",
+            "severity": "error",
+            "rule_type": "builtin:saf_trait_svc_fn_scenario_coverage",
+            "expected": "at least one pub item",
+            "actual": "empty _svc.rs",
+            "fix_hint": "Add test_<fn>_<scenario>_happy, test_<fn>_<scenario>_error, and test_<fn>_<scenario>_edge functions to the corresponding test file",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "correctness"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "saf_trait_svc_test_exists",
+      "category": "saf_svc",
+      "description": "Each <trait>_svc.rs in saf/ must have a corresponding test file in tests/",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": "saf_trait_svc_test_exists",
+            "path": null,
+            "message": "saf/agent_error_svc.rs has no corresponding test file in tests/ — expected e.g. agent_error_svc_int_test.rs or agent_error_svc_e2e_test.rs",
+            "severity": "error",
+            "rule_type": "builtin:saf_trait_svc_test_exists",
+            "expected": "tests/agent_error_svc_int_test.rs",
+            "actual": "no matching test file found",
+            "fix_hint": "Create tests/<trait>_svc_int_test.rs or tests/<trait>_svc_e2e_test.rs",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "single_responsibility"
+            ]
+          },
+          {
+            "check_id": "saf_trait_svc_test_exists",
+            "path": null,
+            "message": "saf/agent_metadata_svc.rs has no corresponding test file in tests/ — expected e.g. agent_metadata_svc_int_test.rs or agent_metadata_svc_e2e_test.rs",
+            "severity": "error",
+            "rule_type": "builtin:saf_trait_svc_test_exists",
+            "expected": "tests/agent_metadata_svc_int_test.rs",
+            "actual": "no matching test file found",
+            "fix_hint": "Create tests/<trait>_svc_int_test.rs or tests/<trait>_svc_e2e_test.rs",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "single_responsibility"
+            ]
+          },
+          {
+            "check_id": "saf_trait_svc_test_exists",
+            "path": null,
+            "message": "saf/parameter_svc.rs has no corresponding test file in tests/ — expected e.g. parameter_svc_int_test.rs or parameter_svc_e2e_test.rs",
+            "severity": "error",
+            "rule_type": "builtin:saf_trait_svc_test_exists",
+            "expected": "tests/parameter_svc_int_test.rs",
+            "actual": "no matching test file found",
+            "fix_hint": "Create tests/<trait>_svc_int_test.rs or tests/<trait>_svc_e2e_test.rs",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "single_responsibility"
+            ]
+          },
+          {
+            "check_id": "saf_trait_svc_test_exists",
+            "path": null,
+            "message": "saf/skill_metadata_svc.rs has no corresponding test file in tests/ — expected e.g. skill_metadata_svc_int_test.rs or skill_metadata_svc_e2e_test.rs",
+            "severity": "error",
+            "rule_type": "builtin:saf_trait_svc_test_exists",
+            "expected": "tests/skill_metadata_svc_int_test.rs",
+            "actual": "no matching test file found",
+            "fix_hint": "Create tests/<trait>_svc_int_test.rs or tests/<trait>_svc_e2e_test.rs",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "single_responsibility"
+            ]
+          },
+          {
+            "check_id": "saf_trait_svc_test_exists",
+            "path": null,
+            "message": "saf/skill_svc.rs has no corresponding test file in tests/ — expected e.g. skill_svc_int_test.rs or skill_svc_e2e_test.rs",
+            "severity": "error",
+            "rule_type": "builtin:saf_trait_svc_test_exists",
+            "expected": "tests/skill_svc_int_test.rs",
+            "actual": "no matching test file found",
+            "fix_hint": "Create tests/<trait>_svc_int_test.rs or tests/<trait>_svc_e2e_test.rs",
+            "remediation_strategy": "manual",
+            "principles": [
+              "testability",
+              "single_responsibility"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "scripts_ci_build_exists",
+      "category": "",
+      "description": "scripts/ci/build.sh exists (if scripts/ci/ present)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "scripts_ci_dir_exists",
+      "category": "",
+      "description": "scripts/ci/ directory exists (if scripts/ present)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "scripts_ci_lint_exists",
+      "category": "",
+      "description": "scripts/ci/lint.sh exists (if scripts/ci/ present)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "scripts_ci_test_exists",
+      "category": "",
+      "description": "scripts/ci/test.sh exists (if scripts/ci/ present)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "sea_api_no_core_dep",
+      "category": "interface",
+      "description": "api/ must not import from core/ — api/ defines abstractions, it must not depend on implementations",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 9.0491
+    },
+    {
+      "id": "sea_layer_min_loc",
+      "category": "shim_detection",
+      "description": "SEA layer directories must meet minimum LOC threshold (api/>10, core/>20, saf/>5)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "sea_layer_substantive_code",
+      "category": "shim_detection",
+      "description": "SEA layer files must contain substantive code (not just comments or empty re-exports)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "sea_layer_test_coverage",
+      "category": "test_org",
+      "description": "Each source file in SEA layers has coverage via inline tests, a matching test file, or a layer-level test file in tests/ — reports per-layer coverage",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": "sea_layer_test_coverage",
+            "path": null,
+            "message": "Structural test coverage is 55% (11/20 source files covered), minimum is 80%. Per-layer: [api=50%(4/8), core=100%(4/4), saf=37%(3/8)]",
+            "severity": "warning",
+            "rule_type": "builtin:sea_layer_test_coverage",
+            "expected": ">=80% coverage",
+            "actual": "55% coverage",
+            "fix_hint": "Add test files for uncovered source modules",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": "sea_layer_test_coverage",
+            "path": "main\\src\\api\\error\\agent_error.rs",
+            "message": "[api] Source file 'main/src/api/error/agent_error.rs' has no corresponding test file in tests",
+            "severity": "warning",
+            "rule_type": "builtin:sea_layer_test_coverage",
+            "expected": "agent_error_int_test.rs or agent_error_integration_test.rs",
+            "actual": "no matching test file found",
+            "fix_hint": "Create a test file like `tests/agent_error_int_test.rs`",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": "sea_layer_test_coverage",
+            "path": "main\\src\\api\\traits\\parameter.rs",
+            "message": "[api] Source file 'main/src/api/traits/parameter.rs' has no corresponding test file in tests",
+            "severity": "warning",
+            "rule_type": "builtin:sea_layer_test_coverage",
+            "expected": "parameter_int_test.rs or parameter_integration_test.rs",
+            "actual": "no matching test file found",
+            "fix_hint": "Create a test file like `tests/parameter_int_test.rs`",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": "sea_layer_test_coverage",
+            "path": "main\\src\\api\\types\\agent_metadata.rs",
+            "message": "[api] Source file 'main/src/api/types/agent_metadata.rs' has no corresponding test file in tests",
+            "severity": "warning",
+            "rule_type": "builtin:sea_layer_test_coverage",
+            "expected": "agent_metadata_int_test.rs or agent_metadata_integration_test.rs",
+            "actual": "no matching test file found",
+            "fix_hint": "Create a test file like `tests/agent_metadata_int_test.rs`",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": "sea_layer_test_coverage",
+            "path": "main\\src\\api\\types\\skill_metadata.rs",
+            "message": "[api] Source file 'main/src/api/types/skill_metadata.rs' has no corresponding test file in tests",
+            "severity": "warning",
+            "rule_type": "builtin:sea_layer_test_coverage",
+            "expected": "skill_metadata_int_test.rs or skill_metadata_integration_test.rs",
+            "actual": "no matching test file found",
+            "fix_hint": "Create a test file like `tests/skill_metadata_int_test.rs`",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": "sea_layer_test_coverage",
+            "path": "main\\src\\saf\\agent\\agent_error_svc.rs",
+            "message": "[saf] Source file 'main/src/saf/agent/agent_error_svc.rs' has no corresponding test file in tests",
+            "severity": "warning",
+            "rule_type": "builtin:sea_layer_test_coverage",
+            "expected": "agent_error_svc_int_test.rs or agent_error_svc_integration_test.rs",
+            "actual": "no matching test file found",
+            "fix_hint": "Create a test file like `tests/agent_error_svc_int_test.rs`",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": "sea_layer_test_coverage",
+            "path": "main\\src\\saf\\agent\\agent_metadata_svc.rs",
+            "message": "[saf] Source file 'main/src/saf/agent/agent_metadata_svc.rs' has no corresponding test file in tests",
+            "severity": "warning",
+            "rule_type": "builtin:sea_layer_test_coverage",
+            "expected": "agent_metadata_svc_int_test.rs or agent_metadata_svc_integration_test.rs",
+            "actual": "no matching test file found",
+            "fix_hint": "Create a test file like `tests/agent_metadata_svc_int_test.rs`",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": "sea_layer_test_coverage",
+            "path": "main\\src\\saf\\agent\\parameter_svc.rs",
+            "message": "[saf] Source file 'main/src/saf/agent/parameter_svc.rs' has no corresponding test file in tests",
+            "severity": "warning",
+            "rule_type": "builtin:sea_layer_test_coverage",
+            "expected": "parameter_svc_int_test.rs or parameter_svc_integration_test.rs",
+            "actual": "no matching test file found",
+            "fix_hint": "Create a test file like `tests/parameter_svc_int_test.rs`",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": "sea_layer_test_coverage",
+            "path": "main\\src\\saf\\agent\\skill_metadata_svc.rs",
+            "message": "[saf] Source file 'main/src/saf/agent/skill_metadata_svc.rs' has no corresponding test file in tests",
+            "severity": "warning",
+            "rule_type": "builtin:sea_layer_test_coverage",
+            "expected": "skill_metadata_svc_int_test.rs or skill_metadata_svc_integration_test.rs",
+            "actual": "no matching test file found",
+            "fix_hint": "Create a test file like `tests/skill_metadata_svc_int_test.rs`",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": "sea_layer_test_coverage",
+            "path": "main\\src\\saf\\agent\\skill_svc.rs",
+            "message": "[saf] Source file 'main/src/saf/agent/skill_svc.rs' has no corresponding test file in tests",
+            "severity": "warning",
+            "rule_type": "builtin:sea_layer_test_coverage",
+            "expected": "skill_svc_int_test.rs or skill_svc_integration_test.rs",
+            "actual": "no matching test file found",
+            "fix_hint": "Create a test file like `tests/skill_svc_int_test.rs`",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": "sea_layers_no_crates",
+      "category": "interface",
+      "description": "SEA layer directories must not contain crates (no Cargo.toml inside api/, core/, saf/, spi/)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "security_dependency_audit_configured",
+      "category": "security",
+      "description": "Project must configure dependency vulnerability auditing via deny.toml or cargo audit in CI",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "security_no_hardcoded_secrets",
+      "category": "security",
+      "description": "Source files must not contain hardcoded secrets, credentials, or API keys",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "security_policy_file_exists",
+      "category": "security",
+      "description": "Project must have a security policy file (SECURITY.md, SECURITY.txt, or .github/SECURITY.md)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "security_unsafe_documented",
+      "category": "security",
+      "description": "Every unsafe block must be preceded by a // SAFETY: comment explaining the invariant",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "service_type_core_implements_trait",
+      "category": "service_type",
+      "description": "core/ must implement the primary api trait (impl <PrimaryTrait> for)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "service_type_defined",
+      "category": "service_type",
+      "description": "service_type must be defined in project metadata",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "service_type_has_validator",
+      "category": "service_type",
+      "description": "Every non-orchestrator crate must have a Validator trait in api/traits.rs",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": "service_type_has_validator",
+            "path": "main/src/api/traits/",
+            "message": "main/src/api/traits/ is missing `pub trait Validator` — required for non-orchestrator crates",
+            "severity": "warning",
+            "rule_type": "builtin:service_type_has_validator",
+            "expected": "pub trait Validator { ... }",
+            "actual": "not found",
+            "fix_hint": "Add `pub trait Validator` to main/src/api/traits.rs or main/src/api/traits/ and implement it in main/src/core, spi/validator.rs",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": "service_type_primary_trait_exists",
+      "category": "service_type",
+      "description": "api/traits.rs must contain the primary trait matching service_type",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "shared_prefix_grouping",
+      "category": "code_organization",
+      "description": "Sibling files sharing a common prefix must be grouped into a subdirectory module (e.g., check_runner.rs + check_result.rs → check/runner.rs + check/result.rs)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": "shared_prefix_grouping",
+            "path": "main\\src\\core\\agent_manager.rs",
+            "message": "2 files in main/src/core/ share prefix 'agent': agent_manager, agent_registry — group into main/src/core/agent/",
+            "severity": "warning",
+            "rule_type": "builtin:shared_prefix_grouping",
+            "expected": "Subdirectory module: main/src/core/agent/",
+            "actual": "agent_manager, agent_registry",
+            "fix_hint": "Create a subdirectory named after the shared prefix and move files into it (e.g., `check_runner.rs` → `check/runner.rs`)",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": "shared_prefix_grouping",
+            "path": "main\\src\\saf\\agent\\skill_metadata_svc.rs",
+            "message": "2 files in main/src/saf/agent/ share prefix 'skill': skill_metadata_svc, skill_svc — group into main/src/saf/agent/skill/",
+            "severity": "warning",
+            "rule_type": "builtin:shared_prefix_grouping",
+            "expected": "Subdirectory module: main/src/saf/agent/skill/",
+            "actual": "skill_metadata_svc, skill_svc",
+            "fix_hint": "Create a subdirectory named after the shared prefix and move files into it (e.g., `check_runner.rs` → `check/runner.rs`)",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": "single_architecture_config",
+      "category": "",
+      "description": "Only one architecture.toml location is allowed: either architecture.toml at root or main/config/architecture.toml, not both",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "spi_dir_not_empty",
+      "category": "spi",
+      "description": "spi must be a directory (main/src/spi/mod.rs) with real code — a flat main/src/spi.rs file or an empty/comment-only main/src/spi/mod.rs is invalid SEA structure",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "spi_private_mod_in_lib",
+      "category": "spi",
+      "description": "When spi/ exists, lib.rs must declare `mod spi` (private, not pub mod)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "src_dir_exists",
+      "category": "",
+      "description": "source directory exists",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.4986
+    },
+    {
+      "id": "src_no_path_stutter",
+      "category": "",
+      "description": "src/ directory paths must not repeat any path segment (path stutter)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "structural_checks_match_lib_path",
+      "category": "shim_detection",
+      "description": "Non-standard [lib] path with main/src/ present suggests shim directory",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "structure_matches_app_type",
+      "category": "",
+      "description": "Project structure must match declared application_type",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "suggest_builder_pattern",
+      "category": "naming",
+      "description": "Suggest Builder pattern for complex structs (advisory)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": "suggest_builder_pattern",
+            "path": "main\\src\\api\\types\\agent_metadata.rs",
+            "message": "Struct 'AgentMetadata' has 6 fields (0 optional) - consider Builder pattern",
+            "severity": "info",
+            "rule_type": "builtin:suggest_builder_pattern",
+            "expected": "AgentMetadataBuilder companion struct",
+            "actual": "6 fields, 0 optional",
+            "fix_hint": "Add 'AgentMetadataBuilder' with fluent setters",
+            "remediation_strategy": "manual"
+          },
+          {
+            "check_id": "suggest_builder_pattern",
+            "path": "main\\src\\api\\types\\skill_metadata.rs",
+            "message": "Struct 'SkillMetadata' has 6 fields (2 optional) - consider Builder pattern",
+            "severity": "info",
+            "rule_type": "builtin:suggest_builder_pattern",
+            "expected": "SkillMetadataBuilder companion struct",
+            "actual": "6 fields, 2 optional",
+            "fix_hint": "Add 'SkillMetadataBuilder' with fluent setters",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    },
+    {
+      "id": "test_covers_annotation",
+      "category": "test_org",
+      "description": "Tests use @covers: annotation for explicit 1:1 function linking",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "test_file_prefix_matches_source",
+      "category": "test_org",
+      "description": "Test file prefix must match a source module name, optionally followed by a pub fn name",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "test_file_suffixes",
+      "category": "test_org",
+      "description": "Test files use correct suffixes (_test.rs, _int_test.rs, _e2e_test.rs, etc.)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "test_fn_prefixes",
+      "category": "test_org",
+      "description": "Test function name prefix follows location-aware convention: <feature>_<type_kind>_<fn>_<suffix> for tests/<file>.rs; <type_kind>_<fn>_<suffix> for tests/<feature>/<file>.rs (type_kind ∈ {trait,struct,type,enum})",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "test_fn_scenario_path_coverage",
+      "category": "test_org",
+      "description": "Test files that use scenario labels (_happy, _error, _edge) must not cover only the happy path — at least one _error or _edge test must also exist",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "test_fn_suffixes",
+      "category": "test_org",
+      "description": "Test function name uses either the conventional test_ prefix or a recognised test-category suffix (_test, _int_test, _e2e_test, _perf_test, _security_test, _stress_test, _load_test, _unit_test, _smoke_test, _contract_test)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_int_test.rs",
+            "message": "Test function 'trait_agent_happy_id_returns_configured_id' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_happy_id_returns_configured_id",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_int_test.rs",
+            "message": "Test function 'trait_agent_happy_id_differs_by_implementation' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_happy_id_differs_by_implementation",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_int_test.rs",
+            "message": "Test function 'trait_agent_happy_name_returns_configured_name' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_happy_name_returns_configured_name",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_int_test.rs",
+            "message": "Test function 'trait_agent_happy_description_returns_configured_description' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_happy_description_returns_configured_description",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_int_test.rs",
+            "message": "Test function 'trait_agent_happy_execute_skill_success_returns_ok_response' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_happy_execute_skill_success_returns_ok_response",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_int_test.rs",
+            "message": "Test function 'trait_agent_error_execute_skill_failure_returns_execution_failed' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_error_execute_skill_failure_returns_execution_failed",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_int_test.rs",
+            "message": "Test function 'trait_agent_happy_execute_skill_preserves_input' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_happy_execute_skill_preserves_input",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_int_test.rs",
+            "message": "Test function 'trait_agent_edge_skills_returns_empty_list' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_edge_skills_returns_empty_list",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_int_test.rs",
+            "message": "Test function 'trait_agent_error_skill_returns_skill_not_found_when_empty' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_error_skill_returns_skill_not_found_when_empty",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_int_test.rs",
+            "message": "Test function 'trait_agent_happy_all_methods_together_consistent' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_happy_all_methods_together_consistent",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_manager_int_test.rs",
+            "message": "Test function 'trait_agent_manager_happy_load_agent_valid_spec_returns_ok' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_manager_happy_load_agent_valid_spec_returns_ok",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_manager_int_test.rs",
+            "message": "Test function 'trait_agent_manager_error_load_agent_invalid_spec_returns_error' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_manager_error_load_agent_invalid_spec_returns_error",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_manager_int_test.rs",
+            "message": "Test function 'trait_agent_manager_error_load_agent_empty_spec_returns_invalid_spec' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_manager_error_load_agent_empty_spec_returns_invalid_spec",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_manager_int_test.rs",
+            "message": "Test function 'trait_agent_manager_happy_agent_existing_id_returns_ok' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_manager_happy_agent_existing_id_returns_ok",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_manager_int_test.rs",
+            "message": "Test function 'trait_agent_manager_error_agent_nonexistent_id_returns_not_found' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_manager_error_agent_nonexistent_id_returns_not_found",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_manager_int_test.rs",
+            "message": "Test function 'trait_agent_manager_error_agent_when_manager_fails_returns_error' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_manager_error_agent_when_manager_fails_returns_error",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_manager_int_test.rs",
+            "message": "Test function 'trait_agent_manager_happy_list_agent_ids_returns_list' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_manager_happy_list_agent_ids_returns_list",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_manager_int_test.rs",
+            "message": "Test function 'trait_agent_manager_error_list_agent_ids_when_fails_returns_error' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_manager_error_list_agent_ids_when_fails_returns_error",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_manager_int_test.rs",
+            "message": "Test function 'trait_agent_manager_edge_list_agent_ids_empty_list' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_manager_edge_list_agent_ids_empty_list",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_manager_int_test.rs",
+            "message": "Test function 'trait_agent_manager_happy_all_methods_work_together' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_manager_happy_all_methods_work_together",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_manager_svc_int_test.rs",
+            "message": "Test function 'agent_manager_svc_happy_constant_defined' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "agent_manager_svc_happy_constant_defined",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_registry_int_test.rs",
+            "message": "Test function 'trait_agent_registry_happy_metadata_existing_agent_returns_ok' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_registry_happy_metadata_existing_agent_returns_ok",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_registry_int_test.rs",
+            "message": "Test function 'trait_agent_registry_error_metadata_missing_agent_returns_not_found' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_registry_error_metadata_missing_agent_returns_not_found",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_registry_int_test.rs",
+            "message": "Test function 'trait_agent_registry_happy_get_existing_returns_some' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_registry_happy_get_existing_returns_some",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_registry_int_test.rs",
+            "message": "Test function 'trait_agent_registry_error_get_missing_returns_none' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_registry_error_get_missing_returns_none",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_registry_int_test.rs",
+            "message": "Test function 'trait_agent_registry_happy_list_ids_returns_ids' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_registry_happy_list_ids_returns_ids",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_registry_int_test.rs",
+            "message": "Test function 'trait_agent_registry_edge_list_ids_empty_returns_empty_vec' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_registry_edge_list_ids_empty_returns_empty_vec",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_registry_int_test.rs",
+            "message": "Test function 'trait_agent_registry_happy_len_with_agent_returns_one' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_registry_happy_len_with_agent_returns_one",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_registry_int_test.rs",
+            "message": "Test function 'trait_agent_registry_happy_len_empty_returns_zero' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_registry_happy_len_empty_returns_zero",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_registry_int_test.rs",
+            "message": "Test function 'trait_agent_registry_happy_is_empty_when_empty_returns_true' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_registry_happy_is_empty_when_empty_returns_true",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_registry_int_test.rs",
+            "message": "Test function 'trait_agent_registry_happy_is_empty_when_has_items_returns_false' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_registry_happy_is_empty_when_has_items_returns_false",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_registry_int_test.rs",
+            "message": "Test function 'trait_agent_registry_happy_all_methods_together' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_registry_happy_all_methods_together",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_registry_svc_int_test.rs",
+            "message": "Test function 'agent_registry_svc_happy_constant_defined' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "agent_registry_svc_happy_constant_defined",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_svc_int_test.rs",
+            "message": "Test function 'trait_agent_happy_id_returns_configured_value' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_happy_id_returns_configured_value",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_svc_int_test.rs",
+            "message": "Test function 'trait_agent_happy_name_returns_configured_value' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_happy_name_returns_configured_value",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_svc_int_test.rs",
+            "message": "Test function 'trait_agent_happy_description_returns_configured_value' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_happy_description_returns_configured_value",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_svc_int_test.rs",
+            "message": "Test function 'trait_agent_happy_execute_skill_success_returns_ok' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_happy_execute_skill_success_returns_ok",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_svc_int_test.rs",
+            "message": "Test function 'trait_agent_error_execute_skill_unknown_returns_skill_not_found' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_error_execute_skill_unknown_returns_skill_not_found",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_svc_int_test.rs",
+            "message": "Test function 'trait_agent_error_execute_skill_failure_returns_execution_failed' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_error_execute_skill_failure_returns_execution_failed",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_svc_int_test.rs",
+            "message": "Test function 'trait_agent_edge_skills_returns_empty_list' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_agent_edge_skills_returns_empty_list",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_svc_int_test.rs",
+            "message": "Test function 'svc_agent_svc_happy_constant_equals_agent' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "svc_agent_svc_happy_constant_equals_agent",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\agent_svc_int_test.rs",
+            "message": "Test function 'svc_agent_svc_error_constant_not_empty' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "svc_agent_svc_error_constant_not_empty",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\errors_int_test.rs",
+            "message": "Test function 'type_agent_error_happy_not_found_variant' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "type_agent_error_happy_not_found_variant",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\errors_int_test.rs",
+            "message": "Test function 'type_agent_error_happy_skill_not_found_variant' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "type_agent_error_happy_skill_not_found_variant",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\errors_int_test.rs",
+            "message": "Test function 'type_agent_error_error_invalid_spec_variant' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "type_agent_error_error_invalid_spec_variant",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\errors_int_test.rs",
+            "message": "Test function 'type_agent_error_error_execution_failed_variant' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "type_agent_error_error_execution_failed_variant",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\errors_int_test.rs",
+            "message": "Test function 'type_agent_error_edge_invalid_state_variant' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "type_agent_error_edge_invalid_state_variant",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\metadata_int_test.rs",
+            "message": "Test function 'type_agent_metadata_happy_construction' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "type_agent_metadata_happy_construction",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\metadata_int_test.rs",
+            "message": "Test function 'type_agent_metadata_happy_with_skills' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "type_agent_metadata_happy_with_skills",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\metadata_int_test.rs",
+            "message": "Test function 'type_skill_metadata_happy_construction' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "type_skill_metadata_happy_construction",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\metadata_int_test.rs",
+            "message": "Test function 'type_skill_metadata_edge_optional_schemas' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "type_skill_metadata_edge_optional_schemas",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\skill_int_test.rs",
+            "message": "Test function 'trait_skill_happy_name_returns_configured_name' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_skill_happy_name_returns_configured_name",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\skill_int_test.rs",
+            "message": "Test function 'trait_skill_happy_description_returns_configured_description' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_skill_happy_description_returns_configured_description",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\skill_int_test.rs",
+            "message": "Test function 'trait_skill_happy_parameters_returns_list' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_skill_happy_parameters_returns_list",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\skill_int_test.rs",
+            "message": "Test function 'trait_skill_happy_parameters_has_correct_structure' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_skill_happy_parameters_has_correct_structure",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\skill_int_test.rs",
+            "message": "Test function 'trait_skill_happy_metadata_returns_skill_metadata' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_skill_happy_metadata_returns_skill_metadata",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\skill_int_test.rs",
+            "message": "Test function 'trait_skill_happy_metadata_has_schemas' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_skill_happy_metadata_has_schemas",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\skill_int_test.rs",
+            "message": "Test function 'trait_skill_happy_metadata_has_execution_flags' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_skill_happy_metadata_has_execution_flags",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\skill_int_test.rs",
+            "message": "Test function 'trait_skill_edge_metadata_default_returns_skill_metadata' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_skill_edge_metadata_default_returns_skill_metadata",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\skill_int_test.rs",
+            "message": "Test function 'trait_skill_happy_implements_handler_contract' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_skill_happy_implements_handler_contract",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\skill_int_test.rs",
+            "message": "Test function 'trait_skill_happy_execute_processes_request' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_skill_happy_execute_processes_request",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\skill_int_test.rs",
+            "message": "Test function 'trait_skill_error_execute_failure_propagates' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_skill_error_execute_failure_propagates",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\skill_int_test.rs",
+            "message": "Test function 'trait_skill_happy_all_methods_consistent' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "trait_skill_happy_all_methods_consistent",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\svc_int_test.rs",
+            "message": "Test function 'svc_agent_svc_happy_constant_defined' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "svc_agent_svc_happy_constant_defined",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\svc_int_test.rs",
+            "message": "Test function 'svc_agent_manager_svc_happy_constant_defined' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "svc_agent_manager_svc_happy_constant_defined",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\svc_int_test.rs",
+            "message": "Test function 'svc_agent_registry_svc_happy_constant_defined' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "svc_agent_registry_svc_happy_constant_defined",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\svc_int_test.rs",
+            "message": "Test function 'svc_agent_svc_error_invalid_name' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "svc_agent_svc_error_invalid_name",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          },
+          {
+            "check_id": "test_fn_suffixes",
+            "path": "tests\\svc_int_test.rs",
+            "message": "Test function 'svc_agent_manager_svc_edge_non_empty_string' uses neither a recognised test-category suffix nor the conventional `test_` prefix",
+            "severity": "warning",
+            "rule_type": "builtin:test_fn_suffixes",
+            "expected": "test_<name> or *_<category>_test",
+            "actual": "svc_agent_manager_svc_edge_non_empty_string",
+            "fix_hint": "Rename with a valid test suffix (_test, _int_test, _e2e_test, _perf_test, etc.) or use the conventional `test_<name>` form"
+          }
+        ]
+      }
+    },
+    {
+      "id": "test_location_by_deps",
+      "category": "test_org",
+      "description": "Test files use suffixes consistent with dependency scope (allowing integration-style *_int_test.rs / *_e2e_test.rs in tests/)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "test_not_placeholder",
+      "category": "test_org",
+      "description": "Test functions must not be placeholders (panic!/todo!/unimplemented!/unreachable!/empty body)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "test_paths_resolve",
+      "category": "",
+      "description": "[[test]] paths resolve to existing files",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "test_targets_declared",
+      "category": "",
+      "description": "[[test]] targets declared for tests/ files",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "tests_dir_exists",
+      "category": "test_org",
+      "description": "tests/ directory exists at same level as main/src/",
+      "result": {
+        "status": "pass"
+      },
+      "duration_ms": 0.2069
+    },
+    {
+      "id": "trait_has_test_file",
+      "category": "test_org",
+      "description": "Each api/ trait has a corresponding test file in tests/",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "trait_names_not_plural",
+      "category": "naming",
+      "description": "Trait names must be singular (not plural)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "unit_tests_colocated",
+      "category": "test_org",
+      "description": "Colocated #[cfg(test)] blocks only permitted when testing private methods — all other unit tests must live in standalone tests/<struct>_test.rs files",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": "xdg_dirs_crate",
+      "category": "hygiene",
+      "description": "CLI projects should use dirs/directories crate for XDG-compliant paths",
+      "result": {
+        "status": "pass"
+      }
+    }
+  ],
+  "summary": {
+    "total": 174,
+    "passed": 162,
+    "failed": 12,
+    "skipped": 0,
+    "duration_ms": 247.32760000000002
+  },
+  "project_layout": "library",
+  "application_type": "lib",
+  "rule_labels": {
+    "no_loose_core_files": [
+      "core",
+      "spi"
+    ],
+    "core_structs_not_pub": [
+      "core",
+      "spi"
+    ],
+    "core_filename_matches_type": [
+      "core",
+      "spi"
+    ],
+    "no_traits_in_impl_layer": [
+      "core",
+      "spi"
+    ],
+    "core_types_name_cohesive": [
+      "core",
+      "spi"
+    ],
+    "core_fns_have_unit_tests": [
+      "core",
+      "spi"
+    ],
+    "core_structs_have_trait": [
+      "core",
+      "spi"
+    ],
+    "core_impl_name_has_trait_suffix": [
+      "core",
+      "spi"
+    ]
+  }
+}
