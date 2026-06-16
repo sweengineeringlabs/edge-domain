@@ -1,6 +1,6 @@
 //! Tests for AgentMetadataBuilder with fluent API.
 
-use edge_domain_agent::{AgentMetadataBuilder, SkillMetadataBuilder};
+use edge_llm_agent::{AgentMetadataBuilder, SkillMetadataBuilder};
 
 #[test]
 #[should_panic]

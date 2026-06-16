@@ -1,7 +1,7 @@
 //! Integration tests for Skill trait re-export via skill_svc.rs.
 
 use async_trait::async_trait;
-use edge_domain_agent::{Parameter, Skill, SkillMetadata};
+use edge_llm_agent::{Parameter, Skill, SkillMetadata};
 use edge_domain_command::CommandBusFactory;
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
 

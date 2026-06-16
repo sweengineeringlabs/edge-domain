@@ -1,7 +1,7 @@
 //! Integration tests — `Skill` trait.
 
 use async_trait::async_trait;
-use edge_domain_agent::{Parameter, Skill, SkillMetadata};
+use edge_llm_agent::{Parameter, Skill, SkillMetadata};
 use edge_domain_command::CommandBusFactory;
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
 

@@ -1,7 +1,7 @@
 //! Integration tests for AGENT_SVC constant and Agent trait re-export.
 
 use async_trait::async_trait;
-use edge_domain_agent::{Agent, AgentError, Skill};
+use edge_llm_agent::{Agent, AgentError, Skill};
 use std::sync::Arc;
 
 struct TestAgent;
@@ -40,19 +40,19 @@ impl Agent for TestAgent {
 /// @covers: AGENT_SVC constant
 #[test]
 fn test_svc_agent_svc_happy_constant_equals_agent() {
-    assert_eq!(edge_domain_agent::AGENT_SVC, "agent");
+    assert_eq!(edge_llm_agent::AGENT_SVC, "agent");
 }
 
 /// @covers: AGENT_SVC constant
 #[test]
 fn test_svc_agent_svc_error_constant_not_empty() {
-    assert!(!edge_domain_agent::AGENT_SVC.is_empty());
+    assert!(!edge_llm_agent::AGENT_SVC.is_empty());
 }
 
 /// @covers: AGENT_SVC constant
 #[test]
 fn test_svc_agent_svc_edge_constant_is_valid_identifier() {
-    let svc = edge_domain_agent::AGENT_SVC;
+    let svc = edge_llm_agent::AGENT_SVC;
     assert!(svc.chars().all(|c| c.is_ascii_lowercase() || c == '_'));
 }
 

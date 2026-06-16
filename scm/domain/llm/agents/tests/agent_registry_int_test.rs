@@ -1,6 +1,6 @@
 //! Integration tests — `AgentRegistry` trait.
 
-use edge_domain_agent::{Agent, AgentError, AgentMetadata, AgentRegistry, Skill};
+use edge_llm_agent::{Agent, AgentError, AgentMetadata, AgentRegistry, Skill};
 use edge_domain_registry::Registry;
 use std::sync::Arc;
 

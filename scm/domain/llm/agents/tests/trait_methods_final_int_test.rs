@@ -4,7 +4,7 @@
 //! with happy, error, and edge cases.
 
 use async_trait::async_trait;
-use edge_domain_agent::{Agent, AgentError, AgentManager, AgentMetadata, AgentRegistry, Parameter, Skill, SkillMetadata};
+use edge_llm_agent::{Agent, AgentError, AgentManager, AgentMetadata, AgentRegistry, Parameter, Skill, SkillMetadata};
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
 use edge_domain_registry::Registry;
 use std::sync::Arc;

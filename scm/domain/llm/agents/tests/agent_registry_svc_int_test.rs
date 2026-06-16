@@ -1,7 +1,7 @@
 //! Integration tests for AGENT_REGISTRY_SVC constant and AgentRegistry trait re-export.
 
 use async_trait::async_trait;
-use edge_domain_agent::{Agent, AgentError, AgentMetadata, AgentRegistry, Skill};
+use edge_llm_agent::{Agent, AgentError, AgentMetadata, AgentRegistry, Skill};
 use edge_domain_registry::Registry;
 use std::sync::{Arc, Mutex};
 
@@ -114,19 +114,19 @@ fn create_dummy_metadata(id: &str) -> AgentMetadata {
 /// @covers: AGENT_REGISTRY_SVC constant
 #[test]
 fn test_svc_agent_registry_svc_happy_constant_equals_agent_registry() {
-    assert_eq!(edge_domain_agent::AGENT_REGISTRY_SVC, "agent_registry");
+    assert_eq!(edge_llm_agent::AGENT_REGISTRY_SVC, "agent_registry");
 }
 
 /// @covers: AGENT_REGISTRY_SVC constant
 #[test]
 fn test_svc_agent_registry_svc_error_constant_not_empty() {
-    assert!(!edge_domain_agent::AGENT_REGISTRY_SVC.is_empty());
+    assert!(!edge_llm_agent::AGENT_REGISTRY_SVC.is_empty());
 }
 
 /// @covers: AGENT_REGISTRY_SVC constant
 #[test]
 fn test_svc_agent_registry_svc_edge_constant_is_valid_identifier() {
-    let svc = edge_domain_agent::AGENT_REGISTRY_SVC;
+    let svc = edge_llm_agent::AGENT_REGISTRY_SVC;
     assert!(svc.chars().all(|c| c.is_ascii_lowercase() || c == '_'));
 }
 

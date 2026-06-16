@@ -1,6 +1,6 @@
 //! Integration tests for AgentMetadata and SkillMetadata types.
 
-use edge_domain_agent::{AgentMetadata, SkillMetadata};
+use edge_llm_agent::{AgentMetadata, SkillMetadata};
 
 #[test]
 fn test_type_agent_metadata_happy_construction() {

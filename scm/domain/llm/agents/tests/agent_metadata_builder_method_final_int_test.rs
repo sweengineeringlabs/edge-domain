@@ -1,6 +1,6 @@
 //! Tests for AgentMetadata::builder() method.
 
-use edge_domain_agent::AgentMetadata;
+use edge_llm_agent::AgentMetadata;
 
 #[test]
 fn test_agent_metadata_builder_method_returns_builder() {

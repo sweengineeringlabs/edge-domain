@@ -1,6 +1,6 @@
 //! Tests for AGENT_METADATA_BUILDER_SVC constant.
 
-use edge_domain_agent::AGENT_METADATA_BUILDER_SVC;
+use edge_llm_agent::AGENT_METADATA_BUILDER_SVC;
 
 #[test]
 fn test_agent_metadata_builder_svc_constant_exists() {

@@ -1,6 +1,6 @@
 //! Integration tests for Parameter type re-export via parameter_svc.rs.
 
-use edge_domain_agent::Parameter;
+use edge_llm_agent::Parameter;
 
 /// @covers: Parameter type re-export
 #[test]

@@ -1,6 +1,6 @@
 //! Tests for SkillMetadata::builder() method.
 
-use edge_domain_agent::SkillMetadata;
+use edge_llm_agent::SkillMetadata;
 
 #[test]
 fn test_skill_metadata_builder_method_returns_builder() {

@@ -1,6 +1,6 @@
 //! Integration tests for Validator trait contract.
 
-use edge_domain_agent::Validator;
+use edge_llm_agent::Validator;
 
 /// A strict validator implementation for testing error scenarios.
 struct StrictValidator;

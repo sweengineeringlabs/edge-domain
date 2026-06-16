@@ -1,6 +1,6 @@
 //! Integration tests for AgentError type.
 
-use edge_domain_agent::AgentError;
+use edge_llm_agent::AgentError;
 
 #[test]
 fn test_type_agent_error_happy_not_found_variant() {

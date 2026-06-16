@@ -1,6 +1,6 @@
 //! Integration tests for AgentMetadata type re-export via agent_metadata_svc.rs.
 
-use edge_domain_agent::{AgentMetadata, SkillMetadata};
+use edge_llm_agent::{AgentMetadata, SkillMetadata};
 
 /// @covers: AgentMetadata type re-export
 #[test]

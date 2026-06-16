@@ -1,6 +1,6 @@
 //! Tests for SKILL_METADATA_BUILDER_SVC constant.
 
-use edge_domain_agent::SKILL_METADATA_BUILDER_SVC;
+use edge_llm_agent::SKILL_METADATA_BUILDER_SVC;
 
 #[test]
 fn test_skill_metadata_builder_svc_constant_exists() {

@@ -1,7 +1,7 @@
 //! Integration tests — `Agent` trait.
 
 use async_trait::async_trait;
-use edge_domain_agent::{Agent, AgentError, Skill};
+use edge_llm_agent::{Agent, AgentError, Skill};
 use std::sync::Arc;
 
 struct SuccessAgent;

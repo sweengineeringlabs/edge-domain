@@ -1,6 +1,6 @@
 //! Tests for SkillMetadataBuilder with fluent API.
 
-use edge_domain_agent::SkillMetadataBuilder;
+use edge_llm_agent::SkillMetadataBuilder;
 
 #[test]
 #[should_panic]

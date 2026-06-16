@@ -1,6 +1,6 @@
 //! Integration tests for AgentError type re-export via agent_error_svc.rs.
 
-use edge_domain_agent::AgentError;
+use edge_llm_agent::AgentError;
 
 /// @covers: AgentError type re-export — NotFound variant
 #[test]

@@ -1,7 +1,7 @@
 //! Integration tests for AGENT_MANAGER_SVC constant and AgentManager trait re-export.
 
 use async_trait::async_trait;
-use edge_domain_agent::{Agent, AgentError, AgentManager, Skill};
+use edge_llm_agent::{Agent, AgentError, AgentManager, Skill};
 use std::sync::Arc;
 
 struct TestAgent {
@@ -67,19 +67,19 @@ impl AgentManager for TestAgentManager {
 /// @covers: AGENT_MANAGER_SVC constant
 #[test]
 fn test_svc_agent_manager_svc_happy_constant_equals_agent_manager() {
-    assert_eq!(edge_domain_agent::AGENT_MANAGER_SVC, "agent_manager");
+    assert_eq!(edge_llm_agent::AGENT_MANAGER_SVC, "agent_manager");
 }
 
 /// @covers: AGENT_MANAGER_SVC constant
 #[test]
 fn test_svc_agent_manager_svc_error_constant_not_empty() {
-    assert!(!edge_domain_agent::AGENT_MANAGER_SVC.is_empty());
+    assert!(!edge_llm_agent::AGENT_MANAGER_SVC.is_empty());
 }
 
 /// @covers: AGENT_MANAGER_SVC constant
 #[test]
 fn test_svc_agent_manager_svc_edge_constant_is_valid_identifier() {
-    let svc = edge_domain_agent::AGENT_MANAGER_SVC;
+    let svc = edge_llm_agent::AGENT_MANAGER_SVC;
     assert!(svc.chars().all(|c| c.is_ascii_lowercase() || c == '_'));
 }
 

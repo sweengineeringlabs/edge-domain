@@ -1,6 +1,6 @@
 //! Comprehensive tests for Validator trait.
 
-use edge_domain_agent::Validator;
+use edge_llm_agent::Validator;
 
 struct TestValidator {
     should_fail: bool,

@@ -1,6 +1,6 @@
 //! Integration tests for SkillMetadata type re-export via skill_metadata_svc.rs.
 
-use edge_domain_agent::SkillMetadata;
+use edge_llm_agent::SkillMetadata;
 
 /// @covers: SkillMetadata type re-export
 #[test]

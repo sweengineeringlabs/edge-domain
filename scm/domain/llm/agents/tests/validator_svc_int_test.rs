@@ -1,6 +1,6 @@
 //! Integration tests for validator_svc public interface.
 
-use edge_domain_agent::Validator;
+use edge_llm_agent::Validator;
 
 /// A simple validator for testing the trait.
 struct TestValidator;
@@ -34,14 +34,14 @@ impl Validator for TestValidator {
 // @covers: VALIDATOR_SVC
 #[test]
 fn test_validator_svc_happy() {
-    use edge_domain_agent::VALIDATOR_SVC;
+    use edge_llm_agent::VALIDATOR_SVC;
     assert_eq!(VALIDATOR_SVC, "validator");
 }
 
 // @covers: VALIDATOR_SVC
 #[test]
 fn test_validator_svc_error() {
-    use edge_domain_agent::VALIDATOR_SVC;
+    use edge_llm_agent::VALIDATOR_SVC;
     assert_ne!(VALIDATOR_SVC, "wrong");
 }
 
