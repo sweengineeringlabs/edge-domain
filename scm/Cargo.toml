@@ -19,7 +19,7 @@ members  = [
     "domain-saga",
     "domain-security",
     "domain-registry",
-    "domain-lifecycle",
+    "domain-lifecycle", "domain-llm/edge_llm_agent",
 ]
 
 [workspace.package]
