@@ -1,3 +1,4 @@
 target/
 Cargo.lock
 docs/7-operations/compliance/
+**/docs/7-operations/compliance/
