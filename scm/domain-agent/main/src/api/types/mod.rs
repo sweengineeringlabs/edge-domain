@@ -1,3 +1,5 @@
-mod metadata;
+mod agent_metadata;
+mod skill_metadata;
 
-pub use metadata::{AgentMetadata, SkillMetadata};
+pub use agent_metadata::AgentMetadata;
+pub use skill_metadata::SkillMetadata;

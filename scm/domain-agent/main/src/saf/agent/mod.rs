@@ -1,9 +1,17 @@
-mod agent_svc;
+mod agent_error_svc;
 mod agent_manager_svc;
+mod agent_metadata_svc;
+mod agent_svc;
 mod agent_registry_svc;
+mod parameter_svc;
+mod skill_metadata_svc;
+mod skill_svc;
 
-pub use agent_svc::AGENT_SVC;
-pub use agent_manager_svc::AGENT_MANAGER_SVC;
-pub use agent_registry_svc::AGENT_REGISTRY_SVC;
-
-pub use crate::api::{Agent, AgentError, AgentManager, AgentMetadata, AgentRegistry, Skill, SkillMetadata};
+pub use agent_error_svc::AgentError;
+pub use agent_manager_svc::{AgentManager, AGENT_MANAGER_SVC};
+pub use agent_metadata_svc::AgentMetadata;
+pub use agent_svc::{Agent, AGENT_SVC};
+pub use agent_registry_svc::{AgentRegistry, AGENT_REGISTRY_SVC};
+pub use parameter_svc::Parameter;
+pub use skill_metadata_svc::SkillMetadata;
+pub use skill_svc::Skill;

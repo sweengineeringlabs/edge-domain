@@ -1,5 +1,8 @@
 //! Skill trait — named capability that extends Handler.
 
+use crate::api::types::SkillMetadata;
+
+use super::parameter::Parameter;
 use edge_domain_handler::Handler;
 
 /// A Skill is a named capability an Agent can execute.
@@ -20,13 +23,16 @@ pub trait Skill: Handler + Send + Sync {
     fn parameters(&self) -> Vec<Parameter> {
         vec![]
     }
-}
 
-/// Describes a skill parameter for discovery and documentation.
-#[derive(Debug, Clone)]
-pub struct Parameter {
-    pub name: String,
-    pub description: String,
-    pub param_type: String, // e.g., "string", "number", "object"
-    pub required: bool,
+    /// Get skill metadata including documentation and schemas.
+    fn metadata(&self) -> SkillMetadata {
+        SkillMetadata {
+            name: self.name().to_string(),
+            description: self.description().to_string(),
+            input_schema: None,
+            output_schema: None,
+            async_execution: true,
+            long_running: false,
+        }
+    }
 }

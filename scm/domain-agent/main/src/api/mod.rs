@@ -1,7 +1,7 @@
-pub mod errors;
-pub mod traits;
-pub mod types;
+mod error;
+mod traits;
+mod types;
 
-pub use errors::AgentError;
-pub use traits::{Agent, AgentManager, AgentRegistry, Skill};
+pub use error::AgentError;
+pub use traits::{Agent, AgentManager, AgentRegistry, Skill, Parameter};
 pub use types::{AgentMetadata, SkillMetadata};

@@ -1,4 +1,4 @@
-//! Agent domain errors.
+//! Agent operation errors.
 
 use thiserror::Error;
 
