@@ -6,7 +6,7 @@ license.workspace      = true
 rust-version.workspace = true
 authors.workspace      = true
 repository.workspace   = true
-description = "edge-domain — Agent domain primitive: Agent, Skill, AgentController, AgentRegistry port contracts"
+description = "edge-domain — Agent domain primitive: Agent, Skill, AgentManager, AgentRegistry port contracts"
 keywords    = ["domain", "agent", "skill", "orchestration", "sea"]
 categories  = ["development-tools"]
 
@@ -20,10 +20,9 @@ path = "main/src/lib.rs"
 [dependencies]
 thiserror.workspace = true
 async-trait.workspace = true
-serde.workspace = true
-serde_json = "1"
 edge-domain-entity = { workspace = true }
 edge-domain-handler = { workspace = true }
+edge-domain-registry = { workspace = true }
 
 [lints.rust]
 unsafe_code = "deny"

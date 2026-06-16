@@ -1,15 +1,15 @@
-//! AgentController trait — service for loading and accessing agents.
+//! AgentManager trait — service for loading and accessing agents.
 
 use std::sync::Arc;
 
 use super::agent::Agent;
 use crate::AgentError;
 
-/// AgentController is the service that loads and provides access to agents.
+/// AgentManager is the service that loads and provides access to agents.
 ///
 /// Implementations parse agent specifications (e.g., YAML) and instantiate Agent instances.
 #[async_trait::async_trait]
-pub trait AgentController: Send + Sync {
+pub trait AgentManager: Send + Sync {
     /// Load an agent from a specification (e.g., path to YAML file).
     async fn load_agent(&self, spec: &str) -> Result<Arc<dyn Agent>, AgentError>;
 

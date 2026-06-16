@@ -1,12 +1,10 @@
 //! AgentRegistry trait — agent discovery and metadata.
 
-use std::sync::Arc;
-
 use edge_domain_registry::Registry;
 
-use crate::traits::Agent;
-use crate::types::AgentMetadata;
-use crate::AgentError;
+use super::Agent;
+use crate::api::types::AgentMetadata;
+use crate::api::AgentError;
 
 /// AgentRegistry specializes the generic [`Registry`] for agents.
 ///
