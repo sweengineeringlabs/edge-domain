@@ -66,7 +66,7 @@ impl Skill for TestSkill {
 
 /// @covers: Skill trait re-export
 #[test]
-fn svc_skill_happy_trait_can_be_implemented() {
+fn test_svc_skill_happy_trait_can_be_implemented() {
     let skill = TestSkill {
         should_fail: false,
         custom_name: "test",
@@ -76,7 +76,7 @@ fn svc_skill_happy_trait_can_be_implemented() {
 
 /// @covers: Skill trait re-export — name method
 #[test]
-fn svc_skill_happy_name_returns_configured_value() {
+fn test_svc_skill_happy_name_returns_configured_value() {
     let skill = TestSkill {
         should_fail: false,
         custom_name: "code_review",
@@ -86,7 +86,7 @@ fn svc_skill_happy_name_returns_configured_value() {
 
 /// @covers: Skill trait re-export — description method
 #[test]
-fn svc_skill_happy_description_returns_configured_value() {
+fn test_svc_skill_happy_description_returns_configured_value() {
     let skill = TestSkill {
         should_fail: false,
         custom_name: "test",
@@ -96,7 +96,7 @@ fn svc_skill_happy_description_returns_configured_value() {
 
 /// @covers: Skill trait re-export — parameters with values
 #[test]
-fn svc_skill_happy_parameters_returns_list() {
+fn test_svc_skill_happy_parameters_returns_list() {
     let skill = TestSkill {
         should_fail: false,
         custom_name: "test",
@@ -109,7 +109,7 @@ fn svc_skill_happy_parameters_returns_list() {
 
 /// @covers: Skill trait re-export — parameters empty
 #[test]
-fn svc_skill_edge_parameters_can_be_empty() {
+fn test_svc_skill_edge_parameters_can_be_empty() {
     struct MinimalSkill;
 
     #[async_trait]
@@ -142,7 +142,7 @@ fn svc_skill_edge_parameters_can_be_empty() {
 
 /// @covers: Skill trait re-export — metadata method
 #[test]
-fn svc_skill_happy_metadata_returns_skill_metadata() {
+fn test_svc_skill_happy_metadata_returns_skill_metadata() {
     let skill = TestSkill {
         should_fail: false,
         custom_name: "test",
@@ -154,7 +154,7 @@ fn svc_skill_happy_metadata_returns_skill_metadata() {
 
 /// @covers: Skill trait re-export — metadata with schemas
 #[test]
-fn svc_skill_happy_metadata_has_optional_schemas() {
+fn test_svc_skill_happy_metadata_has_optional_schemas() {
     let skill = TestSkill {
         should_fail: false,
         custom_name: "test",
@@ -167,7 +167,7 @@ fn svc_skill_happy_metadata_has_optional_schemas() {
 
 /// @covers: Skill trait re-export — metadata default implementation
 #[test]
-fn svc_skill_edge_metadata_default_no_schemas() {
+fn test_svc_skill_edge_metadata_default_no_schemas() {
     struct MinimalSkill;
 
     #[async_trait]
@@ -203,7 +203,7 @@ fn svc_skill_edge_metadata_default_no_schemas() {
 
 /// @covers: Skill trait re-export — execution via Handler
 #[test]
-fn svc_skill_happy_execute_processes_request() {
+fn test_svc_skill_happy_execute_processes_request() {
     let skill = TestSkill {
         should_fail: false,
         custom_name: "test",
@@ -221,7 +221,7 @@ fn svc_skill_happy_execute_processes_request() {
 
 /// @covers: Skill trait re-export — execution failure
 #[test]
-fn svc_skill_error_execute_failure_propagates() {
+fn test_svc_skill_error_execute_failure_propagates() {
     let skill = TestSkill {
         should_fail: true,
         custom_name: "test",
@@ -238,7 +238,7 @@ fn svc_skill_error_execute_failure_propagates() {
 
 /// @covers: Skill trait re-export — Handler id method
 #[test]
-fn svc_skill_happy_implements_handler_contract() {
+fn test_svc_skill_happy_implements_handler_contract() {
     let skill = TestSkill {
         should_fail: false,
         custom_name: "test",

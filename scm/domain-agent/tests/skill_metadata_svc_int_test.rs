@@ -4,7 +4,7 @@ use edge_domain_agent::SkillMetadata;
 
 /// @covers: SkillMetadata type re-export
 #[test]
-fn svc_skill_metadata_happy_type_can_be_constructed() {
+fn test_svc_skill_metadata_happy_type_can_be_constructed() {
     let metadata = SkillMetadata {
         name: "analyze".to_string(),
         description: "Analyze input".to_string(),
@@ -18,7 +18,7 @@ fn svc_skill_metadata_happy_type_can_be_constructed() {
 
 /// @covers: SkillMetadata type re-export — all fields
 #[test]
-fn svc_skill_metadata_happy_all_fields_accessible() {
+fn test_svc_skill_metadata_happy_all_fields_accessible() {
     let metadata = SkillMetadata {
         name: "code_review".to_string(),
         description: "Review code".to_string(),
@@ -37,7 +37,7 @@ fn svc_skill_metadata_happy_all_fields_accessible() {
 
 /// @covers: SkillMetadata type re-export — name field
 #[test]
-fn svc_skill_metadata_happy_name_field_stores_value() {
+fn test_svc_skill_metadata_happy_name_field_stores_value() {
     let metadata = SkillMetadata {
         name: "custom_skill".to_string(),
         description: "Desc".to_string(),
@@ -51,7 +51,7 @@ fn svc_skill_metadata_happy_name_field_stores_value() {
 
 /// @covers: SkillMetadata type re-export — description field
 #[test]
-fn svc_skill_metadata_happy_description_field_stores_value() {
+fn test_svc_skill_metadata_happy_description_field_stores_value() {
     let metadata = SkillMetadata {
         name: "skill".to_string(),
         description: "Custom description".to_string(),
@@ -65,7 +65,7 @@ fn svc_skill_metadata_happy_description_field_stores_value() {
 
 /// @covers: SkillMetadata type re-export — input_schema Some
 #[test]
-fn svc_skill_metadata_happy_input_schema_with_value() {
+fn test_svc_skill_metadata_happy_input_schema_with_value() {
     let schema = r#"{"type": "object"}"#.to_string();
     let metadata = SkillMetadata {
         name: "skill".to_string(),
@@ -81,7 +81,7 @@ fn svc_skill_metadata_happy_input_schema_with_value() {
 
 /// @covers: SkillMetadata type re-export — input_schema None
 #[test]
-fn svc_skill_metadata_happy_input_schema_none() {
+fn test_svc_skill_metadata_happy_input_schema_none() {
     let metadata = SkillMetadata {
         name: "skill".to_string(),
         description: "Desc".to_string(),
@@ -95,7 +95,7 @@ fn svc_skill_metadata_happy_input_schema_none() {
 
 /// @covers: SkillMetadata type re-export — output_schema Some
 #[test]
-fn svc_skill_metadata_happy_output_schema_with_value() {
+fn test_svc_skill_metadata_happy_output_schema_with_value() {
     let schema = r#"{"type": "string"}"#.to_string();
     let metadata = SkillMetadata {
         name: "skill".to_string(),
@@ -111,7 +111,7 @@ fn svc_skill_metadata_happy_output_schema_with_value() {
 
 /// @covers: SkillMetadata type re-export — output_schema None
 #[test]
-fn svc_skill_metadata_happy_output_schema_none() {
+fn test_svc_skill_metadata_happy_output_schema_none() {
     let metadata = SkillMetadata {
         name: "skill".to_string(),
         description: "Desc".to_string(),
@@ -125,7 +125,7 @@ fn svc_skill_metadata_happy_output_schema_none() {
 
 /// @covers: SkillMetadata type re-export — async_execution true
 #[test]
-fn svc_skill_metadata_happy_async_execution_true() {
+fn test_svc_skill_metadata_happy_async_execution_true() {
     let metadata = SkillMetadata {
         name: "skill".to_string(),
         description: "Desc".to_string(),
@@ -139,7 +139,7 @@ fn svc_skill_metadata_happy_async_execution_true() {
 
 /// @covers: SkillMetadata type re-export — async_execution false
 #[test]
-fn svc_skill_metadata_happy_async_execution_false() {
+fn test_svc_skill_metadata_happy_async_execution_false() {
     let metadata = SkillMetadata {
         name: "skill".to_string(),
         description: "Desc".to_string(),
@@ -153,7 +153,7 @@ fn svc_skill_metadata_happy_async_execution_false() {
 
 /// @covers: SkillMetadata type re-export — long_running true
 #[test]
-fn svc_skill_metadata_happy_long_running_true() {
+fn test_svc_skill_metadata_happy_long_running_true() {
     let metadata = SkillMetadata {
         name: "skill".to_string(),
         description: "Desc".to_string(),
@@ -167,7 +167,7 @@ fn svc_skill_metadata_happy_long_running_true() {
 
 /// @covers: SkillMetadata type re-export — long_running false
 #[test]
-fn svc_skill_metadata_happy_long_running_false() {
+fn test_svc_skill_metadata_happy_long_running_false() {
     let metadata = SkillMetadata {
         name: "skill".to_string(),
         description: "Desc".to_string(),
@@ -181,7 +181,7 @@ fn svc_skill_metadata_happy_long_running_false() {
 
 /// @covers: SkillMetadata type re-export — Clone trait
 #[test]
-fn svc_skill_metadata_happy_can_be_cloned() {
+fn test_svc_skill_metadata_happy_can_be_cloned() {
     let original = SkillMetadata {
         name: "skill".to_string(),
         description: "Desc".to_string(),
@@ -197,7 +197,7 @@ fn svc_skill_metadata_happy_can_be_cloned() {
 
 /// @covers: SkillMetadata type re-export — Debug trait
 #[test]
-fn svc_skill_metadata_happy_debug_format_available() {
+fn test_svc_skill_metadata_happy_debug_format_available() {
     let metadata = SkillMetadata {
         name: "skill".to_string(),
         description: "Desc".to_string(),
@@ -212,7 +212,7 @@ fn svc_skill_metadata_happy_debug_format_available() {
 
 /// @covers: SkillMetadata type re-export — both schemas present
 #[test]
-fn svc_skill_metadata_happy_both_schemas_present() {
+fn test_svc_skill_metadata_happy_both_schemas_present() {
     let metadata = SkillMetadata {
         name: "skill".to_string(),
         description: "Desc".to_string(),
@@ -227,7 +227,7 @@ fn svc_skill_metadata_happy_both_schemas_present() {
 
 /// @covers: SkillMetadata type re-export — edge case empty strings
 #[test]
-fn svc_skill_metadata_edge_empty_string_fields() {
+fn test_svc_skill_metadata_edge_empty_string_fields() {
     let metadata = SkillMetadata {
         name: String::new(),
         description: String::new(),
@@ -243,7 +243,7 @@ fn svc_skill_metadata_edge_empty_string_fields() {
 
 /// @covers: SkillMetadata type re-export — all flags together
 #[test]
-fn svc_skill_metadata_happy_all_flag_combinations() {
+fn test_svc_skill_metadata_happy_all_flag_combinations() {
     let combinations = vec![
         (true, true),
         (true, false),

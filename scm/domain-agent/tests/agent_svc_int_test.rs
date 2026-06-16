@@ -39,33 +39,33 @@ impl Agent for TestAgent {
 
 /// @covers: AGENT_SVC constant
 #[test]
-fn svc_agent_svc_happy_constant_equals_agent() {
+fn test_svc_agent_svc_happy_constant_equals_agent() {
     assert_eq!(edge_domain_agent::AGENT_SVC, "agent");
 }
 
 /// @covers: AGENT_SVC constant
 #[test]
-fn svc_agent_svc_error_constant_not_empty() {
+fn test_svc_agent_svc_error_constant_not_empty() {
     assert!(!edge_domain_agent::AGENT_SVC.is_empty());
 }
 
 /// @covers: AGENT_SVC constant
 #[test]
-fn svc_agent_svc_edge_constant_is_valid_identifier() {
+fn test_svc_agent_svc_edge_constant_is_valid_identifier() {
     let svc = edge_domain_agent::AGENT_SVC;
     assert!(svc.chars().all(|c| c.is_ascii_lowercase() || c == '_'));
 }
 
 /// @covers: Agent trait re-export
 #[test]
-fn svc_agent_happy_trait_can_be_implemented() {
+fn test_svc_agent_happy_trait_can_be_implemented() {
     let agent: Box<dyn Agent> = Box::new(TestAgent);
     assert_eq!(agent.id(), "test_agent");
 }
 
 /// @covers: Agent trait re-export — execute_skill
 #[test]
-fn svc_agent_happy_execute_skill_success() {
+fn test_svc_agent_happy_execute_skill_success() {
     let result = futures::executor::block_on(TestAgent.execute_skill("success", "input".to_string()));
     assert!(result.is_ok());
     assert_eq!(result.unwrap(), "executed");
@@ -73,7 +73,7 @@ fn svc_agent_happy_execute_skill_success() {
 
 /// @covers: Agent trait re-export — execute_skill error handling
 #[test]
-fn svc_agent_error_execute_skill_unknown_skill() {
+fn test_svc_agent_error_execute_skill_unknown_skill() {
     let result = futures::executor::block_on(TestAgent.execute_skill("unknown", "input".to_string()));
     assert!(result.is_err());
     match result {
@@ -84,7 +84,7 @@ fn svc_agent_error_execute_skill_unknown_skill() {
 
 /// @covers: Agent trait re-export — metadata methods
 #[test]
-fn svc_agent_happy_metadata_methods_return_strings() {
+fn test_svc_agent_happy_metadata_methods_return_strings() {
     let agent = TestAgent;
     assert!(!agent.id().is_empty());
     assert!(!agent.name().is_empty());

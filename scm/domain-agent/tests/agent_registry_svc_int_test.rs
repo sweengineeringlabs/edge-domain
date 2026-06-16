@@ -113,26 +113,26 @@ fn create_dummy_metadata(id: &str) -> AgentMetadata {
 
 /// @covers: AGENT_REGISTRY_SVC constant
 #[test]
-fn svc_agent_registry_svc_happy_constant_equals_agent_registry() {
+fn test_svc_agent_registry_svc_happy_constant_equals_agent_registry() {
     assert_eq!(edge_domain_agent::AGENT_REGISTRY_SVC, "agent_registry");
 }
 
 /// @covers: AGENT_REGISTRY_SVC constant
 #[test]
-fn svc_agent_registry_svc_error_constant_not_empty() {
+fn test_svc_agent_registry_svc_error_constant_not_empty() {
     assert!(!edge_domain_agent::AGENT_REGISTRY_SVC.is_empty());
 }
 
 /// @covers: AGENT_REGISTRY_SVC constant
 #[test]
-fn svc_agent_registry_svc_edge_constant_is_valid_identifier() {
+fn test_svc_agent_registry_svc_edge_constant_is_valid_identifier() {
     let svc = edge_domain_agent::AGENT_REGISTRY_SVC;
     assert!(svc.chars().all(|c| c.is_ascii_lowercase() || c == '_'));
 }
 
 /// @covers: AgentRegistry trait re-export
 #[test]
-fn svc_agent_registry_happy_trait_can_be_implemented() {
+fn test_svc_agent_registry_happy_trait_can_be_implemented() {
     let registry = TestAgentRegistry::new();
     let agent = Arc::new(TestAgent {
         id: "test".to_string(),
@@ -144,7 +144,7 @@ fn svc_agent_registry_happy_trait_can_be_implemented() {
 
 /// @covers: AgentRegistry trait re-export — inherits Registry::register
 #[test]
-fn svc_agent_registry_happy_register_stores_agent() {
+fn test_svc_agent_registry_happy_register_stores_agent() {
     let registry = TestAgentRegistry::new();
     let agent = Arc::new(TestAgent {
         id: "agent1".to_string(),
@@ -157,7 +157,7 @@ fn svc_agent_registry_happy_register_stores_agent() {
 
 /// @covers: AgentRegistry trait re-export — inherits Registry::get
 #[test]
-fn svc_agent_registry_error_get_nonexistent_agent() {
+fn test_svc_agent_registry_error_get_nonexistent_agent() {
     let registry = TestAgentRegistry::new();
     let result = registry.get("nonexistent");
     assert!(result.is_none());
@@ -165,7 +165,7 @@ fn svc_agent_registry_error_get_nonexistent_agent() {
 
 /// @covers: AgentRegistry trait re-export — inherits Registry::list_ids
 #[test]
-fn svc_agent_registry_happy_list_ids_returns_all_agents() {
+fn test_svc_agent_registry_happy_list_ids_returns_all_agents() {
     let registry = TestAgentRegistry::new();
     let agent1 = Arc::new(TestAgent {
         id: "agent1".to_string(),
@@ -183,7 +183,7 @@ fn svc_agent_registry_happy_list_ids_returns_all_agents() {
 
 /// @covers: AgentRegistry trait re-export — metadata method
 #[test]
-fn svc_agent_registry_happy_metadata_returns_agent_info() {
+fn test_svc_agent_registry_happy_metadata_returns_agent_info() {
     let registry = TestAgentRegistry::new();
     let agent = Arc::new(TestAgent {
         id: "test_agent".to_string(),
@@ -197,7 +197,7 @@ fn svc_agent_registry_happy_metadata_returns_agent_info() {
 
 /// @covers: AgentRegistry trait re-export — metadata error handling
 #[test]
-fn svc_agent_registry_error_metadata_agent_not_found() {
+fn test_svc_agent_registry_error_metadata_agent_not_found() {
     let registry = TestAgentRegistry::new();
     let result = registry.metadata("nonexistent");
     assert!(result.is_err());
@@ -209,7 +209,7 @@ fn svc_agent_registry_error_metadata_agent_not_found() {
 
 /// @covers: AgentRegistry trait re-export — edge case empty registry
 #[test]
-fn svc_agent_registry_edge_is_empty_returns_true() {
+fn test_svc_agent_registry_edge_is_empty_returns_true() {
     let registry = TestAgentRegistry::new();
     assert!(registry.is_empty());
 }

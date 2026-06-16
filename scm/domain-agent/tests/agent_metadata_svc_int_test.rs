@@ -4,7 +4,7 @@ use edge_domain_agent::{AgentMetadata, SkillMetadata};
 
 /// @covers: AgentMetadata type re-export
 #[test]
-fn svc_agent_metadata_happy_type_can_be_constructed() {
+fn test_svc_agent_metadata_happy_type_can_be_constructed() {
     let metadata = AgentMetadata {
         id: "agent1".to_string(),
         name: "Agent One".to_string(),
@@ -18,7 +18,7 @@ fn svc_agent_metadata_happy_type_can_be_constructed() {
 
 /// @covers: AgentMetadata type re-export — all fields
 #[test]
-fn svc_agent_metadata_happy_all_fields_accessible() {
+fn test_svc_agent_metadata_happy_all_fields_accessible() {
     let metadata = AgentMetadata {
         id: "test_agent".to_string(),
         name: "Test Agent".to_string(),
@@ -36,7 +36,7 @@ fn svc_agent_metadata_happy_all_fields_accessible() {
 
 /// @covers: AgentMetadata type re-export — id field
 #[test]
-fn svc_agent_metadata_happy_id_field_stores_value() {
+fn test_svc_agent_metadata_happy_id_field_stores_value() {
     let metadata = AgentMetadata {
         id: "unique_id".to_string(),
         name: "Name".to_string(),
@@ -50,7 +50,7 @@ fn svc_agent_metadata_happy_id_field_stores_value() {
 
 /// @covers: AgentMetadata type re-export — name field
 #[test]
-fn svc_agent_metadata_happy_name_field_stores_value() {
+fn test_svc_agent_metadata_happy_name_field_stores_value() {
     let metadata = AgentMetadata {
         id: "id".to_string(),
         name: "Custom Name".to_string(),
@@ -64,7 +64,7 @@ fn svc_agent_metadata_happy_name_field_stores_value() {
 
 /// @covers: AgentMetadata type re-export — description field
 #[test]
-fn svc_agent_metadata_happy_description_field_stores_value() {
+fn test_svc_agent_metadata_happy_description_field_stores_value() {
     let metadata = AgentMetadata {
         id: "id".to_string(),
         name: "Name".to_string(),
@@ -78,7 +78,7 @@ fn svc_agent_metadata_happy_description_field_stores_value() {
 
 /// @covers: AgentMetadata type re-export — version field
 #[test]
-fn svc_agent_metadata_happy_version_field_stores_value() {
+fn test_svc_agent_metadata_happy_version_field_stores_value() {
     let metadata = AgentMetadata {
         id: "id".to_string(),
         name: "Name".to_string(),
@@ -92,7 +92,7 @@ fn svc_agent_metadata_happy_version_field_stores_value() {
 
 /// @covers: AgentMetadata type re-export — skills field empty
 #[test]
-fn svc_agent_metadata_happy_skills_field_empty() {
+fn test_svc_agent_metadata_happy_skills_field_empty() {
     let metadata = AgentMetadata {
         id: "id".to_string(),
         name: "Name".to_string(),
@@ -106,7 +106,7 @@ fn svc_agent_metadata_happy_skills_field_empty() {
 
 /// @covers: AgentMetadata type re-export — skills field with values
 #[test]
-fn svc_agent_metadata_happy_skills_field_with_values() {
+fn test_svc_agent_metadata_happy_skills_field_with_values() {
     let skill = SkillMetadata {
         name: "analyze".to_string(),
         description: "Analyze data".to_string(),
@@ -129,7 +129,7 @@ fn svc_agent_metadata_happy_skills_field_with_values() {
 
 /// @covers: AgentMetadata type re-export — patterns field
 #[test]
-fn svc_agent_metadata_happy_patterns_field() {
+fn test_svc_agent_metadata_happy_patterns_field() {
     let metadata = AgentMetadata {
         id: "id".to_string(),
         name: "Name".to_string(),
@@ -145,7 +145,7 @@ fn svc_agent_metadata_happy_patterns_field() {
 
 /// @covers: AgentMetadata type re-export — Clone trait
 #[test]
-fn svc_agent_metadata_happy_can_be_cloned() {
+fn test_svc_agent_metadata_happy_can_be_cloned() {
     let original = AgentMetadata {
         id: "agent1".to_string(),
         name: "Agent".to_string(),
@@ -161,7 +161,7 @@ fn svc_agent_metadata_happy_can_be_cloned() {
 
 /// @covers: AgentMetadata type re-export — Debug trait
 #[test]
-fn svc_agent_metadata_happy_debug_format_available() {
+fn test_svc_agent_metadata_happy_debug_format_available() {
     let metadata = AgentMetadata {
         id: "id".to_string(),
         name: "Name".to_string(),
@@ -176,7 +176,7 @@ fn svc_agent_metadata_happy_debug_format_available() {
 
 /// @covers: AgentMetadata type re-export — multiple skills
 #[test]
-fn svc_agent_metadata_happy_multiple_skills() {
+fn test_svc_agent_metadata_happy_multiple_skills() {
     let skill1 = SkillMetadata {
         name: "skill1".to_string(),
         description: "First".to_string(),
@@ -206,7 +206,7 @@ fn svc_agent_metadata_happy_multiple_skills() {
 
 /// @covers: AgentMetadata type re-export — edge case empty strings
 #[test]
-fn svc_agent_metadata_edge_empty_string_fields() {
+fn test_svc_agent_metadata_edge_empty_string_fields() {
     let metadata = AgentMetadata {
         id: String::new(),
         name: String::new(),
@@ -222,7 +222,7 @@ fn svc_agent_metadata_edge_empty_string_fields() {
 
 /// @covers: AgentMetadata type re-export — many patterns
 #[test]
-fn svc_agent_metadata_happy_many_patterns() {
+fn test_svc_agent_metadata_happy_many_patterns() {
     let patterns = vec![
         "react".to_string(),
         "cot".to_string(),

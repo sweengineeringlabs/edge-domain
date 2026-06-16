@@ -66,26 +66,26 @@ impl AgentManager for TestAgentManager {
 
 /// @covers: AGENT_MANAGER_SVC constant
 #[test]
-fn svc_agent_manager_svc_happy_constant_equals_agent_manager() {
+fn test_svc_agent_manager_svc_happy_constant_equals_agent_manager() {
     assert_eq!(edge_domain_agent::AGENT_MANAGER_SVC, "agent_manager");
 }
 
 /// @covers: AGENT_MANAGER_SVC constant
 #[test]
-fn svc_agent_manager_svc_error_constant_not_empty() {
+fn test_svc_agent_manager_svc_error_constant_not_empty() {
     assert!(!edge_domain_agent::AGENT_MANAGER_SVC.is_empty());
 }
 
 /// @covers: AGENT_MANAGER_SVC constant
 #[test]
-fn svc_agent_manager_svc_edge_constant_is_valid_identifier() {
+fn test_svc_agent_manager_svc_edge_constant_is_valid_identifier() {
     let svc = edge_domain_agent::AGENT_MANAGER_SVC;
     assert!(svc.chars().all(|c| c.is_ascii_lowercase() || c == '_'));
 }
 
 /// @covers: AgentManager trait re-export
 #[test]
-fn svc_agent_manager_happy_trait_can_be_implemented() {
+fn test_svc_agent_manager_happy_trait_can_be_implemented() {
     let manager = TestAgentManager {
         agents: vec![Arc::new(TestAgent {
             id: "test".to_string(),
@@ -97,7 +97,7 @@ fn svc_agent_manager_happy_trait_can_be_implemented() {
 
 /// @covers: AgentManager trait re-export — load_agent
 #[test]
-fn svc_agent_manager_happy_load_agent_valid_spec() {
+fn test_svc_agent_manager_happy_load_agent_valid_spec() {
     let manager = TestAgentManager { agents: vec![] };
     let result = futures::executor::block_on(manager.load_agent("valid"));
     assert!(result.is_ok());
@@ -106,7 +106,7 @@ fn svc_agent_manager_happy_load_agent_valid_spec() {
 
 /// @covers: AgentManager trait re-export — load_agent error
 #[test]
-fn svc_agent_manager_error_load_agent_invalid_spec() {
+fn test_svc_agent_manager_error_load_agent_invalid_spec() {
     let manager = TestAgentManager { agents: vec![] };
     let result = futures::executor::block_on(manager.load_agent("invalid"));
     assert!(result.is_err());
@@ -118,7 +118,7 @@ fn svc_agent_manager_error_load_agent_invalid_spec() {
 
 /// @covers: AgentManager trait re-export — agent lookup
 #[test]
-fn svc_agent_manager_error_agent_not_found() {
+fn test_svc_agent_manager_error_agent_not_found() {
     let manager = TestAgentManager { agents: vec![] };
     let result = manager.agent("nonexistent");
     assert!(result.is_err());
@@ -126,7 +126,7 @@ fn svc_agent_manager_error_agent_not_found() {
 
 /// @covers: AgentManager trait re-export — list_agent_ids
 #[test]
-fn svc_agent_manager_happy_list_agent_ids_returns_list() {
+fn test_svc_agent_manager_happy_list_agent_ids_returns_list() {
     let manager = TestAgentManager {
         agents: vec![Arc::new(TestAgent {
             id: "agent1".to_string(),
@@ -141,7 +141,7 @@ fn svc_agent_manager_happy_list_agent_ids_returns_list() {
 
 /// @covers: AgentManager trait re-export — list_agent_ids empty
 #[test]
-fn svc_agent_manager_edge_list_agent_ids_empty() {
+fn test_svc_agent_manager_edge_list_agent_ids_empty() {
     let manager = TestAgentManager { agents: vec![] };
     let result = manager.list_agent_ids();
     assert!(result.is_ok());
