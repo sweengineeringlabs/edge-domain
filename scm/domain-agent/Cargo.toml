@@ -21,8 +21,10 @@ path = "main/src/lib.rs"
 thiserror.workspace = true
 async-trait.workspace = true
 futures.workspace = true
+edge-domain-command = { workspace = true }
 edge-domain-handler = { workspace = true }
 edge-domain-registry = { workspace = true }
+edge-domain-security = { workspace = true }
 
 [lints.rust]
 unsafe_code = "deny"
