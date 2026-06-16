@@ -1,0 +1,18 @@
+# Rust
+target/
+Cargo.lock
+*.swp
+*.swo
+*~
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.project
+.settings/
+
+# Generated
+/target/
+**/*.rs.bk
