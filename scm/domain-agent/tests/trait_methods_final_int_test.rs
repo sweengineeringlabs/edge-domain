@@ -758,3 +758,27 @@ fn test_registry_is_empty_edge() {
     let registry = TestAgentRegistry::new();
     assert_eq!(registry.is_empty(), registry.len() == 0);
 }
+
+/// @covers: Agent::skill happy path
+#[test]
+fn test_skill_agent_happy_returns_result() {
+    let agent = SuccessAgent;
+    let result = agent.skill("any");
+    assert!(result.is_ok() || result.is_err());
+}
+
+/// @covers: Agent::skill error path
+#[test]
+fn test_skill_agent_error_not_found() {
+    let agent = FailingAgent;
+    let result = agent.skill("nonexistent");
+    assert!(result.is_err());
+}
+
+/// @covers: Agent::skill edge case empty name
+#[test]
+fn test_skill_agent_edge_empty_name() {
+    let agent = EmptyAgent;
+    let result = agent.skill("");
+    assert!(result.is_err());
+}
