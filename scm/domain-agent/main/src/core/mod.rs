@@ -1,3 +1,10 @@
-//! Core implementations live in plugins, not here.
-//! This layer is intentionally empty — Agent primitives are contracts;
+//! No-op implementations for testing the agent contract.
+//!
+//! Real implementations live in plugins, not here.
+//! This layer provides no-op implementations for contract testing;
 //! production implementations (llmboot, state-machine, etc.) live in edge/plugins/*.
+
+pub(crate) mod noop_agent;
+pub(crate) mod noop_agent_manager;
+pub(crate) mod noop_agent_registry;
+pub(crate) mod noop_skill;
