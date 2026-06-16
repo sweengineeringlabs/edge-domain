@@ -2,8 +2,8 @@
 
 use std::fmt::Debug;
 
+use crate::api::lifecycle::permissive_policy::PermissivePolicy;
 use crate::api::lifecycle::traits::TransitionPolicy;
-use crate::api::lifecycle::types::PermissivePolicy;
 
 impl<S: Copy + Eq + Debug + Send + Sync + 'static> TransitionPolicy for PermissivePolicy<S> {
     type State = S;

@@ -1,7 +1,5 @@
-mod managed_lifecycle;
-mod permissive_policy;
-mod std_lifecycle_factory;
+pub mod std_lifecycle_factory;
 
-pub use managed_lifecycle::ManagedLifecycle;
-pub use permissive_policy::PermissivePolicy;
+pub use crate::api::lifecycle::managed_lifecycle::ManagedLifecycle;
+pub use crate::api::lifecycle::permissive_policy::PermissivePolicy;
 pub use std_lifecycle_factory::StdLifecycleFactory;
