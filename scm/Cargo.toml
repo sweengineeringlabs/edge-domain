@@ -2,7 +2,7 @@
 resolver = "2"
 members  = [
     "edge-domain",
-    "domain-agent",
+    "domain/llm/agents",
     "domain-entity",
     "domain-valueobject",
     "domain-validator",
@@ -19,7 +19,7 @@ members  = [
     "domain-saga",
     "domain-security",
     "domain-registry",
-    "domain-lifecycle", "domain-llm/edge_llm_agent",
+    "domain-lifecycle",
 ]
 
 [workspace.package]
@@ -63,3 +63,4 @@ edge-domain-saga        = { path = "domain-saga" }
 edge-domain-security    = { path = "domain-security" }
 edge-domain-registry    = { path = "domain-registry" }
 edge-domain-lifecycle   = { path = "domain-lifecycle" }
+edge-domain-agent       = { path = "domain/llm/agents" }
