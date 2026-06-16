@@ -3,6 +3,7 @@ resolver = "2"
 members  = [
     "edge-domain",
     "domain/llm/agents",
+    "domain/llm/provider",
     "domain-entity",
     "domain-valueobject",
     "domain-validator",
@@ -64,3 +65,4 @@ edge-domain-security    = { path = "domain-security" }
 edge-domain-registry    = { path = "domain-registry" }
 edge-domain-lifecycle   = { path = "domain-lifecycle" }
 edge_llm_agent          = { path = "domain/llm/agents" }
+edge_llm_provider       = { path = "domain/llm/provider" }
