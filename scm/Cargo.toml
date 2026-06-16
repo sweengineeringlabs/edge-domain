@@ -2,23 +2,23 @@
 resolver = "2"
 members  = [
     "edge-domain",
-    "edge-domain-entity",
-    "edge-domain-valueobject",
-    "edge-domain-validator",
-    "edge-domain-clock",
-    "edge-domain-policy",
-    "edge-domain-command",
-    "edge-domain-query",
-    "edge-domain-snapshot",
-    "edge-domain-service",
-    "edge-domain-repository",
-    "edge-domain-handler",
-    "edge-domain-event",
-    "edge-domain-projection",
-    "edge-domain-saga",
-    "edge-domain-security",
-    "edge-domain-registry",
-    "edge-domain-lifecycle",
+    "domain-entity",
+    "domain-valueobject",
+    "domain-validator",
+    "domain-clock",
+    "domain-policy",
+    "domain-command",
+    "domain-query",
+    "domain-snapshot",
+    "domain-service",
+    "domain-repository",
+    "domain-handler",
+    "domain-event",
+    "domain-projection",
+    "domain-saga",
+    "domain-security",
+    "domain-registry",
+    "domain-lifecycle",
 ]
 
 [workspace.package]
@@ -43,20 +43,20 @@ futures     = "0.3"
 parking_lot = "0.12"
 tokio       = { version = "1", features = ["sync", "time"] }
 tracing     = "0.1"
-edge-domain-entity      = { path = "edge-domain-entity" }
-edge-domain-valueobject = { path = "edge-domain-valueobject" }
-edge-domain-clock       = { path = "edge-domain-clock" }
-edge-domain-validator   = { path = "edge-domain-validator" }
-edge-domain-policy      = { path = "edge-domain-policy" }
-edge-domain-command     = { path = "edge-domain-command" }
-edge-domain-query       = { path = "edge-domain-query" }
-edge-domain-snapshot    = { path = "edge-domain-snapshot" }
-edge-domain-service     = { path = "edge-domain-service" }
-edge-domain-repository  = { path = "edge-domain-repository" }
-edge-domain-handler     = { path = "edge-domain-handler" }
-edge-domain-event       = { path = "edge-domain-event" }
-edge-domain-projection  = { path = "edge-domain-projection" }
-edge-domain-saga        = { path = "edge-domain-saga" }
-edge-domain-security    = { path = "edge-domain-security" }
-edge-domain-registry    = { path = "edge-domain-registry" }
-edge-domain-lifecycle   = { path = "edge-domain-lifecycle" }
+edge-domain-entity      = { path = "domain-entity" }
+edge-domain-valueobject = { path = "domain-valueobject" }
+edge-domain-clock       = { path = "domain-clock" }
+edge-domain-validator   = { path = "domain-validator" }
+edge-domain-policy      = { path = "domain-policy" }
+edge-domain-command     = { path = "domain-command" }
+edge-domain-query       = { path = "domain-query" }
+edge-domain-snapshot    = { path = "domain-snapshot" }
+edge-domain-service     = { path = "domain-service" }
+edge-domain-repository  = { path = "domain-repository" }
+edge-domain-handler     = { path = "domain-handler" }
+edge-domain-event       = { path = "domain-event" }
+edge-domain-projection  = { path = "domain-projection" }
+edge-domain-saga        = { path = "domain-saga" }
+edge-domain-security    = { path = "domain-security" }
+edge-domain-registry    = { path = "domain-registry" }
+edge-domain-lifecycle   = { path = "domain-lifecycle" }
