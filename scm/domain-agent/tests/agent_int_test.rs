@@ -64,31 +64,31 @@ impl Agent for FailingAgent {
 
 /// @covers: Agent::id
 #[test]
-fn trait_agent_happy_id_returns_configured_id() {
+fn test_trait_agent_happy_id_returns_configured_id() {
     assert_eq!(SuccessAgent.id(), "success");
 }
 
 /// @covers: Agent::id — multiple implementations
 #[test]
-fn trait_agent_happy_id_differs_by_implementation() {
+fn test_trait_agent_happy_id_differs_by_implementation() {
     assert_ne!(SuccessAgent.id(), FailingAgent.id());
 }
 
 /// @covers: Agent::name
 #[test]
-fn trait_agent_happy_name_returns_configured_name() {
+fn test_trait_agent_happy_name_returns_configured_name() {
     assert_eq!(SuccessAgent.name(), "Success Agent");
 }
 
 /// @covers: Agent::description
 #[test]
-fn trait_agent_happy_description_returns_configured_description() {
+fn test_trait_agent_happy_description_returns_configured_description() {
     assert_eq!(SuccessAgent.description(), "Always succeeds");
 }
 
 /// @covers: Agent::execute_skill — success case
 #[test]
-fn trait_agent_happy_execute_skill_success_returns_ok_response() {
+fn test_trait_agent_happy_execute_skill_success_returns_ok_response() {
     let result = futures::executor::block_on(
         SuccessAgent.execute_skill("analyze", "test_input".to_string()),
     );
@@ -98,7 +98,7 @@ fn trait_agent_happy_execute_skill_success_returns_ok_response() {
 
 /// @covers: Agent::execute_skill — failure case
 #[test]
-fn trait_agent_error_execute_skill_failure_returns_execution_failed() {
+fn test_trait_agent_error_execute_skill_failure_returns_execution_failed() {
     let result = futures::executor::block_on(
         FailingAgent.execute_skill("any_skill", "input".to_string()),
     );
@@ -113,7 +113,7 @@ fn trait_agent_error_execute_skill_failure_returns_execution_failed() {
 
 /// @covers: Agent::execute_skill — input is passed through
 #[test]
-fn trait_agent_happy_execute_skill_preserves_input() {
+fn test_trait_agent_happy_execute_skill_preserves_input() {
     let result = futures::executor::block_on(
         SuccessAgent.execute_skill("skill", "preserved".to_string()),
     );
@@ -122,20 +122,20 @@ fn trait_agent_happy_execute_skill_preserves_input() {
 
 /// @covers: Agent::skills — empty implementation
 #[test]
-fn trait_agent_edge_skills_returns_empty_list() {
+fn test_trait_agent_edge_skills_returns_empty_list() {
     assert_eq!(SuccessAgent.skills().len(), 0);
 }
 
 /// @covers: Agent::skill — delegates to skills()
 #[test]
-fn trait_agent_error_skill_returns_skill_not_found_when_empty() {
+fn test_trait_agent_error_skill_returns_skill_not_found_when_empty() {
     let result = SuccessAgent.skill("nonexistent");
     assert!(matches!(result, Err(AgentError::SkillNotFound(_))));
 }
 
 /// @covers: Agent — all methods work together
 #[test]
-fn trait_agent_happy_all_methods_together_consistent() {
+fn test_trait_agent_happy_all_methods_together_consistent() {
     assert!(!SuccessAgent.id().is_empty());
     assert!(!SuccessAgent.name().is_empty());
     assert!(!SuccessAgent.description().is_empty());

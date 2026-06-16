@@ -65,7 +65,7 @@ impl Skill for TestSkill {
 
 /// @covers: Skill::name
 #[test]
-fn trait_skill_happy_name_returns_configured_name() {
+fn test_trait_skill_happy_name_returns_configured_name() {
     let skill = TestSkill {
         should_fail: false,
     };
@@ -74,7 +74,7 @@ fn trait_skill_happy_name_returns_configured_name() {
 
 /// @covers: Skill::description
 #[test]
-fn trait_skill_happy_description_returns_configured_description() {
+fn test_trait_skill_happy_description_returns_configured_description() {
     let skill = TestSkill {
         should_fail: false,
     };
@@ -83,7 +83,7 @@ fn trait_skill_happy_description_returns_configured_description() {
 
 /// @covers: Skill::parameters — non-empty
 #[test]
-fn trait_skill_happy_parameters_returns_list() {
+fn test_trait_skill_happy_parameters_returns_list() {
     let skill = TestSkill {
         should_fail: false,
     };
@@ -94,7 +94,7 @@ fn trait_skill_happy_parameters_returns_list() {
 
 /// @covers: Skill::parameters — structure
 #[test]
-fn trait_skill_happy_parameters_has_correct_structure() {
+fn test_trait_skill_happy_parameters_has_correct_structure() {
     let skill = TestSkill {
         should_fail: false,
     };
@@ -107,7 +107,7 @@ fn trait_skill_happy_parameters_has_correct_structure() {
 
 /// @covers: Skill::metadata — returns configured metadata
 #[test]
-fn trait_skill_happy_metadata_returns_skill_metadata() {
+fn test_trait_skill_happy_metadata_returns_skill_metadata() {
     let skill = TestSkill {
         should_fail: false,
     };
@@ -118,7 +118,7 @@ fn trait_skill_happy_metadata_returns_skill_metadata() {
 
 /// @covers: Skill::metadata — schema fields
 #[test]
-fn trait_skill_happy_metadata_has_schemas() {
+fn test_trait_skill_happy_metadata_has_schemas() {
     let skill = TestSkill {
         should_fail: false,
     };
@@ -129,7 +129,7 @@ fn trait_skill_happy_metadata_has_schemas() {
 
 /// @covers: Skill::metadata — execution flags
 #[test]
-fn trait_skill_happy_metadata_has_execution_flags() {
+fn test_trait_skill_happy_metadata_has_execution_flags() {
     let skill = TestSkill {
         should_fail: false,
     };
@@ -140,7 +140,7 @@ fn trait_skill_happy_metadata_has_execution_flags() {
 
 /// @covers: Skill::metadata — default implementation
 #[test]
-fn trait_skill_edge_metadata_default_returns_skill_metadata() {
+fn test_trait_skill_edge_metadata_default_returns_skill_metadata() {
     struct MinimalSkill;
 
     #[async_trait]
@@ -174,7 +174,7 @@ fn trait_skill_edge_metadata_default_returns_skill_metadata() {
 
 /// @covers: Skill — extends Handler
 #[test]
-fn trait_skill_happy_implements_handler_contract() {
+fn test_trait_skill_happy_implements_handler_contract() {
     let skill = TestSkill {
         should_fail: false,
     };
@@ -184,7 +184,7 @@ fn trait_skill_happy_implements_handler_contract() {
 
 /// @covers: Handler::execute (via Skill)
 #[test]
-fn trait_skill_happy_execute_processes_request() {
+fn test_trait_skill_happy_execute_processes_request() {
     let skill = TestSkill {
         should_fail: false,
     };
@@ -201,7 +201,7 @@ fn trait_skill_happy_execute_processes_request() {
 
 /// @covers: Handler::execute — failure (via Skill)
 #[test]
-fn trait_skill_error_execute_failure_propagates() {
+fn test_trait_skill_error_execute_failure_propagates() {
     let skill = TestSkill { should_fail: true };
     let security = edge_domain_security::SecurityContext::unauthenticated();
     let bus = edge_domain_command::StdCommandBusFactory::direct();
@@ -215,7 +215,7 @@ fn trait_skill_error_execute_failure_propagates() {
 
 /// @covers: Skill — all methods together
 #[test]
-fn trait_skill_happy_all_methods_consistent() {
+fn test_trait_skill_happy_all_methods_consistent() {
     let skill = TestSkill {
         should_fail: false,
     };

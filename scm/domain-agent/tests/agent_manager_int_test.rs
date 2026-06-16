@@ -70,7 +70,7 @@ impl Agent for DummyAgent {
 
 /// @covers: AgentManager::load_agent — success
 #[test]
-fn trait_agent_manager_happy_load_agent_valid_spec_returns_ok() {
+fn test_trait_agent_manager_happy_load_agent_valid_spec_returns_ok() {
     let manager = TestManager {
         should_fail: false,
     };
@@ -80,7 +80,7 @@ fn trait_agent_manager_happy_load_agent_valid_spec_returns_ok() {
 
 /// @covers: AgentManager::load_agent — invalid spec
 #[test]
-fn trait_agent_manager_error_load_agent_invalid_spec_returns_error() {
+fn test_trait_agent_manager_error_load_agent_invalid_spec_returns_error() {
     let manager = TestManager {
         should_fail: true,
     };
@@ -91,7 +91,7 @@ fn trait_agent_manager_error_load_agent_invalid_spec_returns_error() {
 
 /// @covers: AgentManager::load_agent — empty spec
 #[test]
-fn trait_agent_manager_error_load_agent_empty_spec_returns_invalid_spec() {
+fn test_trait_agent_manager_error_load_agent_empty_spec_returns_invalid_spec() {
     let manager = TestManager {
         should_fail: false,
     };
@@ -102,7 +102,7 @@ fn trait_agent_manager_error_load_agent_empty_spec_returns_invalid_spec() {
 
 /// @covers: AgentManager::agent — found
 #[test]
-fn trait_agent_manager_happy_agent_existing_id_returns_ok() {
+fn test_trait_agent_manager_happy_agent_existing_id_returns_ok() {
     let manager = TestManager {
         should_fail: false,
     };
@@ -112,7 +112,7 @@ fn trait_agent_manager_happy_agent_existing_id_returns_ok() {
 
 /// @covers: AgentManager::agent — not found
 #[test]
-fn trait_agent_manager_error_agent_nonexistent_id_returns_not_found() {
+fn test_trait_agent_manager_error_agent_nonexistent_id_returns_not_found() {
     let manager = TestManager {
         should_fail: false,
     };
@@ -123,7 +123,7 @@ fn trait_agent_manager_error_agent_nonexistent_id_returns_not_found() {
 
 /// @covers: AgentManager::agent — manager failure
 #[test]
-fn trait_agent_manager_error_agent_when_manager_fails_returns_error() {
+fn test_trait_agent_manager_error_agent_when_manager_fails_returns_error() {
     let manager = TestManager { should_fail: true };
     let result = manager.agent("any");
     assert!(result.is_err());
@@ -131,7 +131,7 @@ fn trait_agent_manager_error_agent_when_manager_fails_returns_error() {
 
 /// @covers: AgentManager::list_agent_ids — success
 #[test]
-fn trait_agent_manager_happy_list_agent_ids_returns_list() {
+fn test_trait_agent_manager_happy_list_agent_ids_returns_list() {
     let manager = TestManager {
         should_fail: false,
     };
@@ -144,7 +144,7 @@ fn trait_agent_manager_happy_list_agent_ids_returns_list() {
 
 /// @covers: AgentManager::list_agent_ids — failure
 #[test]
-fn trait_agent_manager_error_list_agent_ids_when_fails_returns_error() {
+fn test_trait_agent_manager_error_list_agent_ids_when_fails_returns_error() {
     let manager = TestManager { should_fail: true };
     let result = manager.list_agent_ids();
     assert!(result.is_err());
@@ -152,7 +152,7 @@ fn trait_agent_manager_error_list_agent_ids_when_fails_returns_error() {
 
 /// @covers: AgentManager::list_agent_ids — empty list
 #[test]
-fn trait_agent_manager_edge_list_agent_ids_empty_list() {
+fn test_trait_agent_manager_edge_list_agent_ids_empty_list() {
     let manager = TestManager {
         should_fail: false,
     };
@@ -164,7 +164,7 @@ fn trait_agent_manager_edge_list_agent_ids_empty_list() {
 
 /// @covers: AgentManager — all methods consistent
 #[test]
-fn trait_agent_manager_happy_all_methods_work_together() {
+fn test_trait_agent_manager_happy_all_methods_work_together() {
     let manager = TestManager {
         should_fail: false,
     };

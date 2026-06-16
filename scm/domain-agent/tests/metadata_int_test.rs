@@ -3,7 +3,7 @@
 use edge_domain_agent::{AgentMetadata, SkillMetadata};
 
 #[test]
-fn type_agent_metadata_happy_construction() {
+fn test_type_agent_metadata_happy_construction() {
     let metadata = AgentMetadata {
         id: "test_agent".to_string(),
         name: "Test Agent".to_string(),
@@ -16,7 +16,7 @@ fn type_agent_metadata_happy_construction() {
 }
 
 #[test]
-fn type_agent_metadata_happy_with_skills() {
+fn test_type_agent_metadata_happy_with_skills() {
     let skill_meta = SkillMetadata {
         name: "analyze".to_string(),
         description: "Analyze input".to_string(),
@@ -37,7 +37,7 @@ fn type_agent_metadata_happy_with_skills() {
 }
 
 #[test]
-fn type_skill_metadata_happy_construction() {
+fn test_type_skill_metadata_happy_construction() {
     let metadata = SkillMetadata {
         name: "code_review".to_string(),
         description: "Review code".to_string(),
@@ -51,7 +51,7 @@ fn type_skill_metadata_happy_construction() {
 }
 
 #[test]
-fn type_skill_metadata_edge_optional_schemas() {
+fn test_type_skill_metadata_edge_optional_schemas() {
     let metadata = SkillMetadata {
         name: "test".to_string(),
         description: "Test".to_string(),

@@ -27,11 +27,14 @@ impl Handler for NoopSkill {
 
 impl Skill for NoopSkill {
     fn name(&self) -> &str {
-        "noop"
+        match self.id() {
+            "noop_skill" => "noop",
+            _ => "unknown",
+        }
     }
 
     fn description(&self) -> &str {
-        "No-op skill; implements Skill trait"
+        "No-op skill; implements Skill trait contract for testing"
     }
 }
 

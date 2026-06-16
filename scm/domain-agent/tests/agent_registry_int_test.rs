@@ -94,7 +94,7 @@ impl AgentRegistry for TestRegistry {
 
 /// @covers: AgentRegistry::metadata — found
 #[test]
-fn trait_agent_registry_happy_metadata_existing_agent_returns_ok() {
+fn test_trait_agent_registry_happy_metadata_existing_agent_returns_ok() {
     let registry = TestRegistry { has_agent: true };
     let result = registry.metadata("found");
     assert!(result.is_ok());
@@ -105,7 +105,7 @@ fn trait_agent_registry_happy_metadata_existing_agent_returns_ok() {
 
 /// @covers: AgentRegistry::metadata — not found
 #[test]
-fn trait_agent_registry_error_metadata_missing_agent_returns_not_found() {
+fn test_trait_agent_registry_error_metadata_missing_agent_returns_not_found() {
     let registry = TestRegistry { has_agent: true };
     let result = registry.metadata("missing");
     assert!(result.is_err());
@@ -114,7 +114,7 @@ fn trait_agent_registry_error_metadata_missing_agent_returns_not_found() {
 
 /// @covers: Registry::get (inherited)
 #[test]
-fn trait_agent_registry_happy_get_existing_returns_some() {
+fn test_trait_agent_registry_happy_get_existing_returns_some() {
     let registry = TestRegistry { has_agent: true };
     let result = registry.get("found");
     assert!(result.is_some());
@@ -122,7 +122,7 @@ fn trait_agent_registry_happy_get_existing_returns_some() {
 
 /// @covers: Registry::get (inherited) — missing
 #[test]
-fn trait_agent_registry_error_get_missing_returns_none() {
+fn test_trait_agent_registry_error_get_missing_returns_none() {
     let registry = TestRegistry { has_agent: true };
     let result = registry.get("missing");
     assert!(result.is_none());
@@ -130,7 +130,7 @@ fn trait_agent_registry_error_get_missing_returns_none() {
 
 /// @covers: Registry::list_ids (inherited)
 #[test]
-fn trait_agent_registry_happy_list_ids_returns_ids() {
+fn test_trait_agent_registry_happy_list_ids_returns_ids() {
     let registry = TestRegistry { has_agent: true };
     let ids = registry.list_ids();
     assert_eq!(ids.len(), 1);
@@ -139,7 +139,7 @@ fn trait_agent_registry_happy_list_ids_returns_ids() {
 
 /// @covers: Registry::list_ids (inherited) — empty
 #[test]
-fn trait_agent_registry_edge_list_ids_empty_returns_empty_vec() {
+fn test_trait_agent_registry_edge_list_ids_empty_returns_empty_vec() {
     let registry = TestRegistry { has_agent: false };
     let ids = registry.list_ids();
     assert_eq!(ids.len(), 0);
@@ -147,35 +147,35 @@ fn trait_agent_registry_edge_list_ids_empty_returns_empty_vec() {
 
 /// @covers: Registry::len (inherited)
 #[test]
-fn trait_agent_registry_happy_len_with_agent_returns_one() {
+fn test_trait_agent_registry_happy_len_with_agent_returns_one() {
     let registry = TestRegistry { has_agent: true };
     assert_eq!(registry.len(), 1);
 }
 
 /// @covers: Registry::len (inherited) — empty
 #[test]
-fn trait_agent_registry_happy_len_empty_returns_zero() {
+fn test_trait_agent_registry_happy_len_empty_returns_zero() {
     let registry = TestRegistry { has_agent: false };
     assert_eq!(registry.len(), 0);
 }
 
 /// @covers: Registry::is_empty (inherited)
 #[test]
-fn trait_agent_registry_happy_is_empty_when_empty_returns_true() {
+fn test_trait_agent_registry_happy_is_empty_when_empty_returns_true() {
     let registry = TestRegistry { has_agent: false };
     assert!(registry.is_empty());
 }
 
 /// @covers: Registry::is_empty (inherited) — not empty
 #[test]
-fn trait_agent_registry_happy_is_empty_when_has_items_returns_false() {
+fn test_trait_agent_registry_happy_is_empty_when_has_items_returns_false() {
     let registry = TestRegistry { has_agent: true };
     assert!(!registry.is_empty());
 }
 
 /// @covers: AgentRegistry — metadata + Registry methods work together
 #[test]
-fn trait_agent_registry_happy_all_methods_together() {
+fn test_trait_agent_registry_happy_all_methods_together() {
     let registry = TestRegistry { has_agent: true };
     assert!(!registry.is_empty());
     assert!(registry.metadata("found").is_ok());
