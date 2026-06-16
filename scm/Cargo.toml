@@ -2,6 +2,7 @@
 resolver = "2"
 members  = [
     "edge-domain",
+    "domain-agent",
     "domain-entity",
     "domain-valueobject",
     "domain-validator",
