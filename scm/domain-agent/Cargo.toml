@@ -20,6 +20,7 @@ path = "main/src/lib.rs"
 [dependencies]
 thiserror.workspace = true
 async-trait.workspace = true
+futures.workspace = true
 edge-domain-handler = { workspace = true }
 edge-domain-registry = { workspace = true }
 
