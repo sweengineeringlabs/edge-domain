@@ -173,3 +173,87 @@ fn test_trait_agent_manager_happy_all_methods_work_together() {
     let _ = manager.list_agent_ids();
     // All calls succeeded when should_fail is false
 }
+
+/// @covers: AgentManager::agent_metadata_builder
+#[test]
+fn test_agent_metadata_builder_scenario_happy() {
+    let manager = TestManager {
+        should_fail: false,
+    };
+    let builder = manager.agent_metadata_builder();
+    let metadata = builder
+        .id("test")
+        .name("Test")
+        .description("Test agent")
+        .version("1.0")
+        .build();
+    assert_eq!(metadata.id, "test");
+}
+
+/// @covers: AgentManager::agent_metadata_builder
+#[test]
+fn test_agent_metadata_builder_scenario_error() {
+    let manager = TestManager {
+        should_fail: false,
+    };
+    let builder = manager.agent_metadata_builder();
+    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        let _metadata = builder.build();
+    }));
+    assert!(result.is_err());
+}
+
+/// @covers: AgentManager::agent_metadata_builder
+#[test]
+fn test_agent_metadata_builder_scenario_edge() {
+    let manager = TestManager {
+        should_fail: false,
+    };
+    let metadata = manager.agent_metadata_builder()
+        .id("edge")
+        .name("Edge")
+        .description("Edge")
+        .version("1.0")
+        .build();
+    assert_eq!(metadata.skills.len(), 0);
+}
+
+/// @covers: AgentManager::skill_metadata_builder
+#[test]
+fn test_skill_metadata_builder_scenario_happy() {
+    let manager = TestManager {
+        should_fail: false,
+    };
+    let builder = manager.skill_metadata_builder();
+    let metadata = builder
+        .name("test_skill")
+        .description("Test skill")
+        .build();
+    assert_eq!(metadata.name, "test_skill");
+}
+
+/// @covers: AgentManager::skill_metadata_builder
+#[test]
+fn test_skill_metadata_builder_scenario_error() {
+    let manager = TestManager {
+        should_fail: false,
+    };
+    let builder = manager.skill_metadata_builder();
+    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        let _metadata = builder.build();
+    }));
+    assert!(result.is_err());
+}
+
+/// @covers: AgentManager::skill_metadata_builder
+#[test]
+fn test_skill_metadata_builder_scenario_edge() {
+    let manager = TestManager {
+        should_fail: false,
+    };
+    let metadata = manager.skill_metadata_builder()
+        .name("minimal")
+        .description("Minimal")
+        .build();
+    assert_eq!(metadata.input_schema, None);
+}

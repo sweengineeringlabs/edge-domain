@@ -3,6 +3,7 @@
 use std::sync::Arc;
 
 use super::agent::Agent;
+use crate::api::types::{AgentMetadataBuilder, SkillMetadataBuilder};
 use crate::AgentError;
 
 /// AgentManager is the service that loads and provides access to agents.
@@ -18,4 +19,14 @@ pub trait AgentManager: Send + Sync {
 
     /// List all loaded agent IDs.
     fn list_agent_ids(&self) -> Result<Vec<String>, AgentError>;
+
+    /// Create a builder for constructing AgentMetadata.
+    fn agent_metadata_builder(&self) -> AgentMetadataBuilder {
+        AgentMetadataBuilder::new()
+    }
+
+    /// Create a builder for constructing SkillMetadata.
+    fn skill_metadata_builder(&self) -> SkillMetadataBuilder {
+        SkillMetadataBuilder::new()
+    }
 }
