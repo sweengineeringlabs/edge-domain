@@ -3,49 +3,54 @@
 // @allow: no_mocks_in_integration — InMemoryRegistry is a reference implementation in the public API, not a mock.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_registry::{InMemoryRegistry, Registry, RegistryFactory, StdRegistryFactory};
+use std::sync::Arc;
+use edge_domain_registry::{InMemoryRegistry, Registry, RegistryFactory};
+
+struct TestFactory;
+impl RegistryFactory for TestFactory {}
 
 /// @covers: Registry::register, Registry::get
 #[test]
 fn test_in_memory_registry_register_and_get_happy() {
-    let registry: InMemoryRegistry<String, i32> = InMemoryRegistry::new();
-    registry.register("key1".to_string(), 42).expect("register should succeed");
-    assert_eq!(registry.get("key1").expect("get should succeed"), Some(42));
+    let registry: InMemoryRegistry<i32> = TestFactory::in_memory();
+    registry.register("key1", Arc::new(42));
+    assert_eq!(registry.get("key1").map(|v| *v), Some(42));
 }
 
 /// @covers: Registry::get (nonexistent key)
 #[test]
 fn test_in_memory_registry_get_nonexistent_key_returns_none_happy() {
-    let registry: InMemoryRegistry<String, i32> = InMemoryRegistry::new();
-    assert_eq!(registry.get("missing").expect("get should succeed"), None);
+    let registry: InMemoryRegistry<i32> = TestFactory::in_memory();
+    assert_eq!(registry.get("missing"), None);
 }
 
 /// @covers: Registry::register (duplicate key)
 #[test]
 fn test_in_memory_registry_register_duplicate_key_overwrites_happy() {
-    let registry: InMemoryRegistry<String, i32> = InMemoryRegistry::new();
-    registry.register("key1".to_string(), 42).expect("first register should succeed");
-    registry.register("key1".to_string(), 100).expect("second register should succeed");
-    assert_eq!(registry.get("key1").expect("get should succeed"), Some(100));
+    let registry: InMemoryRegistry<i32> = TestFactory::in_memory();
+    registry.register("key1", Arc::new(42));
+    registry.register("key1", Arc::new(100));
+    assert_eq!(registry.get("key1").map(|v| *v), Some(100));
 }
 
-/// @covers: Registry::unregister
+/// @covers: Registry::deregister
 #[test]
-fn test_in_memory_registry_unregister_removes_entry_happy() {
-    let registry: InMemoryRegistry<String, i32> = InMemoryRegistry::new();
-    registry.register("key1".to_string(), 42).expect("register should succeed");
-    registry.unregister("key1").expect("unregister should succeed");
-    assert_eq!(registry.get("key1").expect("get should succeed"), None);
+fn test_in_memory_registry_deregister_removes_entry_happy() {
+    let registry: InMemoryRegistry<i32> = TestFactory::in_memory();
+    registry.register("key1", Arc::new(42));
+    let removed = registry.deregister("key1");
+    assert!(removed);
+    assert_eq!(registry.get("key1"), None);
 }
 
-/// @covers: Registry::list
+/// @covers: Registry::list_ids
 #[test]
-fn test_in_memory_registry_list_returns_all_registered_keys_happy() {
-    let registry: InMemoryRegistry<String, i32> = InMemoryRegistry::new();
-    registry.register("key1".to_string(), 42).expect("register should succeed");
-    registry.register("key2".to_string(), 100).expect("register should succeed");
+fn test_in_memory_registry_list_ids_returns_all_registered_keys_happy() {
+    let registry: InMemoryRegistry<i32> = TestFactory::in_memory();
+    registry.register("key1", Arc::new(42));
+    registry.register("key2", Arc::new(100));
 
-    let keys = registry.list().expect("list should succeed");
+    let keys = registry.list_ids();
     assert_eq!(keys.len(), 2);
     assert!(keys.contains(&"key1".to_string()));
     assert!(keys.contains(&"key2".to_string()));
@@ -54,45 +59,43 @@ fn test_in_memory_registry_list_returns_all_registered_keys_happy() {
 /// @covers: InMemoryRegistry construction
 #[test]
 fn test_in_memory_registry_new_creates_empty_registry_happy() {
-    let registry: InMemoryRegistry<String, String> = InMemoryRegistry::new();
-    let keys = registry.list().expect("list should succeed");
+    let registry: InMemoryRegistry<String> = TestFactory::in_memory();
+    let keys = registry.list_ids();
     assert!(keys.is_empty());
 }
 
 /// @covers: Registry::register (multiple items)
 #[test]
 fn test_in_memory_registry_register_multiple_items_happy() {
-    let registry: InMemoryRegistry<i32, String> = InMemoryRegistry::new();
+    let registry: InMemoryRegistry<String> = TestFactory::in_memory();
     for i in 0..10 {
-        registry.register(i, format!("value_{}", i)).expect("register should succeed");
+        registry.register(&format!("key{}", i), Arc::new(format!("value_{}", i)));
     }
 
-    let keys = registry.list().expect("list should succeed");
+    let keys = registry.list_ids();
     assert_eq!(keys.len(), 10);
 }
 
-/// @covers: RegistryFactory trait usage
+/// @covers: RegistryFactory construction
 #[test]
-fn test_std_registry_factory_creates_registry_happy() {
-    let factory = StdRegistryFactory;
-    let registry = factory.create().expect("create should succeed");
-
-    registry.register("key1".to_string(), 42).expect("register should succeed");
-    assert_eq!(registry.get("key1").expect("get should succeed"), Some(42));
+fn test_registry_factory_creates_registry_happy() {
+    let registry: InMemoryRegistry<i32> = TestFactory::in_memory();
+    registry.register("key1", Arc::new(42));
+    assert_eq!(registry.get("key1").map(|v| *v), Some(42));
 }
 
-/// @covers: Registry::unregister (nonexistent key)
+/// @covers: Registry::deregister (nonexistent key)
 #[test]
-fn test_in_memory_registry_unregister_nonexistent_key_edge() {
-    let registry: InMemoryRegistry<String, i32> = InMemoryRegistry::new();
-    registry.unregister("missing").expect("unregister should succeed");
-    assert_eq!(registry.get("missing").expect("get should succeed"), None);
+fn test_in_memory_registry_deregister_nonexistent_key_returns_false_edge() {
+    let registry: InMemoryRegistry<i32> = TestFactory::in_memory();
+    let removed = registry.deregister("missing");
+    assert!(!removed);
 }
 
-/// @covers: Registry::list (empty state)
+/// @covers: Registry::list_ids (empty state)
 #[test]
-fn test_in_memory_registry_list_empty_returns_no_items_edge() {
-    let registry: InMemoryRegistry<String, String> = InMemoryRegistry::new();
-    let keys = registry.list().expect("list should succeed");
+fn test_in_memory_registry_list_ids_empty_returns_no_items_edge() {
+    let registry: InMemoryRegistry<String> = TestFactory::in_memory();
+    let keys = registry.list_ids();
     assert!(keys.is_empty());
 }

@@ -1,15 +1,15 @@
-use edge_domain_validator::{StdValidatorFactory, Validator, ValidatorFactory};
+use edge_domain_validator::{StdValidatorFactory, ValidatorFactory, Validator};
 
 #[test]
 fn test_std_factory_always_valid_accepts_any_input_happy() {
     let v = StdValidatorFactory::always_valid();
-    assert!(v.validate(&"anything".to_string()).is_ok());
+    assert!(v.validate().is_ok());
 }
 
 #[test]
-fn test_std_factory_always_valid_never_errors_error() {
+fn test_std_factory_always_valid_never_errors_happy() {
     let v = StdValidatorFactory::always_valid();
-    assert!(v.validate(&String::new()).is_ok());
+    assert!(v.validate().is_ok());
 }
 
 #[test]

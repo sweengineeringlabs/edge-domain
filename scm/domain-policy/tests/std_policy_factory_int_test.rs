@@ -3,7 +3,7 @@ use edge_domain_policy::{CompositePolicy, Policy, PolicyFactory, PolicyViolation
 #[test]
 fn test_std_factory_composite_creates_empty_policy_happy() {
     let p: CompositePolicy<String> = StdPolicyFactory::composite();
-    assert!(p.policies.is_empty());
+    assert!(p.evaluate(&"input".to_string()).is_ok());
 }
 
 #[test]

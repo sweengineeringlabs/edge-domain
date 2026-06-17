@@ -2,7 +2,7 @@
 //! dependency — verifying the sub-crate contract is accessible end-to-end.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_lifecycle::{LifecycleError, ManagedLifecycle, PermissivePolicy, Lifecycle};
+use edge_domain_lifecycle::{ManagedLifecycle, PermissivePolicy, Lifecycle, TransitionPolicy};
 
 /// @covers: Lifecycle::state, Lifecycle::transition_to (PermissivePolicy)
 #[tokio::test]
@@ -43,8 +43,8 @@ fn test_permissive_policy_allows_all_transitions_happy() {
 /// @covers: PermissivePolicy default construction
 #[test]
 fn test_permissive_policy_default_creates_policy_happy() {
-    let policy = PermissivePolicy::<String>::default();
-    assert!(policy.is_allowed("A".to_string(), "B".to_string()));
+    let policy = PermissivePolicy::<u32>::default();
+    assert!(policy.is_allowed(1, 2));
 }
 
 /// @covers: Lifecycle state with zero/boundary values
