@@ -1,8 +1,9 @@
 //! `ReasoningFactory` — constructor contract for the default reasoning primitives.
 
 use crate::api::reasoning::types::{
-    LinearReasoning, PatternMetadataBuilder, ReasoningChainBuilder, ReasoningPattern,
-    ReasoningStepBuilder, StdReasoningFactory, StepResultBuilder, ThinkingProcessBuilder,
+    LinearReasoning, PatternMetadataBuilder, ReasoningChainBuilder, ReasoningEndpoint,
+    ReasoningPattern, ReasoningStepBuilder, StdReasoningFactory, StepResultBuilder,
+    ThinkingProcessBuilder,
 };
 
 /// Factory for the standard reference reasoning implementations.
@@ -42,5 +43,11 @@ pub trait ReasoningFactory {
     /// Start a fluent [`ReasoningChainBuilder`] for the given chain id.
     fn reasoning_chain_builder(id: String) -> ReasoningChainBuilder {
         ReasoningChainBuilder::new(id)
+    }
+
+    /// Construct a pipeline [`ReasoningEndpoint`] (the connected Handler + Service
+    /// face) over a reference reasoner bound to `pattern`.
+    fn endpoint(pattern: ReasoningPattern) -> ReasoningEndpoint {
+        ReasoningEndpoint::new(LinearReasoning::new(pattern))
     }
 }

@@ -12,6 +12,7 @@ pub mod variable_builder;
 
 pub mod heuristic_token_counter;
 pub mod map_context_manager;
+pub mod prompt_endpoint;
 pub mod static_prompt;
 pub mod std_prompt_factory;
 
@@ -27,5 +28,6 @@ pub use variable_builder::VariableBuilder;
 
 pub use heuristic_token_counter::HeuristicTokenCounter;
 pub use map_context_manager::MapContextManager;
+pub use prompt_endpoint::PromptEndpoint;
 pub use static_prompt::StaticPrompt;
 pub use std_prompt_factory::StdPromptFactory;

@@ -178,3 +178,34 @@ fn test_reasoning_chain_builder_final_answer_edge() {
         .build();
     assert!(chain.is_complete);
 }
+
+// --- endpoint ---
+
+/// @covers: ReasoningFactory::endpoint — builds a usable Service endpoint
+#[test]
+fn test_endpoint_service_runs_happy() {
+    use edge_domain_service::Service;
+    use futures::executor::block_on;
+    let ep = StdReasoningFactory::endpoint(ReasoningPattern::ChainOfThought);
+    let out = block_on(Service::execute(&ep, "solve x".to_string())).expect("ok");
+    assert!(out.is_complete);
+}
+
+/// @covers: ReasoningFactory::endpoint — pattern mismatch surfaces an error through the pipeline
+#[test]
+fn test_endpoint_pattern_mismatch_errors_error() {
+    use edge_domain_service::Service;
+    use futures::executor::block_on;
+    // Endpoint bound to a non-default pattern: the handler reasons with the
+    // default ChainOfThought, which this reasoner does not support.
+    let ep = StdReasoningFactory::endpoint(ReasoningPattern::GraphBased);
+    assert!(block_on(Service::execute(&ep, "solve x".to_string())).is_err());
+}
+
+/// @covers: ReasoningFactory::endpoint — exposes the stable dispatch id
+#[test]
+fn test_endpoint_exposes_handler_id_edge() {
+    use edge_domain_handler::Handler;
+    let ep = StdReasoningFactory::endpoint(ReasoningPattern::ChainOfThought);
+    assert_eq!(Handler::id(&ep), "reasoning.reason");
+}

@@ -2,8 +2,8 @@
 
 use crate::api::provider::types::{
     BufferedStreamHandler, EchoExecutionModel, ExecutionConfig, ExecutionConfigBuilder, ModelInfo,
-    ModelInfoBuilder, ProviderConfig, ProviderConfigBuilder, StaticProvider, StdProviderFactory,
-    TokenUsageBuilder, ToolCallDeltaBuilder,
+    ModelInfoBuilder, ProviderConfig, ProviderConfigBuilder, ProviderEndpoint, StaticProvider,
+    StdProviderFactory, TokenUsageBuilder, ToolCallDeltaBuilder,
 };
 
 /// Factory for the standard reference implementations.
@@ -53,5 +53,11 @@ pub trait ProviderFactory {
     /// Construct an empty reference [`BufferedStreamHandler`].
     fn stream_handler() -> BufferedStreamHandler {
         BufferedStreamHandler::new()
+    }
+
+    /// Construct a pipeline [`ProviderEndpoint`] (the connected Handler + Service
+    /// face) over an execution model built from `config`.
+    fn endpoint(config: ExecutionConfig) -> ProviderEndpoint {
+        ProviderEndpoint::new(EchoExecutionModel::new(config))
     }
 }

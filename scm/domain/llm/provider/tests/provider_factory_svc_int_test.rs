@@ -153,6 +153,38 @@ fn test_tool_call_delta_builder_overrides_edge() {
     assert_eq!(delta.name.as_deref(), Some("search"));
 }
 
+// --- endpoint ---
+
+/// @covers: ProviderFactory::endpoint — builds a usable Service endpoint
+#[test]
+fn test_endpoint_service_runs_happy() {
+    use edge_domain_service::Service;
+    use futures::executor::block_on;
+    let config = ExecutionConfig::new(4096, 30_000, true, false, ExecutionMode::Async);
+    let ep = StdProviderFactory::endpoint(config);
+    let out = block_on(Service::execute(&ep, "go".to_string())).expect("ok");
+    assert!(out.reasoning.contains("go"));
+}
+
+/// @covers: ProviderFactory::endpoint — zero-budget config surfaces an error through the pipeline
+#[test]
+fn test_endpoint_zero_budget_errors_error() {
+    use edge_domain_service::Service;
+    use futures::executor::block_on;
+    let config = ExecutionConfig::new(0, 30_000, true, false, ExecutionMode::Async);
+    let ep = StdProviderFactory::endpoint(config);
+    assert!(block_on(Service::execute(&ep, "go".to_string())).is_err());
+}
+
+/// @covers: ProviderFactory::endpoint — exposes the stable dispatch id
+#[test]
+fn test_endpoint_exposes_handler_id_edge() {
+    use edge_domain_handler::Handler;
+    let config = ExecutionConfig::new(4096, 30_000, true, false, ExecutionMode::Async);
+    let ep = StdProviderFactory::endpoint(config);
+    assert_eq!(Handler::id(&ep), "provider.execute_step");
+}
+
 // --- std_factory ---
 
 /// @covers: ProviderFactory::std_factory — returns the standard factory

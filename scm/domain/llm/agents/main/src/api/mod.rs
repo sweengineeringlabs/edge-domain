@@ -13,7 +13,7 @@ pub use traits::{
     Validator,
 };
 pub use types::{
-    AgentLifecycleError, AgentMetadata, AgentState, CacheControl, ContentPart, InputOutputSchema,
-    Message, MessageBuilder, MessageContent, ParameterDocumentation, ParameterDocumentationBuilder,
-    Role, SkillMetadata, ToolCall, ToolChoice, ValidationError,
+    AgentEndpoint, AgentLifecycleError, AgentMetadata, AgentState, CacheControl, ContentPart,
+    InputOutputSchema, Message, MessageBuilder, MessageContent, ParameterDocumentation,
+    ParameterDocumentationBuilder, Role, SkillMetadata, ToolCall, ToolChoice, ValidationError,
 };

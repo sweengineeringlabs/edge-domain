@@ -1,4 +1,5 @@
 pub use crate::api::PromptCacheBuilder;
+pub use crate::api::PromptEndpoint;
 pub use crate::api::PromptFactory;
 pub use crate::api::PromptMetadataBuilder;
 pub use crate::api::StdPromptFactory;

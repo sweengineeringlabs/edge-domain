@@ -195,3 +195,40 @@ fn test_token_counter_empty_zero_error() {
 fn test_token_counter_not_exact_edge() {
     assert!(!StdPromptFactory::token_counter().is_exact());
 }
+
+// --- endpoint ---
+
+/// @covers: PromptFactory::endpoint — builds a usable Service endpoint
+#[test]
+fn test_endpoint_service_renders_happy() {
+    use edge_domain_service::Service;
+    use edge_llm_prompt::{RenderContext, Variable};
+    use futures::executor::block_on;
+    let var = Variable::new("name".to_string(), VariableType::String);
+    let m = PromptMetadata::new("g".to_string(), "G".to_string(), "1".to_string(), vec![var]);
+    let ep = StdPromptFactory::endpoint("Hi {{name}}".to_string(), m);
+    let ctx = RenderContext::new().with_variable("name".to_string(), serde_json::json!("Ada"));
+    let out = block_on(Service::execute(&ep, ctx)).expect("ok");
+    assert_eq!(out, "Hi Ada");
+}
+
+/// @covers: PromptFactory::endpoint — missing required variable surfaces an error through the pipeline
+#[test]
+fn test_endpoint_missing_variable_errors_error() {
+    use edge_domain_service::Service;
+    use edge_llm_prompt::{RenderContext, Variable};
+    use futures::executor::block_on;
+    let var = Variable::new("name".to_string(), VariableType::String);
+    let m = PromptMetadata::new("g".to_string(), "G".to_string(), "1".to_string(), vec![var]);
+    let ep = StdPromptFactory::endpoint("Hi {{name}}".to_string(), m);
+    assert!(block_on(Service::execute(&ep, RenderContext::new())).is_err());
+}
+
+/// @covers: PromptFactory::endpoint — exposes the stable dispatch id
+#[test]
+fn test_endpoint_exposes_handler_id_edge() {
+    use edge_domain_handler::Handler;
+    let m = PromptMetadata::new("g".to_string(), "G".to_string(), "1".to_string(), vec![]);
+    let ep = StdPromptFactory::endpoint("static".to_string(), m);
+    assert_eq!(Handler::id(&ep), "prompt.render");
+}

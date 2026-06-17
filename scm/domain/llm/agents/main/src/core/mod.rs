@@ -5,3 +5,4 @@
 //! production implementations (llmboot, state-machine, etc.) live in edge/plugins/*.
 
 pub(crate) mod noop;
+pub(crate) mod types;

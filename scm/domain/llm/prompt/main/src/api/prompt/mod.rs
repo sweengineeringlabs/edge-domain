@@ -7,7 +7,7 @@ pub mod types;
 pub use errors::PromptError;
 pub use traits::{ContextManager, Prompt, PromptFactory, TokenCounter};
 pub use types::{
-    HeuristicTokenCounter, MapContextManager, PromptCache, PromptCacheBuilder, PromptMetadata,
-    PromptMetadataBuilder, RenderContext, StaticPrompt, StdPromptFactory, Variable,
+    HeuristicTokenCounter, MapContextManager, PromptCache, PromptCacheBuilder, PromptEndpoint,
+    PromptMetadata, PromptMetadataBuilder, RenderContext, StaticPrompt, StdPromptFactory, Variable,
     VariableBuilder, VariableType,
 };
