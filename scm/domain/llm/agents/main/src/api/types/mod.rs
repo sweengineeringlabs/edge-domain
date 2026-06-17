@@ -1,4 +1,4 @@
-// Existing domain-agent types
+//! Agent domain value types.
 pub mod agent_metadata;
 pub mod agent_metadata_builder;
 pub mod skill_metadata;

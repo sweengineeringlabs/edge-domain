@@ -1,4 +1,4 @@
-// Existing domain-agent traits
+//! Agent domain trait contracts.
 pub mod agent;
 pub mod agent_manager;
 pub mod agent_registry;
