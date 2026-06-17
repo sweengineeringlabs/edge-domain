@@ -19,8 +19,10 @@ impl Handler for Greet {
     fn pattern(&self) -> &str {
         "/greet"
     }
-    async fn execute(&self, req: String, _ctx: HandlerContext<'_>) -> Result<String, HandlerError> {
-        Ok(format!("Hello, {}!", req))
+    async fn execute(&self, req: String, ctx: HandlerContext<'_>) -> Result<String, HandlerError> {
+        let greeting = format!("Hello, {}!", req);
+        // ctx provides request-scoped context like security, tracing, etc.
+        Ok(greeting)
     }
 }
 

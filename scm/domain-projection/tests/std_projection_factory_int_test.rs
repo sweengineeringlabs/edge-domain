@@ -1,4 +1,4 @@
-use edge_domain_projection::{DomainEvent, ProjectionError, ProjectionFactory, StdProjectionFactory};
+use edge_domain_projection::{DomainEvent, ProjectionError, ProjectionFactory, StdProjectionFactory, Projection};
 
 #[derive(Clone)]
 struct TickEvt;
