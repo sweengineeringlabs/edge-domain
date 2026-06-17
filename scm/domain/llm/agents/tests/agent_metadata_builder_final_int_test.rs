@@ -1,20 +1,24 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Tests for AgentMetadataBuilder with fluent API.
 
 use edge_llm_agent::{AgentMetadataBuilder, SkillMetadataBuilder};
 
 #[test]
-#[should_panic]
-fn test_agent_metadata_builder_new_requires_fields() {
+fn test_agent_metadata_builder_new_defaults_empty_fields() {
     // @covers AgentMetadataBuilder::new
-    let builder = AgentMetadataBuilder::new();
-    let _metadata = builder.build(); // Should panic
+    let metadata = AgentMetadataBuilder::new().build();
+    assert!(metadata.id.is_empty());
+    assert!(metadata.name.is_empty());
+    assert!(metadata.skills.is_empty());
 }
 
 #[test]
-fn test_agent_metadata_builder_default_exists() {
+fn test_agent_metadata_builder_default_matches_new() {
     // @covers AgentMetadataBuilder::default
-    let _builder_default = AgentMetadataBuilder::default();
-    assert!(true);
+    let from_default = AgentMetadataBuilder::default().build();
+    let from_new = AgentMetadataBuilder::new().build();
+    assert_eq!(from_default.id, from_new.id);
+    assert_eq!(from_default.name, from_new.name);
 }
 
 #[test]

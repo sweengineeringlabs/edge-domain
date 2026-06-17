@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Integration tests for AgentError type.
 
 use edge_llm_agent::AgentError;

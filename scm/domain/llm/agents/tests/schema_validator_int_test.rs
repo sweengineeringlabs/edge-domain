@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 // @covers SchemaValidator trait methods
 // Integration tests for SchemaValidator trait contract
 // Validation error types available for implementations

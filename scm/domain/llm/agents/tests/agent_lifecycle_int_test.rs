@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 // @covers AgentLifecycle trait methods
 // Integration tests for AgentLifecycle trait contract
 // Full async tests are in task_workflow_skill pattern Layer 1b

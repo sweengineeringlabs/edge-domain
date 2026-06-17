@@ -76,14 +76,13 @@ impl AgentMetadataBuilder {
 
     /// Build the AgentMetadata.
     ///
-    /// # Panics
-    /// Panics if id, name, description, or version are not set.
+    /// Unset string fields default to the empty string.
     pub fn build(self) -> AgentMetadata {
         AgentMetadata {
-            id: self.id.expect("id is required"),
-            name: self.name.expect("name is required"),
-            description: self.description.expect("description is required"),
-            version: self.version.expect("version is required"),
+            id: self.id.unwrap_or_default(),
+            name: self.name.unwrap_or_default(),
+            description: self.description.unwrap_or_default(),
+            version: self.version.unwrap_or_default(),
             skills: self.skills,
             patterns: self.patterns,
         }

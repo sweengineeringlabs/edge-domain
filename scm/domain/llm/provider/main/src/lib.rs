@@ -1,18 +1,23 @@
-//! # edge_llm_provider
+//! # edge-llm-provider
 //!
-//! LLM Provider domain primitive: execution backend abstraction for swappable LLM providers.
+//! LLM Provider domain primitive (ADR-033): a pluggable execution-backend
+//! abstraction for swappable LLM providers (OpenAI, Claude, local models).
 //!
-//! Decouples agent orchestration from specific LLM backends (OpenAI, Claude, local models).
+//! Public surface is delegated entirely through `saf/`.
 
 #![deny(unsafe_code)]
 #![warn(missing_docs)]
+#![cfg_attr(test, allow(clippy::unwrap_used, clippy::expect_used))]
 
 mod api;
 mod core;
 mod saf;
 
-pub use api::{
-    ExecutionMode, ExecutionModel, ExecutionConfig, ExecutionError, ExecutionStepResult,
-    TokenUsage, FinishReason, ModelInfo, ModelFamily, TokenizerAccuracy,
-    LLMProvider, ProviderConfig, StreamChunk, StreamDelta, ToolCallDelta,
+pub use saf::{
+    BufferedStreamHandler, EchoExecutionModel, ExecutionConfig, ExecutionConfigBuilder,
+    ExecutionError, ExecutionMode, ExecutionModel, ExecutionStepResult, FinishReason, ModelFamily,
+    ModelInfo, ModelInfoBuilder, Provider, ProviderConfig, ProviderConfigBuilder, ProviderFactory,
+    StaticProvider, StdProviderFactory, StreamChunk, StreamDelta, StreamHandler, TokenUsage,
+    TokenUsageBuilder, TokenizerAccuracy, ToolCallDelta, ToolCallDeltaBuilder, EXECUTION_MODEL_SVC,
+    PROVIDER_FACTORY_SVC, PROVIDER_SVC, STREAM_HANDLER_SVC,
 };

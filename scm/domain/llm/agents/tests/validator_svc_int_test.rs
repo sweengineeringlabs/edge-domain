@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Integration tests for validator_svc public interface.
 
 use edge_llm_agent::Validator;

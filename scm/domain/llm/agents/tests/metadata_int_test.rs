@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Integration tests for AgentMetadata and SkillMetadata types.
 
 use edge_llm_agent::{AgentMetadata, SkillMetadata};

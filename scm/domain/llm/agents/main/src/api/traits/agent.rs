@@ -3,6 +3,8 @@
 use std::sync::Arc;
 
 use super::skill::Skill;
+use crate::api::types::MessageBuilder;
+use crate::api::types::{Message, Role, ToolChoice};
 use crate::AgentError;
 
 /// An Agent is an autonomous entity that pursues goals through skill execution.
@@ -33,10 +35,43 @@ pub trait Agent: Send + Sync {
     fn skills(&self) -> Vec<Arc<dyn Skill<Request = String, Response = String>>>;
 
     /// Get a specific skill by name.
-    fn skill(&self, name: &str) -> Result<Arc<dyn Skill<Request = String, Response = String>>, AgentError> {
+    fn skill(
+        &self,
+        name: &str,
+    ) -> Result<Arc<dyn Skill<Request = String, Response = String>>, AgentError> {
         self.skills()
             .into_iter()
             .find(|s| s.name() == name)
             .ok_or_else(|| AgentError::SkillNotFound(name.to_string()))
+    }
+
+    /// Append a conversation message to the agent and report the running turn count.
+    ///
+    /// The default implementation is stateless: it acknowledges the message
+    /// without retaining it, returning `1` for the single accepted message.
+    /// Stateful agents override this to accumulate conversation history.
+    fn send(&self, message: Message) -> usize {
+        let _ = message;
+        1
+    }
+
+    /// The conversation role this agent speaks as.
+    ///
+    /// Defaults to [`Role::Assistant`]; specialised agents may override.
+    fn supported_role(&self) -> Role {
+        Role::Assistant
+    }
+
+    /// The tool-invocation policy this agent applies to its skills.
+    ///
+    /// Defaults to [`ToolChoice::Auto`], letting the agent decide whether to
+    /// invoke a tool.
+    fn tool_choice(&self) -> ToolChoice {
+        ToolChoice::Auto
+    }
+
+    /// Start a fluent [`MessageBuilder`] for composing a message to this agent.
+    fn message_builder(&self) -> MessageBuilder {
+        MessageBuilder::new()
     }
 }

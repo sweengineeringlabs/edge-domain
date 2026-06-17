@@ -64,12 +64,11 @@ impl SkillMetadataBuilder {
 
     /// Build the SkillMetadata.
     ///
-    /// # Panics
-    /// Panics if name or description are not set.
+    /// Unset string fields default to the empty string.
     pub fn build(self) -> SkillMetadata {
         SkillMetadata {
-            name: self.name.expect("name is required"),
-            description: self.description.expect("description is required"),
+            name: self.name.unwrap_or_default(),
+            description: self.description.unwrap_or_default(),
             input_schema: self.input_schema,
             output_schema: self.output_schema,
             async_execution: self.async_execution,

@@ -1,5 +1,7 @@
-use edge_llm_agent::{Message, MessageContent, Role, ToolCall, CacheControl};
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+use edge_llm_agent::{CacheControl, Message, Role, ToolCall};
 
+/// @covers: user
 #[test]
 fn test_message_user_constructor() {
     let msg = Message::user("hello");
@@ -12,18 +14,21 @@ fn test_message_user_with_string() {
     assert_eq!(msg.role, Role::User);
 }
 
+/// @covers: assistant
 #[test]
 fn test_message_assistant_constructor() {
     let msg = Message::assistant("response");
     assert_eq!(msg.role, Role::Assistant);
 }
 
+/// @covers: system
 #[test]
 fn test_message_system_constructor() {
     let msg = Message::system("system prompt");
     assert_eq!(msg.role, Role::System);
 }
 
+/// @covers: tool
 #[test]
 fn test_message_tool_constructor() {
     let msg = Message::tool("tool result", "call-id-123");

@@ -20,10 +20,12 @@ pub enum AgentState {
 }
 
 impl AgentState {
+    /// Returns true if this state is terminal (no further transitions).
     pub fn is_terminal(&self) -> bool {
         matches!(self, AgentState::Completed)
     }
 
+    /// Returns true if the agent is actively reasoning or executing.
     pub fn is_active(&self) -> bool {
         matches!(self, AgentState::Running | AgentState::Thinking)
     }

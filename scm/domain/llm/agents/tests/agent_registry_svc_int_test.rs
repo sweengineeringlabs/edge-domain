@@ -1,8 +1,9 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Integration tests for AGENT_REGISTRY_SVC constant and AgentRegistry trait re-export.
 
 use async_trait::async_trait;
-use edge_llm_agent::{Agent, AgentError, AgentMetadata, AgentRegistry, Skill};
 use edge_domain_registry::Registry;
+use edge_llm_agent::{Agent, AgentError, AgentMetadata, AgentRegistry, Skill};
 use std::sync::{Arc, Mutex};
 
 struct TestAgent {
@@ -23,11 +24,7 @@ impl Agent for TestAgent {
         "Test agent for registry testing"
     }
 
-    async fn execute_skill(
-        &self,
-        _skill_name: &str,
-        _input: String,
-    ) -> Result<String, AgentError> {
+    async fn execute_skill(&self, _skill_name: &str, _input: String) -> Result<String, AgentError> {
         Ok("result".to_string())
     }
 
@@ -36,8 +33,10 @@ impl Agent for TestAgent {
     }
 }
 
+type AgentEntry = (Arc<dyn Agent>, AgentMetadata);
+
 struct TestAgentRegistry {
-    agents: Mutex<std::collections::HashMap<String, (Arc<dyn Agent>, AgentMetadata)>>,
+    agents: Mutex<std::collections::HashMap<String, AgentEntry>>,
 }
 
 impl TestAgentRegistry {
@@ -58,10 +57,16 @@ impl Registry for TestAgentRegistry {
             .insert(id.to_string(), (value, create_dummy_metadata(id)));
     }
 
-    fn try_register(&self, id: &str, value: Arc<Self::Value>) -> Result<(), edge_domain_registry::RegistryError> {
+    fn try_register(
+        &self,
+        id: &str,
+        value: Arc<Self::Value>,
+    ) -> Result<(), edge_domain_registry::RegistryError> {
         let mut agents = self.agents.lock().unwrap();
         if agents.contains_key(id) {
-            Err(edge_domain_registry::RegistryError::DuplicateId(id.to_string()))
+            Err(edge_domain_registry::RegistryError::DuplicateId(
+                id.to_string(),
+            ))
         } else {
             agents.insert(id.to_string(), (value, create_dummy_metadata(id)));
             Ok(())

@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Integration tests for Parameter type re-export via parameter_svc.rs.
 
 use edge_llm_agent::Parameter;

@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Integration tests for AGENT_SVC constant and Agent trait re-export.
 
 use async_trait::async_trait;
@@ -20,11 +21,7 @@ impl Agent for TestAgent {
         "Agent for testing"
     }
 
-    async fn execute_skill(
-        &self,
-        skill_name: &str,
-        _input: String,
-    ) -> Result<String, AgentError> {
+    async fn execute_skill(&self, skill_name: &str, _input: String) -> Result<String, AgentError> {
         match skill_name {
             "success" => Ok("executed".to_string()),
             "fail" => Err(AgentError::ExecutionFailed("deliberate".to_string())),
@@ -66,7 +63,8 @@ fn test_svc_agent_happy_trait_can_be_implemented() {
 /// @covers: Agent trait re-export — execute_skill
 #[test]
 fn test_svc_agent_happy_execute_skill_success() {
-    let result = futures::executor::block_on(TestAgent.execute_skill("success", "input".to_string()));
+    let result =
+        futures::executor::block_on(TestAgent.execute_skill("success", "input".to_string()));
     assert!(result.is_ok());
     assert_eq!(result.unwrap(), "executed");
 }
@@ -74,7 +72,8 @@ fn test_svc_agent_happy_execute_skill_success() {
 /// @covers: Agent trait re-export — execute_skill error handling
 #[test]
 fn test_svc_agent_error_execute_skill_unknown_skill() {
-    let result = futures::executor::block_on(TestAgent.execute_skill("unknown", "input".to_string()));
+    let result =
+        futures::executor::block_on(TestAgent.execute_skill("unknown", "input".to_string()));
     assert!(result.is_err());
     match result {
         Err(AgentError::SkillNotFound(name)) => assert_eq!(name, "unknown"),

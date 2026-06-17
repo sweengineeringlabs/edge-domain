@@ -1,7 +1,8 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Integration tests — `Agent` trait.
 
 use async_trait::async_trait;
-use edge_llm_agent::{Agent, AgentError, Skill};
+use edge_llm_agent::{Agent, AgentError, MessageContent, Role, Skill, ToolChoice};
 use std::sync::Arc;
 
 struct SuccessAgent;
@@ -20,11 +21,7 @@ impl Agent for SuccessAgent {
         "Always succeeds"
     }
 
-    async fn execute_skill(
-        &self,
-        skill_name: &str,
-        input: String,
-    ) -> Result<String, AgentError> {
+    async fn execute_skill(&self, skill_name: &str, input: String) -> Result<String, AgentError> {
         Ok(format!("{}:{}", skill_name, input))
     }
 
@@ -49,12 +46,10 @@ impl Agent for FailingAgent {
         "Always fails"
     }
 
-    async fn execute_skill(
-        &self,
-        _skill_name: &str,
-        _input: String,
-    ) -> Result<String, AgentError> {
-        Err(AgentError::ExecutionFailed("deliberate failure".to_string()))
+    async fn execute_skill(&self, _skill_name: &str, _input: String) -> Result<String, AgentError> {
+        Err(AgentError::ExecutionFailed(
+            "deliberate failure".to_string(),
+        ))
     }
 
     fn skills(&self) -> Vec<Arc<dyn Skill<Request = String, Response = String>>> {
@@ -99,9 +94,8 @@ fn test_trait_agent_happy_execute_skill_success_returns_ok_response() {
 /// @covers: Agent::execute_skill — failure case
 #[test]
 fn test_trait_agent_error_execute_skill_failure_returns_execution_failed() {
-    let result = futures::executor::block_on(
-        FailingAgent.execute_skill("any_skill", "input".to_string()),
-    );
+    let result =
+        futures::executor::block_on(FailingAgent.execute_skill("any_skill", "input".to_string()));
     assert!(result.is_err());
     match result {
         Err(AgentError::ExecutionFailed(msg)) => {
@@ -114,9 +108,8 @@ fn test_trait_agent_error_execute_skill_failure_returns_execution_failed() {
 /// @covers: Agent::execute_skill — input is passed through
 #[test]
 fn test_trait_agent_happy_execute_skill_preserves_input() {
-    let result = futures::executor::block_on(
-        SuccessAgent.execute_skill("skill", "preserved".to_string()),
-    );
+    let result =
+        futures::executor::block_on(SuccessAgent.execute_skill("skill", "preserved".to_string()));
     assert_eq!(result.unwrap(), "skill:preserved");
 }
 
@@ -140,4 +133,99 @@ fn test_trait_agent_happy_all_methods_together_consistent() {
     assert!(!SuccessAgent.name().is_empty());
     assert!(!SuccessAgent.description().is_empty());
     assert_eq!(SuccessAgent.id(), "success");
+}
+
+// --- send ---
+
+/// @covers: send
+#[test]
+fn test_send_accepts_message_happy() {
+    let agent = SuccessAgent;
+    let msg = agent.message_builder().content("hello").build();
+    assert_eq!(agent.send(msg), 1);
+}
+
+/// @covers: send
+#[test]
+fn test_send_default_is_stateless_error() {
+    // The default impl does not accumulate: each send reports a single message.
+    let agent = SuccessAgent;
+    let first = agent.send(agent.message_builder().content("a").build());
+    let second = agent.send(agent.message_builder().content("b").build());
+    assert_eq!(first, second);
+}
+
+/// @covers: send
+#[test]
+fn test_send_empty_content_edge() {
+    let agent = SuccessAgent;
+    let msg = agent.message_builder().build();
+    assert_eq!(agent.send(msg), 1);
+}
+
+// --- supported_role ---
+
+/// @covers: supported_role
+#[test]
+fn test_supported_role_defaults_assistant_happy() {
+    assert_eq!(SuccessAgent.supported_role(), Role::Assistant);
+}
+
+/// @covers: supported_role
+#[test]
+fn test_supported_role_is_not_user_error() {
+    assert_ne!(SuccessAgent.supported_role(), Role::User);
+}
+
+/// @covers: supported_role
+#[test]
+fn test_supported_role_consistent_across_impls_edge() {
+    assert_eq!(SuccessAgent.supported_role(), FailingAgent.supported_role());
+}
+
+// --- tool_choice ---
+
+/// @covers: tool_choice
+#[test]
+fn test_tool_choice_defaults_auto_happy() {
+    assert_eq!(SuccessAgent.tool_choice(), ToolChoice::Auto);
+}
+
+/// @covers: tool_choice
+#[test]
+fn test_tool_choice_is_not_none_error() {
+    assert_ne!(SuccessAgent.tool_choice(), ToolChoice::None);
+}
+
+/// @covers: tool_choice
+#[test]
+fn test_tool_choice_consistent_across_impls_edge() {
+    assert_eq!(SuccessAgent.tool_choice(), FailingAgent.tool_choice());
+}
+
+// --- message_builder ---
+
+/// @covers: message_builder
+#[test]
+fn test_message_builder_builds_message_happy() {
+    let msg = SuccessAgent.message_builder().content("hi").build();
+    assert_eq!(msg.role, Role::User);
+}
+
+/// @covers: message_builder
+#[test]
+fn test_message_builder_role_override_error() {
+    let msg = SuccessAgent
+        .message_builder()
+        .role(Role::System)
+        .content("sys")
+        .build();
+    assert_ne!(msg.role, Role::User);
+}
+
+/// @covers: message_builder
+#[test]
+fn test_message_builder_default_content_empty_edge() {
+    let msg = SuccessAgent.message_builder().build();
+    assert_eq!(msg.content, MessageContent::text(""));
 }

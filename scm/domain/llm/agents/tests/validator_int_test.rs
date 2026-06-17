@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Integration tests for Validator trait contract.
 
 use edge_llm_agent::Validator;
@@ -11,7 +12,9 @@ impl Validator for StrictValidator {
             return Err("Agent ID cannot be empty".to_string());
         }
         if !agent_id.chars().all(|c| c.is_alphanumeric() || c == '_') {
-            return Err("Agent ID must contain only alphanumeric characters and underscores".to_string());
+            return Err(
+                "Agent ID must contain only alphanumeric characters and underscores".to_string(),
+            );
         }
         Ok(())
     }
@@ -178,7 +181,9 @@ fn test_validate_skill_name_single_character_edge() {
 #[test]
 fn test_validate_skill_input_whitespace_before_json_edge() {
     let validator = StrictValidator;
-    assert!(validator.validate_skill_input("  {\"key\":\"value\"}").is_ok());
+    assert!(validator
+        .validate_skill_input("  {\"key\":\"value\"}")
+        .is_ok());
 }
 
 // @covers: validate_skill_input

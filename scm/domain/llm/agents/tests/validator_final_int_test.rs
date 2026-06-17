@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Comprehensive tests for Validator trait.
 
 use edge_llm_agent::Validator;

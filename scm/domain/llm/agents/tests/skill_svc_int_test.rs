@@ -1,9 +1,10 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Integration tests for Skill trait re-export via skill_svc.rs.
 
 use async_trait::async_trait;
-use edge_llm_agent::{Parameter, Skill, SkillMetadata};
 use edge_domain_command::CommandBusFactory;
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
+use edge_llm_agent::{Parameter, Skill, SkillMetadata};
 
 struct TestSkill {
     should_fail: bool,
@@ -19,11 +20,7 @@ impl Handler for TestSkill {
         "test_skill"
     }
 
-    async fn execute(
-        &self,
-        req: String,
-        _ctx: HandlerContext<'_>,
-    ) -> Result<String, HandlerError> {
+    async fn execute(&self, req: String, _ctx: HandlerContext<'_>) -> Result<String, HandlerError> {
         if self.should_fail {
             Err(HandlerError::ExecutionFailed("deliberate".to_string()))
         } else {
@@ -42,14 +39,12 @@ impl Skill for TestSkill {
     }
 
     fn parameters(&self) -> Vec<Parameter> {
-        vec![
-            Parameter {
-                name: "input".to_string(),
-                description: "Test input".to_string(),
-                param_type: "string".to_string(),
-                required: true,
-            },
-        ]
+        vec![Parameter {
+            name: "input".to_string(),
+            description: "Test input".to_string(),
+            param_type: "string".to_string(),
+            required: true,
+        }]
     }
 
     fn metadata(&self) -> SkillMetadata {

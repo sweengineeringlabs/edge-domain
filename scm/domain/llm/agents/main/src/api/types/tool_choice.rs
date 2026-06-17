@@ -13,5 +13,8 @@ pub enum ToolChoice {
     Required,
 
     /// Agent must call the named tool
-    Function { name: String },
+    Function {
+        /// The name of the tool the agent must call.
+        name: String,
+    },
 }

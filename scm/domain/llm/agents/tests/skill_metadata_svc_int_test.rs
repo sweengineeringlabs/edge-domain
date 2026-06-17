@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Integration tests for SkillMetadata type re-export via skill_metadata_svc.rs.
 
 use edge_llm_agent::SkillMetadata;
@@ -244,12 +245,7 @@ fn test_svc_skill_metadata_edge_empty_string_fields() {
 /// @covers: SkillMetadata type re-export — all flags together
 #[test]
 fn test_svc_skill_metadata_happy_all_flag_combinations() {
-    let combinations = vec![
-        (true, true),
-        (true, false),
-        (false, true),
-        (false, false),
-    ];
+    let combinations = vec![(true, true), (true, false), (false, true), (false, false)];
 
     for (async_exec, long_run) in combinations {
         let metadata = SkillMetadata {

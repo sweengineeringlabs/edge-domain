@@ -1,11 +1,14 @@
-//! No-op Skill implementation for testing the contract.
+//! No-op [`Skill`] implementation for testing the contract.
 
+use crate::api::noop::NoopSkill;
 use crate::api::Skill;
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
 
-/// A no-op skill that implements the Skill trait but performs no work.
-/// Used for testing the contract; real implementations live in plugins.
-pub(crate) struct NoopSkill;
+impl NoopSkill {
+    const ID: &'static str = "noop_skill";
+    const NAME: &'static str = "noop";
+    const DESCRIPTION: &'static str = "No-op skill; implements Skill trait contract for testing";
+}
 
 #[async_trait::async_trait]
 impl Handler for NoopSkill {
@@ -13,7 +16,7 @@ impl Handler for NoopSkill {
     type Response = String;
 
     fn id(&self) -> &str {
-        "noop_skill"
+        Self::ID
     }
 
     async fn execute(
@@ -27,14 +30,11 @@ impl Handler for NoopSkill {
 
 impl Skill for NoopSkill {
     fn name(&self) -> &str {
-        match self.id() {
-            "noop_skill" => "noop",
-            _ => "unknown",
-        }
+        Self::NAME
     }
 
     fn description(&self) -> &str {
-        "No-op skill; implements Skill trait contract for testing"
+        Self::DESCRIPTION
     }
 }
 

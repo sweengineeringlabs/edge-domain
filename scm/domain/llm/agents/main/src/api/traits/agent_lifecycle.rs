@@ -1,29 +1,30 @@
-use crate::api::types::{AgentState, AgentLifecycleError};
+use crate::api::types::{AgentLifecycleError, AgentState};
 
-/// LLM agent lifecycle management
+/// LLM agent lifecycle management.
+#[async_trait::async_trait]
 pub trait AgentLifecycle: Send + Sync {
-    /// Current state of agent
+    /// Current state of the agent.
     fn current_state(&self) -> AgentState;
 
-    /// Transition agent to new state
+    /// Transition the agent to a new state.
     async fn transition_to(&self, target: AgentState) -> Result<(), AgentLifecycleError>;
 
-    /// Check if agent is in specific state
+    /// Check whether the agent is currently in the given state.
     fn is_in(&self, state: AgentState) -> bool {
         self.current_state() == state
     }
 
-    /// Pause reasoning (for checkpointing, input waiting)
+    /// Pause reasoning (for checkpointing, input waiting).
     async fn pause(&self) -> Result<(), AgentLifecycleError> {
         self.transition_to(AgentState::Paused).await
     }
 
-    /// Resume reasoning from paused state
+    /// Resume reasoning from the paused state.
     async fn resume(&self) -> Result<(), AgentLifecycleError> {
         self.transition_to(AgentState::Running).await
     }
 
-    /// Abort agent execution (return to Idle)
+    /// Abort agent execution (return to Idle).
     async fn abort(&self) -> Result<(), AgentLifecycleError> {
         self.transition_to(AgentState::Idle).await
     }

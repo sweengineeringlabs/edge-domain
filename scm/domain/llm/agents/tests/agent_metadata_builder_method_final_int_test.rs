@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Tests for AgentMetadata::builder() method.
 
 use edge_llm_agent::AgentMetadata;

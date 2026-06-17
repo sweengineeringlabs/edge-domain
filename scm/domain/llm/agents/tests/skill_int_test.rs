@@ -1,9 +1,10 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Integration tests — `Skill` trait.
 
 use async_trait::async_trait;
-use edge_llm_agent::{Parameter, Skill, SkillMetadata};
 use edge_domain_command::CommandBusFactory;
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
+use edge_llm_agent::{ContentPart, MessageContent, Parameter, Skill, SkillMetadata};
 
 struct TestSkill {
     should_fail: bool,
@@ -18,11 +19,7 @@ impl Handler for TestSkill {
         "test_skill"
     }
 
-    async fn execute(
-        &self,
-        req: String,
-        _ctx: HandlerContext<'_>,
-    ) -> Result<String, HandlerError> {
+    async fn execute(&self, req: String, _ctx: HandlerContext<'_>) -> Result<String, HandlerError> {
         if self.should_fail {
             Err(HandlerError::ExecutionFailed("deliberate".to_string()))
         } else {
@@ -41,14 +38,12 @@ impl Skill for TestSkill {
     }
 
     fn parameters(&self) -> Vec<Parameter> {
-        vec![
-            Parameter {
-                name: "input".to_string(),
-                description: "Test input".to_string(),
-                param_type: "string".to_string(),
-                required: true,
-            },
-        ]
+        vec![Parameter {
+            name: "input".to_string(),
+            description: "Test input".to_string(),
+            param_type: "string".to_string(),
+            required: true,
+        }]
     }
 
     fn metadata(&self) -> SkillMetadata {
@@ -66,27 +61,21 @@ impl Skill for TestSkill {
 /// @covers: Skill::name
 #[test]
 fn test_trait_skill_happy_name_returns_configured_name() {
-    let skill = TestSkill {
-        should_fail: false,
-    };
+    let skill = TestSkill { should_fail: false };
     assert_eq!(skill.name(), "test");
 }
 
 /// @covers: Skill::description
 #[test]
 fn test_trait_skill_happy_description_returns_configured_description() {
-    let skill = TestSkill {
-        should_fail: false,
-    };
+    let skill = TestSkill { should_fail: false };
     assert_eq!(skill.description(), "A test skill");
 }
 
 /// @covers: Skill::parameters — non-empty
 #[test]
 fn test_trait_skill_happy_parameters_returns_list() {
-    let skill = TestSkill {
-        should_fail: false,
-    };
+    let skill = TestSkill { should_fail: false };
     let params = skill.parameters();
     assert_eq!(params.len(), 1);
     assert_eq!(params[0].name, "input");
@@ -95,9 +84,7 @@ fn test_trait_skill_happy_parameters_returns_list() {
 /// @covers: Skill::parameters — structure
 #[test]
 fn test_trait_skill_happy_parameters_has_correct_structure() {
-    let skill = TestSkill {
-        should_fail: false,
-    };
+    let skill = TestSkill { should_fail: false };
     let params = skill.parameters();
     assert!(!params.is_empty());
     let param = &params[0];
@@ -108,9 +95,7 @@ fn test_trait_skill_happy_parameters_has_correct_structure() {
 /// @covers: Skill::metadata — returns configured metadata
 #[test]
 fn test_trait_skill_happy_metadata_returns_skill_metadata() {
-    let skill = TestSkill {
-        should_fail: false,
-    };
+    let skill = TestSkill { should_fail: false };
     let meta = skill.metadata();
     assert_eq!(meta.name, "test");
     assert_eq!(meta.description, "A test skill");
@@ -119,9 +104,7 @@ fn test_trait_skill_happy_metadata_returns_skill_metadata() {
 /// @covers: Skill::metadata — schema fields
 #[test]
 fn test_trait_skill_happy_metadata_has_schemas() {
-    let skill = TestSkill {
-        should_fail: false,
-    };
+    let skill = TestSkill { should_fail: false };
     let meta = skill.metadata();
     assert!(meta.input_schema.is_some());
     assert!(meta.output_schema.is_some());
@@ -130,9 +113,7 @@ fn test_trait_skill_happy_metadata_has_schemas() {
 /// @covers: Skill::metadata — execution flags
 #[test]
 fn test_trait_skill_happy_metadata_has_execution_flags() {
-    let skill = TestSkill {
-        should_fail: false,
-    };
+    let skill = TestSkill { should_fail: false };
     let meta = skill.metadata();
     assert!(meta.async_execution);
     assert!(!meta.long_running);
@@ -175,9 +156,7 @@ fn test_trait_skill_edge_metadata_default_returns_skill_metadata() {
 /// @covers: Skill — extends Handler
 #[test]
 fn test_trait_skill_happy_implements_handler_contract() {
-    let skill = TestSkill {
-        should_fail: false,
-    };
+    let skill = TestSkill { should_fail: false };
     assert_eq!(skill.id(), "test_skill");
     assert!(skill.pattern().is_empty()); // default
 }
@@ -185,9 +164,7 @@ fn test_trait_skill_happy_implements_handler_contract() {
 /// @covers: Handler::execute (via Skill)
 #[test]
 fn test_trait_skill_happy_execute_processes_request() {
-    let skill = TestSkill {
-        should_fail: false,
-    };
+    let skill = TestSkill { should_fail: false };
     let security = edge_domain_security::SecurityContext::unauthenticated();
     let bus = edge_domain_command::StdCommandBusFactory::direct();
     let ctx = HandlerContext {
@@ -216,11 +193,179 @@ fn test_trait_skill_error_execute_failure_propagates() {
 /// @covers: Skill — all methods together
 #[test]
 fn test_trait_skill_happy_all_methods_consistent() {
-    let skill = TestSkill {
-        should_fail: false,
-    };
+    let skill = TestSkill { should_fail: false };
     assert!(!skill.name().is_empty());
     assert!(!skill.description().is_empty());
     let meta = skill.metadata();
     assert_eq!(meta.name, skill.name());
+}
+
+fn sample_skill() -> TestSkill {
+    TestSkill { should_fail: false }
+}
+
+// --- parameter_documentation ---
+
+/// @covers: parameter_documentation
+#[test]
+fn test_parameter_documentation_defaults_empty_happy() {
+    assert!(sample_skill().parameter_documentation().is_empty());
+}
+
+/// @covers: parameter_documentation
+#[test]
+fn test_parameter_documentation_no_required_docs_error() {
+    // Default skills expose no structured docs even when they declare parameters.
+    let skill = sample_skill();
+    assert!(!skill.parameters().is_empty());
+    assert!(skill.parameter_documentation().is_empty());
+}
+
+/// @covers: parameter_documentation
+#[test]
+fn test_parameter_documentation_override_edge() {
+    let skill = sample_skill();
+    let built = skill
+        .parameter_documentation_builder("q", "query", "string", true)
+        .build();
+    assert_eq!(built.name, "q");
+    assert!(skill.parameter_documentation().is_empty());
+}
+
+// --- input_schema ---
+
+/// @covers: input_schema
+#[test]
+fn test_input_schema_defaults_none_happy() {
+    assert!(sample_skill().input_schema().is_none());
+}
+
+/// @covers: input_schema
+#[test]
+fn test_input_schema_distinct_from_metadata_error() {
+    // The default `input_schema` getter is None even though `metadata` sets one.
+    let skill = sample_skill();
+    assert!(skill.metadata().input_schema.is_some());
+    assert!(skill.input_schema().is_none());
+}
+
+/// @covers: input_schema
+#[test]
+fn test_input_schema_minimal_skill_edge() {
+    struct MinimalSkill;
+    #[async_trait]
+    impl Handler for MinimalSkill {
+        type Request = String;
+        type Response = String;
+        async fn execute(
+            &self,
+            _req: String,
+            _ctx: HandlerContext<'_>,
+        ) -> Result<String, HandlerError> {
+            Ok("ok".to_string())
+        }
+    }
+    impl Skill for MinimalSkill {
+        fn name(&self) -> &str {
+            "minimal"
+        }
+        fn description(&self) -> &str {
+            "Minimal"
+        }
+    }
+    assert!(MinimalSkill.input_schema().is_none());
+}
+
+// --- output_schema ---
+
+/// @covers: output_schema
+#[test]
+fn test_output_schema_defaults_none_happy() {
+    assert!(sample_skill().output_schema().is_none());
+}
+
+/// @covers: output_schema
+#[test]
+fn test_output_schema_distinct_from_metadata_error() {
+    let skill = sample_skill();
+    assert!(skill.metadata().output_schema.is_some());
+    assert!(skill.output_schema().is_none());
+}
+
+/// @covers: output_schema
+#[test]
+fn test_output_schema_independent_of_input_edge() {
+    let skill = sample_skill();
+    assert_eq!(
+        skill.input_schema().is_none(),
+        skill.output_schema().is_none()
+    );
+}
+
+// --- render_content ---
+
+/// @covers: render_content
+#[test]
+fn test_render_content_wraps_parts_happy() {
+    let skill = sample_skill();
+    let content = skill.render_content(vec![ContentPart::text("hello")]);
+    assert!(matches!(content, MessageContent::Parts(_)));
+}
+
+/// @covers: render_content
+#[test]
+fn test_render_content_empty_parts_error() {
+    let skill = sample_skill();
+    let content = skill.render_content(vec![]);
+    match content {
+        MessageContent::Parts(parts) => assert!(parts.is_empty()),
+        MessageContent::Text(_) => panic!("expected Parts variant"),
+    }
+}
+
+/// @covers: render_content
+#[test]
+fn test_render_content_multiple_parts_edge() {
+    let skill = sample_skill();
+    let content = skill.render_content(vec![
+        ContentPart::text("a"),
+        ContentPart::image_url("http://x/y.png"),
+    ]);
+    match content {
+        MessageContent::Parts(parts) => assert_eq!(parts.len(), 2),
+        MessageContent::Text(_) => panic!("expected Parts variant"),
+    }
+}
+
+// --- parameter_documentation_builder ---
+
+/// @covers: parameter_documentation_builder
+#[test]
+fn test_parameter_documentation_builder_sets_required_fields_happy() {
+    let doc = sample_skill()
+        .parameter_documentation_builder("name", "the name", "string", true)
+        .build();
+    assert_eq!(doc.name, "name");
+    assert!(doc.required);
+}
+
+/// @covers: parameter_documentation_builder
+#[test]
+fn test_parameter_documentation_builder_optional_defaults_none_error() {
+    let doc = sample_skill()
+        .parameter_documentation_builder("name", "d", "string", false)
+        .build();
+    assert!(doc.default.is_none());
+    assert!(doc.validation_rules.is_none());
+}
+
+/// @covers: parameter_documentation_builder
+#[test]
+fn test_parameter_documentation_builder_examples_accumulate_edge() {
+    let doc = sample_skill()
+        .parameter_documentation_builder("name", "d", "string", true)
+        .example(serde_json::json!("a"))
+        .example(serde_json::json!("b"))
+        .build();
+    assert_eq!(doc.examples.len(), 2);
 }

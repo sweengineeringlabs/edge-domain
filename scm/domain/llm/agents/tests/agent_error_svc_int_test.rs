@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Integration tests for AgentError type re-export via agent_error_svc.rs.
 
 use edge_llm_agent::AgentError;
@@ -13,7 +14,10 @@ fn test_svc_agent_error_happy_not_found_variant() {
 #[test]
 fn test_svc_agent_error_happy_skill_not_found_variant() {
     let err = AgentError::SkillNotFound("missing_skill".to_string());
-    assert_eq!(err.to_string(), "Skill 'missing_skill' not available on agent");
+    assert_eq!(
+        err.to_string(),
+        "Skill 'missing_skill' not available on agent"
+    );
 }
 
 /// @covers: AgentError type re-export — InvalidSpec variant
@@ -98,7 +102,7 @@ fn test_svc_agent_error_happy_all_variants_are_distinct() {
     let invalid_state = AgentError::InvalidState("test".to_string());
 
     // All should have different display messages (except they share "test")
-    let messages = vec![
+    let messages = [
         not_found.to_string(),
         skill_not_found.to_string(),
         invalid_spec.to_string(),

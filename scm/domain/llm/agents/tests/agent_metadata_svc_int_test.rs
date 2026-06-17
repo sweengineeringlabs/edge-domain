@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Integration tests for AgentMetadata type re-export via agent_metadata_svc.rs.
 
 use edge_llm_agent::{AgentMetadata, SkillMetadata};

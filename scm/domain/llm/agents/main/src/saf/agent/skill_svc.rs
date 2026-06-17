@@ -1,5 +1,6 @@
-//! Service export for the `Skill` trait — re-exported from skill/ subdirectory.
+//! Service export for the `Skill` trait.
 
-pub use super::skill::Skill;
+pub use crate::api::Skill;
 
-pub const SKILL_SVC_ALIAS: &str = "skill";
+/// Service identifier for Skill trait discovery.
+pub const SKILL_SVC: &str = "skill";

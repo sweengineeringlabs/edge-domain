@@ -1,5 +1,5 @@
 [package]
-name                   = "edge_llm_provider"
+name                   = "edge-llm-provider"
 version                = "0.1.0"
 edition.workspace      = true
 license.workspace      = true
@@ -21,10 +21,10 @@ path = "main/src/lib.rs"
 thiserror.workspace = true
 async-trait.workspace = true
 serde.workspace = true
-serde_json.workspace = true
 
 [dev-dependencies]
 futures.workspace = true
+serde_json.workspace = true
 
 [lints.rust]
 unsafe_code = "deny"

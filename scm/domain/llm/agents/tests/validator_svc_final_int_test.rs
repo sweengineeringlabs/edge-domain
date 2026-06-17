@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Tests for VALIDATOR_SVC constant and Validator trait re-export.
 
 /// @covers VALIDATOR_SVC constant

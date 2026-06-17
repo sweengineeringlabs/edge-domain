@@ -1,20 +1,23 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Tests for SkillMetadataBuilder with fluent API.
 
 use edge_llm_agent::SkillMetadataBuilder;
 
 #[test]
-#[should_panic]
-fn test_skill_metadata_builder_requires_name() {
+fn test_skill_metadata_builder_new_defaults_empty_name() {
     // @covers SkillMetadataBuilder::new and SkillMetadataBuilder::build
-    let builder = SkillMetadataBuilder::new();
-    let _metadata = builder.build(); // Should panic because name is required
+    let metadata = SkillMetadataBuilder::new().build();
+    assert!(metadata.name.is_empty());
+    assert!(metadata.description.is_empty());
 }
 
 #[test]
-fn test_skill_metadata_builder_default_exists() {
+fn test_skill_metadata_builder_default_matches_new() {
     // @covers SkillMetadataBuilder::default
-    let _builder_default = SkillMetadataBuilder::default();
-    assert!(true);
+    let from_default = SkillMetadataBuilder::default().build();
+    let from_new = SkillMetadataBuilder::new().build();
+    assert_eq!(from_default.name, from_new.name);
+    assert_eq!(from_default.async_execution, from_new.async_execution);
 }
 
 #[test]
@@ -45,7 +48,10 @@ fn test_skill_metadata_builder_input_schema_sets_field() {
         .description("Test description")
         .input_schema(r#"{"type": "object"}"#)
         .build();
-    assert_eq!(metadata.input_schema, Some(r#"{"type": "object"}"#.to_string()));
+    assert_eq!(
+        metadata.input_schema,
+        Some(r#"{"type": "object"}"#.to_string())
+    );
 }
 
 #[test]
@@ -56,7 +62,10 @@ fn test_skill_metadata_builder_output_schema_sets_field() {
         .description("Test description")
         .output_schema(r#"{"type": "string"}"#)
         .build();
-    assert_eq!(metadata.output_schema, Some(r#"{"type": "string"}"#.to_string()));
+    assert_eq!(
+        metadata.output_schema,
+        Some(r#"{"type": "string"}"#.to_string())
+    );
 }
 
 #[test]

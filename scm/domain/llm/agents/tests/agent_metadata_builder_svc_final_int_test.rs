@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Tests for AGENT_METADATA_BUILDER_SVC constant.
 
 use edge_llm_agent::AGENT_METADATA_BUILDER_SVC;

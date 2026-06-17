@@ -1,12 +1,15 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Comprehensive trait method scenario coverage tests.
 //!
 //! Tests all public trait methods in Agent, Skill, AgentManager, and AgentRegistry
 //! with happy, error, and edge cases.
 
 use async_trait::async_trait;
-use edge_llm_agent::{Agent, AgentError, AgentManager, AgentMetadata, AgentRegistry, Parameter, Skill, SkillMetadata};
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
 use edge_domain_registry::Registry;
+use edge_llm_agent::{
+    Agent, AgentError, AgentManager, AgentMetadata, AgentRegistry, Parameter, Skill, SkillMetadata,
+};
 use std::sync::Arc;
 
 // ============================================================================
@@ -57,7 +60,9 @@ impl Agent for FailingAgent {
     }
 
     async fn execute_skill(&self, _skill_name: &str, _input: String) -> Result<String, AgentError> {
-        Err(AgentError::ExecutionFailed("intentional failure".to_string()))
+        Err(AgentError::ExecutionFailed(
+            "intentional failure".to_string(),
+        ))
     }
 
     fn skills(&self) -> Vec<Arc<dyn Skill<Request = String, Response = String>>> {
@@ -158,7 +163,11 @@ impl Handler for MinimalSkill {
         "minimal"
     }
 
-    async fn execute(&self, _req: String, _ctx: HandlerContext<'_>) -> Result<String, HandlerError> {
+    async fn execute(
+        &self,
+        _req: String,
+        _ctx: HandlerContext<'_>,
+    ) -> Result<String, HandlerError> {
         Err(HandlerError::ExecutionFailed("minimal error".to_string()))
     }
 }
@@ -182,8 +191,14 @@ struct TestAgentManager {
 impl TestAgentManager {
     fn new() -> Self {
         let mut agents = std::collections::HashMap::new();
-        agents.insert("success_agent".to_string(), Arc::new(SuccessAgent) as Arc<dyn Agent>);
-        agents.insert("failing_agent".to_string(), Arc::new(FailingAgent) as Arc<dyn Agent>);
+        agents.insert(
+            "success_agent".to_string(),
+            Arc::new(SuccessAgent) as Arc<dyn Agent>,
+        );
+        agents.insert(
+            "failing_agent".to_string(),
+            Arc::new(FailingAgent) as Arc<dyn Agent>,
+        );
 
         TestAgentManager {
             agents,
@@ -233,8 +248,14 @@ struct TestAgentRegistry {
 impl TestAgentRegistry {
     fn new() -> Self {
         let mut agents = std::collections::HashMap::new();
-        agents.insert("test_agent".to_string(), Arc::new(SuccessAgent) as Arc<dyn Agent>);
-        agents.insert("fail_agent".to_string(), Arc::new(FailingAgent) as Arc<dyn Agent>);
+        agents.insert(
+            "test_agent".to_string(),
+            Arc::new(SuccessAgent) as Arc<dyn Agent>,
+        );
+        agents.insert(
+            "fail_agent".to_string(),
+            Arc::new(FailingAgent) as Arc<dyn Agent>,
+        );
 
         TestAgentRegistry { agents }
     }
@@ -251,7 +272,11 @@ impl Registry for TestAgentRegistry {
 
     fn register(&self, _id: &str, _entry: Arc<Self::Value>) {}
 
-    fn try_register(&self, _id: &str, _entry: Arc<Self::Value>) -> Result<(), edge_domain_registry::RegistryError> {
+    fn try_register(
+        &self,
+        _id: &str,
+        _entry: Arc<Self::Value>,
+    ) -> Result<(), edge_domain_registry::RegistryError> {
         Ok(())
     }
 
@@ -370,7 +395,9 @@ fn test_description_agent_edge() {
 /// @covers: Agent::execute_skill
 #[test]
 fn test_execute_skill_agent_happy() {
-    let result = futures::executor::block_on(SuccessAgent.execute_skill("code_review", "input.rs".to_string()));
+    let result = futures::executor::block_on(
+        SuccessAgent.execute_skill("code_review", "input.rs".to_string()),
+    );
     assert!(result.is_ok());
     assert_eq!(result.unwrap(), "code_review:input.rs");
 }
@@ -378,7 +405,8 @@ fn test_execute_skill_agent_happy() {
 /// @covers: Agent::execute_skill
 #[test]
 fn test_execute_skill_agent_error() {
-    let result = futures::executor::block_on(FailingAgent.execute_skill("any_skill", "input".to_string()));
+    let result =
+        futures::executor::block_on(FailingAgent.execute_skill("any_skill", "input".to_string()));
     assert!(result.is_err());
     match result {
         Err(AgentError::ExecutionFailed(msg)) => {
@@ -464,7 +492,7 @@ fn test_description_skill_error() {
 #[test]
 fn test_description_skill_edge() {
     let desc = TestSkill.description();
-    assert!(desc.len() > 0);
+    assert!(!desc.is_empty());
 }
 
 // ============================================================================

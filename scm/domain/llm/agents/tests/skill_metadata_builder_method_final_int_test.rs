@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Tests for SkillMetadata::builder() method.
 
 use edge_llm_agent::SkillMetadata;
@@ -6,10 +7,7 @@ use edge_llm_agent::SkillMetadata;
 fn test_skill_metadata_builder_method_returns_builder() {
     // @covers SkillMetadata::builder
     let builder = SkillMetadata::builder();
-    let metadata = builder
-        .name("test_skill")
-        .description("Test skill")
-        .build();
+    let metadata = builder.name("test_skill").description("Test skill").build();
     assert_eq!(metadata.name, "test_skill");
 }
 

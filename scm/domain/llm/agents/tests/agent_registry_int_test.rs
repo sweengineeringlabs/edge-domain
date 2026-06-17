@@ -1,7 +1,8 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Integration tests — `AgentRegistry` trait.
 
-use edge_llm_agent::{Agent, AgentError, AgentMetadata, AgentRegistry, Skill};
 use edge_domain_registry::Registry;
+use edge_llm_agent::{Agent, AgentError, AgentMetadata, AgentRegistry, Skill};
 use std::sync::Arc;
 
 struct DummyAgent;
@@ -20,11 +21,7 @@ impl Agent for DummyAgent {
         "Test agent"
     }
 
-    async fn execute_skill(
-        &self,
-        _skill_name: &str,
-        _input: String,
-    ) -> Result<String, AgentError> {
+    async fn execute_skill(&self, _skill_name: &str, _input: String) -> Result<String, AgentError> {
         Ok("ok".to_string())
     }
 
@@ -42,7 +39,11 @@ impl Registry for TestRegistry {
 
     fn register(&self, _id: &str, _entry: Arc<Self::Value>) {}
 
-    fn try_register(&self, _id: &str, _entry: Arc<Self::Value>) -> Result<(), edge_domain_registry::RegistryError> {
+    fn try_register(
+        &self,
+        _id: &str,
+        _entry: Arc<Self::Value>,
+    ) -> Result<(), edge_domain_registry::RegistryError> {
         Ok(())
     }
 

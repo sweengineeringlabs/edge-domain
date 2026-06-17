@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Integration tests for AGENT_MANAGER_SVC constant and AgentManager trait re-export.
 
 use async_trait::async_trait;
@@ -22,11 +23,7 @@ impl Agent for TestAgent {
         "Test agent for manager testing"
     }
 
-    async fn execute_skill(
-        &self,
-        _skill_name: &str,
-        _input: String,
-    ) -> Result<String, AgentError> {
+    async fn execute_skill(&self, _skill_name: &str, _input: String) -> Result<String, AgentError> {
         Ok("result".to_string())
     }
 
