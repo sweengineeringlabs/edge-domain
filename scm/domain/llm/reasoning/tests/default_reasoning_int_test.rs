@@ -1,4 +1,4 @@
-//! ADR-037 connection tests — `ReasoningEndpoint` as both `Handler` and `Service`.
+//! ADR-037 connection tests — `DefaultReasoning` as both `Handler` and `Service`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
@@ -8,15 +8,15 @@ use edge_domain_handler::{Handler, HandlerContext};
 use edge_domain_security::SecurityContext;
 use edge_domain_service::{Service, ServiceRegistry};
 use edge_llm_reasoning::{
-    ReasoningEndpoint, ReasoningFactory, ReasoningPattern, StdReasoningFactory, ThinkingProcess,
+    DefaultReasoning, ReasoningFactory, ReasoningPattern, StdReasoningFactory, ThinkingProcess,
 };
 use futures::executor::block_on;
 
-fn endpoint() -> ReasoningEndpoint {
+fn endpoint() -> DefaultReasoning {
     StdReasoningFactory::endpoint(ReasoningPattern::ChainOfThought)
 }
 
-/// @covers: ReasoningEndpoint (Service face) — Service → Dispatch → Handler → core
+/// @covers: DefaultReasoning (Service face) — Service → Dispatch → Handler → core
 #[test]
 fn test_service_execute_delegates_through_handler_happy() {
     let ep = endpoint();
@@ -25,7 +25,7 @@ fn test_service_execute_delegates_through_handler_happy() {
     assert_eq!(out.conclusion.as_deref(), Some("conclusion for: solve x"));
 }
 
-/// @covers: ReasoningEndpoint (Handler face) — runs core under a request context
+/// @covers: DefaultReasoning (Handler face) — runs core under a request context
 #[test]
 fn test_handler_execute_runs_core_happy() {
     let ep = endpoint();
@@ -40,7 +40,7 @@ fn test_handler_execute_runs_core_happy() {
     assert_eq!(out.step_count(), 3);
 }
 
-/// @covers: ReasoningEndpoint — dispatch id and service name are distinct identifiers
+/// @covers: DefaultReasoning — dispatch id and service name are distinct identifiers
 #[test]
 fn test_endpoint_handler_id_and_service_name_distinct() {
     let ep = endpoint();
@@ -49,7 +49,7 @@ fn test_endpoint_handler_id_and_service_name_distinct() {
     assert_ne!(Handler::id(&ep), Service::name(&ep));
 }
 
-/// @covers: ReasoningEndpoint — consumer resolves it from a ServiceRegistry by name
+/// @covers: DefaultReasoning — consumer resolves it from a ServiceRegistry by name
 #[test]
 fn test_endpoint_resolves_from_service_registry() {
     let registry: ServiceRegistry<String, ThinkingProcess> = ServiceRegistry::new();
@@ -64,7 +64,7 @@ fn test_endpoint_resolves_from_service_registry() {
     assert!((confidence - 0.9).abs() < 0.001);
 }
 
-/// @covers: ReasoningEndpoint — unregistered name resolves to nothing
+/// @covers: DefaultReasoning — unregistered name resolves to nothing
 #[test]
 fn test_endpoint_unknown_name_returns_none_edge() {
     let registry: ServiceRegistry<String, ThinkingProcess> = ServiceRegistry::new();
@@ -72,7 +72,7 @@ fn test_endpoint_unknown_name_returns_none_edge() {
     assert!(registry.get("nope").is_none());
 }
 
-/// @covers: ReasoningEndpoint (Service face) — blank problem fails through the pipeline
+/// @covers: DefaultReasoning (Service face) — blank problem fails through the pipeline
 #[test]
 fn test_service_execute_blank_problem_errors_error() {
     let ep = endpoint();

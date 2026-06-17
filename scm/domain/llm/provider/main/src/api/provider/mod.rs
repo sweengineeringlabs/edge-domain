@@ -9,7 +9,7 @@ pub use traits::{ExecutionModel, Provider, ProviderFactory, StreamHandler};
 pub use types::{
     BufferedStreamHandler, EchoExecutionModel, ExecutionConfig, ExecutionConfigBuilder,
     ExecutionMode, ExecutionStepResult, FinishReason, ModelFamily, ModelInfo, ModelInfoBuilder,
-    ProviderConfig, ProviderConfigBuilder, ProviderEndpoint, StaticProvider, StdProviderFactory,
+    ProviderConfig, ProviderConfigBuilder, DefaultProvider, StaticProvider, StdProviderFactory,
     StreamChunk, StreamDelta, TokenUsage, TokenUsageBuilder, TokenizerAccuracy, ToolCallDelta,
     ToolCallDeltaBuilder,
 };

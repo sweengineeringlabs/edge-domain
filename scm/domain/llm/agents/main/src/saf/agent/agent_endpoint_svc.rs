@@ -1,6 +1,6 @@
-//! Service export for the `AgentEndpoint` type (ADR-037 connection).
+//! Service export for the `DefaultAgent` type (ADR-037 connection).
 
-pub use crate::api::AgentEndpoint;
+pub use crate::api::DefaultAgent;
 
-/// Service identifier for AgentEndpoint discovery.
+/// Service identifier for DefaultAgent discovery.
 pub const AGENT_ENDPOINT_SVC: &str = "agent_endpoint";

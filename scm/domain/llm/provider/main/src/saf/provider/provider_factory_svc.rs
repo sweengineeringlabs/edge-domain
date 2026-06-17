@@ -1,7 +1,7 @@
 pub use crate::api::ExecutionConfigBuilder;
 pub use crate::api::ModelInfoBuilder;
 pub use crate::api::ProviderConfigBuilder;
-pub use crate::api::ProviderEndpoint;
+pub use crate::api::DefaultProvider;
 pub use crate::api::ProviderFactory;
 pub use crate::api::StdProviderFactory;
 pub use crate::api::TokenUsageBuilder;

@@ -1,4 +1,4 @@
-//! `ReasoningEndpoint` — connects the reasoning primitive to the edge dispatch pipeline.
+//! `DefaultReasoning` — connects the reasoning primitive to the edge dispatch pipeline.
 //!
 //! Per ADR-037 this single type carries both faces of a connected native:
 //! it implements `Handler` (register the domain + ride the dispatch pipeline)
@@ -12,11 +12,11 @@ use crate::api::reasoning::types::LinearReasoning;
 /// Wraps a [`LinearReasoning`] and exposes it as both a dispatchable
 /// `Handler` and a typed `Service`.
 #[derive(Clone, Debug)]
-pub struct ReasoningEndpoint {
+pub struct DefaultReasoning {
     pub(crate) reasoner: LinearReasoning,
 }
 
-impl ReasoningEndpoint {
+impl DefaultReasoning {
     /// Construct an endpoint over the given reference reasoner.
     pub fn new(reasoner: LinearReasoning) -> Self {
         Self { reasoner }

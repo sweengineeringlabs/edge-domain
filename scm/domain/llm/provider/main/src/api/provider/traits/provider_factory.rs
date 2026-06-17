@@ -2,7 +2,7 @@
 
 use crate::api::provider::types::{
     BufferedStreamHandler, EchoExecutionModel, ExecutionConfig, ExecutionConfigBuilder, ModelInfo,
-    ModelInfoBuilder, ProviderConfig, ProviderConfigBuilder, ProviderEndpoint, StaticProvider,
+    ModelInfoBuilder, ProviderConfig, ProviderConfigBuilder, DefaultProvider, StaticProvider,
     StdProviderFactory, TokenUsageBuilder, ToolCallDeltaBuilder,
 };
 
@@ -55,9 +55,9 @@ pub trait ProviderFactory {
         BufferedStreamHandler::new()
     }
 
-    /// Construct a pipeline [`ProviderEndpoint`] (the connected Handler + Service
+    /// Construct a pipeline [`DefaultProvider`] (the connected Handler + Service
     /// face) over an execution model built from `config`.
-    fn endpoint(config: ExecutionConfig) -> ProviderEndpoint {
-        ProviderEndpoint::new(EchoExecutionModel::new(config))
+    fn endpoint(config: ExecutionConfig) -> DefaultProvider {
+        DefaultProvider::new(EchoExecutionModel::new(config))
     }
 }

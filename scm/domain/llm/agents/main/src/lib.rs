@@ -14,7 +14,7 @@ mod saf;
 
 // Trait + service exports via the SAF surface (Agent, Skill, lifecycle, etc.).
 pub use saf::{
-    Agent, AgentEndpoint, AgentError, AgentLifecycle, AgentManager, AgentMetadata,
+    Agent, DefaultAgent, AgentError, AgentLifecycle, AgentManager, AgentMetadata,
     AgentMetadataBuilder, AgentRegistry, NoopAgent, NoopAgentLifecycle, NoopAgentManager,
     NoopAgentRegistry, NoopSchemaValidator, NoopSkill, NoopValidator, Parameter, SchemaValidator,
     Skill, SkillMetadata, SkillMetadataBuilder, Validator, AGENT_ENDPOINT_SVC, AGENT_ERROR_SVC,

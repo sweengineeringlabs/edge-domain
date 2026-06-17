@@ -1,4 +1,4 @@
-//! `Handler` + `Service` impls for `PromptEndpoint` (ADR-037 connection).
+//! `Handler` + `Service` impls for `DefaultPrompt` (ADR-037 connection).
 
 use async_trait::async_trait;
 use futures::future::BoxFuture;
@@ -9,7 +9,7 @@ use edge_domain_security::SecurityContext;
 use edge_domain_service::{Service, ServiceError};
 
 use crate::api::Prompt;
-use crate::api::{PromptEndpoint, RenderContext};
+use crate::api::{DefaultPrompt, RenderContext};
 
 /// Stable handler id under which the endpoint registers for dispatch.
 const PROMPT_HANDLER_ID: &str = "prompt.render";
@@ -19,7 +19,7 @@ const PROMPT_HANDLER_PATTERN: &str = "prompt/render";
 const PROMPT_SERVICE_NAME: &str = "prompt";
 
 #[async_trait]
-impl Handler for PromptEndpoint {
+impl Handler for DefaultPrompt {
     type Request = RenderContext;
     type Response = String;
 
@@ -43,7 +43,7 @@ impl Handler for PromptEndpoint {
     }
 }
 
-impl Service for PromptEndpoint {
+impl Service for DefaultPrompt {
     type Request = RenderContext;
     type Response = String;
 
@@ -75,7 +75,7 @@ mod tests {
     use crate::api::{PromptMetadata, Variable, VariableType};
     use futures::executor::block_on;
 
-    fn endpoint() -> PromptEndpoint {
+    fn endpoint() -> DefaultPrompt {
         let var = Variable::new("name".to_string(), VariableType::String);
         let metadata = PromptMetadata::new(
             "greet".to_string(),
@@ -83,7 +83,7 @@ mod tests {
             "1".to_string(),
             vec![var],
         );
-        PromptEndpoint::new(crate::api::StaticPrompt::new(
+        DefaultPrompt::new(crate::api::StaticPrompt::new(
             "Hello {{name}}".to_string(),
             metadata,
         ))

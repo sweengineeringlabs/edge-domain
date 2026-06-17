@@ -7,7 +7,7 @@ pub use context_manager_svc::{
     ContextManager, MapContextManager, Variable, VariableType, CONTEXT_MANAGER_SVC,
 };
 pub use prompt_factory_svc::{
-    PromptCacheBuilder, PromptEndpoint, PromptFactory, PromptMetadataBuilder, StdPromptFactory,
+    PromptCacheBuilder, DefaultPrompt, PromptFactory, PromptMetadataBuilder, StdPromptFactory,
     VariableBuilder, PROMPT_FACTORY_SVC,
 };
 pub use prompt_svc::{

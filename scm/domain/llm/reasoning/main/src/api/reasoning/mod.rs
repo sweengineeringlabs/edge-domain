@@ -8,7 +8,7 @@ pub use errors::ReasoningError;
 pub use traits::{Reasoning, ReasoningFactory};
 pub use types::{
     LinearReasoning, PatternMetadata, PatternMetadataBuilder, ReasoningChain,
-    ReasoningChainBuilder, ReasoningEndpoint, ReasoningPattern, ReasoningStep,
+    ReasoningChainBuilder, DefaultReasoning, ReasoningPattern, ReasoningStep,
     ReasoningStepBuilder, StdReasoningFactory, StepResult, StepResultBuilder, ThinkingProcess,
     ThinkingProcessBuilder,
 };

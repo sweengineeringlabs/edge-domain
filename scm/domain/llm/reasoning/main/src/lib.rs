@@ -15,7 +15,7 @@ mod saf;
 
 pub use saf::{
     LinearReasoning, PatternMetadata, PatternMetadataBuilder, Reasoning, ReasoningChain,
-    ReasoningChainBuilder, ReasoningEndpoint, ReasoningError, ReasoningFactory, ReasoningPattern,
+    ReasoningChainBuilder, DefaultReasoning, ReasoningError, ReasoningFactory, ReasoningPattern,
     ReasoningStep, ReasoningStepBuilder, StdReasoningFactory, StepResult, StepResultBuilder,
     ThinkingProcess, ThinkingProcessBuilder, REASONING_FACTORY_SVC, REASONING_SVC,
 };

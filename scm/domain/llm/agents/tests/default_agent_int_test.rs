@@ -1,4 +1,4 @@
-//! ADR-037 connection tests — `AgentEndpoint` as both `Handler` and `Service`.
+//! ADR-037 connection tests — `DefaultAgent` as both `Handler` and `Service`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
@@ -7,14 +7,14 @@ use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
 use edge_domain_handler::{Handler, HandlerContext};
 use edge_domain_security::SecurityContext;
 use edge_domain_service::{Service, ServiceRegistry};
-use edge_llm_agent::{AgentEndpoint, AgentManager, NoopAgentManager};
+use edge_llm_agent::{DefaultAgent, AgentManager, NoopAgentManager};
 use futures::executor::block_on;
 
-fn endpoint() -> AgentEndpoint {
-    AgentEndpoint::new("code_review")
+fn endpoint() -> DefaultAgent {
+    DefaultAgent::new("code_review")
 }
 
-/// @covers: AgentEndpoint (Service face) — Service → Dispatch → Handler → core
+/// @covers: DefaultAgent (Service face) — Service → Dispatch → Handler → core
 #[test]
 fn test_service_execute_delegates_through_handler_happy() {
     let ep = endpoint();
@@ -22,7 +22,7 @@ fn test_service_execute_delegates_through_handler_happy() {
     assert_eq!(out, "code_review:diff");
 }
 
-/// @covers: AgentEndpoint (Handler face) — runs core under a request context
+/// @covers: DefaultAgent (Handler face) — runs core under a request context
 #[test]
 fn test_handler_execute_runs_core_happy() {
     let ep = endpoint();
@@ -36,7 +36,7 @@ fn test_handler_execute_runs_core_happy() {
     assert_eq!(out, "code_review:diff");
 }
 
-/// @covers: AgentEndpoint — dispatch id and service name are distinct identifiers
+/// @covers: DefaultAgent — dispatch id and service name are distinct identifiers
 #[test]
 fn test_endpoint_handler_id_and_service_name_distinct() {
     let ep = endpoint();
@@ -44,7 +44,7 @@ fn test_endpoint_handler_id_and_service_name_distinct() {
     assert_eq!(Service::name(&ep), "agent");
 }
 
-/// @covers: AgentEndpoint — consumer resolves it from a ServiceRegistry by name
+/// @covers: DefaultAgent — consumer resolves it from a ServiceRegistry by name
 #[test]
 fn test_endpoint_resolves_from_service_registry_happy() {
     let registry: ServiceRegistry<String, String> = ServiceRegistry::new();
@@ -57,7 +57,7 @@ fn test_endpoint_resolves_from_service_registry_happy() {
     assert_eq!(out, "code_review:diff");
 }
 
-/// @covers: AgentEndpoint — Service surfaces a Handler failure as ServiceError
+/// @covers: DefaultAgent — Service surfaces a Handler failure as ServiceError
 #[test]
 fn test_service_execute_empty_input_returns_error() {
     let ep = endpoint();
@@ -69,7 +69,7 @@ fn test_service_execute_empty_input_returns_error() {
     ));
 }
 
-/// @covers: AgentEndpoint — unregistered name resolves to nothing
+/// @covers: DefaultAgent — unregistered name resolves to nothing
 #[test]
 fn test_endpoint_unknown_name_returns_none_edge() {
     let registry: ServiceRegistry<String, String> = ServiceRegistry::new();

@@ -8,7 +8,7 @@ pub use execution_model_svc::{
     EXECUTION_MODEL_SVC,
 };
 pub use provider_factory_svc::{
-    ExecutionConfigBuilder, ModelInfoBuilder, ProviderConfigBuilder, ProviderEndpoint,
+    ExecutionConfigBuilder, ModelInfoBuilder, ProviderConfigBuilder, DefaultProvider,
     ProviderFactory, StdProviderFactory, TokenUsageBuilder, ToolCallDeltaBuilder,
     PROVIDER_FACTORY_SVC,
 };
