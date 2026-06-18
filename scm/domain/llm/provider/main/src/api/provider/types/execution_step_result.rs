@@ -13,8 +13,8 @@ pub struct ExecutionStepResult {
     /// Confidence level (0.0..=1.0)
     pub confidence: f32,
 
-    /// Token usage for this step
-    pub tokens_used: TokenUsage,
+    /// Token usage for this step (None when the model does not report usage)
+    pub tokens_used: Option<TokenUsage>,
 }
 
 impl ExecutionStepResult {
@@ -23,7 +23,7 @@ impl ExecutionStepResult {
         reasoning: String,
         action: Option<String>,
         confidence: f32,
-        tokens_used: TokenUsage,
+        tokens_used: Option<TokenUsage>,
     ) -> Self {
         Self {
             reasoning,

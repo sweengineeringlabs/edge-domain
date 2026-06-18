@@ -11,12 +11,12 @@ use crate::api::provider::types::{ModelInfo, ProviderConfig};
 #[derive(Clone, Debug)]
 pub struct StaticProvider {
     pub(crate) config: ProviderConfig,
-    pub(crate) model: ModelInfo,
+    pub(crate) model: Option<ModelInfo>,
 }
 
 impl StaticProvider {
     /// Construct a provider that reports the given config and model metadata.
     pub fn new(config: ProviderConfig, model: ModelInfo) -> Self {
-        Self { config, model }
+        Self { config, model: Some(model) }
     }
 }

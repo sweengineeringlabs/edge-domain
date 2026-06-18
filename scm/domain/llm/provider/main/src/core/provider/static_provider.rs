@@ -17,11 +17,11 @@ impl Provider for StaticProvider {
     }
 
     fn model_info(&self) -> ModelInfo {
-        self.model.clone()
+        self.model.clone().unwrap_or_default()
     }
 
     fn model_family(&self) -> ModelFamily {
-        self.model.family
+        self.model.as_ref().map(|m| m.family).unwrap_or_default()
     }
 
     fn tokenizer_accuracy(&self) -> TokenizerAccuracy {

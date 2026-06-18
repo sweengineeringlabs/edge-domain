@@ -1,43 +1,41 @@
 use crate::api::provider::types::ToolCallDelta;
 use serde::{Deserialize, Serialize};
 
-/// Incremental update in a streamed response
+/// Incremental update in a streamed response.
+///
+/// A delta is one of three exclusive variants:
+/// - [`StreamDelta::Text`] — a text fragment
+/// - [`StreamDelta::ToolCalls`] — one or more tool call deltas
+/// - [`StreamDelta::Empty`] — no content (e.g. a heartbeat chunk)
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct StreamDelta {
-    /// Text content (if text streaming)
-    pub content: Option<String>,
-
-    /// Tool call deltas (if tool streaming)
-    pub tool_calls: Vec<ToolCallDelta>,
+#[serde(tag = "type", content = "data", rename_all = "snake_case")]
+pub enum StreamDelta {
+    /// Text content fragment
+    Text(String),
+    /// Tool call deltas
+    ToolCalls(Vec<ToolCallDelta>),
+    /// Empty delta
+    Empty,
 }
 
 impl StreamDelta {
     /// Create a text delta
     pub fn text(content: String) -> Self {
-        Self {
-            content: Some(content),
-            tool_calls: vec![],
-        }
+        Self::Text(content)
     }
 
     /// Create a tool call delta
     pub fn tool_calls(calls: Vec<ToolCallDelta>) -> Self {
-        Self {
-            content: None,
-            tool_calls: calls,
-        }
+        Self::ToolCalls(calls)
     }
 
     /// Create an empty delta
     pub fn empty() -> Self {
-        Self {
-            content: None,
-            tool_calls: vec![],
-        }
+        Self::Empty
     }
 
-    /// Check if delta has content
+    /// Check if delta carries no content
     pub fn is_empty(&self) -> bool {
-        self.content.is_none() && self.tool_calls.is_empty()
+        matches!(self, Self::Empty)
     }
 }

@@ -29,6 +29,7 @@ serde_json.workspace = true
 futures.workspace = true
 edge-domain-security.workspace = true
 edge-domain-command.workspace = true
+tempfile = "3"
 
 [lints.rust]
 unsafe_code = "deny"

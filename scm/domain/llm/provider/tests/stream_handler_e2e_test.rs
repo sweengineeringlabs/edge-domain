@@ -19,7 +19,7 @@ fn test_accumulate_appends_text_happy() {
     h.accumulate(StreamDelta::text("world".to_string()));
     let chunk = h.next_chunk().expect("chunk");
     let _ = h; // handler consumed below via chunk
-    assert_eq!(chunk.delta.content.as_deref(), Some("hello "));
+    assert!(matches!(chunk.delta, StreamDelta::Text(ref s) if s == "hello "));
 }
 
 /// @covers: StreamHandler::accumulate — empty delta still produces a chunk

@@ -23,7 +23,7 @@ impl ExecutionModel for EchoExecutionModel {
             format!("reasoning toward: {goal}"),
             action,
             0.9,
-            TokenUsage::new(0, 0, 0, 0),
+            Some(TokenUsage::new(0, 0, 0, 0)),
         ))
     }
 

@@ -12,11 +12,14 @@ impl StreamHandler for BufferedStreamHandler {
     }
 
     fn accumulate(&mut self, delta: StreamDelta) {
-        if let Some(text) = &delta.content {
-            self.buffer.push_str(text);
-        }
-        if let Some(call) = delta.tool_calls.into_iter().next() {
-            self.pending = Some(call);
+        match delta {
+            StreamDelta::Text(text) => self.buffer.push_str(&text),
+            StreamDelta::ToolCalls(calls) => {
+                if let Some(call) = calls.into_iter().next() {
+                    self.pending = Some(call);
+                }
+            }
+            StreamDelta::Empty => {}
         }
         let terminal = self.pending.is_none() && !self.buffer.is_empty();
         let chunk = StreamChunk::new(
