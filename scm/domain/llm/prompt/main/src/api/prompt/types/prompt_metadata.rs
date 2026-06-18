@@ -2,7 +2,7 @@ use crate::api::prompt::types::Variable;
 use serde::{Deserialize, Serialize};
 
 /// Metadata about a prompt template
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct PromptMetadata {
     /// Unique identifier for this template
     pub id: String,

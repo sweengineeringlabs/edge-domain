@@ -20,7 +20,7 @@ impl Prompt for StaticPrompt {
     }
 
     fn metadata(&self) -> PromptMetadata {
-        self.metadata.clone()
+        self.metadata.clone().unwrap_or_default()
     }
 
     fn validate(&self) -> Result<(), PromptError> {
@@ -38,19 +38,12 @@ impl Prompt for StaticPrompt {
     }
 
     fn variable_type(&self, name: &str) -> Option<VariableType> {
-        self.metadata
-            .variables
-            .iter()
-            .find(|v| v.name == name)
-            .map(|v| v.var_type)
+        self.metadata.as_ref()?.variables.iter().find(|v| v.name == name).map(|v| v.var_type)
     }
 
     fn cache(&self, context: &RenderContext, rendered: String) -> PromptCache {
-        let key = format!(
-            "{}::{}",
-            self.metadata.id,
-            context.template_id.as_deref().unwrap_or("")
-        );
+        let meta_id = self.metadata.as_ref().map(|m| m.id.as_str()).unwrap_or("");
+        let key = format!("{}::{}", meta_id, context.template_id.as_deref().unwrap_or(""));
         let token_count = rendered.len();
         PromptCache::new(key, rendered, token_count)
     }
