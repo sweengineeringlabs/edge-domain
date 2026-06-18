@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 /// LLM model family/provider
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub enum ModelFamily {
     /// Anthropic Claude models
     #[serde(rename = "anthropic")]
@@ -20,6 +20,7 @@ pub enum ModelFamily {
     OpenSource,
 
     /// Other providers
+    #[default]
     #[serde(rename = "other")]
     Other,
 }

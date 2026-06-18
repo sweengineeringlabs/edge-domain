@@ -2,6 +2,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_provider::ProviderConfig;
+use swe_edge_configbuilder::ConfigSection;
 
 /// @covers: ProviderConfig::new — sets core fields correctly
 #[test]
@@ -27,4 +28,18 @@ fn test_provider_config_serde_roundtrip_edge() {
     let json = serde_json::to_string(&config).expect("serialize");
     let back: ProviderConfig = serde_json::from_str(&json).expect("deserialize");
     assert_eq!(back.model, "gpt-4");
+}
+
+/// @covers: ProviderConfig::section_name — TOML section key is stable
+#[test]
+fn test_provider_config_section_name_stable_happy() {
+    assert_eq!(ProviderConfig::section_name(), "llm.provider");
+}
+
+/// @covers: ProviderConfig — Default produces empty config
+#[test]
+fn test_provider_config_default_is_empty_edge() {
+    let cfg = ProviderConfig::default();
+    assert!(cfg.model.is_empty());
+    assert!(!cfg.supports_vision);
 }

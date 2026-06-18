@@ -1,7 +1,8 @@
 use serde::{Deserialize, Serialize};
+use swe_edge_configbuilder::ConfigSection;
 
 /// Provider configuration
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct ProviderConfig {
     /// Model name/ID
     pub model: String,
@@ -37,5 +38,11 @@ impl ProviderConfig {
             supports_functions: false,
             supports_streaming: false,
         }
+    }
+}
+
+impl ConfigSection for ProviderConfig {
+    fn section_name() -> &'static str { // @allow: no_stub_fn_bodies — TOML section key for this type
+        "llm.provider"
     }
 }

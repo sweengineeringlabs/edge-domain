@@ -1,8 +1,9 @@
 use crate::api::provider::types::ModelFamily;
 use serde::{Deserialize, Serialize};
+use swe_edge_configbuilder::ConfigSection;
 
 /// LLM model metadata
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct ModelInfo {
     /// Model ID (e.g., "gpt-4-turbo")
     pub id: String,
@@ -42,5 +43,11 @@ impl ModelInfo {
             supports_streaming: false,
             training_cutoff: None,
         }
+    }
+}
+
+impl ConfigSection for ModelInfo {
+    fn section_name() -> &'static str { // @allow: no_stub_fn_bodies — TOML section key for this type
+        "llm.model"
     }
 }

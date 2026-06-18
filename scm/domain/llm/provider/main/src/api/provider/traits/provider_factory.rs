@@ -1,9 +1,8 @@
 //! `ProviderFactory` — constructor contract for the default provider primitives.
 
 use crate::api::provider::types::{
-    BufferedStreamHandler, EchoExecutionModel, ExecutionConfig, ExecutionConfigBuilder, ModelInfo,
-    ModelInfoBuilder, ProviderConfig, ProviderConfigBuilder, StaticProvider, StdProviderFactory,
-    TokenUsageBuilder, ToolCallDeltaBuilder,
+    BufferedStreamHandler, EchoExecutionModel, ExecutionConfig, ModelInfo, ProviderConfig,
+    StaticProvider, StdProviderFactory,
 };
 
 /// Factory for the standard reference implementations.
@@ -13,31 +12,6 @@ pub trait ProviderFactory {
     /// Return the standard provider-factory instance.
     fn std_factory() -> StdProviderFactory {
         StdProviderFactory
-    }
-
-    /// Start a fluent [`ExecutionConfigBuilder`].
-    fn execution_config_builder() -> ExecutionConfigBuilder {
-        ExecutionConfigBuilder::new()
-    }
-
-    /// Start a fluent [`ProviderConfigBuilder`].
-    fn provider_config_builder() -> ProviderConfigBuilder {
-        ProviderConfigBuilder::new()
-    }
-
-    /// Start a fluent [`ModelInfoBuilder`].
-    fn model_info_builder() -> ModelInfoBuilder {
-        ModelInfoBuilder::new()
-    }
-
-    /// Start a fluent [`TokenUsageBuilder`].
-    fn token_usage_builder() -> TokenUsageBuilder {
-        TokenUsageBuilder::new()
-    }
-
-    /// Start a fluent [`ToolCallDeltaBuilder`] at the given stream index.
-    fn tool_call_delta_builder(index: usize) -> ToolCallDeltaBuilder {
-        ToolCallDeltaBuilder::new(index)
     }
 
     /// Construct the reference [`StaticProvider`] from config and model metadata.
@@ -54,5 +28,4 @@ pub trait ProviderFactory {
     fn stream_handler() -> BufferedStreamHandler {
         BufferedStreamHandler::new()
     }
-
 }
