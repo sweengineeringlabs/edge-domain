@@ -1,24 +1,20 @@
 //! `ProviderEndpoint` — connects the provider primitive to the edge dispatch pipeline.
-//!
-//! Per ADR-037 this single type carries both faces of a connected native:
-//! it implements `Handler` (register the domain + ride the dispatch pipeline)
-//! and `Service` (typed, named consumption), with the `Service` face delegating
-//! into the `Handler` (Service → Dispatch → Handler → core).
 
-use crate::api::provider::types::EchoExecutionModel;
+use std::sync::Arc;
+
+use crate::api::provider::traits::ExecutionModel;
 
 /// Pipeline endpoint for the provider primitive.
 ///
-/// Wraps an [`EchoExecutionModel`] and exposes it as both a dispatchable
-/// `Handler` and a typed `Service`.
-#[derive(Clone, Debug)]
+/// Wraps an [`ExecutionModel`] trait object and exposes it as a dispatchable
+/// `Handler` (ADR-024).
 pub struct ProviderEndpoint {
-    pub(crate) model: EchoExecutionModel,
+    pub(crate) model: Arc<dyn ExecutionModel>,
 }
 
 impl ProviderEndpoint {
     /// Construct an endpoint over the given execution model.
-    pub fn new(model: EchoExecutionModel) -> Self {
+    pub fn new(model: Arc<dyn ExecutionModel>) -> Self {
         Self { model }
     }
 }

@@ -1,22 +1,15 @@
-﻿//! `Handler` + `Service` impls for `ReasoningEndpoint` (ADR-037 connection).
+//! `Handler` impl for `ReasoningEndpoint` (ADR-024).
 
 use async_trait::async_trait;
-use futures::future::BoxFuture;
 
-use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
-use edge_domain_security::SecurityContext;
-use edge_domain_service::{Service, ServiceError};
 
-use crate::api::Reasoning;
 use crate::api::{ReasoningEndpoint, ReasoningPattern, ThinkingProcess};
 
 /// Stable handler id under which the endpoint registers for dispatch.
 const REASONING_HANDLER_ID: &str = "reasoning.reason";
 /// Route pattern this endpoint matches in the dispatch table.
 const REASONING_HANDLER_PATTERN: &str = "reasoning/reason";
-/// Stable service name under which consumers resolve this endpoint.
-const REASONING_SERVICE_NAME: &str = "reasoning";
 /// Default reasoning pattern applied when the pipeline carries no explicit one.
 const REASONING_DEFAULT_PATTERN: ReasoningPattern = ReasoningPattern::ChainOfThought;
 
@@ -45,57 +38,46 @@ impl Handler for ReasoningEndpoint {
     }
 }
 
-impl Service for ReasoningEndpoint {
-    type Request = String;
-    type Response = ThinkingProcess;
-
-    fn name(&self) -> &str {
-        REASONING_SERVICE_NAME
-    }
-
-    fn execute(&self, problem: String) -> BoxFuture<'_, Result<ThinkingProcess, ServiceError>> {
-        // ADR-037: Service → Dispatch → Handler → core. This in-crate reference
-        // builds a default request context; in production the dispatch runtime
-        // supplies the per-request `HandlerContext` (security + command bus).
-        Box::pin(async move {
-            let security = SecurityContext::unauthenticated();
-            let commands = StdCommandBusFactory::direct();
-            let ctx = HandlerContext {
-                security: &security,
-                commands: &commands,
-            };
-            Handler::execute(self, problem, ctx)
-                .await
-                .map_err(|e| ServiceError::Internal(e.to_string()))
-        })
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::sync::Arc;
     use crate::api::LinearReasoning;
+    use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+    use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
 
     fn endpoint() -> ReasoningEndpoint {
-        ReasoningEndpoint::new(LinearReasoning::new(ReasoningPattern::ChainOfThought))
+        ReasoningEndpoint::new(Arc::new(LinearReasoning::new(ReasoningPattern::ChainOfThought)))
     }
 
     #[test]
-    fn test_service_delegates_to_handler() {
-        let out = block_on(Service::execute(&endpoint(), "solve x".to_string()))
-            .expect("service should succeed");
+    fn test_handler_execute_returns_complete_process_happy() {
+        let security = SecurityContext::unauthenticated();
+        let commands = StdCommandBusFactory::direct();
+        let ctx = HandlerContext { security: &security, commands: &commands };
+        let out = block_on(Handler::execute(&endpoint(), "solve x".to_string(), ctx))
+            .expect("handler ok");
         assert!(out.is_complete);
         assert!(out.conclusion.is_some());
     }
 
     #[test]
-    fn test_handler_id_is_stable() {
+    fn test_handler_id_is_stable_edge() {
         assert_eq!(Handler::id(&endpoint()), REASONING_HANDLER_ID);
     }
 
     #[test]
-    fn test_service_rejects_blank_problem() {
-        assert!(block_on(Service::execute(&endpoint(), "   ".to_string())).is_err());
+    fn test_handler_pattern_is_stable_edge() {
+        assert_eq!(Handler::pattern(&endpoint()), REASONING_HANDLER_PATTERN);
+    }
+
+    #[test]
+    fn test_handler_execute_blank_problem_error() {
+        let security = SecurityContext::unauthenticated();
+        let commands = StdCommandBusFactory::direct();
+        let ctx = HandlerContext { security: &security, commands: &commands };
+        let result = block_on(Handler::execute(&endpoint(), "   ".to_string(), ctx));
+        assert!(result.is_err());
     }
 }

@@ -198,30 +198,40 @@ fn test_token_counter_not_exact_edge() {
 
 // --- endpoint ---
 
-/// @covers: PromptFactory::endpoint — builds a usable Service endpoint
+/// @covers: PromptFactory::endpoint — builds a usable Handler endpoint
 #[test]
-fn test_endpoint_service_renders_happy() {
-    use edge_domain_service::Service;
+fn test_endpoint_handler_renders_happy() {
+    use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+    use edge_domain_handler::{Handler, HandlerContext};
+    use edge_domain_security::SecurityContext;
     use edge_llm_prompt::{RenderContext, Variable};
     use futures::executor::block_on;
     let var = Variable::new("name".to_string(), VariableType::String);
     let m = PromptMetadata::new("g".to_string(), "G".to_string(), "1".to_string(), vec![var]);
     let ep = StdPromptFactory::endpoint("Hi {{name}}".to_string(), m);
-    let ctx = RenderContext::new().with_variable("name".to_string(), serde_json::json!("Ada"));
-    let out = block_on(Service::execute(&ep, ctx)).expect("ok");
+    let security = SecurityContext::unauthenticated();
+    let commands = StdCommandBusFactory::direct();
+    let ctx = HandlerContext { security: &security, commands: &commands };
+    let render_ctx = RenderContext::new().with_variable("name".to_string(), serde_json::json!("Ada"));
+    let out = block_on(Handler::execute(&ep, render_ctx, ctx)).expect("ok");
     assert_eq!(out, "Hi Ada");
 }
 
 /// @covers: PromptFactory::endpoint — missing required variable surfaces an error through the pipeline
 #[test]
 fn test_endpoint_missing_variable_errors_error() {
-    use edge_domain_service::Service;
+    use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+    use edge_domain_handler::{Handler, HandlerContext};
+    use edge_domain_security::SecurityContext;
     use edge_llm_prompt::{RenderContext, Variable};
     use futures::executor::block_on;
     let var = Variable::new("name".to_string(), VariableType::String);
     let m = PromptMetadata::new("g".to_string(), "G".to_string(), "1".to_string(), vec![var]);
     let ep = StdPromptFactory::endpoint("Hi {{name}}".to_string(), m);
-    assert!(block_on(Service::execute(&ep, RenderContext::new())).is_err());
+    let security = SecurityContext::unauthenticated();
+    let commands = StdCommandBusFactory::direct();
+    let ctx = HandlerContext { security: &security, commands: &commands };
+    assert!(block_on(Handler::execute(&ep, RenderContext::new(), ctx)).is_err());
 }
 
 /// @covers: PromptFactory::endpoint — exposes the stable dispatch id

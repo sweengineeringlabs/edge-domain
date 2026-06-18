@@ -181,25 +181,33 @@ fn test_reasoning_chain_builder_final_answer_edge() {
 
 // --- endpoint ---
 
-/// @covers: ReasoningFactory::endpoint — builds a usable Service endpoint
+/// @covers: ReasoningFactory::endpoint — builds a usable Handler endpoint
 #[test]
-fn test_endpoint_service_runs_happy() {
-    use edge_domain_service::Service;
+fn test_endpoint_handler_runs_happy() {
+    use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+    use edge_domain_handler::{Handler, HandlerContext};
+    use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
     let ep = StdReasoningFactory::endpoint(ReasoningPattern::ChainOfThought);
-    let out = block_on(Service::execute(&ep, "solve x".to_string())).expect("ok");
+    let security = SecurityContext::unauthenticated();
+    let commands = StdCommandBusFactory::direct();
+    let ctx = HandlerContext { security: &security, commands: &commands };
+    let out = block_on(Handler::execute(&ep, "solve x".to_string(), ctx)).expect("ok");
     assert!(out.is_complete);
 }
 
 /// @covers: ReasoningFactory::endpoint — pattern mismatch surfaces an error through the pipeline
 #[test]
 fn test_endpoint_pattern_mismatch_errors_error() {
-    use edge_domain_service::Service;
+    use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+    use edge_domain_handler::{Handler, HandlerContext};
+    use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
-    // Endpoint bound to a non-default pattern: the handler reasons with the
-    // default ChainOfThought, which this reasoner does not support.
     let ep = StdReasoningFactory::endpoint(ReasoningPattern::GraphBased);
-    assert!(block_on(Service::execute(&ep, "solve x".to_string())).is_err());
+    let security = SecurityContext::unauthenticated();
+    let commands = StdCommandBusFactory::direct();
+    let ctx = HandlerContext { security: &security, commands: &commands };
+    assert!(block_on(Handler::execute(&ep, "solve x".to_string(), ctx)).is_err());
 }
 
 /// @covers: ReasoningFactory::endpoint — exposes the stable dispatch id

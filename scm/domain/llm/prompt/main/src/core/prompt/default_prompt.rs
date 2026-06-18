@@ -1,22 +1,15 @@
-﻿//! `Handler` + `Service` impls for `PromptEndpoint` (ADR-037 connection).
+//! `Handler` impl for `PromptEndpoint` (ADR-024).
 
 use async_trait::async_trait;
-use futures::future::BoxFuture;
 
-use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
-use edge_domain_security::SecurityContext;
-use edge_domain_service::{Service, ServiceError};
 
-use crate::api::Prompt;
 use crate::api::{PromptEndpoint, RenderContext};
 
 /// Stable handler id under which the endpoint registers for dispatch.
 const PROMPT_HANDLER_ID: &str = "prompt.render";
 /// Route pattern this endpoint matches in the dispatch table.
 const PROMPT_HANDLER_PATTERN: &str = "prompt/render";
-/// Stable service name under which consumers resolve this endpoint.
-const PROMPT_SERVICE_NAME: &str = "prompt";
 
 #[async_trait]
 impl Handler for PromptEndpoint {
@@ -43,36 +36,13 @@ impl Handler for PromptEndpoint {
     }
 }
 
-impl Service for PromptEndpoint {
-    type Request = RenderContext;
-    type Response = String;
-
-    fn name(&self) -> &str {
-        PROMPT_SERVICE_NAME
-    }
-
-    fn execute(&self, context: RenderContext) -> BoxFuture<'_, Result<String, ServiceError>> {
-        // ADR-037: Service → Dispatch → Handler → core. This in-crate reference
-        // builds a default request context; in production the dispatch runtime
-        // supplies the per-request `HandlerContext` (security + command bus).
-        Box::pin(async move {
-            let security = SecurityContext::unauthenticated();
-            let commands = StdCommandBusFactory::direct();
-            let ctx = HandlerContext {
-                security: &security,
-                commands: &commands,
-            };
-            Handler::execute(self, context, ctx)
-                .await
-                .map_err(|e| ServiceError::Internal(e.to_string()))
-        })
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::api::{PromptMetadata, Variable, VariableType};
+    use std::sync::Arc;
+    use crate::api::{PromptMetadata, StaticPrompt, Variable, VariableType};
+    use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+    use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
 
     fn endpoint() -> PromptEndpoint {
@@ -83,27 +53,39 @@ mod tests {
             "1".to_string(),
             vec![var],
         );
-        PromptEndpoint::new(crate::api::StaticPrompt::new(
+        PromptEndpoint::new(Arc::new(StaticPrompt::new(
             "Hello {{name}}".to_string(),
             metadata,
-        ))
+        )))
     }
 
     #[test]
-    fn test_service_delegates_to_handler() {
-        let ctx = RenderContext::new().with_variable("name".to_string(), serde_json::json!("Ada"));
-        let out = block_on(Service::execute(&endpoint(), ctx)).expect("service ok");
+    fn test_handler_execute_renders_template_happy() {
+        let security = SecurityContext::unauthenticated();
+        let commands = StdCommandBusFactory::direct();
+        let ctx = HandlerContext { security: &security, commands: &commands };
+        let context = RenderContext::new().with_variable("name".to_string(), serde_json::json!("Ada"));
+        let out = block_on(Handler::execute(&endpoint(), context, ctx)).expect("handler ok");
         assert_eq!(out, "Hello Ada");
     }
 
     #[test]
-    fn test_handler_id_is_stable() {
+    fn test_handler_id_is_stable_edge() {
         assert_eq!(Handler::id(&endpoint()), PROMPT_HANDLER_ID);
     }
 
     #[test]
-    fn test_service_surfaces_render_error() {
-        let ctx = RenderContext::new();
-        assert!(block_on(Service::execute(&endpoint(), ctx)).is_err());
+    fn test_handler_pattern_is_stable_edge() {
+        assert_eq!(Handler::pattern(&endpoint()), PROMPT_HANDLER_PATTERN);
+    }
+
+    #[test]
+    fn test_handler_execute_missing_variable_error() {
+        let security = SecurityContext::unauthenticated();
+        let commands = StdCommandBusFactory::direct();
+        let ctx = HandlerContext { security: &security, commands: &commands };
+        let empty_ctx = RenderContext::new();
+        let result = block_on(Handler::execute(&endpoint(), empty_ctx, ctx));
+        assert!(result.is_err());
     }
 }
