@@ -55,9 +55,7 @@ full        = [
 [dependencies]
 thiserror.workspace   = true
 async-trait.workspace = true
-futures.workspace     = true
 parking_lot.workspace = true
-tokio.workspace       = true
 tracing.workspace     = true
 
 edge-domain-entity      = { workspace = true, optional = true }

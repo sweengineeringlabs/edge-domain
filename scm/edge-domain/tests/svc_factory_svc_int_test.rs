@@ -8,7 +8,7 @@ use futures::future::BoxFuture;
 use std::sync::Arc;
 
 fn test_ctx<'a>(security: &'a SecurityContext, bus: &'a Arc<dyn CommandBus>) -> HandlerContext<'a> {
-    HandlerContext { security, commands: bus.as_ref() }
+    HandlerContext::new(security, bus.as_ref())
 }
 
 // ─── helpers ─────────────────────────────────────────────────────────────────

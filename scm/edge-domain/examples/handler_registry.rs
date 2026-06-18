@@ -50,7 +50,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let handler = registry.get("greet").expect("handler must be present");
     let security = SecurityContext::unauthenticated();
     let bus = Domain::direct_command_bus();
-    let ctx = HandlerContext { security: &security, commands: bus.as_ref() };
+    let ctx = HandlerContext::new(&security, bus.as_ref());
 
     let resp = handler.execute("world".into(), ctx).await?;
     println!("execute       → {resp}");

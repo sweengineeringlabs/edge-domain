@@ -29,7 +29,7 @@ impl Handler for Doubler {
 async fn test_handler_svc_facade_execute_doubles_input() {
     let security = SecurityContext::unauthenticated();
     let bus = Domain::direct_command_bus();
-    let ctx = HandlerContext { security: &security, commands: bus.as_ref() };
+    let ctx = HandlerContext::new(&security, bus.as_ref());
     assert_eq!(Doubler.execute(21, ctx).await.unwrap(), 42);
 }
 

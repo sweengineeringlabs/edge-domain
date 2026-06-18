@@ -70,7 +70,7 @@ async fn test_domain_echo_handler_returns_input_unchanged() {
     let h = Domain::echo_handler::<String>("e", "/e");
     let security = SecurityContext::unauthenticated();
     let bus = Domain::direct_command_bus();
-    let ctx = HandlerContext { security: &security, commands: bus.as_ref() };
+    let ctx = HandlerContext::new(&security, bus.as_ref());
     let result = h.execute("hello".to_string(), ctx).await;
     assert_eq!(result.unwrap(), "hello");
 }

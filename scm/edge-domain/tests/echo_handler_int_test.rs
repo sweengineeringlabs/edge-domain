@@ -6,7 +6,7 @@ use edge_domain_security::SecurityContext;
 use std::sync::Arc;
 
 fn make_ctx<'a>(security: &'a SecurityContext, bus: &'a Arc<dyn edge_domain::CommandBus>) -> HandlerContext<'a> {
-    HandlerContext { security, commands: bus.as_ref() }
+    HandlerContext::new(security, bus.as_ref())
 }
 
 /// @covers: echo_handler

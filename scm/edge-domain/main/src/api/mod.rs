@@ -4,7 +4,11 @@
 
 // ── domain (never extracted; always internal) ─────────────────────────────────
 mod domain;
-pub use domain::{Domain, DomainExtension, DomainFactory, NoopDomainExtension, OutboundRegistry};
+pub use domain::{Domain, DomainError, DomainExtension, DomainFactory, NoopDomainExtension, OutboundRegistry};
+
+// ── spi ───────────────────────────────────────────────────────────────────────
+mod spi;
+pub use spi::DomainSpi;
 
 // ── clock ─────────────────────────────────────────────────────────────────────
 #[cfg(feature = "clock")]

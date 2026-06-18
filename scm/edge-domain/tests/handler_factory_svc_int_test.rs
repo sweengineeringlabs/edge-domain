@@ -55,6 +55,6 @@ async fn test_handler_factory_svc_facade_built_handler_executes() {
     .unwrap();
     let security = SecurityContext::unauthenticated();
     let bus = edge_domain::Domain::direct_command_bus();
-    let ctx = HandlerContext { security: &security, commands: bus.as_ref() };
+    let ctx = HandlerContext::new(&security, bus.as_ref());
     assert_eq!(h.execute((), ctx).await.unwrap(), "echo");
 }

@@ -126,17 +126,17 @@ impl Domain {
         Arc::new(InProcessHandlerRegistry::new())
     }
 
-    /// Construct a paired `(H1, H2)` from a shared backend `Arc<B>`.
+    /// Construct a paired `(T, U)` from a shared backend `Arc<B>`.
     ///
     /// Both closures receive `Arc::clone(&backend)`, ensuring writes through
-    /// `H1` are visible to reads through `H2` when both share an in-memory
+    /// `T` are visible to reads through `U` when both share an in-memory
     /// store. Without this, two separate `from_config()` calls create
     /// independent backend instances and writes are invisible across them.
-    pub fn paired<B: ?Sized, H1, H2>(
+    pub fn paired<B: ?Sized, T, U>(
         backend: Arc<B>,
-        make_first: impl FnOnce(Arc<B>) -> H1,
-        make_second: impl FnOnce(Arc<B>) -> H2,
-    ) -> (H1, H2) {
+        make_first: impl FnOnce(Arc<B>) -> T,
+        make_second: impl FnOnce(Arc<B>) -> U,
+    ) -> (T, U) {
         let first = make_first(Arc::clone(&backend));
         let second = make_second(backend);
         (first, second)

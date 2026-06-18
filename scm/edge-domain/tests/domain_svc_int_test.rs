@@ -20,7 +20,7 @@ async fn test_echo_handler_returns_input_as_output() {
     let h = Domain::echo_handler::<String>("echo", "/echo");
     let security = SecurityContext::unauthenticated();
     let bus = Domain::direct_command_bus();
-    let ctx = HandlerContext { security: &security, commands: bus.as_ref() };
+    let ctx = HandlerContext::new(&security, bus.as_ref());
     assert_eq!(h.execute("ping".into(), ctx).await.unwrap(), "ping");
 }
 
