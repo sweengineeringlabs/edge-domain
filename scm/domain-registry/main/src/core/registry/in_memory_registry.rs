@@ -2,9 +2,9 @@
 
 use std::sync::Arc;
 
-use crate::api::registry::errors::RegistryError;
-use crate::api::registry::traits::Registry;
-use crate::api::registry::types::InMemoryRegistry;
+use crate::api::RegistryError;
+use crate::api::Registry;
+use crate::api::InMemoryRegistry;
 
 impl<V: ?Sized + Send + Sync> Registry for InMemoryRegistry<V> {
     type Value = V;

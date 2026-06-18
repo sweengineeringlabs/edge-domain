@@ -2,10 +2,10 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::command::types::DirectCommandBus;
-use crate::api::command::Command;
-use crate::api::command::CommandBus;
-use crate::api::command::CommandError;
+use crate::api::Command;
+use crate::api::CommandBus;
+use crate::api::CommandError;
+use crate::api::DirectCommandBus;
 
 impl CommandBus for DirectCommandBus {
     fn dispatch(&self, cmd: Box<dyn Command>) -> BoxFuture<'_, Result<(), CommandError>> {
@@ -16,6 +16,7 @@ impl CommandBus for DirectCommandBus {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::api::DirectCommandBus;
 
     struct DirectCommandBusOk;
     impl Command for DirectCommandBusOk {

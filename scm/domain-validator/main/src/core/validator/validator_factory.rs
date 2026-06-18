@@ -1,5 +1,5 @@
 //! `impl ValidatorFactory for StdValidatorFactory`.
-use crate::api::validator::traits::ValidatorFactory;
-use crate::api::validator::types::StdValidatorFactory;
+use crate::api::ValidatorFactory;
+use crate::api::StdValidatorFactory;
 
 impl ValidatorFactory for StdValidatorFactory {}

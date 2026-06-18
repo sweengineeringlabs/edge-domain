@@ -1,9 +1,9 @@
-//! SAF — handler service facade.
+﻿//! SAF — handler service facade.
 #[cfg(not(feature = "handler"))]
-pub use crate::api::handler::EchoHandler;
+pub use crate::api::EchoHandler;
 #[cfg(not(feature = "handler"))]
-pub use crate::api::handler::Handler;
+pub use crate::api::Handler;
 #[cfg(not(feature = "handler"))]
-pub use crate::api::handler::HandlerError;
+pub use crate::api::HandlerError;
 /// SAF module anchor — satisfies arch-audit rule 221.
 pub const HANDLER_SVC: () = ();

@@ -1,4 +1,4 @@
-//! Reasoning value types.
+﻿//! Reasoning value types.
 
 pub mod pattern_metadata;
 pub mod reasoning_chain;
@@ -14,7 +14,7 @@ pub mod step_result_builder;
 pub mod thinking_process_builder;
 
 pub mod linear_reasoning;
-pub mod default_reasoning;
+pub mod reasoning_endpoint;
 pub mod std_reasoning_factory;
 
 pub use pattern_metadata::PatternMetadata;
@@ -31,5 +31,5 @@ pub use step_result_builder::StepResultBuilder;
 pub use thinking_process_builder::ThinkingProcessBuilder;
 
 pub use linear_reasoning::LinearReasoning;
-pub use default_reasoning::DefaultReasoning;
+pub use reasoning_endpoint::ReasoningEndpoint;
 pub use std_reasoning_factory::StdReasoningFactory;

@@ -1,8 +1,8 @@
 //! `impl HandlerFactory for NoopHandlerFactory` — structural compliance impl.
 
-use crate::api::handler::errors::HandlerError;
-use crate::api::handler::traits::HandlerFactory;
-use crate::api::handler::types::NoopHandlerFactory;
+use crate::api::HandlerError;
+use crate::api::HandlerFactory;
+use crate::api::NoopHandlerFactory;
 
 impl HandlerFactory for NoopHandlerFactory {
     type Config = ();

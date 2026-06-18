@@ -1,6 +1,6 @@
 //! `SecurityFactory` impl for `SecurityServices`.
 
-use crate::api::security::traits::security_factory::SecurityFactory;
-use crate::api::security::types::security_services::SecurityServices;
+use crate::api::SecurityFactory;
+use crate::api::SecurityServices;
 
 impl SecurityFactory for SecurityServices {}

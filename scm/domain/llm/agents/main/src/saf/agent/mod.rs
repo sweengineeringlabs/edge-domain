@@ -13,7 +13,7 @@ mod schema_validator_svc;
 mod skill_svc;
 mod validator_svc;
 
-pub use agent_endpoint_svc::{DefaultAgent, AGENT_ENDPOINT_SVC};
+pub use agent_endpoint_svc::{AgentEndpoint, AGENT_ENDPOINT_SVC};
 pub use agent_error_svc::{AgentError, AGENT_ERROR_SVC};
 pub use agent_lifecycle_svc::{AgentLifecycle, AGENT_LIFECYCLE_SVC};
 pub use agent_manager_svc::{AgentManager, AGENT_MANAGER_SVC};

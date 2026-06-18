@@ -1,4 +1,4 @@
-//! `Handler` + `Service` impls for `DefaultAgent` (ADR-037 connection).
+//! `Handler` + `Service` impls for `AgentEndpoint` (ADR-037 connection).
 //!
 //! The `Handler` face runs the skill-execution core under a request context;
 //! the `Service` face funnels into that same `Handler` so the typed, named
@@ -12,7 +12,7 @@ use edge_domain_handler::{Handler, HandlerContext, HandlerError};
 use edge_domain_security::SecurityContext;
 use edge_domain_service::{Service, ServiceError};
 
-use crate::api::DefaultAgent;
+use crate::api::AgentEndpoint;
 
 /// Stable handler id under which the endpoint registers for dispatch.
 const AGENT_HANDLER_ID: &str = "agent.execute_skill";
@@ -22,7 +22,7 @@ const AGENT_HANDLER_PATTERN: &str = "agent/execute_skill";
 const AGENT_SERVICE_NAME: &str = "agent";
 
 #[async_trait::async_trait]
-impl Handler for DefaultAgent {
+impl Handler for AgentEndpoint {
     type Request = String;
     type Response = String;
 
@@ -48,7 +48,7 @@ impl Handler for DefaultAgent {
     }
 }
 
-impl Service for DefaultAgent {
+impl Service for AgentEndpoint {
     type Request = String;
     type Response = String;
 
@@ -79,8 +79,8 @@ mod tests {
     use super::*;
     use futures::executor::block_on;
 
-    fn endpoint() -> DefaultAgent {
-        DefaultAgent::new("code_review")
+    fn endpoint() -> AgentEndpoint {
+        AgentEndpoint::new("code_review")
     }
 
     #[test]

@@ -7,3 +7,4 @@ pub mod types;
 pub use errors::ServiceError;
 pub use traits::Service;
 pub use traits::ServiceRegistry;
+pub use types::ServiceRegistry as ServiceRegistryImpl;

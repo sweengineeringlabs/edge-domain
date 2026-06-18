@@ -1,10 +1,10 @@
 //! [`Validator`] impl for [`AlwaysValid`].
 
-use crate::api::validator::traits::Validator;
-use crate::api::validator::types::AlwaysValid;
+use crate::api::Validator;
+use crate::api::AlwaysValid;
 
 impl Validator for AlwaysValid {
-    fn validate(&self) -> Result<(), crate::api::validator::errors::ValidatorError> {
+    fn validate(&self) -> Result<(), crate::api::ValidatorError> {
         Ok(())
     }
 }

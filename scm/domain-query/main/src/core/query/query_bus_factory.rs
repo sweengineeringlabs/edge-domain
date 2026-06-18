@@ -1,6 +1,6 @@
 //! `QueryBusFactory` impl for [`StdQueryBusFactory`].
 
-use crate::api::query::traits::QueryBusFactory;
-use crate::api::query::types::StdQueryBusFactory;
+use crate::api::QueryBusFactory;
+use crate::api::StdQueryBusFactory;
 
 impl QueryBusFactory for StdQueryBusFactory {}

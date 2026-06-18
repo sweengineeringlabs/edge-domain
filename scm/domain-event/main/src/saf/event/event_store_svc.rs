@@ -1,8 +1,8 @@
-pub use crate::api::event::errors::EventStoreError;
-pub use crate::api::event::traits::EventStore;
-pub use crate::api::event::types::EventEnvelope;
-pub use crate::api::event::types::ExpectedVersion;
-pub use crate::api::event::types::InMemoryEventStore;
+pub use crate::api::EventStoreError;
+pub use crate::api::EventStore;
+pub use crate::api::EventEnvelope;
+pub use crate::api::ExpectedVersion;
+pub use crate::api::InMemoryEventStore;
 
 /// Service name token for the event store port contract.
 pub const EVENT_STORE_SVC: &str = "event_store";

@@ -1,8 +1,8 @@
 //! `CommandBusFactory` and `CommandFactory` impls for [`StdCommandBusFactory`].
 
-use crate::api::command::traits::CommandBusFactory;
-use crate::api::command::traits::CommandFactory;
-use crate::api::command::types::StdCommandBusFactory;
+use crate::api::CommandBusFactory;
+use crate::api::CommandFactory;
+use crate::api::StdCommandBusFactory;
 
 impl CommandBusFactory for StdCommandBusFactory {}
 

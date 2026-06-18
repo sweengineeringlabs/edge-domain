@@ -1,1 +1,10 @@
-pub mod handler;
+﻿mod handler;
+pub use handler::HandlerError;
+pub use handler::InProcessHandlerRegistry;
+pub use handler::Handler;
+pub use handler::HandlerFactory;
+pub use handler::HandlerProvider;
+pub use handler::HandlerRegistry;
+pub use handler::EchoHandler;
+pub use handler::HandlerContext;
+pub use handler::NoopHandlerFactory;

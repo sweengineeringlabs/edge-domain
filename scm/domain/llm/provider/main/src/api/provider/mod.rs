@@ -1,4 +1,4 @@
-//! Provider domain contracts: traits, value types, and errors.
+﻿//! Provider domain contracts: traits, value types, and errors.
 
 pub mod errors;
 pub mod traits;
@@ -9,7 +9,7 @@ pub use traits::{ExecutionModel, Provider, ProviderFactory, StreamHandler};
 pub use types::{
     BufferedStreamHandler, EchoExecutionModel, ExecutionConfig, ExecutionConfigBuilder,
     ExecutionMode, ExecutionStepResult, FinishReason, ModelFamily, ModelInfo, ModelInfoBuilder,
-    ProviderConfig, ProviderConfigBuilder, DefaultProvider, StaticProvider, StdProviderFactory,
+    ProviderConfig, ProviderConfigBuilder, ProviderEndpoint, StaticProvider, StdProviderFactory,
     StreamChunk, StreamDelta, TokenUsage, TokenUsageBuilder, TokenizerAccuracy, ToolCallDelta,
     ToolCallDeltaBuilder,
 };

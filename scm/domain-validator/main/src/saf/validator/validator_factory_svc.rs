@@ -1,4 +1,4 @@
-pub use crate::api::validator::StdValidatorFactory;
-pub use crate::api::validator::ValidatorFactory;
+pub use crate::api::StdValidatorFactory;
+pub use crate::api::ValidatorFactory;
 /// SAF contract identifier for the validator-factory service.
 pub const VALIDATOR_FACTORY_SVC: &str = "validator_factory";

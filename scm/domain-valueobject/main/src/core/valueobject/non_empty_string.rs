@@ -1,8 +1,8 @@
 //! Core trait impls for [`NonEmptyString`].
 
-use crate::api::valueobject::traits::ValueObject;
-use crate::api::valueobject::traits::value_object_factory::ValueObjectFactory;
-use crate::api::valueobject::types::NonEmptyString;
+use crate::api::ValueObject;
+use crate::api::ValueObjectFactory;
+use crate::api::NonEmptyString;
 
 impl ValueObject for NonEmptyString {}
 

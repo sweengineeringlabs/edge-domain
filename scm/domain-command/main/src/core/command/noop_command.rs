@@ -2,11 +2,11 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::command::traits::Command;
-use crate::api::command::types::NoopCommand;
-use crate::api::command::types::NoopCommandBus;
-use crate::api::command::CommandBus;
-use crate::api::command::CommandError;
+use crate::api::Command;
+use crate::api::CommandBus;
+use crate::api::CommandError;
+use crate::api::NoopCommand;
+use crate::api::NoopCommandBus;
 
 impl Command for NoopCommand {
     fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {

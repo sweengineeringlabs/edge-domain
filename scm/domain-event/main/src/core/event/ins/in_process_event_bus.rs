@@ -4,9 +4,9 @@ use std::sync::Arc;
 
 use futures::future::BoxFuture;
 
-use crate::api::event::errors::EventError;
-use crate::api::event::traits::{DomainEvent, EventBus, EventSource};
-use crate::api::event::types::{EventReceiver, InProcessEventBus};
+use crate::api::EventError;
+use crate::api::{DomainEvent, EventBus, EventSource};
+use crate::api::{EventReceiver, InProcessEventBus};
 
 /// Private receiver side of the broadcast channel.
 struct InProcessEventBusSource {

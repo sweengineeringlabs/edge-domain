@@ -1,7 +1,7 @@
 //! `Principal` impl for `AnonymousPrincipal`.
 
-use crate::api::security::traits::principal::Principal;
-use crate::api::security::types::anonymous_principal::AnonymousPrincipal;
+use crate::api::Principal;
+use crate::api::AnonymousPrincipal;
 
 impl Principal for AnonymousPrincipal {
     fn id(&self) -> &str {

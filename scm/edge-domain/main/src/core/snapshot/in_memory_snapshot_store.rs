@@ -1,4 +1,4 @@
-//! In-memory snapshot store — keeps the latest snapshot per aggregate.
+﻿//! In-memory snapshot store — keeps the latest snapshot per aggregate.
 //!
 //! A reference [`SnapshotStore`] for development and testing.  State lives in
 //! process memory and is lost when the process stops.
@@ -9,9 +9,9 @@ use std::fmt::Display;
 use futures::future::BoxFuture;
 use parking_lot::RwLock;
 
-use crate::api::snapshot::errors::SnapshotError;
-use crate::api::snapshot::traits::Snapshot;
-use crate::api::snapshot::traits::SnapshotStore;
+use crate::api::SnapshotError;
+use crate::api::Snapshot;
+use crate::api::SnapshotStore;
 
 // impl Snapshot for NoopSnapshot (see noop_snapshot.rs)
 

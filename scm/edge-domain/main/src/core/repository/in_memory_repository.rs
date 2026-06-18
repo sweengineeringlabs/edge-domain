@@ -1,4 +1,4 @@
-//! In-memory `Repository` implementation for development and testing.
+﻿//! In-memory `Repository` implementation for development and testing.
 
 use std::collections::HashMap;
 use std::hash::Hash;
@@ -6,9 +6,9 @@ use std::hash::Hash;
 use futures::future::BoxFuture;
 use parking_lot::RwLock;
 
-use crate::api::repository::QueryableRepository;
-use crate::api::repository::Repository;
-use crate::api::repository::RepositoryError;
+use crate::api::QueryableRepository;
+use crate::api::Repository;
+use crate::api::RepositoryError;
 
 /// Thread-safe in-memory repository backed by a `HashMap`.
 ///

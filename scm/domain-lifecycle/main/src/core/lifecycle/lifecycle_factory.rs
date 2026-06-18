@@ -1,6 +1,6 @@
 //! `LifecycleFactory` impl for `StdLifecycleFactory`.
 
-use crate::api::lifecycle::traits::LifecycleFactory;
-use crate::api::lifecycle::types::StdLifecycleFactory;
+use crate::api::LifecycleFactory;
+use crate::api::StdLifecycleFactory;
 
 impl LifecycleFactory for StdLifecycleFactory {}

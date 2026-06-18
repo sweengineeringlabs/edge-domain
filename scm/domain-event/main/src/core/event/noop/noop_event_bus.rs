@@ -4,9 +4,9 @@ use std::sync::Arc;
 
 use futures::future::BoxFuture;
 
-use crate::api::event::errors::EventError;
-use crate::api::event::traits::{DomainEvent, EventBus, EventSource};
-use crate::api::event::types::{EventReceiver, NoopEventBus};
+use crate::api::EventError;
+use crate::api::{DomainEvent, EventBus, EventSource};
+use crate::api::{EventReceiver, NoopEventBus};
 
 /// Private source returned by [`NoopEventBus::subscribe`] — immediately closed.
 struct NoopEventBusSource;

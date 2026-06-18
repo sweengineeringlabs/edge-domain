@@ -1,9 +1,9 @@
-//! SAF — event store service facade.
+﻿//! SAF — event store service facade.
 #[cfg(not(feature = "event"))]
-pub use crate::api::event::EventStore;
+pub use crate::api::EventStore;
 #[cfg(not(feature = "event"))]
-pub use crate::api::event::EventStoreError;
+pub use crate::api::EventStoreError;
 #[cfg(not(feature = "event"))]
-pub use crate::api::event::InMemoryEventStore;
+pub use crate::api::InMemoryEventStore;
 /// SAF module anchor — satisfies arch-audit rule 221.
 pub const EVENT_STORE_SVC: () = ();

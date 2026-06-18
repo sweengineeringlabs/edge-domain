@@ -2,10 +2,10 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::query::traits::Query;
-use crate::api::query::traits::QueryBus;
-use crate::api::query::types::LoggingQueryBus;
-use crate::api::query::QueryError;
+use crate::api::Query;
+use crate::api::QueryBus;
+use crate::api::LoggingQueryBus;
+use crate::api::QueryError;
 
 impl<R: Send + 'static> QueryBus for LoggingQueryBus<R> {
     type Result = R;
@@ -34,7 +34,7 @@ mod tests {
     use futures::future::BoxFuture;
 
     use super::*;
-    use crate::api::query::types::{DirectQueryBus, NoopQueryBus};
+    use crate::api::{DirectQueryBus, NoopQueryBus};
 
     struct LoggingQueryBusOk(String);
     impl Query for LoggingQueryBusOk {

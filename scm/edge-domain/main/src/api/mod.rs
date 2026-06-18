@@ -1,4 +1,4 @@
-//! API layer — domain execution-unit contracts.
+﻿//! API layer — domain execution-unit contracts.
 //!
 //! Multi-theme layout (ADR-007): each theme owns its `traits/ types/ error/
 //! vo/` subdirs. Cross-theme items live at the `api/` level in `traits/` and
@@ -8,15 +8,20 @@
 #![allow(unused_imports)]
 
 // ── domain (never extracted; always internal) ─────────────────────────────────
-pub mod domain;
+mod domain;
+pub use domain::{Domain, DomainExtension, DomainFactory, NoopDomainExtension, OutboundRegistry};
 
 // ── entity ────────────────────────────────────────────────────────────────────
 #[cfg(not(feature = "entity"))]
-pub mod entity;
+mod entity;
+#[cfg(not(feature = "entity"))]
+pub use entity::Entity;
 
 // ── valueobject ───────────────────────────────────────────────────────────────
 #[cfg(not(feature = "valueobject"))]
-pub mod valueobject;
+mod valueobject;
+#[cfg(not(feature = "valueobject"))]
+pub use valueobject::{NonEmptyString, ValueObject, ValueObjectError, ValueObjectFactory};
 
 // ── clock ─────────────────────────────────────────────────────────────────────
 #[cfg(feature = "clock")]
@@ -34,8 +39,13 @@ pub mod clock {
         pub use super::SystemClock;
     }
 }
+#[cfg(feature = "clock")]
+pub use clock::{Clock, ClockFactory, FixedClock, SystemClock};
+
 #[cfg(not(feature = "clock"))]
-pub mod clock;
+mod clock;
+#[cfg(not(feature = "clock"))]
+pub use clock::{Clock, ClockFactory, FixedClock, SystemClock};
 
 // ── validator ─────────────────────────────────────────────────────────────────
 #[cfg(feature = "validator")]
@@ -48,8 +58,13 @@ pub mod validator {
         pub use super::Validator;
     }
 }
+#[cfg(feature = "validator")]
+pub use validator::Validator;
+
 #[cfg(not(feature = "validator"))]
-pub mod validator;
+mod validator;
+#[cfg(not(feature = "validator"))]
+pub use validator::Validator;
 
 // ── policy ────────────────────────────────────────────────────────────────────
 #[cfg(feature = "policy")]
@@ -66,8 +81,13 @@ pub mod policy {
         pub use super::PolicyViolation;
     }
 }
+#[cfg(feature = "policy")]
+pub use policy::{CompositePolicy, Policy, PolicyFactory, PolicyViolation};
+
 #[cfg(not(feature = "policy"))]
-pub mod policy;
+mod policy;
+#[cfg(not(feature = "policy"))]
+pub use policy::{CompositePolicy, Policy, PolicyFactory, PolicyViolation};
 
 // ── command ───────────────────────────────────────────────────────────────────
 #[cfg(feature = "command")]
@@ -78,8 +98,13 @@ pub mod command {
     pub use edge_domain_command::CommandError;
     pub use edge_domain_command::DirectCommandBus;
 }
+#[cfg(feature = "command")]
+pub use command::{Command, CommandBus, CommandBusFactory, CommandError, DirectCommandBus};
+
 #[cfg(not(feature = "command"))]
-pub mod command;
+mod command;
+#[cfg(not(feature = "command"))]
+pub use command::{Command, CommandBus, CommandBusFactory, CommandError, DirectCommandBus};
 
 // ── query ─────────────────────────────────────────────────────────────────────
 #[cfg(feature = "query")]
@@ -90,8 +115,13 @@ pub mod query {
     pub use edge_domain_query::QueryBusFactory;
     pub use edge_domain_query::QueryError;
 }
+#[cfg(feature = "query")]
+pub use query::{DirectQueryBus, Query, QueryBus, QueryBusFactory, QueryError};
+
 #[cfg(not(feature = "query"))]
-pub mod query;
+mod query;
+#[cfg(not(feature = "query"))]
+pub use query::{DirectQueryBus, Query, QueryBus, QueryBusFactory, QueryError};
 
 // ── snapshot ──────────────────────────────────────────────────────────────────
 #[cfg(feature = "snapshot")]
@@ -109,8 +139,13 @@ pub mod snapshot {
         pub use super::SnapshotError;
     }
 }
+#[cfg(feature = "snapshot")]
+pub use snapshot::{Snapshot, SnapshotError, SnapshotStore};
+
 #[cfg(not(feature = "snapshot"))]
-pub mod snapshot;
+mod snapshot;
+#[cfg(not(feature = "snapshot"))]
+pub use snapshot::{Snapshot, SnapshotError, SnapshotStore};
 
 // ── service ───────────────────────────────────────────────────────────────────
 #[cfg(feature = "service")]
@@ -121,12 +156,18 @@ pub mod service {
     // In the sub-crate: ServiceRegistryImpl = the trait, ServiceRegistry = the struct.
     // Mirror the umbrella's internal naming: ServiceRegistry (top-level) = trait.
     pub use edge_domain_service::ServiceRegistryImpl as ServiceRegistry;
+    pub use edge_domain_service::ServiceRegistry as ServiceRegistryImpl;
     pub mod types {
-        pub use edge_domain_service::ServiceRegistry; // concrete struct
+        pub use edge_domain_service::ServiceRegistry;
     }
 }
+#[cfg(feature = "service")]
+pub use service::{Service, ServiceError, ServiceRegistry, ServiceRegistryImpl};
+
 #[cfg(not(feature = "service"))]
-pub mod service;
+mod service;
+#[cfg(not(feature = "service"))]
+pub use service::{Service, ServiceError, ServiceRegistry, ServiceRegistryImpl};
 
 // ── repository ────────────────────────────────────────────────────────────────
 #[cfg(feature = "repository")]
@@ -139,8 +180,19 @@ pub mod repository {
     pub use edge_domain_repository::RepositoryFactory;
     pub use edge_domain_repository::Spec;
 }
+#[cfg(feature = "repository")]
+pub use repository::{
+    InMemoryRepository, Page, QueryableRepository, Repository, RepositoryError, RepositoryFactory,
+    Spec,
+};
+
 #[cfg(not(feature = "repository"))]
-pub mod repository;
+mod repository;
+#[cfg(not(feature = "repository"))]
+pub use repository::{
+    InMemoryRepository, Page, QueryableRepository, Repository, RepositoryError, RepositoryFactory,
+    Spec,
+};
 
 // ── handler ───────────────────────────────────────────────────────────────────
 #[cfg(feature = "handler")]
@@ -153,8 +205,19 @@ pub mod handler {
     pub use edge_domain_handler::HandlerRegistry;
     pub use edge_domain_handler::InProcessHandlerRegistry;
 }
+#[cfg(feature = "handler")]
+pub use handler::{
+    EchoHandler, Handler, HandlerError, HandlerFactory, HandlerProvider, HandlerRegistry,
+    InProcessHandlerRegistry,
+};
+
 #[cfg(not(feature = "handler"))]
-pub mod handler;
+mod handler;
+#[cfg(not(feature = "handler"))]
+pub use handler::{
+    EchoHandler, Handler, HandlerError, HandlerFactory, HandlerProvider, HandlerRegistry,
+    InProcessHandlerRegistry,
+};
 
 // ── event ─────────────────────────────────────────────────────────────────────
 #[cfg(feature = "event")]
@@ -188,8 +251,21 @@ pub mod event {
         }
     }
 }
+#[cfg(feature = "event")]
+pub use event::{
+    Aggregate, ClosedEventSource, DomainEvent, EventBus, EventBusConfig, EventEnvelope, EventError,
+    EventFactory, EventPublisher, EventReceiver, EventSource, EventStore, EventStoreError,
+    ExpectedVersion, InMemoryEventStore, InProcessEventBus, NoopEventBus, NoopEventPublisher,
+};
+
 #[cfg(not(feature = "event"))]
-pub mod event;
+mod event;
+#[cfg(not(feature = "event"))]
+pub use event::{
+    Aggregate, ClosedEventSource, DomainEvent, EventBus, EventBusConfig, EventEnvelope, EventError,
+    EventFactory, EventPublisher, EventReceiver, EventSource, EventStore, EventStoreError,
+    ExpectedVersion, InMemoryEventStore, InProcessEventBus, NoopEventBus, NoopEventPublisher,
+};
 
 // ── projection ────────────────────────────────────────────────────────────────
 #[cfg(feature = "projection")]
@@ -199,8 +275,13 @@ pub mod projection {
     pub use edge_domain_projection::ProjectionError;
     pub use edge_domain_projection::ProjectionFactory;
 }
+#[cfg(feature = "projection")]
+pub use projection::Projection;
+
 #[cfg(not(feature = "projection"))]
-pub mod projection;
+mod projection;
+#[cfg(not(feature = "projection"))]
+pub use projection::Projection;
 
 // ── saga ──────────────────────────────────────────────────────────────────────
 #[cfg(feature = "saga")]
@@ -218,5 +299,10 @@ pub mod saga {
         pub use super::SagaError;
     }
 }
+#[cfg(feature = "saga")]
+pub use saga::{InMemorySagaStore, Saga, SagaError, SagaStore};
+
 #[cfg(not(feature = "saga"))]
-pub mod saga;
+mod saga;
+#[cfg(not(feature = "saga"))]
+pub use saga::{Saga, SagaError, SagaStore};

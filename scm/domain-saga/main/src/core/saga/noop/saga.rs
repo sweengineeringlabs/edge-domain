@@ -1,5 +1,5 @@
-use crate::api::saga::traits::Saga;
-use crate::api::saga::types::{NoopSaga, NoopSagaCommand, NoopSagaEvent};
+use crate::api::Saga;
+use crate::api::{NoopSaga, NoopSagaCommand, NoopSagaEvent};
 
 impl Saga for NoopSaga {
     type SagaId = u64;

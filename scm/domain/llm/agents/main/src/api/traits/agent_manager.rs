@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use super::agent::Agent;
-use crate::api::types::{DefaultAgent, AgentMetadataBuilder, SkillMetadataBuilder};
+use crate::api::types::{AgentEndpoint, AgentMetadataBuilder, SkillMetadataBuilder};
 use crate::AgentError;
 
 /// AgentManager is the service that loads and provides access to agents.
@@ -30,9 +30,9 @@ pub trait AgentManager: Send + Sync {
         SkillMetadataBuilder::new()
     }
 
-    /// Construct a pipeline [`DefaultAgent`] (the connected Handler + Service
+    /// Construct a pipeline [`AgentEndpoint`] (the connected Handler + Service
     /// face per ADR-037) routed to the named skill.
-    fn endpoint(&self, skill: &str) -> DefaultAgent {
-        DefaultAgent::new(skill)
+    fn endpoint(&self, skill: &str) -> AgentEndpoint {
+        AgentEndpoint::new(skill)
     }
 }

@@ -1,4 +1,4 @@
-//! In-memory saga store — stores sagas in a `HashMap` keyed by `SagaId`.
+﻿//! In-memory saga store — stores sagas in a `HashMap` keyed by `SagaId`.
 //!
 //! A reference [`SagaStore`] for development and testing.  State lives in
 //! process memory and is lost when the process stops.
@@ -6,9 +6,9 @@
 use std::collections::HashMap;
 use std::fmt::Display;
 
-use crate::api::saga::errors::SagaError;
-use crate::api::saga::traits::Saga;
-use crate::api::saga::traits::SagaStore;
+use crate::api::SagaError;
+use crate::api::Saga;
+use crate::api::SagaStore;
 
 pub(crate) struct InMemorySagaStore<S: Saga> {
     sagas: HashMap<S::SagaId, S>,
@@ -48,9 +48,9 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::api::command::Command;
-    use crate::api::command::CommandError;
-    use crate::api::event::DomainEvent;
+    use crate::api::Command;
+    use crate::api::CommandError;
+    use crate::api::DomainEvent;
     use futures::future::BoxFuture;
 
     #[derive(Clone)]

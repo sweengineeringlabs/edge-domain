@@ -1,15 +1,15 @@
-//! [`TokioEventBus`] — in-process fan-out bus backed by [`tokio::sync::broadcast`].
+﻿//! [`TokioEventBus`] — in-process fan-out bus backed by [`tokio::sync::broadcast`].
 
 use std::sync::Arc;
 
 use futures::future::BoxFuture;
 use tokio::sync::broadcast;
 
-use crate::api::event::errors::EventError;
-use crate::api::event::traits::domain_event::DomainEvent;
-use crate::api::event::EventBus;
-use crate::api::event::EventBusConfig;
-use crate::api::event::EventReceiver;
+use crate::api::EventError;
+use crate::api::DomainEvent;
+use crate::api::EventBus;
+use crate::api::EventBusConfig;
+use crate::api::EventReceiver;
 use crate::spi::event::tokio::tokio_event_source::TokioEventSource;
 
 /// In-process event bus backed by a tokio broadcast channel.

@@ -1,12 +1,12 @@
-//! In-process [`HandlerRegistry`] implementation backed by `parking_lot::RwLock`.
+﻿//! In-process [`HandlerRegistry`] implementation backed by `parking_lot::RwLock`.
 
 use std::collections::HashMap;
 use std::sync::Arc;
 
 use parking_lot::RwLock;
 
-use crate::api::handler::Handler;
-use crate::api::handler::HandlerRegistry;
+use crate::api::Handler;
+use crate::api::HandlerRegistry;
 
 /// Thread-safe, in-process handler registry backed by a `RwLock<HashMap>`.
 pub(crate) struct InProcessHandlerRegistry<Req, Resp> {

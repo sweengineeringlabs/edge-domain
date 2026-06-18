@@ -2,9 +2,9 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::event::errors::EventError;
-use crate::api::event::traits::{DomainEvent, EventPublisher};
-use crate::api::event::types::NoopEventPublisher;
+use crate::api::EventError;
+use crate::api::{DomainEvent, EventPublisher};
+use crate::api::NoopEventPublisher;
 
 impl EventPublisher for NoopEventPublisher {
     fn publish<'a>(&'a self, _event: &'a dyn DomainEvent) -> BoxFuture<'a, Result<(), EventError>> {

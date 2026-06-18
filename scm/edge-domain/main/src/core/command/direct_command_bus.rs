@@ -1,11 +1,11 @@
-//! `DirectCommandBus` — inline command dispatch with no queuing.
+﻿//! `DirectCommandBus` — inline command dispatch with no queuing.
 
 use futures::future::BoxFuture;
 
-use crate::api::command::Command;
-use crate::api::command::CommandBus;
-use crate::api::command::CommandError;
-use crate::api::command::CommandBusFactory;
+use crate::api::Command;
+use crate::api::CommandBus;
+use crate::api::CommandError;
+use crate::api::CommandBusFactory;
 
 /// Dispatches commands by calling `cmd.execute()` directly in the same task.
 ///

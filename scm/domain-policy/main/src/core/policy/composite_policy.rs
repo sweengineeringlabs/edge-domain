@@ -1,8 +1,8 @@
 //! [`Policy`] impl for [`CompositePolicy`].
 
-use crate::api::policy::errors::PolicyViolation;
-use crate::api::policy::traits::Policy;
-use crate::api::policy::types::CompositePolicy;
+use crate::api::PolicyViolation;
+use crate::api::Policy;
+use crate::api::CompositePolicy;
 
 #[expect(
     dead_code,

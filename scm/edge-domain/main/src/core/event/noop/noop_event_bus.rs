@@ -1,13 +1,13 @@
-//! [`NoopEventBus`] — event bus that silently discards all events.
+﻿//! [`NoopEventBus`] — event bus that silently discards all events.
 
 use std::sync::Arc;
 
 use futures::future::BoxFuture;
 
-use crate::api::event::errors::EventError;
-use crate::api::event::traits::domain_event::DomainEvent;
-use crate::api::event::EventBus;
-use crate::api::event::EventReceiver;
+use crate::api::EventError;
+use crate::api::DomainEvent;
+use crate::api::EventBus;
+use crate::api::EventReceiver;
 use crate::core::event::closed_event_source::ClosedEventSource;
 
 /// Event bus that discards all published events.

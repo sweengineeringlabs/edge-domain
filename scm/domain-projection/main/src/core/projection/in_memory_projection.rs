@@ -1,7 +1,7 @@
 use edge_domain_event::DomainEvent;
 
-use crate::api::projection::traits::Projection;
-use crate::api::projection::types::InMemoryProjection;
+use crate::api::Projection;
+use crate::api::InMemoryProjection;
 
 impl<E, R, F> Projection for InMemoryProjection<E, R, F>
 where

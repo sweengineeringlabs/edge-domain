@@ -1,9 +1,9 @@
 //! `Security` impl for `NoopSecurity`.
 
-use crate::api::security::errors::SecurityError;
-use crate::api::security::traits::security::Security;
-use crate::api::security::types::noop_security::NoopSecurity;
-use crate::api::security::types::security_context::SecurityContext;
+use crate::api::SecurityError;
+use crate::api::Security;
+use crate::api::NoopSecurity;
+use crate::api::SecurityContext;
 
 impl Security for NoopSecurity {
     fn enforce(&self, _ctx: &SecurityContext) -> Result<(), SecurityError> {

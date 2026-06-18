@@ -1,4 +1,4 @@
-//! `DefaultAgent` — connects the agent primitive to the edge dispatch pipeline.
+//! `AgentEndpoint` — connects the agent primitive to the edge dispatch pipeline.
 //!
 //! Per ADR-037 this single type carries both faces of a connected native:
 //! it implements `Handler` (register the domain + ride the dispatch pipeline)
@@ -12,11 +12,11 @@
 /// single named skill; a request carries the skill input and the response is
 /// the skill output.
 #[derive(Clone, Debug)]
-pub struct DefaultAgent {
+pub struct AgentEndpoint {
     pub(crate) skill: String,
 }
 
-impl DefaultAgent {
+impl AgentEndpoint {
     /// Construct an endpoint that routes its requests to the named skill.
     pub fn new(skill: impl Into<String>) -> Self {
         Self {

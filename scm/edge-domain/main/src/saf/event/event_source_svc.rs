@@ -1,17 +1,17 @@
-//! SAF — event source service facade.
+﻿//! SAF — event source service facade.
 #[cfg(not(feature = "event"))]
-pub use crate::api::event::Aggregate;
+pub use crate::api::Aggregate;
 #[cfg(not(feature = "event"))]
-pub use crate::api::event::ClosedEventSource;
+pub use crate::api::ClosedEventSource;
 #[cfg(not(feature = "event"))]
-pub use crate::api::event::DomainEvent;
+pub use crate::api::DomainEvent;
 #[cfg(not(feature = "event"))]
-pub use crate::api::event::EventEnvelope;
+pub use crate::api::EventEnvelope;
 #[cfg(not(feature = "event"))]
-pub use crate::api::event::EventError;
+pub use crate::api::EventError;
 #[cfg(not(feature = "event"))]
-pub use crate::api::event::EventReceiver;
+pub use crate::api::EventReceiver;
 #[cfg(not(feature = "event"))]
-pub use crate::api::event::ExpectedVersion;
+pub use crate::api::ExpectedVersion;
 /// SAF module anchor — satisfies arch-audit rule 221.
 pub const EVENT_SOURCE_SVC: () = ();

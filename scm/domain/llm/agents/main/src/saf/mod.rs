@@ -1,7 +1,7 @@
 mod agent;
 
 pub use agent::{
-    Agent, DefaultAgent, AgentError, AgentLifecycle, AgentManager, AgentMetadata,
+    Agent, AgentEndpoint, AgentError, AgentLifecycle, AgentManager, AgentMetadata,
     AgentMetadataBuilder, AgentRegistry, NoopAgent, NoopAgentLifecycle, NoopAgentManager,
     NoopAgentRegistry, NoopSchemaValidator, NoopSkill, NoopValidator, Parameter, SchemaValidator,
     Skill, SkillMetadata, SkillMetadataBuilder, Validator, AGENT_ENDPOINT_SVC, AGENT_ERROR_SVC,

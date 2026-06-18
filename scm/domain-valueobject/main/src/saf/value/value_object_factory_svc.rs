@@ -5,7 +5,7 @@
 //! see SEA rule 191. `NonEmptyString` implements `ValueObjectFactory`, so
 //! callers construct via `NonEmptyString::non_empty_string(..)`.
 
-pub use crate::api::valueobject::traits::value_object_factory::ValueObjectFactory;
+pub use crate::api::ValueObjectFactory;
 
 /// Identifies the value-object-factory SAF contract in this crate.
 pub const VALUE_OBJECT_FACTORY_SVC: &str = "value_object_factory";

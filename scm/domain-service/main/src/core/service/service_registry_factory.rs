@@ -1,7 +1,7 @@
 //! `ServiceRegistryFactory` trait impls for the canonical factory types.
 
-use crate::api::service::traits::service_registry_factory::ServiceRegistryFactory;
-use crate::api::service::types::StdServiceRegistryFactory;
+use crate::api::ServiceRegistryFactory;
+use crate::api::StdServiceRegistryFactory;
 
 impl ServiceRegistryFactory for StdServiceRegistryFactory {}
 

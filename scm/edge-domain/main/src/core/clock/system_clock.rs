@@ -1,10 +1,10 @@
-//! [`Clock`] impl for [`SystemClock`].
+﻿//! [`Clock`] impl for [`SystemClock`].
 
 use std::time::SystemTime;
 
-use crate::api::clock::traits::Clock;
-use crate::api::clock::traits::ClockFactory;
-use crate::api::clock::types::SystemClock;
+use crate::api::Clock;
+use crate::api::ClockFactory;
+use crate::api::SystemClock;
 
 #[expect(
     dead_code,

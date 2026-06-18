@@ -1,16 +1,16 @@
-//! [`ClosedEventSource`] — an [`EventSource`] that yields no events.
+﻿//! [`ClosedEventSource`] — an [`EventSource`] that yields no events.
 
 use std::sync::Arc;
 
 use futures::future::BoxFuture;
 
-use crate::api::event::errors::EventError;
-use crate::api::event::traits::domain_event::DomainEvent;
-use crate::api::event::EventSource;
+use crate::api::EventError;
+use crate::api::DomainEvent;
+use crate::api::EventSource;
 
 /// [`EventSource`] that never yields an event — the channel is closed from the
 /// outset, so the first
-/// [`EventReceiver::recv`](crate::api::event::types::event_receiver::EventReceiver::recv)
+/// [`EventReceiver::recv`](crate::api::EventReceiver::recv)
 /// returns [`EventError::Unavailable`].
 pub(crate) struct ClosedEventSource;
 

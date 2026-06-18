@@ -2,8 +2,8 @@
 
 use std::time::SystemTime;
 
-use crate::api::clock::traits::Clock;
-use crate::api::clock::types::SystemClock;
+use crate::api::Clock;
+use crate::api::SystemClock;
 
 impl Clock for SystemClock {
     fn now(&self) -> SystemTime {

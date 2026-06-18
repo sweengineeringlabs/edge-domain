@@ -4,9 +4,9 @@ use std::fmt::Debug;
 
 use async_trait::async_trait;
 
-use crate::api::lifecycle::errors::LifecycleError;
-use crate::api::lifecycle::managed_lifecycle::ManagedLifecycle;
-use crate::api::lifecycle::traits::Lifecycle;
+use crate::api::LifecycleError;
+use crate::api::ManagedLifecycle;
+use crate::api::Lifecycle;
 
 #[async_trait]
 impl<S: Copy + Eq + Debug + Send + Sync + 'static> Lifecycle for ManagedLifecycle<S> {

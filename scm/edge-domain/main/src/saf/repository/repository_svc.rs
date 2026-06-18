@@ -1,15 +1,15 @@
-//! SAF — repository service facade.
+﻿//! SAF — repository service facade.
 #[cfg(not(feature = "repository"))]
-pub use crate::api::repository::InMemoryRepository;
+pub use crate::api::InMemoryRepository;
 #[cfg(not(feature = "repository"))]
-pub use crate::api::repository::Page;
+pub use crate::api::Page;
 #[cfg(not(feature = "repository"))]
-pub use crate::api::repository::QueryableRepository;
+pub use crate::api::QueryableRepository;
 #[cfg(not(feature = "repository"))]
-pub use crate::api::repository::Repository;
+pub use crate::api::Repository;
 #[cfg(not(feature = "repository"))]
-pub use crate::api::repository::RepositoryError;
+pub use crate::api::RepositoryError;
 #[cfg(not(feature = "repository"))]
-pub use crate::api::repository::Spec;
+pub use crate::api::Spec;
 /// SAF module anchor — satisfies arch-audit rule 221.
 pub const REPOSITORY_SVC: () = ();

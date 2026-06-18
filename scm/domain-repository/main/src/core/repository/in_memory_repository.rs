@@ -2,9 +2,9 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::repository::errors::RepositoryError;
-use crate::api::repository::traits::{QueryableRepository, Repository};
-use crate::api::repository::types::InMemoryRepository;
+use crate::api::RepositoryError;
+use crate::api::{QueryableRepository, Repository};
+use crate::api::InMemoryRepository;
 
 impl<T, Id> Repository for InMemoryRepository<T, Id>
 where
@@ -45,7 +45,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::api::repository::types::Spec;
+    use crate::api::Spec;
     use futures::executor::block_on;
 
     fn repo() -> InMemoryRepository<String, u32> {

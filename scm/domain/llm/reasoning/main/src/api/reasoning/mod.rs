@@ -1,4 +1,4 @@
-//! Reasoning domain contracts: traits, value types, and errors.
+﻿//! Reasoning domain contracts: traits, value types, and errors.
 
 pub mod errors;
 pub mod traits;
@@ -8,7 +8,7 @@ pub use errors::ReasoningError;
 pub use traits::{Reasoning, ReasoningFactory};
 pub use types::{
     LinearReasoning, PatternMetadata, PatternMetadataBuilder, ReasoningChain,
-    ReasoningChainBuilder, DefaultReasoning, ReasoningPattern, ReasoningStep,
+    ReasoningChainBuilder, ReasoningEndpoint, ReasoningPattern, ReasoningStep,
     ReasoningStepBuilder, StdReasoningFactory, StepResult, StepResultBuilder, ThinkingProcess,
     ThinkingProcessBuilder,
 };

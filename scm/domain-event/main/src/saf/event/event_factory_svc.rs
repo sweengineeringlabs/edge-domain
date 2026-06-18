@@ -1,6 +1,6 @@
-pub use crate::api::event::traits::EventFactory;
-pub use crate::api::event::types::DefaultEventFactory;
-pub use crate::api::event::types::StdEventFactory;
+pub use crate::api::EventFactory;
+pub use crate::api::DefaultEventFactory;
+pub use crate::api::StdEventFactory;
 
 /// Service name token for the event factory port contract.
 pub const EVENT_FACTORY_SVC: &str = "event_factory";

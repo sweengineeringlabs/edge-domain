@@ -1,5 +1,5 @@
 use edge_domain_event::DomainEvent;
 
-use crate::api::saga::types::NoopSagaEvent;
+use crate::api::NoopSagaEvent;
 
 impl DomainEvent for NoopSagaEvent {}

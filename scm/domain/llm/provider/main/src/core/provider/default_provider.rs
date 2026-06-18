@@ -1,4 +1,4 @@
-//! `Handler` + `Service` impls for `DefaultProvider` (ADR-037 connection).
+﻿//! `Handler` + `Service` impls for `ProviderEndpoint` (ADR-037 connection).
 
 use async_trait::async_trait;
 use futures::future::BoxFuture;
@@ -9,7 +9,7 @@ use edge_domain_security::SecurityContext;
 use edge_domain_service::{Service, ServiceError};
 
 use crate::api::ExecutionModel;
-use crate::api::{ExecutionStepResult, DefaultProvider};
+use crate::api::{ExecutionStepResult, ProviderEndpoint};
 
 /// Stable handler id under which the endpoint registers for dispatch.
 const PROVIDER_HANDLER_ID: &str = "provider.execute_step";
@@ -19,7 +19,7 @@ const PROVIDER_HANDLER_PATTERN: &str = "provider/execute_step";
 const PROVIDER_SERVICE_NAME: &str = "provider";
 
 #[async_trait]
-impl Handler for DefaultProvider {
+impl Handler for ProviderEndpoint {
     type Request = String;
     type Response = ExecutionStepResult;
 
@@ -43,7 +43,7 @@ impl Handler for DefaultProvider {
     }
 }
 
-impl Service for DefaultProvider {
+impl Service for ProviderEndpoint {
     type Request = String;
     type Response = ExecutionStepResult;
 
@@ -75,9 +75,9 @@ mod tests {
     use crate::api::{EchoExecutionModel, ExecutionConfig, ExecutionMode};
     use futures::executor::block_on;
 
-    fn endpoint() -> DefaultProvider {
+    fn endpoint() -> ProviderEndpoint {
         let config = ExecutionConfig::new(4096, 30_000, true, false, ExecutionMode::Async);
-        DefaultProvider::new(EchoExecutionModel::new(config))
+        ProviderEndpoint::new(EchoExecutionModel::new(config))
     }
 
     #[test]

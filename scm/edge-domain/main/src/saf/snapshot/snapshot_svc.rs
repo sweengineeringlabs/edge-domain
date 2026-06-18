@@ -1,9 +1,9 @@
-//! SAF — snapshot service facade.
+﻿//! SAF — snapshot service facade.
 #[cfg(not(feature = "snapshot"))]
-pub use crate::api::snapshot::Snapshot;
+pub use crate::api::Snapshot;
 #[cfg(not(feature = "snapshot"))]
-pub use crate::api::snapshot::SnapshotError;
+pub use crate::api::SnapshotError;
 #[cfg(not(feature = "snapshot"))]
-pub use crate::api::snapshot::SnapshotStore;
+pub use crate::api::SnapshotStore;
 /// SAF module anchor — satisfies arch-audit rule 221.
 pub const SNAPSHOT_SVC: () = ();

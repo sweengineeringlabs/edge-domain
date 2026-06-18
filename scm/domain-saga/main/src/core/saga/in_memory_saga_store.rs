@@ -1,8 +1,8 @@
 use std::fmt::Display;
 
-use crate::api::saga::errors::SagaError;
-use crate::api::saga::traits::{Saga, SagaStore};
-use crate::api::saga::types::InMemorySagaStore;
+use crate::api::SagaError;
+use crate::api::{Saga, SagaStore};
+use crate::api::InMemorySagaStore;
 
 impl<S> SagaStore for InMemorySagaStore<S>
 where

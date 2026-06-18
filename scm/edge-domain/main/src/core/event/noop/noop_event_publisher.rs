@@ -1,10 +1,10 @@
-//! [`NoopEventPublisher`] — discards events silently.
+﻿//! [`NoopEventPublisher`] — discards events silently.
 
 use futures::future::BoxFuture;
 
-use crate::api::event::DomainEvent;
-use crate::api::event::EventError;
-use crate::api::event::EventPublisher;
+use crate::api::DomainEvent;
+use crate::api::EventError;
+use crate::api::EventPublisher;
 
 /// Accepts events and discards them without side effects.
 pub(crate) struct NoopEventPublisher;

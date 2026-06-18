@@ -1,4 +1,4 @@
-//! # edge-llm-reasoning
+﻿//! # edge-llm-reasoning
 //!
 //! LLM Reasoning domain primitive: multi-strategy reasoning patterns
 //! (chain-of-thought, tree-of-thought, reflection, …) for complex problem solving.
@@ -15,7 +15,7 @@ mod saf;
 
 pub use saf::{
     LinearReasoning, PatternMetadata, PatternMetadataBuilder, Reasoning, ReasoningChain,
-    ReasoningChainBuilder, DefaultReasoning, ReasoningError, ReasoningFactory, ReasoningPattern,
+    ReasoningChainBuilder, ReasoningEndpoint, ReasoningError, ReasoningFactory, ReasoningPattern,
     ReasoningStep, ReasoningStepBuilder, StdReasoningFactory, StepResult, StepResultBuilder,
     ThinkingProcess, ThinkingProcessBuilder, REASONING_FACTORY_SVC, REASONING_SVC,
 };

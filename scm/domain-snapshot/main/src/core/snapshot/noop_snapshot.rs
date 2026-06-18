@@ -1,7 +1,7 @@
 //! `Snapshot` impl for [`NoopSnapshot`].
 
-use crate::api::snapshot::traits::Snapshot;
-use crate::api::snapshot::types::NoopSnapshot;
+use crate::api::Snapshot;
+use crate::api::NoopSnapshot;
 
 impl Snapshot for NoopSnapshot {
     type AggregateId = String;

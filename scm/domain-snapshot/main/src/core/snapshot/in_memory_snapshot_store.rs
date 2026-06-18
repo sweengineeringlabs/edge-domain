@@ -4,9 +4,9 @@ use std::fmt::Display;
 
 use futures::future::BoxFuture;
 
-use crate::api::snapshot::errors::SnapshotError;
-use crate::api::snapshot::traits::{Snapshot, SnapshotStore};
-use crate::api::snapshot::types::InMemorySnapshotStore;
+use crate::api::SnapshotError;
+use crate::api::{Snapshot, SnapshotStore};
+use crate::api::InMemorySnapshotStore;
 
 impl<S> SnapshotStore for InMemorySnapshotStore<S>
 where

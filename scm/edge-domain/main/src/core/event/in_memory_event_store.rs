@@ -1,4 +1,4 @@
-//! In-memory event store — for development and testing only.
+﻿//! In-memory event store — for development and testing only.
 //!
 //! Backed by a `RwLock<HashMap<String, Vec<EventEnvelope<E>>>>`.
 //! State is lost when the process stops.
@@ -9,11 +9,11 @@ use parking_lot::RwLock;
 
 use futures::future::BoxFuture;
 
-use crate::api::event::DomainEvent;
-use crate::api::event::EventEnvelope;
-use crate::api::event::EventStore;
-use crate::api::event::EventStoreError;
-use crate::api::event::ExpectedVersion;
+use crate::api::DomainEvent;
+use crate::api::EventEnvelope;
+use crate::api::EventStore;
+use crate::api::EventStoreError;
+use crate::api::ExpectedVersion;
 
 pub(crate) struct InMemoryEventStore<E> {
     streams: RwLock<HashMap<String, Vec<EventEnvelope<E>>>>,

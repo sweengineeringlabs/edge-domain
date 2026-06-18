@@ -2,9 +2,9 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::service::errors::ServiceError;
-use crate::api::service::traits::service::Service;
-use crate::api::service::types::NoopService;
+use crate::api::ServiceError;
+use crate::api::Service;
+use crate::api::NoopService;
 
 impl Service for NoopService {
     type Request = ();
@@ -23,8 +23,8 @@ impl Service for NoopService {
 mod tests {
     use futures::executor::block_on;
 
-    use crate::api::service::traits::service::Service;
-    use crate::api::service::types::NoopService;
+    use crate::api::Service;
+    use crate::api::NoopService;
 
     /// @covers: name
     #[test]

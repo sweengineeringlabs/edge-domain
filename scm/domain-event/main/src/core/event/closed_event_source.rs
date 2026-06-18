@@ -4,9 +4,9 @@ use std::sync::Arc;
 
 use futures::future::BoxFuture;
 
-use crate::api::event::errors::EventError;
-use crate::api::event::traits::{DomainEvent, EventSource};
-use crate::api::event::types::ClosedEventSource;
+use crate::api::EventError;
+use crate::api::{DomainEvent, EventSource};
+use crate::api::ClosedEventSource;
 
 impl EventSource for ClosedEventSource {
     fn recv_next(&mut self) -> BoxFuture<'_, Result<Arc<dyn DomainEvent>, EventError>> {

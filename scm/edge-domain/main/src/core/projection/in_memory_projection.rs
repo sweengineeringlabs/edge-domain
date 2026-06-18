@@ -1,12 +1,12 @@
-//! In-memory projection — folds events into a read model via a reducer.
+﻿//! In-memory projection — folds events into a read model via a reducer.
 //!
 //! A general-purpose reference [`Projection`] for development and testing.
 //! State lives in process memory and is lost when the process stops.
 
 use std::marker::PhantomData;
 
-use crate::api::event::DomainEvent;
-use crate::api::projection::Projection;
+use crate::api::DomainEvent;
+use crate::api::Projection;
 
 /// Builds a read model `R` by folding each event through a reducer `F`.
 ///

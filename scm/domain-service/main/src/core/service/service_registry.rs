@@ -2,9 +2,9 @@
 
 use std::sync::Arc;
 
-use crate::api::service::traits::service_registry::ServiceRegistry;
-use crate::api::service::types::ServiceRegistry as ServiceRegistryStore;
-use crate::api::service::Service;
+use crate::api::ServiceRegistryTrait as ServiceRegistry;
+use crate::api::ServiceRegistry as ServiceRegistryStore;
+use crate::api::Service;
 
 impl<Req, Resp> ServiceRegistry for ServiceRegistryStore<Req, Resp>
 where
@@ -41,10 +41,10 @@ mod tests {
 
     use futures::future::BoxFuture;
 
-    use crate::api::service::errors::ServiceError;
-    use crate::api::service::traits::service_registry::ServiceRegistry as ServiceRegistryTrait;
-    use crate::api::service::types::ServiceRegistry;
-    use crate::api::service::Service;
+    use crate::api::ServiceError;
+    use crate::api::ServiceRegistryTrait;
+    use crate::api::ServiceRegistry;
+    use crate::api::Service;
 
     struct ServiceRegistryFixture;
 

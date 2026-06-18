@@ -1,4 +1,4 @@
-//! # edge-llm-prompt
+﻿//! # edge-llm-prompt
 //!
 //! LLM Prompt domain primitive: template rendering and dynamic context
 //! management for composable prompts.
@@ -16,7 +16,7 @@ mod saf;
 
 pub use saf::{
     ContextManager, HeuristicTokenCounter, MapContextManager, Prompt, PromptCache,
-    PromptCacheBuilder, DefaultPrompt, PromptError, PromptFactory, PromptMetadata,
+    PromptCacheBuilder, PromptEndpoint, PromptError, PromptFactory, PromptMetadata,
     PromptMetadataBuilder, RenderContext, StaticPrompt, StdPromptFactory, TokenCounter, Variable,
     VariableBuilder, VariableType, CONTEXT_MANAGER_SVC, PROMPT_FACTORY_SVC, PROMPT_SVC,
     TOKEN_COUNTER_SVC,

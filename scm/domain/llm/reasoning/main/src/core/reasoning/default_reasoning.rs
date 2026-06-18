@@ -1,4 +1,4 @@
-//! `Handler` + `Service` impls for `DefaultReasoning` (ADR-037 connection).
+﻿//! `Handler` + `Service` impls for `ReasoningEndpoint` (ADR-037 connection).
 
 use async_trait::async_trait;
 use futures::future::BoxFuture;
@@ -9,7 +9,7 @@ use edge_domain_security::SecurityContext;
 use edge_domain_service::{Service, ServiceError};
 
 use crate::api::Reasoning;
-use crate::api::{DefaultReasoning, ReasoningPattern, ThinkingProcess};
+use crate::api::{ReasoningEndpoint, ReasoningPattern, ThinkingProcess};
 
 /// Stable handler id under which the endpoint registers for dispatch.
 const REASONING_HANDLER_ID: &str = "reasoning.reason";
@@ -21,7 +21,7 @@ const REASONING_SERVICE_NAME: &str = "reasoning";
 const REASONING_DEFAULT_PATTERN: ReasoningPattern = ReasoningPattern::ChainOfThought;
 
 #[async_trait]
-impl Handler for DefaultReasoning {
+impl Handler for ReasoningEndpoint {
     type Request = String;
     type Response = ThinkingProcess;
 
@@ -45,7 +45,7 @@ impl Handler for DefaultReasoning {
     }
 }
 
-impl Service for DefaultReasoning {
+impl Service for ReasoningEndpoint {
     type Request = String;
     type Response = ThinkingProcess;
 
@@ -77,8 +77,8 @@ mod tests {
     use crate::api::LinearReasoning;
     use futures::executor::block_on;
 
-    fn endpoint() -> DefaultReasoning {
-        DefaultReasoning::new(LinearReasoning::new(ReasoningPattern::ChainOfThought))
+    fn endpoint() -> ReasoningEndpoint {
+        ReasoningEndpoint::new(LinearReasoning::new(ReasoningPattern::ChainOfThought))
     }
 
     #[test]

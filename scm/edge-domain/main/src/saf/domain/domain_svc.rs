@@ -1,32 +1,32 @@
-//! Domain factory methods — all building-block constructors as methods on [`Domain`].
+﻿//! Domain factory methods — all building-block constructors as methods on [`Domain`].
 /// SAF module anchor — satisfies arch-audit rule 221.
 pub const DOMAIN_SVC: () = ();
 
 use std::hash::Hash;
 use std::sync::Arc;
 
-use crate::api::command::CommandBus;
-use crate::api::domain::types::Domain;
-use crate::api::event::Aggregate;
-use crate::api::event::DomainEvent;
-use crate::api::event::EventBus;
-use crate::api::event::EventBusConfig;
-use crate::api::event::EventPublisher;
-use crate::api::event::EventStore;
-use crate::api::event::EventStoreError;
-use crate::api::handler::EchoHandler;
-use crate::api::handler::Handler;
-use crate::api::handler::HandlerRegistry as HandlerRegistryTrait;
-use crate::api::projection::Projection;
-use crate::api::query::QueryBus;
-use crate::api::repository::QueryableRepository;
-use crate::api::repository::Repository;
-use crate::api::saga::Saga;
-use crate::api::saga::SagaStore;
-use crate::api::service::types::ServiceRegistry;
-use crate::api::service::ServiceRegistry as ServiceRegistryTrait;
-use crate::api::snapshot::Snapshot;
-use crate::api::snapshot::SnapshotStore;
+use crate::api::CommandBus;
+use crate::api::Domain;
+use crate::api::Aggregate;
+use crate::api::DomainEvent;
+use crate::api::EventBus;
+use crate::api::EventBusConfig;
+use crate::api::EventPublisher;
+use crate::api::EventStore;
+use crate::api::EventStoreError;
+use crate::api::EchoHandler;
+use crate::api::Handler;
+use crate::api::HandlerRegistry as HandlerRegistryTrait;
+use crate::api::Projection;
+use crate::api::QueryBus;
+use crate::api::QueryableRepository;
+use crate::api::Repository;
+use crate::api::Saga;
+use crate::api::SagaStore;
+use crate::api::ServiceRegistryImpl;
+use crate::api::ServiceRegistry as ServiceRegistryTrait;
+use crate::api::Snapshot;
+use crate::api::SnapshotStore;
 use crate::core::command::direct_command_bus::DirectCommandBus;
 use crate::core::projection::in_memory_projection::InMemoryProjection;
 use crate::core::snapshot::in_memory_snapshot_store::InMemorySnapshotStore;
@@ -35,11 +35,11 @@ use crate::spi::event::tokio::tokio_event_bus::TokioEventBus;
 // When the `event` feature is enabled the sub-crate provides real implementations;
 // when disabled the local core/ fallbacks are used.
 #[cfg(feature = "event")]
-use crate::api::event::InMemoryEventStore;
+use crate::api::InMemoryEventStore;
 #[cfg(feature = "event")]
-use crate::api::event::NoopEventBus;
+use crate::api::NoopEventBus;
 #[cfg(feature = "event")]
-use crate::api::event::NoopEventPublisher;
+use crate::api::NoopEventPublisher;
 #[cfg(not(feature = "event"))]
 use crate::core::event::in_memory_event_store::InMemoryEventStore;
 #[cfg(not(feature = "event"))]
@@ -48,22 +48,22 @@ use crate::core::event::noop::noop_event_bus::NoopEventBus;
 use crate::core::event::noop::noop_event_publisher::NoopEventPublisher;
 
 #[cfg(feature = "handler")]
-use crate::api::handler::InProcessHandlerRegistry;
+use crate::api::InProcessHandlerRegistry;
 #[cfg(not(feature = "handler"))]
 use crate::core::handler::in_process_handler_registry::InProcessHandlerRegistry;
 
 #[cfg(feature = "query")]
-use crate::api::query::DirectQueryBus;
+use crate::api::DirectQueryBus;
 #[cfg(not(feature = "query"))]
 use crate::core::query::direct_query_bus::DirectQueryBus;
 
 #[cfg(feature = "repository")]
-use crate::api::repository::InMemoryRepository;
+use crate::api::InMemoryRepository;
 #[cfg(not(feature = "repository"))]
 use crate::core::repository::in_memory_repository::InMemoryRepository;
 
 #[cfg(feature = "saga")]
-use crate::api::saga::InMemorySagaStore;
+use crate::api::InMemorySagaStore;
 #[cfg(not(feature = "saga"))]
 use crate::core::saga::in_memory_saga_store::InMemorySagaStore;
 
@@ -157,7 +157,7 @@ impl Domain {
         Request: Send + 'static,
         Response: Send + 'static,
     {
-        let r = ServiceRegistry::new();
+        let r = ServiceRegistryImpl::new();
         Arc::new(r)
     }
 
@@ -168,7 +168,7 @@ impl Domain {
         Request: Send + 'static,
         Response: Send + 'static,
     {
-        let r = ServiceRegistry::new();
+        let r = ServiceRegistryImpl::new();
         Arc::new(r)
     }
 
@@ -392,8 +392,8 @@ impl Domain {
         Arc::new(b)
     }
 
-    /// Validate a configuration value using its [`Validator`](crate::api::validator::traits::Validator) impl.
-    pub fn validate_config<V: crate::api::validator::traits::Validator>(
+    /// Validate a configuration value using its [`Validator`](crate::api::Validator) impl.
+    pub fn validate_config<V: crate::api::Validator>(
         config: &V,
     ) -> Result<(), String> {
         config.validate().map_err(|e| e.to_string())

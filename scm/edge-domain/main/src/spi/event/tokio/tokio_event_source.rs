@@ -1,13 +1,13 @@
-//! [`TokioEventSource`] — tokio broadcast subscriber adapter.
+﻿//! [`TokioEventSource`] — tokio broadcast subscriber adapter.
 
 use std::sync::Arc;
 
 use futures::future::BoxFuture;
 use tokio::sync::broadcast;
 
-use crate::api::event::errors::EventError;
-use crate::api::event::traits::domain_event::DomainEvent;
-use crate::api::event::EventSource;
+use crate::api::EventError;
+use crate::api::DomainEvent;
+use crate::api::EventSource;
 
 /// Tokio broadcast [`EventSource`] — the subscriber side of
 /// [`TokioEventBus`](super::tokio_event_bus::TokioEventBus).

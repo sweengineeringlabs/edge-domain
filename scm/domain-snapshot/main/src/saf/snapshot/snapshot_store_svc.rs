@@ -1,4 +1,4 @@
-pub use crate::api::snapshot::InMemorySnapshotStore;
-pub use crate::api::snapshot::SnapshotStore;
+pub use crate::api::InMemorySnapshotStore;
+pub use crate::api::SnapshotStore;
 /// SAF contract identifier for the snapshot-store service.
 pub const SNAPSHOT_STORE_SVC: &str = "snapshot_store";

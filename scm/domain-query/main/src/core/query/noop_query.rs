@@ -3,11 +3,11 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::query::traits::Query;
-use crate::api::query::traits::QueryBus;
-use crate::api::query::types::NoopQuery;
-use crate::api::query::types::NoopQueryBus;
-use crate::api::query::QueryError;
+use crate::api::Query;
+use crate::api::QueryBus;
+use crate::api::NoopQuery;
+use crate::api::NoopQueryBus;
+use crate::api::QueryError;
 
 impl Query for NoopQuery {
     type Result = ();

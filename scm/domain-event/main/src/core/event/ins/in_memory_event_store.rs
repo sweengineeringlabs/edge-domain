@@ -4,9 +4,9 @@ use std::time::SystemTime;
 
 use futures::future::BoxFuture;
 
-use crate::api::event::errors::EventStoreError;
-use crate::api::event::traits::{DomainEvent, EventStore};
-use crate::api::event::types::{EventEnvelope, ExpectedVersion, InMemoryEventStore};
+use crate::api::EventStoreError;
+use crate::api::{DomainEvent, EventStore};
+use crate::api::{EventEnvelope, ExpectedVersion, InMemoryEventStore};
 
 impl<E> EventStore for InMemoryEventStore<E>
 where

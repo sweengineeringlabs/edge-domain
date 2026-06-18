@@ -2,9 +2,9 @@
 
 use std::sync::Arc;
 
-use crate::api::handler::traits::Handler;
-use crate::api::handler::traits::HandlerRegistry;
-use crate::api::handler::types::InProcessHandlerRegistry;
+use crate::api::Handler;
+use crate::api::HandlerRegistry;
+use crate::api::InProcessHandlerRegistry;
 
 impl<Req: Send + 'static, Resp: Send + 'static> HandlerRegistry
     for InProcessHandlerRegistry<Req, Resp>
@@ -41,7 +41,7 @@ impl<Req: Send + 'static, Resp: Send + 'static> HandlerRegistry
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::api::handler::errors::HandlerError;
+    use crate::api::HandlerError;
     use async_trait::async_trait;
 
     struct InProcessHandlerRegistryFixture;
@@ -54,7 +54,7 @@ mod tests {
         fn id(&self) -> &str {
             "fixture"
         }
-        async fn execute(&self, req: String, _ctx: crate::api::handler::types::HandlerContext<'_>) -> Result<String, HandlerError> {
+        async fn execute(&self, req: String, _ctx: crate::api::HandlerContext<'_>) -> Result<String, HandlerError> {
             Ok(req)
         }
     }

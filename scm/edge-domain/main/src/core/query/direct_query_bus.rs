@@ -1,11 +1,11 @@
-//! `DirectQueryBus` — inline query dispatch with no queuing.
+﻿//! `DirectQueryBus` — inline query dispatch with no queuing.
 
 use futures::future::BoxFuture;
 
-use crate::api::query::Query;
-use crate::api::query::QueryBus;
-use crate::api::query::QueryError;
-use crate::api::query::QueryBusFactory;
+use crate::api::Query;
+use crate::api::QueryBus;
+use crate::api::QueryError;
+use crate::api::QueryBusFactory;
 
 // impl Query for NoopQuery (see noop_query.rs)
 

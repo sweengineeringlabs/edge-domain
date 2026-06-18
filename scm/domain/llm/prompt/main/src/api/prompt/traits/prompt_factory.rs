@@ -1,7 +1,7 @@
-//! `PromptFactory` — constructor contract for the default prompt primitives.
+﻿//! `PromptFactory` — constructor contract for the default prompt primitives.
 
 use crate::api::prompt::types::{
-    HeuristicTokenCounter, MapContextManager, PromptCacheBuilder, DefaultPrompt, PromptMetadata,
+    HeuristicTokenCounter, MapContextManager, PromptCacheBuilder, PromptEndpoint, PromptMetadata,
     PromptMetadataBuilder, StaticPrompt, StdPromptFactory, VariableBuilder,
 };
 
@@ -44,9 +44,9 @@ pub trait PromptFactory {
         HeuristicTokenCounter::new()
     }
 
-    /// Construct a pipeline [`DefaultPrompt`] (the connected Handler + Service
+    /// Construct a pipeline [`PromptEndpoint`] (the connected Handler + Service
     /// face) over a reference prompt built from `template` and `metadata`.
-    fn endpoint(template: String, metadata: PromptMetadata) -> DefaultPrompt {
-        DefaultPrompt::new(StaticPrompt::new(template, metadata))
+    fn endpoint(template: String, metadata: PromptMetadata) -> PromptEndpoint {
+        PromptEndpoint::new(StaticPrompt::new(template, metadata))
     }
 }
