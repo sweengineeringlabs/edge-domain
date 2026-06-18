@@ -1,9 +1,7 @@
-﻿//! `PromptFactory` — constructor contract for the default prompt primitives.
-
-use std::sync::Arc;
+//! `PromptFactory` — constructor contract for the default prompt primitives.
 
 use crate::api::prompt::types::{
-    HeuristicTokenCounter, MapContextManager, PromptCacheBuilder, PromptEndpoint, PromptMetadata,
+    HeuristicTokenCounter, MapContextManager, PromptCacheBuilder, PromptMetadata,
     PromptMetadataBuilder, StaticPrompt, StdPromptFactory, VariableBuilder,
 };
 
@@ -46,8 +44,4 @@ pub trait PromptFactory {
         HeuristicTokenCounter::new()
     }
 
-    /// Construct a dispatchable [`PromptEndpoint`] backed by a reference prompt.
-    fn endpoint(template: String, metadata: PromptMetadata) -> PromptEndpoint {
-        PromptEndpoint::new(Arc::new(StaticPrompt::new(template, metadata)))
-    }
 }

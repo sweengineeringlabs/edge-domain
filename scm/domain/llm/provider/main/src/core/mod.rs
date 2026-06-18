@@ -1,1 +1,1 @@
-mod provider;
+pub(crate) mod provider;

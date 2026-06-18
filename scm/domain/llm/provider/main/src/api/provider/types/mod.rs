@@ -21,7 +21,6 @@ pub mod tool_call_delta_builder;
 
 pub mod buffered_stream_handler;
 pub mod echo_execution_model;
-pub mod provider_endpoint;
 pub mod static_provider;
 pub mod std_provider_factory;
 
@@ -46,6 +45,5 @@ pub use tool_call_delta_builder::ToolCallDeltaBuilder;
 
 pub use buffered_stream_handler::BufferedStreamHandler;
 pub use echo_execution_model::EchoExecutionModel;
-pub use provider_endpoint::ProviderEndpoint;
 pub use static_provider::StaticProvider;
 pub use std_provider_factory::StdProviderFactory;

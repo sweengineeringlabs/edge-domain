@@ -1,1 +1,1 @@
-mod prompt;
+pub(crate) mod prompt;

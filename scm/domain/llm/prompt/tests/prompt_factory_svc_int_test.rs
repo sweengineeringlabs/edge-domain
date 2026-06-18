@@ -2,8 +2,8 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_prompt::{
-    ContextManager, Prompt, PromptFactory, PromptMetadata, StdPromptFactory, TokenCounter,
-    VariableType,
+    default_prompt_handler, ContextManager, Prompt, PromptFactory, PromptMetadata, StdPromptFactory,
+    TokenCounter, VariableType,
 };
 
 // --- std_factory ---
@@ -196,11 +196,11 @@ fn test_token_counter_not_exact_edge() {
     assert!(!StdPromptFactory::token_counter().is_exact());
 }
 
-// --- endpoint ---
+// --- default_prompt_handler ---
 
-/// @covers: PromptFactory::endpoint — builds a usable Handler endpoint
+/// @covers: default_prompt_handler — builds a usable Handler
 #[test]
-fn test_endpoint_handler_renders_happy() {
+fn test_default_prompt_handler_renders_happy() {
     use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
     use edge_domain_handler::{Handler, HandlerContext};
     use edge_domain_security::SecurityContext;
@@ -208,18 +208,18 @@ fn test_endpoint_handler_renders_happy() {
     use futures::executor::block_on;
     let var = Variable::new("name".to_string(), VariableType::String);
     let m = PromptMetadata::new("g".to_string(), "G".to_string(), "1".to_string(), vec![var]);
-    let ep = StdPromptFactory::endpoint("Hi {{name}}".to_string(), m);
+    let h = default_prompt_handler("Hi {{name}}".to_string(), m);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let ctx = HandlerContext { security: &security, commands: &commands };
     let render_ctx = RenderContext::new().with_variable("name".to_string(), serde_json::json!("Ada"));
-    let out = block_on(Handler::execute(&ep, render_ctx, ctx)).expect("ok");
+    let out = block_on(Handler::execute(&h, render_ctx, ctx)).expect("ok");
     assert_eq!(out, "Hi Ada");
 }
 
-/// @covers: PromptFactory::endpoint — missing required variable surfaces an error through the pipeline
+/// @covers: default_prompt_handler — missing required variable surfaces an error through the pipeline
 #[test]
-fn test_endpoint_missing_variable_errors_error() {
+fn test_default_prompt_handler_missing_variable_errors_error() {
     use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
     use edge_domain_handler::{Handler, HandlerContext};
     use edge_domain_security::SecurityContext;
@@ -227,18 +227,18 @@ fn test_endpoint_missing_variable_errors_error() {
     use futures::executor::block_on;
     let var = Variable::new("name".to_string(), VariableType::String);
     let m = PromptMetadata::new("g".to_string(), "G".to_string(), "1".to_string(), vec![var]);
-    let ep = StdPromptFactory::endpoint("Hi {{name}}".to_string(), m);
+    let h = default_prompt_handler("Hi {{name}}".to_string(), m);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let ctx = HandlerContext { security: &security, commands: &commands };
-    assert!(block_on(Handler::execute(&ep, RenderContext::new(), ctx)).is_err());
+    assert!(block_on(Handler::execute(&h, RenderContext::new(), ctx)).is_err());
 }
 
-/// @covers: PromptFactory::endpoint — exposes the stable dispatch id
+/// @covers: default_prompt_handler — exposes the stable dispatch id
 #[test]
-fn test_endpoint_exposes_handler_id_edge() {
+fn test_default_prompt_handler_id_is_stable_edge() {
     use edge_domain_handler::Handler;
     let m = PromptMetadata::new("g".to_string(), "G".to_string(), "1".to_string(), vec![]);
-    let ep = StdPromptFactory::endpoint("static".to_string(), m);
-    assert_eq!(Handler::id(&ep), "prompt.render");
+    let h = default_prompt_handler("static".to_string(), m);
+    assert_eq!(Handler::id(&h), "prompt.render");
 }

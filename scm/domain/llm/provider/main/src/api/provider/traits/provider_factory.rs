@@ -1,11 +1,9 @@
 //! `ProviderFactory` — constructor contract for the default provider primitives.
 
-use std::sync::Arc;
-
 use crate::api::provider::types::{
     BufferedStreamHandler, EchoExecutionModel, ExecutionConfig, ExecutionConfigBuilder, ModelInfo,
-    ModelInfoBuilder, ProviderConfig, ProviderConfigBuilder, ProviderEndpoint, StaticProvider,
-    StdProviderFactory, TokenUsageBuilder, ToolCallDeltaBuilder,
+    ModelInfoBuilder, ProviderConfig, ProviderConfigBuilder, StaticProvider, StdProviderFactory,
+    TokenUsageBuilder, ToolCallDeltaBuilder,
 };
 
 /// Factory for the standard reference implementations.
@@ -57,8 +55,4 @@ pub trait ProviderFactory {
         BufferedStreamHandler::new()
     }
 
-    /// Construct a dispatchable [`ProviderEndpoint`] backed by an echo execution model.
-    fn endpoint(config: ExecutionConfig) -> ProviderEndpoint {
-        ProviderEndpoint::new(Arc::new(EchoExecutionModel::new(config)))
-    }
 }

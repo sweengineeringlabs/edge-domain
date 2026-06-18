@@ -1,18 +1,24 @@
-//! `Handler` impl for `PromptEndpoint` (ADR-024).
+//! `DefaultPromptHandler` — `Handler` impl for the prompt primitive (ADR-024).
+
+use std::sync::Arc;
 
 use async_trait::async_trait;
 
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
 
-use crate::api::{PromptEndpoint, RenderContext};
+use crate::api::{Prompt, RenderContext};
 
-/// Stable handler id under which the endpoint registers for dispatch.
+/// Stable handler id under which this handler registers for dispatch.
 const PROMPT_HANDLER_ID: &str = "prompt.render";
-/// Route pattern this endpoint matches in the dispatch table.
+/// Route pattern this handler matches in the dispatch table.
 const PROMPT_HANDLER_PATTERN: &str = "prompt/render";
 
+pub(crate) struct DefaultPromptHandler {
+    pub(crate) prompt: Arc<dyn Prompt>,
+}
+
 #[async_trait]
-impl Handler for PromptEndpoint {
+impl Handler for DefaultPromptHandler {
     type Request = RenderContext;
     type Response = String;
 
@@ -39,13 +45,12 @@ impl Handler for PromptEndpoint {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::sync::Arc;
     use crate::api::{PromptMetadata, StaticPrompt, Variable, VariableType};
     use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
     use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
 
-    fn endpoint() -> PromptEndpoint {
+    fn handler() -> DefaultPromptHandler {
         let var = Variable::new("name".to_string(), VariableType::String);
         let metadata = PromptMetadata::new(
             "greet".to_string(),
@@ -53,10 +58,9 @@ mod tests {
             "1".to_string(),
             vec![var],
         );
-        PromptEndpoint::new(Arc::new(StaticPrompt::new(
-            "Hello {{name}}".to_string(),
-            metadata,
-        )))
+        DefaultPromptHandler {
+            prompt: Arc::new(StaticPrompt::new("Hello {{name}}".to_string(), metadata)),
+        }
     }
 
     #[test]
@@ -65,18 +69,18 @@ mod tests {
         let commands = StdCommandBusFactory::direct();
         let ctx = HandlerContext { security: &security, commands: &commands };
         let context = RenderContext::new().with_variable("name".to_string(), serde_json::json!("Ada"));
-        let out = block_on(Handler::execute(&endpoint(), context, ctx)).expect("handler ok");
+        let out = block_on(Handler::execute(&handler(), context, ctx)).expect("handler ok");
         assert_eq!(out, "Hello Ada");
     }
 
     #[test]
     fn test_handler_id_is_stable_edge() {
-        assert_eq!(Handler::id(&endpoint()), PROMPT_HANDLER_ID);
+        assert_eq!(Handler::id(&handler()), PROMPT_HANDLER_ID);
     }
 
     #[test]
     fn test_handler_pattern_is_stable_edge() {
-        assert_eq!(Handler::pattern(&endpoint()), PROMPT_HANDLER_PATTERN);
+        assert_eq!(Handler::pattern(&handler()), PROMPT_HANDLER_PATTERN);
     }
 
     #[test]
@@ -85,7 +89,7 @@ mod tests {
         let commands = StdCommandBusFactory::direct();
         let ctx = HandlerContext { security: &security, commands: &commands };
         let empty_ctx = RenderContext::new();
-        let result = block_on(Handler::execute(&endpoint(), empty_ctx, ctx));
+        let result = block_on(Handler::execute(&handler(), empty_ctx, ctx));
         assert!(result.is_err());
     }
 }

@@ -1,11 +1,8 @@
 ﻿//! `ReasoningFactory` — constructor contract for the default reasoning primitives.
 
-use std::sync::Arc;
-
 use crate::api::reasoning::types::{
-    LinearReasoning, PatternMetadataBuilder, ReasoningChainBuilder, ReasoningEndpoint,
-    ReasoningPattern, ReasoningStepBuilder, StdReasoningFactory, StepResultBuilder,
-    ThinkingProcessBuilder,
+    LinearReasoning, PatternMetadataBuilder, ReasoningChainBuilder, ReasoningPattern,
+    ReasoningStepBuilder, StdReasoningFactory, StepResultBuilder, ThinkingProcessBuilder,
 };
 
 /// Factory for the standard reference reasoning implementations.
@@ -47,8 +44,4 @@ pub trait ReasoningFactory {
         ReasoningChainBuilder::new(id)
     }
 
-    /// Construct a dispatchable [`ReasoningEndpoint`] backed by a reference reasoner.
-    fn endpoint(pattern: ReasoningPattern) -> ReasoningEndpoint {
-        ReasoningEndpoint::new(Arc::new(LinearReasoning::new(pattern)))
-    }
 }

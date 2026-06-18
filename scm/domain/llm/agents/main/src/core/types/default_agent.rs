@@ -1,16 +1,18 @@
-//! `Handler` impl for `AgentEndpoint` (ADR-024).
+//! `DefaultAgentHandler` — `Handler` impl for the agent primitive (ADR-024).
 
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
 
-use crate::api::AgentEndpoint;
-
-/// Stable handler id under which the endpoint registers for dispatch.
+/// Stable handler id under which this handler registers for dispatch.
 const AGENT_HANDLER_ID: &str = "agent.execute_skill";
-/// Route pattern this endpoint matches in the dispatch table.
+/// Route pattern this handler matches in the dispatch table.
 const AGENT_HANDLER_PATTERN: &str = "agent/execute_skill";
 
+pub(crate) struct DefaultAgentHandler {
+    pub(crate) skill: String,
+}
+
 #[async_trait::async_trait]
-impl Handler for AgentEndpoint {
+impl Handler for DefaultAgentHandler {
     type Request = String;
     type Response = String;
 
@@ -32,7 +34,7 @@ impl Handler for AgentEndpoint {
                 "agent skill input must not be empty".to_string(),
             ));
         }
-        Ok(format!("{}:{}", self.skill(), input))
+        Ok(format!("{}:{}", self.skill, input))
     }
 }
 
@@ -43,8 +45,8 @@ mod tests {
     use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
 
-    fn endpoint() -> AgentEndpoint {
-        AgentEndpoint::new("code_review")
+    fn handler() -> DefaultAgentHandler {
+        DefaultAgentHandler { skill: "code_review".to_string() }
     }
 
     #[test]
@@ -52,19 +54,19 @@ mod tests {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
         let ctx = HandlerContext { security: &security, commands: &commands };
-        let out = block_on(Handler::execute(&endpoint(), "diff".to_string(), ctx))
+        let out = block_on(Handler::execute(&handler(), "diff".to_string(), ctx))
             .expect("handler ok");
         assert_eq!(out, "code_review:diff");
     }
 
     #[test]
     fn test_handler_id_is_stable_edge() {
-        assert_eq!(Handler::id(&endpoint()), AGENT_HANDLER_ID);
+        assert_eq!(Handler::id(&handler()), AGENT_HANDLER_ID);
     }
 
     #[test]
     fn test_handler_pattern_is_stable_edge() {
-        assert_eq!(Handler::pattern(&endpoint()), AGENT_HANDLER_PATTERN);
+        assert_eq!(Handler::pattern(&handler()), AGENT_HANDLER_PATTERN);
     }
 
     #[test]
@@ -72,7 +74,7 @@ mod tests {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
         let ctx = HandlerContext { security: &security, commands: &commands };
-        let result = block_on(Handler::execute(&endpoint(), String::new(), ctx));
+        let result = block_on(Handler::execute(&handler(), String::new(), ctx));
         assert!(result.is_err());
     }
 }

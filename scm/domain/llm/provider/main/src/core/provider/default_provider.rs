@@ -1,18 +1,24 @@
-//! `Handler` impl for `ProviderEndpoint` (ADR-024).
+//! `DefaultProviderHandler` — `Handler` impl for the provider primitive (ADR-024).
+
+use std::sync::Arc;
 
 use async_trait::async_trait;
 
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
 
-use crate::api::{ExecutionStepResult, ProviderEndpoint};
+use crate::api::{ExecutionModel, ExecutionStepResult};
 
-/// Stable handler id under which the endpoint registers for dispatch.
+/// Stable handler id under which this handler registers for dispatch.
 const PROVIDER_HANDLER_ID: &str = "provider.execute_step";
-/// Route pattern this endpoint matches in the dispatch table.
+/// Route pattern this handler matches in the dispatch table.
 const PROVIDER_HANDLER_PATTERN: &str = "provider/execute_step";
 
+pub(crate) struct DefaultProviderHandler {
+    pub(crate) model: Arc<dyn ExecutionModel>,
+}
+
 #[async_trait]
-impl Handler for ProviderEndpoint {
+impl Handler for DefaultProviderHandler {
     type Request = String;
     type Response = ExecutionStepResult;
 
@@ -39,15 +45,16 @@ impl Handler for ProviderEndpoint {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::sync::Arc;
     use crate::api::{EchoExecutionModel, ExecutionConfig, ExecutionMode};
     use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
     use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
 
-    fn endpoint() -> ProviderEndpoint {
+    fn handler() -> DefaultProviderHandler {
         let config = ExecutionConfig::new(4096, 30_000, true, false, ExecutionMode::Async);
-        ProviderEndpoint::new(Arc::new(EchoExecutionModel::new(config)))
+        DefaultProviderHandler {
+            model: Arc::new(EchoExecutionModel::new(config)),
+        }
     }
 
     #[test]
@@ -55,18 +62,18 @@ mod tests {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
         let ctx = HandlerContext { security: &security, commands: &commands };
-        let out = block_on(Handler::execute(&endpoint(), "ship it".to_string(), ctx))
+        let out = block_on(Handler::execute(&handler(), "ship it".to_string(), ctx))
             .expect("handler ok");
         assert!(out.reasoning.contains("ship it"));
     }
 
     #[test]
     fn test_handler_id_is_stable_edge() {
-        assert_eq!(Handler::id(&endpoint()), PROVIDER_HANDLER_ID);
+        assert_eq!(Handler::id(&handler()), PROVIDER_HANDLER_ID);
     }
 
     #[test]
     fn test_handler_pattern_is_stable_edge() {
-        assert_eq!(Handler::pattern(&endpoint()), PROVIDER_HANDLER_PATTERN);
+        assert_eq!(Handler::pattern(&handler()), PROVIDER_HANDLER_PATTERN);
     }
 }

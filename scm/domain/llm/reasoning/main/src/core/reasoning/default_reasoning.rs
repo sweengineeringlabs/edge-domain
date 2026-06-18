@@ -1,20 +1,26 @@
-//! `Handler` impl for `ReasoningEndpoint` (ADR-024).
+//! `DefaultReasoningHandler` — `Handler` impl for the reasoning primitive (ADR-024).
+
+use std::sync::Arc;
 
 use async_trait::async_trait;
 
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
 
-use crate::api::{ReasoningEndpoint, ReasoningPattern, ThinkingProcess};
+use crate::api::{Reasoning, ReasoningPattern, ThinkingProcess};
 
-/// Stable handler id under which the endpoint registers for dispatch.
+/// Stable handler id under which this handler registers for dispatch.
 const REASONING_HANDLER_ID: &str = "reasoning.reason";
-/// Route pattern this endpoint matches in the dispatch table.
+/// Route pattern this handler matches in the dispatch table.
 const REASONING_HANDLER_PATTERN: &str = "reasoning/reason";
 /// Default reasoning pattern applied when the pipeline carries no explicit one.
 const REASONING_DEFAULT_PATTERN: ReasoningPattern = ReasoningPattern::ChainOfThought;
 
+pub(crate) struct DefaultReasoningHandler {
+    pub(crate) reasoner: Arc<dyn Reasoning>,
+}
+
 #[async_trait]
-impl Handler for ReasoningEndpoint {
+impl Handler for DefaultReasoningHandler {
     type Request = String;
     type Response = ThinkingProcess;
 
@@ -41,14 +47,15 @@ impl Handler for ReasoningEndpoint {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::sync::Arc;
     use crate::api::LinearReasoning;
     use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
     use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
 
-    fn endpoint() -> ReasoningEndpoint {
-        ReasoningEndpoint::new(Arc::new(LinearReasoning::new(ReasoningPattern::ChainOfThought)))
+    fn handler() -> DefaultReasoningHandler {
+        DefaultReasoningHandler {
+            reasoner: Arc::new(LinearReasoning::new(ReasoningPattern::ChainOfThought)),
+        }
     }
 
     #[test]
@@ -56,7 +63,7 @@ mod tests {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
         let ctx = HandlerContext { security: &security, commands: &commands };
-        let out = block_on(Handler::execute(&endpoint(), "solve x".to_string(), ctx))
+        let out = block_on(Handler::execute(&handler(), "solve x".to_string(), ctx))
             .expect("handler ok");
         assert!(out.is_complete);
         assert!(out.conclusion.is_some());
@@ -64,12 +71,12 @@ mod tests {
 
     #[test]
     fn test_handler_id_is_stable_edge() {
-        assert_eq!(Handler::id(&endpoint()), REASONING_HANDLER_ID);
+        assert_eq!(Handler::id(&handler()), REASONING_HANDLER_ID);
     }
 
     #[test]
     fn test_handler_pattern_is_stable_edge() {
-        assert_eq!(Handler::pattern(&endpoint()), REASONING_HANDLER_PATTERN);
+        assert_eq!(Handler::pattern(&handler()), REASONING_HANDLER_PATTERN);
     }
 
     #[test]
@@ -77,7 +84,7 @@ mod tests {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
         let ctx = HandlerContext { security: &security, commands: &commands };
-        let result = block_on(Handler::execute(&endpoint(), "   ".to_string(), ctx));
+        let result = block_on(Handler::execute(&handler(), "   ".to_string(), ctx));
         assert!(result.is_err());
     }
 }

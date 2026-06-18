@@ -14,7 +14,6 @@ pub mod step_result_builder;
 pub mod thinking_process_builder;
 
 pub mod linear_reasoning;
-pub mod reasoning_endpoint;
 pub mod std_reasoning_factory;
 
 pub use pattern_metadata::PatternMetadata;
@@ -31,5 +30,4 @@ pub use step_result_builder::StepResultBuilder;
 pub use thinking_process_builder::ThinkingProcessBuilder;
 
 pub use linear_reasoning::LinearReasoning;
-pub use reasoning_endpoint::ReasoningEndpoint;
 pub use std_reasoning_factory::StdReasoningFactory;

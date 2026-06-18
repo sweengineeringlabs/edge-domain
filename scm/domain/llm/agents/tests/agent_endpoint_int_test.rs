@@ -1,73 +1,65 @@
-//! Handler integration tests — `AgentEndpoint` as a dispatchable `Handler`.
+//! Handler integration tests — `agent_handler` as a dispatchable `Handler`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
 use edge_domain_handler::{Handler, HandlerContext};
 use edge_domain_security::SecurityContext;
-use edge_llm_agent::{AgentEndpoint, AgentManager, NoopAgentManager};
+use edge_llm_agent::agent_handler;
 use futures::executor::block_on;
 
-fn endpoint() -> AgentEndpoint {
-    AgentEndpoint::new("code_review")
-}
-
-/// @covers: AgentEndpoint (Handler face) — runs core under a request context
+/// @covers: agent_handler (Handler face) — runs core under a request context
 #[test]
 fn test_handler_execute_returns_skill_colon_input_happy() {
-    let ep = endpoint();
+    let h = agent_handler("code_review");
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let ctx = HandlerContext { security: &security, commands: &commands };
-    let out = block_on(Handler::execute(&ep, "diff".to_string(), ctx)).expect("handler ok");
+    let out = block_on(Handler::execute(&h, "diff".to_string(), ctx)).expect("handler ok");
     assert_eq!(out, "code_review:diff");
 }
 
-/// @covers: AgentEndpoint — dispatch id is stable
+/// @covers: agent_handler — dispatch id is stable
 #[test]
 fn test_handler_id_is_stable_edge() {
-    assert_eq!(Handler::id(&endpoint()), "agent.execute_skill");
+    let h = agent_handler("any_skill");
+    assert_eq!(Handler::id(&h), "agent.execute_skill");
 }
 
-/// @covers: AgentEndpoint — pattern is stable
+/// @covers: agent_handler — pattern is stable
 #[test]
 fn test_handler_pattern_is_stable_edge() {
-    assert_eq!(Handler::pattern(&endpoint()), "agent/execute_skill");
+    let h = agent_handler("any_skill");
+    assert_eq!(Handler::pattern(&h), "agent/execute_skill");
 }
 
-/// @covers: AgentEndpoint — empty input surfaces a handler error
+/// @covers: agent_handler — empty input surfaces a handler error
 #[test]
 fn test_handler_execute_empty_input_returns_error() {
-    let ep = endpoint();
+    let h = agent_handler("code_review");
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let ctx = HandlerContext { security: &security, commands: &commands };
-    assert!(block_on(Handler::execute(&ep, String::new(), ctx)).is_err());
+    assert!(block_on(Handler::execute(&h, String::new(), ctx)).is_err());
 }
 
-/// @covers: AgentManager::endpoint — the manager constructs an endpoint for a skill
+/// @covers: agent_handler — targets the named skill in its output
 #[test]
-fn test_endpoint_manager_targets_named_skill_happy() {
-    let manager = NoopAgentManager;
-    let ep = manager.endpoint("planning");
-    assert_eq!(ep.skill(), "planning");
-    assert_eq!(Handler::id(&ep), "agent.execute_skill");
-}
-
-/// @covers: AgentManager::endpoint — endpoint built via the manager still rejects empty input
-#[test]
-fn test_endpoint_manager_empty_input_returns_error() {
-    let manager = NoopAgentManager;
-    let ep = manager.endpoint("planning");
+fn test_handler_targets_named_skill_happy() {
+    let h = agent_handler("planning");
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let ctx = HandlerContext { security: &security, commands: &commands };
-    assert!(block_on(Handler::execute(&ep, String::new(), ctx)).is_err());
+    let out = block_on(Handler::execute(&h, "a task".to_string(), ctx)).expect("ok");
+    assert_eq!(out, "planning:a task");
 }
 
-/// @covers: AgentManager::endpoint — edge: empty skill name is preserved verbatim
+/// @covers: agent_handler — edge: empty skill name is preserved verbatim
 #[test]
-fn test_endpoint_manager_empty_skill_name_edge() {
-    let manager = NoopAgentManager;
-    let ep = manager.endpoint("");
-    assert_eq!(ep.skill(), "");
+fn test_handler_empty_skill_name_edge() {
+    let h = agent_handler("");
+    let security = SecurityContext::unauthenticated();
+    let commands = StdCommandBusFactory::direct();
+    let ctx = HandlerContext { security: &security, commands: &commands };
+    let out = block_on(Handler::execute(&h, "input".to_string(), ctx)).expect("ok");
+    assert_eq!(out, ":input");
 }

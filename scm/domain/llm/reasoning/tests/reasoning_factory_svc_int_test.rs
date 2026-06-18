@@ -1,7 +1,7 @@
 //! SAF facade tests — `ReasoningFactory` constructors and builders.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_llm_reasoning::{Reasoning, ReasoningFactory, ReasoningPattern, StdReasoningFactory};
+use edge_llm_reasoning::{default_reasoning_handler, Reasoning, ReasoningFactory, ReasoningPattern, StdReasoningFactory};
 
 // --- std_factory ---
 
@@ -179,41 +179,41 @@ fn test_reasoning_chain_builder_final_answer_edge() {
     assert!(chain.is_complete);
 }
 
-// --- endpoint ---
+// --- default_reasoning_handler ---
 
-/// @covers: ReasoningFactory::endpoint — builds a usable Handler endpoint
+/// @covers: default_reasoning_handler — builds a usable Handler
 #[test]
-fn test_endpoint_handler_runs_happy() {
+fn test_default_reasoning_handler_runs_happy() {
     use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
     use edge_domain_handler::{Handler, HandlerContext};
     use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
-    let ep = StdReasoningFactory::endpoint(ReasoningPattern::ChainOfThought);
+    let h = default_reasoning_handler(ReasoningPattern::ChainOfThought);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let ctx = HandlerContext { security: &security, commands: &commands };
-    let out = block_on(Handler::execute(&ep, "solve x".to_string(), ctx)).expect("ok");
+    let out = block_on(Handler::execute(&h, "solve x".to_string(), ctx)).expect("ok");
     assert!(out.is_complete);
 }
 
-/// @covers: ReasoningFactory::endpoint — pattern mismatch surfaces an error through the pipeline
+/// @covers: default_reasoning_handler — pattern mismatch surfaces an error through the pipeline
 #[test]
-fn test_endpoint_pattern_mismatch_errors_error() {
+fn test_default_reasoning_handler_pattern_mismatch_errors_error() {
     use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
     use edge_domain_handler::{Handler, HandlerContext};
     use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
-    let ep = StdReasoningFactory::endpoint(ReasoningPattern::GraphBased);
+    let h = default_reasoning_handler(ReasoningPattern::GraphBased);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let ctx = HandlerContext { security: &security, commands: &commands };
-    assert!(block_on(Handler::execute(&ep, "solve x".to_string(), ctx)).is_err());
+    assert!(block_on(Handler::execute(&h, "solve x".to_string(), ctx)).is_err());
 }
 
-/// @covers: ReasoningFactory::endpoint — exposes the stable dispatch id
+/// @covers: default_reasoning_handler — exposes the stable dispatch id
 #[test]
-fn test_endpoint_exposes_handler_id_edge() {
+fn test_default_reasoning_handler_id_is_stable_edge() {
     use edge_domain_handler::Handler;
-    let ep = StdReasoningFactory::endpoint(ReasoningPattern::ChainOfThought);
-    assert_eq!(Handler::id(&ep), "reasoning.reason");
+    let h = default_reasoning_handler(ReasoningPattern::ChainOfThought);
+    assert_eq!(Handler::id(&h), "reasoning.reason");
 }
