@@ -1,6 +1,6 @@
 //! No-op [`AgentRegistry`] implementation for testing the contract.
 
-use crate::api::noop::NoopAgentRegistry;
+use crate::api::NoopAgentRegistry;
 use crate::api::{Agent, AgentError, AgentMetadata, AgentRegistry};
 use edge_domain_registry::Registry;
 use std::sync::Arc;

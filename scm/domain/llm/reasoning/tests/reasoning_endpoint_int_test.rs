@@ -4,13 +4,13 @@
 use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
 use edge_domain_handler::{Handler, HandlerContext};
 use edge_domain_security::SecurityContext;
-use edge_llm_reasoning::{default_reasoning_handler, ReasoningPattern};
+use edge_llm_reasoning::{StdReasoningFactory, ReasoningPattern};
 use futures::executor::block_on;
 
 /// @covers: reasoning_handler — runs core under a request context
 #[test]
 fn test_handler_execute_returns_complete_process_happy() {
-    let h = default_reasoning_handler(ReasoningPattern::ChainOfThought);
+    let h = StdReasoningFactory::default_reasoning_handler(ReasoningPattern::ChainOfThought);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let ctx = HandlerContext { security: &security, commands: &commands };
@@ -22,21 +22,21 @@ fn test_handler_execute_returns_complete_process_happy() {
 /// @covers: reasoning_handler — dispatch id is stable
 #[test]
 fn test_handler_id_is_stable_edge() {
-    let h = default_reasoning_handler(ReasoningPattern::ChainOfThought);
+    let h = StdReasoningFactory::default_reasoning_handler(ReasoningPattern::ChainOfThought);
     assert_eq!(Handler::id(&h), "reasoning.reason");
 }
 
 /// @covers: reasoning_handler — pattern is stable
 #[test]
 fn test_handler_pattern_is_stable_edge() {
-    let h = default_reasoning_handler(ReasoningPattern::ChainOfThought);
+    let h = StdReasoningFactory::default_reasoning_handler(ReasoningPattern::ChainOfThought);
     assert_eq!(Handler::pattern(&h), "reasoning/reason");
 }
 
 /// @covers: reasoning_handler — blank problem surfaces an error through the pipeline
 #[test]
 fn test_handler_execute_blank_problem_errors_error() {
-    let h = default_reasoning_handler(ReasoningPattern::ChainOfThought);
+    let h = StdReasoningFactory::default_reasoning_handler(ReasoningPattern::ChainOfThought);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let ctx = HandlerContext { security: &security, commands: &commands };

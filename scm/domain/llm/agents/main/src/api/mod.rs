@@ -1,7 +1,7 @@
 mod error;
-pub(crate) mod noop;
+mod noop;
 mod traits;
-pub(crate) mod types;
+mod types;
 
 pub use error::AgentError;
 pub use noop::{
@@ -13,7 +13,8 @@ pub use traits::{
     Validator,
 };
 pub use types::{
-    AgentLifecycleError, AgentMetadata, AgentState, CacheControl, ContentPart, InputOutputSchema,
-    Message, MessageBuilder, MessageContent, ParameterDocumentation, ParameterDocumentationBuilder,
-    Role, SkillMetadata, ToolCall, ToolChoice, ValidationError,
+    AgentLifecycleError, AgentMetadata, AgentMetadataBuilder, AgentState, CacheControl, ContentPart,
+    InputOutputSchema, Message, MessageBuilder, MessageContent, ParameterDocumentation,
+    ParameterDocumentationBuilder, Role, SkillMetadata, SkillMetadataBuilder, ToolCall, ToolChoice,
+    ValidationError,
 };

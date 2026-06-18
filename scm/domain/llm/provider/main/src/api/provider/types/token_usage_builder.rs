@@ -67,10 +67,39 @@ mod tests {
         assert!(usage.cache_hit());
     }
 
+    /// @covers: build
     #[test]
     fn test_token_usage_builder_defaults_zero() {
         let usage = TokenUsageBuilder::new().build();
         assert_eq!(usage.total_tokens, 0);
         assert!(!usage.cache_hit());
+    }
+
+    /// @covers: prompt_tokens
+    #[test]
+    fn test_prompt_tokens() {
+        let u = TokenUsageBuilder::new().prompt_tokens(100).build();
+        assert_eq!(u.prompt_tokens, 100);
+    }
+
+    /// @covers: completion_tokens
+    #[test]
+    fn test_completion_tokens() {
+        let u = TokenUsageBuilder::new().completion_tokens(50).build();
+        assert_eq!(u.completion_tokens, 50);
+    }
+
+    /// @covers: cache_read_input_tokens
+    #[test]
+    fn test_cache_read_input_tokens() {
+        let u = TokenUsageBuilder::new().cache_read_input_tokens(20).build();
+        assert_eq!(u.cache_read_input_tokens, 20);
+    }
+
+    /// @covers: cache_creation_input_tokens
+    #[test]
+    fn test_cache_creation_input_tokens() {
+        let u = TokenUsageBuilder::new().cache_creation_input_tokens(10).build();
+        assert_eq!(u.cache_creation_input_tokens, 10);
     }
 }

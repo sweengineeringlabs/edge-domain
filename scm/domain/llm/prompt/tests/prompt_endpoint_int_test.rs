@@ -4,7 +4,7 @@
 use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
 use edge_domain_handler::{Handler, HandlerContext};
 use edge_domain_security::SecurityContext;
-use edge_llm_prompt::{default_prompt_handler, PromptMetadata, RenderContext, Variable, VariableType};
+use edge_llm_prompt::{StdPromptFactory, PromptMetadata, RenderContext, Variable, VariableType};
 use futures::executor::block_on;
 
 fn make_handler() -> impl Handler<Request = RenderContext, Response = String> {
@@ -15,7 +15,7 @@ fn make_handler() -> impl Handler<Request = RenderContext, Response = String> {
         "1".to_string(),
         vec![var],
     );
-    default_prompt_handler("Hello {{name}}".to_string(), metadata)
+    StdPromptFactory::default_prompt_handler("Hello {{name}}".to_string(), metadata)
 }
 
 /// @covers: prompt_handler (Handler face) — runs core under a request context

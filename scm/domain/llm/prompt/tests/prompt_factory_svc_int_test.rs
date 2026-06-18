@@ -2,7 +2,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_prompt::{
-    default_prompt_handler, ContextManager, Prompt, PromptFactory, PromptMetadata, StdPromptFactory,
+    ContextManager, Prompt, PromptFactory, PromptMetadata, StdPromptFactory,
     TokenCounter, VariableType,
 };
 
@@ -208,7 +208,7 @@ fn test_default_prompt_handler_renders_happy() {
     use futures::executor::block_on;
     let var = Variable::new("name".to_string(), VariableType::String);
     let m = PromptMetadata::new("g".to_string(), "G".to_string(), "1".to_string(), vec![var]);
-    let h = default_prompt_handler("Hi {{name}}".to_string(), m);
+    let h = StdPromptFactory::default_prompt_handler("Hi {{name}}".to_string(), m);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let ctx = HandlerContext { security: &security, commands: &commands };
@@ -227,7 +227,7 @@ fn test_default_prompt_handler_missing_variable_errors_error() {
     use futures::executor::block_on;
     let var = Variable::new("name".to_string(), VariableType::String);
     let m = PromptMetadata::new("g".to_string(), "G".to_string(), "1".to_string(), vec![var]);
-    let h = default_prompt_handler("Hi {{name}}".to_string(), m);
+    let h = StdPromptFactory::default_prompt_handler("Hi {{name}}".to_string(), m);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let ctx = HandlerContext { security: &security, commands: &commands };
@@ -239,6 +239,59 @@ fn test_default_prompt_handler_missing_variable_errors_error() {
 fn test_default_prompt_handler_id_is_stable_edge() {
     use edge_domain_handler::Handler;
     let m = PromptMetadata::new("g".to_string(), "G".to_string(), "1".to_string(), vec![]);
-    let h = default_prompt_handler("static".to_string(), m);
+    let h = StdPromptFactory::default_prompt_handler("static".to_string(), m);
+    assert_eq!(Handler::id(&h), "prompt.render");
+}
+
+// --- prompt_handler ---
+
+/// @covers: StdPromptFactory::prompt_handler — builds a usable Handler from a prompt impl
+#[test]
+fn test_prompt_handler_renders_with_arc_prompt_happy() {
+    use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+    use edge_domain_handler::{Handler, HandlerContext};
+    use edge_domain_security::SecurityContext;
+    use edge_llm_prompt::{RenderContext, Variable};
+    use futures::executor::block_on;
+    use std::sync::Arc;
+    let var = Variable::new("name".to_string(), VariableType::String);
+    let m = PromptMetadata::new("g".to_string(), "G".to_string(), "1".to_string(), vec![var]);
+    let prompt = Arc::new(StdPromptFactory::prompt("Hi {{name}}".to_string(), m));
+    let h = StdPromptFactory::prompt_handler(prompt);
+    let security = SecurityContext::unauthenticated();
+    let commands = StdCommandBusFactory::direct();
+    let ctx = HandlerContext { security: &security, commands: &commands };
+    let render_ctx = RenderContext::new().with_variable("name".to_string(), serde_json::json!("Eve"));
+    let out = block_on(Handler::execute(&h, render_ctx, ctx)).expect("ok");
+    assert_eq!(out, "Hi Eve");
+}
+
+/// @covers: StdPromptFactory::prompt_handler — missing required variable is an error
+#[test]
+fn test_prompt_handler_missing_required_variable_error() {
+    use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+    use edge_domain_handler::{Handler, HandlerContext};
+    use edge_domain_security::SecurityContext;
+    use edge_llm_prompt::{RenderContext, Variable};
+    use futures::executor::block_on;
+    use std::sync::Arc;
+    let var = Variable::new("name".to_string(), VariableType::String);
+    let m = PromptMetadata::new("g".to_string(), "G".to_string(), "1".to_string(), vec![var]);
+    let prompt = Arc::new(StdPromptFactory::prompt("Hi {{name}}".to_string(), m));
+    let h = StdPromptFactory::prompt_handler(prompt);
+    let security = SecurityContext::unauthenticated();
+    let commands = StdCommandBusFactory::direct();
+    let ctx = HandlerContext { security: &security, commands: &commands };
+    assert!(block_on(Handler::execute(&h, RenderContext::new(), ctx)).is_err());
+}
+
+/// @covers: StdPromptFactory::prompt_handler — empty template renders to an empty string
+#[test]
+fn test_prompt_handler_empty_template_edge() {
+    use edge_domain_handler::Handler;
+    use std::sync::Arc;
+    let m = PromptMetadata::new("e".to_string(), "E".to_string(), "1".to_string(), vec![]);
+    let prompt = Arc::new(StdPromptFactory::prompt(String::new(), m));
+    let h = StdPromptFactory::prompt_handler(prompt);
     assert_eq!(Handler::id(&h), "prompt.render");
 }

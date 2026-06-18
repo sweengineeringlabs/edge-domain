@@ -12,11 +12,11 @@
 mod api;
 mod core;
 mod saf;
+mod spi;
 
 pub use saf::{
     LinearReasoning, PatternMetadata, PatternMetadataBuilder, Reasoning, ReasoningChain,
     ReasoningChainBuilder, ReasoningError, ReasoningFactory, ReasoningPattern, ReasoningStep,
     ReasoningStepBuilder, StdReasoningFactory, StepResult, StepResultBuilder, ThinkingProcess,
-    ThinkingProcessBuilder, REASONING_FACTORY_SVC, REASONING_SVC, default_reasoning_handler,
-    reasoning_handler,
+    ThinkingProcessBuilder, REASONING_FACTORY_SVC, REASONING_SVC,
 };

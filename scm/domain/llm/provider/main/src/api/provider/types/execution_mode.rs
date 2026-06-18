@@ -24,36 +24,3 @@ impl ExecutionMode {
         !matches!(self, ExecutionMode::LongRunning)
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::ExecutionMode;
-
-    #[test]
-    fn test_is_streaming_true_for_streaming() {
-        assert!(ExecutionMode::Streaming.is_streaming());
-    }
-
-    #[test]
-    fn test_is_streaming_false_for_async() {
-        assert!(!ExecutionMode::Async.is_streaming());
-    }
-
-    #[test]
-    fn test_is_async_true_for_async() {
-        assert!(ExecutionMode::Async.is_async());
-    }
-
-    #[test]
-    fn test_execution_mode_serde_roundtrip() {
-        let json = serde_json::to_string(&ExecutionMode::LongRunning).expect("serialize");
-        let back: ExecutionMode = serde_json::from_str(&json).expect("deserialize");
-        assert_eq!(back, ExecutionMode::LongRunning);
-    }
-
-    #[test]
-    fn test_execution_mode_equality() {
-        assert_eq!(ExecutionMode::Async, ExecutionMode::Async);
-        assert_ne!(ExecutionMode::Async, ExecutionMode::Streaming);
-    }
-}

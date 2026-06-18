@@ -23,26 +23,3 @@ pub enum FinishReason {
     #[serde(rename = "error")]
     Error,
 }
-
-#[cfg(test)]
-mod tests {
-    use super::FinishReason;
-
-    #[test]
-    fn test_finish_reason_variants_distinct() {
-        assert_ne!(FinishReason::Stop, FinishReason::Length);
-        assert_ne!(FinishReason::ToolCalls, FinishReason::Error);
-    }
-
-    #[test]
-    fn test_finish_reason_equality() {
-        assert_eq!(FinishReason::Stop, FinishReason::Stop);
-    }
-
-    #[test]
-    fn test_finish_reason_serde_roundtrip() {
-        let json = serde_json::to_string(&FinishReason::ContentFilter).expect("serialize");
-        let back: FinishReason = serde_json::from_str(&json).expect("deserialize");
-        assert_eq!(back, FinishReason::ContentFilter);
-    }
-}

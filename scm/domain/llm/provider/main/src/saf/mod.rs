@@ -6,6 +6,5 @@ pub use provider::{
     ModelInfo, ModelInfoBuilder, Provider, ProviderConfig, ProviderConfigBuilder, ProviderFactory,
     StaticProvider, StdProviderFactory, StreamChunk, StreamDelta, StreamHandler, TokenUsage,
     TokenUsageBuilder, TokenizerAccuracy, ToolCallDelta, ToolCallDeltaBuilder, EXECUTION_MODEL_SVC,
-    PROVIDER_FACTORY_SVC, PROVIDER_SVC, STREAM_HANDLER_SVC, default_provider_handler,
-    provider_handler,
+    PROVIDER_FACTORY_SVC, PROVIDER_SVC, STREAM_HANDLER_SVC,
 };

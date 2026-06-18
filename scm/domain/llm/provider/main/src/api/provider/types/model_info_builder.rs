@@ -116,10 +116,67 @@ mod tests {
         assert_eq!(info.training_cutoff.as_deref(), Some("2024-04"));
     }
 
+    /// @covers: build
     #[test]
     fn test_model_info_builder_defaults() {
         let info = ModelInfoBuilder::new().build();
         assert_eq!(info.family, ModelFamily::Other);
         assert!(info.id.is_empty());
+    }
+
+    /// @covers: id
+    #[test]
+    fn test_id() {
+        let info = ModelInfoBuilder::new().id("claude-3".to_string()).build();
+        assert_eq!(info.id, "claude-3");
+    }
+
+    /// @covers: name
+    #[test]
+    fn test_name() {
+        let info = ModelInfoBuilder::new().name("Claude".to_string()).build();
+        assert_eq!(info.name, "Claude");
+    }
+
+    /// @covers: family
+    #[test]
+    fn test_family() {
+        let info = ModelInfoBuilder::new().family(ModelFamily::OpenAI).build();
+        assert_eq!(info.family, ModelFamily::OpenAI);
+    }
+
+    /// @covers: context_window
+    #[test]
+    fn test_context_window() {
+        let info = ModelInfoBuilder::new().context_window(128_000).build();
+        assert_eq!(info.context_window, 128_000);
+    }
+
+    /// @covers: supports_vision
+    #[test]
+    fn test_supports_vision() {
+        let info = ModelInfoBuilder::new().supports_vision(true).build();
+        assert!(info.supports_vision);
+    }
+
+    /// @covers: supports_functions
+    #[test]
+    fn test_supports_functions() {
+        let info = ModelInfoBuilder::new().supports_functions(true).build();
+        assert!(info.supports_functions);
+    }
+
+    /// @covers: supports_streaming
+    #[test]
+    fn test_supports_streaming() {
+        let info = ModelInfoBuilder::new().supports_streaming(true).build();
+        assert!(info.supports_streaming);
+    }
+
+    /// @covers: training_cutoff
+    #[test]
+    fn test_training_cutoff() {
+        let info = ModelInfoBuilder::new().training_cutoff("2024-01".to_string()).build();
+        assert_eq!(info.training_cutoff.as_deref(), Some("2024-01"));
     }
 }

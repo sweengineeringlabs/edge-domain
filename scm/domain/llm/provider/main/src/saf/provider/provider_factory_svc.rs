@@ -16,16 +16,18 @@ pub use crate::api::ToolCallDeltaBuilder;
 /// SAF contract identifier for the provider-factory service.
 pub const PROVIDER_FACTORY_SVC: &str = "provider_factory";
 
-/// Construct a dispatchable provider handler backed by the given execution model.
-pub fn provider_handler(
-    model: Arc<dyn ExecutionModel>,
-) -> impl Handler<Request = String, Response = ExecutionStepResult> {
-    DefaultProviderHandler { model }
-}
+impl StdProviderFactory {
+    /// Construct a dispatchable provider handler backed by the given execution model.
+    pub fn provider_handler(
+        model: Arc<dyn ExecutionModel>,
+    ) -> impl Handler<Request = String, Response = ExecutionStepResult> {
+        DefaultProviderHandler { model }
+    }
 
-/// Construct a dispatchable provider handler backed by the reference [`EchoExecutionModel`].
-pub fn default_provider_handler(
-    config: ExecutionConfig,
-) -> impl Handler<Request = String, Response = ExecutionStepResult> {
-    provider_handler(Arc::new(EchoExecutionModel::new(config)))
+    /// Construct a dispatchable provider handler backed by the reference [`EchoExecutionModel`].
+    pub fn default_provider_handler(
+        config: ExecutionConfig,
+    ) -> impl Handler<Request = String, Response = ExecutionStepResult> {
+        Self::provider_handler(Arc::new(EchoExecutionModel::new(config)))
+    }
 }

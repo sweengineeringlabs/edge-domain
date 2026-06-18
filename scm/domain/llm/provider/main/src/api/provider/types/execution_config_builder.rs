@@ -90,10 +90,46 @@ mod tests {
         assert!(config.supports_streaming());
     }
 
+    /// @covers: build
     #[test]
     fn test_execution_config_builder_defaults() {
         let config = ExecutionConfigBuilder::new().build();
         assert_eq!(config.max_tokens_per_call, 4096);
         assert_eq!(config.execution_mode, ExecutionMode::Async);
+    }
+
+    /// @covers: max_tokens_per_call
+    #[test]
+    fn test_max_tokens_per_call() {
+        let c = ExecutionConfigBuilder::new().max_tokens_per_call(512).build();
+        assert_eq!(c.max_tokens_per_call, 512);
+    }
+
+    /// @covers: timeout_per_step
+    #[test]
+    fn test_timeout_per_step() {
+        let c = ExecutionConfigBuilder::new().timeout_per_step(5000).build();
+        assert_eq!(c.timeout_per_step, 5000);
+    }
+
+    /// @covers: cache_enabled
+    #[test]
+    fn test_cache_enabled() {
+        let c = ExecutionConfigBuilder::new().cache_enabled(true).build();
+        assert!(c.cache_enabled);
+    }
+
+    /// @covers: streaming_enabled
+    #[test]
+    fn test_streaming_enabled() {
+        let c = ExecutionConfigBuilder::new().streaming_enabled(true).build();
+        assert!(c.streaming_enabled);
+    }
+
+    /// @covers: execution_mode
+    #[test]
+    fn test_execution_mode() {
+        let c = ExecutionConfigBuilder::new().execution_mode(ExecutionMode::Streaming).build();
+        assert_eq!(c.execution_mode, ExecutionMode::Streaming);
     }
 }

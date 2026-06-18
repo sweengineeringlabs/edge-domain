@@ -1,6 +1,6 @@
 //! No-op [`Skill`] implementation for testing the contract.
 
-use crate::api::noop::NoopSkill;
+use crate::api::NoopSkill;
 use crate::api::Skill;
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
 

@@ -92,10 +92,60 @@ mod tests {
         assert!(config.supports_vision);
     }
 
+    /// @covers: build
     #[test]
     fn test_provider_config_builder_defaults() {
         let config = ProviderConfigBuilder::new().build();
         assert!(config.model.is_empty());
         assert!(config.api_base.is_none());
+    }
+
+    /// @covers: model
+    #[test]
+    fn test_model() {
+        let c = ProviderConfigBuilder::new().model("gpt-4".to_string()).build();
+        assert_eq!(c.model, "gpt-4");
+    }
+
+    /// @covers: temperature
+    #[test]
+    fn test_temperature() {
+        let c = ProviderConfigBuilder::new().temperature(0.5).build();
+        assert_eq!(c.temperature, 0.5);
+    }
+
+    /// @covers: api_base
+    #[test]
+    fn test_api_base() {
+        let c = ProviderConfigBuilder::new().api_base("https://example.com".to_string()).build();
+        assert_eq!(c.api_base.as_deref(), Some("https://example.com"));
+    }
+
+    /// @covers: max_context_tokens
+    #[test]
+    fn test_max_context_tokens() {
+        let c = ProviderConfigBuilder::new().max_context_tokens(16384).build();
+        assert_eq!(c.max_context_tokens, 16384);
+    }
+
+    /// @covers: supports_vision
+    #[test]
+    fn test_supports_vision() {
+        let c = ProviderConfigBuilder::new().supports_vision(true).build();
+        assert!(c.supports_vision);
+    }
+
+    /// @covers: supports_functions
+    #[test]
+    fn test_supports_functions() {
+        let c = ProviderConfigBuilder::new().supports_functions(true).build();
+        assert!(c.supports_functions);
+    }
+
+    /// @covers: supports_streaming
+    #[test]
+    fn test_supports_streaming() {
+        let c = ProviderConfigBuilder::new().supports_streaming(true).build();
+        assert!(c.supports_streaming);
     }
 }

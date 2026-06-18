@@ -65,10 +65,32 @@ mod tests {
         assert!(delta.arguments.is_some());
     }
 
+    /// @covers: build
     #[test]
     fn test_tool_call_delta_builder_defaults() {
         let delta = ToolCallDeltaBuilder::new(0).build();
         assert_eq!(delta.index, 0);
         assert!(delta.id.is_none());
+    }
+
+    /// @covers: id
+    #[test]
+    fn test_id() {
+        let d = ToolCallDeltaBuilder::new(0).id("call-1".to_string()).build();
+        assert_eq!(d.id.as_deref(), Some("call-1"));
+    }
+
+    /// @covers: name
+    #[test]
+    fn test_name() {
+        let d = ToolCallDeltaBuilder::new(0).name("search".to_string()).build();
+        assert_eq!(d.name.as_deref(), Some("search"));
+    }
+
+    /// @covers: arguments
+    #[test]
+    fn test_arguments() {
+        let d = ToolCallDeltaBuilder::new(0).arguments("{\"q\":\"x\"}".to_string()).build();
+        assert!(d.arguments.is_some());
     }
 }

@@ -1,6 +1,6 @@
 //! No-op [`AgentLifecycle`] implementation for testing the contract.
 
-use crate::api::noop::NoopAgentLifecycle;
+use crate::api::NoopAgentLifecycle;
 use crate::api::{AgentLifecycle, AgentLifecycleError, AgentState};
 
 #[async_trait::async_trait]

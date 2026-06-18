@@ -1,6 +1,6 @@
 //! No-op [`AgentManager`] implementation for testing the contract.
 
-use crate::api::noop::NoopAgentManager;
+use crate::api::NoopAgentManager;
 use crate::api::{Agent, AgentError, AgentManager};
 use std::sync::Arc;
 

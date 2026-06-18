@@ -2,7 +2,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_provider::{
-    default_provider_handler, ExecutionConfig, ExecutionMode, ExecutionModel, ModelFamily,
+    ExecutionConfig, ExecutionMode, ExecutionModel, ModelFamily,
     ModelInfo, Provider, ProviderConfig, ProviderFactory, StdProviderFactory, StreamHandler,
 };
 
@@ -163,7 +163,7 @@ fn test_default_provider_handler_runs_happy() {
     use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
     let config = ExecutionConfig::new(4096, 30_000, true, false, ExecutionMode::Async);
-    let h = default_provider_handler(config);
+    let h = StdProviderFactory::default_provider_handler(config);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let ctx = HandlerContext { security: &security, commands: &commands };
@@ -179,7 +179,7 @@ fn test_default_provider_handler_zero_budget_errors_error() {
     use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
     let config = ExecutionConfig::new(0, 30_000, true, false, ExecutionMode::Async);
-    let h = default_provider_handler(config);
+    let h = StdProviderFactory::default_provider_handler(config);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let ctx = HandlerContext { security: &security, commands: &commands };
@@ -191,7 +191,7 @@ fn test_default_provider_handler_zero_budget_errors_error() {
 fn test_default_provider_handler_exposes_handler_id_edge() {
     use edge_domain_handler::Handler;
     let config = ExecutionConfig::new(4096, 30_000, true, false, ExecutionMode::Async);
-    let h = default_provider_handler(config);
+    let h = StdProviderFactory::default_provider_handler(config);
     assert_eq!(Handler::id(&h), "provider.execute_step");
 }
 

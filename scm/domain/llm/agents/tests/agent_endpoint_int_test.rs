@@ -4,13 +4,13 @@
 use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
 use edge_domain_handler::{Handler, HandlerContext};
 use edge_domain_security::SecurityContext;
-use edge_llm_agent::agent_handler;
+use edge_llm_agent::NoopAgentManager;
 use futures::executor::block_on;
 
 /// @covers: agent_handler (Handler face) — runs core under a request context
 #[test]
 fn test_handler_execute_returns_skill_colon_input_happy() {
-    let h = agent_handler("code_review");
+    let h = NoopAgentManager::agent_handler("code_review");
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let ctx = HandlerContext { security: &security, commands: &commands };
@@ -21,21 +21,21 @@ fn test_handler_execute_returns_skill_colon_input_happy() {
 /// @covers: agent_handler — dispatch id is stable
 #[test]
 fn test_handler_id_is_stable_edge() {
-    let h = agent_handler("any_skill");
+    let h = NoopAgentManager::agent_handler("any_skill");
     assert_eq!(Handler::id(&h), "agent.execute_skill");
 }
 
 /// @covers: agent_handler — pattern is stable
 #[test]
 fn test_handler_pattern_is_stable_edge() {
-    let h = agent_handler("any_skill");
+    let h = NoopAgentManager::agent_handler("any_skill");
     assert_eq!(Handler::pattern(&h), "agent/execute_skill");
 }
 
 /// @covers: agent_handler — empty input surfaces a handler error
 #[test]
 fn test_handler_execute_empty_input_returns_error() {
-    let h = agent_handler("code_review");
+    let h = NoopAgentManager::agent_handler("code_review");
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let ctx = HandlerContext { security: &security, commands: &commands };
@@ -45,7 +45,7 @@ fn test_handler_execute_empty_input_returns_error() {
 /// @covers: agent_handler — targets the named skill in its output
 #[test]
 fn test_handler_targets_named_skill_happy() {
-    let h = agent_handler("planning");
+    let h = NoopAgentManager::agent_handler("planning");
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let ctx = HandlerContext { security: &security, commands: &commands };
@@ -56,7 +56,7 @@ fn test_handler_targets_named_skill_happy() {
 /// @covers: agent_handler — edge: empty skill name is preserved verbatim
 #[test]
 fn test_handler_empty_skill_name_edge() {
-    let h = agent_handler("");
+    let h = NoopAgentManager::agent_handler("");
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let ctx = HandlerContext { security: &security, commands: &commands };

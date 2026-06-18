@@ -1,6 +1,6 @@
 //! No-op [`SchemaValidator`] implementation for testing the contract.
 
-use crate::api::noop::NoopSchemaValidator;
+use crate::api::NoopSchemaValidator;
 use crate::api::{SchemaValidator, ValidationError};
 use serde_json::Value;
 

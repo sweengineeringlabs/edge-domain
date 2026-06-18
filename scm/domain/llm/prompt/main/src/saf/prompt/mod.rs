@@ -8,7 +8,7 @@ pub use context_manager_svc::{
 };
 pub use prompt_factory_svc::{
     PromptCacheBuilder, PromptFactory, PromptMetadataBuilder, StdPromptFactory, VariableBuilder,
-    PROMPT_FACTORY_SVC, default_prompt_handler, prompt_handler,
+    PROMPT_FACTORY_SVC,
 };
 pub use prompt_svc::{
     Prompt, PromptCache, PromptError, PromptMetadata, RenderContext, StaticPrompt, PROMPT_SVC,

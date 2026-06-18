@@ -1,6 +1,6 @@
 //! No-op [`Validator`] implementation for testing the contract.
 
-use crate::api::noop::NoopValidator;
+use crate::api::NoopValidator;
 use crate::api::Validator;
 
 impl Validator for NoopValidator {

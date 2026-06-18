@@ -5,5 +5,4 @@ pub use prompt::{
     PromptCacheBuilder, PromptError, PromptFactory, PromptMetadata, PromptMetadataBuilder,
     RenderContext, StaticPrompt, StdPromptFactory, TokenCounter, Variable, VariableBuilder,
     VariableType, CONTEXT_MANAGER_SVC, PROMPT_FACTORY_SVC, PROMPT_SVC, TOKEN_COUNTER_SVC,
-    default_prompt_handler, prompt_handler,
 };

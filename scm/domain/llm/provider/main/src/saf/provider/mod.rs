@@ -10,7 +10,6 @@ pub use execution_model_svc::{
 pub use provider_factory_svc::{
     ExecutionConfigBuilder, ModelInfoBuilder, ProviderConfigBuilder, ProviderFactory,
     StdProviderFactory, TokenUsageBuilder, ToolCallDeltaBuilder, PROVIDER_FACTORY_SVC,
-    default_provider_handler, provider_handler,
 };
 pub use provider_svc::{
     ExecutionError, FinishReason, ModelFamily, ModelInfo, Provider, ProviderConfig, StaticProvider,

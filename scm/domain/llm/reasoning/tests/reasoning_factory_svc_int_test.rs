@@ -1,7 +1,7 @@
 //! SAF facade tests — `ReasoningFactory` constructors and builders.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_llm_reasoning::{default_reasoning_handler, Reasoning, ReasoningFactory, ReasoningPattern, StdReasoningFactory};
+use edge_llm_reasoning::{Reasoning, ReasoningFactory, ReasoningPattern, StdReasoningFactory};
 
 // --- std_factory ---
 
@@ -188,7 +188,7 @@ fn test_default_reasoning_handler_runs_happy() {
     use edge_domain_handler::{Handler, HandlerContext};
     use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
-    let h = default_reasoning_handler(ReasoningPattern::ChainOfThought);
+    let h = StdReasoningFactory::default_reasoning_handler(ReasoningPattern::ChainOfThought);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let ctx = HandlerContext { security: &security, commands: &commands };
@@ -203,7 +203,7 @@ fn test_default_reasoning_handler_pattern_mismatch_errors_error() {
     use edge_domain_handler::{Handler, HandlerContext};
     use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
-    let h = default_reasoning_handler(ReasoningPattern::GraphBased);
+    let h = StdReasoningFactory::default_reasoning_handler(ReasoningPattern::GraphBased);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let ctx = HandlerContext { security: &security, commands: &commands };
@@ -214,6 +214,51 @@ fn test_default_reasoning_handler_pattern_mismatch_errors_error() {
 #[test]
 fn test_default_reasoning_handler_id_is_stable_edge() {
     use edge_domain_handler::Handler;
-    let h = default_reasoning_handler(ReasoningPattern::ChainOfThought);
+    let h = StdReasoningFactory::default_reasoning_handler(ReasoningPattern::ChainOfThought);
+    assert_eq!(Handler::id(&h), "reasoning.reason");
+}
+
+// --- reasoning_handler ---
+
+/// @covers: StdReasoningFactory::reasoning_handler — builds a usable Handler from a reasoning impl
+#[test]
+fn test_reasoning_handler_produces_thinking_process_happy() {
+    use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+    use edge_domain_handler::{Handler, HandlerContext};
+    use edge_domain_security::SecurityContext;
+    use futures::executor::block_on;
+    use std::sync::Arc;
+    let reasoner = Arc::new(StdReasoningFactory::reasoning(ReasoningPattern::ChainOfThought));
+    let h = StdReasoningFactory::reasoning_handler(reasoner);
+    let security = SecurityContext::unauthenticated();
+    let commands = StdCommandBusFactory::direct();
+    let ctx = HandlerContext { security: &security, commands: &commands };
+    let out = block_on(Handler::execute(&h, "what is 2+2?".to_string(), ctx)).expect("ok");
+    assert!(out.is_complete);
+}
+
+/// @covers: StdReasoningFactory::reasoning_handler — unsupported pattern surfaces an error
+#[test]
+fn test_reasoning_handler_rejects_unsupported_pattern_error() {
+    use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+    use edge_domain_handler::{Handler, HandlerContext};
+    use edge_domain_security::SecurityContext;
+    use futures::executor::block_on;
+    use std::sync::Arc;
+    let reasoner = Arc::new(StdReasoningFactory::reasoning(ReasoningPattern::GraphBased));
+    let h = StdReasoningFactory::reasoning_handler(reasoner);
+    let security = SecurityContext::unauthenticated();
+    let commands = StdCommandBusFactory::direct();
+    let ctx = HandlerContext { security: &security, commands: &commands };
+    assert!(block_on(Handler::execute(&h, "x".to_string(), ctx)).is_err());
+}
+
+/// @covers: StdReasoningFactory::reasoning_handler — exposes stable dispatch id
+#[test]
+fn test_reasoning_handler_preserves_dispatch_id_edge() {
+    use edge_domain_handler::Handler;
+    use std::sync::Arc;
+    let reasoner = Arc::new(StdReasoningFactory::reasoning(ReasoningPattern::ChainOfThought));
+    let h = StdReasoningFactory::reasoning_handler(reasoner);
     assert_eq!(Handler::id(&h), "reasoning.reason");
 }
