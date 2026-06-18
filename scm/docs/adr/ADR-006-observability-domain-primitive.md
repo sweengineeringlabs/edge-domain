@@ -1,6 +1,6 @@
 # ADR-006: Observability Domain Primitive — domain mandate
 
-**Status:** Proposed
+**Status:** Implemented
 **Date:** 2026-06-18
 **Governing ADR:** [ADR-022](https://github.com/sweengineeringlabs/edge/blob/main/docs/3-architecture/adr/ADR-022-cloud-native-extension-tier.md) — Cloud-Native Extension Tier
 **Relates to:** [ADR-001](ADR-001-security-context-propagation.md) — Security Context Propagation, [ADR-005](ADR-005-command-query-bus-stack.md) — CommandBus and QueryBus Middleware Stack
