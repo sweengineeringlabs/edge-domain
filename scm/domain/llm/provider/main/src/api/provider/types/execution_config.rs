@@ -49,3 +49,35 @@ impl ExecutionConfig {
         self.streaming_enabled && self.execution_mode.is_streaming()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::ExecutionConfig;
+    use crate::api::provider::types::ExecutionMode;
+
+    #[test]
+    fn test_timeout_converts_to_duration() {
+        let config = ExecutionConfig::new(4096, 30_000, true, true, ExecutionMode::Async);
+        assert_eq!(config.timeout().as_millis(), 30_000);
+    }
+
+    #[test]
+    fn test_supports_streaming_true_when_enabled() {
+        let config = ExecutionConfig::new(4096, 30_000, true, true, ExecutionMode::Streaming);
+        assert!(config.supports_streaming());
+    }
+
+    #[test]
+    fn test_supports_streaming_false_when_disabled() {
+        let config = ExecutionConfig::new(4096, 30_000, true, false, ExecutionMode::Streaming);
+        assert!(!config.supports_streaming());
+    }
+
+    #[test]
+    fn test_execution_config_serde_roundtrip() {
+        let config = ExecutionConfig::new(4096, 30_000, true, true, ExecutionMode::Async);
+        let json = serde_json::to_string(&config).expect("serialize");
+        let back: ExecutionConfig = serde_json::from_str(&json).expect("deserialize");
+        assert_eq!(back.max_tokens_per_call, 4096);
+    }
+}

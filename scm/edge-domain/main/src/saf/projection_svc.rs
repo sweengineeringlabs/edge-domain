@@ -1,5 +1,3 @@
-﻿//! SAF — projection service facade.
-#[cfg(not(feature = "projection"))]
-pub use crate::api::Projection;
+//! SAF — projection service facade.
 /// SAF module anchor — satisfies arch-audit rule 221.
 pub const PROJECTION_SVC: () = ();

@@ -27,3 +27,30 @@ impl ToolCallDelta {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::ToolCallDelta;
+
+    #[test]
+    fn test_new_sets_index() {
+        let delta = ToolCallDelta::new(3);
+        assert_eq!(delta.index, 3);
+        assert!(delta.id.is_none());
+        assert!(delta.name.is_none());
+    }
+
+    #[test]
+    fn test_tool_call_delta_clone() {
+        let delta = ToolCallDelta::new(1);
+        assert_eq!(delta.clone().index, 1);
+    }
+
+    #[test]
+    fn test_tool_call_delta_serde_roundtrip() {
+        let delta = ToolCallDelta::new(2);
+        let json = serde_json::to_string(&delta).expect("serialize");
+        let back: ToolCallDelta = serde_json::from_str(&json).expect("deserialize");
+        assert_eq!(back.index, 2);
+    }
+}

@@ -43,3 +43,35 @@ impl ExecutionStepResult {
         self.confidence > 0.8
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::ExecutionStepResult;
+    use crate::api::provider::types::TokenUsage;
+
+    #[test]
+    fn test_has_action_true_with_action() {
+        let r = ExecutionStepResult::new("think".to_string(), Some("tool".to_string()), 0.8, TokenUsage::new(0, 0, 0, 0));
+        assert!(r.has_action());
+    }
+
+    #[test]
+    fn test_has_action_false_without_action() {
+        let r = ExecutionStepResult::new("think".to_string(), None, 0.5, TokenUsage::new(0, 0, 0, 0));
+        assert!(!r.has_action());
+    }
+
+    #[test]
+    fn test_high_confidence_above_threshold() {
+        let r = ExecutionStepResult::new("x".to_string(), None, 0.9, TokenUsage::new(0, 0, 0, 0));
+        assert!(r.high_confidence());
+    }
+
+    #[test]
+    fn test_execution_step_result_serde_roundtrip() {
+        let r = ExecutionStepResult::new("x".to_string(), None, 0.9, TokenUsage::new(1, 1, 0, 0));
+        let json = serde_json::to_string(&r).expect("serialize");
+        let back: ExecutionStepResult = serde_json::from_str(&json).expect("deserialize");
+        assert_eq!(back.confidence, 0.9);
+    }
+}

@@ -145,3 +145,47 @@ impl ExecutionError {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::ExecutionError;
+    use std::time::Duration;
+
+    #[test]
+    fn test_is_retryable_rate_limited() {
+        let err = ExecutionError::RateLimited { retry_after_ms: Some(1000) };
+        assert!(err.is_retryable());
+    }
+
+    #[test]
+    fn test_is_retryable_auth_failed_false() {
+        let err = ExecutionError::AuthenticationFailed("bad key".to_string());
+        assert!(!err.is_retryable());
+    }
+
+    #[test]
+    fn test_retry_after_returns_duration() {
+        let err = ExecutionError::RateLimited { retry_after_ms: Some(2000) };
+        assert_eq!(err.retry_after(), Some(Duration::from_millis(2000)));
+    }
+
+    #[test]
+    fn test_retry_after_none_for_auth() {
+        let err = ExecutionError::AuthenticationFailed("x".to_string());
+        assert_eq!(err.retry_after(), None);
+    }
+
+    #[test]
+    fn test_message_mentions_context_window() {
+        let err = ExecutionError::ContextWindowExceeded { max_tokens: 8192, requested: 9000 };
+        assert!(err.message().contains("Context window"));
+    }
+
+    #[test]
+    fn test_execution_error_serde_roundtrip() {
+        let err = ExecutionError::Timeout { duration_ms: 30_000 };
+        let json = serde_json::to_string(&err).expect("serialize");
+        let back: ExecutionError = serde_json::from_str(&json).expect("deserialize");
+        assert!(matches!(back, ExecutionError::Timeout { .. }));
+    }
+}

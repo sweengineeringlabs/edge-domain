@@ -23,3 +23,26 @@ pub enum ModelFamily {
     #[serde(rename = "other")]
     Other,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::ModelFamily;
+
+    #[test]
+    fn test_model_family_variants_distinct() {
+        assert_ne!(ModelFamily::Anthropic, ModelFamily::OpenAI);
+        assert_ne!(ModelFamily::Google, ModelFamily::OpenSource);
+    }
+
+    #[test]
+    fn test_model_family_equality() {
+        assert_eq!(ModelFamily::Anthropic, ModelFamily::Anthropic);
+    }
+
+    #[test]
+    fn test_model_family_serde_roundtrip() {
+        let json = serde_json::to_string(&ModelFamily::Google).expect("serialize");
+        let back: ModelFamily = serde_json::from_str(&json).expect("deserialize");
+        assert_eq!(back, ModelFamily::Google);
+    }
+}

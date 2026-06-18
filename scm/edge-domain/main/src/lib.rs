@@ -14,8 +14,6 @@
 #![cfg_attr(test, allow(clippy::unwrap_used, clippy::expect_used))]
 
 mod api;
-mod core;
 mod saf;
-mod spi;
 
 pub use saf::*;

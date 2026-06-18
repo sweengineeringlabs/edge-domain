@@ -51,3 +51,26 @@ impl TokenUsageBuilder {
         )
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::TokenUsageBuilder;
+
+    #[test]
+    fn test_token_usage_builder_computes_total() {
+        let usage = TokenUsageBuilder::new()
+            .prompt_tokens(100)
+            .completion_tokens(50)
+            .cache_read_input_tokens(20)
+            .build();
+        assert_eq!(usage.total_tokens, 150);
+        assert!(usage.cache_hit());
+    }
+
+    #[test]
+    fn test_token_usage_builder_defaults_zero() {
+        let usage = TokenUsageBuilder::new().build();
+        assert_eq!(usage.total_tokens, 0);
+        assert!(!usage.cache_hit());
+    }
+}
