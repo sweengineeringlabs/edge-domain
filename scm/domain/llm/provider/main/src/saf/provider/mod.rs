@@ -2,6 +2,7 @@
 mod provider_factory_svc;
 mod provider_svc;
 mod stream_handler_svc;
+mod provider_handler_svc;
 
 pub use execution_model_svc::{
     EchoExecutionModel, ExecutionConfig, ExecutionMode, ExecutionModel, ExecutionStepResult,

@@ -23,7 +23,7 @@ fn test_provider_handler_executes_step_happy() {
     let h = StdProviderFactory::provider_handler(model);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext { security: &security, commands: &commands };
+    let ctx = HandlerContext::new(&security, &commands);
     let out = block_on(Handler::execute(&h, "hello".to_string(), ctx)).expect("ok");
     assert!(!out.reasoning.is_empty());
 }
@@ -35,7 +35,7 @@ fn test_provider_handler_zero_budget_error() {
     let h = StdProviderFactory::provider_handler(model);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext { security: &security, commands: &commands };
+    let ctx = HandlerContext::new(&security, &commands);
     assert!(block_on(Handler::execute(&h, "hello".to_string(), ctx)).is_err());
 }
 
@@ -55,7 +55,7 @@ fn test_default_provider_handler_runs_happy() {
     let h = StdProviderFactory::default_provider_handler(make_config(4096));
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext { security: &security, commands: &commands };
+    let ctx = HandlerContext::new(&security, &commands);
     let out = block_on(Handler::execute(&h, "prompt".to_string(), ctx)).expect("ok");
     assert!(!out.reasoning.is_empty());
 }
@@ -66,7 +66,7 @@ fn test_default_provider_handler_zero_budget_error() {
     let h = StdProviderFactory::default_provider_handler(make_config(0));
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext { security: &security, commands: &commands };
+    let ctx = HandlerContext::new(&security, &commands);
     assert!(block_on(Handler::execute(&h, "prompt".to_string(), ctx)).is_err());
 }
 

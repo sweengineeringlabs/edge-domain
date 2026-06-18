@@ -17,7 +17,7 @@ fn test_handler_execute_runs_core_happy() {
     let h = StdProviderFactory::default_provider_handler(make_config());
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext { security: &security, commands: &commands };
+    let ctx = HandlerContext::new(&security, &commands);
     let out = block_on(Handler::execute(&h, "ship it".to_string(), ctx)).expect("handler ok");
     assert!(out.reasoning.contains("ship it"));
 }

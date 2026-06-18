@@ -61,7 +61,7 @@ mod tests {
     fn test_handler_execute_returns_reasoning_containing_goal_happy() {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let ctx = HandlerContext { security: &security, commands: &commands };
+        let ctx = HandlerContext::new(&security, &commands);
         let out = block_on(Handler::execute(&handler(), "ship it".to_string(), ctx))
             .expect("handler ok");
         assert!(out.reasoning.contains("ship it"));
