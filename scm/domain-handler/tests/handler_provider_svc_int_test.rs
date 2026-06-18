@@ -25,7 +25,7 @@ fn test_echo_handler_reflects_request_happy() {
     let h = Prov::echo_handler("e", "/");
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
-    let ctx = HandlerContext { security: &security, commands: &bus };
+    let ctx = HandlerContext::new(&security, &bus);
     assert_eq!(block_on(h.execute("ping".into(), ctx)).unwrap(), "ping");
 }
 

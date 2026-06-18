@@ -61,7 +61,7 @@ fn test_register_duplicate_id_replaces_handler_edge() {
     let h = reg.get("dup").unwrap();
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
-    let ctx = HandlerContext { security: &security, commands: &bus };
+    let ctx = HandlerContext::new(&security, &bus);
     assert_eq!(block_on(h.execute("".into(), ctx)).unwrap(), "second");
 }
 
@@ -107,6 +107,6 @@ fn test_retrieved_handler_produces_expected_response_happy() {
     let h = reg.get("exec").unwrap();
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
-    let ctx = HandlerContext { security: &security, commands: &bus };
+    let ctx = HandlerContext::new(&security, &bus);
     assert_eq!(block_on(h.execute("ping".into(), ctx)).unwrap(), "pong");
 }

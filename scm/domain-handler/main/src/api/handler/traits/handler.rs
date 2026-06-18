@@ -79,7 +79,7 @@ mod tests {
     async fn test_execute_ok_handler_returns_response_happy() {
         let security = SecurityContext::unauthenticated();
         let bus = StdCommandBusFactory::direct();
-        let ctx = HandlerContext { security: &security, commands: &bus };
+        let ctx = HandlerContext::new(&security, &bus);
         assert!(AlwaysOk.execute("hi".into(), ctx).await.is_ok());
     }
 
@@ -87,7 +87,7 @@ mod tests {
     async fn test_execute_failing_handler_returns_err_error() {
         let security = SecurityContext::unauthenticated();
         let bus = StdCommandBusFactory::direct();
-        let ctx = HandlerContext { security: &security, commands: &bus };
+        let ctx = HandlerContext::new(&security, &bus);
         assert!(AlwaysFail.execute("hi".into(), ctx).await.is_err());
     }
 

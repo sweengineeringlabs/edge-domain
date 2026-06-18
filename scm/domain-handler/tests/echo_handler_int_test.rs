@@ -8,7 +8,7 @@ use edge_domain_security::SecurityContext;
 use futures::executor::block_on;
 
 fn unauth_ctx<'a>(security: &'a SecurityContext, bus: &'a dyn edge_domain_command::CommandBus) -> HandlerContext<'a> {
-    HandlerContext { security, commands: bus }
+    HandlerContext::new(security, bus)
 }
 
 /// @covers: EchoHandler::execute — returns request unchanged

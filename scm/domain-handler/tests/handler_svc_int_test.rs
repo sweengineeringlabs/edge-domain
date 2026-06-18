@@ -47,7 +47,7 @@ impl Handler for UnhealthyHandler {
 }
 
 fn make_ctx<'a>(security: &'a SecurityContext, bus: &'a dyn CommandBus) -> HandlerContext<'a> {
-    HandlerContext { security, commands: bus }
+    HandlerContext::new(security, bus)
 }
 
 /// @covers: Handler::execute — success path
