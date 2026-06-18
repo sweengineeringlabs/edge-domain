@@ -13,7 +13,7 @@ fn test_handler_execute_returns_skill_colon_input_happy() {
     let h = NoopAgentManager::agent_handler("code_review");
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext { security: &security, commands: &commands };
+    let ctx = HandlerContext::new(&security, &commands);
     let out = block_on(Handler::execute(&h, "diff".to_string(), ctx)).expect("handler ok");
     assert_eq!(out, "code_review:diff");
 }
@@ -38,7 +38,7 @@ fn test_handler_execute_empty_input_returns_error() {
     let h = NoopAgentManager::agent_handler("code_review");
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext { security: &security, commands: &commands };
+    let ctx = HandlerContext::new(&security, &commands);
     assert!(block_on(Handler::execute(&h, String::new(), ctx)).is_err());
 }
 
@@ -48,7 +48,7 @@ fn test_handler_targets_named_skill_happy() {
     let h = NoopAgentManager::agent_handler("planning");
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext { security: &security, commands: &commands };
+    let ctx = HandlerContext::new(&security, &commands);
     let out = block_on(Handler::execute(&h, "a task".to_string(), ctx)).expect("ok");
     assert_eq!(out, "planning:a task");
 }
@@ -59,7 +59,7 @@ fn test_handler_empty_skill_name_edge() {
     let h = NoopAgentManager::agent_handler("");
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext { security: &security, commands: &commands };
+    let ctx = HandlerContext::new(&security, &commands);
     let out = block_on(Handler::execute(&h, "input".to_string(), ctx)).expect("ok");
     assert_eq!(out, ":input");
 }

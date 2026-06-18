@@ -33,7 +33,7 @@ fn test_svc_agent_handler_happy_reexport_executes_as_handler() {
     let h = NoopAgentManager::agent_handler("summarize");
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext { security: &security, commands: &commands };
+    let ctx = HandlerContext::new(&security, &commands);
     let out = block_on(Handler::execute(&h, "doc".to_string(), ctx)).expect("handler ok");
     assert_eq!(out, "summarize:doc");
 }
@@ -44,7 +44,7 @@ fn test_svc_agent_handler_error_reexport_rejects_empty_input() {
     let h = NoopAgentManager::agent_handler("summarize");
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext { security: &security, commands: &commands };
+    let ctx = HandlerContext::new(&security, &commands);
     assert!(block_on(Handler::execute(&h, String::new(), ctx)).is_err());
 }
 
@@ -54,7 +54,7 @@ fn test_agent_handler_with_valid_skill_happy() {
     let h = NoopAgentManager::agent_handler("summarize");
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext { security: &security, commands: &commands };
+    let ctx = HandlerContext::new(&security, &commands);
     let out = block_on(Handler::execute(&h, "content".to_string(), ctx)).expect("ok");
     assert_eq!(out, "summarize:content");
 }
@@ -65,7 +65,7 @@ fn test_agent_handler_on_empty_input_error() {
     let h = NoopAgentManager::agent_handler("summarize");
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext { security: &security, commands: &commands };
+    let ctx = HandlerContext::new(&security, &commands);
     assert!(block_on(Handler::execute(&h, String::new(), ctx)).is_err());
 }
 

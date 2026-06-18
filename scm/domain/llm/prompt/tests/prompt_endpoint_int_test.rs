@@ -24,7 +24,7 @@ fn test_handler_execute_renders_template_happy() {
     let h = make_handler();
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let hctx = HandlerContext { security: &security, commands: &commands };
+    let hctx = HandlerContext::new(&security, &commands);
     let context = RenderContext::new().with_variable("name".to_string(), serde_json::json!("Ada"));
     let out = block_on(Handler::execute(&h, context, hctx)).expect("handler ok");
     assert_eq!(out, "Hello Ada");
@@ -50,7 +50,7 @@ fn test_handler_execute_missing_variable_errors_error() {
     let h = make_handler();
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let hctx = HandlerContext { security: &security, commands: &commands };
+    let hctx = HandlerContext::new(&security, &commands);
     assert!(block_on(Handler::execute(&h, RenderContext::new(), hctx)).is_err());
 }
 
@@ -60,7 +60,7 @@ fn test_factory_handler_renders_through_handler_happy() {
     let h = make_handler();
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let hctx = HandlerContext { security: &security, commands: &commands };
+    let hctx = HandlerContext::new(&security, &commands);
     let context = RenderContext::new().with_variable("name".to_string(), serde_json::json!("Ada"));
     let out = block_on(Handler::execute(&h, context, hctx)).expect("ok");
     assert_eq!(out, "Hello Ada");

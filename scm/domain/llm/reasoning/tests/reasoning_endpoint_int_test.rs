@@ -13,7 +13,7 @@ fn test_handler_execute_returns_complete_process_happy() {
     let h = StdReasoningFactory::default_reasoning_handler(ReasoningPattern::ChainOfThought);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext { security: &security, commands: &commands };
+    let ctx = HandlerContext::new(&security, &commands);
     let out = block_on(Handler::execute(&h, "solve x".to_string(), ctx)).expect("handler ok");
     assert!(out.is_complete);
     assert_eq!(out.step_count(), 3);
@@ -39,6 +39,6 @@ fn test_handler_execute_blank_problem_errors_error() {
     let h = StdReasoningFactory::default_reasoning_handler(ReasoningPattern::ChainOfThought);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext { security: &security, commands: &commands };
+    let ctx = HandlerContext::new(&security, &commands);
     assert!(block_on(Handler::execute(&h, "   ".to_string(), ctx)).is_err());
 }

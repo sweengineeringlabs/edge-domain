@@ -53,7 +53,7 @@ mod tests {
     fn test_handler_execute_returns_skill_colon_input_happy() {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let ctx = HandlerContext { security: &security, commands: &commands };
+        let ctx = HandlerContext::new(&security, &commands);
         let out = block_on(Handler::execute(&handler(), "diff".to_string(), ctx))
             .expect("handler ok");
         assert_eq!(out, "code_review:diff");
@@ -73,7 +73,7 @@ mod tests {
     fn test_handler_execute_empty_input_error() {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let ctx = HandlerContext { security: &security, commands: &commands };
+        let ctx = HandlerContext::new(&security, &commands);
         let result = block_on(Handler::execute(&handler(), String::new(), ctx));
         assert!(result.is_err());
     }

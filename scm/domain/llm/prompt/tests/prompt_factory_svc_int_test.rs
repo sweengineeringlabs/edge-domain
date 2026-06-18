@@ -211,7 +211,7 @@ fn test_default_prompt_handler_renders_happy() {
     let h = StdPromptFactory::default_prompt_handler("Hi {{name}}".to_string(), m);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext { security: &security, commands: &commands };
+    let ctx = HandlerContext::new(&security, &commands);
     let render_ctx = RenderContext::new().with_variable("name".to_string(), serde_json::json!("Ada"));
     let out = block_on(Handler::execute(&h, render_ctx, ctx)).expect("ok");
     assert_eq!(out, "Hi Ada");
@@ -230,7 +230,7 @@ fn test_default_prompt_handler_missing_variable_errors_error() {
     let h = StdPromptFactory::default_prompt_handler("Hi {{name}}".to_string(), m);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext { security: &security, commands: &commands };
+    let ctx = HandlerContext::new(&security, &commands);
     assert!(block_on(Handler::execute(&h, RenderContext::new(), ctx)).is_err());
 }
 
@@ -260,7 +260,7 @@ fn test_prompt_handler_renders_with_arc_prompt_happy() {
     let h = StdPromptFactory::prompt_handler(prompt);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext { security: &security, commands: &commands };
+    let ctx = HandlerContext::new(&security, &commands);
     let render_ctx = RenderContext::new().with_variable("name".to_string(), serde_json::json!("Eve"));
     let out = block_on(Handler::execute(&h, render_ctx, ctx)).expect("ok");
     assert_eq!(out, "Hi Eve");
@@ -281,7 +281,7 @@ fn test_prompt_handler_missing_required_variable_error() {
     let h = StdPromptFactory::prompt_handler(prompt);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext { security: &security, commands: &commands };
+    let ctx = HandlerContext::new(&security, &commands);
     assert!(block_on(Handler::execute(&h, RenderContext::new(), ctx)).is_err());
 }
 
