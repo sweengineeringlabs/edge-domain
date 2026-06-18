@@ -1,0 +1,79 @@
+use edge_domain_observe::StdObserveFactory;
+
+// --- start_span ---
+
+#[test]
+fn test_start_span_with_valid_ids_happy() {
+    let tracer = StdObserveFactory::noop_handler_tracer();
+    let span = tracer.start_span("handler_a", "execute");
+    span.finish();
+}
+
+#[test]
+fn test_start_span_empty_ids_error() {
+    let tracer = StdObserveFactory::noop_handler_tracer();
+    let span = tracer.start_span("", "");
+    span.finish();
+}
+
+#[test]
+fn test_start_span_unicode_ids_edge() {
+    let tracer = StdObserveFactory::noop_handler_tracer();
+    let span = tracer.start_span("handler_α", "执行");
+    span.finish();
+}
+
+// --- record (Span) ---
+
+#[test]
+fn test_record_key_value_pair_happy() {
+    let tracer = StdObserveFactory::noop_handler_tracer();
+    let span = tracer.start_span("h", "op");
+    span.record("http.method", "GET");
+}
+
+#[test]
+fn test_record_empty_key_error() {
+    let tracer = StdObserveFactory::noop_handler_tracer();
+    let span = tracer.start_span("h", "op");
+    span.record("", "value");
+}
+
+#[test]
+fn test_record_unicode_value_edge() {
+    let tracer = StdObserveFactory::noop_handler_tracer();
+    let span = tracer.start_span("h", "op");
+    span.record("key", "值");
+}
+
+// --- finish ---
+
+#[test]
+fn test_finish_active_span_happy() {
+    let tracer = StdObserveFactory::noop_handler_tracer();
+    let span = tracer.start_span("h", "op");
+    span.finish();
+}
+
+#[test]
+fn test_finish_already_done_error() {
+    let tracer = StdObserveFactory::noop_handler_tracer();
+    let span = tracer.start_span("h", "op");
+    span.finish();
+    span.finish();
+}
+
+#[test]
+fn test_finish_span_no_records_edge() {
+    let tracer = StdObserveFactory::noop_handler_tracer();
+    let span = tracer.start_span("h", "op");
+    span.finish();
+}
+
+#[test]
+fn test_span_is_send_sync() {
+    fn assert_send_sync<T: Send + Sync>(_: &T) {}
+    let tracer = StdObserveFactory::noop_handler_tracer();
+    let span = tracer.start_span("h", "op");
+    assert_send_sync(&span);
+}

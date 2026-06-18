@@ -1,0 +1,29 @@
+[package]
+name                   = "edge-domain-observe"
+version                = "0.1.0"
+edition.workspace      = true
+license.workspace      = true
+rust-version.workspace = true
+authors.workspace      = true
+repository.workspace   = true
+description = "edge-domain — Observe port contracts: HandlerTracer, MetricRegistry, LogDrain"
+keywords    = ["domain", "observe", "tracing", "metrics", "sea"]
+categories  = ["development-tools"]
+
+[package.metadata.struct-engine]
+application_type = "lib"
+service_type     = "observe"
+
+[lib]
+path = "main/src/lib.rs"
+
+[dependencies]
+
+[dev-dependencies]
+
+[lints.rust]
+unsafe_code = "deny"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"

@@ -23,6 +23,7 @@ members  = [
     "domain-security",
     "domain-registry",
     "domain-lifecycle",
+    "domain-observe",
 ]
 
 [workspace.package]
@@ -70,4 +71,5 @@ edge-llm-agent          = { path = "domain/llm/agents" }
 edge-llm-provider       = { path = "domain/llm/provider" }
 edge-llm-prompt         = { path = "domain/llm/prompt" }
 edge-llm-reasoning      = { path = "domain/llm/reasoning" }
+edge-domain-observe     = { path = "domain-observe" }
 swe-edge-configbuilder  = { path = "../../configbuilder/scm" }
