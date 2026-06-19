@@ -1,12 +1,16 @@
 //! `Provider` impl for `StaticProvider`.
 
+use async_trait::async_trait;
+use futures::stream::{self, BoxStream};
+
 use crate::api::ExecutionError;
 use crate::api::Provider;
 use crate::api::{
-    FinishReason, ModelFamily, ModelInfo, ProviderConfig, StaticProvider, TokenUsage,
-    TokenizerAccuracy,
+    CompletionInput, ExecutionStepResult, FinishReason, ModelFamily, ModelInfo, ProviderConfig,
+    StaticProvider, StreamChunk, TokenUsage, TokenizerAccuracy,
 };
 
+#[async_trait]
 impl Provider for StaticProvider {
     fn name(&self) -> &str {
         &self.config.model
@@ -43,6 +47,20 @@ impl Provider for StaticProvider {
             });
         }
         Ok(())
+    }
+
+    async fn complete(
+        &self,
+        _input: &CompletionInput,
+    ) -> Result<ExecutionStepResult, ExecutionError> {
+        Ok(ExecutionStepResult::new(String::new(), None, 0.0, None))
+    }
+
+    async fn stream(
+        &self,
+        _input: &CompletionInput,
+    ) -> Result<BoxStream<'static, Result<StreamChunk, ExecutionError>>, ExecutionError> {
+        Ok(Box::pin(stream::empty()))
     }
 }
 

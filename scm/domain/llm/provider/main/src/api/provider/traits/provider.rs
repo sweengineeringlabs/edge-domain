@@ -1,14 +1,19 @@
 //! `Provider` — the LLM backend contract (primary trait).
 
+use async_trait::async_trait;
+use futures::stream::BoxStream;
+
 use crate::api::provider::errors::ExecutionError;
 use crate::api::provider::types::{
-    FinishReason, ModelFamily, ModelInfo, ProviderConfig, TokenUsage, TokenizerAccuracy,
+    CompletionInput, ExecutionStepResult, FinishReason, ModelFamily, ModelInfo, ProviderConfig,
+    StreamChunk, TokenUsage, TokenizerAccuracy,
 };
 
 /// Pluggable LLM backend (OpenAI, Claude, local models, …).
 ///
 /// Decouples agent orchestration from any specific backend: callers depend on
 /// this contract and inject a concrete provider.
+#[async_trait]
 pub trait Provider: Send + Sync {
     /// Stable identifier for this provider (e.g. `"anthropic"`).
     fn name(&self) -> &str;
@@ -36,4 +41,22 @@ pub trait Provider: Send + Sync {
     /// Returns [`ExecutionError::ProviderUnavailable`] when the backend cannot
     /// currently serve requests.
     fn health_check(&self) -> Result<(), ExecutionError>;
+
+    /// Send a single-turn or multi-turn completion request to this backend.
+    ///
+    /// Returns [`ExecutionError::ProviderUnavailable`] on the noop reference
+    /// implementation. Vendor backends override this with real HTTP dispatch.
+    async fn complete(
+        &self,
+        input: &CompletionInput,
+    ) -> Result<ExecutionStepResult, ExecutionError>;
+
+    /// Initiate a streaming completion request to this backend.
+    ///
+    /// Returns an empty stream on the noop reference implementation. Vendor
+    /// backends override this with a real HTTP streaming call.
+    async fn stream(
+        &self,
+        input: &CompletionInput,
+    ) -> Result<BoxStream<'static, Result<StreamChunk, ExecutionError>>, ExecutionError>;
 }

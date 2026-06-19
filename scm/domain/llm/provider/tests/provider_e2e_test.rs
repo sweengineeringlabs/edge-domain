@@ -2,9 +2,11 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_provider::{
-    FinishReason, ModelFamily, ModelInfo, Provider, ProviderConfig, ProviderFactory,
-    StdProviderFactory, TokenizerAccuracy,
+    CompletionInput, ExecutionConfig, ExecutionMode, FinishReason, ModelFamily, ModelInfo,
+    Provider, ProviderConfig, ProviderFactory, StdProviderFactory, TokenizerAccuracy,
 };
+use futures::executor::block_on;
+use futures::StreamExt;
 
 fn provider(model: &str) -> impl Provider {
     let config = ProviderConfig::new(model.to_string(), 0.7, 8192);
@@ -187,4 +189,56 @@ fn test_health_check_errs_without_model_error() {
 #[test]
 fn test_health_check_whitespace_model_ok_edge() {
     assert!(provider(" ").health_check().is_ok());
+}
+
+fn input() -> CompletionInput {
+    CompletionInput::simple(
+        "test",
+        ExecutionConfig::new(4096, 30_000, false, false, ExecutionMode::Async),
+    )
+}
+
+// --- complete ---
+
+/// @covers: Provider::complete — noop impl returns ok
+#[test]
+fn test_complete_noop_returns_ok_happy() {
+    assert!(block_on(provider("claude").complete(&input())).is_ok());
+}
+
+/// @covers: Provider::complete — noop result has no action
+#[test]
+fn test_complete_noop_result_has_no_action_error() {
+    let result = block_on(provider("claude").complete(&input())).expect("ok");
+    assert!(result.action.is_none());
+}
+
+/// @covers: Provider::complete — noop result carries empty reasoning
+#[test]
+fn test_complete_noop_result_empty_reasoning_edge() {
+    let result = block_on(provider("claude").complete(&input())).expect("ok");
+    assert!(result.reasoning.is_empty());
+}
+
+// --- stream ---
+
+/// @covers: Provider::stream — noop impl returns ok
+#[test]
+fn test_stream_noop_returns_ok_happy() {
+    assert!(block_on(provider("claude").stream(&input())).is_ok());
+}
+
+/// @covers: Provider::stream — noop stream yields no items
+#[test]
+fn test_stream_noop_yields_no_items_error() {
+    let stream = block_on(provider("claude").stream(&input())).expect("ok");
+    assert!(block_on(stream.collect::<Vec<_>>()).is_empty());
+}
+
+/// @covers: Provider::stream — noop stream is a valid BoxStream
+#[test]
+fn test_stream_noop_is_valid_box_stream_edge() {
+    let stream = block_on(provider("claude").stream(&input())).expect("ok");
+    let items: Vec<_> = block_on(stream.collect::<Vec<_>>());
+    assert_eq!(items.len(), 0);
 }
