@@ -160,13 +160,13 @@ Dependencies: `thiserror`, `async-trait`, `serde`, `serde_json`, `futures` (for 
 
 ## Known limitations (deferred)
 
-**L1 — `ToolOps::execute()` is synchronous.** Real tool execution is often async. Implementers that call async runtimes inside `execute()` must use `block_on()`. A future revision should make this `async fn`.
+**L1 — `ToolOps::execute()` is synchronous.** Real tool execution is often async. Implementers that call async runtimes inside `execute()` must use `block_on()`. A future revision should make this `async fn`. Tracked: [#81](https://github.com/sweengineeringlabs/edge-domain/issues/81)
 
-**L2 — No `timeout_ms` on `CompletionRequest`.** `CompleteError::Timeout` exists but no per-request timeout is carried by the request type. Vendors must use their own timeout mechanism. A `timeout_ms: Option<u64>` field on `CompletionRequest` is the correct fix.
+**L2 — No `timeout_ms` on `CompletionRequest`.** `CompleteError::Timeout` exists but no per-request timeout is carried by the request type. Vendors must use their own timeout mechanism. A `timeout_ms: Option<u64>` field on `CompletionRequest` is the correct fix. Tracked: [#82](https://github.com/sweengineeringlabs/edge-domain/issues/82)
 
-**L3 — `ModelInfo` capability model is three booleans.** `supports_vision`, `supports_function_calling`, `supports_streaming` are sufficient for current use. A richer `capabilities: Vec<ModelCapability>` design should be considered if multimodal audio/video or structured output support is needed.
+**L3 — `ModelInfo` capability model is three booleans.** `supports_vision`, `supports_function_calling`, `supports_streaming` are sufficient for current use. A richer `capabilities: Vec<ModelCapability>` design should be considered if multimodal audio/video or structured output support is needed. Tracked: [#83](https://github.com/sweengineeringlabs/edge-domain/issues/83)
 
-**L4 — System prompt not directly cacheable via `CacheableMessage`.** The trait is implemented for `Message` but `CompletionRequest` has no first-class method to mark the system prompt as cacheable. This is the most impactful Anthropic caching use-case. Callers can work around via `Message::system(...).mark_ephemeral()`, but a `with_cached_system(content)` convenience on `CompletionRequest` would be clearer.
+**L4 — System prompt not directly cacheable via `CacheableMessage`.** The trait is implemented for `Message` but `CompletionRequest` has no first-class method to mark the system prompt as cacheable. This is the most impactful Anthropic caching use-case. Callers can work around via `Message::system(...).mark_ephemeral()`, but a `with_cached_system(content)` convenience on `CompletionRequest` would be clearer. Tracked: [#84](https://github.com/sweengineeringlabs/edge-domain/issues/84)
 
 ---
 
