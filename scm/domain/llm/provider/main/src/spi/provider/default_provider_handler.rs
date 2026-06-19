@@ -58,7 +58,7 @@ mod tests {
     }
 
     #[test]
-    fn test_handler_execute_returns_reasoning_containing_goal_happy() {
+    fn test_execute_returns_reasoning_containing_goal_happy() {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
         let ctx = HandlerContext::new(&security, &commands);
@@ -68,12 +68,12 @@ mod tests {
     }
 
     #[test]
-    fn test_handler_id_is_stable_edge() {
+    fn test_id_is_stable_edge() {
         assert_eq!(Handler::id(&handler()), PROVIDER_HANDLER_ID);
     }
 
     #[test]
-    fn test_handler_pattern_is_stable_edge() {
+    fn test_pattern_is_stable_edge() {
         assert_eq!(Handler::pattern(&handler()), PROVIDER_HANDLER_PATTERN);
     }
 }

@@ -10,8 +10,9 @@ pub use execution_model_svc::{
 };
 pub use provider_factory_svc::{ProviderFactory, StdProviderFactory, PROVIDER_FACTORY_SVC};
 pub use provider_svc::{
-    ExecutionError, FinishReason, ModelFamily, ModelInfo, Provider, ProviderConfig, StaticProvider,
-    TokenUsage, TokenizerAccuracy, PROVIDER_SVC,
+    CompletionInput, CompletionMessage, ExecutionError, FinishReason, MessageRole, ModelFamily,
+    ModelInfo, Provider, ProviderConfig, StaticProvider, TokenUsage, TokenizerAccuracy,
+    ToolDefinition, PROVIDER_SVC,
 };
 pub use stream_handler_svc::{
     BufferedStreamHandler, StreamChunk, StreamDelta, StreamHandler, ToolCallDelta,

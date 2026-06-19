@@ -7,7 +7,8 @@ pub mod types;
 pub use errors::ExecutionError;
 pub use traits::{ExecutionModel, Provider, ProviderFactory, StreamHandler};
 pub use types::{
-    BufferedStreamHandler, EchoExecutionModel, ExecutionConfig, ExecutionMode, ExecutionStepResult,
-    FinishReason, ModelFamily, ModelInfo, ProviderConfig, StaticProvider, StdProviderFactory,
-    StreamChunk, StreamDelta, TokenUsage, TokenizerAccuracy, ToolCallDelta,
+    BufferedStreamHandler, CompletionInput, CompletionMessage, EchoExecutionModel, ExecutionConfig,
+    ExecutionMode, ExecutionStepResult, FinishReason, MessageRole, ModelFamily, ModelInfo,
+    ProviderConfig, StaticProvider, StdProviderFactory, StreamChunk, StreamDelta, TokenUsage,
+    TokenizerAccuracy, ToolCallDelta, ToolDefinition,
 };

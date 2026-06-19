@@ -2,9 +2,11 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_provider::{
-    ExecutionConfig, ExecutionMode, ExecutionModel, ModelFamily, ModelInfo, Provider, ProviderConfig,
-    ProviderFactory, StdProviderFactory, StreamHandler,
+    CompletionMessage, ExecutionConfig, ExecutionMode, ExecutionModel, MessageRole, ModelFamily,
+    ModelInfo, Provider, ProviderConfig, ProviderFactory, StdProviderFactory, StreamHandler,
+    ToolDefinition,
 };
+use serde_json::json;
 
 // --- default_provider_handler ---
 
@@ -165,4 +167,67 @@ fn test_stream_handler_independent_instances_edge() {
     a.accumulate(edge_llm_provider::StreamDelta::text("x".to_string()));
     let mut b = StdProviderFactory::stream_handler();
     assert!(b.next_chunk().is_none());
+}
+
+// --- message ---
+
+/// @covers: ProviderFactory::message — constructs a user-role message via factory
+#[test]
+fn test_message_user_role_happy() {
+    let m = StdProviderFactory::message(MessageRole::User, "hello");
+    assert_eq!(m.role, MessageRole::User);
+    assert_eq!(m.content, "hello");
+}
+
+/// @covers: ProviderFactory::message — empty string content is accepted without panic
+#[test]
+fn test_message_empty_content_error() {
+    let m = StdProviderFactory::message(MessageRole::Tool, "");
+    assert_eq!(m.role, MessageRole::Tool);
+    assert!(m.content.is_empty(), "factory must accept empty content without panic");
+}
+
+/// @covers: ProviderFactory::message — all three roles produce correct role field
+#[test]
+fn test_message_all_roles_edge() {
+    for role in [MessageRole::User, MessageRole::Assistant, MessageRole::Tool] {
+        let m = StdProviderFactory::message(role.clone(), "x");
+        assert_eq!(m.role, role);
+    }
+}
+
+// --- completion_input ---
+
+/// @covers: ProviderFactory::completion_input — constructs a fully-specified input
+#[test]
+fn test_completion_input_full_spec_happy() {
+    let msgs = vec![CompletionMessage::user("ping")];
+    let tools = vec![ToolDefinition::new("noop", "No-op", json!({}))];
+    let config = ExecutionConfig::new(1024, 30_000, false, false, ExecutionMode::Async);
+    let input = StdProviderFactory::completion_input(msgs, tools, Some("sys".to_string()), config);
+    assert_eq!(input.messages.len(), 1);
+    assert_eq!(input.tools.len(), 1);
+    assert_eq!(input.system.as_deref(), Some("sys"));
+}
+
+/// @covers: ProviderFactory::completion_input — empty messages vector is accepted without panic
+#[test]
+fn test_completion_input_empty_messages_error() {
+    let config = ExecutionConfig::new(1024, 30_000, false, false, ExecutionMode::Async);
+    let input = StdProviderFactory::completion_input(vec![], vec![], None, config);
+    assert!(input.messages.is_empty(), "factory must accept empty messages without panic");
+}
+
+/// @covers: ProviderFactory::completion_input — no system prompt and no tools
+#[test]
+fn test_completion_input_minimal_edge() {
+    let config = ExecutionConfig::new(512, 10_000, false, false, ExecutionMode::Async);
+    let input = StdProviderFactory::completion_input(
+        vec![CompletionMessage::user("hi")],
+        vec![],
+        None,
+        config,
+    );
+    assert!(input.system.is_none());
+    assert!(input.tools.is_empty());
 }

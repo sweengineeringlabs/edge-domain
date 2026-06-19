@@ -47,3 +47,27 @@ fn test_execution_error_serde_roundtrip_edge() {
     let back: ExecutionError = serde_json::from_str(&json).expect("deserialize");
     assert!(matches!(back, ExecutionError::Timeout { .. }));
 }
+
+/// @covers: ExecutionError::is_retryable — network errors are retryable
+#[test]
+fn test_is_retryable_network_error_happy() {
+    let err = ExecutionError::NetworkError("connection refused".to_string());
+    assert!(err.is_retryable());
+}
+
+/// @covers: ExecutionError::message — network error message contains reason
+#[test]
+fn test_network_error_message_contains_reason() {
+    let err = ExecutionError::NetworkError("DNS lookup failed".to_string());
+    assert!(err.message().contains("DNS lookup failed"));
+}
+
+/// @covers: ExecutionError::NetworkError — serializes with correct serde rename
+#[test]
+fn test_network_error_serde_roundtrip_edge() {
+    let err = ExecutionError::NetworkError("TLS handshake timeout".to_string());
+    let json = serde_json::to_string(&err).expect("serialize");
+    assert!(json.contains("network_error"));
+    let back: ExecutionError = serde_json::from_str(&json).expect("deserialize");
+    assert!(matches!(back, ExecutionError::NetworkError(_)));
+}

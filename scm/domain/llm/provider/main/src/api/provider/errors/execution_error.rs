@@ -78,6 +78,10 @@ pub enum ExecutionError {
         reset_at_ms: Option<u64>,
     },
 
+    /// Transport-level network failure (DNS, TCP, TLS — before the provider responds).
+    #[serde(rename = "network_error")]
+    NetworkError(String),
+
     /// Unknown/unclassified error
     #[serde(rename = "unknown")]
     Unknown(String),
@@ -90,6 +94,7 @@ impl ExecutionError {
             self,
             ExecutionError::RateLimited { .. }
                 | ExecutionError::ProviderUnavailable { .. }
+                | ExecutionError::NetworkError(_)
                 | ExecutionError::Timeout { .. }
                 | ExecutionError::QuotaExceeded { .. }
         )
@@ -141,6 +146,7 @@ impl ExecutionError {
             ExecutionError::QuotaExceeded { reset_at_ms } => {
                 format!("Quota exceeded (reset at {:?})", reset_at_ms)
             }
+            ExecutionError::NetworkError(msg) => format!("Network error: {}", msg),
             ExecutionError::Unknown(msg) => format!("Unknown error: {}", msg),
         }
     }

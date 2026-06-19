@@ -13,6 +13,11 @@ pub mod token_usage;
 pub mod tokenizer_accuracy;
 pub mod tool_call_delta;
 
+pub mod completion_input;
+pub mod completion_message;
+pub mod message_role;
+pub mod tool_definition;
+
 pub mod buffered_stream_handler;
 pub mod echo_execution_model;
 pub mod static_provider;
@@ -30,6 +35,11 @@ pub use stream_delta::StreamDelta;
 pub use token_usage::TokenUsage;
 pub use tokenizer_accuracy::TokenizerAccuracy;
 pub use tool_call_delta::ToolCallDelta;
+
+pub use completion_input::CompletionInput;
+pub use completion_message::CompletionMessage;
+pub use message_role::MessageRole;
+pub use tool_definition::ToolDefinition;
 
 pub use buffered_stream_handler::BufferedStreamHandler;
 pub use echo_execution_model::EchoExecutionModel;

@@ -1,8 +1,10 @@
 //! `ProviderFactory` — constructor contract for the default provider primitives.
 
+use serde_json::Value;
+
 use crate::api::provider::types::{
-    BufferedStreamHandler, EchoExecutionModel, ExecutionConfig, ModelInfo, ProviderConfig,
-    StaticProvider, StdProviderFactory,
+    BufferedStreamHandler, CompletionInput, CompletionMessage, EchoExecutionModel, ExecutionConfig,
+    MessageRole, ModelInfo, ProviderConfig, StaticProvider, StdProviderFactory, ToolDefinition,
 };
 
 /// Factory for the standard reference implementations.
@@ -27,5 +29,25 @@ pub trait ProviderFactory {
     /// Construct an empty reference [`BufferedStreamHandler`].
     fn stream_handler() -> BufferedStreamHandler {
         BufferedStreamHandler::new()
+    }
+
+    /// Construct a [`CompletionMessage`] with the given role and content.
+    fn message(role: MessageRole, content: impl Into<String>) -> CompletionMessage {
+        CompletionMessage { role, content: content.into() }
+    }
+
+    /// Construct a [`ToolDefinition`] with the given name, description, and schema.
+    fn tool(name: impl Into<String>, description: impl Into<String>, schema: Value) -> ToolDefinition {
+        ToolDefinition::new(name, description, schema)
+    }
+
+    /// Construct a [`CompletionInput`] from messages, tools, system prompt, and config.
+    fn completion_input(
+        messages: Vec<CompletionMessage>,
+        tools: Vec<ToolDefinition>,
+        system: Option<String>,
+        config: ExecutionConfig,
+    ) -> CompletionInput {
+        CompletionInput::new(messages, tools, system, config)
     }
 }
