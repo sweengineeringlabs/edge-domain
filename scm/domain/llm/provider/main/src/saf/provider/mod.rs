@@ -13,7 +13,7 @@ pub use provider_completer_svc::{EchoProviderCompleter, PROVIDER_COMPLETER_SVC};
 pub use provider_factory_svc::{ProviderFactory, StdProviderFactory, PROVIDER_FACTORY_SVC};
 pub use provider_svc::{
     CompletionInput, CompletionMessage, ExecutionError, FinishReason, MessageRole, ModelFamily,
-    ModelInfo, Provider, ProviderConfig, StaticProvider, TokenUsage, TokenizerAccuracy,
+    ModelInfo, Provider, ProviderConfig, TokenUsage, TokenizerAccuracy,
     ToolDefinition, PROVIDER_SVC,
 };
 pub use stream_handler_svc::{

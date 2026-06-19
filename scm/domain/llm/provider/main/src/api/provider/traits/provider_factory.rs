@@ -7,7 +7,7 @@ use serde_json::Value;
 
 use crate::api::provider::types::{
     BufferedStreamHandler, CompletionInput, CompletionMessage, EchoProviderCompleter,
-    EchoExecutionModel, ExecutionConfig, MessageRole, ModelInfo, ProviderConfig, StaticProvider,
+    EchoExecutionModel, ExecutionConfig, MessageRole, ModelInfo, ProviderConfig, ProviderCore,
     StdProviderFactory, ToolDefinition,
 };
 
@@ -20,10 +20,11 @@ pub trait ProviderFactory {
         StdProviderFactory
     }
 
-    /// Construct the reference [`StaticProvider`] from config, model metadata, and a completer delegate.
-    fn provider(config: ProviderConfig, model: ModelInfo, completer: Arc<dyn Completer>) -> StaticProvider {
-        StaticProvider::new(config, model, completer)
-    }
+    /// Construct a [`ProviderCore`] from config, model metadata, and a completer delegate.
+    ///
+    /// `ProviderCore` is not part of the public crate API — callers use it via the
+    /// [`Provider`](crate::api::provider::traits::Provider) trait.
+    fn provider(config: ProviderConfig, model: ModelInfo, completer: Arc<dyn Completer>) -> ProviderCore;
 
     /// Construct the reference [`EchoExecutionModel`] from execution config.
     fn execution_model(config: ExecutionConfig) -> EchoExecutionModel {
