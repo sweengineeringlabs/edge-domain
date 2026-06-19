@@ -24,6 +24,7 @@ members  = [
     "domain-registry",
     "domain-lifecycle",
     "domain-observe",
+    "domain-vpn",
 ]
 
 [workspace.package]
@@ -72,4 +73,5 @@ edge-llm-provider       = { path = "domain/llm/provider" }
 edge-llm-prompt         = { path = "domain/llm/prompt" }
 edge-llm-reasoning      = { path = "domain/llm/reasoning" }
 edge-domain-observe     = { path = "domain-observe" }
+edge-domain-vpn         = { path = "domain-vpn" }
 swe-edge-configbuilder  = { path = "../../configbuilder/scm" }
