@@ -4,7 +4,7 @@
 use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
 use edge_domain_handler::{Handler, HandlerContext};
 use edge_domain_security::SecurityContext;
-use edge_llm_agent::{NoopAgentManager, AGENT_ENDPOINT_SVC};
+use edge_llm_agent::{AgentEndpoint, NoopAgentManager, AGENT_ENDPOINT_SVC};
 use futures::executor::block_on;
 
 /// @covers: AGENT_ENDPOINT_SVC constant

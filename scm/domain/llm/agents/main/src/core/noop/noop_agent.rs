@@ -1,8 +1,13 @@
 //! No-op [`Agent`] implementation for testing the contract.
 
+use std::sync::Arc;
+
+use edge_llm_provider::{
+    EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, ProviderFactory, StdProviderFactory,
+};
+
 use crate::api::NoopAgent;
 use crate::api::{Agent, AgentError, Skill};
-use std::sync::Arc;
 
 #[async_trait::async_trait]
 impl Agent for NoopAgent {
@@ -24,6 +29,14 @@ impl Agent for NoopAgent {
 
     fn skills(&self) -> Vec<Arc<dyn Skill<Request = String, Response = String>>> {
         vec![]
+    }
+
+    fn provider(&self) -> Arc<dyn Provider> {
+        Arc::new(StdProviderFactory::provider(
+            ProviderConfig::new("noop".to_string(), 0.0, 0),
+            ModelInfo::default(),
+            Arc::new(EchoProviderCompleter),
+        ))
     }
 }
 

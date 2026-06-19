@@ -4,7 +4,7 @@
 use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
 use edge_domain_handler::{Handler, HandlerContext};
 use edge_domain_security::SecurityContext;
-use edge_llm_agent::NoopAgentManager;
+use edge_llm_agent::{AgentEndpoint, NoopAgentManager};
 use futures::executor::block_on;
 
 /// @covers: agent_handler (Handler face) — runs core under a request context

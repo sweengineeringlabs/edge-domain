@@ -10,7 +10,18 @@ use edge_domain_registry::Registry;
 use edge_llm_agent::{
     Agent, AgentError, AgentManager, AgentMetadata, AgentRegistry, Parameter, Skill, SkillMetadata,
 };
+use edge_llm_provider::{
+    EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, ProviderFactory, StdProviderFactory,
+};
 use std::sync::Arc;
+
+fn noop_provider() -> Arc<dyn Provider> {
+    Arc::new(StdProviderFactory::provider(
+        ProviderConfig::new("noop".to_string(), 0.0, 0),
+        ModelInfo::default(),
+        Arc::new(EchoProviderCompleter),
+    ))
+}
 
 // ============================================================================
 // Test Fixtures
@@ -40,6 +51,10 @@ impl Agent for SuccessAgent {
     fn skills(&self) -> Vec<Arc<dyn Skill<Request = String, Response = String>>> {
         vec![Arc::new(TestSkill) as Arc<dyn Skill<Request = String, Response = String>>]
     }
+
+    fn provider(&self) -> Arc<dyn Provider> {
+        noop_provider()
+    }
 }
 
 /// A test agent that fails
@@ -68,6 +83,10 @@ impl Agent for FailingAgent {
     fn skills(&self) -> Vec<Arc<dyn Skill<Request = String, Response = String>>> {
         vec![]
     }
+
+    fn provider(&self) -> Arc<dyn Provider> {
+        noop_provider()
+    }
 }
 
 /// A test agent with empty fields
@@ -93,6 +112,10 @@ impl Agent for EmptyAgent {
 
     fn skills(&self) -> Vec<Arc<dyn Skill<Request = String, Response = String>>> {
         vec![]
+    }
+
+    fn provider(&self) -> Arc<dyn Provider> {
+        noop_provider()
     }
 }
 

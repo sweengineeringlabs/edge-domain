@@ -2,6 +2,8 @@
 
 use std::sync::Arc;
 
+use edge_llm_provider::Provider;
+
 use super::skill::Skill;
 use crate::api::types::MessageBuilder;
 use crate::api::types::{Message, Role, ToolChoice};
@@ -69,6 +71,14 @@ pub trait Agent: Send + Sync {
     fn tool_choice(&self) -> ToolChoice {
         ToolChoice::Auto
     }
+
+    /// The LLM provider this agent delegates completions to.
+    ///
+    /// Every agent must be backed by a concrete provider that carries model
+    /// identity, health state, and the [`edge_llm_complete::Completer`] port.
+    /// Callers use the returned handle for health checks, token-budget tracking,
+    /// and capability routing before invoking `execute_skill`.
+    fn provider(&self) -> Arc<dyn Provider>;
 
     /// Start a fluent [`MessageBuilder`] for composing a message to this agent.
     fn message_builder(&self) -> MessageBuilder {

@@ -3,7 +3,18 @@
 
 use async_trait::async_trait;
 use edge_llm_agent::{Agent, AgentError, MessageContent, Role, Skill, ToolChoice};
+use edge_llm_provider::{
+    EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, ProviderFactory, StdProviderFactory,
+};
 use std::sync::Arc;
+
+fn noop_provider() -> Arc<dyn Provider> {
+    Arc::new(StdProviderFactory::provider(
+        ProviderConfig::new("noop".to_string(), 0.0, 0),
+        ModelInfo::default(),
+        Arc::new(EchoProviderCompleter),
+    ))
+}
 
 struct SuccessAgent;
 
@@ -27,6 +38,10 @@ impl Agent for SuccessAgent {
 
     fn skills(&self) -> Vec<Arc<dyn Skill<Request = String, Response = String>>> {
         vec![]
+    }
+
+    fn provider(&self) -> Arc<dyn Provider> {
+        noop_provider()
     }
 }
 
@@ -54,6 +69,10 @@ impl Agent for FailingAgent {
 
     fn skills(&self) -> Vec<Arc<dyn Skill<Request = String, Response = String>>> {
         vec![]
+    }
+
+    fn provider(&self) -> Arc<dyn Provider> {
+        noop_provider()
     }
 }
 
@@ -228,4 +247,37 @@ fn test_message_builder_role_override_error() {
 fn test_message_builder_default_content_empty_edge() {
     let msg = SuccessAgent.message_builder().build();
     assert_eq!(msg.content, MessageContent::text(""));
+}
+
+// --- provider ---
+
+/// @covers: Agent::provider
+#[test]
+fn test_provider_returns_arc_dyn_provider_happy() {
+    let _p: Arc<dyn Provider> = SuccessAgent.provider();
+}
+
+/// @covers: Agent::provider
+#[test]
+fn test_provider_health_check_ok_happy() {
+    assert!(SuccessAgent.provider().health_check().is_ok());
+}
+
+/// @covers: Agent::provider
+#[test]
+fn test_provider_distinct_per_impl_error() {
+    // Two different agent types may back different providers.
+    let p1 = SuccessAgent.provider();
+    let p2 = FailingAgent.provider();
+    // Both healthy — confirming each returns a usable provider.
+    assert!(p1.health_check().is_ok());
+    assert!(p2.health_check().is_ok());
+}
+
+/// @covers: Agent::provider
+#[test]
+fn test_provider_completer_accessible_from_provider_edge() {
+    // Completer is reachable through the provider seam without naming ProviderCore.
+    let p = SuccessAgent.provider();
+    let _completer = p.completer();
 }

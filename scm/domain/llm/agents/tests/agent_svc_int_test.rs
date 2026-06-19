@@ -3,7 +3,18 @@
 
 use async_trait::async_trait;
 use edge_llm_agent::{Agent, AgentError, Skill};
+use edge_llm_provider::{
+    EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, ProviderFactory, StdProviderFactory,
+};
 use std::sync::Arc;
+
+fn noop_provider() -> Arc<dyn Provider> {
+    Arc::new(StdProviderFactory::provider(
+        ProviderConfig::new("noop".to_string(), 0.0, 0),
+        ModelInfo::default(),
+        Arc::new(EchoProviderCompleter),
+    ))
+}
 
 struct TestAgent;
 
@@ -31,6 +42,10 @@ impl Agent for TestAgent {
 
     fn skills(&self) -> Vec<Arc<dyn Skill<Request = String, Response = String>>> {
         vec![]
+    }
+
+    fn provider(&self) -> Arc<dyn Provider> {
+        noop_provider()
     }
 }
 
