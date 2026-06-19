@@ -1,12 +1,14 @@
 //! SAF facade tests — `Provider` trait via `StaticProvider`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
+use std::sync::Arc;
+
+use edge_llm_complete::NoopCompleter;
 use edge_llm_provider::{
-    CompletionInput, ExecutionConfig, ExecutionMode, FinishReason, ModelFamily, ModelInfo,
-    Provider, ProviderConfig, ProviderFactory, StdProviderFactory, TokenizerAccuracy,
+    FinishReason, ModelFamily, ModelInfo, Provider, ProviderConfig, ProviderFactory,
+    StdProviderFactory, TokenizerAccuracy,
 };
 use futures::executor::block_on;
-use futures::StreamExt;
 
 fn provider(model: &str) -> impl Provider {
     let config = ProviderConfig::new(model.to_string(), 0.7, 8192);
@@ -16,7 +18,7 @@ fn provider(model: &str) -> impl Provider {
         ModelFamily::Anthropic,
         8192,
     );
-    StdProviderFactory::provider(config, info)
+    StdProviderFactory::provider(config, info, Arc::new(NoopCompleter))
 }
 
 // --- name ---
@@ -191,54 +193,27 @@ fn test_health_check_whitespace_model_ok_edge() {
     assert!(provider(" ").health_check().is_ok());
 }
 
-fn input() -> CompletionInput {
-    CompletionInput::simple(
-        "test",
-        ExecutionConfig::new(4096, 30_000, false, false, ExecutionMode::Async),
-    )
+// --- completer ---
+
+/// @covers: Provider::completer — returns a usable completer delegate
+#[test]
+fn test_completer_returns_usable_delegate_happy() {
+    let c = provider("claude").completer();
+    assert!(block_on(c.list_models()).is_ok());
 }
 
-// --- complete ---
-
-/// @covers: Provider::complete — noop impl returns ok
+/// @covers: Provider::completer — noop delegate has no supported models
 #[test]
-fn test_complete_noop_returns_ok_happy() {
-    assert!(block_on(provider("claude").complete(&input())).is_ok());
+fn test_completer_noop_has_no_supported_models_error() {
+    let c = provider("claude").completer();
+    assert!(c.supported_models().is_empty());
 }
 
-/// @covers: Provider::complete — noop result has no action
+/// @covers: Provider::completer — same Arc returned on repeated calls
 #[test]
-fn test_complete_noop_result_has_no_action_error() {
-    let result = block_on(provider("claude").complete(&input())).expect("ok");
-    assert!(result.action.is_none());
-}
-
-/// @covers: Provider::complete — noop result carries empty reasoning
-#[test]
-fn test_complete_noop_result_empty_reasoning_edge() {
-    let result = block_on(provider("claude").complete(&input())).expect("ok");
-    assert!(result.reasoning.is_empty());
-}
-
-// --- stream ---
-
-/// @covers: Provider::stream — noop impl returns ok
-#[test]
-fn test_stream_noop_returns_ok_happy() {
-    assert!(block_on(provider("claude").stream(&input())).is_ok());
-}
-
-/// @covers: Provider::stream — noop stream yields no items
-#[test]
-fn test_stream_noop_yields_no_items_error() {
-    let stream = block_on(provider("claude").stream(&input())).expect("ok");
-    assert!(block_on(stream.collect::<Vec<_>>()).is_empty());
-}
-
-/// @covers: Provider::stream — noop stream is a valid BoxStream
-#[test]
-fn test_stream_noop_is_valid_box_stream_edge() {
-    let stream = block_on(provider("claude").stream(&input())).expect("ok");
-    let items: Vec<_> = block_on(stream.collect::<Vec<_>>());
-    assert_eq!(items.len(), 0);
+fn test_completer_stable_arc_across_calls_edge() {
+    let p = provider("claude");
+    let a = p.completer();
+    let b = p.completer();
+    assert!(Arc::ptr_eq(&a, &b));
 }

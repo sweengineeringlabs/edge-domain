@@ -1,5 +1,8 @@
 //! `ProviderFactory` — constructor contract for the default provider primitives.
 
+use std::sync::Arc;
+
+use edge_llm_complete::Completer;
 use serde_json::Value;
 
 use crate::api::provider::types::{
@@ -17,9 +20,9 @@ pub trait ProviderFactory {
         StdProviderFactory
     }
 
-    /// Construct the reference [`StaticProvider`] from config and model metadata.
-    fn provider(config: ProviderConfig, model: ModelInfo) -> StaticProvider {
-        StaticProvider::new(config, model)
+    /// Construct the reference [`StaticProvider`] from config, model metadata, and a completer delegate.
+    fn provider(config: ProviderConfig, model: ModelInfo, completer: Arc<dyn Completer>) -> StaticProvider {
+        StaticProvider::new(config, model, completer)
     }
 
     /// Construct the reference [`EchoExecutionModel`] from execution config.

@@ -1,19 +1,18 @@
 //! `Provider` — the LLM backend contract (primary trait).
 
-use async_trait::async_trait;
-use futures::stream::BoxStream;
+use std::sync::Arc;
+
+use edge_llm_complete::Completer;
 
 use crate::api::provider::errors::ExecutionError;
 use crate::api::provider::types::{
-    CompletionInput, ExecutionStepResult, FinishReason, ModelFamily, ModelInfo, ProviderConfig,
-    StreamChunk, TokenUsage, TokenizerAccuracy,
+    FinishReason, ModelFamily, ModelInfo, ProviderConfig, TokenUsage, TokenizerAccuracy,
 };
 
 /// Pluggable LLM backend (OpenAI, Claude, local models, …).
 ///
-/// Decouples agent orchestration from any specific backend: callers depend on
-/// this contract and inject a concrete provider.
-#[async_trait]
+/// Owns configuration, model metadata, and health state. Delegates all HTTP
+/// completion work to an inner [`Completer`] returned by [`Provider::completer`].
 pub trait Provider: Send + Sync {
     /// Stable identifier for this provider (e.g. `"anthropic"`).
     fn name(&self) -> &str;
@@ -42,21 +41,10 @@ pub trait Provider: Send + Sync {
     /// currently serve requests.
     fn health_check(&self) -> Result<(), ExecutionError>;
 
-    /// Send a single-turn or multi-turn completion request to this backend.
+    /// The HTTP-level completion boundary this provider delegates to.
     ///
-    /// Returns [`ExecutionError::ProviderUnavailable`] on the noop reference
-    /// implementation. Vendor backends override this with real HTTP dispatch.
-    async fn complete(
-        &self,
-        input: &CompletionInput,
-    ) -> Result<ExecutionStepResult, ExecutionError>;
-
-    /// Initiate a streaming completion request to this backend.
-    ///
-    /// Returns an empty stream on the noop reference implementation. Vendor
-    /// backends override this with a real HTTP streaming call.
-    async fn stream(
-        &self,
-        input: &CompletionInput,
-    ) -> Result<BoxStream<'static, Result<StreamChunk, ExecutionError>>, ExecutionError>;
+    /// Callers that need to issue a [`CompletionRequest`](edge_llm_complete::CompletionRequest)
+    /// should call `provider.completer().complete(&request)` rather than calling the
+    /// provider directly — completion is the completer's responsibility.
+    fn completer(&self) -> Arc<dyn Completer>;
 }

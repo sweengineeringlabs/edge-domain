@@ -1,7 +1,9 @@
 //! SAF facade tests — `ProviderFactory` constructors.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_llm_complete::{Completer, CompletionRequest, Message};
+use std::sync::Arc;
+
+use edge_llm_complete::{Completer, CompletionRequest, Message, NoopCompleter};
 use edge_llm_provider::{
     CompletionMessage, EchoProviderCompleter, ExecutionConfig, ExecutionMode, ExecutionModel,
     MessageRole, ModelFamily, ModelInfo, Provider, ProviderConfig, ProviderFactory,
@@ -86,7 +88,7 @@ fn test_provider_builds_named_provider_happy() {
         ModelFamily::Anthropic,
         8192,
     );
-    assert_eq!(StdProviderFactory::provider(config, info).name(), "claude");
+    assert_eq!(StdProviderFactory::provider(config, info, Arc::new(NoopCompleter)).name(), "claude");
 }
 
 /// @covers: ProviderFactory::provider — empty model produces an unhealthy provider
@@ -94,7 +96,7 @@ fn test_provider_builds_named_provider_happy() {
 fn test_provider_empty_model_unhealthy_error() {
     let config = ProviderConfig::new(String::new(), 0.7, 8192);
     let info = ModelInfo::new(String::new(), String::new(), ModelFamily::OpenAI, 8192);
-    assert!(StdProviderFactory::provider(config, info)
+    assert!(StdProviderFactory::provider(config, info, Arc::new(NoopCompleter))
         .health_check()
         .is_err());
 }
@@ -110,7 +112,7 @@ fn test_provider_reports_model_family_edge() {
         4096,
     );
     assert_eq!(
-        StdProviderFactory::provider(config, info).model_family(),
+        StdProviderFactory::provider(config, info, Arc::new(NoopCompleter)).model_family(),
         ModelFamily::OpenAI
     );
 }

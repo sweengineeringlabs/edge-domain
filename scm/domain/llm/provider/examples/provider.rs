@@ -1,5 +1,8 @@
 //! Basic `edge-llm-provider` usage example.
 
+use std::sync::Arc;
+
+use edge_llm_complete::NoopCompleter;
 use edge_llm_provider::{
     ExecutionMode, ModelFamily, ModelInfo, Provider, ProviderConfig, ProviderFactory,
     StdProviderFactory,
@@ -14,7 +17,7 @@ fn main() {
         200_000,
     );
 
-    let provider = StdProviderFactory::provider(config, info);
+    let provider = StdProviderFactory::provider(config, info, Arc::new(NoopCompleter));
     println!("provider: {}", provider.name());
     println!("family: {:?}", provider.model_family());
     println!("healthy: {:?}", provider.health_check().is_ok());

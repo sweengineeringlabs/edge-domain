@@ -1,16 +1,16 @@
 //! `Provider` impl for `StaticProvider`.
 
-use async_trait::async_trait;
-use futures::stream::{self, BoxStream};
+use std::sync::Arc;
+
+use edge_llm_complete::Completer;
 
 use crate::api::ExecutionError;
 use crate::api::Provider;
 use crate::api::{
-    CompletionInput, ExecutionStepResult, FinishReason, ModelFamily, ModelInfo, ProviderConfig,
-    StaticProvider, StreamChunk, TokenUsage, TokenizerAccuracy,
+    FinishReason, ModelFamily, ModelInfo, ProviderConfig, StaticProvider, TokenUsage,
+    TokenizerAccuracy,
 };
 
-#[async_trait]
 impl Provider for StaticProvider {
     fn name(&self) -> &str {
         &self.config.model
@@ -49,23 +49,17 @@ impl Provider for StaticProvider {
         Ok(())
     }
 
-    async fn complete(
-        &self,
-        _input: &CompletionInput,
-    ) -> Result<ExecutionStepResult, ExecutionError> {
-        Ok(ExecutionStepResult::new(String::new(), None, 0.0, None))
-    }
-
-    async fn stream(
-        &self,
-        _input: &CompletionInput,
-    ) -> Result<BoxStream<'static, Result<StreamChunk, ExecutionError>>, ExecutionError> {
-        Ok(Box::pin(stream::empty()))
+    fn completer(&self) -> Arc<dyn Completer> {
+        self.completer.clone()
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use std::sync::Arc;
+
+    use edge_llm_complete::NoopCompleter;
+
     use super::*;
 
     fn provider(model: &str) -> StaticProvider {
@@ -76,7 +70,7 @@ mod tests {
             ModelFamily::Anthropic,
             8192,
         );
-        StaticProvider::new(config, info)
+        StaticProvider::new(config, info, Arc::new(NoopCompleter))
     }
 
     #[test]
@@ -97,5 +91,10 @@ mod tests {
     #[test]
     fn test_health_check_errors_when_model_empty() {
         assert!(provider("").health_check().is_err());
+    }
+
+    #[test]
+    fn test_completer_returns_arc() {
+        let _ = provider("claude").completer();
     }
 }

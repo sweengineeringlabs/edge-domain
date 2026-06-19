@@ -1,6 +1,9 @@
 //! Tests for the `StdProviderFactory` concrete implementation.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
+use std::sync::Arc;
+
+use edge_llm_complete::NoopCompleter;
 use edge_llm_provider::{Provider, ProviderFactory, StdProviderFactory};
 
 /// @covers: StdProviderFactory — std_factory returns the factory instance
@@ -26,5 +29,5 @@ fn test_std_provider_factory_builds_provider() {
         ModelFamily::Anthropic,
         8192,
     );
-    assert_eq!(StdProviderFactory::provider(config, info).name(), "claude");
+    assert_eq!(StdProviderFactory::provider(config, info, Arc::new(NoopCompleter)).name(), "claude");
 }
