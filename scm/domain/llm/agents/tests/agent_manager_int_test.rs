@@ -2,11 +2,32 @@
 //! Integration tests — `AgentManager` trait.
 
 use async_trait::async_trait;
+use edge_domain_handler::{Handler, HandlerContext, HandlerError};
 use edge_llm_agent::{Agent, AgentError, AgentManager, Skill};
 use edge_llm_provider::{
     EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, ProviderFactory, StdProviderFactory,
 };
 use std::sync::Arc;
+
+struct InlineHandler;
+#[async_trait]
+impl Handler for InlineHandler {
+    type Request = String;
+    type Response = String;
+    fn id(&self) -> &str {
+        "stub"
+    }
+    fn pattern(&self) -> &str {
+        "stub"
+    }
+    async fn execute(
+        &self,
+        input: String,
+        _ctx: HandlerContext<'_>,
+    ) -> Result<String, HandlerError> {
+        Ok(input)
+    }
+}
 
 fn noop_provider() -> Arc<dyn Provider> {
     Arc::new(StdProviderFactory::provider(
@@ -48,6 +69,21 @@ impl AgentManager for TestManager {
         } else {
             Ok(vec!["agent1".to_string(), "agent2".to_string()])
         }
+    }
+
+    fn agent_handler(&self, _skill: &str) -> Box<dyn Handler<Request = String, Response = String>> {
+        Box::new(InlineHandler)
+    }
+
+    fn default_agent(
+        &self,
+        _id: &str,
+        _name: &str,
+        _description: &str,
+        _provider: Arc<dyn Provider>,
+        _skills: Vec<Arc<dyn Skill<Request = String, Response = String>>>,
+    ) -> Arc<dyn Agent> {
+        Arc::new(DummyAgent)
     }
 }
 

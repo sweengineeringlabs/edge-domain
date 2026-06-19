@@ -17,5 +17,7 @@ fn test_default_agent_svc_error_constant_not_empty() {
 /// @covers: DEFAULT_AGENT_SVC
 #[test]
 fn test_default_agent_svc_edge_constant_is_valid_identifier() {
-    assert!(DEFAULT_AGENT_SVC.chars().all(|c| c.is_ascii_alphanumeric() || c == '_'));
+    assert!(DEFAULT_AGENT_SVC
+        .chars()
+        .all(|c| c.is_ascii_alphanumeric() || c == '_'));
 }

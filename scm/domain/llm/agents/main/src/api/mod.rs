@@ -9,12 +9,12 @@ pub use noop::{
     NoopSkill, NoopValidator,
 };
 pub use traits::{
-    Agent, AgentEndpoint, AgentLifecycle, AgentManager, AgentRegistry, Parameter, SchemaValidator,
-    Skill, Validator,
+    Agent, AgentLifecycle, AgentManager, AgentRegistry, Parameter, SchemaValidator, Skill,
+    Validator,
 };
 pub use types::{
-    AgentLifecycleError, AgentMetadata, AgentMetadataBuilder, AgentState, CacheControl, ContentPart,
-    InputOutputSchema, Message, MessageBuilder, MessageContent, ParameterDocumentation,
-    ParameterDocumentationBuilder, Role, SkillMetadata, SkillMetadataBuilder, ToolCall, ToolChoice,
-    ValidationError,
+    AgentLifecycleError, AgentMetadata, AgentMetadataBuilder, AgentState, CacheControl,
+    ContentPart, InputOutputSchema, Message, MessageBuilder, MessageContent,
+    ParameterDocumentation, ParameterDocumentationBuilder, Role, SkillMetadata,
+    SkillMetadataBuilder, ToolCall, ToolChoice, ValidationError,
 };

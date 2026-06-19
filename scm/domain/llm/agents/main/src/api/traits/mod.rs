@@ -1,6 +1,5 @@
 //! Agent domain trait contracts.
 pub mod agent;
-pub mod agent_endpoint;
 pub mod agent_manager;
 pub mod agent_registry;
 pub mod parameter;
@@ -8,7 +7,6 @@ pub mod skill;
 pub mod validator;
 
 pub use agent::Agent;
-pub use agent_endpoint::AgentEndpoint;
 pub use agent_manager::AgentManager;
 pub use agent_registry::AgentRegistry;
 pub use parameter::Parameter;

@@ -46,7 +46,9 @@ mod tests {
     use futures::executor::block_on;
 
     fn handler() -> DefaultAgentHandler {
-        DefaultAgentHandler { skill: "code_review".to_string() }
+        DefaultAgentHandler {
+            skill: "code_review".to_string(),
+        }
     }
 
     #[test]
@@ -54,8 +56,8 @@ mod tests {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
         let ctx = HandlerContext::new(&security, &commands);
-        let out = block_on(Handler::execute(&handler(), "diff".to_string(), ctx))
-            .expect("handler ok");
+        let out =
+            block_on(Handler::execute(&handler(), "diff".to_string(), ctx)).expect("handler ok");
         assert_eq!(out, "code_review:diff");
     }
 

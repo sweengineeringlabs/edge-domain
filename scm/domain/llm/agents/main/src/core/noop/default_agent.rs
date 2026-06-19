@@ -18,12 +18,12 @@ struct DefaultAgentIdentity {
 }
 
 impl DefaultAgentIdentity {
-    fn new(
-        id: impl Into<String>,
-        name: impl Into<String>,
-        description: impl Into<String>,
-    ) -> Self {
-        Self { id: id.into(), name: name.into(), description: description.into() }
+    fn new(id: impl Into<String>, name: impl Into<String>, description: impl Into<String>) -> Self {
+        Self {
+            id: id.into(),
+            name: name.into(),
+            description: description.into(),
+        }
     }
 }
 
@@ -43,16 +43,28 @@ impl DefaultAgent {
         provider: Arc<dyn Provider>,
         skills: Vec<Arc<dyn Skill<Request = String, Response = String>>>,
     ) -> Self {
-        Self { identity: DefaultAgentIdentity::new(id, name, description), provider, skills }
+        Self {
+            identity: DefaultAgentIdentity::new(id, name, description),
+            provider,
+            skills,
+        }
     }
 }
 
 #[async_trait]
 impl Agent for DefaultAgent {
-    fn id(&self) -> &str { &self.identity.id }
-    fn name(&self) -> &str { &self.identity.name }
-    fn description(&self) -> &str { &self.identity.description }
-    fn provider(&self) -> Arc<dyn Provider> { Arc::clone(&self.provider) }
+    fn id(&self) -> &str {
+        &self.identity.id
+    }
+    fn name(&self) -> &str {
+        &self.identity.name
+    }
+    fn description(&self) -> &str {
+        &self.identity.description
+    }
+    fn provider(&self) -> Arc<dyn Provider> {
+        Arc::clone(&self.provider)
+    }
     fn skills(&self) -> Vec<Arc<dyn Skill<Request = String, Response = String>>> {
         self.skills.clone()
     }
@@ -66,14 +78,19 @@ impl Agent for DefaultAgent {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
         let ctx = HandlerContext::new(&security, &commands);
-        skill.execute(input, ctx).await.map_err(|e| AgentError::ExecutionFailed(e.to_string()))
+        skill
+            .execute(input, ctx)
+            .await
+            .map_err(|e| AgentError::ExecutionFailed(e.to_string()))
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use edge_llm_provider::{EchoProviderCompleter, ModelInfo, ProviderConfig, ProviderFactory, StdProviderFactory};
+    use edge_llm_provider::{
+        EchoProviderCompleter, ModelInfo, ProviderConfig, ProviderFactory, StdProviderFactory,
+    };
     use futures::executor::block_on;
 
     fn noop_provider() -> Arc<dyn Provider> {

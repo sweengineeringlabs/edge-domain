@@ -6,10 +6,11 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
 use edge_llm_agent::{
-    AgentEndpoint, AgentError, NoopAgentManager, Skill, SkillMetadata,
-    DEFAULT_AGENT_SVC,
+    AgentError, AgentManager, NoopAgentManager, Skill, SkillMetadata, DEFAULT_AGENT_SVC,
 };
-use edge_llm_provider::{EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, ProviderFactory, StdProviderFactory};
+use edge_llm_provider::{
+    EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, ProviderFactory, StdProviderFactory,
+};
 use futures::executor::block_on;
 
 fn noop_provider() -> Arc<dyn Provider> {
@@ -28,8 +29,12 @@ impl Handler for EchoSkill {
     type Request = String;
     type Response = String;
 
-    fn id(&self) -> &str { "echo" }
-    fn pattern(&self) -> &str { "echo" }
+    fn id(&self) -> &str {
+        "echo"
+    }
+    fn pattern(&self) -> &str {
+        "echo"
+    }
 
     async fn execute(
         &self,
@@ -44,8 +49,12 @@ impl Handler for EchoSkill {
 }
 
 impl Skill for EchoSkill {
-    fn name(&self) -> &str { "echo" }
-    fn description(&self) -> &str { "echoes input" }
+    fn name(&self) -> &str {
+        "echo"
+    }
+    fn description(&self) -> &str {
+        "echoes input"
+    }
     fn metadata(&self) -> SkillMetadata {
         SkillMetadata {
             name: "echo".to_string(),
@@ -67,8 +76,12 @@ fn echo_skill() -> Arc<dyn Skill<Request = String, Response = String>> {
 /// @covers: default_agent
 #[test]
 fn test_default_agent_happy_id_name_description_stored() {
-    let agent = NoopAgentManager::default_agent(
-        "agent-1", "Test Agent", "for testing", noop_provider(), vec![],
+    let agent = NoopAgentManager.default_agent(
+        "agent-1",
+        "Test Agent",
+        "for testing",
+        noop_provider(),
+        vec![],
     );
     assert_eq!(agent.id(), "agent-1");
     assert_eq!(agent.name(), "Test Agent");
@@ -79,18 +92,15 @@ fn test_default_agent_happy_id_name_description_stored() {
 #[test]
 fn test_default_agent_happy_provider_accessible() {
     let provider = noop_provider();
-    let agent = NoopAgentManager::default_agent(
-        "a", "A", "desc", Arc::clone(&provider), vec![],
-    );
+    let agent = NoopAgentManager.default_agent("a", "A", "desc", Arc::clone(&provider), vec![]);
     assert_eq!(agent.provider().name(), provider.name());
 }
 
 /// @covers: default_agent
 #[test]
 fn test_default_agent_happy_skills_returned() {
-    let agent = NoopAgentManager::default_agent(
-        "a", "A", "desc", noop_provider(), vec![echo_skill()],
-    );
+    let agent =
+        NoopAgentManager.default_agent("a", "A", "desc", noop_provider(), vec![echo_skill()]);
     assert_eq!(agent.skills().len(), 1);
     assert_eq!(agent.skills()[0].name(), "echo");
 }
@@ -100,9 +110,8 @@ fn test_default_agent_happy_skills_returned() {
 /// @covers: execute_skill
 #[test]
 fn test_default_agent_happy_execute_skill_routes_to_echo_skill() {
-    let agent = NoopAgentManager::default_agent(
-        "a", "A", "desc", noop_provider(), vec![echo_skill()],
-    );
+    let agent =
+        NoopAgentManager.default_agent("a", "A", "desc", noop_provider(), vec![echo_skill()]);
     let result = block_on(agent.execute_skill("echo", "hello".to_string())).expect("ok");
     assert_eq!(result, "echo:hello");
 }
@@ -110,20 +119,17 @@ fn test_default_agent_happy_execute_skill_routes_to_echo_skill() {
 /// @covers: execute_skill
 #[test]
 fn test_default_agent_error_execute_skill_unknown_returns_skill_not_found() {
-    let agent = NoopAgentManager::default_agent(
-        "a", "A", "desc", noop_provider(), vec![echo_skill()],
-    );
-    let err = block_on(agent.execute_skill("missing", "x".to_string()))
-        .expect_err("should fail");
+    let agent =
+        NoopAgentManager.default_agent("a", "A", "desc", noop_provider(), vec![echo_skill()]);
+    let err = block_on(agent.execute_skill("missing", "x".to_string())).expect_err("should fail");
     assert!(matches!(err, AgentError::SkillNotFound(_)));
 }
 
 /// @covers: execute_skill
 #[test]
 fn test_default_agent_error_execute_skill_bad_input_propagates_execution_failed() {
-    let agent = NoopAgentManager::default_agent(
-        "a", "A", "desc", noop_provider(), vec![echo_skill()],
-    );
+    let agent =
+        NoopAgentManager.default_agent("a", "A", "desc", noop_provider(), vec![echo_skill()]);
     let err = block_on(agent.execute_skill("echo", String::new()))
         .expect_err("should fail on empty input");
     assert!(matches!(err, AgentError::ExecutionFailed(_)));
@@ -132,11 +138,8 @@ fn test_default_agent_error_execute_skill_bad_input_propagates_execution_failed(
 /// @covers: execute_skill
 #[test]
 fn test_default_agent_edge_execute_skill_no_skills_returns_not_found() {
-    let agent = NoopAgentManager::default_agent(
-        "a", "A", "desc", noop_provider(), vec![],
-    );
-    let err = block_on(agent.execute_skill("anything", "x".to_string()))
-        .expect_err("should fail");
+    let agent = NoopAgentManager.default_agent("a", "A", "desc", noop_provider(), vec![]);
+    let err = block_on(agent.execute_skill("anything", "x".to_string())).expect_err("should fail");
     assert!(matches!(err, AgentError::SkillNotFound(_)));
 }
 

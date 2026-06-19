@@ -1,4 +1,4 @@
-//! Integration tests for `AgentEndpoint` — `agent_handler` and `default_agent` factories.
+//! Integration tests for `AgentManager::agent_handler` and `AgentManager::default_agent`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
@@ -7,8 +7,10 @@ use async_trait::async_trait;
 use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
 use edge_domain_security::SecurityContext;
-use edge_llm_agent::{AgentEndpoint, AgentError, NoopAgentManager, Skill, SkillMetadata};
-use edge_llm_provider::{EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, ProviderFactory, StdProviderFactory};
+use edge_llm_agent::{AgentError, AgentManager, NoopAgentManager, Skill, SkillMetadata};
+use edge_llm_provider::{
+    EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, ProviderFactory, StdProviderFactory,
+};
 use futures::executor::block_on;
 
 fn noop_provider() -> Arc<dyn Provider> {
@@ -24,106 +26,128 @@ struct EchoSkill;
 impl Handler for EchoSkill {
     type Request = String;
     type Response = String;
-    fn id(&self) -> &str { "echo" }
-    fn pattern(&self) -> &str { "echo" }
-    async fn execute(&self, input: String, _ctx: HandlerContext<'_>) -> Result<String, HandlerError> {
-        if input.is_empty() { return Err(HandlerError::ExecutionFailed("empty".to_string())); }
+    fn id(&self) -> &str {
+        "echo"
+    }
+    fn pattern(&self) -> &str {
+        "echo"
+    }
+    async fn execute(
+        &self,
+        input: String,
+        _ctx: HandlerContext<'_>,
+    ) -> Result<String, HandlerError> {
+        if input.is_empty() {
+            return Err(HandlerError::ExecutionFailed("empty".to_string()));
+        }
         Ok(format!("echo:{input}"))
     }
 }
 impl Skill for EchoSkill {
-    fn name(&self) -> &str { "echo" }
-    fn description(&self) -> &str { "echoes" }
+    fn name(&self) -> &str {
+        "echo"
+    }
+    fn description(&self) -> &str {
+        "echoes"
+    }
     fn metadata(&self) -> SkillMetadata {
-        SkillMetadata { name: "echo".into(), description: "echoes".into(), input_schema: None, output_schema: None, async_execution: true, long_running: false }
+        SkillMetadata {
+            name: "echo".into(),
+            description: "echoes".into(),
+            input_schema: None,
+            output_schema: None,
+            async_execution: true,
+            long_running: false,
+        }
     }
 }
 
-/// @covers: agent_handler (Handler face) — runs core under a request context
+// ── agent_handler ─────────────────────────────────────────────────────────────
+
+/// @covers: AgentManager::agent_handler
 #[test]
-fn test_handler_execute_returns_skill_colon_input_happy() {
-    let h = NoopAgentManager::agent_handler("code_review");
+fn test_agent_handler_routes_input_to_named_skill_happy() {
+    let h = NoopAgentManager.agent_handler("code_review");
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let ctx = HandlerContext::new(&security, &commands);
-    let out = block_on(Handler::execute(&h, "diff".to_string(), ctx)).expect("handler ok");
+    let out = block_on(Handler::execute(&*h, "diff".to_string(), ctx)).expect("handler ok");
     assert_eq!(out, "code_review:diff");
 }
 
-/// @covers: agent_handler — dispatch id is stable
+/// @covers: AgentManager::agent_handler
 #[test]
-fn test_handler_id_is_stable_edge() {
-    let h = NoopAgentManager::agent_handler("any_skill");
-    assert_eq!(Handler::id(&h), "agent.execute_skill");
-}
-
-/// @covers: agent_handler — pattern is stable
-#[test]
-fn test_handler_pattern_is_stable_edge() {
-    let h = NoopAgentManager::agent_handler("any_skill");
-    assert_eq!(Handler::pattern(&h), "agent/execute_skill");
-}
-
-/// @covers: agent_handler — empty input surfaces a handler error
-#[test]
-fn test_handler_execute_empty_input_returns_error() {
-    let h = NoopAgentManager::agent_handler("code_review");
+fn test_agent_handler_empty_input_returns_error() {
+    let h = NoopAgentManager.agent_handler("code_review");
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let ctx = HandlerContext::new(&security, &commands);
-    assert!(block_on(Handler::execute(&h, String::new(), ctx)).is_err());
+    assert!(block_on(Handler::execute(&*h, String::new(), ctx)).is_err());
 }
 
-/// @covers: agent_handler — targets the named skill in its output
+/// @covers: AgentManager::agent_handler
 #[test]
-fn test_handler_targets_named_skill_happy() {
-    let h = NoopAgentManager::agent_handler("planning");
+fn test_agent_handler_id_and_pattern_are_stable_edge() {
+    let h = NoopAgentManager.agent_handler("any_skill");
+    assert_eq!(Handler::id(&*h), "agent.execute_skill");
+    assert_eq!(Handler::pattern(&*h), "agent/execute_skill");
+}
+
+/// @covers: AgentManager::agent_handler
+#[test]
+fn test_agent_handler_targets_different_skill_names_happy() {
+    let h = NoopAgentManager.agent_handler("planning");
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let ctx = HandlerContext::new(&security, &commands);
-    let out = block_on(Handler::execute(&h, "a task".to_string(), ctx)).expect("ok");
+    let out = block_on(Handler::execute(&*h, "a task".to_string(), ctx)).expect("ok");
     assert_eq!(out, "planning:a task");
 }
 
-/// @covers: agent_handler — edge: empty skill name is preserved verbatim
+/// @covers: AgentManager::agent_handler
 #[test]
-fn test_handler_empty_skill_name_edge() {
-    let h = NoopAgentManager::agent_handler("");
+fn test_agent_handler_empty_skill_name_preserved_edge() {
+    let h = NoopAgentManager.agent_handler("");
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let ctx = HandlerContext::new(&security, &commands);
-    let out = block_on(Handler::execute(&h, "input".to_string(), ctx)).expect("ok");
+    let out = block_on(Handler::execute(&*h, "input".to_string(), ctx)).expect("ok");
     assert_eq!(out, ":input");
 }
 
-// ── default_agent ────────────────────────────────────────────────────────────
+// ── default_agent ─────────────────────────────────────────────────────────────
 
-/// @covers: default_agent
+/// @covers: AgentManager::default_agent
 #[test]
-fn test_default_agent_happy_executes_registered_skill() {
-    let agent = NoopAgentManager::default_agent(
-        "a", "A", "desc", noop_provider(),
+fn test_default_agent_executes_registered_skill_happy() {
+    let agent = NoopAgentManager.default_agent(
+        "a",
+        "A",
+        "desc",
+        noop_provider(),
         vec![Arc::new(EchoSkill)],
     );
     let result = block_on(agent.execute_skill("echo", "hi".to_string())).expect("ok");
     assert_eq!(result, "echo:hi");
 }
 
-/// @covers: default_agent
+/// @covers: AgentManager::default_agent
 #[test]
-fn test_default_agent_error_missing_skill_returns_not_found() {
-    let agent = NoopAgentManager::default_agent(
-        "a", "A", "desc", noop_provider(), vec![],
-    );
+fn test_default_agent_missing_skill_returns_not_found_error() {
+    let agent = NoopAgentManager.default_agent("a", "A", "desc", noop_provider(), vec![]);
     let err = block_on(agent.execute_skill("ghost", "x".to_string())).expect_err("should fail");
     assert!(matches!(err, AgentError::SkillNotFound(_)));
 }
 
-/// @covers: default_agent
+/// @covers: AgentManager::default_agent
 #[test]
-fn test_default_agent_edge_identity_fields_round_trip() {
-    let agent = NoopAgentManager::default_agent(
-        "edge-id", "edge-name", "edge-desc", noop_provider(), vec![],
+fn test_default_agent_identity_fields_round_trip_edge() {
+    let agent = NoopAgentManager.default_agent(
+        "edge-id",
+        "edge-name",
+        "edge-desc",
+        noop_provider(),
+        vec![],
     );
     assert_eq!(agent.id(), "edge-id");
     assert_eq!(agent.name(), "edge-name");

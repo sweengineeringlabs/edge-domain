@@ -2,7 +2,8 @@
 //! Integration tests for AGENT_MANAGER_SVC constant and AgentManager trait re-export.
 
 use async_trait::async_trait;
-use edge_llm_agent::{Agent, AgentError, AgentManager, Skill};
+use edge_domain_handler::{Handler, HandlerContext, HandlerError};
+use edge_llm_agent::{Agent, AgentError, AgentManager, NoopAgentManager, Skill};
 use edge_llm_provider::{
     EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, ProviderFactory, StdProviderFactory,
 };
@@ -73,6 +74,21 @@ impl AgentManager for TestAgentManager {
 
     fn list_agent_ids(&self) -> Result<Vec<String>, AgentError> {
         Ok(self.agents.iter().map(|a| a.id().to_string()).collect())
+    }
+
+    fn agent_handler(&self, skill: &str) -> Box<dyn Handler<Request = String, Response = String>> {
+        NoopAgentManager.agent_handler(skill)
+    }
+
+    fn default_agent(
+        &self,
+        id: &str,
+        name: &str,
+        description: &str,
+        provider: Arc<dyn Provider>,
+        skills: Vec<Arc<dyn Skill<Request = String, Response = String>>>,
+    ) -> Arc<dyn Agent> {
+        NoopAgentManager.default_agent(id, name, description, provider, skills)
     }
 }
 
