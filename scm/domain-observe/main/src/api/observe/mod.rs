@@ -1,7 +1,7 @@
 //! Observe theme — traits, types, and errors.
 
-mod noop;
 pub mod errors;
+mod noop;
 pub mod traits;
 pub mod types;
 

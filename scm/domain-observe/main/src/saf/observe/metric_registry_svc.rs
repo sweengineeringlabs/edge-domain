@@ -1,5 +1,5 @@
-use crate::api::NoopObserve;
 pub use crate::api::MetricRegistry;
+use crate::api::NoopObserve;
 pub use crate::api::StdObserveFactory;
 
 /// Service-registry key for [`MetricRegistry`].

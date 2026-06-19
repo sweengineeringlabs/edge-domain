@@ -1,11 +1,11 @@
 //! `impl ObserveFactory for StdObserveFactory`.
 
+use super::{NoopHandlerTracer, NoopLogDrain, NoopMetricRegistry};
 use crate::api::HandlerTracer;
 use crate::api::LogDrain;
 use crate::api::MetricRegistry;
 use crate::api::ObserveFactory;
 use crate::api::StdObserveFactory;
-use super::{NoopHandlerTracer, NoopLogDrain, NoopMetricRegistry};
 
 impl ObserveFactory for StdObserveFactory {
     fn build_handler_tracer(&self) -> Box<dyn HandlerTracer> {

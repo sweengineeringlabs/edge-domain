@@ -1,6 +1,6 @@
+use super::noop_span::NoopSpan;
 use crate::api::HandlerTracer;
 use crate::api::Span;
-use super::noop_span::NoopSpan;
 
 pub(crate) struct NoopHandlerTracer;
 

@@ -1,10 +1,10 @@
+use super::noop_counter::NoopCounter;
+use super::noop_gauge::NoopGauge;
+use super::noop_histogram::NoopHistogram;
 use crate::api::Counter;
 use crate::api::Gauge;
 use crate::api::Histogram;
 use crate::api::MetricRegistry;
-use super::noop_counter::NoopCounter;
-use super::noop_gauge::NoopGauge;
-use super::noop_histogram::NoopHistogram;
 
 pub(crate) struct NoopMetricRegistry;
 

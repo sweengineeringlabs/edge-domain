@@ -1,3 +1,10 @@
+use super::noop_counter::NoopCounter;
+use super::noop_gauge::NoopGauge;
+use super::noop_handler_tracer::NoopHandlerTracer;
+use super::noop_histogram::NoopHistogram;
+use super::noop_log_drain::NoopLogDrain;
+use super::noop_metric_registry::NoopMetricRegistry;
+use super::noop_span::NoopSpan;
 use crate::api::Counter;
 use crate::api::Gauge;
 use crate::api::HandlerTracer;
@@ -7,13 +14,6 @@ use crate::api::MetricRegistry;
 use crate::api::NoopObserve;
 use crate::api::Span;
 use crate::api::StdObserveFactory;
-use super::noop_counter::NoopCounter;
-use super::noop_gauge::NoopGauge;
-use super::noop_handler_tracer::NoopHandlerTracer;
-use super::noop_histogram::NoopHistogram;
-use super::noop_log_drain::NoopLogDrain;
-use super::noop_metric_registry::NoopMetricRegistry;
-use super::noop_span::NoopSpan;
 
 impl NoopObserve for StdObserveFactory {
     fn build_noop_counter() -> Box<dyn Counter> {

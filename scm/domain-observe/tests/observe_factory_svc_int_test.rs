@@ -11,7 +11,10 @@ fn test_create_factory_svc_validate_passes_happy() {
 #[test]
 fn test_create_factory_svc_builds_noop_triplet_error() {
     let factory = StdObserveFactory::create_factory();
-    factory.build_handler_tracer().start_span("h", "op").finish();
+    factory
+        .build_handler_tracer()
+        .start_span("h", "op")
+        .finish();
     factory
         .build_log_drain()
         .emit(LogRecord::new("WARN", "h", "bad input"));

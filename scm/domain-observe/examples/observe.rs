@@ -25,7 +25,11 @@ fn main() {
 
     // --- Log drain ---
     let drain = StdObserveFactory::noop_log_drain();
-    drain.emit(LogRecord::new("INFO", "order_handler", "order processed successfully"));
+    drain.emit(LogRecord::new(
+        "INFO",
+        "order_handler",
+        "order processed successfully",
+    ));
 
     // --- Factory approach ---
     let factory = StdObserveFactory::create_factory();

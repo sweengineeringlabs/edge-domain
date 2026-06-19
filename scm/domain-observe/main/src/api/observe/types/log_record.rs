@@ -15,7 +15,11 @@ pub struct LogRecord {
 
 impl LogRecord {
     /// Construct a new `LogRecord`.
-    pub fn new(level: impl Into<String>, handler_id: impl Into<String>, message: impl Into<String>) -> Self {
+    pub fn new(
+        level: impl Into<String>,
+        handler_id: impl Into<String>,
+        message: impl Into<String>,
+    ) -> Self {
         Self {
             level: level.into(),
             handler_id: handler_id.into(),
