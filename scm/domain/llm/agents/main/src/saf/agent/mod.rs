@@ -1,4 +1,5 @@
 mod agent_endpoint_svc;
+mod default_agent_svc;
 mod agent_error_svc;
 mod agent_lifecycle_svc;
 mod agent_manager_svc;
@@ -14,6 +15,7 @@ mod skill_svc;
 mod validator_svc;
 
 pub use agent_endpoint_svc::{AgentEndpoint, AGENT_ENDPOINT_SVC};
+pub use default_agent_svc::DEFAULT_AGENT_SVC;
 pub use agent_error_svc::{AgentError, AGENT_ERROR_SVC};
 pub use agent_lifecycle_svc::{AgentLifecycle, AGENT_LIFECYCLE_SVC};
 pub use agent_manager_svc::{AgentManager, AGENT_MANAGER_SVC};

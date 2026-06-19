@@ -3,8 +3,10 @@
 use std::sync::Arc;
 
 use edge_domain_handler::Handler;
+use edge_llm_provider::Provider;
 
-use crate::api::{Agent, AgentEndpoint, AgentError, AgentManager, NoopAgentManager};
+use crate::api::{Agent, AgentEndpoint, AgentError, AgentManager, NoopAgentManager, Skill};
+use crate::core::noop::DefaultAgent;
 use crate::core::types::DefaultAgentHandler;
 
 impl AgentEndpoint for NoopAgentManager {
@@ -12,6 +14,16 @@ impl AgentEndpoint for NoopAgentManager {
         skill: impl Into<String>,
     ) -> impl Handler<Request = String, Response = String> {
         DefaultAgentHandler { skill: skill.into() }
+    }
+
+    fn default_agent(
+        id: impl Into<String>,
+        name: impl Into<String>,
+        description: impl Into<String>,
+        provider: Arc<dyn Provider>,
+        skills: Vec<Arc<dyn Skill<Request = String, Response = String>>>,
+    ) -> Arc<dyn Agent> {
+        Arc::new(DefaultAgent::new(id, name, description, provider, skills))
     }
 }
 
