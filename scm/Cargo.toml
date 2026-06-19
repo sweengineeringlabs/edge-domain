@@ -3,6 +3,7 @@ resolver = "2"
 members  = [
     "edge-domain",
     "domain/llm/agents",
+    "domain/llm/complete",
     "domain/llm/provider",
     "domain/llm/prompt",
     "domain/llm/reasoning",
@@ -69,6 +70,7 @@ edge-domain-security    = { path = "domain-security" }
 edge-domain-registry    = { path = "domain-registry" }
 edge-domain-lifecycle   = { path = "domain-lifecycle" }
 edge-llm-agent          = { path = "domain/llm/agents" }
+edge-llm-complete       = { path = "domain/llm/complete" }
 edge-llm-provider       = { path = "domain/llm/provider" }
 edge-llm-prompt         = { path = "domain/llm/prompt" }
 edge-llm-reasoning      = { path = "domain/llm/reasoning" }

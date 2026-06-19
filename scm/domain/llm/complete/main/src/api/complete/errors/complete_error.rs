@@ -1,0 +1,98 @@
+//! `CompleteError` — 14-variant error taxonomy for LLM completion operations.
+
+use std::time::Duration;
+
+/// Comprehensive error taxonomy for LLM completion (renamed from `LlmError` in llmcomplete).
+#[derive(Debug, thiserror::Error)]
+pub enum CompleteError {
+    /// Provider or backend configuration is invalid or missing.
+    #[error("configuration error: {0}")]
+    Configuration(String),
+
+    /// No provider registered for the requested model or id.
+    #[error("provider not found: {0}")]
+    ProviderNotFound(String),
+
+    /// The requested model is not available on this provider.
+    #[error("model not found: {0}")]
+    ModelNotFound(String),
+
+    /// API key or credentials rejected.
+    #[error("authentication failed: {0}")]
+    AuthenticationFailed(String),
+
+    /// Request rate limit exceeded; optionally carries a retry delay.
+    #[error("rate limited")]
+    RateLimited {
+        /// Milliseconds to wait before retrying, if known.
+        retry_after_ms: Option<u64>,
+    },
+
+    /// Input exceeds the model's context window.
+    #[error("context length exceeded: used {used}, max {max}")]
+    ContextLengthExceeded {
+        /// Token count that was submitted.
+        used: u32,
+        /// Maximum tokens the model accepts.
+        max: u32,
+    },
+
+    /// Response suppressed by a content filter.
+    #[error("content filtered: {0}")]
+    ContentFiltered(String),
+
+    /// Request parameters are invalid (schema, missing required field, …).
+    #[error("invalid request: {0}")]
+    InvalidRequest(String),
+
+    /// Transport-level failure (DNS, TCP, TLS) before the provider responds.
+    #[error("network error: {0}")]
+    NetworkError(String),
+
+    /// Streaming pipeline broke mid-stream.
+    #[error("stream error: {0}")]
+    StreamError(String),
+
+    /// Provider did not respond within the allowed window.
+    #[error("timeout after {0}ms")]
+    Timeout(u64),
+
+    /// Provider returned a well-formed error response.
+    #[error("provider error from {provider}: {message}")]
+    ProviderError {
+        /// Provider name (e.g. `"anthropic"`).
+        provider: String,
+        /// Human-readable error message from the provider.
+        message: String,
+    },
+
+    /// JSON serialization or deserialization failed.
+    #[error("serialization error: {0}")]
+    SerializationError(String),
+
+    /// Underlying I/O error (file, socket, …).
+    #[error("io error: {0}")]
+    IoError(#[from] std::io::Error),
+}
+
+impl CompleteError {
+    /// Returns `true` if the operation is safe to retry.
+    pub fn is_retryable(&self) -> bool {
+        matches!(
+            self,
+            CompleteError::NetworkError(_)
+                | CompleteError::RateLimited { .. }
+                | CompleteError::Timeout(_)
+        )
+    }
+
+    /// Returns the suggested retry delay, if the error carries one.
+    pub fn retry_after(&self) -> Option<Duration> {
+        match self {
+            CompleteError::RateLimited { retry_after_ms } => {
+                retry_after_ms.map(Duration::from_millis)
+            }
+            _ => None,
+        }
+    }
+}
