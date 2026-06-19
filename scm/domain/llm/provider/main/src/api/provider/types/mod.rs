@@ -19,6 +19,7 @@ pub mod message_role;
 pub mod tool_definition;
 
 pub mod buffered_stream_handler;
+pub mod echo_provider_completer;
 pub mod echo_execution_model;
 pub mod static_provider;
 pub mod std_provider_factory;
@@ -42,6 +43,7 @@ pub use message_role::MessageRole;
 pub use tool_definition::ToolDefinition;
 
 pub use buffered_stream_handler::BufferedStreamHandler;
+pub use echo_provider_completer::EchoProviderCompleter;
 pub use echo_execution_model::EchoExecutionModel;
 pub use static_provider::StaticProvider;
 pub use std_provider_factory::StdProviderFactory;

@@ -3,8 +3,9 @@
 use serde_json::Value;
 
 use crate::api::provider::types::{
-    BufferedStreamHandler, CompletionInput, CompletionMessage, EchoExecutionModel, ExecutionConfig,
-    MessageRole, ModelInfo, ProviderConfig, StaticProvider, StdProviderFactory, ToolDefinition,
+    BufferedStreamHandler, CompletionInput, CompletionMessage, EchoProviderCompleter,
+    EchoExecutionModel, ExecutionConfig, MessageRole, ModelInfo, ProviderConfig, StaticProvider,
+    StdProviderFactory, ToolDefinition,
 };
 
 /// Factory for the standard reference implementations.
@@ -49,5 +50,13 @@ pub trait ProviderFactory {
         config: ExecutionConfig,
     ) -> CompletionInput {
         CompletionInput::new(messages, tools, system, config)
+    }
+
+    /// Construct the default [`EchoProviderCompleter`] adapter.
+    ///
+    /// This adapter implements [`edge_llm_complete::Completer`] by delegating to the
+    /// provider's `EchoExecutionModel`, mapping request/response across the port boundary.
+    fn provider_completer() -> EchoProviderCompleter {
+        EchoProviderCompleter
     }
 }

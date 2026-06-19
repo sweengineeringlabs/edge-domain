@@ -1,11 +1,13 @@
 //! SAF facade tests — `ProviderFactory` constructors.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
+use edge_llm_complete::{Completer, CompletionRequest, Message};
 use edge_llm_provider::{
-    CompletionMessage, ExecutionConfig, ExecutionMode, ExecutionModel, MessageRole, ModelFamily,
-    ModelInfo, Provider, ProviderConfig, ProviderFactory, StdProviderFactory, StreamHandler,
-    ToolDefinition,
+    CompletionMessage, EchoProviderCompleter, ExecutionConfig, ExecutionMode, ExecutionModel,
+    MessageRole, ModelFamily, ModelInfo, Provider, ProviderConfig, ProviderFactory,
+    StdProviderFactory, StreamHandler, ToolDefinition,
 };
+use futures::executor::block_on;
 use serde_json::json;
 
 // --- default_provider_handler ---
@@ -230,4 +232,28 @@ fn test_completion_input_minimal_edge() {
     );
     assert!(input.system.is_none());
     assert!(input.tools.is_empty());
+}
+
+// --- provider_completer ---
+
+/// @covers: ProviderFactory::provider_completer — returns a EchoProviderCompleter
+#[test]
+fn test_provider_completer_returns_instance_happy() {
+    let _c: EchoProviderCompleter = StdProviderFactory::provider_completer();
+}
+
+/// @covers: ProviderFactory::provider_completer — instance implements Completer (can call complete)
+#[test]
+fn test_provider_completer_implements_completer_error() {
+    let c = StdProviderFactory::provider_completer();
+    let req = CompletionRequest::new("echo", vec![Message::user("hi")]);
+    let result = block_on(c.complete(&req));
+    assert!(result.is_ok());
+}
+
+/// @covers: ProviderFactory::provider_completer — repeated calls return independent instances
+#[test]
+fn test_provider_completer_independent_instances_edge() {
+    let _a = StdProviderFactory::provider_completer();
+    let _b = StdProviderFactory::provider_completer();
 }

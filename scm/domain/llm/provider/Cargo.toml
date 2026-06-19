@@ -22,8 +22,10 @@ thiserror.workspace = true
 async-trait.workspace = true
 serde.workspace = true
 serde_json.workspace = true
+futures.workspace = true
 edge-domain-handler.workspace = true
 swe-edge-configbuilder.workspace = true
+edge-llm-complete.workspace = true
 
 [dev-dependencies]
 serde_json.workspace = true
