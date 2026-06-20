@@ -63,9 +63,9 @@ pub use edge_domain_valueobject::ValueObjectError;
 #[cfg(feature = "clock")]
 pub use edge_domain_clock::Clock;
 #[cfg(feature = "clock")]
-pub use edge_domain_clock::ClockError;
+pub use edge_domain_clock::ClockBootstrap;
 #[cfg(feature = "clock")]
-pub use edge_domain_clock::ClockFactory;
+pub use edge_domain_clock::ClockError;
 #[cfg(feature = "clock")]
 pub use edge_domain_clock::FixedClock;
 #[cfg(feature = "clock")]
@@ -77,9 +77,9 @@ pub use edge_domain_validator::AlwaysValid;
 #[cfg(feature = "validator")]
 pub use edge_domain_validator::Validator;
 #[cfg(feature = "validator")]
-pub use edge_domain_validator::ValidatorError;
+pub use edge_domain_validator::ValidatorBootstrap;
 #[cfg(feature = "validator")]
-pub use edge_domain_validator::ValidatorFactory;
+pub use edge_domain_validator::ValidatorError;
 
 // ── policy (sub-crate when feature enabled) ───────────────────────────────────
 #[cfg(feature = "policy")]
@@ -87,7 +87,7 @@ pub use edge_domain_policy::CompositePolicy;
 #[cfg(feature = "policy")]
 pub use edge_domain_policy::Policy;
 #[cfg(feature = "policy")]
-pub use edge_domain_policy::PolicyFactory;
+pub use edge_domain_policy::PolicyBootstrap;
 #[cfg(feature = "policy")]
 pub use edge_domain_policy::PolicyViolation;
 
@@ -97,7 +97,7 @@ pub use edge_domain_command::Command;
 #[cfg(feature = "command")]
 pub use edge_domain_command::CommandBus;
 #[cfg(feature = "command")]
-pub use edge_domain_command::CommandBusFactory;
+pub use edge_domain_command::CommandBusBootstrap;
 #[cfg(feature = "command")]
 pub use edge_domain_command::CommandError;
 #[cfg(feature = "command")]
@@ -121,7 +121,7 @@ pub use edge_domain_query::Query;
 #[cfg(feature = "query")]
 pub use edge_domain_query::QueryBus;
 #[cfg(feature = "query")]
-pub use edge_domain_query::QueryBusFactory;
+pub use edge_domain_query::QueryBusBootstrap;
 #[cfg(feature = "query")]
 pub use edge_domain_query::QueryError;
 #[cfg(feature = "query")]
@@ -137,7 +137,7 @@ pub use edge_domain_snapshot::SnapshotError;
 #[cfg(feature = "snapshot")]
 pub use edge_domain_snapshot::SnapshotStore;
 #[cfg(feature = "snapshot")]
-pub use edge_domain_snapshot::SnapshotStoreFactory;
+pub use edge_domain_snapshot::SnapshotStoreBootstrap;
 
 // ── service (sub-crate when feature enabled) ──────────────────────────────────
 #[cfg(feature = "service")]
@@ -147,7 +147,7 @@ pub use edge_domain_service::ServiceError;
 #[cfg(feature = "service")]
 pub use edge_domain_service::ServiceRegistry;
 #[cfg(feature = "service")]
-pub use edge_domain_service::ServiceRegistryFactory;
+pub use edge_domain_service::ServiceRegistryBootstrap;
 #[cfg(feature = "service")]
 pub use edge_domain_service::ServiceRegistryImpl;
 
@@ -161,9 +161,9 @@ pub use edge_domain_repository::QueryableRepository;
 #[cfg(feature = "repository")]
 pub use edge_domain_repository::Repository;
 #[cfg(feature = "repository")]
-pub use edge_domain_repository::RepositoryError;
+pub use edge_domain_repository::RepositoryBootstrap;
 #[cfg(feature = "repository")]
-pub use edge_domain_repository::RepositoryFactory;
+pub use edge_domain_repository::RepositoryError;
 #[cfg(feature = "repository")]
 pub use edge_domain_repository::Spec;
 
@@ -173,13 +173,13 @@ pub use edge_domain_handler::EchoHandler;
 #[cfg(feature = "handler")]
 pub use edge_domain_handler::Handler;
 #[cfg(feature = "handler")]
-pub use edge_domain_handler::HandlerError;
-#[cfg(feature = "handler")]
-pub use edge_domain_handler::HandlerFactory;
-#[cfg(feature = "handler")]
-pub use edge_domain_handler::HandlerProvider;
+pub use edge_domain_handler::HandlerBootstrap;
 #[cfg(feature = "handler")]
 pub use edge_domain_handler::HandlerContext;
+#[cfg(feature = "handler")]
+pub use edge_domain_handler::HandlerError;
+#[cfg(feature = "handler")]
+pub use edge_domain_handler::HandlerProvider;
 #[cfg(feature = "handler")]
 pub use edge_domain_handler::HandlerRegistry;
 #[cfg(feature = "handler")]
@@ -193,6 +193,8 @@ pub use edge_domain_event::ClosedEventSource;
 #[cfg(feature = "event")]
 pub use edge_domain_event::DomainEvent;
 #[cfg(feature = "event")]
+pub use edge_domain_event::EventBootstrap;
+#[cfg(feature = "event")]
 pub use edge_domain_event::EventBus;
 #[cfg(feature = "event")]
 pub use edge_domain_event::EventBusConfig;
@@ -200,8 +202,6 @@ pub use edge_domain_event::EventBusConfig;
 pub use edge_domain_event::EventEnvelope;
 #[cfg(feature = "event")]
 pub use edge_domain_event::EventError;
-#[cfg(feature = "event")]
-pub use edge_domain_event::EventFactory;
 #[cfg(feature = "event")]
 pub use edge_domain_event::EventPublisher;
 #[cfg(feature = "event")]
@@ -229,9 +229,9 @@ pub use edge_domain_projection::InMemoryProjection;
 #[cfg(feature = "projection")]
 pub use edge_domain_projection::Projection;
 #[cfg(feature = "projection")]
-pub use edge_domain_projection::ProjectionError;
+pub use edge_domain_projection::ProjectionBootstrap;
 #[cfg(feature = "projection")]
-pub use edge_domain_projection::ProjectionFactory;
+pub use edge_domain_projection::ProjectionError;
 
 // ── saga (sub-crate when feature enabled) ─────────────────────────────────────
 #[cfg(feature = "saga")]
@@ -239,9 +239,9 @@ pub use edge_domain_saga::InMemorySagaStore;
 #[cfg(feature = "saga")]
 pub use edge_domain_saga::Saga;
 #[cfg(feature = "saga")]
-pub use edge_domain_saga::SagaError;
+pub use edge_domain_saga::SagaBootstrap;
 #[cfg(feature = "saga")]
-pub use edge_domain_saga::SagaFactory;
+pub use edge_domain_saga::SagaError;
 #[cfg(feature = "saga")]
 pub use edge_domain_saga::SagaStore;
 
@@ -251,9 +251,9 @@ pub use edge_domain_registry::InMemoryRegistry;
 #[cfg(feature = "registry")]
 pub use edge_domain_registry::Registry;
 #[cfg(feature = "registry")]
-pub use edge_domain_registry::RegistryError;
+pub use edge_domain_registry::RegistryBootstrap;
 #[cfg(feature = "registry")]
-pub use edge_domain_registry::RegistryFactory;
+pub use edge_domain_registry::RegistryError;
 #[cfg(feature = "registry")]
 pub use edge_domain_registry::StdRegistryFactory;
 #[cfg(feature = "registry")]
@@ -265,9 +265,9 @@ pub use edge_domain_registry::REGISTRY_SVC;
 #[cfg(feature = "lifecycle")]
 pub use edge_domain_lifecycle::Lifecycle;
 #[cfg(feature = "lifecycle")]
-pub use edge_domain_lifecycle::LifecycleError;
+pub use edge_domain_lifecycle::LifecycleBootstrap;
 #[cfg(feature = "lifecycle")]
-pub use edge_domain_lifecycle::LifecycleFactory;
+pub use edge_domain_lifecycle::LifecycleError;
 #[cfg(feature = "lifecycle")]
 pub use edge_domain_lifecycle::ManagedLifecycle;
 #[cfg(feature = "lifecycle")]
@@ -293,13 +293,13 @@ pub use edge_domain_security::Principal;
 #[cfg(feature = "security")]
 pub use edge_domain_security::Security;
 #[cfg(feature = "security")]
+pub use edge_domain_security::SecurityBootstrap;
+#[cfg(feature = "security")]
 pub use edge_domain_security::SecurityContext;
 #[cfg(feature = "security")]
 pub use edge_domain_security::SecurityContextBuilder;
 #[cfg(feature = "security")]
 pub use edge_domain_security::SecurityError;
-#[cfg(feature = "security")]
-pub use edge_domain_security::SecurityFactory;
 #[cfg(feature = "security")]
 pub use edge_domain_security::SecurityServices;
 #[cfg(feature = "security")]

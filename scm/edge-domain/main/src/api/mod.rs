@@ -14,8 +14,8 @@ pub use spi::DomainSpi;
 #[cfg(feature = "clock")]
 pub mod clock {
     pub use edge_domain_clock::Clock;
+    pub use edge_domain_clock::ClockBootstrap;
     pub use edge_domain_clock::ClockError;
-    pub use edge_domain_clock::ClockFactory;
     pub use edge_domain_clock::FixedClock;
     pub use edge_domain_clock::SystemClock;
     pub mod traits {
@@ -27,15 +27,15 @@ pub mod clock {
     }
 }
 #[cfg(feature = "clock")]
-pub use clock::{Clock, ClockFactory, FixedClock, SystemClock};
+pub use clock::{Clock, ClockBootstrap, FixedClock, SystemClock};
 
 // ── validator ─────────────────────────────────────────────────────────────────
 #[cfg(feature = "validator")]
 pub mod validator {
     pub use edge_domain_validator::AlwaysValid;
     pub use edge_domain_validator::Validator;
+    pub use edge_domain_validator::ValidatorBootstrap;
     pub use edge_domain_validator::ValidatorError;
-    pub use edge_domain_validator::ValidatorFactory;
     pub mod traits {
         pub use super::Validator;
     }
@@ -48,7 +48,7 @@ pub use validator::Validator;
 pub mod policy {
     pub use edge_domain_policy::CompositePolicy;
     pub use edge_domain_policy::Policy;
-    pub use edge_domain_policy::PolicyFactory;
+    pub use edge_domain_policy::PolicyBootstrap;
     pub use edge_domain_policy::PolicyViolation;
     pub mod traits {
         pub use super::Policy;
@@ -59,19 +59,19 @@ pub mod policy {
     }
 }
 #[cfg(feature = "policy")]
-pub use policy::{CompositePolicy, Policy, PolicyFactory, PolicyViolation};
+pub use policy::{CompositePolicy, Policy, PolicyBootstrap, PolicyViolation};
 
 // ── command ───────────────────────────────────────────────────────────────────
 #[cfg(feature = "command")]
 pub mod command {
     pub use edge_domain_command::Command;
     pub use edge_domain_command::CommandBus;
-    pub use edge_domain_command::CommandBusFactory;
+    pub use edge_domain_command::CommandBusBootstrap;
     pub use edge_domain_command::CommandError;
     pub use edge_domain_command::DirectCommandBus;
 }
 #[cfg(feature = "command")]
-pub use command::{Command, CommandBus, CommandBusFactory, CommandError, DirectCommandBus};
+pub use command::{Command, CommandBus, CommandBusBootstrap, CommandError, DirectCommandBus};
 
 // ── query ─────────────────────────────────────────────────────────────────────
 #[cfg(feature = "query")]
@@ -79,11 +79,11 @@ pub mod query {
     pub use edge_domain_query::DirectQueryBus;
     pub use edge_domain_query::Query;
     pub use edge_domain_query::QueryBus;
-    pub use edge_domain_query::QueryBusFactory;
+    pub use edge_domain_query::QueryBusBootstrap;
     pub use edge_domain_query::QueryError;
 }
 #[cfg(feature = "query")]
-pub use query::{DirectQueryBus, Query, QueryBus, QueryBusFactory, QueryError};
+pub use query::{DirectQueryBus, Query, QueryBus, QueryBusBootstrap, QueryError};
 
 // ── snapshot ──────────────────────────────────────────────────────────────────
 #[cfg(feature = "snapshot")]
@@ -92,7 +92,7 @@ pub mod snapshot {
     pub use edge_domain_snapshot::Snapshot;
     pub use edge_domain_snapshot::SnapshotError;
     pub use edge_domain_snapshot::SnapshotStore;
-    pub use edge_domain_snapshot::SnapshotStoreFactory;
+    pub use edge_domain_snapshot::SnapshotStoreBootstrap;
     pub mod traits {
         pub use super::Snapshot;
         pub use super::SnapshotStore;
@@ -109,7 +109,7 @@ pub use snapshot::{Snapshot, SnapshotError, SnapshotStore};
 pub mod service {
     pub use edge_domain_service::Service;
     pub use edge_domain_service::ServiceError;
-    pub use edge_domain_service::ServiceRegistryFactory;
+    pub use edge_domain_service::ServiceRegistryBootstrap;
     pub use edge_domain_service::ServiceRegistryImpl as ServiceRegistry;
     pub use edge_domain_service::ServiceRegistry as ServiceRegistryImpl;
     pub mod types {
@@ -126,13 +126,13 @@ pub mod repository {
     pub use edge_domain_repository::Page;
     pub use edge_domain_repository::QueryableRepository;
     pub use edge_domain_repository::Repository;
+    pub use edge_domain_repository::RepositoryBootstrap;
     pub use edge_domain_repository::RepositoryError;
-    pub use edge_domain_repository::RepositoryFactory;
     pub use edge_domain_repository::Spec;
 }
 #[cfg(feature = "repository")]
 pub use repository::{
-    InMemoryRepository, Page, QueryableRepository, Repository, RepositoryError, RepositoryFactory,
+    InMemoryRepository, Page, QueryableRepository, Repository, RepositoryBootstrap, RepositoryError,
     Spec,
 };
 
@@ -141,16 +141,16 @@ pub use repository::{
 pub mod handler {
     pub use edge_domain_handler::EchoHandler;
     pub use edge_domain_handler::Handler;
+    pub use edge_domain_handler::HandlerBootstrap;
     pub use edge_domain_handler::HandlerContext;
     pub use edge_domain_handler::HandlerError;
-    pub use edge_domain_handler::HandlerFactory;
     pub use edge_domain_handler::HandlerProvider;
     pub use edge_domain_handler::HandlerRegistry;
     pub use edge_domain_handler::InProcessHandlerRegistry;
 }
 #[cfg(feature = "handler")]
 pub use handler::{
-    EchoHandler, Handler, HandlerContext, HandlerError, HandlerFactory, HandlerProvider,
+    EchoHandler, Handler, HandlerBootstrap, HandlerContext, HandlerError, HandlerProvider,
     HandlerRegistry, InProcessHandlerRegistry,
 };
 
@@ -160,11 +160,11 @@ pub mod event {
     pub use edge_domain_event::Aggregate;
     pub use edge_domain_event::ClosedEventSource;
     pub use edge_domain_event::DomainEvent;
+    pub use edge_domain_event::EventBootstrap;
     pub use edge_domain_event::EventBus;
     pub use edge_domain_event::EventBusConfig;
     pub use edge_domain_event::EventEnvelope;
     pub use edge_domain_event::EventError;
-    pub use edge_domain_event::EventFactory;
     pub use edge_domain_event::EventPublisher;
     pub use edge_domain_event::EventReceiver;
     pub use edge_domain_event::EventSource;
@@ -187,9 +187,10 @@ pub mod event {
 }
 #[cfg(feature = "event")]
 pub use event::{
-    Aggregate, ClosedEventSource, DomainEvent, EventBus, EventBusConfig, EventEnvelope, EventError,
-    EventFactory, EventPublisher, EventReceiver, EventSource, EventStore, EventStoreError,
-    ExpectedVersion, InMemoryEventStore, InProcessEventBus, NoopEventBus, NoopEventPublisher,
+    Aggregate, ClosedEventSource, DomainEvent, EventBootstrap, EventBus, EventBusConfig,
+    EventEnvelope, EventError, EventPublisher, EventReceiver, EventSource, EventStore,
+    EventStoreError, ExpectedVersion, InMemoryEventStore, InProcessEventBus, NoopEventBus,
+    NoopEventPublisher,
 };
 
 // ── projection ────────────────────────────────────────────────────────────────
@@ -197,8 +198,8 @@ pub use event::{
 pub mod projection {
     pub use edge_domain_projection::InMemoryProjection;
     pub use edge_domain_projection::Projection;
+    pub use edge_domain_projection::ProjectionBootstrap;
     pub use edge_domain_projection::ProjectionError;
-    pub use edge_domain_projection::ProjectionFactory;
 }
 #[cfg(feature = "projection")]
 pub use projection::Projection;
@@ -208,8 +209,8 @@ pub use projection::Projection;
 pub mod saga {
     pub use edge_domain_saga::InMemorySagaStore;
     pub use edge_domain_saga::Saga;
+    pub use edge_domain_saga::SagaBootstrap;
     pub use edge_domain_saga::SagaError;
-    pub use edge_domain_saga::SagaFactory;
     pub use edge_domain_saga::SagaStore;
     pub mod traits {
         pub use super::Saga;
