@@ -89,7 +89,7 @@ impl Agent for DefaultAgent {
 mod tests {
     use super::*;
     use edge_llm_provider::{
-        EchoProviderCompleter, ModelInfo, ProviderConfig, ProviderFactory, StdProviderFactory,
+        EchoProviderCompleter, ModelInfo, ProviderBootstrap, ProviderConfig, StdProviderFactory,
     };
     use futures::executor::block_on;
 

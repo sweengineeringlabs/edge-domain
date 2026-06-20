@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use edge_llm_provider::{
-    EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, ProviderFactory, StdProviderFactory,
+    EchoProviderCompleter, ModelInfo, Provider, ProviderBootstrap, ProviderConfig, StdProviderFactory,
 };
 
 use crate::api::NoopAgent;

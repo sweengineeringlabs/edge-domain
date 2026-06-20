@@ -76,4 +76,8 @@ edge-llm-prompt         = { path = "domain/llm/prompt" }
 edge-llm-reasoning      = { path = "domain/llm/reasoning" }
 edge-domain-observe     = { path = "domain-observe" }
 edge-domain-vpn         = { path = "domain-vpn" }
-swe-edge-configbuilder  = { path = "../../configbuilder/scm" }
+swe-edge-configbuilder  = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", tag = "v0.4.1" }
+
+# ── Development override — use local path when building inside the swe-edge assembly
+[patch."https://github.com/sweengineeringlabs/edge-configbuilder.git"]
+swe-edge-configbuilder = { path = "../../configbuilder/scm" }
