@@ -15,4 +15,4 @@ pub use saf::StdProjectionFactory;
 pub use saf::InMemoryProjection;
 pub use saf::Projection;
 pub use saf::ProjectionError;
-pub use saf::ProjectionFactory;
+pub use saf::ProjectionBootstrap;

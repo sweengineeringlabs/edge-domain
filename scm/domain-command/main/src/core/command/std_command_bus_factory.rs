@@ -1,9 +1,9 @@
-//! `CommandBusFactory` and `CommandFactory` impls for [`StdCommandBusFactory`].
+//! `CommandBusBootstrap` and `CommandBootstrap` impls for [`StdCommandBusFactory`].
 
-use crate::api::CommandBusFactory;
-use crate::api::CommandFactory;
+use crate::api::CommandBusBootstrap;
+use crate::api::CommandBootstrap;
 use crate::api::StdCommandBusFactory;
 
-impl CommandBusFactory for StdCommandBusFactory {}
+impl CommandBusBootstrap for StdCommandBusFactory {}
 
-impl CommandFactory for StdCommandBusFactory {}
+impl CommandBootstrap for StdCommandBusFactory {}

@@ -1,4 +1,4 @@
-use edge_domain_clock::{ClockFactory, StdClockFactory};
+use edge_domain_clock::{ClockBootstrap, StdClockFactory};
 use std::time::{Duration, SystemTime};
 
 #[test]

@@ -1,9 +1,9 @@
 //! Integration tests for `NoopEventPublisher`.
 
-use edge_domain_event::{DomainEvent, EventFactory, EventPublisher, NoopEventPublisher};
+use edge_domain_event::{DomainEvent, EventBootstrap, EventPublisher, NoopEventPublisher};
 
 struct Events;
-impl EventFactory for Events {}
+impl EventBootstrap for Events {}
 
 struct SomeEvt;
 impl DomainEvent for SomeEvt {}

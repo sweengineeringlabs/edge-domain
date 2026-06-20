@@ -3,7 +3,7 @@
 //! Demonstrates the full observability triplet using noop implementations —
 //! the same API contract that production SDK adapters satisfy.
 
-use edge_domain_observe::{LogRecord, ObserveFactory, StdObserveFactory};
+use edge_domain_observe::{LogRecord, ObserveBootstrap, StdObserveFactory};
 
 fn main() {
     // --- Tracer ---

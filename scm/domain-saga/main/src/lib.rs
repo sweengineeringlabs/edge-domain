@@ -19,7 +19,7 @@ pub use saf::NoopSagaCommand;
 pub use saf::NoopSagaEvent;
 pub use saf::Saga;
 pub use saf::SagaError;
-pub use saf::SagaFactory;
+pub use saf::SagaBootstrap;
 pub use saf::SagaStore;
 pub use saf::StdSagaFactory;
 pub use saf::SAGA_FACTORY_SVC;

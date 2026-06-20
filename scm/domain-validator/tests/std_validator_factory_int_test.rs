@@ -1,4 +1,4 @@
-use edge_domain_validator::{StdValidatorFactory, ValidatorFactory, Validator};
+use edge_domain_validator::{StdValidatorFactory, ValidatorBootstrap, Validator};
 
 #[test]
 fn test_std_factory_always_valid_accepts_any_input_happy() {

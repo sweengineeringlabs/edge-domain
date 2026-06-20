@@ -2,10 +2,10 @@
 
 use std::time::{Duration, SystemTime};
 
-use edge_domain_clock::{Clock, ClockFactory, FixedClock, SystemClock};
+use edge_domain_clock::{Clock, ClockBootstrap, FixedClock, SystemClock};
 
 struct Clocks;
-impl ClockFactory for Clocks {}
+impl ClockBootstrap for Clocks {}
 
 fn main() {
     let wall: SystemClock = Clocks::system();

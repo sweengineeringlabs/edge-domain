@@ -1,10 +1,10 @@
-//! `impl HandlerFactory for NoopHandlerFactory` — structural compliance impl.
+//! `impl HandlerBootstrap for NoopHandlerFactory` — structural compliance impl.
 
 use crate::api::HandlerError;
-use crate::api::HandlerFactory;
+use crate::api::HandlerBootstrap;
 use crate::api::NoopHandlerFactory;
 
-impl HandlerFactory for NoopHandlerFactory {
+impl HandlerBootstrap for NoopHandlerFactory {
     type Config = ();
 
     fn build(_: ()) -> Result<Self, HandlerError> {

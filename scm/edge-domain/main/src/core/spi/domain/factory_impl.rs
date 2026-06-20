@@ -1,5 +1,5 @@
-//! Core implementation — `DomainFactory` for `Domain`.
+//! Core implementation — `DomainBootstrap` for `Domain`.
 
-use crate::api::{Domain, DomainFactory};
+use crate::api::{Domain, DomainBootstrap};
 
-impl DomainFactory for Domain {}
+impl DomainBootstrap for Domain {}

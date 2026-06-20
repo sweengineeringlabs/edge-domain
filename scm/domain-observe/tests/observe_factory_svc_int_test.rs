@@ -1,4 +1,4 @@
-use edge_domain_observe::{LogRecord, ObserveFactory, StdObserveFactory, OBSERVE_FACTORY_SVC};
+use edge_domain_observe::{LogRecord, ObserveBootstrap, StdObserveFactory, OBSERVE_FACTORY_SVC};
 
 // @covers StdObserveFactory::create_factory
 #[test]

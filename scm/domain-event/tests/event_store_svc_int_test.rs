@@ -1,11 +1,11 @@
 //! SAF facade tests — `EventStore` trait via `InMemoryEventStore`.
 
 use edge_domain_event::{
-    DomainEvent, EventFactory, EventStore, EventStoreError, ExpectedVersion,
+    DomainEvent, EventBootstrap, EventStore, EventStoreError, ExpectedVersion,
 };
 
 struct Events;
-impl EventFactory for Events {}
+impl EventBootstrap for Events {}
 
 #[derive(Clone)]
 struct OrderEvt(String);

@@ -2,7 +2,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_reasoning::{
-    Reasoning, ReasoningFactory, ReasoningPattern, StdReasoningFactory, ThinkingProcess,
+    Reasoning, ReasoningBootstrap, ReasoningPattern, StdReasoningFactory, ThinkingProcess,
 };
 use futures::executor::block_on;
 

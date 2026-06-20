@@ -12,8 +12,19 @@ use super::super::Span;
 ///
 /// Implement this on a factory type (e.g. `StdObserveFactory`) to expose
 /// allocation-free noop backends suitable for unit tests and local development.
-/// Each method is an associated function — no instance required.
+/// Each static factory method is gated by `where Self: Sized`; the trait
+/// satisfies object-safety requirements via [`noop_name`].
+///
+/// [`noop_name`]: NoopObserve::noop_name
 pub trait NoopObserve {
+    /// Identifies this noop implementation.
+    ///
+    /// Returns a stable, non-empty label for this noop backend.
+    /// The default implementation returns `"noop"`.
+    fn noop_name(&self) -> &'static str {
+        "noop"
+    }
+
     /// Return a noop [`Counter`] that discards every increment.
     fn build_noop_counter() -> Box<dyn Counter>
     where

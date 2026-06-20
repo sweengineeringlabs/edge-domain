@@ -116,7 +116,7 @@ fn test_noop_handler_factory_is_always_infallible_error() {
 /// @covers: HandlerProvider::noop_handler_factory — Copy semantics allow multiple uses
 #[test]
 fn test_noop_handler_factory_copy_allows_multiple_uses_edge() {
-    use edge_domain_handler::{HandlerFactory, NoopHandlerFactory};
+    use edge_domain_handler::{HandlerBootstrap, NoopHandlerFactory};
     let f: NoopHandlerFactory = Prov::noop_handler_factory();
     let g = f; // Copy
     let _r1 = NoopHandlerFactory::build(()).unwrap();

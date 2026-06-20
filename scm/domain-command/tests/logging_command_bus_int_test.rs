@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use edge_domain_command::{
-    Command, CommandBus, CommandBusFactory, CommandError, LoggingCommandBus, NoopCommandBus,
+    Command, CommandBus, CommandBusBootstrap, CommandError, LoggingCommandBus, NoopCommandBus,
     StdCommandBusFactory,
 };
 use futures::executor::block_on;

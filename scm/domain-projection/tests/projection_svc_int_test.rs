@@ -1,7 +1,7 @@
 //! SAF tests — `Projection` trait via `InMemoryProjection`.
 // @allow: no_mocks_in_integration
 
-use edge_domain_projection::{DomainEvent, InMemoryProjection, Projection, ProjectionFactory};
+use edge_domain_projection::{DomainEvent, InMemoryProjection, Projection, ProjectionBootstrap};
 
 #[derive(Clone)]
 struct BalanceEvt {
@@ -15,7 +15,7 @@ impl DomainEvent for BalanceEvt {
 }
 
 struct Factories;
-impl ProjectionFactory for Factories {}
+impl ProjectionBootstrap for Factories {}
 
 fn make_balance(seed: i64) -> impl Projection<Event = BalanceEvt, ReadModel = i64> {
     Factories::in_memory(seed, |total: &mut i64, e: &BalanceEvt| *total += e.delta)

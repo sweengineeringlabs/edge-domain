@@ -1,7 +1,7 @@
-//! Tests for the `StdReasoningFactory` concrete implementation.
+//! Tests for the `StdReasoningFactory` concrete `ReasoningBootstrap` implementation.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_llm_reasoning::{Reasoning, ReasoningFactory, ReasoningPattern, StdReasoningFactory};
+use edge_llm_reasoning::{Reasoning, ReasoningBootstrap, ReasoningPattern, StdReasoningFactory};
 
 /// @covers: StdReasoningFactory — std_factory returns the factory instance
 #[test]

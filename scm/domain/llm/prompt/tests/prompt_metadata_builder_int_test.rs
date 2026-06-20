@@ -1,7 +1,7 @@
 //! Tests for the `PromptMetadataBuilder` type.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_llm_prompt::{PromptFactory, StdPromptFactory, Variable, VariableType};
+use edge_llm_prompt::{PromptBootstrap, StdPromptFactory, Variable, VariableType};
 
 /// @covers: PromptMetadataBuilder — builds with id, name, version
 #[test]

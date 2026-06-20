@@ -1,5 +1,5 @@
 pub mod registry;
-pub mod registry_factory;
+pub mod registry_bootstrap;
 
 pub use registry::Registry;
-pub use registry_factory::RegistryFactory;
+pub use registry_bootstrap::RegistryBootstrap;

@@ -1,6 +1,6 @@
 //! Integration tests for `StdQueryBusFactory`.
 
-use edge_domain_query::{DirectQueryBus, QueryBusFactory, StdQueryBusFactory};
+use edge_domain_query::{DirectQueryBus, QueryBusBootstrap, StdQueryBusFactory};
 
 /// @covers: StdQueryBusFactory::direct — returns zero-sized DirectQueryBus
 #[test]

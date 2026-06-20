@@ -48,7 +48,7 @@ impl Handler for DefaultReasoningHandler {
 mod tests {
     use super::*;
     use crate::api::LinearReasoning;
-    use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+    use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
 

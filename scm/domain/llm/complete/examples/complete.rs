@@ -1,7 +1,7 @@
 //! Basic `edge-llm-complete` usage example.
 
 use edge_llm_complete::{
-    CompleteFactory, Completer, EchoCompleter, Message, StdCompleteFactory,
+    CompleteBootstrap, Completer, EchoCompleter, Message, StdCompleteFactory,
 };
 use futures::executor::block_on;
 

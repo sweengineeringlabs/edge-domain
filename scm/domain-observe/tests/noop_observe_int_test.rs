@@ -184,3 +184,26 @@ fn test_noop_observe_methods_return_correct_dyn_types_happy() {
     _takes_drain(StdObserveFactory::build_noop_log_drain());
     _takes_registry(StdObserveFactory::build_noop_metric_registry());
 }
+
+// --- noop_name ---
+
+/// @covers: NoopObserve::noop_name
+#[test]
+fn test_noop_name_returns_nonempty_identifier_happy() {
+    let name = StdObserveFactory.noop_name();
+    assert!(!name.is_empty(), "noop_name must return a non-empty identifier");
+}
+
+/// @covers: NoopObserve::noop_name
+#[test]
+fn test_noop_name_default_is_stable_error() {
+    // Calling on a second instance must return the same value (no state leakage).
+    assert_eq!(StdObserveFactory.noop_name(), StdObserveFactory.noop_name());
+}
+
+/// @covers: NoopObserve::noop_name
+#[test]
+fn test_noop_name_callable_via_trait_object_edge() {
+    let f: &dyn NoopObserve = &StdObserveFactory;
+    let _ = f.noop_name();
+}

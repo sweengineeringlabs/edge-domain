@@ -8,6 +8,6 @@ pub use errors::LifecycleError;
 pub use managed_lifecycle::ManagedLifecycle;
 pub use permissive_policy::PermissivePolicy;
 pub use traits::Lifecycle;
-pub use traits::LifecycleFactory;
+pub use traits::LifecycleBootstrap;
 pub use traits::TransitionPolicy;
 pub use types::StdLifecycleFactory;

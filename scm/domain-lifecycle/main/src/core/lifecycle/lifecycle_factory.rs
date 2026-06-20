@@ -1,6 +1,6 @@
-//! `LifecycleFactory` impl for `StdLifecycleFactory`.
+//! `LifecycleBootstrap` impl for `StdLifecycleFactory`.
 
-use crate::api::LifecycleFactory;
+use crate::api::LifecycleBootstrap;
 use crate::api::StdLifecycleFactory;
 
-impl LifecycleFactory for StdLifecycleFactory {}
+impl LifecycleBootstrap for StdLifecycleFactory {}

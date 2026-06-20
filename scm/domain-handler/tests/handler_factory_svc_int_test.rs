@@ -1,6 +1,6 @@
-//! Integration tests — `HandlerFactory` trait.
+//! Integration tests — `HandlerBootstrap` trait.
 
-use edge_domain_handler::{HandlerError, HandlerFactory};
+use edge_domain_handler::{HandlerError, HandlerBootstrap};
 
 struct Cfg {
     name: String,
@@ -12,7 +12,11 @@ struct NamedHandler {
     name: String,
 }
 
-impl HandlerFactory for NamedHandler {
+impl HandlerBootstrap for NamedHandler {
+    fn bootstrap_name(&self) -> &'static str {
+        "named_handler"
+    }
+
     type Config = Cfg;
 
     fn build(cfg: Cfg) -> Result<Self, HandlerError> {
@@ -24,7 +28,7 @@ impl HandlerFactory for NamedHandler {
     }
 }
 
-/// @covers: HandlerFactory::build — valid config
+/// @covers: HandlerBootstrap::build — valid config
 #[test]
 fn test_build_valid_config_returns_handler_happy() {
     let h = NamedHandler::build(Cfg {
@@ -35,7 +39,7 @@ fn test_build_valid_config_returns_handler_happy() {
     assert_eq!(h.unwrap().name, "worker");
 }
 
-/// @covers: HandlerFactory::build — invalid config
+/// @covers: HandlerBootstrap::build — invalid config
 #[test]
 fn test_build_invalid_config_returns_err_error() {
     let h = NamedHandler::build(Cfg {
@@ -46,7 +50,7 @@ fn test_build_invalid_config_returns_err_error() {
     assert!(matches!(h.unwrap_err(), HandlerError::InvalidRequest(_)));
 }
 
-/// @covers: HandlerFactory::build — empty name is still valid if flag is set
+/// @covers: HandlerBootstrap::build — empty name is still valid if flag is set
 #[test]
 fn test_build_empty_name_valid_flag_returns_ok_edge() {
     let h = NamedHandler::build(Cfg {

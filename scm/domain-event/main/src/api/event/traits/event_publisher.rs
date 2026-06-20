@@ -11,5 +11,5 @@ use crate::api::event::traits::DomainEvent;
 /// not need to receive events back.
 pub trait EventPublisher: Send + Sync {
     /// Publish one event.
-    fn publish<'a>(&'a self, event: &'a dyn DomainEvent) -> BoxFuture<'a, Result<(), EventError>>;
+    fn publish(&self, event: &dyn DomainEvent) -> BoxFuture<'_, Result<(), EventError>>;
 }

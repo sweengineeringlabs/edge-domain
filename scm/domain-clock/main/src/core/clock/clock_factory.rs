@@ -1,5 +1,5 @@
-//! `impl ClockFactory for StdClockFactory`.
-use crate::api::ClockFactory;
+//! `impl ClockBootstrap for StdClockFactory`.
+use crate::api::ClockBootstrap;
 use crate::api::StdClockFactory;
 
-impl ClockFactory for StdClockFactory {}
+impl ClockBootstrap for StdClockFactory {}

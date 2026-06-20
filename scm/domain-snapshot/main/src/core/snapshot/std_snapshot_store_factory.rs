@@ -1,6 +1,6 @@
-//! `SnapshotStoreFactory` impl for [`StdSnapshotStoreFactory`].
+//! `SnapshotStoreBootstrap` impl for [`StdSnapshotStoreFactory`].
 
-use crate::api::SnapshotStoreFactory;
+use crate::api::SnapshotStoreBootstrap;
 use crate::api::StdSnapshotStoreFactory;
 
-impl SnapshotStoreFactory for StdSnapshotStoreFactory {}
+impl SnapshotStoreBootstrap for StdSnapshotStoreFactory {}

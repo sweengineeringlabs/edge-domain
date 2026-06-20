@@ -1,27 +1,27 @@
-//! SAF facade tests — `CommandBusFactory` constructors.
+//! SAF facade tests — `CommandBusBootstrap` constructors.
 
 use std::sync::Arc;
 
-use edge_domain_command::{CommandBus, CommandBusFactory, NoopCommandBus};
+use edge_domain_command::{CommandBus, CommandBusBootstrap, NoopCommandBus};
 
 struct Buses;
-impl CommandBusFactory for Buses {}
+impl CommandBusBootstrap for Buses {}
 
-/// @covers: CommandBusFactory::direct — returns a usable marker
+/// @covers: CommandBusBootstrap::direct — returns a usable marker
 #[test]
 fn test_direct_returns_marker_happy() {
     let bus = Buses::direct();
     assert_eq!(std::mem::size_of_val(&bus), 0);
 }
 
-/// @covers: CommandBusFactory::direct — zero-sized
+/// @covers: CommandBusBootstrap::direct — zero-sized
 #[test]
 fn test_direct_is_zero_size_error() {
     let bus = Buses::direct();
     assert_eq!(std::mem::size_of_val(&bus), 0);
 }
 
-/// @covers: CommandBusFactory::direct — independent calls
+/// @covers: CommandBusBootstrap::direct — independent calls
 #[test]
 fn test_direct_independent_calls_edge() {
     let a = Buses::direct();
@@ -31,21 +31,21 @@ fn test_direct_independent_calls_edge() {
 
 // ── noop_bus ──────────────────────────────────────────────────────────────────
 
-/// @covers: CommandBusFactory::noop_bus — returns a zero-sized noop bus
+/// @covers: CommandBusBootstrap::noop_bus — returns a zero-sized noop bus
 #[test]
 fn test_noop_bus_returns_zero_sized_marker_happy() {
     let bus = Buses::noop_bus();
     assert_eq!(std::mem::size_of_val(&bus), 0);
 }
 
-/// @covers: CommandBusFactory::noop_bus — usable as &dyn CommandBus
+/// @covers: CommandBusBootstrap::noop_bus — usable as &dyn CommandBus
 #[test]
 fn test_noop_bus_usable_as_dyn_command_bus_error() {
     let bus = Buses::noop_bus();
     let _: &dyn CommandBus = &bus;
 }
 
-/// @covers: CommandBusFactory::noop_bus — independent calls are independent
+/// @covers: CommandBusBootstrap::noop_bus — independent calls are independent
 #[test]
 fn test_noop_bus_independent_calls_edge() {
     let a = Buses::noop_bus();
@@ -55,7 +55,7 @@ fn test_noop_bus_independent_calls_edge() {
 
 // ── logging ───────────────────────────────────────────────────────────────────
 
-/// @covers: CommandBusFactory::logging — wraps inner and returns a LoggingCommandBus
+/// @covers: CommandBusBootstrap::logging — wraps inner and returns a LoggingCommandBus
 #[test]
 fn test_logging_wraps_inner_bus_happy() {
     let inner: Arc<dyn CommandBus> = Arc::new(NoopCommandBus);
@@ -63,7 +63,7 @@ fn test_logging_wraps_inner_bus_happy() {
     let _: &dyn CommandBus = &bus;
 }
 
-/// @covers: CommandBusFactory::logging — different inner buses produce distinct instances
+/// @covers: CommandBusBootstrap::logging — different inner buses produce distinct instances
 #[test]
 fn test_logging_distinct_instances_for_different_inner_error() {
     let inner1: Arc<dyn CommandBus> = Arc::new(NoopCommandBus);
@@ -72,7 +72,7 @@ fn test_logging_distinct_instances_for_different_inner_error() {
     let _b = Buses::logging(Arc::clone(&inner2));
 }
 
-/// @covers: CommandBusFactory::logging — inner bus is callable through logging wrapper
+/// @covers: CommandBusBootstrap::logging — inner bus is callable through logging wrapper
 #[test]
 fn test_logging_delegates_dispatch_to_inner_edge() {
     use edge_domain_command::{Command, CommandError};

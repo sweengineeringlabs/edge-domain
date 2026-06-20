@@ -1,5 +1,5 @@
 mod cacheable_message_svc;
-mod complete_factory_svc;
+mod complete_bootstrap_svc;
 mod complete_ops_svc;
 mod completer;
 mod content_flattener_svc;
@@ -10,7 +10,7 @@ mod tool_ops_svc;
 mod validator_svc;
 
 pub use cacheable_message_svc::{CacheableMessage, CACHEABLE_MESSAGE_SVC};
-pub use complete_factory_svc::{CompleteFactory, StdCompleteFactory, COMPLETE_FACTORY_SVC};
+pub use complete_bootstrap_svc::{CompleteBootstrap, StdCompleteFactory, COMPLETE_FACTORY_SVC};
 pub use complete_ops_svc::{CompleteOps, COMPLETE_OPS_SVC};
 pub use completer::{
     CacheControl, CompleteError, CompletionRequest, CompletionResponse, Completer,

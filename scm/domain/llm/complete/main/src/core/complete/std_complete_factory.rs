@@ -1,5 +1,5 @@
-//! `CompleteFactory` impl for `StdCompleteFactory`.
+//! `CompleteBootstrap` impl for `StdCompleteFactory`.
 
-use crate::api::{CompleteFactory, StdCompleteFactory};
+use crate::api::{CompleteBootstrap, StdCompleteFactory};
 
-impl CompleteFactory for StdCompleteFactory {}
+impl CompleteBootstrap for StdCompleteFactory {}

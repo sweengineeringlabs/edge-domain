@@ -1,7 +1,7 @@
 //! Integration tests for `StdEventFactory`.
 
 use edge_domain_event::{
-    EventBus, EventBusConfig, EventFactory, EventPublisher, EventSource, EventStore,
+    EventBus, EventBusConfig, EventBootstrap, EventPublisher, EventSource, EventStore,
     EventStoreError, ExpectedVersion, NoopDomainEvent, StdEventFactory,
 };
 

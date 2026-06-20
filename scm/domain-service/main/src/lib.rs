@@ -15,7 +15,7 @@ pub use saf::NoopService;
 pub use saf::Service;
 pub use saf::ServiceError;
 pub use saf::ServiceRegistry;
-pub use saf::ServiceRegistryFactory;
+pub use saf::ServiceRegistryBootstrap;
 pub use saf::ServiceRegistryImpl;
 pub use saf::SERVICE_REGISTRY_FACTORY_SVC;
 pub use saf::SERVICE_REGISTRY_SVC;

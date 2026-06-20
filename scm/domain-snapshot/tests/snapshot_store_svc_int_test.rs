@@ -1,7 +1,7 @@
 //! SAF facade tests — `SnapshotStore` trait via `InMemorySnapshotStore`.
 // @allow: no_mocks_in_integration — InMemorySnapshotStore is the production-shipped reference impl, not a test double
 
-use edge_domain_snapshot::{InMemorySnapshotStore, Snapshot, SnapshotError, SnapshotStore, SnapshotStoreFactory};
+use edge_domain_snapshot::{InMemorySnapshotStore, Snapshot, SnapshotError, SnapshotStore, SnapshotStoreBootstrap};
 use futures::executor::block_on;
 
 #[derive(Clone)]
@@ -17,7 +17,7 @@ impl Snapshot for OrderSnapshot {
 }
 
 struct SnapshotStores;
-impl SnapshotStoreFactory for SnapshotStores {}
+impl SnapshotStoreBootstrap for SnapshotStores {}
 
 fn order_snapshot(id: &str, v: u64) -> OrderSnapshot {
     OrderSnapshot { id: id.to_string(), version: v }

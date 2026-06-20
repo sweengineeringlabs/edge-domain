@@ -1,7 +1,7 @@
 //! Integration tests for `StdLifecycleFactory` — covers the types/ file directly.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_lifecycle::{Lifecycle, LifecycleFactory, PermissivePolicy, StdLifecycleFactory};
+use edge_domain_lifecycle::{Lifecycle, LifecycleBootstrap, PermissivePolicy, StdLifecycleFactory};
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 enum S {

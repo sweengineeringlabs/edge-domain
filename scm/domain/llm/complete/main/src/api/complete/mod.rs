@@ -6,7 +6,7 @@ pub mod types;
 
 pub use errors::CompleteError;
 pub use traits::{
-    CacheableMessage, CompleteFactory, CompleteOps, CompleterHandler, Completer,
+    CacheableMessage, CompleteBootstrap, CompleteOps, CompleterHandler, Completer,
     CompletionStream, ContentFlattener, ModelOps, Processor, StreamOps, ToolOps, Validator,
 };
 pub use types::{

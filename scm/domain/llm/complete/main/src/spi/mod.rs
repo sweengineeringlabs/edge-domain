@@ -1,6 +1,6 @@
 //! Extension hooks for downstream consumers.
 //!
-//! Downstream crates implement the `CompleteFactory` and `Completer` contracts
+//! Downstream crates implement the `CompleteBootstrap` and `Completer` contracts
 //! from `crate::api`. No default wiring types are needed here — the reference
 //! implementations live in `core/`.
 

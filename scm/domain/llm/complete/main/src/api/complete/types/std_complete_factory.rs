@@ -1,6 +1,6 @@
-//! `StdCompleteFactory` — standard [`CompleteFactory`](crate::api::complete::traits::CompleteFactory) implementation.
+//! `StdCompleteFactory` — standard [`CompleteBootstrap`](crate::api::complete::traits::CompleteBootstrap) implementation.
 
-/// Unit struct that implements [`CompleteFactory`](crate::api::complete::traits::CompleteFactory)
+/// Unit struct that implements [`CompleteBootstrap`](crate::api::complete::traits::CompleteBootstrap)
 /// via all-default method bodies.
 ///
 /// Consumers call `StdCompleteFactory::user_message(...)` etc. to get idiomatic

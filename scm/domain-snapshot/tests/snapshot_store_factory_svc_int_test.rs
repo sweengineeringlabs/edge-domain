@@ -1,7 +1,7 @@
-//! SAF facade tests — `SnapshotStoreFactory` constructors.
+//! SAF facade tests — `SnapshotStoreBootstrap` constructors.
 // @allow: no_mocks_in_integration — InMemorySnapshotStore is the production-shipped reference impl, not a test double
 
-use edge_domain_snapshot::{InMemorySnapshotStore, Snapshot, SnapshotStoreFactory};
+use edge_domain_snapshot::{InMemorySnapshotStore, Snapshot, SnapshotStoreBootstrap};
 
 #[derive(Clone)]
 struct OrderSnapshot { id: String, version: u64 }
@@ -12,16 +12,16 @@ impl Snapshot for OrderSnapshot {
 }
 
 struct SnapshotStores;
-impl SnapshotStoreFactory for SnapshotStores {}
+impl SnapshotStoreBootstrap for SnapshotStores {}
 
-/// @covers: SnapshotStoreFactory::in_memory — returns usable store
+/// @covers: SnapshotStoreBootstrap::in_memory — returns usable store
 #[test]
 fn test_in_memory_returns_empty_store_happy() {
     let store: InMemorySnapshotStore<OrderSnapshot> = SnapshotStores::in_memory();
     assert!(store.snapshots.read().is_empty());
 }
 
-/// @covers: SnapshotStoreFactory::in_memory — returns different instances
+/// @covers: SnapshotStoreBootstrap::in_memory — returns different instances
 #[test]
 fn test_in_memory_independent_instances_are_isolated_error() {
     let a: InMemorySnapshotStore<OrderSnapshot> = SnapshotStores::in_memory();
@@ -30,7 +30,7 @@ fn test_in_memory_independent_instances_are_isolated_error() {
     assert!(b.snapshots.read().is_empty());
 }
 
-/// @covers: SnapshotStoreFactory::in_memory — Default trait works
+/// @covers: SnapshotStoreBootstrap::in_memory — Default trait works
 #[test]
 fn test_in_memory_default_creates_empty_store_edge() {
     let store: InMemorySnapshotStore<OrderSnapshot> = Default::default();

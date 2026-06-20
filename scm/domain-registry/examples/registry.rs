@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use edge_domain_registry::{Registry, RegistryFactory, StdRegistryFactory};
+use edge_domain_registry::{Registry, RegistryBootstrap, StdRegistryFactory};
 
 fn main() {
     let registry = StdRegistryFactory::in_memory::<str>();

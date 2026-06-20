@@ -1,7 +1,7 @@
-//! [`StdSagaFactory`] — the standard implementation marker for [`SagaFactory`](crate::api::saga::traits::SagaFactory).
+//! [`StdSagaFactory`] — the standard implementation marker for [`SagaBootstrap`](crate::api::saga::traits::SagaBootstrap).
 
-/// Standard implementation marker for [`SagaFactory`](crate::api::saga::traits::SagaFactory).
+/// Standard implementation marker for [`SagaBootstrap`](crate::api::saga::traits::SagaBootstrap).
 ///
 /// Callers invoke associated functions on this type to create saga infrastructure,
-/// e.g. `StdSagaFactory::in_memory_registry::<MySaga>()`.
+/// e.g. `StdSagaFactory::in_memory_store::<MySaga>()`.
 pub struct StdSagaFactory;

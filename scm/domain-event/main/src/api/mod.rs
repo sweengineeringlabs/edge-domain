@@ -6,7 +6,7 @@ pub use event::EventBus;
 pub use event::EventBusConfig;
 pub use event::EventEnvelope;
 pub use event::EventError;
-pub use event::EventFactory;
+pub use event::EventBootstrap;
 pub use event::EventPublisher;
 pub use event::EventReceiver;
 pub use event::EventSource;

@@ -1,9 +1,9 @@
 //! SAF facade tests — `EventSource` trait via `ClosedEventSource`.
 
-use edge_domain_event::{EventError, EventFactory, EventSource};
+use edge_domain_event::{EventError, EventBootstrap, EventSource};
 
 struct Events;
-impl EventFactory for Events {}
+impl EventBootstrap for Events {}
 
 /// @covers: ClosedEventSource::recv_next — returns Unavailable immediately
 #[test]

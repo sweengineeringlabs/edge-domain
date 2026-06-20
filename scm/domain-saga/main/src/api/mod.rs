@@ -1,7 +1,7 @@
 ﻿mod saga;
 pub use saga::SagaError;
 pub use saga::Saga;
-pub use saga::SagaFactory;
+pub use saga::SagaBootstrap;
 pub use saga::SagaStore;
 pub use saga::InMemorySagaStore;
 pub use saga::StdSagaFactory;

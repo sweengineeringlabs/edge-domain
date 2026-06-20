@@ -1,10 +1,10 @@
 //! Integration tests for `EventReceiver`.
 
 use std::sync::Arc;
-use edge_domain_event::{DomainEvent, EventError, EventFactory, EventBus, EventBusConfig};
+use edge_domain_event::{DomainEvent, EventError, EventBootstrap, EventBus, EventBusConfig};
 
 struct Events;
-impl EventFactory for Events {}
+impl EventBootstrap for Events {}
 
 struct PingEvt;
 impl DomainEvent for PingEvt {

@@ -15,6 +15,9 @@ pub trait QueryableRepository: Repository
 where
     Self::Entity: Clone + Send + Sync + 'static,
 {
+    /// Returns a stable, non-empty identifier for this queryable repository.
+    fn bootstrap_name(&self) -> &'static str { "queryable_repository" }
+
     /// Returns all entities that satisfy the given specification.
     fn find_by<'a>(
         &'a self,
@@ -81,6 +84,27 @@ mod tests {
     impl QueryableRepository for VecRepo {}
 
     struct EvenSpec;
+
+    /// @covers: bootstrap_name
+    #[test]
+    fn test_bootstrap_name_returns_nonempty_string_happy() {
+        let repo = VecRepo { items: vec![] };
+        assert!(!repo.bootstrap_name().is_empty());
+    }
+
+    /// @covers: bootstrap_name
+    #[test]
+    fn test_bootstrap_name_is_deterministic_error() {
+        let repo = VecRepo { items: vec![] };
+        assert_eq!(repo.bootstrap_name(), repo.bootstrap_name());
+    }
+
+    /// @covers: bootstrap_name
+    #[test]
+    fn test_bootstrap_name_is_static_str_edge() {
+        let repo = VecRepo { items: vec![] };
+        let _name: &'static str = repo.bootstrap_name();
+    }
     impl Spec<u32> for EvenSpec {
         fn matches(&self, entity: &u32) -> bool {
             entity % 2 == 0

@@ -1,7 +1,7 @@
 //! Tests for the `PromptCacheBuilder` type.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_llm_prompt::{PromptFactory, StdPromptFactory};
+use edge_llm_prompt::{PromptBootstrap, StdPromptFactory};
 
 /// @covers: PromptCacheBuilder — builds with key and rendered text
 #[test]

@@ -1,7 +1,7 @@
-//! Scenario coverage for the `CompleteFactory` trait.
+//! Scenario coverage for the `CompleteBootstrap` trait.
 
 use edge_llm_complete::{
-    CacheControl, CompleteFactory, Completer, ContentPart, FinishReason, ImageUrl, Message,
+    CacheControl, CompleteBootstrap, Completer, ContentPart, FinishReason, ImageUrl, Message,
     NoopCompleter, Role, StdCompleteFactory, StreamDelta, ToolCallDelta, ToolChoice,
 };
 use serde_json::json;

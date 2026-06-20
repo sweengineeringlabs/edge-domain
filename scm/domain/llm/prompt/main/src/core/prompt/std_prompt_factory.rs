@@ -1,6 +1,6 @@
-//! `PromptFactory` impl for `StdPromptFactory`.
+//! `PromptBootstrap` impl for `StdPromptFactory`.
 
-use crate::api::PromptFactory;
+use crate::api::PromptBootstrap;
 use crate::api::StdPromptFactory;
 
-impl PromptFactory for StdPromptFactory {}
+impl PromptBootstrap for StdPromptFactory {}

@@ -18,6 +18,6 @@ pub use saf::Repository;
 pub use saf::REPOSITORY_FACTORY_SVC;
 pub use saf::REPOSITORY_SVC;
 pub use saf::RepositoryError;
-pub use saf::RepositoryFactory;
+pub use saf::RepositoryBootstrap;
 pub use saf::Spec;
 pub use saf::SPEC_SVC;

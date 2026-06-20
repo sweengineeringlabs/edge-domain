@@ -1,7 +1,7 @@
 mod complete;
 
 pub use complete::{
-    CacheControl, CacheableMessage, CompleteError, CompleteFactory, CompleteOps,
+    CacheControl, CacheableMessage, CompleteError, CompleteBootstrap, CompleteOps,
     CompleterHandler, CompletionRequest, CompletionResponse, CompletionStream,
     Completer, ContentFlattener, ContentPart, EchoCompleter, FinishReason, ImageUrl,
     Message, MessageContent, ModelInfo, ModelOps, NoopCompleter, Processor, Role,

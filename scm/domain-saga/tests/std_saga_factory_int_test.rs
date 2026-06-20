@@ -1,7 +1,7 @@
 //! Integration tests for [`StdSagaFactory`].
 // @allow: no_mocks_in_integration
 
-use edge_domain_saga::{Command, CommandError, DomainEvent, Saga, SagaFactory, SagaStore, StdSagaFactory};
+use edge_domain_saga::{Command, CommandError, DomainEvent, Saga, SagaBootstrap, SagaStore, StdSagaFactory};
 use futures::future::BoxFuture;
 
 #[derive(Clone)]

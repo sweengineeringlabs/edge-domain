@@ -1,8 +1,8 @@
-//! SAF facade tests — `LifecycleFactory`.
+//! SAF facade tests — `LifecycleBootstrap`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain_lifecycle::{
-    Lifecycle, LifecycleError, LifecycleFactory, PermissivePolicy, StdLifecycleFactory,
+    Lifecycle, LifecycleBootstrap, LifecycleError, PermissivePolicy, StdLifecycleFactory,
     TransitionPolicy, LIFECYCLE_FACTORY_SVC,
 };
 
@@ -38,14 +38,14 @@ fn test_lifecycle_factory_svc_constant_non_empty_happy() {
 
 // ── managed ───────────────────────────────────────────────────────────────────
 
-/// @covers: LifecycleFactory::managed
+/// @covers: LifecycleBootstrap::managed
 #[test]
 fn test_managed_starts_in_initial_state_happy() {
     let lc = StdLifecycleFactory::managed(S::A, Box::new(PermissivePolicy::new()));
     assert_eq!(lc.state(), S::A);
 }
 
-/// @covers: LifecycleFactory::managed
+/// @covers: LifecycleBootstrap::managed
 #[test]
 fn test_managed_with_deny_policy_rejects_transition_error() {
     rt().block_on(async {
@@ -55,7 +55,7 @@ fn test_managed_with_deny_policy_rejects_transition_error() {
     });
 }
 
-/// @covers: LifecycleFactory::managed
+/// @covers: LifecycleBootstrap::managed
 #[test]
 fn test_managed_with_permissive_policy_allows_chain_edge() {
     rt().block_on(async {
@@ -68,14 +68,14 @@ fn test_managed_with_permissive_policy_allows_chain_edge() {
 
 // ── permissive ────────────────────────────────────────────────────────────────
 
-/// @covers: LifecycleFactory::permissive
+/// @covers: LifecycleBootstrap::permissive
 #[test]
 fn test_permissive_starts_in_initial_state_happy() {
     let lc = StdLifecycleFactory::permissive(S::A);
     assert_eq!(lc.state(), S::A);
 }
 
-/// @covers: LifecycleFactory::permissive
+/// @covers: LifecycleBootstrap::permissive
 #[test]
 fn test_permissive_does_not_reject_any_transition_error() {
     rt().block_on(async {
@@ -86,7 +86,7 @@ fn test_permissive_does_not_reject_any_transition_error() {
     });
 }
 
-/// @covers: LifecycleFactory::permissive
+/// @covers: LifecycleBootstrap::permissive
 #[test]
 fn test_permissive_allows_self_transition_edge() {
     rt().block_on(async {
@@ -98,19 +98,19 @@ fn test_permissive_allows_self_transition_edge() {
 
 // ── std_factory ───────────────────────────────────────────────────────────────
 
-/// @covers: LifecycleFactory::std_factory
+/// @covers: LifecycleBootstrap::std_factory
 #[test]
 fn test_std_factory_returns_factory_instance_happy() {
     let _f: StdLifecycleFactory = StdLifecycleFactory::std_factory();
 }
 
-/// @covers: LifecycleFactory::std_factory
+/// @covers: LifecycleBootstrap::std_factory
 #[test]
 fn test_std_factory_is_zero_sized_error() {
     assert_eq!(std::mem::size_of::<StdLifecycleFactory>(), 0);
 }
 
-/// @covers: LifecycleFactory::std_factory
+/// @covers: LifecycleBootstrap::std_factory
 #[test]
 fn test_std_factory_constructs_usable_lifecycle_edge() {
     let _f = StdLifecycleFactory::std_factory();

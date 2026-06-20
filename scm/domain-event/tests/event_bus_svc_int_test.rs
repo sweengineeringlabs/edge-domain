@@ -1,10 +1,10 @@
 //! SAF facade tests — `EventBus` trait via `NoopEventBus` and `InProcessEventBus`.
 
 use std::sync::Arc;
-use edge_domain_event::{DomainEvent, EventBus, EventError, EventFactory, NoopEventBus};
+use edge_domain_event::{DomainEvent, EventBus, EventError, EventBootstrap, NoopEventBus};
 
 struct Events;
-impl EventFactory for Events {}
+impl EventBootstrap for Events {}
 
 struct Evt;
 impl DomainEvent for Evt {

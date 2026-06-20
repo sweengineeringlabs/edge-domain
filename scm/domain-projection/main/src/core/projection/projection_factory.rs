@@ -1,5 +1,5 @@
-//! `impl ProjectionFactory for StdProjectionFactory`.
-use crate::api::ProjectionFactory;
+//! `impl ProjectionBootstrap for StdProjectionFactory`.
+use crate::api::ProjectionBootstrap;
 use crate::api::StdProjectionFactory;
 
-impl ProjectionFactory for StdProjectionFactory {}
+impl ProjectionBootstrap for StdProjectionFactory {}

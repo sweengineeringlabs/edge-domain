@@ -1,7 +1,7 @@
-//! SAF tests — `SagaFactory` trait.
+//! SAF tests — `SagaBootstrap` trait.
 // @allow: no_mocks_in_integration
 
-use edge_domain_saga::{Command, CommandError, DomainEvent, NoopSaga, NoopSagaCommand, NoopSagaEvent, Saga, SagaFactory, SagaStore, StdSagaFactory};
+use edge_domain_saga::{Command, CommandError, DomainEvent, NoopSaga, NoopSagaCommand, NoopSagaEvent, Saga, SagaBootstrap, SagaStore, StdSagaFactory};
 use futures::future::BoxFuture;
 
 #[derive(Clone)]
@@ -40,7 +40,7 @@ impl Saga for SimpleSaga {
 }
 
 struct Factories;
-impl SagaFactory for Factories {}
+impl SagaBootstrap for Factories {}
 
 /// @covers: in_memory_store
 #[test]
@@ -156,7 +156,7 @@ fn test_std_factory_returns_std_saga_factory_happy() {
 #[test]
 fn test_std_factory_can_create_registry_via_returned_type_error() {
     let _f: StdSagaFactory = Factories::std_factory();
-    // StdSagaFactory implements SagaFactory; ensure it reaches registry creation
+    // StdSagaFactory implements SagaBootstrap; ensure it reaches registry creation
     let reg = StdSagaFactory::in_memory_store::<SimpleSaga>();
     assert!(reg.get(&"x".to_string()).is_err());
 }

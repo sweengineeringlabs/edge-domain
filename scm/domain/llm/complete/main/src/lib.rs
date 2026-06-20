@@ -20,7 +20,7 @@ mod spi;
 pub use crate::api::CompletionStream;
 
 pub use saf::{
-    CacheControl, CacheableMessage, CompleteError, CompleteFactory, CompleteOps,
+    CacheControl, CacheableMessage, CompleteError, CompleteBootstrap, CompleteOps,
     CompleterHandler, CompletionRequest, CompletionResponse,
     Completer, ContentFlattener, ContentPart, EchoCompleter, FinishReason, ImageUrl,
     Message, MessageContent, ModelInfo, ModelOps, NoopCompleter, Processor, Role,

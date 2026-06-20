@@ -1,11 +1,11 @@
 //! SAF facade tests — `QueryBus` trait via `DirectQueryBus`.
 
-use edge_domain_query::{DirectQueryBus, Query, QueryBus, QueryBusFactory, QueryError};
+use edge_domain_query::{DirectQueryBus, Query, QueryBus, QueryBusBootstrap, QueryError};
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 
 struct Buses;
-impl QueryBusFactory for Buses {}
+impl QueryBusBootstrap for Buses {}
 
 struct Ok_(String);
 impl Query for Ok_ {

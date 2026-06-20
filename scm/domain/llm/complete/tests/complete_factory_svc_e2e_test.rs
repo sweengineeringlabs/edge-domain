@@ -1,6 +1,6 @@
 //! Scenario coverage for the `complete_factory_svc` SAF surface.
 
-use edge_llm_complete::{CompleteFactory, StdCompleteFactory, COMPLETE_FACTORY_SVC};
+use edge_llm_complete::{CompleteBootstrap, StdCompleteFactory, COMPLETE_FACTORY_SVC};
 
 #[test]
 fn test_complete_factory_svc_constant_is_expected_value_happy() {

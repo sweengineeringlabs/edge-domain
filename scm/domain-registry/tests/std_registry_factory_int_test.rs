@@ -1,7 +1,7 @@
 //! Integration tests for `StdRegistryFactory` — covers the types/ file directly.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_registry::{RegistryFactory, StdRegistryFactory};
+use edge_domain_registry::{RegistryBootstrap, StdRegistryFactory};
 
 /// @covers: StdRegistryFactory — constructs via literal and `std_factory`
 #[test]

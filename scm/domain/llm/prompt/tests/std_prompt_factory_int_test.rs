@@ -1,7 +1,7 @@
 //! Tests for the `StdPromptFactory` concrete implementation.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_llm_prompt::{Prompt, PromptFactory, PromptMetadata, StdPromptFactory};
+use edge_llm_prompt::{Prompt, PromptBootstrap, PromptMetadata, StdPromptFactory};
 
 /// @covers: StdPromptFactory — std_factory returns the factory instance
 #[test]

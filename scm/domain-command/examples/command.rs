@@ -1,10 +1,10 @@
 //! Basic `Command` usage example.
 
-use edge_domain_command::{Command, CommandBusFactory, CommandError};
+use edge_domain_command::{Command, CommandBusBootstrap, CommandError};
 use futures::future::BoxFuture;
 
 struct Buses;
-impl CommandBusFactory for Buses {}
+impl CommandBusBootstrap for Buses {}
 
 struct Ping;
 impl Command for Ping {

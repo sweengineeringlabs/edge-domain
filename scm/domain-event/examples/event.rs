@@ -1,9 +1,9 @@
 //! Basic `DomainEvent` usage example.
 
-use edge_domain_event::{DomainEvent, EventFactory};
+use edge_domain_event::{DomainEvent, EventBootstrap};
 
 struct Events;
-impl EventFactory for Events {}
+impl EventBootstrap for Events {}
 
 struct OrderCreated {
     order_id: String,

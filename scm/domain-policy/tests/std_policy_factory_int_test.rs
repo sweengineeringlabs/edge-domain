@@ -1,4 +1,4 @@
-use edge_domain_policy::{CompositePolicy, Policy, PolicyFactory, PolicyViolation, StdPolicyFactory};
+use edge_domain_policy::{CompositePolicy, Policy, PolicyBootstrap, PolicyViolation, StdPolicyFactory};
 
 #[test]
 fn test_std_factory_composite_creates_empty_policy_happy() {

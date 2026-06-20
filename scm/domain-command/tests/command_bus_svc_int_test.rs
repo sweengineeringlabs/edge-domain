@@ -1,11 +1,11 @@
 //! SAF facade tests — `CommandBus` trait via `DirectCommandBus`.
 
-use edge_domain_command::{Command, CommandBus, CommandBusFactory, CommandError};
+use edge_domain_command::{Command, CommandBus, CommandBusBootstrap, CommandError};
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 
 struct Buses;
-impl CommandBusFactory for Buses {}
+impl CommandBusBootstrap for Buses {}
 
 struct Ok_;
 impl Command for Ok_ {

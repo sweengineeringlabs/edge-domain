@@ -19,7 +19,7 @@ pub use saf::EventBus;
 pub use saf::EventBusConfig;
 pub use saf::EventEnvelope;
 pub use saf::EventError;
-pub use saf::EventFactory;
+pub use saf::EventBootstrap;
 pub use saf::EventPublisher;
 pub use saf::EventReceiver;
 pub use saf::EventSource;

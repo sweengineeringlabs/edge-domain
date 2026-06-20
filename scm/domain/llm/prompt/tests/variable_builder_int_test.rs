@@ -1,7 +1,7 @@
 //! Tests for the `VariableBuilder` type.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_llm_prompt::{PromptFactory, StdPromptFactory, VariableType};
+use edge_llm_prompt::{PromptBootstrap, StdPromptFactory, VariableType};
 
 /// @covers: VariableBuilder — builds a named, typed variable
 #[test]

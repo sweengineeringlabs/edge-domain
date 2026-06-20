@@ -1,5 +1,5 @@
-//! `StdSnapshotStoreFactory` — the canonical [`SnapshotStoreFactory`](crate::SnapshotStoreFactory) marker.
+//! `StdSnapshotStoreFactory` — the canonical [`SnapshotStoreBootstrap`](crate::SnapshotStoreBootstrap) marker.
 
-/// Canonical marker that implements the standard [`SnapshotStoreFactory`](crate::SnapshotStoreFactory) contract.
+/// Canonical marker that implements the standard [`SnapshotStoreBootstrap`](crate::SnapshotStoreBootstrap) contract.
 #[derive(Debug, Default, Clone, Copy)]
 pub struct StdSnapshotStoreFactory;

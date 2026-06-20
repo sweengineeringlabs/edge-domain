@@ -1,7 +1,7 @@
 //! Integration tests — `SecurityServices` zero-config factory.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_security::{Security, SecurityFactory, SecurityServices};
+use edge_domain_security::{Security, SecurityBootstrap, SecurityServices};
 
 /// @covers: SecurityServices — constructs a noop guard that enforces successfully
 #[test]

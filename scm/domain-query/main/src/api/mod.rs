@@ -4,7 +4,7 @@ pub use query::QueryError;
 pub use query::LoggingQueryBus;
 pub use query::Query;
 pub use query::QueryBus;
-pub use query::QueryBusFactory;
+pub use query::QueryBusBootstrap;
 pub use query::NoopQuery;
 pub use query::NoopQueryBus;
 pub use query::StdQueryBusFactory;

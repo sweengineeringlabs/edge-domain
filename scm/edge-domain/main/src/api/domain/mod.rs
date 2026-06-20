@@ -5,4 +5,4 @@ pub mod traits;
 pub mod types;
 
 pub use errors::DomainError;
-pub use traits::{Domain, DomainExtension, DomainFactory, NoopDomainExtension, OutboundRegistry};
+pub use traits::{Domain, DomainBootstrap, DomainExtension, NoopDomainExtension, OutboundRegistry};

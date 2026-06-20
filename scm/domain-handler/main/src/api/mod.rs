@@ -2,7 +2,7 @@
 pub use handler::HandlerError;
 pub use handler::InProcessHandlerRegistry;
 pub use handler::Handler;
-pub use handler::HandlerFactory;
+pub use handler::HandlerBootstrap;
 pub use handler::HandlerProvider;
 pub use handler::HandlerRegistry;
 pub use handler::EchoHandler;

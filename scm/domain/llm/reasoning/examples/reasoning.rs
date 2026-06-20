@@ -1,6 +1,6 @@
 //! Basic `edge-llm-reasoning` usage example.
 
-use edge_llm_reasoning::{Reasoning, ReasoningFactory, ReasoningPattern, StdReasoningFactory};
+use edge_llm_reasoning::{Reasoning, ReasoningBootstrap, ReasoningPattern, StdReasoningFactory};
 use futures::executor::block_on;
 
 fn main() {

@@ -1,9 +1,9 @@
 //! Integration tests for `ClosedEventSource`.
 
-use edge_domain_event::{ClosedEventSource, EventError, EventFactory, EventSource};
+use edge_domain_event::{ClosedEventSource, EventError, EventBootstrap, EventSource};
 
 struct Events;
-impl EventFactory for Events {}
+impl EventBootstrap for Events {}
 
 /// @covers: ClosedEventSource — recv_next always returns Unavailable
 #[test]

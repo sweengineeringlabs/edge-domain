@@ -4,7 +4,7 @@
 
 // ── domain (never extracted; always internal) ─────────────────────────────────
 mod domain;
-pub use domain::{Domain, DomainError, DomainExtension, DomainFactory, NoopDomainExtension, OutboundRegistry};
+pub use domain::{Domain, DomainBootstrap, DomainError, DomainExtension, NoopDomainExtension, OutboundRegistry};
 
 // ── spi ───────────────────────────────────────────────────────────────────────
 mod spi;

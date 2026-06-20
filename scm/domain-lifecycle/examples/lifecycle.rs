@@ -1,6 +1,6 @@
 //! Basic `Lifecycle` usage example.
 
-use edge_domain_lifecycle::{Lifecycle, LifecycleFactory, StdLifecycleFactory, TransitionPolicy};
+use edge_domain_lifecycle::{Lifecycle, LifecycleBootstrap, StdLifecycleFactory, TransitionPolicy};
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 enum TaskState {

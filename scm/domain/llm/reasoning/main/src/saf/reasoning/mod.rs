@@ -1,8 +1,8 @@
-﻿mod reasoning_factory_svc;
+﻿mod reasoning_bootstrap_svc;
 mod reasoning_svc;
 
-pub use reasoning_factory_svc::{
-    LinearReasoning, PatternMetadataBuilder, ReasoningChainBuilder, ReasoningFactory,
+pub use reasoning_bootstrap_svc::{
+    LinearReasoning, PatternMetadataBuilder, ReasoningChainBuilder, ReasoningBootstrap,
     ReasoningStepBuilder, StdReasoningFactory, StepResultBuilder, ThinkingProcessBuilder,
     REASONING_FACTORY_SVC,
 };

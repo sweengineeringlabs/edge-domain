@@ -1,25 +1,25 @@
-//! SAF facade tests — `QueryBusFactory` constructors.
+//! SAF facade tests — `QueryBusBootstrap` constructors.
 
-use edge_domain_query::{DirectQueryBus, NoopQuery, Query, QueryBusFactory, StdQueryBusFactory};
+use edge_domain_query::{DirectQueryBus, NoopQuery, Query, QueryBusBootstrap, StdQueryBusFactory};
 use futures::executor::block_on;
 
 struct Buses;
-impl QueryBusFactory for Buses {}
+impl QueryBusBootstrap for Buses {}
 
-/// @covers: QueryBusFactory::direct — returns a zero-sized marker
+/// @covers: QueryBusBootstrap::direct — returns a zero-sized marker
 #[test]
 fn test_direct_returns_zero_sized_marker_happy() {
     let bus: DirectQueryBus<String> = Buses::direct();
     assert_eq!(std::mem::size_of_val(&bus), 0);
 }
 
-/// @covers: QueryBusFactory::direct — zero-sized (PhantomData<fn() -> R> is zero-sized)
+/// @covers: QueryBusBootstrap::direct — zero-sized (PhantomData<fn() -> R> is zero-sized)
 #[test]
 fn test_direct_type_is_zero_sized_error() {
     assert_eq!(std::mem::size_of::<DirectQueryBus<String>>(), 0);
 }
 
-/// @covers: QueryBusFactory::direct — independent calls return same-sized type
+/// @covers: QueryBusBootstrap::direct — independent calls return same-sized type
 #[test]
 fn test_direct_independent_calls_return_same_type_edge() {
     let a: DirectQueryBus<String> = Buses::direct();
@@ -27,20 +27,20 @@ fn test_direct_independent_calls_return_same_type_edge() {
     assert_eq!(std::mem::size_of_val(&a), std::mem::size_of_val(&b));
 }
 
-/// @covers: QueryBusFactory::std — returns StdQueryBusFactory
+/// @covers: QueryBusBootstrap::std — returns StdQueryBusFactory
 #[test]
 fn test_std_returns_std_query_bus_factory_happy() {
     let factory = Buses::std();
     assert_eq!(std::mem::size_of_val(&factory), 0);
 }
 
-/// @covers: QueryBusFactory::std — StdQueryBusFactory is zero-sized
+/// @covers: QueryBusBootstrap::std — StdQueryBusFactory is zero-sized
 #[test]
 fn test_std_factory_type_is_zero_sized_error() {
     assert_eq!(std::mem::size_of::<StdQueryBusFactory>(), 0);
 }
 
-/// @covers: QueryBusFactory::std — independent calls return same-sized type
+/// @covers: QueryBusBootstrap::std — independent calls return same-sized type
 #[test]
 fn test_std_independent_calls_return_same_sized_type_edge() {
     let a = Buses::std();
@@ -48,7 +48,7 @@ fn test_std_independent_calls_return_same_sized_type_edge() {
     assert_eq!(std::mem::size_of_val(&a), std::mem::size_of_val(&b));
 }
 
-/// @covers: QueryBusFactory::noop_query — returns a NoopQuery that succeeds
+/// @covers: QueryBusBootstrap::noop_query — returns a NoopQuery that succeeds
 #[test]
 fn test_noop_query_returns_ok_on_execute_happy() {
     let q = Buses::noop_query();
@@ -56,14 +56,14 @@ fn test_noop_query_returns_ok_on_execute_happy() {
     assert!(result.is_ok());
 }
 
-/// @covers: QueryBusFactory::noop_query — NoopQuery uses the default name
+/// @covers: QueryBusBootstrap::noop_query — NoopQuery uses the default name
 #[test]
 fn test_noop_query_default_name_is_query_error() {
     let q: NoopQuery = Buses::noop_query();
     assert_eq!(q.name(), "query");
 }
 
-/// @covers: QueryBusFactory::noop_query — repeated noop_query calls are independent
+/// @covers: QueryBusBootstrap::noop_query — repeated noop_query calls are independent
 #[test]
 fn test_noop_query_repeated_calls_are_independent_edge() {
     let q1 = Buses::noop_query();
@@ -72,7 +72,7 @@ fn test_noop_query_repeated_calls_are_independent_edge() {
     assert!(block_on(q2.execute()).is_ok());
 }
 
-/// @covers: QueryBusFactory::noop_query_bus — returns a NoopQueryBus that returns NotFound
+/// @covers: QueryBusBootstrap::noop_query_bus — returns a NoopQueryBus that returns NotFound
 #[test]
 fn test_noop_query_bus_returns_not_found_on_dispatch_happy() {
     use futures::future::BoxFuture;
@@ -90,7 +90,7 @@ fn test_noop_query_bus_returns_not_found_on_dispatch_happy() {
     assert!(result.is_err());
 }
 
-/// @covers: QueryBusFactory::noop_query_bus — usable as dyn QueryBus
+/// @covers: QueryBusBootstrap::noop_query_bus — usable as dyn QueryBus
 #[test]
 fn test_noop_query_bus_usable_as_dyn_query_bus_error() {
     use std::sync::Arc;
@@ -100,7 +100,7 @@ fn test_noop_query_bus_usable_as_dyn_query_bus_error() {
     drop(bus);
 }
 
-/// @covers: QueryBusFactory::noop_query_bus — independent calls return same-sized type
+/// @covers: QueryBusBootstrap::noop_query_bus — independent calls return same-sized type
 #[test]
 fn test_noop_query_bus_independent_calls_edge() {
     use edge_domain_query::NoopQueryBus;
@@ -110,7 +110,7 @@ fn test_noop_query_bus_independent_calls_edge() {
     assert_eq!(std::mem::size_of_val(&b), 0);
 }
 
-/// @covers: QueryBusFactory::logging_query — wraps inner bus and delegates dispatch
+/// @covers: QueryBusBootstrap::logging_query — wraps inner bus and delegates dispatch
 #[test]
 fn test_logging_query_wraps_inner_bus_happy() {
     use std::sync::Arc;
@@ -132,7 +132,7 @@ fn test_logging_query_wraps_inner_bus_happy() {
     assert_eq!(result.unwrap(), "hello");
 }
 
-/// @covers: QueryBusFactory::logging_query — distinct instances for different inner types
+/// @covers: QueryBusBootstrap::logging_query — distinct instances for different inner types
 #[test]
 fn test_logging_query_distinct_instances_for_different_inner_error() {
     use std::sync::Arc;
@@ -144,7 +144,7 @@ fn test_logging_query_distinct_instances_for_different_inner_error() {
     let _bus_u32: LoggingQueryBus<u32> = Buses::logging_query(inner_u32);
 }
 
-/// @covers: QueryBusFactory::logging_query — delegates dispatch to inner on err path
+/// @covers: QueryBusBootstrap::logging_query — delegates dispatch to inner on err path
 #[test]
 fn test_logging_query_delegates_dispatch_to_inner_edge() {
     use std::sync::Arc;

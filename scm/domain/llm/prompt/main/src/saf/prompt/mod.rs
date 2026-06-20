@@ -1,13 +1,13 @@
 ﻿mod context_manager_svc;
-mod prompt_factory_svc;
+mod prompt_bootstrap_svc;
 mod prompt_svc;
 mod token_counter_svc;
 
 pub use context_manager_svc::{
     ContextManager, MapContextManager, Variable, VariableType, CONTEXT_MANAGER_SVC,
 };
-pub use prompt_factory_svc::{
-    PromptCacheBuilder, PromptFactory, PromptMetadataBuilder, StdPromptFactory, VariableBuilder,
+pub use prompt_bootstrap_svc::{
+    PromptBootstrap, PromptCacheBuilder, PromptMetadataBuilder, StdPromptFactory, VariableBuilder,
     PROMPT_FACTORY_SVC,
 };
 pub use prompt_svc::{

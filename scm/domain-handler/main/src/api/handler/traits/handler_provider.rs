@@ -7,13 +7,16 @@ use crate::api::handler::types::noop_handler_factory::NoopHandlerFactory;
 /// Factory trait providing standard handler constructs without requiring
 /// callers to name concrete types from `core/`.
 pub trait HandlerProvider {
+    /// Returns a stable, non-empty identifier for this provider.
+    fn bootstrap_name(&self) -> &'static str { "handler_provider" }
+
     /// Construct an [`EchoHandler`] that reflects `String` requests back as responses.
-    fn echo_handler(id: &str, pattern: &str) -> EchoHandler<String> {
+    fn echo_handler(id: &str, pattern: &str) -> EchoHandler<String> where Self: Sized {
         EchoHandler::new(id, pattern)
     }
 
     /// Construct a [`NoopHandlerFactory`] for use in tests and structural compliance.
-    fn noop_handler_factory() -> NoopHandlerFactory {
+    fn noop_handler_factory() -> NoopHandlerFactory where Self: Sized {
         NoopHandlerFactory
     }
 
@@ -22,6 +25,7 @@ pub trait HandlerProvider {
     where
         Req: Send + 'static,
         Resp: Send + 'static,
+        Self: Sized,
     {
         InProcessHandlerRegistry::new()
     }
@@ -33,6 +37,27 @@ mod tests {
 
     struct Prov;
     impl HandlerProvider for Prov {}
+
+    /// @covers: bootstrap_name
+    #[test]
+    fn test_bootstrap_name_returns_nonempty_string_happy() {
+        let p = Prov;
+        assert!(!p.bootstrap_name().is_empty());
+    }
+
+    /// @covers: bootstrap_name
+    #[test]
+    fn test_bootstrap_name_is_deterministic_error() {
+        let p = Prov;
+        assert_eq!(p.bootstrap_name(), p.bootstrap_name());
+    }
+
+    /// @covers: bootstrap_name
+    #[test]
+    fn test_bootstrap_name_is_static_str_edge() {
+        let p = Prov;
+        let _name: &'static str = p.bootstrap_name();
+    }
 
     #[test]
     fn test_echo_handler_creates_handler_with_id_happy() {

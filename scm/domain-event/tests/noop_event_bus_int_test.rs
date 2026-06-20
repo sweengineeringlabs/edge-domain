@@ -1,10 +1,10 @@
 //! Integration tests for `NoopEventBus`.
 
 use std::sync::Arc;
-use edge_domain_event::{DomainEvent, EventBus, EventError, EventFactory, NoopEventBus};
+use edge_domain_event::{DomainEvent, EventBus, EventError, EventBootstrap, NoopEventBus};
 
 struct Events;
-impl EventFactory for Events {}
+impl EventBootstrap for Events {}
 
 struct SignalEvt;
 impl DomainEvent for SignalEvt {}

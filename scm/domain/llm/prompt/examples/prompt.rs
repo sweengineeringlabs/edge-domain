@@ -1,7 +1,7 @@
 //! Basic `edge-llm-prompt` usage example.
 
 use edge_llm_prompt::{
-    Prompt, PromptFactory, RenderContext, StdPromptFactory, Variable, VariableType,
+    Prompt, PromptBootstrap, RenderContext, StdPromptFactory, Variable, VariableType,
 };
 
 fn main() {

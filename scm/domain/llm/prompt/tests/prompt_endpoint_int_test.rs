@@ -1,7 +1,7 @@
 //! Handler integration tests — `prompt_handler` as a dispatchable `Handler`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{Handler, HandlerContext};
 use edge_domain_security::SecurityContext;
 use edge_llm_prompt::{StdPromptFactory, PromptMetadata, RenderContext, Variable, VariableType};

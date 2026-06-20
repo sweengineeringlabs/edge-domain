@@ -1,9 +1,9 @@
 //! Basic `Repository` usage example.
 
-use edge_domain_repository::{InMemoryRepository, RepositoryFactory};
+use edge_domain_repository::{InMemoryRepository, RepositoryBootstrap};
 
 struct Repos;
-impl RepositoryFactory for Repos {}
+impl RepositoryBootstrap for Repos {}
 
 fn main() {
     let _cfg: InMemoryRepository<String, u32> = Repos::in_memory();

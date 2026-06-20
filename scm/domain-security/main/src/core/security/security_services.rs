@@ -1,6 +1,6 @@
-//! `SecurityFactory` impl for `SecurityServices`.
+//! `SecurityBootstrap` impl for `SecurityServices`.
 
-use crate::api::SecurityFactory;
+use crate::api::SecurityBootstrap;
 use crate::api::SecurityServices;
 
-impl SecurityFactory for SecurityServices {}
+impl SecurityBootstrap for SecurityServices {}

@@ -12,9 +12,9 @@ mod saf;
 
 pub use saf::Command;
 pub use saf::CommandBus;
-pub use saf::CommandBusFactory;
+pub use saf::CommandBusBootstrap;
 pub use saf::CommandError;
-pub use saf::CommandFactory;
+pub use saf::CommandBootstrap;
 pub use saf::DirectCommandBus;
 pub use saf::LoggingCommandBus;
 pub use saf::NoopCommand;

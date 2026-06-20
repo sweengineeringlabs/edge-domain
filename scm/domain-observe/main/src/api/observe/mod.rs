@@ -13,7 +13,7 @@ pub use traits::HandlerTracer;
 pub use traits::Histogram;
 pub use traits::LogDrain;
 pub use traits::MetricRegistry;
-pub use traits::ObserveFactory;
+pub use traits::ObserveBootstrap;
 pub use traits::Span;
 pub use types::LogRecord;
 pub use types::StdObserveFactory;

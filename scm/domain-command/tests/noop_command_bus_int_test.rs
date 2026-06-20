@@ -1,7 +1,7 @@
 //! Integration tests for `NoopCommandBus` — discards every command silently.
 
 use edge_domain_command::{
-    Command, CommandBus, CommandBusFactory, CommandError, NoopCommandBus, StdCommandBusFactory,
+    Command, CommandBus, CommandBusBootstrap, CommandError, NoopCommandBus, StdCommandBusFactory,
 };
 use futures::executor::block_on;
 use futures::future::BoxFuture;

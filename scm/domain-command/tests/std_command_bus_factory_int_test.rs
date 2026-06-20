@@ -1,4 +1,4 @@
-use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 
 #[test]
 fn test_std_factory_direct_creates_command_bus_happy() {

@@ -9,5 +9,5 @@ pub mod types;
 pub use direct_command_bus::DirectCommandBus;
 pub use errors::CommandError;
 pub use logging_command_bus::LoggingCommandBus;
-pub use traits::{Command, CommandBus, CommandBusFactory, CommandFactory};
+pub use traits::{Command, CommandBus, CommandBusBootstrap, CommandBootstrap};
 pub use types::{NoopCommand, NoopCommandBus, StdCommandBusFactory};

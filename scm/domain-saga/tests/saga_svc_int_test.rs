@@ -1,7 +1,7 @@
 //! SAF tests — `Saga` trait.
 // @allow: no_mocks_in_integration
 
-use edge_domain_saga::{Command, CommandError, DomainEvent, Saga, SagaFactory, SagaStore};
+use edge_domain_saga::{Command, CommandError, DomainEvent, Saga, SagaBootstrap, SagaStore};
 use futures::future::BoxFuture;
 
 #[derive(Clone)]
@@ -53,7 +53,7 @@ impl Saga for OrderSaga {
 }
 
 struct Factories;
-impl SagaFactory for Factories {}
+impl SagaBootstrap for Factories {}
 
 /// @covers: handle
 #[test]

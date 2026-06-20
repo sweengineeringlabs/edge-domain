@@ -1,6 +1,6 @@
-//! `impl EventFactory for StdEventFactory`.
+//! `impl EventBootstrap for StdEventFactory`.
 
-use crate::api::EventFactory;
+use crate::api::EventBootstrap;
 use crate::api::StdEventFactory;
 
-impl EventFactory for StdEventFactory {}
+impl EventBootstrap for StdEventFactory {}

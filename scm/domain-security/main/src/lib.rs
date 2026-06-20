@@ -22,7 +22,7 @@ pub use saf::Security;
 pub use saf::SecurityContext;
 pub use saf::SecurityContextBuilder;
 pub use saf::SecurityError;
-pub use saf::SecurityFactory;
+pub use saf::SecurityBootstrap;
 pub use saf::SecurityServices;
 pub use saf::ANONYMOUS;
 pub use saf::DEFAULT_SERVICES;

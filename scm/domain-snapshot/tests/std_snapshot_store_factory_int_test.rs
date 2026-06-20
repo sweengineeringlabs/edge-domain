@@ -1,4 +1,4 @@
-use edge_domain_snapshot::{Snapshot, SnapshotStoreFactory, StdSnapshotStoreFactory};
+use edge_domain_snapshot::{Snapshot, SnapshotStoreBootstrap, StdSnapshotStoreFactory};
 
 #[test]
 fn test_noop_snapshot_returns_default_version_happy() {

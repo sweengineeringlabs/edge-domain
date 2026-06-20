@@ -1,5 +1,5 @@
-//! `impl ValidatorFactory for StdValidatorFactory`.
-use crate::api::ValidatorFactory;
+//! `impl ValidatorBootstrap for StdValidatorFactory`.
+use crate::api::ValidatorBootstrap;
 use crate::api::StdValidatorFactory;
 
-impl ValidatorFactory for StdValidatorFactory {}
+impl ValidatorBootstrap for StdValidatorFactory {}

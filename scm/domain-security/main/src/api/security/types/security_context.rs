@@ -7,7 +7,7 @@ use crate::api::security::traits::principal::Principal;
 
 /// Carries the security identity and metadata for a single request.
 ///
-/// Construct via [`SecurityFactory`](crate::SecurityFactory) or directly with
+/// Construct via [`SecurityBootstrap`](crate::SecurityBootstrap) or directly with
 /// [`SecurityContext::unauthenticated`] / [`SecurityContext::authenticated_with`].
 pub struct SecurityContext {
     /// Authenticated principal, if present.

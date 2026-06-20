@@ -1,6 +1,6 @@
-//! `impl RegistryFactory for StdRegistryFactory`.
+//! `impl RegistryBootstrap for StdRegistryFactory`.
 
-use crate::api::RegistryFactory;
+use crate::api::RegistryBootstrap;
 use crate::api::StdRegistryFactory;
 
-impl RegistryFactory for StdRegistryFactory {}
+impl RegistryBootstrap for StdRegistryFactory {}

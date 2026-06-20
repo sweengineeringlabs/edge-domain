@@ -48,6 +48,7 @@ pub trait Repository: Send + Sync {
     fn list_page(&self, offset: usize, limit: usize) -> BoxFuture<'_, Result<Page<Self::Entity>, RepositoryError>>
     where
         Self::Entity: Clone,
+        Self: Sized,
     {
         Box::pin(async move {
             let all = self.list().await?;

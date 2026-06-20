@@ -1,7 +1,7 @@
 mod reasoning;
 
 pub use reasoning::{
-    Reasoning, ReasoningFactory,
+    Reasoning, ReasoningBootstrap,
     ReasoningError,
     LinearReasoning, PatternMetadata, PatternMetadataBuilder, ReasoningChain, ReasoningChainBuilder,
     ReasoningPattern, ReasoningStep, ReasoningStepBuilder, StdReasoningFactory, StepResult,

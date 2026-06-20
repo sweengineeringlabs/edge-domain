@@ -1,6 +1,6 @@
-//! `ReasoningFactory` impl for `StdReasoningFactory`.
+//! `ReasoningBootstrap` impl for `StdReasoningFactory`.
 
-use crate::api::ReasoningFactory;
+use crate::api::ReasoningBootstrap;
 use crate::api::StdReasoningFactory;
 
-impl ReasoningFactory for StdReasoningFactory {}
+impl ReasoningBootstrap for StdReasoningFactory {}

@@ -1,6 +1,6 @@
 //! Integration tests for `DirectCommandBus` — the zero-size in-process command bus marker.
 
-use edge_domain_command::{Command, CommandBus, CommandBusFactory, CommandError, DirectCommandBus,
+use edge_domain_command::{Command, CommandBus, CommandBusBootstrap, CommandError, DirectCommandBus,
     StdCommandBusFactory};
 use futures::executor::block_on;
 use futures::future::BoxFuture;

@@ -1,6 +1,6 @@
 //! `StdLifecycleFactory` — zero-sized marker for the standard lifecycle factory.
 
-/// Zero-sized marker type that implements [`LifecycleFactory`](crate::api::lifecycle::traits::LifecycleFactory).
+/// Zero-sized marker type that implements [`LifecycleBootstrap`](crate::api::lifecycle::traits::LifecycleBootstrap).
 ///
 /// Obtain a concrete factory via `StdLifecycleFactory::std_factory()` or by
 /// constructing the literal `StdLifecycleFactory`.

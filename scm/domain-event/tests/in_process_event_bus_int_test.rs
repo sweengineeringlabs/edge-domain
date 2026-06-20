@@ -1,10 +1,10 @@
 //! Integration tests for `InProcessEventBus`.
 
 use std::sync::Arc;
-use edge_domain_event::{DomainEvent, EventBus, EventError, EventFactory, EventBusConfig, InProcessEventBus};
+use edge_domain_event::{DomainEvent, EventBus, EventError, EventBootstrap, EventBusConfig, InProcessEventBus};
 
 struct Events;
-impl EventFactory for Events {}
+impl EventBootstrap for Events {}
 
 struct SigEvt;
 impl DomainEvent for SigEvt {

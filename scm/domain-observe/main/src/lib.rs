@@ -25,7 +25,7 @@ pub use saf::LogRecord;
 pub use saf::MetricRegistry;
 pub use saf::NoopObserve;
 pub use saf::ObserveError;
-pub use saf::ObserveFactory;
+pub use saf::ObserveBootstrap;
 pub use saf::Span;
 pub use saf::StdObserveFactory;
 pub use saf::COUNTER_SVC;

@@ -1,10 +1,10 @@
 //! Basic `Query` usage example.
 
-use edge_domain_query::{DirectQueryBus, Query, QueryBusFactory, QueryError};
+use edge_domain_query::{DirectQueryBus, Query, QueryBusBootstrap, QueryError};
 use futures::future::BoxFuture;
 
 struct Buses;
-impl QueryBusFactory for Buses {}
+impl QueryBusBootstrap for Buses {}
 
 struct Ping;
 impl Query for Ping {

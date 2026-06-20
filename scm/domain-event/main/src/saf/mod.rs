@@ -2,7 +2,7 @@ mod event;
 
 pub use event::{
     Aggregate, ClosedEventSource, DefaultEventFactory, DomainEvent, EventBus, EventBusConfig,
-    EventEnvelope, EventError, EventFactory, EventPublisher, EventReceiver, EventSource,
+    EventEnvelope, EventError, EventBootstrap, EventPublisher, EventReceiver, EventSource,
     EventStore, EventStoreError, ExpectedVersion, InMemoryEventStore, InProcessEventBus,
     NoopAggregate, NoopDomainEvent, NoopEventBus, NoopEventPublisher, StdEventFactory,
     AGGREGATE_SVC, DOMAIN_EVENT_SVC, EVENT_BUS_SVC, EVENT_FACTORY_SVC, EVENT_PUBLISHER_SVC,

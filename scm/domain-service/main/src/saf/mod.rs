@@ -6,7 +6,7 @@ pub use service::{
     Service,
     ServiceError,
     ServiceRegistry,
-    ServiceRegistryFactory,
+    ServiceRegistryBootstrap,
     ServiceRegistryImpl,
     SERVICE_REGISTRY_FACTORY_SVC,
     SERVICE_REGISTRY_SVC,

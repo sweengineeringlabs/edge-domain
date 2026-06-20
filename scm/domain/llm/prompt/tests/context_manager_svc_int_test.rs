@@ -1,7 +1,7 @@
 //! SAF facade tests — `ContextManager` trait via `MapContextManager`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_llm_prompt::{ContextManager, PromptFactory, StdPromptFactory, Variable, VariableType};
+use edge_llm_prompt::{ContextManager, PromptBootstrap, StdPromptFactory, Variable, VariableType};
 
 fn manager() -> impl ContextManager {
     StdPromptFactory::context_manager()

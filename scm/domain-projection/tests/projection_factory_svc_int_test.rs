@@ -1,7 +1,7 @@
-//! SAF tests — `ProjectionFactory` trait.
+//! SAF tests — `ProjectionBootstrap` trait.
 // @allow: no_mocks_in_integration
 
-use edge_domain_projection::{DomainEvent, Projection, ProjectionError, ProjectionFactory};
+use edge_domain_projection::{DomainEvent, Projection, ProjectionError, ProjectionBootstrap};
 
 #[derive(Clone)]
 struct ScoreEvt {
@@ -15,7 +15,7 @@ impl DomainEvent for ScoreEvt {
 }
 
 struct Factories;
-impl ProjectionFactory for Factories {}
+impl ProjectionBootstrap for Factories {}
 
 fn score_evt(points: u32) -> ScoreEvt {
     ScoreEvt { points }

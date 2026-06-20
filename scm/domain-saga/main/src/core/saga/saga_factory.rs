@@ -1,4 +1,4 @@
-use crate::api::SagaFactory;
+use crate::api::SagaBootstrap;
 use crate::api::StdSagaFactory;
 
-impl SagaFactory for StdSagaFactory {}
+impl SagaBootstrap for StdSagaFactory {}

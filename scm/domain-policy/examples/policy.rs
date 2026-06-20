@@ -1,9 +1,9 @@
 //! Basic `Policy` usage example.
 
-use edge_domain_policy::{CompositePolicy, Policy, PolicyFactory, PolicyViolation};
+use edge_domain_policy::{CompositePolicy, Policy, PolicyBootstrap, PolicyViolation};
 
 struct Factories;
-impl PolicyFactory for Factories {}
+impl PolicyBootstrap for Factories {}
 
 struct MaxLength(usize);
 

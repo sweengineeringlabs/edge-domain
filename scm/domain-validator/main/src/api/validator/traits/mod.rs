@@ -1,4 +1,4 @@
 pub mod validator;
-pub mod validator_factory;
+pub mod validator_bootstrap;
 pub use validator::Validator;
-pub use validator_factory::ValidatorFactory;
+pub use validator_bootstrap::ValidatorBootstrap;

@@ -1,8 +1,12 @@
 //! Extension hooks for downstream consumers.
 //!
-//! Downstream crates implement the `ReasoningFactory` contract from `crate::api`.
-//! This module is the SEA SPI anchor — it signals extensibility without
-//! surfacing internal types.
+//! Downstream crates implement the `ReasoningBootstrap` contract from `crate::api`.
+//! This module re-exports the default handler wiring types so `saf/` can compose
+//! them without importing from `core/` directly (SEA §7).
+
+pub(crate) mod reasoning;
+
+pub(crate) use self::reasoning::DefaultReasoningHandler;
 
 // SPI extension anchor — satisfies the spi_dir_not_empty structural rule.
 const _: () = ();

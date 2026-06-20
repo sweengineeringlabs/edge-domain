@@ -1,11 +1,11 @@
 //! SAF facade tests — `Repository` trait via `InMemoryRepository`.
 // @allow: no_mocks_in_integration — InMemoryRepository is the production-shipped reference impl, not a test double
 
-use edge_domain_repository::{InMemoryRepository, Repository, RepositoryFactory};
+use edge_domain_repository::{InMemoryRepository, Repository, RepositoryBootstrap};
 use futures::executor::block_on;
 
 struct Repos;
-impl RepositoryFactory for Repos {}
+impl RepositoryBootstrap for Repos {}
 
 fn make() -> InMemoryRepository<String, u32> {
     Repos::in_memory()

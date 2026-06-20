@@ -1,6 +1,6 @@
-//! `PolicyFactory` impl for [`StdPolicyFactory`].
+//! `PolicyBootstrap` impl for [`StdPolicyFactory`].
 
-use crate::api::PolicyFactory;
+use crate::api::PolicyBootstrap;
 use crate::api::StdPolicyFactory;
 
-impl PolicyFactory for StdPolicyFactory {}
+impl PolicyBootstrap for StdPolicyFactory {}

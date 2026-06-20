@@ -1,9 +1,9 @@
 //! Basic `Security` usage example.
 
-use edge_domain_security::{Security, SecurityFactory, SecurityContext};
+use edge_domain_security::{Security, SecurityBootstrap, SecurityContext};
 
 struct TestSecurity;
-impl SecurityFactory for TestSecurity {}
+impl SecurityBootstrap for TestSecurity {}
 
 fn main() {
     let guard = TestSecurity::noop_guard();

@@ -7,7 +7,7 @@ use crate::api::{DomainEvent, EventPublisher};
 use crate::api::NoopEventPublisher;
 
 impl EventPublisher for NoopEventPublisher {
-    fn publish<'a>(&'a self, _event: &'a dyn DomainEvent) -> BoxFuture<'a, Result<(), EventError>> {
+    fn publish(&self, _event: &dyn DomainEvent) -> BoxFuture<'_, Result<(), EventError>> {
         Box::pin(async { Ok(()) })
     }
 }

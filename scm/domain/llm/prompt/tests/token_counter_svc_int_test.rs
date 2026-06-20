@@ -1,7 +1,7 @@
 //! SAF facade tests — `TokenCounter` trait via `HeuristicTokenCounter`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_llm_prompt::{PromptFactory, StdPromptFactory, TokenCounter};
+use edge_llm_prompt::{PromptBootstrap, StdPromptFactory, TokenCounter};
 
 fn counter() -> impl TokenCounter {
     StdPromptFactory::token_counter()
