@@ -1,6 +1,5 @@
 pub mod composite_policy;
 pub mod errors;
-pub mod std_policy_factory;
 pub mod traits;
 pub mod types;
 
