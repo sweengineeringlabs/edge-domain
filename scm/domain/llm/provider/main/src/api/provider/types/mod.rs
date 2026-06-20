@@ -1,4 +1,4 @@
-﻿//! Provider value types.
+//! Provider value types.
 
 pub mod execution_config;
 pub mod execution_mode;

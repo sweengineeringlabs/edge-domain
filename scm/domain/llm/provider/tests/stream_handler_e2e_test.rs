@@ -2,7 +2,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_provider::{
-    ProviderFactory, StdProviderFactory, StreamDelta, StreamHandler, ToolCallDelta,
+    ProviderBootstrap, StdProviderFactory, StreamDelta, StreamHandler, ToolCallDelta,
 };
 
 fn handler() -> impl StreamHandler {

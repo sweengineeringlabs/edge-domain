@@ -7,7 +7,7 @@ use edge_llm_complete::Completer;
 use crate::api::provider::types::{ModelInfo, ProviderConfig};
 
 /// Concrete [`Provider`](crate::api::provider::traits::Provider) produced by
-/// [`ProviderFactory::provider`](crate::api::provider::traits::ProviderFactory::provider).
+/// [`ProviderBootstrap::provider`](crate::api::provider::traits::ProviderBootstrap::provider).
 ///
 /// Not part of the public crate API — callers depend on the `Provider` trait,
 /// not this type. Declared in `api/` to satisfy SEA module correspondence rules.

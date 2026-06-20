@@ -2,7 +2,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_provider::{
-    ExecutionConfig, ExecutionMode, ExecutionModel, ProviderFactory, StdProviderFactory,
+    ExecutionConfig, ExecutionMode, ExecutionModel, ProviderBootstrap, StdProviderFactory,
 };
 use futures::executor::block_on;
 

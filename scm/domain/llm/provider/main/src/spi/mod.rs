@@ -1,6 +1,6 @@
 //! Extension hooks for downstream consumers.
 //!
-//! Downstream crates implement the `ProviderFactory` contract from `crate::api`.
+//! Downstream crates implement the `ProviderBootstrap` contract from `crate::api`.
 //! This module re-exports the default handler wiring types so `saf/` can compose
 //! them without importing from `core/` directly (SEA §7).
 

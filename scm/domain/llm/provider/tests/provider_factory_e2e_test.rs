@@ -1,4 +1,4 @@
-//! SAF facade tests — `ProviderFactory` constructors.
+//! SAF facade tests — `ProviderBootstrap` constructors.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
@@ -6,7 +6,7 @@ use std::sync::Arc;
 use edge_llm_complete::{Completer, CompletionRequest, Message, NoopCompleter};
 use edge_llm_provider::{
     CompletionMessage, EchoProviderCompleter, ExecutionConfig, ExecutionMode, ExecutionModel,
-    MessageRole, ModelFamily, ModelInfo, Provider, ProviderConfig, ProviderFactory,
+    MessageRole, ModelFamily, ModelInfo, Provider, ProviderConfig, ProviderBootstrap,
     StdProviderFactory, StreamHandler, ToolDefinition,
 };
 use futures::executor::block_on;
@@ -56,20 +56,20 @@ fn test_default_provider_handler_exposes_handler_id_edge() {
 
 // --- std_factory ---
 
-/// @covers: ProviderFactory::std_factory — returns the standard factory
+/// @covers: ProviderBootstrap::std_factory — returns the standard factory
 #[test]
 fn test_std_factory_returns_instance_happy() {
     let _f: StdProviderFactory = StdProviderFactory::std_factory();
 }
 
-/// @covers: ProviderFactory::std_factory — instance is zero-sized
+/// @covers: ProviderBootstrap::std_factory — instance is zero-sized
 #[test]
 fn test_std_factory_is_zero_sized_error() {
     let f = StdProviderFactory::std_factory();
     assert_eq!(std::mem::size_of_val(&f), 0);
 }
 
-/// @covers: ProviderFactory::std_factory — repeated calls are equivalent
+/// @covers: ProviderBootstrap::std_factory — repeated calls are equivalent
 #[test]
 fn test_std_factory_repeatable_edge() {
     let _a = StdProviderFactory::std_factory();
@@ -78,7 +78,7 @@ fn test_std_factory_repeatable_edge() {
 
 // --- provider ---
 
-/// @covers: ProviderFactory::provider — builds a usable provider
+/// @covers: ProviderBootstrap::provider — builds a usable provider
 #[test]
 fn test_provider_builds_named_provider_happy() {
     let config = ProviderConfig::new("claude".to_string(), 0.7, 8192);
@@ -91,7 +91,7 @@ fn test_provider_builds_named_provider_happy() {
     assert_eq!(StdProviderFactory::provider(config, info, Arc::new(NoopCompleter)).name(), "claude");
 }
 
-/// @covers: ProviderFactory::provider — empty model produces an unhealthy provider
+/// @covers: ProviderBootstrap::provider — empty model produces an unhealthy provider
 #[test]
 fn test_provider_empty_model_unhealthy_error() {
     let config = ProviderConfig::new(String::new(), 0.7, 8192);
@@ -101,7 +101,7 @@ fn test_provider_empty_model_unhealthy_error() {
         .is_err());
 }
 
-/// @covers: ProviderFactory::provider — family flows from model metadata
+/// @covers: ProviderBootstrap::provider — family flows from model metadata
 #[test]
 fn test_provider_reports_model_family_edge() {
     let config = ProviderConfig::new("gpt".to_string(), 0.5, 4096);
@@ -119,7 +119,7 @@ fn test_provider_reports_model_family_edge() {
 
 // --- execution_model ---
 
-/// @covers: ProviderFactory::execution_model — builds a model in the given mode
+/// @covers: ProviderBootstrap::execution_model — builds a model in the given mode
 #[test]
 fn test_execution_model_builds_in_mode_happy() {
     let config = ExecutionConfig::new(4096, 30_000, true, false, ExecutionMode::Async);
@@ -129,7 +129,7 @@ fn test_execution_model_builds_in_mode_happy() {
     );
 }
 
-/// @covers: ProviderFactory::execution_model — zero budget cannot execute
+/// @covers: ProviderBootstrap::execution_model — zero budget cannot execute
 #[test]
 fn test_execution_model_zero_budget_blocked_error() {
     let config = ExecutionConfig::new(0, 30_000, true, false, ExecutionMode::Async);
@@ -138,7 +138,7 @@ fn test_execution_model_zero_budget_blocked_error() {
         .is_err());
 }
 
-/// @covers: ProviderFactory::execution_model — streaming mode preserved
+/// @covers: ProviderBootstrap::execution_model — streaming mode preserved
 #[test]
 fn test_execution_model_streaming_mode_edge() {
     let config = ExecutionConfig::new(4096, 30_000, true, true, ExecutionMode::Streaming);
@@ -150,21 +150,21 @@ fn test_execution_model_streaming_mode_edge() {
 
 // --- stream_handler ---
 
-/// @covers: ProviderFactory::stream_handler — builds an empty handler
+/// @covers: ProviderBootstrap::stream_handler — builds an empty handler
 #[test]
 fn test_stream_handler_starts_empty_happy() {
     let mut h = StdProviderFactory::stream_handler();
     assert!(h.next_chunk().is_none());
 }
 
-/// @covers: ProviderFactory::stream_handler — no pending tool call initially
+/// @covers: ProviderBootstrap::stream_handler — no pending tool call initially
 #[test]
 fn test_stream_handler_no_pending_call_error() {
     let h = StdProviderFactory::stream_handler();
     assert!(h.pending_tool_call().is_none());
 }
 
-/// @covers: ProviderFactory::stream_handler — independent instances per call
+/// @covers: ProviderBootstrap::stream_handler — independent instances per call
 #[test]
 fn test_stream_handler_independent_instances_edge() {
     let mut a = StdProviderFactory::stream_handler();
@@ -175,7 +175,7 @@ fn test_stream_handler_independent_instances_edge() {
 
 // --- message ---
 
-/// @covers: ProviderFactory::message — constructs a user-role message via factory
+/// @covers: ProviderBootstrap::message — constructs a user-role message via factory
 #[test]
 fn test_message_user_role_happy() {
     let m = StdProviderFactory::message(MessageRole::User, "hello");
@@ -183,7 +183,7 @@ fn test_message_user_role_happy() {
     assert_eq!(m.content, "hello");
 }
 
-/// @covers: ProviderFactory::message — empty string content is accepted without panic
+/// @covers: ProviderBootstrap::message — empty string content is accepted without panic
 #[test]
 fn test_message_empty_content_error() {
     let m = StdProviderFactory::message(MessageRole::Tool, "");
@@ -191,7 +191,7 @@ fn test_message_empty_content_error() {
     assert!(m.content.is_empty(), "factory must accept empty content without panic");
 }
 
-/// @covers: ProviderFactory::message — all three roles produce correct role field
+/// @covers: ProviderBootstrap::message — all three roles produce correct role field
 #[test]
 fn test_message_all_roles_edge() {
     for role in [MessageRole::User, MessageRole::Assistant, MessageRole::Tool] {
@@ -202,7 +202,7 @@ fn test_message_all_roles_edge() {
 
 // --- completion_input ---
 
-/// @covers: ProviderFactory::completion_input — constructs a fully-specified input
+/// @covers: ProviderBootstrap::completion_input — constructs a fully-specified input
 #[test]
 fn test_completion_input_full_spec_happy() {
     let msgs = vec![CompletionMessage::user("ping")];
@@ -214,7 +214,7 @@ fn test_completion_input_full_spec_happy() {
     assert_eq!(input.system.as_deref(), Some("sys"));
 }
 
-/// @covers: ProviderFactory::completion_input — empty messages vector is accepted without panic
+/// @covers: ProviderBootstrap::completion_input — empty messages vector is accepted without panic
 #[test]
 fn test_completion_input_empty_messages_error() {
     let config = ExecutionConfig::new(1024, 30_000, false, false, ExecutionMode::Async);
@@ -222,7 +222,7 @@ fn test_completion_input_empty_messages_error() {
     assert!(input.messages.is_empty(), "factory must accept empty messages without panic");
 }
 
-/// @covers: ProviderFactory::completion_input — no system prompt and no tools
+/// @covers: ProviderBootstrap::completion_input — no system prompt and no tools
 #[test]
 fn test_completion_input_minimal_edge() {
     let config = ExecutionConfig::new(512, 10_000, false, false, ExecutionMode::Async);
@@ -238,13 +238,13 @@ fn test_completion_input_minimal_edge() {
 
 // --- provider_completer ---
 
-/// @covers: ProviderFactory::provider_completer — returns a EchoProviderCompleter
+/// @covers: ProviderBootstrap::provider_completer — returns a EchoProviderCompleter
 #[test]
 fn test_provider_completer_returns_instance_happy() {
     let _c: EchoProviderCompleter = StdProviderFactory::provider_completer();
 }
 
-/// @covers: ProviderFactory::provider_completer — instance implements Completer (can call complete)
+/// @covers: ProviderBootstrap::provider_completer — instance implements Completer (can call complete)
 #[test]
 fn test_provider_completer_implements_completer_error() {
     let c = StdProviderFactory::provider_completer();
@@ -253,7 +253,7 @@ fn test_provider_completer_implements_completer_error() {
     assert!(result.is_ok());
 }
 
-/// @covers: ProviderFactory::provider_completer — repeated calls return independent instances
+/// @covers: ProviderBootstrap::provider_completer — repeated calls return independent instances
 #[test]
 fn test_provider_completer_independent_instances_edge() {
     let _a = StdProviderFactory::provider_completer();

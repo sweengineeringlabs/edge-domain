@@ -1,4 +1,4 @@
-//! `ProviderFactory` — constructor contract for the default provider primitives.
+//! `ProviderBootstrap` — constructor contract for the default provider primitives.
 
 use std::sync::Arc;
 
@@ -11,12 +11,17 @@ use crate::api::provider::types::{
     StdProviderFactory, ToolDefinition,
 };
 
-/// Factory for the standard reference implementations.
+/// Constructor namespace for the standard provider reference implementations.
 ///
 /// Implement on any unit struct to gain the standard constructors.
-pub trait ProviderFactory {
+pub trait ProviderBootstrap {
+    /// Identifies this bootstrap implementation.
+    fn bootstrap_name(&self) -> &'static str {
+        "provider"
+    }
+
     /// Return the standard provider-factory instance.
-    fn std_factory() -> StdProviderFactory {
+    fn std_factory() -> StdProviderFactory where Self: Sized {
         StdProviderFactory
     }
 
@@ -24,25 +29,25 @@ pub trait ProviderFactory {
     ///
     /// `ProviderCore` is not part of the public crate API — callers use it via the
     /// [`Provider`](crate::api::provider::traits::Provider) trait.
-    fn provider(config: ProviderConfig, model: ModelInfo, completer: Arc<dyn Completer>) -> ProviderCore;
+    fn provider(config: ProviderConfig, model: ModelInfo, completer: Arc<dyn Completer>) -> ProviderCore where Self: Sized;
 
     /// Construct the reference [`EchoExecutionModel`] from execution config.
-    fn execution_model(config: ExecutionConfig) -> EchoExecutionModel {
+    fn execution_model(config: ExecutionConfig) -> EchoExecutionModel where Self: Sized {
         EchoExecutionModel::new(config)
     }
 
     /// Construct an empty reference [`BufferedStreamHandler`].
-    fn stream_handler() -> BufferedStreamHandler {
+    fn stream_handler() -> BufferedStreamHandler where Self: Sized {
         BufferedStreamHandler::new()
     }
 
     /// Construct a [`CompletionMessage`] with the given role and content.
-    fn message(role: MessageRole, content: impl Into<String>) -> CompletionMessage {
+    fn message(role: MessageRole, content: impl Into<String>) -> CompletionMessage where Self: Sized {
         CompletionMessage { role, content: content.into() }
     }
 
     /// Construct a [`ToolDefinition`] with the given name, description, and schema.
-    fn tool(name: impl Into<String>, description: impl Into<String>, schema: Value) -> ToolDefinition {
+    fn tool(name: impl Into<String>, description: impl Into<String>, schema: Value) -> ToolDefinition where Self: Sized {
         ToolDefinition::new(name, description, schema)
     }
 
@@ -52,7 +57,7 @@ pub trait ProviderFactory {
         tools: Vec<ToolDefinition>,
         system: Option<String>,
         config: ExecutionConfig,
-    ) -> CompletionInput {
+    ) -> CompletionInput where Self: Sized {
         CompletionInput::new(messages, tools, system, config)
     }
 
@@ -60,7 +65,7 @@ pub trait ProviderFactory {
     ///
     /// This adapter implements [`edge_llm_complete::Completer`] by delegating to the
     /// provider's `EchoExecutionModel`, mapping request/response across the port boundary.
-    fn provider_completer() -> EchoProviderCompleter {
+    fn provider_completer() -> EchoProviderCompleter where Self: Sized {
         EchoProviderCompleter
     }
 }

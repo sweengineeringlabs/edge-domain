@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use edge_llm_complete::NoopCompleter;
 use edge_llm_provider::{
-    ExecutionMode, ModelFamily, ModelInfo, Provider, ProviderConfig, ProviderFactory,
+    ExecutionMode, ModelFamily, ModelInfo, Provider, ProviderConfig, ProviderBootstrap,
     StdProviderFactory,
 };
 

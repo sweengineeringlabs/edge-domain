@@ -3,6 +3,6 @@
 /// Echo adapter that implements [`edge_llm_complete::Completer`] via this provider's
 /// `EchoExecutionModel`.
 ///
-/// Returned by [`ProviderFactory::provider_completer`](crate::api::ProviderFactory).
+/// Returned by [`ProviderBootstrap::provider_completer`](crate::api::ProviderBootstrap).
 #[derive(Debug, Clone, Copy, Default)]
 pub struct EchoProviderCompleter;
