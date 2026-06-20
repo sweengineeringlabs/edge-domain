@@ -7,8 +7,8 @@
 
 use crate::api::event::traits::DomainEvent;
 use crate::api::event::types::{
-    ClosedEventSource, DefaultEventFactory, EventBusConfig, InMemoryEventStore, InProcessEventBus,
-    NoopAggregate, NoopDomainEvent, NoopEventBus, NoopEventPublisher, StdEventFactory,
+    ClosedEventSource, EventBusConfig, InMemoryEventStore, InProcessEventBus, NoopAggregate,
+    NoopDomainEvent, NoopEventBus, NoopEventPublisher, StdEventFactory,
 };
 
 /// Bootstrap namespace for the standard event infrastructure implementations.
@@ -52,9 +52,9 @@ pub trait EventBootstrap {
 
     /// Construct the standard event factory itself.
     ///
-    /// Returns a [`DefaultEventFactory`] (an alias for [`StdEventFactory`]) which
-    /// can be used to call factory methods in a value-passing context.
-    fn std() -> DefaultEventFactory where Self: Sized {
+    /// Returns a [`StdEventFactory`] which can be used to call factory methods
+    /// in a value-passing context.
+    fn std() -> StdEventFactory where Self: Sized {
         StdEventFactory
     }
 

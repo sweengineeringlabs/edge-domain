@@ -23,5 +23,3 @@ pub use noop_domain_event::NoopDomainEvent;
 pub use noop_event_bus::NoopEventBus;
 pub use noop_event_publisher::NoopEventPublisher;
 pub use std_event_factory::StdEventFactory;
-/// [`DefaultEventFactory`] is a type alias for [`StdEventFactory`].
-pub type DefaultEventFactory = StdEventFactory;

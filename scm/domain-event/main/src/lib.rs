@@ -12,7 +12,6 @@ mod saf;
 
 pub use saf::Aggregate;
 pub use saf::ClosedEventSource;
-pub use saf::DefaultEventFactory;
 pub use saf::StdEventFactory;
 pub use saf::DomainEvent;
 pub use saf::EventBus;

@@ -1,5 +1,4 @@
 pub use crate::api::EventBootstrap;
-pub use crate::api::DefaultEventFactory;
 pub use crate::api::StdEventFactory;
 
 /// Service name token for the event factory port contract.

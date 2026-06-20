@@ -12,8 +12,8 @@ mod ins;
 pub use errors::{EventError, EventStoreError};
 pub use traits::{Aggregate, DomainEvent, EventBus, EventBootstrap, EventPublisher, EventSource, EventStore};
 pub use types::{
-    ClosedEventSource, DefaultEventFactory, EventBusConfig, EventEnvelope, EventReceiver,
-    ExpectedVersion, InMemoryEventStore, InProcessEventBus, NoopAggregate, NoopDomainEvent,
-    NoopEventBus, NoopEventPublisher, StdEventFactory,
+    ClosedEventSource, EventBusConfig, EventEnvelope, EventReceiver, ExpectedVersion,
+    InMemoryEventStore, InProcessEventBus, NoopAggregate, NoopDomainEvent, NoopEventBus,
+    NoopEventPublisher, StdEventFactory,
 };
 

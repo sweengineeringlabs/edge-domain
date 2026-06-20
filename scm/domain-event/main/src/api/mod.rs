@@ -20,4 +20,3 @@ pub use event::NoopDomainEvent;
 pub use event::NoopEventBus;
 pub use event::NoopEventPublisher;
 pub use event::StdEventFactory;
-pub use event::DefaultEventFactory;
