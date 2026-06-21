@@ -1,7 +1,6 @@
 pub use crate::api::LogDrain;
-pub use crate::api::LogRecord;
 use crate::api::NoopObserve;
-pub use crate::api::StdObserveFactory;
+use crate::api::StdObserveFactory;
 
 /// Service-registry key for [`LogDrain`].
 pub const LOG_DRAIN_SVC: &str = "edge.observe.log_drain";

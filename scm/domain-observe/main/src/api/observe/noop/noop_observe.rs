@@ -6,6 +6,7 @@ use super::super::HandlerTracer;
 use super::super::Histogram;
 use super::super::LogDrain;
 use super::super::MetricRegistry;
+use super::super::ObserveContext;
 use super::super::Span;
 
 /// Factory trait that builds all noop observability primitives from a single type.
@@ -57,6 +58,11 @@ pub trait NoopObserve {
 
     /// Return a noop [`MetricRegistry`] that discards all instruments.
     fn build_noop_metric_registry() -> Box<dyn MetricRegistry>
+    where
+        Self: Sized;
+
+    /// Return a noop [`ObserveContext`] bundling tracer, drain, and metrics.
+    fn build_noop_observe_context() -> Box<dyn ObserveContext>
     where
         Self: Sized;
 }

@@ -1,6 +1,6 @@
 pub use crate::api::MetricRegistry;
 use crate::api::NoopObserve;
-pub use crate::api::StdObserveFactory;
+use crate::api::StdObserveFactory;
 
 /// Service-registry key for [`MetricRegistry`].
 pub const METRIC_REGISTRY_SVC: &str = "edge.observe.metric_registry";

@@ -1,6 +1,5 @@
 pub use crate::api::ObserveBootstrap;
-pub use crate::api::ObserveError;
-pub use crate::api::StdObserveFactory;
+use crate::api::StdObserveFactory;
 
 /// Service-registry key for [`ObserveBootstrap`].
 pub const OBSERVE_FACTORY_SVC: &str = "edge.observe.factory";

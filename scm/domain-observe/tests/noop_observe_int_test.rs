@@ -1,6 +1,6 @@
 use edge_domain_observe::{
-    Counter, Gauge, HandlerTracer, Histogram, LogDrain, MetricRegistry, NoopObserve, Span,
-    StdObserveFactory,
+    Counter, Gauge, HandlerTracer, Histogram, LogDrain, MetricRegistry, NoopObserve,
+    ObserveContext, Span, StdObserveFactory,
 };
 
 // --- build_noop_counter ---
@@ -191,7 +191,10 @@ fn test_noop_observe_methods_return_correct_dyn_types_happy() {
 #[test]
 fn test_noop_name_returns_nonempty_identifier_happy() {
     let name = StdObserveFactory.noop_name();
-    assert!(!name.is_empty(), "noop_name must return a non-empty identifier");
+    assert!(
+        !name.is_empty(),
+        "noop_name must return a non-empty identifier"
+    );
 }
 
 /// @covers: NoopObserve::noop_name
@@ -206,4 +209,29 @@ fn test_noop_name_default_is_stable_error() {
 fn test_noop_name_callable_via_trait_object_edge() {
     let f: &dyn NoopObserve = &StdObserveFactory;
     let _ = f.noop_name();
+}
+
+// --- build_noop_observe_context ---
+
+/// @covers: NoopObserve::build_noop_observe_context
+#[test]
+fn test_build_noop_observe_context_returns_usable_context_happy() {
+    let ctx: Box<dyn ObserveContext> = StdObserveFactory::build_noop_observe_context();
+    ctx.tracer().start_span("h", "op").finish();
+}
+
+/// @covers: NoopObserve::build_noop_observe_context
+#[test]
+fn test_build_noop_observe_context_empty_ids_no_panic_error() {
+    let ctx: Box<dyn ObserveContext> = StdObserveFactory::build_noop_observe_context();
+    ctx.tracer().start_span("", "").finish();
+}
+
+/// @covers: NoopObserve::build_noop_observe_context
+#[test]
+fn test_build_noop_observe_context_multiple_instances_independent_edge() {
+    let a: Box<dyn ObserveContext> = StdObserveFactory::build_noop_observe_context();
+    let b: Box<dyn ObserveContext> = StdObserveFactory::build_noop_observe_context();
+    a.metrics().counter("a").increment(1);
+    b.metrics().counter("b").increment(2);
 }
