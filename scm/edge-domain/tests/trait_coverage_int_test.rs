@@ -133,7 +133,7 @@ struct BadCfg;
 struct GoodCfgHandler {
     _marker: (),
 }
-impl HandlerFactory for GoodCfgHandler {
+impl HandlerBootstrap for GoodCfgHandler {
     type Config = GoodCfg;
     fn build(_: GoodCfg) -> Result<Self, HandlerError> {
         Ok(GoodCfgHandler { _marker: () })
@@ -143,7 +143,7 @@ impl HandlerFactory for GoodCfgHandler {
 struct BadCfgHandler {
     _marker: (),
 }
-impl HandlerFactory for BadCfgHandler {
+impl HandlerBootstrap for BadCfgHandler {
     type Config = BadCfg;
     fn build(_: BadCfg) -> Result<Self, HandlerError> {
         Err(HandlerError::internal("bad config"))
@@ -745,7 +745,7 @@ fn test_pattern_can_be_root_path_edge() {
 }
 
 // ─── build ───────────────────────────────────────────────────────────────────
-// Covers: HandlerFactory::build
+// Covers: HandlerBootstrap::build
 
 #[test]
 fn test_build_valid_config_returns_ok_happy() {
@@ -1200,7 +1200,7 @@ fn test_count_decrements_after_delete_edge() {
 #[test]
 fn test_list_page_returns_first_page_happy() {
     block_on(async {
-        let repo = Domain::new_in_memory_repository::<String, u32>();
+        let repo = InMemoryRepository::<String, u32>::new();
         for i in 0..5u32 {
             repo.save(i, i.to_string()).await.unwrap();
         }
@@ -1213,7 +1213,7 @@ fn test_list_page_returns_first_page_happy() {
 #[test]
 fn test_list_page_offset_beyond_end_returns_empty_items_not_error() {
     block_on(async {
-        let repo = Domain::new_in_memory_repository::<String, u32>();
+        let repo = InMemoryRepository::<String, u32>::new();
         repo.save(1u32, "x".into()).await.unwrap();
         let page = repo.list_page(10, 5).await.unwrap();
         assert!(page.items.is_empty());
@@ -1224,7 +1224,7 @@ fn test_list_page_offset_beyond_end_returns_empty_items_not_error() {
 #[test]
 fn test_list_page_total_equals_full_count_edge() {
     block_on(async {
-        let repo = Domain::new_in_memory_repository::<String, u32>();
+        let repo = InMemoryRepository::<String, u32>::new();
         for i in 0..4u32 {
             repo.save(i, i.to_string()).await.unwrap();
         }

@@ -118,7 +118,8 @@ impl Domain {
     /// assert!(registry.is_empty());
     /// ```
     #[cfg(feature = "handler")]
-    pub fn new_handler_registry<Req, Resp>() -> Arc<dyn HandlerRegistryTrait<Request = Req, Response = Resp>>
+    pub fn new_handler_registry<Req, Resp>(
+    ) -> Arc<dyn HandlerRegistryTrait<Request = Req, Response = Resp>>
     where
         Req: Send + 'static,
         Resp: Send + 'static,
@@ -167,7 +168,8 @@ impl Domain {
 
     /// Construct a thread-safe in-memory [`QueryableRepository`].
     #[cfg(feature = "repository")]
-    pub fn new_in_memory_queryable_repository<T, Id>() -> Arc<dyn QueryableRepository<Entity = T, Id = Id>>
+    pub fn new_in_memory_queryable_repository<T, Id>(
+    ) -> Arc<dyn QueryableRepository<Entity = T, Id = Id>>
     where
         Id: Hash + Eq + Clone + Send + Sync + 'static,
         T: Clone + Send + Sync + 'static,
@@ -319,9 +321,7 @@ impl Domain {
 
     /// Validate a configuration value using its [`Validator`](crate::api::Validator) impl.
     #[cfg(feature = "validator")]
-    pub fn validate_config<V: crate::api::Validator>(
-        config: &V,
-    ) -> Result<(), String> {
+    pub fn validate_config<V: crate::api::Validator>(config: &V) -> Result<(), String> {
         config.validate().map_err(|e| e.to_string())
     }
 }

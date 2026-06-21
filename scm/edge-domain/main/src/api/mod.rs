@@ -2,7 +2,9 @@
 
 // ── domain (never extracted; always internal) ─────────────────────────────────
 mod domain;
-pub use domain::{Domain, DomainBootstrap, DomainError, DomainExtension, NoopDomainExtension, OutboundRegistry};
+pub use domain::{
+    Domain, DomainBootstrap, DomainError, DomainExtension, NoopDomainExtension, OutboundRegistry,
+};
 
 // ── spi ───────────────────────────────────────────────────────────────────────
 mod spi;
@@ -72,9 +74,9 @@ pub use edge_domain_saga::SagaStore;
 
 // ── service ───────────────────────────────────────────────────────────────────
 #[cfg(feature = "service")]
-pub use edge_domain_service::ServiceRegistryImpl as ServiceRegistry;
-#[cfg(feature = "service")]
 pub use edge_domain_service::ServiceRegistry as ServiceRegistryImpl;
+#[cfg(feature = "service")]
+pub use edge_domain_service::ServiceRegistryImpl as ServiceRegistry;
 
 // ── snapshot ──────────────────────────────────────────────────────────────────
 #[cfg(feature = "snapshot")]

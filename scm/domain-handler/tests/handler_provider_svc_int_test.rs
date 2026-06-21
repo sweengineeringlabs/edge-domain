@@ -3,8 +3,11 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
-use edge_domain_handler::{Handler, HandlerContext, HandlerError, HandlerProvider, HandlerRegistry};
+use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+use edge_domain_handler::{
+    Handler, HandlerContext, HandlerError, HandlerProvider, HandlerRegistry,
+};
+use edge_domain_observe::StdObserveFactory;
 use edge_domain_security::SecurityContext;
 use futures::executor::block_on;
 
@@ -25,7 +28,8 @@ fn test_echo_handler_reflects_request_happy() {
     let h = Prov::echo_handler("e", "/");
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
-    let ctx = HandlerContext::new(&security, &bus);
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &bus, observer.as_ref());
     assert_eq!(block_on(h.execute("ping".into(), ctx)).unwrap(), "ping");
 }
 
@@ -53,8 +57,14 @@ fn test_in_process_registry_register_and_retrieve_happy() {
         type Request = String;
         type Response = String;
 
-        fn id(&self) -> &str { "ping" }
-        async fn execute(&self, _req: String, _ctx: HandlerContext<'_>) -> Result<String, HandlerError> {
+        fn id(&self) -> &str {
+            "ping"
+        }
+        async fn execute(
+            &self,
+            _req: String,
+            _ctx: HandlerContext<'_>,
+        ) -> Result<String, HandlerError> {
             Ok("pong".into())
         }
     }
@@ -73,8 +83,14 @@ fn test_in_process_registry_empty_after_deregister_edge() {
         type Request = String;
         type Response = String;
 
-        fn id(&self) -> &str { "tmp" }
-        async fn execute(&self, _req: String, _ctx: HandlerContext<'_>) -> Result<String, HandlerError> {
+        fn id(&self) -> &str {
+            "tmp"
+        }
+        async fn execute(
+            &self,
+            _req: String,
+            _ctx: HandlerContext<'_>,
+        ) -> Result<String, HandlerError> {
             Ok(String::new())
         }
     }

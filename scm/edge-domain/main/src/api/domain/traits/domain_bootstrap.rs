@@ -12,17 +12,26 @@ pub trait DomainBootstrap {
     }
 
     /// Construct the [`Domain`] factory handle.
-    fn domain() -> Domain where Self: Sized {
+    fn domain() -> Domain
+    where
+        Self: Sized,
+    {
         Domain
     }
 
     /// Construct a [`NoopDomainExtension`] placeholder.
-    fn noop_extension() -> NoopDomainExtension where Self: Sized {
+    fn noop_extension() -> NoopDomainExtension
+    where
+        Self: Sized,
+    {
         NoopDomainExtension
     }
 
     /// Construct an empty [`OutboundRegistry`].
-    fn outbound_registry<H: Clone + Send + Sync + 'static>() -> OutboundRegistry<H> where Self: Sized {
+    fn outbound_registry<H: Clone + Send + Sync + 'static>() -> OutboundRegistry<H>
+    where
+        Self: Sized,
+    {
         OutboundRegistry::new()
     }
 }

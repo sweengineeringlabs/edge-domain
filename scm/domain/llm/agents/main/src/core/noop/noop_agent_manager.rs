@@ -44,8 +44,9 @@ impl AgentManager for NoopAgentManager {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+    use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::{Handler, HandlerContext};
+    use edge_domain_observe::StdObserveFactory;
     use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
 
@@ -55,7 +56,8 @@ mod tests {
         let h = NoopAgentManager.agent_handler("review");
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let ctx = HandlerContext::new(&security, &commands);
+        let observer = StdObserveFactory::noop_observe_context();
+        let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         let out = block_on(Handler::execute(&*h, "code".to_string(), ctx)).expect("ok");
         assert_eq!(out, "review:code");
     }
@@ -66,7 +68,8 @@ mod tests {
         let h = NoopAgentManager.agent_handler("review");
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let ctx = HandlerContext::new(&security, &commands);
+        let observer = StdObserveFactory::noop_observe_context();
+        let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         assert!(block_on(Handler::execute(&*h, String::new(), ctx)).is_err());
     }
 
@@ -76,7 +79,8 @@ mod tests {
         let h = NoopAgentManager.agent_handler("");
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let ctx = HandlerContext::new(&security, &commands);
+        let observer = StdObserveFactory::noop_observe_context();
+        let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         let out = block_on(Handler::execute(&*h, "x".to_string(), ctx)).expect("ok");
         assert_eq!(out, ":x");
     }

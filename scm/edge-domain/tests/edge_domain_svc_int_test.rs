@@ -32,7 +32,8 @@ fn test_new_in_memory_repository_returns_arc_repository() {
 /// @covers: new_in_memory_queryable_repository
 #[test]
 fn test_new_in_memory_queryable_repository_returns_arc_queryable_repository() {
-    let _: Arc<dyn QueryableRepository<Entity = String, Id = u32>> = Domain::new_in_memory_queryable_repository();
+    let _: Arc<dyn QueryableRepository<Entity = String, Id = u32>> =
+        Domain::new_in_memory_queryable_repository();
 }
 
 /// @covers: new_in_memory_repository

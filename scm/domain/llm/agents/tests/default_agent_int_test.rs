@@ -9,7 +9,7 @@ use edge_llm_agent::{
     AgentError, AgentManager, NoopAgentManager, Skill, SkillMetadata, DEFAULT_AGENT_SVC,
 };
 use edge_llm_provider::{
-    EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, ProviderFactory, StdProviderFactory,
+    EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, ProviderBootstrap, StdProviderFactory,
 };
 use futures::executor::block_on;
 

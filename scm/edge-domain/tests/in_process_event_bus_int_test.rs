@@ -41,7 +41,10 @@ fn test_in_process_event_bus_publish_no_subscribers_returns_ok_error() {
         let bus = Domain::in_process_event_bus(EventBusConfig::default());
         // No subscriber — dropped immediately. Publish must not error.
         let result = bus.publish(Arc::new(AnyEvent)).await;
-        assert!(result.is_ok(), "publish with no active subscribers must return Ok");
+        assert!(
+            result.is_ok(),
+            "publish with no active subscribers must return Ok"
+        );
     });
 }
 

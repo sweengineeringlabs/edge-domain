@@ -5,7 +5,7 @@ use async_trait::async_trait;
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
 use edge_llm_agent::{Agent, AgentError, AgentManager, Skill};
 use edge_llm_provider::{
-    EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, ProviderFactory, StdProviderFactory,
+    EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, ProviderBootstrap, StdProviderFactory,
 };
 use std::sync::Arc;
 

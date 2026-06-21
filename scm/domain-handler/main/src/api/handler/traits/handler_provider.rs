@@ -8,15 +8,23 @@ use crate::api::handler::types::noop_handler_factory::NoopHandlerFactory;
 /// callers to name concrete types from `core/`.
 pub trait HandlerProvider {
     /// Returns a stable, non-empty identifier for this provider.
-    fn bootstrap_name(&self) -> &'static str { "handler_provider" }
+    fn bootstrap_name(&self) -> &'static str {
+        "handler_provider"
+    }
 
     /// Construct an [`EchoHandler`] that reflects `String` requests back as responses.
-    fn echo_handler(id: &str, pattern: &str) -> EchoHandler<String> where Self: Sized {
+    fn echo_handler(id: &str, pattern: &str) -> EchoHandler<String>
+    where
+        Self: Sized,
+    {
         EchoHandler::new(id, pattern)
     }
 
     /// Construct a [`NoopHandlerFactory`] for use in tests and structural compliance.
-    fn noop_handler_factory() -> NoopHandlerFactory where Self: Sized {
+    fn noop_handler_factory() -> NoopHandlerFactory
+    where
+        Self: Sized,
+    {
         NoopHandlerFactory
     }
 

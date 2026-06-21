@@ -46,7 +46,8 @@ impl Handler for DefaultProviderHandler {
 mod tests {
     use super::*;
     use crate::api::{EchoExecutionModel, ExecutionConfig, ExecutionMode};
-    use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+    use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+    use edge_domain_observe::StdObserveFactory;
     use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
 
@@ -61,7 +62,8 @@ mod tests {
     fn test_execute_returns_reasoning_containing_goal_happy() {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let ctx = HandlerContext::new(&security, &commands);
+        let observer = StdObserveFactory::noop_observe_context();
+        let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         let out = block_on(Handler::execute(&handler(), "ship it".to_string(), ctx))
             .expect("handler ok");
         assert!(out.reasoning.contains("ship it"));

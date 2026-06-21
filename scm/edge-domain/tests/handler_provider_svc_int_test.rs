@@ -52,4 +52,3 @@ fn test_in_process_registry_independent_calls_edge() {
     let _a = TestHandlers::in_process_registry::<String, String>();
     let _b = TestHandlers::in_process_registry::<String, String>();
 }
-

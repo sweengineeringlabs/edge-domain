@@ -1,6 +1,6 @@
 //! Integration tests — `HandlerBootstrap` trait.
 
-use edge_domain_handler::{HandlerError, HandlerBootstrap};
+use edge_domain_handler::{HandlerBootstrap, HandlerError};
 
 struct Cfg {
     name: String,

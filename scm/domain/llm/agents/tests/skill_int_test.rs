@@ -2,8 +2,9 @@
 //! Integration tests — `Skill` trait.
 
 use async_trait::async_trait;
-use edge_domain_command::CommandBusFactory;
+use edge_domain_command::CommandBusBootstrap;
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
+use edge_domain_observe::StdObserveFactory;
 use edge_llm_agent::{ContentPart, MessageContent, Parameter, Skill, SkillMetadata};
 
 struct TestSkill {
@@ -167,7 +168,8 @@ fn test_trait_skill_happy_execute_processes_request() {
     let skill = TestSkill { should_fail: false };
     let security = edge_domain_security::SecurityContext::unauthenticated();
     let bus = edge_domain_command::StdCommandBusFactory::direct();
-    let ctx = HandlerContext::new(&security, &bus);
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &bus, observer.as_ref());
     let result = futures::executor::block_on(skill.execute("input".to_string(), ctx));
     assert!(result.is_ok());
     assert_eq!(result.unwrap(), "processed: input");
@@ -179,7 +181,8 @@ fn test_trait_skill_error_execute_failure_propagates() {
     let skill = TestSkill { should_fail: true };
     let security = edge_domain_security::SecurityContext::unauthenticated();
     let bus = edge_domain_command::StdCommandBusFactory::direct();
-    let ctx = HandlerContext::new(&security, &bus);
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &bus, observer.as_ref());
     let result = futures::executor::block_on(skill.execute("input".to_string(), ctx));
     assert!(result.is_err());
 }

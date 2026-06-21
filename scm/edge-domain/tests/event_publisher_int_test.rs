@@ -29,7 +29,7 @@ struct CountingPublisher {
 }
 
 impl EventPublisher for CountingPublisher {
-    fn publish<'a>(&'a self, _event: &'a dyn DomainEvent) -> BoxFuture<'a, Result<(), EventError>> {
+    fn publish(&self, _event: &dyn DomainEvent) -> BoxFuture<'_, Result<(), EventError>> {
         self.count.fetch_add(1, Ordering::SeqCst);
         Box::pin(async { Ok(()) })
     }
@@ -38,7 +38,7 @@ impl EventPublisher for CountingPublisher {
 struct FailingPublisher;
 
 impl EventPublisher for FailingPublisher {
-    fn publish<'a>(&'a self, _event: &'a dyn DomainEvent) -> BoxFuture<'a, Result<(), EventError>> {
+    fn publish(&self, _event: &dyn DomainEvent) -> BoxFuture<'_, Result<(), EventError>> {
         Box::pin(async { Err(EventError::Unavailable("bus down".into())) })
     }
 }

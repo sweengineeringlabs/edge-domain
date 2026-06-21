@@ -5,13 +5,15 @@
 
 use edge_domain::*;
 use edge_domain_handler::HandlerContext;
+use edge_domain_observe::StdObserveFactory;
 use edge_domain_security::SecurityContext;
 use std::sync::Arc;
 
 /// @covers: echo_handler
 #[test]
 fn test_echo_handler() {
-    let _: Arc<dyn edge_domain::Handler<Request = String, Response = String>> = Domain::echo_handler("id", "/path");
+    let _: Arc<dyn edge_domain::Handler<Request = String, Response = String>> =
+        Domain::echo_handler("id", "/path");
 }
 
 /// @covers: echo_handler
@@ -20,7 +22,8 @@ async fn test_echo_handler_returns_input_as_output() {
     let h = Domain::echo_handler::<String>("echo", "/echo");
     let security = SecurityContext::unauthenticated();
     let bus = Domain::direct_command_bus();
-    let ctx = HandlerContext::new(&security, bus.as_ref());
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, bus.as_ref(), observer.as_ref());
     assert_eq!(h.execute("ping".into(), ctx).await.unwrap(), "ping");
 }
 
@@ -41,7 +44,8 @@ fn test_new_service_registry_returns_empty_registry() {
 /// @covers: new_in_memory_repository
 #[test]
 fn test_new_in_memory_repository() {
-    let _: Arc<dyn edge_domain::Repository<Entity = String, Id = u32>> = Domain::new_in_memory_repository();
+    let _: Arc<dyn edge_domain::Repository<Entity = String, Id = u32>> =
+        Domain::new_in_memory_repository();
 }
 
 /// @covers: new_in_memory_queryable_repository
@@ -69,7 +73,8 @@ async fn test_new_in_memory_queryable_repository_returns_functional_store() {
 /// @covers: new_in_memory_repository
 #[tokio::test]
 async fn test_new_in_memory_repository_saves_and_finds_entity() {
-    let repo: Arc<dyn edge_domain::Repository<Entity = String, Id = u32>> = Domain::new_in_memory_repository::<String, u32>();
+    let repo: Arc<dyn edge_domain::Repository<Entity = String, Id = u32>> =
+        Domain::new_in_memory_repository::<String, u32>();
     repo.save(1u32, "x".to_string()).await.unwrap();
     assert!(repo.find(&1u32).await.unwrap().is_some());
 }
@@ -197,7 +202,8 @@ fn test_reconstitute_returns_none_for_unknown_id() {
             &self.id
         }
     }
-    let store: Arc<dyn edge_domain::EventStore<Event = AnyEvent>> = Domain::new_in_memory_event_store::<AnyEvent>();
+    let store: Arc<dyn edge_domain::EventStore<Event = AnyEvent>> =
+        Domain::new_in_memory_event_store::<AnyEvent>();
     let result = rt
         .block_on(Domain::reconstitute::<AnyAgg>(&*store, "none"))
         .unwrap();

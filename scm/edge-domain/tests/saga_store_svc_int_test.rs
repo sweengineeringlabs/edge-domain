@@ -95,10 +95,8 @@ fn test_register_duplicate_id_returns_already_registered_error() {
 #[test]
 fn test_register_distinct_ids_are_independent_edge() {
     let mut s = store();
-    s.register("a".to_string(), CounterSaga::default())
-        .unwrap();
-    s.register("b".to_string(), CounterSaga::default())
-        .unwrap();
+    s.register("a".to_string(), CounterSaga::default()).unwrap();
+    s.register("b".to_string(), CounterSaga::default()).unwrap();
     assert!(s.get(&"a".to_string()).is_ok());
     assert!(s.get(&"b".to_string()).is_ok());
 }

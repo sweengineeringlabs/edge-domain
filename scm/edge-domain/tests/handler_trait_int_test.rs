@@ -5,6 +5,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use edge_domain::{Domain, Handler, HandlerContext, HandlerError};
+use edge_domain_observe::{ObserveContext, StdObserveFactory};
 use edge_domain_security::SecurityContext;
 
 struct Counter {
@@ -47,8 +48,12 @@ impl Handler for SickHandler {
     }
 }
 
-fn make_ctx<'a>(security: &'a SecurityContext, bus: &'a Arc<dyn edge_domain::CommandBus>) -> HandlerContext<'a> {
-    HandlerContext::new(security, bus.as_ref())
+fn make_ctx<'a>(
+    security: &'a SecurityContext,
+    bus: &'a Arc<dyn edge_domain::CommandBus>,
+    observer: &'a dyn ObserveContext,
+) -> HandlerContext<'a> {
+    HandlerContext::new(security, bus.as_ref(), observer)
 }
 
 /// @covers: Handler::execute
@@ -60,7 +65,11 @@ async fn test_handler_trait_execute_returns_transformed_value() {
     };
     let security = SecurityContext::unauthenticated();
     let bus = Domain::direct_command_bus();
-    let result = h.execute(21, make_ctx(&security, &bus)).await.unwrap();
+    let observer = StdObserveFactory::noop_observe_context();
+    let result = h
+        .execute(21, make_ctx(&security, &bus, observer.as_ref()))
+        .await
+        .unwrap();
     assert_eq!(result, 42);
 }
 

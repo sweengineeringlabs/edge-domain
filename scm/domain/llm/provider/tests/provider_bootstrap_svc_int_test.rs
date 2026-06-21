@@ -1,8 +1,9 @@
 //! SAF service tests — `provider_handler` and `default_provider_handler` factory methods.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{Handler, HandlerContext};
+use edge_domain_observe::StdObserveFactory;
 use edge_domain_security::SecurityContext;
 use edge_llm_provider::{
     EchoExecutionModel, ExecutionConfig, ExecutionMode, StdProviderFactory,
@@ -23,7 +24,8 @@ fn test_provider_handler_executes_step_happy() {
     let h = StdProviderFactory::provider_handler(model);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext::new(&security, &commands);
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let out = block_on(Handler::execute(&h, "hello".to_string(), ctx)).expect("ok");
     assert!(!out.reasoning.is_empty());
 }
@@ -35,7 +37,8 @@ fn test_provider_handler_zero_budget_error() {
     let h = StdProviderFactory::provider_handler(model);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext::new(&security, &commands);
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     assert!(block_on(Handler::execute(&h, "hello".to_string(), ctx)).is_err());
 }
 
@@ -55,7 +58,8 @@ fn test_default_provider_handler_runs_happy() {
     let h = StdProviderFactory::default_provider_handler(make_config(4096));
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext::new(&security, &commands);
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let out = block_on(Handler::execute(&h, "prompt".to_string(), ctx)).expect("ok");
     assert!(!out.reasoning.is_empty());
 }
@@ -66,7 +70,8 @@ fn test_default_provider_handler_zero_budget_error() {
     let h = StdProviderFactory::default_provider_handler(make_config(0));
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext::new(&security, &commands);
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     assert!(block_on(Handler::execute(&h, "prompt".to_string(), ctx)).is_err());
 }
 

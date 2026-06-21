@@ -17,15 +17,17 @@ use serde_json::json;
 /// @covers: default_provider_handler — builds a usable Handler
 #[test]
 fn test_default_provider_handler_runs_happy() {
-    use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+    use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::{Handler, HandlerContext};
+    use edge_domain_observe::StdObserveFactory;
     use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
     let config = ExecutionConfig::new(4096, 30_000, true, false, ExecutionMode::Async);
     let h = StdProviderFactory::default_provider_handler(config);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext::new(&security, &commands);
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let out = block_on(Handler::execute(&h, "go".to_string(), ctx)).expect("ok");
     assert!(out.reasoning.contains("go"));
 }
@@ -33,15 +35,17 @@ fn test_default_provider_handler_runs_happy() {
 /// @covers: default_provider_handler — zero-budget config surfaces an error through the pipeline
 #[test]
 fn test_default_provider_handler_zero_budget_errors_error() {
-    use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+    use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::{Handler, HandlerContext};
+    use edge_domain_observe::StdObserveFactory;
     use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
     let config = ExecutionConfig::new(0, 30_000, true, false, ExecutionMode::Async);
     let h = StdProviderFactory::default_provider_handler(config);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext::new(&security, &commands);
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     assert!(block_on(Handler::execute(&h, "go".to_string(), ctx)).is_err());
 }
 

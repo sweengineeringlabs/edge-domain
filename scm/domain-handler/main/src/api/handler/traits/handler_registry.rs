@@ -55,7 +55,11 @@ mod tests {
         fn id(&self) -> &str {
             "noop"
         }
-        async fn execute(&self, req: String, _ctx: crate::api::handler::types::HandlerContext<'_>) -> Result<String, HandlerError> {
+        async fn execute(
+            &self,
+            req: String,
+            _ctx: crate::api::handler::types::HandlerContext<'_>,
+        ) -> Result<String, HandlerError> {
             Ok(req)
         }
     }
@@ -81,10 +85,7 @@ mod tests {
         type Request = String;
         type Response = String;
 
-        fn register(
-            &self,
-            handler: Arc<dyn Handler<Request = String, Response = String>>,
-        ) {
+        fn register(&self, handler: Arc<dyn Handler<Request = String, Response = String>>) {
             self.handlers
                 .write()
                 .insert(handler.id().to_string(), handler);
@@ -92,10 +93,7 @@ mod tests {
         fn deregister(&self, id: &str) -> bool {
             self.handlers.write().remove(id).is_some()
         }
-        fn get(
-            &self,
-            id: &str,
-        ) -> Option<Arc<dyn Handler<Request = String, Response = String>>> {
+        fn get(&self, id: &str) -> Option<Arc<dyn Handler<Request = String, Response = String>>> {
             self.handlers.read().get(id).cloned()
         }
         fn list_ids(&self) -> Vec<String> {

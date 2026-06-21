@@ -74,7 +74,10 @@ struct DirectQueryBus;
 
 impl QueryBus for DirectQueryBus {
     type Result = String;
-    fn dispatch(&self, query: Box<dyn Query<Result = String>>) -> BoxFuture<'_, Result<String, QueryError>> {
+    fn dispatch(
+        &self,
+        query: Box<dyn Query<Result = String>>,
+    ) -> BoxFuture<'_, Result<String, QueryError>> {
         Box::pin(async move { query.execute().await })
     }
 }

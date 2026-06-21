@@ -43,7 +43,8 @@ impl Saga for PulseSaga {
 fn test_in_memory_saga_store_stores_and_retrieves_saga() {
     let mut store: Box<dyn SagaStore<SagaInstance = PulseSaga>> =
         Domain::new_in_memory_saga_store::<PulseSaga>();
-    store.register("p1".to_string(), PulseSaga::default())
+    store
+        .register("p1".to_string(), PulseSaga::default())
         .unwrap();
     let saga = store.get(&"p1".to_string()).unwrap();
     assert!(!saga.is_complete());
@@ -54,10 +55,12 @@ fn test_in_memory_saga_store_stores_and_retrieves_saga() {
 fn test_in_memory_saga_store_rejects_duplicate_registration() {
     let mut store: Box<dyn SagaStore<SagaInstance = PulseSaga>> =
         Domain::new_in_memory_saga_store::<PulseSaga>();
-    store.register("p1".to_string(), PulseSaga::default())
+    store
+        .register("p1".to_string(), PulseSaga::default())
         .unwrap();
     assert_eq!(
-        store.register("p1".to_string(), PulseSaga::default())
+        store
+            .register("p1".to_string(), PulseSaga::default())
             .unwrap_err(),
         SagaError::AlreadyRegistered("p1".to_string())
     );
@@ -66,7 +69,8 @@ fn test_in_memory_saga_store_rejects_duplicate_registration() {
 /// @covers: new_in_memory_saga_store
 #[test]
 fn test_in_memory_saga_store_lookup_of_unknown_id_is_not_found() {
-    let store: Box<dyn SagaStore<SagaInstance = PulseSaga>> = Domain::new_in_memory_saga_store::<PulseSaga>();
+    let store: Box<dyn SagaStore<SagaInstance = PulseSaga>> =
+        Domain::new_in_memory_saga_store::<PulseSaga>();
     assert_eq!(
         store.get(&"unknown".to_string()).unwrap_err(),
         SagaError::NotFound("unknown".to_string())

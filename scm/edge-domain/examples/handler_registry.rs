@@ -13,6 +13,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use edge_domain::{Domain, Handler, HandlerContext, HandlerError};
+use edge_domain_observe::StdObserveFactory;
 use edge_domain_security::SecurityContext;
 
 struct GreetHandler;
@@ -50,7 +51,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let handler = registry.get("greet").expect("handler must be present");
     let security = SecurityContext::unauthenticated();
     let bus = Domain::direct_command_bus();
-    let ctx = HandlerContext::new(&security, bus.as_ref());
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, bus.as_ref(), observer.as_ref());
 
     let resp = handler.execute("world".into(), ctx).await?;
     println!("execute       → {resp}");

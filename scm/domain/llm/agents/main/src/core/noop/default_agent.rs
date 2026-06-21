@@ -5,6 +5,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::HandlerContext;
+use edge_domain_observe::StdObserveFactory;
 use edge_domain_security::SecurityContext;
 use edge_llm_provider::Provider;
 
@@ -77,7 +78,8 @@ impl Agent for DefaultAgent {
             .ok_or_else(|| AgentError::SkillNotFound(skill_name.to_string()))?;
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let ctx = HandlerContext::new(&security, &commands);
+        let observer = StdObserveFactory::noop_observe_context();
+        let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         skill
             .execute(input, ctx)
             .await

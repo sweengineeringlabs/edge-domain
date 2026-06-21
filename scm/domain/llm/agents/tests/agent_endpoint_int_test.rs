@@ -4,12 +4,13 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
+use edge_domain_observe::StdObserveFactory;
 use edge_domain_security::SecurityContext;
 use edge_llm_agent::{AgentError, AgentManager, NoopAgentManager, Skill, SkillMetadata};
 use edge_llm_provider::{
-    EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, ProviderFactory, StdProviderFactory,
+    EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, ProviderBootstrap, StdProviderFactory,
 };
 use futures::executor::block_on;
 
@@ -70,7 +71,8 @@ fn test_agent_handler_routes_input_to_named_skill_happy() {
     let h = NoopAgentManager.agent_handler("code_review");
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext::new(&security, &commands);
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let out = block_on(Handler::execute(&*h, "diff".to_string(), ctx)).expect("handler ok");
     assert_eq!(out, "code_review:diff");
 }
@@ -81,7 +83,8 @@ fn test_agent_handler_empty_input_returns_error() {
     let h = NoopAgentManager.agent_handler("code_review");
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext::new(&security, &commands);
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     assert!(block_on(Handler::execute(&*h, String::new(), ctx)).is_err());
 }
 
@@ -99,7 +102,8 @@ fn test_agent_handler_targets_different_skill_names_happy() {
     let h = NoopAgentManager.agent_handler("planning");
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext::new(&security, &commands);
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let out = block_on(Handler::execute(&*h, "a task".to_string(), ctx)).expect("ok");
     assert_eq!(out, "planning:a task");
 }
@@ -110,7 +114,8 @@ fn test_agent_handler_empty_skill_name_preserved_edge() {
     let h = NoopAgentManager.agent_handler("");
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext::new(&security, &commands);
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let out = block_on(Handler::execute(&*h, "input".to_string(), ctx)).expect("ok");
     assert_eq!(out, ":input");
 }

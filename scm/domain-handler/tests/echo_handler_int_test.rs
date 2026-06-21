@@ -2,13 +2,18 @@
 
 use std::sync::Arc;
 
-use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{EchoHandler, Handler, HandlerContext};
+use edge_domain_observe::{ObserveContext, StdObserveFactory};
 use edge_domain_security::SecurityContext;
 use futures::executor::block_on;
 
-fn unauth_ctx<'a>(security: &'a SecurityContext, bus: &'a dyn edge_domain_command::CommandBus) -> HandlerContext<'a> {
-    HandlerContext::new(security, bus)
+fn unauth_ctx<'a>(
+    security: &'a SecurityContext,
+    bus: &'a dyn edge_domain_command::CommandBus,
+    observer: &'a dyn ObserveContext,
+) -> HandlerContext<'a> {
+    HandlerContext::new(security, bus, observer)
 }
 
 /// @covers: EchoHandler::execute — returns request unchanged
@@ -17,7 +22,8 @@ fn test_execute_returns_request_unchanged_happy() {
     let h = EchoHandler::<String>::new("echo", "/");
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
-    let ctx = unauth_ctx(&security, &bus);
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = unauth_ctx(&security, &bus, observer.as_ref());
     assert_eq!(block_on(h.execute("hello".into(), ctx)).unwrap(), "hello");
 }
 
@@ -41,7 +47,8 @@ fn test_execute_empty_string_returns_empty_string_edge() {
     let h = EchoHandler::<String>::new("e", "/");
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
-    let ctx = unauth_ctx(&security, &bus);
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = unauth_ctx(&security, &bus, observer.as_ref());
     assert_eq!(block_on(h.execute("".into(), ctx)).unwrap(), "");
 }
 
@@ -58,7 +65,8 @@ fn test_execute_with_security_context_returns_same_value_happy() {
     let h = EchoHandler::<String>::new("e", "/");
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
-    let ctx = unauth_ctx(&security, &bus);
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = unauth_ctx(&security, &bus, observer.as_ref());
     assert_eq!(block_on(h.execute("world".into(), ctx)).unwrap(), "world");
 }
 
@@ -69,6 +77,10 @@ fn test_echo_handler_usable_as_dyn_handler_edge() {
         Arc::new(EchoHandler::new("dyn", "/"));
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
-    let ctx = unauth_ctx(&security, &bus);
-    assert_eq!(block_on(h.execute("dyn-test".into(), ctx)).unwrap(), "dyn-test");
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = unauth_ctx(&security, &bus, observer.as_ref());
+    assert_eq!(
+        block_on(h.execute("dyn-test".into(), ctx)).unwrap(),
+        "dyn-test"
+    );
 }

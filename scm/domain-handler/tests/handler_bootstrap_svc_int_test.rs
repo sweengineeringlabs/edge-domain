@@ -7,7 +7,10 @@ use edge_domain_handler::{HandlerBootstrap, NoopHandlerFactory};
 #[test]
 fn test_bootstrap_name_returns_nonempty_string_happy() {
     let f = NoopHandlerFactory;
-    assert!(!f.bootstrap_name().is_empty(), "bootstrap_name must return a non-empty identifier");
+    assert!(
+        !f.bootstrap_name().is_empty(),
+        "bootstrap_name must return a non-empty identifier"
+    );
 }
 
 /// @covers: HandlerBootstrap::bootstrap_name

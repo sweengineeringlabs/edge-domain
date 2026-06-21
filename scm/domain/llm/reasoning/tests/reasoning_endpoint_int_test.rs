@@ -3,6 +3,7 @@
 
 use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{Handler, HandlerContext};
+use edge_domain_observe::StdObserveFactory;
 use edge_domain_security::SecurityContext;
 use edge_llm_reasoning::{StdReasoningFactory, ReasoningPattern};
 use futures::executor::block_on;
@@ -13,7 +14,8 @@ fn test_handler_execute_returns_complete_process_happy() {
     let h = StdReasoningFactory::default_reasoning_handler(ReasoningPattern::ChainOfThought);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext::new(&security, &commands);
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let out = block_on(Handler::execute(&h, "solve x".to_string(), ctx)).expect("handler ok");
     assert!(out.is_complete);
     assert_eq!(out.step_count(), 3);
@@ -39,6 +41,7 @@ fn test_handler_execute_blank_problem_errors_error() {
     let h = StdReasoningFactory::default_reasoning_handler(ReasoningPattern::ChainOfThought);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext::new(&security, &commands);
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     assert!(block_on(Handler::execute(&h, "   ".to_string(), ctx)).is_err());
 }

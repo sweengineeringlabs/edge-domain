@@ -51,6 +51,7 @@ mod tests {
     use super::*;
     use crate::api::{PromptMetadata, StaticPrompt, Variable, VariableType};
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+    use edge_domain_observe::StdObserveFactory;
     use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
 
@@ -71,7 +72,8 @@ mod tests {
     fn test_handler_execute_renders_template_happy() {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let ctx = HandlerContext::new(&security, &commands);
+        let observer = StdObserveFactory::noop_observe_context();
+        let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         let context = RenderContext::new().with_variable("name".to_string(), serde_json::json!("Ada"));
         let out = block_on(Handler::execute(&handler(), context, ctx)).expect("handler ok");
         assert_eq!(out, "Hello Ada");
@@ -91,7 +93,8 @@ mod tests {
     fn test_handler_execute_missing_variable_error() {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let ctx = HandlerContext::new(&security, &commands);
+        let observer = StdObserveFactory::noop_observe_context();
+        let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         let empty_ctx = RenderContext::new();
         let result = block_on(Handler::execute(&handler(), empty_ctx, ctx));
         assert!(result.is_err());

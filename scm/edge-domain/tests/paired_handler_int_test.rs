@@ -4,6 +4,7 @@
 use std::sync::Arc;
 
 use edge_domain::{Domain, HandlerContext, HandlerError, Repository};
+use edge_domain_observe::StdObserveFactory;
 use edge_domain_security::SecurityContext;
 
 struct WriteHandler {
@@ -70,7 +71,8 @@ async fn test_domain_echo_handler_returns_input_unchanged() {
     let h = Domain::echo_handler::<String>("e", "/e");
     let security = SecurityContext::unauthenticated();
     let bus = Domain::direct_command_bus();
-    let ctx = HandlerContext::new(&security, bus.as_ref());
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, bus.as_ref(), observer.as_ref());
     let result = h.execute("hello".to_string(), ctx).await;
     assert_eq!(result.unwrap(), "hello");
 }

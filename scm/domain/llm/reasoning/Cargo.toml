@@ -21,7 +21,8 @@ path = "main/src/lib.rs"
 thiserror.workspace = true
 async-trait.workspace = true
 serde.workspace = true
-edge-domain-handler.workspace = true
+edge-domain-handler.workspace  = true
+edge-domain-observe.workspace  = true
 
 [dev-dependencies]
 serde_json.workspace = true

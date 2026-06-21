@@ -12,9 +12,9 @@ mod saf;
 
 pub use saf::EchoHandler;
 pub use saf::Handler;
+pub use saf::HandlerBootstrap;
 pub use saf::HandlerContext;
 pub use saf::HandlerError;
-pub use saf::HandlerBootstrap;
 pub use saf::HandlerProvider;
 pub use saf::HandlerRegistry;
 pub use saf::InProcessHandlerRegistry;

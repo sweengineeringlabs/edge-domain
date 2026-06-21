@@ -41,7 +41,8 @@ impl Skill for NoopSkill {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use edge_domain_command::CommandBusFactory;
+    use edge_domain_command::CommandBusBootstrap;
+    use edge_domain_observe::StdObserveFactory;
 
     #[test]
     fn test_noop_skill_happy_name_returns_noop() {
@@ -57,7 +58,8 @@ mod tests {
     fn test_noop_skill_error_execute_returns_error() {
         let security = edge_domain_security::SecurityContext::unauthenticated();
         let bus = edge_domain_command::StdCommandBusFactory::direct();
-        let ctx = HandlerContext::new(&security, &bus);
+        let observer = StdObserveFactory::noop_observe_context();
+        let ctx = HandlerContext::new(&security, &bus, observer.as_ref());
         let result = futures::executor::block_on(NoopSkill.execute("input".to_string(), ctx));
         assert!(result.is_err());
     }

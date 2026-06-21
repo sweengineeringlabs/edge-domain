@@ -3,6 +3,7 @@
 
 use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{Handler, HandlerContext};
+use edge_domain_observe::StdObserveFactory;
 use edge_domain_security::SecurityContext;
 use edge_llm_prompt::{StdPromptFactory, PromptMetadata, RenderContext, Variable, VariableType};
 use futures::executor::block_on;
@@ -24,7 +25,8 @@ fn test_handler_execute_renders_template_happy() {
     let h = make_handler();
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let hctx = HandlerContext::new(&security, &commands);
+    let observer = StdObserveFactory::noop_observe_context();
+    let hctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let context = RenderContext::new().with_variable("name".to_string(), serde_json::json!("Ada"));
     let out = block_on(Handler::execute(&h, context, hctx)).expect("handler ok");
     assert_eq!(out, "Hello Ada");
@@ -50,7 +52,8 @@ fn test_handler_execute_missing_variable_errors_error() {
     let h = make_handler();
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let hctx = HandlerContext::new(&security, &commands);
+    let observer = StdObserveFactory::noop_observe_context();
+    let hctx = HandlerContext::new(&security, &commands, observer.as_ref());
     assert!(block_on(Handler::execute(&h, RenderContext::new(), hctx)).is_err());
 }
 
@@ -60,7 +63,8 @@ fn test_factory_handler_renders_through_handler_happy() {
     let h = make_handler();
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let hctx = HandlerContext::new(&security, &commands);
+    let observer = StdObserveFactory::noop_observe_context();
+    let hctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let context = RenderContext::new().with_variable("name".to_string(), serde_json::json!("Ada"));
     let out = block_on(Handler::execute(&h, context, hctx)).expect("ok");
     assert_eq!(out, "Hello Ada");

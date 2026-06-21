@@ -49,6 +49,7 @@ mod tests {
     use super::*;
     use crate::api::LinearReasoning;
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+    use edge_domain_observe::StdObserveFactory;
     use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
 
@@ -62,7 +63,8 @@ mod tests {
     fn test_handler_execute_returns_complete_process_happy() {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let ctx = HandlerContext::new(&security, &commands);
+        let observer = StdObserveFactory::noop_observe_context();
+        let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         let out = block_on(Handler::execute(&handler(), "solve x".to_string(), ctx))
             .expect("handler ok");
         assert!(out.is_complete);
@@ -83,7 +85,8 @@ mod tests {
     fn test_handler_execute_blank_problem_error() {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let ctx = HandlerContext::new(&security, &commands);
+        let observer = StdObserveFactory::noop_observe_context();
+        let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         let result = block_on(Handler::execute(&handler(), "   ".to_string(), ctx));
         assert!(result.is_err());
     }

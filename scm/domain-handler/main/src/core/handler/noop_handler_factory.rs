@@ -1,7 +1,7 @@
 //! `impl HandlerBootstrap for NoopHandlerFactory` — structural compliance impl.
 
-use crate::api::HandlerError;
 use crate::api::HandlerBootstrap;
+use crate::api::HandlerError;
 use crate::api::NoopHandlerFactory;
 
 impl HandlerBootstrap for NoopHandlerFactory {

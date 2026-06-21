@@ -41,7 +41,8 @@ impl Handler for DefaultAgentHandler {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+    use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+    use edge_domain_observe::StdObserveFactory;
     use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
 
@@ -55,7 +56,8 @@ mod tests {
     fn test_handler_execute_returns_skill_colon_input_happy() {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let ctx = HandlerContext::new(&security, &commands);
+        let observer = StdObserveFactory::noop_observe_context();
+        let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         let out =
             block_on(Handler::execute(&handler(), "diff".to_string(), ctx)).expect("handler ok");
         assert_eq!(out, "code_review:diff");
@@ -75,7 +77,8 @@ mod tests {
     fn test_handler_execute_empty_input_error() {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let ctx = HandlerContext::new(&security, &commands);
+        let observer = StdObserveFactory::noop_observe_context();
+        let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         let result = block_on(Handler::execute(&handler(), String::new(), ctx));
         assert!(result.is_err());
     }

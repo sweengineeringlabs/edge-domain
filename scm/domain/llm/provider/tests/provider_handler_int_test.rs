@@ -1,8 +1,9 @@
 //! Handler integration tests — `provider_handler` as a dispatchable `Handler`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{Handler, HandlerContext};
+use edge_domain_observe::StdObserveFactory;
 use edge_domain_security::SecurityContext;
 use edge_llm_provider::{StdProviderFactory, ExecutionConfig, ExecutionMode};
 use futures::executor::block_on;
@@ -17,7 +18,8 @@ fn test_handler_execute_runs_core_happy() {
     let h = StdProviderFactory::default_provider_handler(make_config());
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let ctx = HandlerContext::new(&security, &commands);
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let out = block_on(Handler::execute(&h, "ship it".to_string(), ctx)).expect("handler ok");
     assert!(out.reasoning.contains("ship it"));
 }

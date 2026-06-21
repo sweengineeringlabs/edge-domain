@@ -3,8 +3,11 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
-use edge_domain_handler::{Handler, HandlerContext, HandlerError, HandlerRegistry, InProcessHandlerRegistry};
+use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+use edge_domain_handler::{
+    Handler, HandlerContext, HandlerError, HandlerRegistry, InProcessHandlerRegistry,
+};
+use edge_domain_observe::StdObserveFactory;
 use edge_domain_security::SecurityContext;
 use futures::executor::block_on;
 
@@ -17,7 +20,9 @@ impl Handler for Fixed {
     type Request = String;
     type Response = String;
 
-    fn id(&self) -> &str { self.id }
+    fn id(&self) -> &str {
+        self.id
+    }
     async fn execute(&self, req: String, _ctx: HandlerContext<'_>) -> Result<String, HandlerError> {
         Ok(req)
     }
@@ -111,7 +116,8 @@ fn test_retrieved_handler_executes_correctly_happy() {
     let h = reg.get("exec").unwrap();
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
-    let ctx = HandlerContext::new(&security, &bus);
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &bus, observer.as_ref());
     assert_eq!(block_on(h.execute("data".into(), ctx)).unwrap(), "data");
 }
 

@@ -1,19 +1,19 @@
-//! Integration tests for the `RepositoryFactory` SAF facade.
+//! Integration tests for the `RepositoryBootstrap` SAF facade.
 #![allow(clippy::unwrap_used)]
 
-use edge_domain::{Repository, RepositoryFactory};
+use edge_domain::{Repository, RepositoryBootstrap};
 
 struct TestRepositories;
-impl RepositoryFactory for TestRepositories {}
+impl RepositoryBootstrap for TestRepositories {}
 
-/// @covers RepositoryFactory::in_memory — happy path: fresh store has no entries
+/// @covers RepositoryBootstrap::in_memory — happy path: fresh store has no entries
 #[tokio::test]
 async fn test_in_memory_returns_fresh_store_happy() {
     let r = TestRepositories::in_memory::<String, u32>();
     assert!(r.find(&0u32).await.unwrap().is_none());
 }
 
-/// @covers RepositoryFactory::in_memory — error: store is non-zero-size (heap-backed)
+/// @covers RepositoryBootstrap::in_memory — error: store is non-zero-size (heap-backed)
 #[test]
 fn test_in_memory_is_nonzero_size_error() {
     assert_ne!(
@@ -22,7 +22,7 @@ fn test_in_memory_is_nonzero_size_error() {
     );
 }
 
-/// @covers RepositoryFactory::in_memory — edge: store is usable for generic types
+/// @covers RepositoryBootstrap::in_memory — edge: store is usable for generic types
 #[tokio::test]
 async fn test_in_memory_accepts_generic_types_edge() {
     let r = TestRepositories::in_memory::<u64, String>();

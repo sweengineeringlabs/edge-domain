@@ -4,7 +4,7 @@
 use edge_domain_registry::Registry;
 use edge_llm_agent::{Agent, AgentError, AgentMetadata, AgentRegistry, Skill};
 use edge_llm_provider::{
-    EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, ProviderFactory, StdProviderFactory,
+    EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, ProviderBootstrap, StdProviderFactory,
 };
 use std::sync::Arc;
 

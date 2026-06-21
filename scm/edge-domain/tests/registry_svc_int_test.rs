@@ -3,11 +3,11 @@
 // @allow: no_mocks_in_integration — InMemoryRegistry is a reference implementation in the public API, not a mock.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
+use edge_domain_registry::{InMemoryRegistry, Registry, RegistryBootstrap};
 use std::sync::Arc;
-use edge_domain_registry::{InMemoryRegistry, Registry, RegistryFactory};
 
 struct TestFactory;
-impl RegistryFactory for TestFactory {}
+impl RegistryBootstrap for TestFactory {}
 
 /// @covers: Registry::register, Registry::get
 #[test]
@@ -76,7 +76,7 @@ fn test_in_memory_registry_register_multiple_items_happy() {
     assert_eq!(keys.len(), 10);
 }
 
-/// @covers: RegistryFactory construction
+/// @covers: RegistryBootstrap construction
 #[test]
 fn test_registry_factory_creates_registry_happy() {
     let registry: InMemoryRegistry<i32> = TestFactory::in_memory();

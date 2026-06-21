@@ -22,6 +22,7 @@ async-trait.workspace        = true
 thiserror.workspace          = true
 parking_lot.workspace        = true
 edge-domain-command.workspace  = true
+edge-domain-observe.workspace  = true
 edge-domain-security.workspace = true
 
 [dev-dependencies]

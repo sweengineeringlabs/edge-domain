@@ -40,7 +40,8 @@ pub trait Handler: Send + Sync {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use edge_domain_command::{CommandBusFactory, StdCommandBusFactory};
+    use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+    use edge_domain_observe::StdObserveFactory;
     use edge_domain_security::SecurityContext;
 
     struct AlwaysOk;
@@ -79,7 +80,8 @@ mod tests {
     async fn test_execute_ok_handler_returns_response_happy() {
         let security = SecurityContext::unauthenticated();
         let bus = StdCommandBusFactory::direct();
-        let ctx = HandlerContext::new(&security, &bus);
+        let observer = StdObserveFactory::noop_observe_context();
+        let ctx = HandlerContext::new(&security, &bus, observer.as_ref());
         assert!(AlwaysOk.execute("hi".into(), ctx).await.is_ok());
     }
 
@@ -87,7 +89,8 @@ mod tests {
     async fn test_execute_failing_handler_returns_err_error() {
         let security = SecurityContext::unauthenticated();
         let bus = StdCommandBusFactory::direct();
-        let ctx = HandlerContext::new(&security, &bus);
+        let observer = StdObserveFactory::noop_observe_context();
+        let ctx = HandlerContext::new(&security, &bus, observer.as_ref());
         assert!(AlwaysFail.execute("hi".into(), ctx).await.is_err());
     }
 

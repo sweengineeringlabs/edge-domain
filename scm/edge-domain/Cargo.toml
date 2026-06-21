@@ -75,6 +75,7 @@ edge-domain-saga        = { workspace = true, optional = true }
 edge-domain-registry    = { workspace = true, optional = true }
 edge-domain-lifecycle   = { workspace = true, optional = true }
 edge-domain-security.workspace = true
+edge-domain-observe.workspace  = true
 
 [dev-dependencies]
 tokio   = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }

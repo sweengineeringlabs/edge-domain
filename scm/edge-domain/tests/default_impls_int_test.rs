@@ -45,7 +45,7 @@ impl DomainEvent for AnyEvent {
 
 struct FailingPublisher;
 impl EventPublisher for FailingPublisher {
-    fn publish<'a>(&'a self, _: &'a dyn DomainEvent) -> BoxFuture<'a, Result<(), EventError>> {
+    fn publish(&self, _: &dyn DomainEvent) -> BoxFuture<'_, Result<(), EventError>> {
         Box::pin(async { Err(EventError::Unavailable("bus down".into())) })
     }
 }

@@ -12,7 +12,7 @@ use edge_llm_agent::{
     Skill, SkillMetadata,
 };
 use edge_llm_provider::{
-    EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, ProviderFactory, StdProviderFactory,
+    EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, ProviderBootstrap, StdProviderFactory,
 };
 use std::sync::Arc;
 

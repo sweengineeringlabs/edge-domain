@@ -5,7 +5,9 @@ use crate::api::handler::errors::HandlerError;
 /// Constructor contract for building typed handler implementations from config.
 pub trait HandlerBootstrap {
     /// Returns a stable, non-empty identifier for this bootstrap implementation.
-    fn bootstrap_name(&self) -> &'static str { "handler" }
+    fn bootstrap_name(&self) -> &'static str {
+        "handler"
+    }
 
     /// The configuration type used to construct this handler.
     type Config

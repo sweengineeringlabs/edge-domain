@@ -1,13 +1,13 @@
-//! Integration tests for the `EventFactory` SAF facade.
+//! Integration tests for the `EventBootstrap` SAF facade.
 #![allow(clippy::unwrap_used)]
 
 use edge_domain::{
-    ClosedEventSource, DomainEvent, EventBusConfig, EventFactory,
-    InProcessEventBus, NoopEventBus, NoopEventPublisher,
+    ClosedEventSource, DomainEvent, EventBootstrap, EventBusConfig, InProcessEventBus,
+    NoopEventBus, NoopEventPublisher,
 };
 
 struct TestEvents;
-impl EventFactory for TestEvents {}
+impl EventBootstrap for TestEvents {}
 
 #[derive(Clone)]
 struct AnyEvent;
@@ -23,80 +23,80 @@ impl DomainEvent for AnyEvent {
     }
 }
 
-// --- EventFactory::in_process_bus ---
+// --- EventBootstrap::in_process_bus ---
 
-/// @covers EventFactory::in_process_bus — happy path: returns an InProcessEventBus
+/// @covers EventBootstrap::in_process_bus — happy path: returns an InProcessEventBus
 #[test]
 fn test_in_process_bus_returns_bus_happy() {
     let config = EventBusConfig { capacity: 256 };
     let _: InProcessEventBus = TestEvents::in_process_bus(config);
 }
 
-/// @covers EventFactory::in_process_bus — error: minimum valid capacity (1) constructs without panic
+/// @covers EventBootstrap::in_process_bus — error: minimum valid capacity (1) constructs without panic
 #[test]
 fn test_in_process_bus_min_capacity_constructs_error() {
     let config = EventBusConfig { capacity: 1 };
     let _: InProcessEventBus = TestEvents::in_process_bus(config);
 }
 
-/// @covers EventFactory::in_process_bus — edge: successive calls produce independent buses
+/// @covers EventBootstrap::in_process_bus — edge: successive calls produce independent buses
 #[test]
 fn test_in_process_bus_independent_calls_edge() {
     let _a = TestEvents::in_process_bus(EventBusConfig { capacity: 16 });
     let _b = TestEvents::in_process_bus(EventBusConfig { capacity: 32 });
 }
 
-// --- EventFactory::noop_bus ---
+// --- EventBootstrap::noop_bus ---
 
-/// @covers EventFactory::noop_bus — happy path: returns a NoopEventBus marker
+/// @covers EventBootstrap::noop_bus — happy path: returns a NoopEventBus marker
 #[test]
 fn test_noop_bus_returns_marker_happy() {
     let _: NoopEventBus = TestEvents::noop_bus();
 }
 
-/// @covers EventFactory::noop_bus — error: NoopEventBus is zero-size (cannot panic)
+/// @covers EventBootstrap::noop_bus — error: NoopEventBus is zero-size (cannot panic)
 #[test]
 fn test_noop_bus_is_zero_size_error() {
     assert_eq!(std::mem::size_of::<NoopEventBus>(), 0);
 }
 
-/// @covers EventFactory::noop_bus — edge: successive calls are independent
+/// @covers EventBootstrap::noop_bus — edge: successive calls are independent
 #[test]
 fn test_noop_bus_independent_calls_edge() {
     let _a = TestEvents::noop_bus();
     let _b = TestEvents::noop_bus();
 }
 
-// --- EventFactory::noop_publisher ---
+// --- EventBootstrap::noop_publisher ---
 
-/// @covers EventFactory::noop_publisher — happy path: returns a NoopEventPublisher marker
+/// @covers EventBootstrap::noop_publisher — happy path: returns a NoopEventPublisher marker
 #[test]
 fn test_noop_publisher_returns_marker_happy() {
     let _: NoopEventPublisher = TestEvents::noop_publisher();
 }
 
-/// @covers EventFactory::noop_publisher — error: NoopEventPublisher is zero-size
+/// @covers EventBootstrap::noop_publisher — error: NoopEventPublisher is zero-size
 #[test]
 fn test_noop_publisher_is_zero_size_error() {
     assert_eq!(std::mem::size_of::<NoopEventPublisher>(), 0);
 }
 
-/// @covers EventFactory::noop_publisher — edge: successive calls are independent
+/// @covers EventBootstrap::noop_publisher — edge: successive calls are independent
 #[test]
 fn test_noop_publisher_independent_calls_edge() {
     let _a = TestEvents::noop_publisher();
     let _b = TestEvents::noop_publisher();
 }
 
-// --- EventFactory::in_memory_store ---
+// --- EventBootstrap::in_memory_store ---
 
-/// @covers EventFactory::in_memory_store — happy path: constructs successfully
+/// @covers EventBootstrap::in_memory_store — happy path: constructs successfully
 #[test]
 fn test_in_memory_store_constructs_successfully_happy() {
     let _ = TestEvents::in_memory_store::<AnyEvent>();
 }
 
-/// @covers EventFactory::in_memory_store — error: store is non-zero-size (heap-backed)
+/// @covers EventBootstrap::in_memory_store — error: store is non-zero-size (heap-backed)
 #[test]
 fn test_in_memory_store_is_nonzero_size_error() {
     assert_ne!(
@@ -105,28 +105,28 @@ fn test_in_memory_store_is_nonzero_size_error() {
     );
 }
 
-/// @covers EventFactory::in_memory_store — edge: successive calls produce independent stores
+/// @covers EventBootstrap::in_memory_store — edge: successive calls produce independent stores
 #[test]
 fn test_in_memory_store_successive_calls_independent_edge() {
     let _a = TestEvents::in_memory_store::<AnyEvent>();
     let _b = TestEvents::in_memory_store::<AnyEvent>();
 }
 
-// --- EventFactory::closed_source ---
+// --- EventBootstrap::closed_source ---
 
-/// @covers EventFactory::closed_source — happy path: returns a ClosedEventSource marker
+/// @covers EventBootstrap::closed_source — happy path: returns a ClosedEventSource marker
 #[test]
 fn test_closed_source_returns_marker_happy() {
     let _: ClosedEventSource = TestEvents::closed_source();
 }
 
-/// @covers EventFactory::closed_source — error: ClosedEventSource is zero-size
+/// @covers EventBootstrap::closed_source — error: ClosedEventSource is zero-size
 #[test]
 fn test_closed_source_is_zero_size_error() {
     assert_eq!(std::mem::size_of::<ClosedEventSource>(), 0);
 }
 
-/// @covers EventFactory::closed_source — edge: successive calls produce independent markers
+/// @covers EventBootstrap::closed_source — edge: successive calls produce independent markers
 #[test]
 fn test_closed_source_successive_calls_independent_edge() {
     let _a = TestEvents::closed_source();
