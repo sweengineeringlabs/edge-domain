@@ -5,9 +5,7 @@ use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{Handler, HandlerContext};
 use edge_domain_observe::StdObserveFactory;
 use edge_domain_security::SecurityContext;
-use edge_llm_provider::{
-    EchoExecutionModel, ExecutionConfig, ExecutionMode, StdProviderFactory,
-};
+use edge_llm_provider::{EchoExecutionModel, ExecutionConfig, ExecutionMode, StdProviderFactory};
 use futures::executor::block_on;
 use std::sync::Arc;
 

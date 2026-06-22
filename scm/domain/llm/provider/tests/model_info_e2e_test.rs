@@ -2,8 +2,8 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_provider::{ModelFamily, ModelInfo};
-use swe_edge_configbuilder::{ConfigLoaderFactory, ConfigSection};
 use std::io::Write as _;
+use swe_edge_configbuilder::{ConfigLoaderFactory, ConfigSection};
 use tempfile::TempDir;
 
 fn write_toml(dir: &TempDir, content: &str) {
@@ -17,7 +17,12 @@ fn write_toml(dir: &TempDir, content: &str) {
 /// @covers: ModelInfo::new — sets core fields correctly
 #[test]
 fn test_new_sets_core_fields_happy() {
-    let info = ModelInfo::new("gpt-4".to_string(), "GPT-4".to_string(), ModelFamily::OpenAI, 128_000);
+    let info = ModelInfo::new(
+        "gpt-4".to_string(),
+        "GPT-4".to_string(),
+        ModelFamily::OpenAI,
+        128_000,
+    );
     assert_eq!(info.id, "gpt-4");
     assert_eq!(info.context_window, 128_000);
     assert_eq!(info.family, ModelFamily::OpenAI);
@@ -26,7 +31,12 @@ fn test_new_sets_core_fields_happy() {
 /// @covers: ModelInfo::new — defaults capabilities to off
 #[test]
 fn test_new_defaults_capabilities_off_error() {
-    let info = ModelInfo::new("gpt-4".to_string(), "GPT-4".to_string(), ModelFamily::OpenAI, 128_000);
+    let info = ModelInfo::new(
+        "gpt-4".to_string(),
+        "GPT-4".to_string(),
+        ModelFamily::OpenAI,
+        128_000,
+    );
     assert!(!info.supports_vision);
     assert!(!info.supports_functions);
 }
@@ -41,7 +51,9 @@ fn test_section_name_is_llm_model_happy() {
 #[test]
 fn test_load_reads_all_fields_from_toml_happy() {
     let dir = TempDir::new().unwrap();
-    write_toml(&dir, r#"
+    write_toml(
+        &dir,
+        r#"
 [llm.model]
 id = "claude-3-5-sonnet-20241022"
 name = "Claude 3.5 Sonnet"
@@ -51,7 +63,8 @@ supports_vision = true
 supports_functions = true
 supports_streaming = true
 training_cutoff = "2024-04"
-"#);
+"#,
+    );
     let loader = ConfigLoaderFactory::create_loader_for_dir(dir.path());
     let info = ModelInfo::load(&loader).unwrap();
     assert_eq!(info.id, "claude-3-5-sonnet-20241022");
@@ -76,10 +89,13 @@ fn test_load_returns_default_when_section_absent_edge() {
 #[test]
 fn test_load_fails_on_type_mismatch_error() {
     let dir = TempDir::new().unwrap();
-    write_toml(&dir, r#"
+    write_toml(
+        &dir,
+        r#"
 [llm.model]
 context_window = "not-a-number"
-"#);
+"#,
+    );
     let loader = ConfigLoaderFactory::create_loader_for_dir(dir.path());
     let result = ModelInfo::load(&loader);
     assert!(result.is_err(), "expected parse error for wrong field type");

@@ -23,8 +23,11 @@ fn test_provider_handler_custom_model_happy_executes_step() {
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observe_context();
-    let result = block_on(h.execute("step input".to_string(), HandlerContext::new(&security, &bus, observer.as_ref())))
-        .expect("ok");
+    let result = block_on(h.execute(
+        "step input".to_string(),
+        HandlerContext::new(&security, &bus, observer.as_ref()),
+    ))
+    .expect("ok");
     assert!(!result.reasoning.is_empty());
 }
 
@@ -36,7 +39,11 @@ fn test_provider_handler_zero_token_budget_error_returns_err() {
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observe_context();
-    assert!(block_on(h.execute("step".to_string(), HandlerContext::new(&security, &bus, observer.as_ref()))).is_err());
+    assert!(block_on(h.execute(
+        "step".to_string(),
+        HandlerContext::new(&security, &bus, observer.as_ref())
+    ))
+    .is_err());
 }
 
 /// @covers: StdProviderFactory::provider_handler
@@ -56,9 +63,11 @@ fn test_default_provider_handler_happy_returns_non_empty_reasoning() {
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observe_context();
-    let result =
-        block_on(h.execute("echo this".to_string(), HandlerContext::new(&security, &bus, observer.as_ref())))
-            .expect("ok");
+    let result = block_on(h.execute(
+        "echo this".to_string(),
+        HandlerContext::new(&security, &bus, observer.as_ref()),
+    ))
+    .expect("ok");
     assert!(!result.reasoning.is_empty());
 }
 
@@ -69,7 +78,11 @@ fn test_default_provider_handler_zero_budget_error_propagates() {
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observe_context();
-    assert!(block_on(h.execute("echo".to_string(), HandlerContext::new(&security, &bus, observer.as_ref()))).is_err());
+    assert!(block_on(h.execute(
+        "echo".to_string(),
+        HandlerContext::new(&security, &bus, observer.as_ref())
+    ))
+    .is_err());
 }
 
 /// @covers: StdProviderFactory::default_provider_handler

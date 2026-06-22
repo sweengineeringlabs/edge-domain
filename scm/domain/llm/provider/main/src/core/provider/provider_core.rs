@@ -26,6 +26,7 @@ impl Clone for ProviderCore {
             config: self.config.clone(),
             model: self.model.clone(),
             completer: Arc::clone(&self.completer),
+            observer: Arc::clone(&self.observer),
         }
     }
 }
@@ -77,14 +78,25 @@ impl Provider for ProviderCore {
 mod tests {
     use std::sync::Arc;
 
+    use edge_domain_observe::StdObserveFactory;
     use edge_llm_complete::NoopCompleter;
 
     use crate::api::{ModelFamily, ModelInfo, Provider, ProviderConfig, ProviderCore};
 
     fn make_core(model: &str) -> ProviderCore {
         let config = ProviderConfig::new(model.to_string(), 0.7, 8192);
-        let info = ModelInfo::new(model.to_string(), model.to_string(), ModelFamily::Anthropic, 8192);
-        ProviderCore::new(config, info, Arc::new(NoopCompleter))
+        let info = ModelInfo::new(
+            model.to_string(),
+            model.to_string(),
+            ModelFamily::Anthropic,
+            8192,
+        );
+        ProviderCore::new(
+            config,
+            info,
+            Arc::new(NoopCompleter),
+            StdObserveFactory::noop_arc_observe_context(),
+        )
     }
 
     #[test]

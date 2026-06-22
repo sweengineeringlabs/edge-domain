@@ -64,8 +64,8 @@ mod tests {
         let commands = StdCommandBusFactory::direct();
         let observer = StdObserveFactory::noop_observe_context();
         let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
-        let out = block_on(Handler::execute(&handler(), "ship it".to_string(), ctx))
-            .expect("handler ok");
+        let out =
+            block_on(Handler::execute(&handler(), "ship it".to_string(), ctx)).expect("handler ok");
         assert!(out.reasoning.contains("ship it"));
     }
 

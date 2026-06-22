@@ -3,16 +3,27 @@
 
 use std::sync::Arc;
 
+use edge_domain_observe::StdObserveFactory;
 use edge_llm_complete::NoopCompleter;
 use edge_llm_provider::{
-    FinishReason, ModelFamily, ModelInfo, Provider, ProviderConfig, ProviderBootstrap,
+    FinishReason, ModelFamily, ModelInfo, Provider, ProviderBootstrap, ProviderConfig,
     StdProviderFactory, TokenizerAccuracy,
 };
 
-fn make_provider(model: &str) -> impl Provider {
+fn make_provider(model: &str) -> Arc<dyn Provider> {
     let config = ProviderConfig::new(model.to_string(), 0.7, 8192);
-    let info = ModelInfo::new(model.to_string(), model.to_string(), ModelFamily::Anthropic, 8192);
-    StdProviderFactory::provider(config, info, Arc::new(NoopCompleter))
+    let info = ModelInfo::new(
+        model.to_string(),
+        model.to_string(),
+        ModelFamily::Anthropic,
+        8192,
+    );
+    StdProviderFactory::provider(
+        config,
+        info,
+        Arc::new(NoopCompleter),
+        StdObserveFactory::noop_arc_observe_context(),
+    )
 }
 
 /// @covers: ProviderCore::new — name reflects config model
@@ -36,19 +47,28 @@ fn test_provider_core_model_info_name_matches_happy() {
 /// @covers: ProviderCore::model_family — family from metadata
 #[test]
 fn test_provider_core_model_family_returns_anthropic_happy() {
-    assert_eq!(make_provider("claude").model_family(), ModelFamily::Anthropic);
+    assert_eq!(
+        make_provider("claude").model_family(),
+        ModelFamily::Anthropic
+    );
 }
 
 /// @covers: ProviderCore::tokenizer_accuracy — always approximate
 #[test]
 fn test_provider_core_tokenizer_accuracy_approximate_happy() {
-    assert_eq!(make_provider("claude").tokenizer_accuracy(), TokenizerAccuracy::Approximate);
+    assert_eq!(
+        make_provider("claude").tokenizer_accuracy(),
+        TokenizerAccuracy::Approximate
+    );
 }
 
 /// @covers: ProviderCore::last_finish_reason — default stop
 #[test]
 fn test_provider_core_last_finish_reason_default_stop_happy() {
-    assert_eq!(make_provider("claude").last_finish_reason(), FinishReason::Stop);
+    assert_eq!(
+        make_provider("claude").last_finish_reason(),
+        FinishReason::Stop
+    );
 }
 
 /// @covers: ProviderCore::health_check — ok when model set

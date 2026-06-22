@@ -35,6 +35,11 @@ impl CompletionInput {
         system: Option<String>,
         config: ExecutionConfig,
     ) -> Self {
-        Self { messages, tools, system, config }
+        Self {
+            messages,
+            tools,
+            system,
+            config,
+        }
     }
 }

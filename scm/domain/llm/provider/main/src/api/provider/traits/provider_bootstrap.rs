@@ -2,12 +2,14 @@
 
 use std::sync::Arc;
 
+use edge_domain_observe::ObserveContext;
 use edge_llm_complete::Completer;
 use serde_json::Value;
 
+use crate::api::provider::traits::Provider;
 use crate::api::provider::types::{
-    BufferedStreamHandler, CompletionInput, CompletionMessage, EchoProviderCompleter,
-    EchoExecutionModel, ExecutionConfig, MessageRole, ModelInfo, ProviderConfig, ProviderCore,
+    BufferedStreamHandler, CompletionInput, CompletionMessage, EchoExecutionModel,
+    EchoProviderCompleter, ExecutionConfig, MessageRole, ModelInfo, ProviderConfig,
     StdProviderFactory, ToolDefinition,
 };
 
@@ -21,33 +23,59 @@ pub trait ProviderBootstrap {
     }
 
     /// Return the standard provider-factory instance.
-    fn std_factory() -> StdProviderFactory where Self: Sized {
+    fn std_factory() -> StdProviderFactory
+    where
+        Self: Sized,
+    {
         StdProviderFactory
     }
 
-    /// Construct a [`ProviderCore`] from config, model metadata, and a completer delegate.
-    ///
-    /// `ProviderCore` is not part of the public crate API — callers use it via the
-    /// [`Provider`](crate::api::provider::traits::Provider) trait.
-    fn provider(config: ProviderConfig, model: ModelInfo, completer: Arc<dyn Completer>) -> ProviderCore where Self: Sized;
+    /// Construct a [`Provider`] from config, model metadata, a completer delegate, and an observer.
+    fn provider(
+        config: ProviderConfig,
+        model: ModelInfo,
+        completer: Arc<dyn Completer>,
+        observer: Arc<dyn ObserveContext>,
+    ) -> Arc<dyn Provider>
+    where
+        Self: Sized;
 
     /// Construct the reference [`EchoExecutionModel`] from execution config.
-    fn execution_model(config: ExecutionConfig) -> EchoExecutionModel where Self: Sized {
+    fn execution_model(config: ExecutionConfig) -> EchoExecutionModel
+    where
+        Self: Sized,
+    {
         EchoExecutionModel::new(config)
     }
 
     /// Construct an empty reference [`BufferedStreamHandler`].
-    fn stream_handler() -> BufferedStreamHandler where Self: Sized {
+    fn stream_handler() -> BufferedStreamHandler
+    where
+        Self: Sized,
+    {
         BufferedStreamHandler::new()
     }
 
     /// Construct a [`CompletionMessage`] with the given role and content.
-    fn message(role: MessageRole, content: impl Into<String>) -> CompletionMessage where Self: Sized {
-        CompletionMessage { role, content: content.into() }
+    fn message(role: MessageRole, content: impl Into<String>) -> CompletionMessage
+    where
+        Self: Sized,
+    {
+        CompletionMessage {
+            role,
+            content: content.into(),
+        }
     }
 
     /// Construct a [`ToolDefinition`] with the given name, description, and schema.
-    fn tool(name: impl Into<String>, description: impl Into<String>, schema: Value) -> ToolDefinition where Self: Sized {
+    fn tool(
+        name: impl Into<String>,
+        description: impl Into<String>,
+        schema: Value,
+    ) -> ToolDefinition
+    where
+        Self: Sized,
+    {
         ToolDefinition::new(name, description, schema)
     }
 
@@ -57,7 +85,10 @@ pub trait ProviderBootstrap {
         tools: Vec<ToolDefinition>,
         system: Option<String>,
         config: ExecutionConfig,
-    ) -> CompletionInput where Self: Sized {
+    ) -> CompletionInput
+    where
+        Self: Sized,
+    {
         CompletionInput::new(messages, tools, system, config)
     }
 
@@ -65,7 +96,10 @@ pub trait ProviderBootstrap {
     ///
     /// This adapter implements [`edge_llm_complete::Completer`] by delegating to the
     /// provider's `EchoExecutionModel`, mapping request/response across the port boundary.
-    fn provider_completer() -> EchoProviderCompleter where Self: Sized {
+    fn provider_completer() -> EchoProviderCompleter
+    where
+        Self: Sized,
+    {
         EchoProviderCompleter
     }
 }

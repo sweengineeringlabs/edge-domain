@@ -6,7 +6,11 @@ use edge_llm_provider::{FinishReason, StreamChunk, StreamDelta};
 /// @covers: StreamChunk::is_terminal — true when finish reason present
 #[test]
 fn test_is_terminal_true_with_finish_reason_happy() {
-    let chunk = StreamChunk::new("c1".to_string(), StreamDelta::empty(), Some(FinishReason::Stop));
+    let chunk = StreamChunk::new(
+        "c1".to_string(),
+        StreamDelta::empty(),
+        Some(FinishReason::Stop),
+    );
     assert!(chunk.is_terminal());
 }
 

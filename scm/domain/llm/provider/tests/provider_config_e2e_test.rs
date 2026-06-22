@@ -2,8 +2,8 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_provider::ProviderConfig;
-use swe_edge_configbuilder::{ConfigLoaderFactory, ConfigSection};
 use std::io::Write as _;
+use swe_edge_configbuilder::{ConfigLoaderFactory, ConfigSection};
 use tempfile::TempDir;
 
 fn write_toml(dir: &TempDir, content: &str) {
@@ -49,7 +49,9 @@ fn test_provider_config_default_is_empty_edge() {
 #[test]
 fn test_load_reads_all_fields_from_toml_happy() {
     let dir = TempDir::new().unwrap();
-    write_toml(&dir, r#"
+    write_toml(
+        &dir,
+        r#"
 [llm.provider]
 model = "claude-3-5-sonnet"
 temperature = 0.3
@@ -58,7 +60,8 @@ max_context_tokens = 200000
 supports_vision = true
 supports_functions = true
 supports_streaming = true
-"#);
+"#,
+    );
     let loader = ConfigLoaderFactory::create_loader_for_dir(dir.path());
     let cfg = ProviderConfig::load(&loader).unwrap();
     assert_eq!(cfg.model, "claude-3-5-sonnet");
@@ -85,10 +88,13 @@ fn test_load_returns_default_when_section_absent_edge() {
 #[test]
 fn test_load_fails_on_type_mismatch_error() {
     let dir = TempDir::new().unwrap();
-    write_toml(&dir, r#"
+    write_toml(
+        &dir,
+        r#"
 [llm.provider]
 max_context_tokens = "not-a-number"
-"#);
+"#,
+    );
     let loader = ConfigLoaderFactory::create_loader_for_dir(dir.path());
     let result = ProviderConfig::load(&loader);
     assert!(result.is_err(), "expected parse error for wrong field type");

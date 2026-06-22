@@ -7,7 +7,10 @@ use edge_llm_provider::{ProviderBootstrap, StdProviderFactory};
 #[test]
 fn test_bootstrap_name_returns_nonempty_string_happy() {
     let f = StdProviderFactory;
-    assert!(!f.bootstrap_name().is_empty(), "bootstrap_name must return a non-empty identifier");
+    assert!(
+        !f.bootstrap_name().is_empty(),
+        "bootstrap_name must return a non-empty identifier"
+    );
 }
 
 /// @covers: ProviderBootstrap::bootstrap_name

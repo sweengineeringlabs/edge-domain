@@ -95,7 +95,11 @@ fn test_complete_stream_single_terminal_chunk_edge() {
         .expect("stream ok");
     let chunks: Vec<_> = block_on(stream.collect::<Vec<_>>());
     assert_eq!(chunks.len(), 1);
-    let chunk = chunks.into_iter().next().expect("one chunk").expect("ok chunk");
+    let chunk = chunks
+        .into_iter()
+        .next()
+        .expect("one chunk")
+        .expect("ok chunk");
     assert_eq!(chunk.finish_reason, Some(FinishReason::Stop));
 }
 
@@ -116,8 +120,7 @@ fn test_supported_models_does_not_support_any_model_error() {
 /// @covers: EchoProviderCompleter::supported_models — is_model_available returns false
 #[test]
 fn test_supported_models_is_model_available_false_edge() {
-    let available =
-        block_on(EchoProviderCompleter.is_model_available("claude-sonnet-4-6"));
+    let available = block_on(EchoProviderCompleter.is_model_available("claude-sonnet-4-6"));
     assert!(!available);
 }
 

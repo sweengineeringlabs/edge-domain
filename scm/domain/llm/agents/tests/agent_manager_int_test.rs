@@ -3,9 +3,11 @@
 
 use async_trait::async_trait;
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
+use edge_domain_observe::StdObserveFactory;
 use edge_llm_agent::{Agent, AgentError, AgentManager, Skill};
 use edge_llm_provider::{
-    EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, ProviderBootstrap, StdProviderFactory,
+    EchoProviderCompleter, ModelInfo, Provider, ProviderBootstrap, ProviderConfig,
+    StdProviderFactory,
 };
 use std::sync::Arc;
 
@@ -30,11 +32,12 @@ impl Handler for InlineHandler {
 }
 
 fn noop_provider() -> Arc<dyn Provider> {
-    Arc::new(StdProviderFactory::provider(
+    StdProviderFactory::provider(
         ProviderConfig::new("noop".to_string(), 0.0, 0),
         ModelInfo::default(),
         Arc::new(EchoProviderCompleter),
-    ))
+        StdObserveFactory::noop_arc_observe_context(),
+    )
 }
 
 struct TestManager {

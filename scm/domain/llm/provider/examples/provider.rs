@@ -2,9 +2,10 @@
 
 use std::sync::Arc;
 
+use edge_domain_observe::StdObserveFactory;
 use edge_llm_complete::NoopCompleter;
 use edge_llm_provider::{
-    ExecutionMode, ModelFamily, ModelInfo, Provider, ProviderConfig, ProviderBootstrap,
+    ExecutionMode, ModelFamily, ModelInfo, Provider, ProviderBootstrap, ProviderConfig,
     StdProviderFactory,
 };
 
@@ -17,7 +18,12 @@ fn main() {
         200_000,
     );
 
-    let provider = StdProviderFactory::provider(config, info, Arc::new(NoopCompleter));
+    let provider = StdProviderFactory::provider(
+        config,
+        info,
+        Arc::new(NoopCompleter),
+        StdObserveFactory::noop_arc_observe_context(),
+    );
     println!("provider: {}", provider.name());
     println!("family: {:?}", provider.model_family());
     println!("healthy: {:?}", provider.health_check().is_ok());

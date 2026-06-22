@@ -2,8 +2,10 @@
 
 use std::sync::Arc;
 
+use edge_domain_observe::StdObserveFactory;
 use edge_llm_provider::{
-    EchoProviderCompleter, ModelInfo, Provider, ProviderBootstrap, ProviderConfig, StdProviderFactory,
+    EchoProviderCompleter, ModelInfo, Provider, ProviderBootstrap, ProviderConfig,
+    StdProviderFactory,
 };
 
 use crate::api::NoopAgent;
@@ -32,11 +34,12 @@ impl Agent for NoopAgent {
     }
 
     fn provider(&self) -> Arc<dyn Provider> {
-        Arc::new(StdProviderFactory::provider(
+        StdProviderFactory::provider(
             ProviderConfig::new("noop".to_string(), 0.0, 0),
             ModelInfo::default(),
             Arc::new(EchoProviderCompleter),
-        ))
+            StdObserveFactory::noop_arc_observe_context(),
+        )
     }
 }
 

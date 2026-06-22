@@ -3,14 +3,15 @@
 
 use std::sync::Arc;
 
+use edge_domain_observe::StdObserveFactory;
 use edge_llm_complete::NoopCompleter;
 use edge_llm_provider::{
-    FinishReason, ModelFamily, ModelInfo, Provider, ProviderConfig, ProviderBootstrap,
+    FinishReason, ModelFamily, ModelInfo, Provider, ProviderBootstrap, ProviderConfig,
     StdProviderFactory, TokenizerAccuracy,
 };
 use futures::executor::block_on;
 
-fn provider(model: &str) -> impl Provider {
+fn provider(model: &str) -> Arc<dyn Provider> {
     let config = ProviderConfig::new(model.to_string(), 0.7, 8192);
     let info = ModelInfo::new(
         model.to_string(),
@@ -18,7 +19,12 @@ fn provider(model: &str) -> impl Provider {
         ModelFamily::Anthropic,
         8192,
     );
-    StdProviderFactory::provider(config, info, Arc::new(NoopCompleter))
+    StdProviderFactory::provider(
+        config,
+        info,
+        Arc::new(NoopCompleter),
+        StdObserveFactory::noop_arc_observe_context(),
+    )
 }
 
 // --- name ---

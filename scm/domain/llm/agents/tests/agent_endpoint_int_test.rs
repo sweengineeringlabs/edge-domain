@@ -10,16 +10,18 @@ use edge_domain_observe::StdObserveFactory;
 use edge_domain_security::SecurityContext;
 use edge_llm_agent::{AgentError, AgentManager, NoopAgentManager, Skill, SkillMetadata};
 use edge_llm_provider::{
-    EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, ProviderBootstrap, StdProviderFactory,
+    EchoProviderCompleter, ModelInfo, Provider, ProviderBootstrap, ProviderConfig,
+    StdProviderFactory,
 };
 use futures::executor::block_on;
 
 fn noop_provider() -> Arc<dyn Provider> {
-    Arc::new(StdProviderFactory::provider(
+    StdProviderFactory::provider(
         ProviderConfig::new("noop".to_string(), 0.0, 0),
         ModelInfo::default(),
         Arc::new(EchoProviderCompleter),
-    ))
+        StdObserveFactory::noop_arc_observe_context(),
+    )
 }
 
 struct EchoSkill;

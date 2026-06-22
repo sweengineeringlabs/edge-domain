@@ -9,8 +9,8 @@ use edge_llm_complete::{
 use futures::stream;
 
 use crate::api::{
-    EchoExecutionModel, EchoProviderCompleter, ExecutionConfig, ExecutionError, ExecutionModel,
-    ExecutionMode,
+    EchoExecutionModel, EchoProviderCompleter, ExecutionConfig, ExecutionError, ExecutionMode,
+    ExecutionModel,
 };
 
 impl EchoProviderCompleter {
@@ -21,35 +21,45 @@ impl EchoProviderCompleter {
             ExecutionError::RateLimited { retry_after_ms } => {
                 CompleteError::RateLimited { retry_after_ms }
             }
-            ExecutionError::ContextWindowExceeded { max_tokens, requested } => {
-                CompleteError::ContextLengthExceeded { used: requested, max: max_tokens }
-            }
+            ExecutionError::ContextWindowExceeded {
+                max_tokens,
+                requested,
+            } => CompleteError::ContextLengthExceeded {
+                used: requested,
+                max: max_tokens,
+            },
             ExecutionError::Timeout { duration_ms } => CompleteError::Timeout(duration_ms),
             ExecutionError::InvalidRequest(m) => CompleteError::InvalidRequest(m),
             ExecutionError::StreamingError(m) => CompleteError::StreamError(m),
             ExecutionError::ContentFiltered(m) => CompleteError::ContentFiltered(m),
             ExecutionError::NetworkError(m) => CompleteError::NetworkError(m),
-            ExecutionError::ProviderUnavailable { message } => {
-                CompleteError::ProviderError { provider: "provider".to_string(), message }
-            }
+            ExecutionError::ProviderUnavailable { message } => CompleteError::ProviderError {
+                provider: "provider".to_string(),
+                message,
+            },
             ExecutionError::ValidationFailed(m) => CompleteError::InvalidRequest(m),
-            ExecutionError::CacheError(m) => {
-                CompleteError::InvalidRequest(format!("cache: {m}"))
-            }
+            ExecutionError::CacheError(m) => CompleteError::InvalidRequest(format!("cache: {m}")),
             ExecutionError::ToolCallFailed { tool_name, reason } => {
                 CompleteError::InvalidRequest(format!("{tool_name}: {reason}"))
             }
-            ExecutionError::QuotaExceeded { reset_at_ms } => {
-                CompleteError::RateLimited { retry_after_ms: reset_at_ms }
-            }
-            ExecutionError::Unknown(m) => {
-                CompleteError::ProviderError { provider: "provider".to_string(), message: m }
-            }
+            ExecutionError::QuotaExceeded { reset_at_ms } => CompleteError::RateLimited {
+                retry_after_ms: reset_at_ms,
+            },
+            ExecutionError::Unknown(m) => CompleteError::ProviderError {
+                provider: "provider".to_string(),
+                message: m,
+            },
         }
     }
 
     fn build_model() -> EchoExecutionModel {
-        EchoExecutionModel::new(ExecutionConfig::new(4096, 30_000, false, true, ExecutionMode::Async))
+        EchoExecutionModel::new(ExecutionConfig::new(
+            4096,
+            30_000,
+            false,
+            true,
+            ExecutionMode::Async,
+        ))
     }
 
     fn extract_goal(request: &CompletionRequest) -> String {
@@ -140,7 +150,9 @@ impl Completer for EchoProviderCompleter {
             StreamDelta::text(text),
             FinishReason::Stop,
         );
-        Ok(Box::pin(stream::once(async move { Ok::<StreamChunk, CompleteError>(chunk) })))
+        Ok(Box::pin(stream::once(async move {
+            Ok::<StreamChunk, CompleteError>(chunk)
+        })))
     }
 
     fn supported_models(&self) -> Vec<String> {

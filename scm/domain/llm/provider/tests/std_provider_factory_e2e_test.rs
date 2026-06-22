@@ -3,6 +3,7 @@
 
 use std::sync::Arc;
 
+use edge_domain_observe::StdObserveFactory;
 use edge_llm_complete::NoopCompleter;
 use edge_llm_provider::{Provider, ProviderBootstrap, StdProviderFactory};
 
@@ -29,5 +30,14 @@ fn test_std_provider_bootstrap_builds_provider() {
         ModelFamily::Anthropic,
         8192,
     );
-    assert_eq!(StdProviderFactory::provider(config, info, Arc::new(NoopCompleter)).name(), "claude");
+    assert_eq!(
+        StdProviderFactory::provider(
+            config,
+            info,
+            Arc::new(NoopCompleter),
+            StdObserveFactory::noop_arc_observe_context()
+        )
+        .name(),
+        "claude"
+    );
 }

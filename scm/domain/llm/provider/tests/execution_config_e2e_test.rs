@@ -2,8 +2,8 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_provider::{ExecutionConfig, ExecutionMode};
-use swe_edge_configbuilder::{ConfigLoaderFactory, ConfigSection};
 use std::io::Write as _;
+use swe_edge_configbuilder::{ConfigLoaderFactory, ConfigSection};
 use tempfile::TempDir;
 
 fn write_toml(dir: &TempDir, content: &str) {
@@ -45,14 +45,17 @@ fn test_section_name_is_llm_execution_happy() {
 #[test]
 fn test_load_reads_all_fields_from_toml_happy() {
     let dir = TempDir::new().unwrap();
-    write_toml(&dir, r#"
+    write_toml(
+        &dir,
+        r#"
 [llm.execution]
 max_tokens_per_call = 2048
 timeout_per_step = 15000
 cache_enabled = true
 streaming_enabled = true
 execution_mode = "Streaming"
-"#);
+"#,
+    );
     let loader = ConfigLoaderFactory::create_loader_for_dir(dir.path());
     let cfg = ExecutionConfig::load(&loader).unwrap();
     assert_eq!(cfg.max_tokens_per_call, 2048);
@@ -77,10 +80,13 @@ fn test_load_returns_default_when_section_absent_edge() {
 #[test]
 fn test_load_fails_on_type_mismatch_error() {
     let dir = TempDir::new().unwrap();
-    write_toml(&dir, r#"
+    write_toml(
+        &dir,
+        r#"
 [llm.execution]
 max_tokens_per_call = "not-a-number"
-"#);
+"#,
+    );
     let loader = ConfigLoaderFactory::create_loader_for_dir(dir.path());
     let result = ExecutionConfig::load(&loader);
     assert!(result.is_err(), "expected parse error for wrong field type");

@@ -96,11 +96,12 @@ mod tests {
     use futures::executor::block_on;
 
     fn noop_provider() -> Arc<dyn Provider> {
-        Arc::new(StdProviderFactory::provider(
+        StdProviderFactory::provider(
             ProviderConfig::new("noop".to_string(), 0.0, 0),
             ModelInfo::default(),
             Arc::new(EchoProviderCompleter),
-        ))
+            StdObserveFactory::noop_arc_observe_context(),
+        )
     }
 
     /// @covers: new

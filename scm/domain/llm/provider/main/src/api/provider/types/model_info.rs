@@ -47,7 +47,8 @@ impl ModelInfo {
 }
 
 impl ConfigSection for ModelInfo {
-    fn section_name() -> &'static str { // @allow: no_stub_fn_bodies — TOML section key for this type
+    fn section_name() -> &'static str {
+        // @allow: no_stub_fn_bodies — TOML section key for this type
         "llm.model"
     }
 }

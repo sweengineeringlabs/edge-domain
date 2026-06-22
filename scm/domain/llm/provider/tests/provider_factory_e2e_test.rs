@@ -3,10 +3,11 @@
 
 use std::sync::Arc;
 
+use edge_domain_observe::StdObserveFactory;
 use edge_llm_complete::{Completer, CompletionRequest, Message, NoopCompleter};
 use edge_llm_provider::{
     CompletionMessage, EchoProviderCompleter, ExecutionConfig, ExecutionMode, ExecutionModel,
-    MessageRole, ModelFamily, ModelInfo, Provider, ProviderConfig, ProviderBootstrap,
+    MessageRole, ModelFamily, ModelInfo, Provider, ProviderBootstrap, ProviderConfig,
     StdProviderFactory, StreamHandler, ToolDefinition,
 };
 use futures::executor::block_on;
@@ -92,7 +93,16 @@ fn test_provider_builds_named_provider_happy() {
         ModelFamily::Anthropic,
         8192,
     );
-    assert_eq!(StdProviderFactory::provider(config, info, Arc::new(NoopCompleter)).name(), "claude");
+    assert_eq!(
+        StdProviderFactory::provider(
+            config,
+            info,
+            Arc::new(NoopCompleter),
+            StdObserveFactory::noop_arc_observe_context()
+        )
+        .name(),
+        "claude"
+    );
 }
 
 /// @covers: ProviderBootstrap::provider — empty model produces an unhealthy provider
@@ -100,9 +110,14 @@ fn test_provider_builds_named_provider_happy() {
 fn test_provider_empty_model_unhealthy_error() {
     let config = ProviderConfig::new(String::new(), 0.7, 8192);
     let info = ModelInfo::new(String::new(), String::new(), ModelFamily::OpenAI, 8192);
-    assert!(StdProviderFactory::provider(config, info, Arc::new(NoopCompleter))
-        .health_check()
-        .is_err());
+    assert!(StdProviderFactory::provider(
+        config,
+        info,
+        Arc::new(NoopCompleter),
+        StdObserveFactory::noop_arc_observe_context()
+    )
+    .health_check()
+    .is_err());
 }
 
 /// @covers: ProviderBootstrap::provider — family flows from model metadata
@@ -116,7 +131,13 @@ fn test_provider_reports_model_family_edge() {
         4096,
     );
     assert_eq!(
-        StdProviderFactory::provider(config, info, Arc::new(NoopCompleter)).model_family(),
+        StdProviderFactory::provider(
+            config,
+            info,
+            Arc::new(NoopCompleter),
+            StdObserveFactory::noop_arc_observe_context()
+        )
+        .model_family(),
         ModelFamily::OpenAI
     );
 }
@@ -192,7 +213,10 @@ fn test_message_user_role_happy() {
 fn test_message_empty_content_error() {
     let m = StdProviderFactory::message(MessageRole::Tool, "");
     assert_eq!(m.role, MessageRole::Tool);
-    assert!(m.content.is_empty(), "factory must accept empty content without panic");
+    assert!(
+        m.content.is_empty(),
+        "factory must accept empty content without panic"
+    );
 }
 
 /// @covers: ProviderBootstrap::message — all three roles produce correct role field
@@ -223,7 +247,10 @@ fn test_completion_input_full_spec_happy() {
 fn test_completion_input_empty_messages_error() {
     let config = ExecutionConfig::new(1024, 30_000, false, false, ExecutionMode::Async);
     let input = StdProviderFactory::completion_input(vec![], vec![], None, config);
-    assert!(input.messages.is_empty(), "factory must accept empty messages without panic");
+    assert!(
+        input.messages.is_empty(),
+        "factory must accept empty messages without panic"
+    );
 }
 
 /// @covers: ProviderBootstrap::completion_input — no system prompt and no tools
