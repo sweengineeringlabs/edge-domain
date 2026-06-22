@@ -305,3 +305,65 @@ fn test_prompt_handler_empty_template_edge() {
     let h = StdPromptFactory::prompt_handler(prompt);
     assert_eq!(Handler::id(&h), "prompt.render");
 }
+
+// --- template_provider ---
+
+/// @covers: PromptBootstrap::template_provider — builds an empty registry
+#[test]
+fn test_template_provider_starts_empty_happy() {
+    assert!(StdPromptFactory::template_provider().is_empty());
+}
+
+/// @covers: PromptBootstrap::template_provider — unknown id is absent
+#[test]
+fn test_template_provider_unknown_id_absent_error() {
+    use edge_llm_prompt::TemplateProvider;
+    assert!(StdPromptFactory::template_provider()
+        .get_template("x")
+        .is_none());
+}
+
+/// @covers: PromptBootstrap::template_provider — independent instances per call
+#[test]
+fn test_template_provider_independent_instances_edge() {
+    use edge_llm_prompt::{PromptTemplate, TemplateProvider};
+    let mut a = StdPromptFactory::template_provider();
+    a.insert(PromptTemplate::new(
+        "x".to_string(),
+        "x".to_string(),
+        "c".to_string(),
+    ));
+    let b = StdPromptFactory::template_provider();
+    assert!(b.get_template("x").is_none());
+}
+
+// --- prompt_template_builder ---
+
+/// @covers: PromptBootstrap::prompt_template_builder — builds with overrides
+#[test]
+fn test_prompt_template_builder_overrides_happy() {
+    let t = StdPromptFactory::prompt_template_builder()
+        .id("code-review".to_string())
+        .category("code".to_string())
+        .build();
+    assert_eq!(t.id, "code-review");
+    assert_eq!(t.category, "code");
+}
+
+/// @covers: PromptBootstrap::prompt_template_builder — defaults to empty bodies
+#[test]
+fn test_prompt_template_builder_default_empty_bodies_error() {
+    assert!(StdPromptFactory::prompt_template_builder()
+        .build()
+        .system_prompt
+        .is_empty());
+}
+
+/// @covers: PromptBootstrap::prompt_template_builder — user template carried through
+#[test]
+fn test_prompt_template_builder_user_template_edge() {
+    let t = StdPromptFactory::prompt_template_builder()
+        .user_template("review {{code}}".to_string())
+        .build();
+    assert_eq!(t.user_template, "review {{code}}");
+}

@@ -15,7 +15,7 @@ pub use prompt_svc::{
     Prompt, PromptCache, PromptError, PromptMetadata, RenderContext, StaticPrompt, PROMPT_SVC,
 };
 pub use template_provider_svc::{
-    InMemoryTemplateProvider, PromptTemplate, PromptTemplateBuilder, TemplateProvider,
+    CatalogTemplateProvider, PromptTemplate, PromptTemplateBuilder, TemplateProvider,
     TEMPLATE_PROVIDER_SVC,
 };
 pub use token_counter_svc::{HeuristicTokenCounter, TokenCounter, TOKEN_COUNTER_SVC};

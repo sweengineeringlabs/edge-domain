@@ -1,4 +1,4 @@
-pub use crate::api::InMemoryTemplateProvider;
+pub use crate::api::CatalogTemplateProvider;
 pub use crate::api::PromptTemplate;
 pub use crate::api::PromptTemplateBuilder;
 pub use crate::api::TemplateProvider;

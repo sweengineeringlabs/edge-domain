@@ -1,4 +1,4 @@
-//! `InMemoryTemplateProvider` — reference [`TemplateProvider`] backed by a map.
+//! `CatalogTemplateProvider` — reference [`TemplateProvider`] backed by a map.
 
 use std::collections::BTreeMap;
 
@@ -9,11 +9,11 @@ use crate::api::prompt::types::PromptTemplate;
 /// Deterministic iteration order (via [`BTreeMap`]) keeps `list_*` output stable
 /// across runs.
 #[derive(Clone, Debug, Default)]
-pub struct InMemoryTemplateProvider {
+pub struct CatalogTemplateProvider {
     pub(crate) templates: BTreeMap<String, PromptTemplate>,
 }
 
-impl InMemoryTemplateProvider {
+impl CatalogTemplateProvider {
     /// Construct an empty registry.
     pub fn new() -> Self {
         Self::default()

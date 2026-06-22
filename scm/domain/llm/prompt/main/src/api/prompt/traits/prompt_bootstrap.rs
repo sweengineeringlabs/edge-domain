@@ -1,8 +1,9 @@
 //! `PromptBootstrap` — constructor contract for the default prompt primitives.
 
 use crate::api::prompt::types::{
-    HeuristicTokenCounter, MapContextManager, PromptCacheBuilder, PromptMetadata,
-    PromptMetadataBuilder, StaticPrompt, StdPromptFactory, VariableBuilder,
+    CatalogTemplateProvider, HeuristicTokenCounter, MapContextManager, PromptCacheBuilder,
+    PromptMetadata, PromptMetadataBuilder, PromptTemplateBuilder, StaticPrompt, StdPromptFactory,
+    VariableBuilder,
 };
 
 /// Constructor namespace for the standard prompt reference implementations.
@@ -68,5 +69,21 @@ pub trait PromptBootstrap {
         Self: Sized,
     {
         HeuristicTokenCounter::new()
+    }
+
+    /// Construct an empty reference [`CatalogTemplateProvider`].
+    fn template_provider() -> CatalogTemplateProvider
+    where
+        Self: Sized,
+    {
+        CatalogTemplateProvider::new()
+    }
+
+    /// Start a fluent [`PromptTemplateBuilder`].
+    fn prompt_template_builder() -> PromptTemplateBuilder
+    where
+        Self: Sized,
+    {
+        PromptTemplateBuilder::new()
     }
 }

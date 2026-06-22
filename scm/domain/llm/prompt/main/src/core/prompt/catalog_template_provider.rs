@@ -1,10 +1,10 @@
-//! `TemplateProvider` impl for `InMemoryTemplateProvider`.
+//! `TemplateProvider` impl for `CatalogTemplateProvider`.
 
-use crate::api::InMemoryTemplateProvider;
+use crate::api::CatalogTemplateProvider;
 use crate::api::PromptTemplate;
 use crate::api::TemplateProvider;
 
-impl TemplateProvider for InMemoryTemplateProvider {
+impl TemplateProvider for CatalogTemplateProvider {
     fn get_template(&self, id: &str) -> Option<&PromptTemplate> {
         self.templates.get(id)
     }
@@ -32,7 +32,7 @@ mod tests {
     #[test]
     fn test_get_template_known_id_returns_template() {
         let provider =
-            InMemoryTemplateProvider::with_templates(vec![template("code-review", "code")]);
+            CatalogTemplateProvider::with_templates(vec![template("code-review", "code")]);
         let found = provider.get_template("code-review");
         assert!(found.is_some());
         assert_eq!(found.expect("present").id, "code-review");
@@ -40,13 +40,13 @@ mod tests {
 
     #[test]
     fn test_get_template_unknown_id_returns_none() {
-        let provider = InMemoryTemplateProvider::new();
+        let provider = CatalogTemplateProvider::new();
         assert!(provider.get_template("missing").is_none());
     }
 
     #[test]
     fn test_list_templates_returns_all_registered() {
-        let provider = InMemoryTemplateProvider::with_templates(vec![
+        let provider = CatalogTemplateProvider::with_templates(vec![
             template("a", "code"),
             template("b", "general"),
         ]);
@@ -55,7 +55,7 @@ mod tests {
 
     #[test]
     fn test_list_by_category_returns_only_matching_category() {
-        let provider = InMemoryTemplateProvider::with_templates(vec![
+        let provider = CatalogTemplateProvider::with_templates(vec![
             template("a", "code"),
             template("b", "general"),
             template("c", "code"),
@@ -67,7 +67,7 @@ mod tests {
 
     #[test]
     fn test_list_by_category_unknown_category_is_empty() {
-        let provider = InMemoryTemplateProvider::with_templates(vec![template("a", "code")]);
+        let provider = CatalogTemplateProvider::with_templates(vec![template("a", "code")]);
         assert!(provider.list_by_category("nope").is_empty());
     }
 }
