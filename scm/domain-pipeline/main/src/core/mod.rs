@@ -2,4 +2,4 @@
 
 pub mod default_pipeline;
 
-pub use default_pipeline::{DefaultPipeline, PipelineConfig};
+pub use default_pipeline::DefaultPipeline;

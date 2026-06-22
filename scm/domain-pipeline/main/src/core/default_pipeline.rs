@@ -1,38 +1,14 @@
 //! [`DefaultPipeline<Ctx>`] — orchestrates sequential step execution.
 
 use std::sync::Arc;
-use std::time::Duration;
 
-use crate::api::{Pipeline, PipelineError, Step};
+use crate::api::{Pipeline, PipelineConfig, PipelineError, Step};
 
 /// Executes a sequence of steps in order, passing context through each.
 #[derive(Clone)]
 pub struct DefaultPipeline<Ctx> {
     steps: Vec<Arc<dyn Step<Ctx>>>,
     config: PipelineConfig,
-}
-
-/// Configuration for pipeline execution.
-#[derive(Clone, Debug)]
-pub struct PipelineConfig {
-    /// Per-step timeout (optional).
-    pub timeout_per_step: Option<Duration>,
-
-    /// Emit lifecycle events (StepStarted, StepCompleted, etc).
-    pub emit_lifecycle_events: bool,
-
-    /// Abort on error (default: true). If false, silently skip failed steps.
-    pub abort_on_error: bool,
-}
-
-impl Default for PipelineConfig {
-    fn default() -> Self {
-        Self {
-            timeout_per_step: None,
-            emit_lifecycle_events: false,
-            abort_on_error: true,
-        }
-    }
 }
 
 impl<Ctx: Send> DefaultPipeline<Ctx> {
