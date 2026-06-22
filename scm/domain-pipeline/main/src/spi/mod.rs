@@ -3,6 +3,9 @@
 pub(crate) mod config_validator;
 pub(crate) mod noop_step;
 
+// These functions are internal implementation details used by the saf layer.
+// They are kept internal (pub(crate)) and should only be called from saf modules.
+
 /// Create a config validator strategy.
 pub(crate) fn create_validator(enabled: bool) -> Box<dyn crate::api::Validator> {
     Box::new(config_validator::ConfigValidator::new(enabled))

@@ -9,11 +9,8 @@ pub use pipeline_svc::{create_pipeline, create_pipeline_with_config, Pipeline, P
 pub use step_svc::{Step, STEP_SVC};
 pub use validator_svc::{create_validator, Validator, VALIDATOR_SVC};
 
-// Re-export error type from api layer
-pub use crate::api::PipelineError;
-
-// Re-export public types from api layer
-pub use crate::api::PipelineConfig;
+// Re-export error and config types from api layer through pipeline_svc
+pub use pipeline_svc::{SvcPipelineError as PipelineError, SvcPipelineConfig as PipelineConfig};
 
 // Test utility implementations (for integration tests and examples).
 // These are convenience helpers for testing and should not be relied upon in production code.
