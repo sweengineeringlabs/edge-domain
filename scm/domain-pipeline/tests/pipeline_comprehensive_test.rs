@@ -37,6 +37,7 @@ impl Step<usize> for FailAtStep {
 }
 
 // Happy path: execute all steps
+/// @covers: execute
 #[tokio::test]
 async fn test_pipeline_execute_happy_empty() {
     let pipeline: DefaultPipeline<usize> = DefaultPipeline::new(vec![]);
@@ -107,6 +108,7 @@ async fn test_pipeline_execute_error_last_step() {
 }
 
 // Edge cases
+/// @covers: step_count
 #[tokio::test]
 async fn test_pipeline_step_count_happy_zero() {
     let pipeline: DefaultPipeline<usize> = DefaultPipeline::new(vec![]);

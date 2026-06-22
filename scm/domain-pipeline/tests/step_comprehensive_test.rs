@@ -31,6 +31,7 @@ impl Step<i32> for ErrorStep {
 }
 
 // Happy path: Step executes and mutates context
+/// @covers: execute
 #[tokio::test]
 async fn test_step_execute_happy_mutates_context() {
     let step = MutatingStep(5);
@@ -39,6 +40,7 @@ async fn test_step_execute_happy_mutates_context() {
     assert_eq!(ctx, 15);
 }
 
+/// @covers: name
 #[tokio::test]
 async fn test_step_execute_happy_name_accessible() {
     let step = MutatingStep(0);
