@@ -6,4 +6,4 @@ mod types;
 
 pub use error::PipelineError;
 pub use traits::{Pipeline, Step, Validator};
-pub use types::PipelineConfig;
+pub use types::{PipelineConfig, PipelineFactory, ValidatorFactory};

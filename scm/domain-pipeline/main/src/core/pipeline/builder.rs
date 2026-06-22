@@ -4,7 +4,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use crate::api::{Pipeline, PipelineConfig, Step};
-use crate::core::default::pipeline::DefaultPipeline;
+use crate::spi::DefaultPipeline;
 
 /// Fluent builder for composing [`DefaultPipeline<Ctx>`] from steps.
 ///
@@ -120,6 +120,45 @@ mod tests {
         let builder = PipelineBuilder::<()>::new().abort_on_error(false);
         let pipeline = builder.build();
         assert!(!pipeline.config().abort_on_error);
+    }
+
+    // Tests for with_if method
+    /// @covers: with_if
+    #[test]
+    fn test_with_if_happy_condition_true_adds_step() {
+        struct DummyStep;
+        #[async_trait::async_trait]
+        impl Step<()> for DummyStep {
+            async fn execute(&self, _ctx: &mut ()) -> Result<(), crate::api::PipelineError> {
+                Ok(())
+            }
+            fn name(&self) -> &str {
+                "dummy"
+            }
+        }
+
+        let builder = PipelineBuilder::<()>::new().with_if(true, DummyStep);
+        let pipeline = builder.build();
+        assert_eq!(pipeline.step_count(), 1);
+    }
+
+    /// @covers: with_if
+    #[test]
+    fn test_with_if_happy_condition_false_skips_step() {
+        struct DummyStep;
+        #[async_trait::async_trait]
+        impl Step<()> for DummyStep {
+            async fn execute(&self, _ctx: &mut ()) -> Result<(), crate::api::PipelineError> {
+                Ok(())
+            }
+            fn name(&self) -> &str {
+                "dummy"
+            }
+        }
+
+        let builder = PipelineBuilder::<()>::new().with_if(false, DummyStep);
+        let pipeline = builder.build();
+        assert_eq!(pipeline.step_count(), 0);
     }
 
     // Tests for build method

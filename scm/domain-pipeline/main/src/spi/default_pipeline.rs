@@ -26,6 +26,7 @@ impl<Ctx: Send> DefaultPipeline<Ctx> {
     }
 
     /// Return a reference to the config.
+    #[allow(dead_code)]
     pub(crate) fn config(&self) -> &PipelineConfig {
         &self.config
     }
@@ -69,7 +70,7 @@ mod tests {
     use super::*;
 
     // Tests for new constructor
-    /// @covers: new
+    /// @covers DefaultPipeline new
     #[test]
     fn test_new_constructor_happy_creates_empty() {
         let pipeline: DefaultPipeline<i32> = DefaultPipeline::new(vec![]);
@@ -77,7 +78,7 @@ mod tests {
     }
 
     // Tests for with_config constructor
-    /// @covers: with_config
+    /// @covers DefaultPipeline with_config
     #[test]
     fn test_with_config_constructor_happy_sets_timeout() {
         let config = PipelineConfig {
@@ -90,7 +91,7 @@ mod tests {
     }
 
     // Tests for config() method
-    /// @covers: config
+    /// @covers DefaultPipeline config
     #[test]
     fn test_config_happy_returns_reference() {
         let pipeline: DefaultPipeline<i32> = DefaultPipeline::new(vec![]);

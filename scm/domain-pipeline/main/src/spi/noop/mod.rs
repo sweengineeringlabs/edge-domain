@@ -1,5 +1,6 @@
 //! Test doubles for [`Step`](crate::api::Step) trait.
 #![allow(dead_code)] // Test utilities, used in tests but not in main code path
+#![allow(unused_imports)] // Re-exports are used in test modules
 
 pub(crate) mod always;
 pub(crate) mod noop_step;
