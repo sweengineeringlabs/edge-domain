@@ -193,3 +193,14 @@ fn test_default_pipeline_config_edge_all_enabled() {
     assert!(pipeline.config().emit_lifecycle_events);
     assert!(pipeline.config().abort_on_error);
 }
+
+#[tokio::test]
+async fn test_default_pipeline_config_error_abort_disabled() {
+    let config = PipelineConfig {
+        timeout_per_step: None,
+        emit_lifecycle_events: false,
+        abort_on_error: false,
+    };
+    let pipeline: Box<dyn Pipeline<i32>> = create_pipeline_with_config(vec![], config);
+    assert!(!pipeline.config().abort_on_error);
+}

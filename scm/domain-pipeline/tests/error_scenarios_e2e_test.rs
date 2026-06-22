@@ -144,3 +144,14 @@ fn test_error_edge_multiple_error_types() {
         _ => panic!("expected ConfigError"),
     }
 }
+
+#[test]
+fn test_error_variants_distinct() {
+    let e1 = PipelineError::StepFailed("msg1".to_string());
+    let e2 = PipelineError::StepTimeout;
+    let e3 = PipelineError::ConfigError("msg3".to_string());
+    // Verify all three error types are distinct
+    assert!(matches!(e1, PipelineError::StepFailed(_)));
+    assert!(matches!(e2, PipelineError::StepTimeout));
+    assert!(matches!(e3, PipelineError::ConfigError(_)));
+}

@@ -239,3 +239,9 @@ fn test_step_count_edge_stress() {
     let pipeline: Box<dyn Pipeline<usize>> = create_pipeline(steps);
     assert_eq!(pipeline.step_count(), 1000);
 }
+
+#[test]
+fn test_pipeline_config_error_constraint() {
+    let pipeline: Box<dyn Pipeline<usize>> = create_pipeline::<usize>(vec![]);
+    assert_eq!(pipeline.config().timeout_per_step, None);
+}

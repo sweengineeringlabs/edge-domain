@@ -167,3 +167,20 @@ fn test_name_edge_special_chars() {
     assert!(!name.is_empty());
     assert!(name.chars().all(|c| c.is_ascii()));
 }
+
+#[tokio::test]
+async fn test_step_execute_error_handles_mutations() {
+    struct MutatingErrorStep;
+    #[async_trait::async_trait]
+    impl Step<i32> for MutatingErrorStep {
+        async fn execute(&self, ctx: &mut i32) -> Result<(), PipelineError> {
+            *ctx += 1;
+            Err(PipelineError::StepFailed("mutated then failed".to_string()))
+        }
+        fn name(&self) -> &str { "mutating-error" }
+    }
+    let mut ctx = 0;
+    let result = MutatingErrorStep.execute(&mut ctx).await;
+    assert!(result.is_err());
+    assert_eq!(ctx, 1);
+}
