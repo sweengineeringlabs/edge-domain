@@ -141,4 +141,12 @@ mod tests {
         let validator = ConfigValidator::default();
         assert!(validator.is_enabled());
     }
+
+    #[test]
+    fn test_new() {
+        let validator_enabled = ConfigValidator::new(true);
+        let validator_disabled = ConfigValidator::new(false);
+        assert!(validator_enabled.is_enabled());
+        assert!(!validator_disabled.is_enabled());
+    }
 }

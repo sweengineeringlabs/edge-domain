@@ -178,4 +178,25 @@ mod tests {
         assert!(step.execute(&mut ctx).await.is_ok());
         assert_eq!(ctx, "hello!");
     }
+
+    #[tokio::test]
+    async fn test_always_pass_step_new() {
+        let step = AlwaysPassStep::new();
+        let step_ref: &dyn crate::api::Step<()> = &step;
+        assert_eq!(step_ref.name(), "always-pass");
+    }
+
+    #[tokio::test]
+    async fn test_mutating_step_new() {
+        let step = MutatingStep::new(|_x: &mut i32| {});
+        let step_ref: &dyn crate::api::Step<i32> = &step;
+        assert_eq!(step_ref.name(), "mutating");
+    }
+
+    #[tokio::test]
+    async fn test_always_fail_step_new() {
+        let step = AlwaysFailStep::new("error");
+        let step_ref: &dyn crate::api::Step<()> = &step;
+        assert_eq!(step_ref.name(), "always-fail");
+    }
 }

@@ -80,3 +80,73 @@ impl<Ctx: Send + 'static> Default for PipelineBuilder<Ctx> {
         Self::new()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    struct DummyStep;
+
+    #[async_trait::async_trait]
+    impl Step<()> for DummyStep {
+        async fn execute(&self, _ctx: &mut ()) -> Result<(), crate::api::PipelineError> {
+            Ok(())
+        }
+
+        fn name(&self) -> &str {
+            "dummy"
+        }
+    }
+
+    #[test]
+    fn test_new() {
+        let builder = PipelineBuilder::<()>::new();
+        assert_eq!(builder.build().step_count(), 0);
+    }
+
+    #[test]
+    fn test_with() {
+        let builder = PipelineBuilder::<()>::new().with(DummyStep);
+        assert_eq!(builder.build().step_count(), 1);
+    }
+
+    #[test]
+    fn test_with_if() {
+        let builder_true = PipelineBuilder::<()>::new().with_if(true, DummyStep);
+        assert_eq!(builder_true.build().step_count(), 1);
+
+        let builder_false = PipelineBuilder::<()>::new().with_if(false, DummyStep);
+        assert_eq!(builder_false.build().step_count(), 0);
+    }
+
+    #[test]
+    fn test_with_timeout() {
+        let builder = PipelineBuilder::<()>::new().with_timeout(Duration::from_secs(5));
+        let pipeline = builder.build();
+        assert_eq!(pipeline.config().timeout_per_step, Some(Duration::from_secs(5)));
+    }
+
+    #[test]
+    fn test_with_lifecycle_events() {
+        let builder = PipelineBuilder::<()>::new().with_lifecycle_events(true);
+        let pipeline = builder.build();
+        assert!(pipeline.config().emit_lifecycle_events);
+    }
+
+    #[test]
+    fn test_abort_on_error() {
+        let builder = PipelineBuilder::<()>::new().abort_on_error(false);
+        let pipeline = builder.build();
+        assert!(!pipeline.config().abort_on_error);
+    }
+
+    #[test]
+    fn test_build() {
+        let pipeline = PipelineBuilder::<()>::new()
+            .with(DummyStep)
+            .with_timeout(Duration::from_secs(10))
+            .build();
+        assert_eq!(pipeline.step_count(), 1);
+        assert_eq!(pipeline.config().timeout_per_step, Some(Duration::from_secs(10)));
+    }
+}
