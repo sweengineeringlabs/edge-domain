@@ -1,10 +1,8 @@
 //! Strategy and builder implementations.
 
 pub(crate) mod config_validator;
-mod pipeline_builder;
 mod noop_step;
 
-pub use pipeline_builder::PipelineBuilder;
 pub use noop_step::{NoopStep, AlwaysPassStep, AlwaysFailStep, MutatingStep};
 
 /// Create a config validator strategy.

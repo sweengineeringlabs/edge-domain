@@ -11,4 +11,5 @@ pub use step_svc::{Step, STEP_SVC};
 pub use validator_svc::{create_validator, Validator, VALIDATOR_SVC};
 
 // Re-export test helpers
-pub use crate::spi::{PipelineBuilder, NoopStep, AlwaysPassStep, AlwaysFailStep, MutatingStep};
+pub use crate::core::pipeline_builder::PipelineBuilder;
+pub use crate::spi::{NoopStep, AlwaysPassStep, AlwaysFailStep, MutatingStep};
