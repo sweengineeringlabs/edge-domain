@@ -18,7 +18,7 @@ use super::default_pipeline::DefaultPipeline;
 ///     .with(IdentifyCallerStep)
 ///     .build();
 /// ```
-pub struct PipelineBuilder<Ctx> {
+pub(crate) struct PipelineBuilder<Ctx> {
     steps: Vec<Arc<dyn Step<Ctx>>>,
     config: PipelineConfig,
 }

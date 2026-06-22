@@ -1,9 +1,7 @@
 //! Strategy and builder implementations.
 
 pub(crate) mod config_validator;
-mod noop_step;
-
-pub use noop_step::{NoopStep, AlwaysPassStep, AlwaysFailStep, MutatingStep};
+pub(crate) mod noop_step;
 
 /// Create a config validator strategy.
 pub fn create_validator(enabled: bool) -> Box<dyn crate::api::Validator> {
