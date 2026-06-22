@@ -90,4 +90,55 @@ mod tests {
         let validator = ConfigValidator::default();
         assert!(validator.is_enabled());
     }
+
+    // Scenario tests for validate() method
+    /// @covers: validate
+    #[tokio::test]
+    async fn test_validate_valid_config_happy() {
+        let validator = ConfigValidator::new(true);
+        let config = PipelineConfig::default();
+        assert!(validator.validate(&config).await.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_validate_invalid_config_error() {
+        let validator = ConfigValidator::new(true);
+        let config = PipelineConfig {
+            timeout_per_step: None,
+            emit_lifecycle_events: false,
+            abort_on_error: false,
+        };
+        assert!(validator.validate(&config).await.is_err());
+    }
+
+    #[tokio::test]
+    async fn test_validate_disabled_skips_error_edge() {
+        let validator = ConfigValidator::new(false);
+        let config = PipelineConfig {
+            timeout_per_step: None,
+            emit_lifecycle_events: false,
+            abort_on_error: false,
+        };
+        assert!(validator.validate(&config).await.is_ok());
+    }
+
+    // Scenario tests for is_enabled() method
+    /// @covers: is_enabled
+    #[test]
+    fn test_is_enabled_true_happy() {
+        let validator = ConfigValidator::new(true);
+        assert!(validator.is_enabled());
+    }
+
+    #[test]
+    fn test_is_enabled_false_error() {
+        let validator = ConfigValidator::new(false);
+        assert!(!validator.is_enabled());
+    }
+
+    #[test]
+    fn test_is_enabled_default_happy_edge() {
+        let validator = ConfigValidator::default();
+        assert!(validator.is_enabled());
+    }
 }
