@@ -1,9 +1,8 @@
 mod prompt;
 
 pub use prompt::{
-    ContextManager, Prompt, PromptBootstrap, TokenCounter,
-    PromptError,
-    HeuristicTokenCounter, MapContextManager, PromptCache, PromptCacheBuilder, PromptMetadata,
-    PromptMetadataBuilder, RenderContext, StaticPrompt, StdPromptFactory, Variable, VariableBuilder,
-    VariableType,
+    ContextManager, HeuristicTokenCounter, InMemoryTemplateProvider, MapContextManager, Prompt,
+    PromptBootstrap, PromptCache, PromptCacheBuilder, PromptError, PromptMetadata,
+    PromptMetadataBuilder, PromptTemplate, PromptTemplateBuilder, RenderContext, StaticPrompt,
+    StdPromptFactory, TemplateProvider, TokenCounter, Variable, VariableBuilder, VariableType,
 };

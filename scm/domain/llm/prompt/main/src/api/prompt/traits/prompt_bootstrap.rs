@@ -15,37 +15,58 @@ pub trait PromptBootstrap {
     }
 
     /// Return the standard prompt-factory instance.
-    fn std_factory() -> StdPromptFactory where Self: Sized {
+    fn std_factory() -> StdPromptFactory
+    where
+        Self: Sized,
+    {
         StdPromptFactory
     }
 
     /// Start a fluent [`VariableBuilder`].
-    fn variable_builder() -> VariableBuilder where Self: Sized {
+    fn variable_builder() -> VariableBuilder
+    where
+        Self: Sized,
+    {
         VariableBuilder::new()
     }
 
     /// Start a fluent [`PromptMetadataBuilder`].
-    fn prompt_metadata_builder() -> PromptMetadataBuilder where Self: Sized {
+    fn prompt_metadata_builder() -> PromptMetadataBuilder
+    where
+        Self: Sized,
+    {
         PromptMetadataBuilder::new()
     }
 
     /// Start a fluent [`PromptCacheBuilder`].
-    fn prompt_cache_builder() -> PromptCacheBuilder where Self: Sized {
+    fn prompt_cache_builder() -> PromptCacheBuilder
+    where
+        Self: Sized,
+    {
         PromptCacheBuilder::new()
     }
 
     /// Construct the reference [`StaticPrompt`] from a template body and metadata.
-    fn prompt(template: String, metadata: PromptMetadata) -> StaticPrompt where Self: Sized {
+    fn prompt(template: String, metadata: PromptMetadata) -> StaticPrompt
+    where
+        Self: Sized,
+    {
         StaticPrompt::new(template, metadata)
     }
 
     /// Construct an empty reference [`MapContextManager`].
-    fn context_manager() -> MapContextManager where Self: Sized {
+    fn context_manager() -> MapContextManager
+    where
+        Self: Sized,
+    {
         MapContextManager::new()
     }
 
     /// Construct the reference [`HeuristicTokenCounter`].
-    fn token_counter() -> HeuristicTokenCounter where Self: Sized {
+    fn token_counter() -> HeuristicTokenCounter
+    where
+        Self: Sized,
+    {
         HeuristicTokenCounter::new()
     }
 }

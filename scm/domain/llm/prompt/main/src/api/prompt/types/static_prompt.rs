@@ -17,7 +17,10 @@ pub struct StaticPrompt {
 impl StaticPrompt {
     /// Construct a prompt from a template body and its metadata.
     pub fn new(template: String, metadata: PromptMetadata) -> Self {
-        Self { template, metadata: Some(metadata) }
+        Self {
+            template,
+            metadata: Some(metadata),
+        }
     }
 
     /// Render the template against `context`, substituting `{{name}}` tokens.
@@ -25,7 +28,11 @@ impl StaticPrompt {
     /// Returns the rendered string and the list of placeholder names that had
     /// no matching variable in the context (used for completeness checks).
     pub(crate) fn substitute(&self, context: &RenderContext) -> (String, Vec<String>) {
-        let variables = self.metadata.as_ref().map(|m| m.variables.as_slice()).unwrap_or(&[]);
+        let variables = self
+            .metadata
+            .as_ref()
+            .map(|m| m.variables.as_slice())
+            .unwrap_or(&[]);
         let mut output = self.template.clone();
         let mut missing = Vec::new();
         for var in variables {

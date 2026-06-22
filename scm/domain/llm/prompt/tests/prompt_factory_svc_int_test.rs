@@ -2,8 +2,8 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_prompt::{
-    ContextManager, Prompt, PromptBootstrap, PromptMetadata, StdPromptFactory,
-    TokenCounter, VariableType,
+    ContextManager, Prompt, PromptBootstrap, PromptMetadata, StdPromptFactory, TokenCounter,
+    VariableType,
 };
 
 // --- std_factory ---
@@ -214,7 +214,8 @@ fn test_default_prompt_handler_renders_happy() {
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observe_context();
     let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
-    let render_ctx = RenderContext::new().with_variable("name".to_string(), serde_json::json!("Ada"));
+    let render_ctx =
+        RenderContext::new().with_variable("name".to_string(), serde_json::json!("Ada"));
     let out = block_on(Handler::execute(&h, render_ctx, ctx)).expect("ok");
     assert_eq!(out, "Hi Ada");
 }
@@ -267,7 +268,8 @@ fn test_prompt_handler_renders_with_arc_prompt_happy() {
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observe_context();
     let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
-    let render_ctx = RenderContext::new().with_variable("name".to_string(), serde_json::json!("Eve"));
+    let render_ctx =
+        RenderContext::new().with_variable("name".to_string(), serde_json::json!("Eve"));
     let out = block_on(Handler::execute(&h, render_ctx, ctx)).expect("ok");
     assert_eq!(out, "Hi Eve");
 }

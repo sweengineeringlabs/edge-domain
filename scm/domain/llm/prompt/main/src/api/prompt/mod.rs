@@ -1,13 +1,14 @@
-﻿//! Prompt domain contracts: traits, value types, and errors.
+//! Prompt domain contracts: traits, value types, and errors.
 
 pub mod errors;
 pub mod traits;
 pub mod types;
 
 pub use errors::PromptError;
-pub use traits::{ContextManager, Prompt, PromptBootstrap, TokenCounter};
+pub use traits::{ContextManager, Prompt, PromptBootstrap, TemplateProvider, TokenCounter};
 pub use types::{
-    HeuristicTokenCounter, MapContextManager, PromptCache, PromptCacheBuilder, PromptMetadata,
-    PromptMetadataBuilder, RenderContext, StaticPrompt, StdPromptFactory, Variable, VariableBuilder,
-    VariableType,
+    HeuristicTokenCounter, InMemoryTemplateProvider, MapContextManager, PromptCache,
+    PromptCacheBuilder, PromptMetadata, PromptMetadataBuilder, PromptTemplate,
+    PromptTemplateBuilder, RenderContext, StaticPrompt, StdPromptFactory, Variable,
+    VariableBuilder, VariableType,
 };

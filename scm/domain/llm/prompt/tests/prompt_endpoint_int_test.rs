@@ -5,7 +5,7 @@ use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{Handler, HandlerContext};
 use edge_domain_observe::StdObserveFactory;
 use edge_domain_security::SecurityContext;
-use edge_llm_prompt::{StdPromptFactory, PromptMetadata, RenderContext, Variable, VariableType};
+use edge_llm_prompt::{PromptMetadata, RenderContext, StdPromptFactory, Variable, VariableType};
 use futures::executor::block_on;
 
 fn make_handler() -> impl Handler<Request = RenderContext, Response = String> {

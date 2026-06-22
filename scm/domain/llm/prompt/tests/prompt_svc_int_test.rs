@@ -2,7 +2,8 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_prompt::{
-    Prompt, PromptBootstrap, PromptMetadata, RenderContext, StdPromptFactory, Variable, VariableType,
+    Prompt, PromptBootstrap, PromptMetadata, RenderContext, StdPromptFactory, Variable,
+    VariableType,
 };
 use futures::executor::block_on;
 
