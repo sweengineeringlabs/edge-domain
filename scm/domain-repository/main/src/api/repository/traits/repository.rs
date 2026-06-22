@@ -21,10 +21,17 @@ pub trait Repository: Send + Sync {
     type Id: Send + Sync + 'static;
 
     /// Returns the entity with the given `id`, or `None` if it does not exist.
-    fn find<'a>(&'a self, id: &'a Self::Id) -> BoxFuture<'a, Result<Option<Self::Entity>, RepositoryError>>;
+    fn find<'a>(
+        &'a self,
+        id: &'a Self::Id,
+    ) -> BoxFuture<'a, Result<Option<Self::Entity>, RepositoryError>>;
 
     /// Persists `entity` under `id`, replacing any existing entry.
-    fn save(&self, id: Self::Id, entity: Self::Entity) -> BoxFuture<'_, Result<(), RepositoryError>>;
+    fn save(
+        &self,
+        id: Self::Id,
+        entity: Self::Entity,
+    ) -> BoxFuture<'_, Result<(), RepositoryError>>;
 
     /// Removes the entity with the given `id`.
     ///
@@ -45,7 +52,11 @@ pub trait Repository: Send + Sync {
     }
 
     /// Returns a paginated slice of entities.
-    fn list_page(&self, offset: usize, limit: usize) -> BoxFuture<'_, Result<Page<Self::Entity>, RepositoryError>>
+    fn list_page(
+        &self,
+        offset: usize,
+        limit: usize,
+    ) -> BoxFuture<'_, Result<Page<Self::Entity>, RepositoryError>>
     where
         Self::Entity: Clone,
         Self: Sized,
@@ -70,7 +81,9 @@ mod tests {
 
     impl MapRepo {
         fn new() -> Self {
-            Self { store: std::sync::Mutex::new(std::collections::HashMap::new()) }
+            Self {
+                store: std::sync::Mutex::new(std::collections::HashMap::new()),
+            }
         }
     }
 
@@ -78,23 +91,45 @@ mod tests {
         type Entity = String;
         type Id = u32;
 
-        fn find<'a>(&'a self, id: &'a u32) -> BoxFuture<'a, Result<Option<String>, RepositoryError>> {
-            let val = self.store.lock().unwrap_or_else(|e| e.into_inner()).get(id).cloned();
+        fn find<'a>(
+            &'a self,
+            id: &'a u32,
+        ) -> BoxFuture<'a, Result<Option<String>, RepositoryError>> {
+            let val = self
+                .store
+                .lock()
+                .unwrap_or_else(|e| e.into_inner())
+                .get(id)
+                .cloned();
             Box::pin(async move { Ok(val) })
         }
 
         fn save(&self, id: u32, entity: String) -> BoxFuture<'_, Result<(), RepositoryError>> {
-            self.store.lock().unwrap_or_else(|e| e.into_inner()).insert(id, entity);
+            self.store
+                .lock()
+                .unwrap_or_else(|e| e.into_inner())
+                .insert(id, entity);
             Box::pin(async move { Ok(()) })
         }
 
         fn delete<'a>(&'a self, id: &'a u32) -> BoxFuture<'a, Result<bool, RepositoryError>> {
-            let removed = self.store.lock().unwrap_or_else(|e| e.into_inner()).remove(id).is_some();
+            let removed = self
+                .store
+                .lock()
+                .unwrap_or_else(|e| e.into_inner())
+                .remove(id)
+                .is_some();
             Box::pin(async move { Ok(removed) })
         }
 
         fn list(&self) -> BoxFuture<'_, Result<Vec<String>, RepositoryError>> {
-            let vals: Vec<_> = self.store.lock().unwrap_or_else(|e| e.into_inner()).values().cloned().collect();
+            let vals: Vec<_> = self
+                .store
+                .lock()
+                .unwrap_or_else(|e| e.into_inner())
+                .values()
+                .cloned()
+                .collect();
             Box::pin(async move { Ok(vals) })
         }
     }

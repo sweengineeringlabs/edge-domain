@@ -1,7 +1,9 @@
 //! SAF facade tests — `QueryableRepository` trait via `InMemoryRepository`.
 // @allow: no_mocks_in_integration — InMemoryRepository is the production-shipped reference impl, not a test double
 
-use edge_domain_repository::{InMemoryRepository, QueryableRepository, Repository, RepositoryBootstrap, Spec};
+use edge_domain_repository::{
+    InMemoryRepository, QueryableRepository, Repository, RepositoryBootstrap, Spec,
+};
 use futures::executor::block_on;
 
 struct Repos;
@@ -57,7 +59,10 @@ fn test_find_one_by_matching_spec_returns_first_happy() {
     block_on(repo.save(1, "alpha".into())).unwrap_or_default();
     block_on(repo.save(2, "beta".into())).unwrap_or_default();
     let found = block_on(repo.find_one_by(&StartsWithA)).unwrap_or(None);
-    assert!(found.as_deref().map(|s: &str| s.starts_with('a')).unwrap_or(false));
+    assert!(found
+        .as_deref()
+        .map(|s: &str| s.starts_with('a'))
+        .unwrap_or(false));
 }
 
 /// @covers: QueryableRepository::find_one_by — no match returns None

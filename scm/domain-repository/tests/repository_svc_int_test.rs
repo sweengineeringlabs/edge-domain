@@ -138,9 +138,8 @@ fn test_list_page_returns_correct_slice_happy() {
     for i in 0u32..5 {
         block_on(repo.save(i, format!("item-{i}"))).unwrap_or_default();
     }
-    let page = block_on(repo.list_page(0, 2)).unwrap_or_else(|_| {
-        edge_domain_repository::Page::new(vec![], 0, 0, 2)
-    });
+    let page = block_on(repo.list_page(0, 2))
+        .unwrap_or_else(|_| edge_domain_repository::Page::new(vec![], 0, 0, 2));
     assert_eq!(page.total, 5);
     assert_eq!(page.items.len(), 2);
 }
@@ -150,9 +149,8 @@ fn test_list_page_returns_correct_slice_happy() {
 fn test_list_page_offset_beyond_total_returns_empty_error() {
     let repo = make();
     block_on(repo.save(1, "a".into())).unwrap_or_default();
-    let page = block_on(repo.list_page(10, 5)).unwrap_or_else(|_| {
-        edge_domain_repository::Page::new(vec!["x".into()], 0, 10, 5)
-    });
+    let page = block_on(repo.list_page(10, 5))
+        .unwrap_or_else(|_| edge_domain_repository::Page::new(vec!["x".into()], 0, 10, 5));
     assert!(page.items.is_empty());
 }
 
@@ -163,8 +161,7 @@ fn test_list_page_last_partial_page_has_no_more_edge() {
     for i in 0u32..3 {
         block_on(repo.save(i, format!("x{i}"))).unwrap_or_default();
     }
-    let page = block_on(repo.list_page(0, 10)).unwrap_or_else(|_| {
-        edge_domain_repository::Page::new(vec![], 0, 0, 10)
-    });
+    let page = block_on(repo.list_page(0, 10))
+        .unwrap_or_else(|_| edge_domain_repository::Page::new(vec![], 0, 0, 10));
     assert!(!page.has_more());
 }

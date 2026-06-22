@@ -18,4 +18,3 @@ pub enum RepositoryError {
     #[error("internal: {0}")]
     Internal(String),
 }
-

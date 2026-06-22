@@ -16,7 +16,12 @@ pub struct Page<T> {
 impl<T> Page<T> {
     /// Creates a new `Page` with the given items, total count, offset, and limit.
     pub fn new(items: Vec<T>, total: usize, offset: usize, limit: usize) -> Self {
-        Self { items, total, offset, limit }
+        Self {
+            items,
+            total,
+            offset,
+            limit,
+        }
     }
 
     /// Returns `true` if there are more items beyond this page.
@@ -29,4 +34,3 @@ impl<T> Page<T> {
         self.has_more().then_some(self.offset + self.items.len())
     }
 }
-

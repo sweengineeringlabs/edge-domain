@@ -16,7 +16,9 @@ where
     Self::Entity: Clone + Send + Sync + 'static,
 {
     /// Returns a stable, non-empty identifier for this queryable repository.
-    fn bootstrap_name(&self) -> &'static str { "queryable_repository" }
+    fn bootstrap_name(&self) -> &'static str {
+        "queryable_repository"
+    }
 
     /// Returns all entities that satisfy the given specification.
     fn find_by<'a>(
@@ -65,7 +67,10 @@ mod tests {
         type Entity = u32;
         type Id = usize;
 
-        fn find<'a>(&'a self, id: &'a usize) -> BoxFuture<'a, Result<Option<u32>, RepositoryError>> {
+        fn find<'a>(
+            &'a self,
+            id: &'a usize,
+        ) -> BoxFuture<'a, Result<Option<u32>, RepositoryError>> {
             let val = self.items.get(*id).copied();
             Box::pin(async move { Ok(val) })
         }
@@ -107,27 +112,33 @@ mod tests {
     }
     impl Spec<u32> for EvenSpec {
         fn matches(&self, entity: &u32) -> bool {
-            entity % 2 == 0
+            entity.is_multiple_of(2)
         }
     }
 
     #[test]
     fn test_find_by_matching_spec_returns_filtered_results_happy() {
-        let repo = VecRepo { items: vec![1, 2, 3, 4] };
+        let repo = VecRepo {
+            items: vec![1, 2, 3, 4],
+        };
         let results = block_on(repo.find_by(&EvenSpec)).unwrap_or_default();
         assert_eq!(results, vec![2, 4]);
     }
 
     #[test]
     fn test_find_one_by_matching_spec_returns_first_happy() {
-        let repo = VecRepo { items: vec![1, 2, 3, 4] };
+        let repo = VecRepo {
+            items: vec![1, 2, 3, 4],
+        };
         let result = block_on(repo.find_one_by(&EvenSpec)).unwrap_or(None);
         assert_eq!(result, Some(2));
     }
 
     #[test]
     fn test_count_by_no_match_returns_zero_edge() {
-        let repo = VecRepo { items: vec![1, 3, 5] };
+        let repo = VecRepo {
+            items: vec![1, 3, 5],
+        };
         let n = block_on(repo.count_by(&EvenSpec)).unwrap_or(1);
         assert_eq!(n, 0);
     }

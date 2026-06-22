@@ -25,7 +25,9 @@ where
 {
     /// Creates a new, empty `InMemoryRepository`.
     pub fn new() -> Self {
-        Self { store: RwLock::new(HashMap::new()) }
+        Self {
+            store: RwLock::new(HashMap::new()),
+        }
     }
 }
 

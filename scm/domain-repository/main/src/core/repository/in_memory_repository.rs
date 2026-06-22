@@ -2,9 +2,9 @@
 
 use futures::future::BoxFuture;
 
+use crate::api::InMemoryRepository;
 use crate::api::RepositoryError;
 use crate::api::{QueryableRepository, Repository};
-use crate::api::InMemoryRepository;
 
 impl<T, Id> Repository for InMemoryRepository<T, Id>
 where
@@ -110,7 +110,8 @@ mod tests {
         struct InMemoryRepositoryNeverMatchSpec;
         impl Spec<String> for InMemoryRepositoryNeverMatchSpec {}
         let r: InMemoryRepository<String, u32> = InMemoryRepository::new();
-        let found = block_on(r.find_one_by(&InMemoryRepositoryNeverMatchSpec)).unwrap_or(Some("x".into()));
+        let found =
+            block_on(r.find_one_by(&InMemoryRepositoryNeverMatchSpec)).unwrap_or(Some("x".into()));
         assert!(found.is_none());
     }
 
