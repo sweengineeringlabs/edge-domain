@@ -37,6 +37,7 @@ service     = ["dep:edge-domain-service"]
 repository  = ["dep:edge-domain-repository"]
 handler     = ["dep:edge-domain-handler"]
 event       = ["dep:edge-domain-event"]
+pipeline    = ["dep:edge-domain-pipeline"]
 projection  = ["dep:edge-domain-projection", "event"]
 saga        = ["dep:edge-domain-saga",        "event", "command"]
 security    = []
@@ -46,7 +47,7 @@ full        = [
     "entity", "valueobject",
     "clock", "validator", "policy",
     "command", "query", "snapshot", "service",
-    "repository", "handler", "event",
+    "repository", "handler", "event", "pipeline",
     "projection", "saga",
     "security",
     "registry", "lifecycle",
@@ -70,6 +71,7 @@ edge-domain-service     = { workspace = true, optional = true }
 edge-domain-repository  = { workspace = true, optional = true }
 edge-domain-handler     = { workspace = true, optional = true }
 edge-domain-event       = { workspace = true, optional = true }
+edge-domain-pipeline    = { workspace = true, optional = true }
 edge-domain-projection  = { workspace = true, optional = true }
 edge-domain-saga        = { workspace = true, optional = true }
 edge-domain-registry    = { workspace = true, optional = true }
@@ -92,6 +94,7 @@ edge-domain-service.workspace      = true
 edge-domain-repository.workspace   = true
 edge-domain-handler.workspace      = true
 edge-domain-event.workspace        = true
+edge-domain-pipeline.workspace     = true
 edge-domain-projection.workspace   = true
 edge-domain-saga.workspace         = true
 edge-domain-registry.workspace     = true
