@@ -19,6 +19,7 @@ impl Step<String> for ErrorWithContext {
 }
 
 // PipelineError variants
+/// @covers: general
 #[test]
 fn test_error_step_failed_happy() {
     let err = PipelineError::StepFailed("test error".to_string());
@@ -26,11 +27,13 @@ fn test_error_step_failed_happy() {
     assert!(msg.contains("test error"));
 }
 
+/// @covers: general
 #[test]
 fn test_error_step_timeout_happy() {
     let _err = PipelineError::StepTimeout;
 }
 
+/// @covers: general
 #[test]
 fn test_error_config_error_happy() {
     let err = PipelineError::ConfigError("config issue".to_string());
@@ -39,6 +42,7 @@ fn test_error_config_error_happy() {
 }
 
 // Error propagation
+/// @covers: general
 #[tokio::test]
 async fn test_error_propagation_happy_stops_pipeline() {
     let pipeline = create_pipeline(vec![
@@ -50,6 +54,7 @@ async fn test_error_propagation_happy_stops_pipeline() {
     assert_eq!(ctx, "partial");
 }
 
+/// @covers: general
 #[tokio::test]
 async fn test_error_context_mutation_before_error() {
     let pipeline = create_pipeline(vec![
@@ -61,6 +66,7 @@ async fn test_error_context_mutation_before_error() {
 }
 
 // Error message preservation
+/// @covers: general
 #[test]
 fn test_error_message_happy_preserved() {
     let err = PipelineError::StepFailed("custom message".to_string());
@@ -70,6 +76,7 @@ fn test_error_message_happy_preserved() {
     }
 }
 
+/// @covers: general
 #[test]
 fn test_error_message_happy_empty() {
     let err = PipelineError::StepFailed("".to_string());
@@ -79,6 +86,7 @@ fn test_error_message_happy_empty() {
     }
 }
 
+/// @covers: general
 #[test]
 fn test_error_message_happy_long() {
     let long_msg = "x".repeat(1000);
@@ -90,12 +98,14 @@ fn test_error_message_happy_long() {
 }
 
 // Error trait impl
+/// @covers: general
 #[test]
 fn test_error_std_error_trait() {
     let err: Box<dyn std::error::Error> = Box::new(PipelineError::StepFailed("test".to_string()));
     assert!(!err.to_string().is_empty());
 }
 
+/// @covers: general
 #[test]
 fn test_error_display_trait() {
     let err = PipelineError::StepFailed("display test".to_string());
@@ -103,6 +113,7 @@ fn test_error_display_trait() {
     assert!(!s.is_empty());
 }
 
+/// @covers: general
 #[test]
 fn test_error_debug_trait() {
     let err = PipelineError::StepFailed("debug test".to_string());

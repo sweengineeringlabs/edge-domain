@@ -6,6 +6,7 @@ use edge_domain_pipeline::{ create_pipeline, create_pipeline_with_config, Pipeli
 use std::sync::Arc;
 use std::time::Duration;
 
+/// @covers: general
 #[tokio::test]
 async fn struct_default_pipeline_executes_sequentially() {
     let mut trace = Vec::new();
@@ -35,6 +36,7 @@ async fn struct_default_pipeline_executes_sequentially() {
     assert_eq!(trace, vec![1, 2, 3]);
 }
 
+/// @covers: general
 #[tokio::test]
 async fn struct_default_pipeline_with_config_timeout() {
     let config = PipelineConfig {
@@ -52,6 +54,7 @@ async fn struct_default_pipeline_with_config_timeout() {
     assert_eq!(pipeline.config().abort_on_error, true);
 }
 
+/// @covers: general
 #[tokio::test]
 async fn struct_default_pipeline_abort_on_error_true() {
     let mut exec_count = 0;
@@ -93,6 +96,7 @@ async fn struct_default_pipeline_abort_on_error_true() {
     assert_eq!(exec_count, 2);
 }
 
+/// @covers: general
 #[tokio::test]
 async fn struct_default_pipeline_config_with_lifecycle_events() {
     let config = PipelineConfig {
@@ -105,6 +109,7 @@ async fn struct_default_pipeline_config_with_lifecycle_events() {
     assert!(pipeline.config().emit_lifecycle_events);
 }
 
+/// @covers: general
 #[tokio::test]
 async fn struct_default_pipeline_as_step_nesting() {
     let inner = create_pipeline(vec![
@@ -117,6 +122,7 @@ async fn struct_default_pipeline_as_step_nesting() {
     assert!(outer.execute(&mut ctx).await.is_ok());
 }
 
+/// @covers: general
 #[tokio::test]
 async fn struct_default_pipeline_with_mixed_steps() {
     let steps: Vec<Arc<dyn Step<i32>>> = vec![
@@ -131,6 +137,7 @@ async fn struct_default_pipeline_with_mixed_steps() {
     assert_eq!(ctx, 15);
 }
 
+/// @covers: general
 #[tokio::test]
 async fn struct_default_pipeline_short_circuits_on_fail() {
     let mut executed = Vec::new();

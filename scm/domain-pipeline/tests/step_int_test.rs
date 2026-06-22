@@ -20,6 +20,7 @@ impl Step<i32> for CountingStep {
     }
 }
 
+/// @covers: general
 #[tokio::test]
 async fn trait_step_executes_and_mutates_context() {
     let step = CountingStep {
@@ -30,6 +31,7 @@ async fn trait_step_executes_and_mutates_context() {
     assert_eq!(ctx, 6);
 }
 
+/// @covers: general
 #[tokio::test]
 async fn trait_step_name_is_accessible() {
     let step = CountingStep {
@@ -38,6 +40,7 @@ async fn trait_step_name_is_accessible() {
     assert_eq!(step.name(), "my-step");
 }
 
+/// @covers: general
 #[tokio::test]
 async fn trait_step_error_halts_mutation() {
     struct FailingStep;
@@ -60,6 +63,7 @@ async fn trait_step_error_halts_mutation() {
     assert_eq!(ctx, "initial");
 }
 
+/// @covers: general
 #[tokio::test]
 async fn trait_step_dyn_dispatch_works() {
     let step1: Box<dyn Step<i32>> = Box::new(CountingStep {

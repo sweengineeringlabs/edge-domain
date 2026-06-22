@@ -5,6 +5,7 @@
 use edge_domain_pipeline::{create_pipeline, create_pipeline_with_config, {Pipeline, Step, PipelineError, DefaultPipeline, AlwaysPassStep, AlwaysFailStep};
 use std::sync::Arc;
 
+/// @covers: general
 #[tokio::test]
 async fn trait_pipeline_executes_all_steps_in_order() {
     struct RecordingStep(&'static str);
@@ -34,6 +35,7 @@ async fn trait_pipeline_executes_all_steps_in_order() {
     assert_eq!(ctx, vec!["a", "b", "c"]);
 }
 
+/// @covers: general
 #[tokio::test]
 async fn trait_pipeline_step_count_accurate() {
     let pipeline = create_pipeline(vec![
@@ -44,6 +46,7 @@ async fn trait_pipeline_step_count_accurate() {
     assert_eq!(pipeline.step_count(), 2);
 }
 
+/// @covers: general
 #[tokio::test]
 async fn trait_pipeline_is_empty_works() {
     let empty_pipeline: _ = create_pipeline(vec![]);
@@ -55,6 +58,7 @@ async fn trait_pipeline_is_empty_works() {
     assert!(!nonempty_pipeline.is_empty());
 }
 
+/// @covers: general
 #[tokio::test]
 async fn trait_pipeline_halts_on_first_error() {
     let mut step_count = 0;
@@ -90,6 +94,7 @@ async fn trait_pipeline_halts_on_first_error() {
     assert_eq!(step_count, 2);
 }
 
+/// @covers: general
 #[tokio::test]
 async fn trait_pipeline_dyn_dispatch_works() {
     let pipeline: Box<dyn Pipeline<i32>> = Box::new(create_pipeline(vec![
@@ -103,6 +108,7 @@ async fn trait_pipeline_dyn_dispatch_works() {
     assert!(Pipeline::execute(pipeline.as_ref(), &mut ctx).await.is_ok());
 }
 
+/// @covers: general
 #[tokio::test]
 async fn trait_pipeline_composable_as_step() {
     let inner = create_pipeline(vec![
