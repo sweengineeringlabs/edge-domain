@@ -124,8 +124,9 @@ None — public API changes are backward-incompatible but the crate is early-sta
 
 ## Related Issues
 
-### ISSUE: ADR Alignment (Blocking)
-**Link:** [issue-edge-domain-prompt-adr-alignment-tasks.md](issue-edge-domain-prompt-adr-alignment-tasks.md)
+### ISSUE #97: ADR Alignment (Blocking)
+**GitHub:** [#97 - Align edge-llm-prompt implementation to ADR-034](https://github.com/sweengineeringlabs/edge-domain/issues/97)  
+**Documentation:** [issue-edge-domain-prompt-adr-alignment-tasks.md](issue-edge-domain-prompt-adr-alignment-tasks.md)
 
 Before implementing arch remediation, implementation must align to ADR-034:
 - 6 misalignments documented (see issue for details)
