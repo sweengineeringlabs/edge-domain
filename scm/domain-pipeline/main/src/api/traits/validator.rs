@@ -83,4 +83,12 @@ mod tests {
         let validator = AlwaysFailValidator;
         assert!(!validator.is_enabled());
     }
+
+    /// @covers: Validator::is_enabled
+    #[test]
+    fn test_is_enabled_edge_multiple_calls_consistent() {
+        let validator = AlwaysValidValidator;
+        assert!(validator.is_enabled());
+        assert!(validator.is_enabled());  // Should be idempotent
+    }
 }

@@ -15,4 +15,6 @@ mod spi;
 
 // Public API surface
 pub use api::{PipelineConfig, PipelineError, Pipeline, Step, Validator};
-pub use saf::{create_pipeline, create_pipeline_with_config, create_validator, PIPELINE_SVC, STEP_SVC, VALIDATOR_SVC};
+pub use saf::{PIPELINE_SVC, STEP_SVC, VALIDATOR_SVC};
+pub use saf::pipeline_svc::{create_pipeline, create_pipeline_with_config};
+pub use saf::validator_svc::create_validator;

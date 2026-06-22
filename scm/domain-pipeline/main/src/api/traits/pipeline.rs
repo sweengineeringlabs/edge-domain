@@ -112,4 +112,41 @@ mod tests {
         let pipeline = MockPipeline { empty: false, config: PipelineConfig::default() };
         assert!(!pipeline.is_empty());
     }
+
+    /// @covers: Pipeline::step_count
+    #[test]
+    fn test_pipeline_step_count_happy_returns_count() {
+        let pipeline = MockPipeline { empty: false, config: PipelineConfig::default() };
+        assert_eq!(pipeline.step_count(), 1);
+    }
+
+    /// @covers: Pipeline::step_count
+    #[test]
+    fn test_pipeline_step_count_edge_empty_zero() {
+        let pipeline = MockPipeline { empty: true, config: PipelineConfig::default() };
+        assert_eq!(pipeline.step_count(), 0);
+    }
+
+    /// @covers: Pipeline::config
+    #[test]
+    fn test_pipeline_config_happy_returns_reference() {
+        let config = PipelineConfig {
+            timeout_per_step: Some(std::time::Duration::from_secs(10)),
+            emit_lifecycle_events: true,
+            abort_on_error: false,
+        };
+        let pipeline = MockPipeline { empty: false, config: config.clone() };
+        assert_eq!(pipeline.config().timeout_per_step, Some(std::time::Duration::from_secs(10)));
+        assert!(pipeline.config().emit_lifecycle_events);
+        assert!(!pipeline.config().abort_on_error);
+    }
+
+    /// @covers: Pipeline::config
+    #[test]
+    fn test_pipeline_config_edge_defaults() {
+        let pipeline = MockPipeline { empty: false, config: PipelineConfig::default() };
+        assert!(pipeline.config().timeout_per_step.is_none());
+        assert!(!pipeline.config().emit_lifecycle_events);
+        assert!(pipeline.config().abort_on_error);
+    }
 }
