@@ -1,7 +1,7 @@
 //! @covers error handling and edge cases
 //! Error scenario tests for PipelineError and error handling.
 
-use edge_domain_pipeline::{create_pipeline, create_pipeline_with_config, {PipelineError, Pipeline, DefaultPipeline, Step};
+use edge_domain_pipeline::{create_pipeline, create_pipeline_with_config, PipelineError, Pipeline, Step};
 use std::sync::Arc;
 
 struct ErrorWithContext(String);
@@ -49,7 +49,7 @@ async fn test_error_propagation_happy_stops_pipeline() {
         Arc::new(ErrorWithContext("partial".to_string())),
     ]);
     let mut ctx = String::new();
-    let result = Pipeline::execute(&pipeline, &mut ctx).await;
+    let result = pipeline.execute(&mut ctx).await;
     assert!(result.is_err());
     assert_eq!(ctx, "partial");
 }
@@ -61,7 +61,7 @@ async fn test_error_context_mutation_before_error() {
         Arc::new(ErrorWithContext("before".to_string())),
     ]);
     let mut ctx = String::new();
-    let _ = Pipeline::execute(&pipeline, &mut ctx).await;
+    let _ = pipeline.execute(&mut ctx).await;
     assert_eq!(ctx, "before");
 }
 
@@ -119,4 +119,28 @@ fn test_error_debug_trait() {
     let err = PipelineError::StepFailed("debug test".to_string());
     let s = format!("{:?}", err);
     assert!(!s.is_empty());
+}
+
+// Edge case: multiple error types in sequence
+/// @covers: general
+#[test]
+fn test_error_edge_multiple_error_types() {
+    let e1 = PipelineError::StepFailed("step".to_string());
+    let e2 = PipelineError::StepTimeout;
+    let e3 = PipelineError::ConfigError("config".to_string());
+
+    match e1 {
+        PipelineError::StepFailed(_) => {},
+        _ => panic!("expected StepFailed"),
+    }
+
+    match e2 {
+        PipelineError::StepTimeout => {},
+        _ => panic!("expected StepTimeout"),
+    }
+
+    match e3 {
+        PipelineError::ConfigError(_) => {},
+        _ => panic!("expected ConfigError"),
+    }
 }

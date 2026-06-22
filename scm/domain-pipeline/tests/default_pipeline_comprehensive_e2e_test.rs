@@ -2,7 +2,7 @@
 //! Comprehensive scenario coverage for DefaultPipeline struct.
 //! Tests: config variations, nesting, edge cases
 
-use edge_domain_pipeline::{ create_pipeline, create_pipeline_with_config, Pipeline, Step, PipelineConfig, AlwaysPassStep, AlwaysFailStep, MutatingStep};
+use edge_domain_pipeline::{ create_pipeline, create_pipeline_with_config, Pipeline, Step, PipelineConfig, PipelineAsStep, AlwaysPassStep, AlwaysFailStep, MutatingStep};
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -14,7 +14,7 @@ fn test_default_pipeline_config_happy_with_timeout() {
         emit_lifecycle_events: false,
         abort_on_error: true,
     };
-    let pipeline = create_pipeline_with_config(vec![], config);
+    let pipeline: Box<dyn Pipeline<i32>> = create_pipeline_with_config(vec![], config);
     assert_eq!(pipeline.config().timeout_per_step, Some(Duration::from_secs(5)));
 }
 
@@ -25,7 +25,7 @@ fn test_default_pipeline_config_happy_no_timeout() {
         emit_lifecycle_events: false,
         abort_on_error: true,
     };
-    let pipeline = create_pipeline_with_config(vec![], config);
+    let pipeline: Box<dyn Pipeline<i32>> = create_pipeline_with_config(vec![], config);
     assert_eq!(pipeline.config().timeout_per_step, None);
 }
 
@@ -37,7 +37,7 @@ fn test_default_pipeline_config_happy_lifecycle_enabled() {
         emit_lifecycle_events: true,
         abort_on_error: true,
     };
-    let pipeline = create_pipeline_with_config(vec![], config);
+    let pipeline: Box<dyn Pipeline<i32>> = create_pipeline_with_config(vec![], config);
     assert!(pipeline.config().emit_lifecycle_events);
 }
 
@@ -48,7 +48,7 @@ fn test_default_pipeline_config_happy_lifecycle_disabled() {
         emit_lifecycle_events: false,
         abort_on_error: true,
     };
-    let pipeline = create_pipeline_with_config(vec![], config);
+    let pipeline: Box<dyn Pipeline<i32>> = create_pipeline_with_config(vec![], config);
     assert!(!pipeline.config().emit_lifecycle_events);
 }
 
@@ -60,7 +60,7 @@ fn test_default_pipeline_config_happy_abort_true() {
         emit_lifecycle_events: false,
         abort_on_error: true,
     };
-    let pipeline = create_pipeline_with_config(vec![], config);
+    let pipeline: Box<dyn Pipeline<i32>> = create_pipeline_with_config(vec![], config);
     assert!(pipeline.config().abort_on_error);
 }
 
@@ -71,7 +71,7 @@ fn test_default_pipeline_config_happy_abort_false() {
         emit_lifecycle_events: false,
         abort_on_error: false,
     };
-    let pipeline = create_pipeline_with_config(vec![], config);
+    let pipeline: Box<dyn Pipeline<i32>> = create_pipeline_with_config(vec![], config);
     assert!(!pipeline.config().abort_on_error);
 }
 
@@ -79,26 +79,30 @@ fn test_default_pipeline_config_happy_abort_false() {
 #[tokio::test]
 async fn test_default_pipeline_composability_happy_single_nesting() {
     let inner = create_pipeline(vec![Arc::new(AlwaysPassStep::new())]);
-    let outer: _ = create_pipeline(vec![Arc::new(inner)]);
+    let inner_as_step: Arc<dyn Step<i32>> = Arc::new(PipelineAsStep::new(inner));
+    let outer: Box<dyn Pipeline<i32>> = create_pipeline(vec![inner_as_step]);
     let mut ctx = 0;
-    assert!(Pipeline::execute(&outer, &mut ctx).await.is_ok());
+    assert!(outer.execute(&mut ctx).await.is_ok());
 }
 
 #[tokio::test]
 async fn test_default_pipeline_composability_happy_double_nesting() {
     let level1 = create_pipeline(vec![Arc::new(AlwaysPassStep::new())]);
-    let level2: _ = create_pipeline(vec![Arc::new(level1)]);
-    let level3: _ = create_pipeline(vec![Arc::new(level2)]);
+    let level1_as_step: Arc<dyn Step<i32>> = Arc::new(PipelineAsStep::new(level1));
+    let level2: Box<dyn Pipeline<i32>> = create_pipeline(vec![level1_as_step]);
+    let level2_as_step: Arc<dyn Step<i32>> = Arc::new(PipelineAsStep::new(level2));
+    let level3: Box<dyn Pipeline<i32>> = create_pipeline(vec![level2_as_step]);
     let mut ctx = 0;
-    assert!(Pipeline::execute(&level3, &mut ctx).await.is_ok());
+    assert!(level3.execute(&mut ctx).await.is_ok());
 }
 
 #[tokio::test]
 async fn test_default_pipeline_composability_error_inner_fails() {
     let inner = create_pipeline(vec![Arc::new(AlwaysFailStep::new("inner failed"))]);
-    let outer: _ = create_pipeline(vec![Arc::new(inner)]);
+    let inner_as_step: Arc<dyn Step<i32>> = Arc::new(PipelineAsStep::new(inner));
+    let outer: Box<dyn Pipeline<i32>> = create_pipeline(vec![inner_as_step]);
     let mut ctx = 0;
-    let result = Pipeline::execute(&outer, &mut ctx).await;
+    let result = outer.execute(&mut ctx).await;
     assert!(result.is_err());
 }
 
@@ -111,7 +115,7 @@ async fn test_default_pipeline_mutation_happy_accumulate() {
         Arc::new(MutatingStep::new(|ctx: &mut i32| *ctx += 3)),
     ]);
     let mut ctx = 0;
-    assert!(Pipeline::execute(&pipeline, &mut ctx).await.is_ok());
+    assert!(pipeline.execute(&mut ctx).await.is_ok());
     assert_eq!(ctx, 6);
 }
 
@@ -123,7 +127,7 @@ async fn test_default_pipeline_mutation_happy_chain() {
         Arc::new(MutatingStep::new(|ctx: &mut String| ctx.push_str("c"))),
     ]);
     let mut ctx = String::new();
-    assert!(Pipeline::execute(&pipeline, &mut ctx).await.is_ok());
+    assert!(pipeline.execute(&mut ctx).await.is_ok());
     assert_eq!(ctx, "abc");
 }
 
@@ -137,7 +141,7 @@ async fn test_default_pipeline_edge_many_steps() {
     let pipeline = create_pipeline(steps);
     assert_eq!(pipeline.step_count(), 100);
     let mut ctx = 0;
-    assert!(Pipeline::execute(&pipeline, &mut ctx).await.is_ok());
+    assert!(pipeline.execute(&mut ctx).await.is_ok());
 }
 
 // Edge cases: mixed step types
@@ -150,7 +154,7 @@ async fn test_default_pipeline_edge_mixed_step_types() {
         Arc::new(MutatingStep::new(|ctx: &mut i32| *ctx *= 2)),
     ]);
     let mut ctx = 3;
-    assert!(Pipeline::execute(&pipeline, &mut ctx).await.is_ok());
+    assert!(pipeline.execute(&mut ctx).await.is_ok());
     assert_eq!(ctx, 16);
 }
 
@@ -163,7 +167,7 @@ async fn test_default_pipeline_edge_fail_in_mixed_chain() {
         Arc::new(MutatingStep::new(|ctx: &mut i32| *ctx *= 2)),
     ]);
     let mut ctx = 3;
-    let result = Pipeline::execute(&pipeline, &mut ctx).await;
+    let result = pipeline.execute(&mut ctx).await;
     assert!(result.is_err());
     assert_eq!(ctx, 8);
 }
@@ -171,7 +175,21 @@ async fn test_default_pipeline_edge_fail_in_mixed_chain() {
 // Clone support
 #[test]
 fn test_default_pipeline_clone_happy() {
-    let pipeline1: _ = create_pipeline(vec![]);
-    let pipeline2 = create_pipeline(vec![]);
+    let _pipeline1: Box<dyn Pipeline<i32>> = create_pipeline(vec![]);
+    let pipeline2: Box<dyn Pipeline<i32>> = create_pipeline(vec![]);
     assert_eq!(pipeline2.step_count(), 0);
+}
+
+// Edge case: config with all options enabled
+#[test]
+fn test_default_pipeline_config_edge_all_enabled() {
+    let config = PipelineConfig {
+        timeout_per_step: Some(Duration::from_secs(10)),
+        emit_lifecycle_events: true,
+        abort_on_error: true,
+    };
+    let pipeline: Box<dyn Pipeline<i32>> = create_pipeline_with_config(vec![], config);
+    assert_eq!(pipeline.config().timeout_per_step, Some(Duration::from_secs(10)));
+    assert!(pipeline.config().emit_lifecycle_events);
+    assert!(pipeline.config().abort_on_error);
 }

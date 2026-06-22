@@ -1,6 +1,7 @@
 //! [`Pipeline<Ctx>`] — orchestrates a sequence of steps.
 
 use super::super::error::PipelineError;
+use super::step::Step;
 
 /// Orchestrates a sequence of [`Step`] operations.
 ///
@@ -30,5 +31,20 @@ pub trait Pipeline<Ctx>: Send + Sync {
     /// Return true if the pipeline has no steps.
     fn is_empty(&self) -> bool {
         self.step_count() == 0
+    }
+
+    /// Get the pipeline configuration.
+    fn config(&self) -> &super::super::PipelineConfig;
+}
+
+/// Blanket impl: any Pipeline can be used as a Step, enabling composition.
+#[async_trait::async_trait]
+impl<Ctx: Send + 'static> Step<Ctx> for dyn Pipeline<Ctx> {
+    async fn execute(&self, ctx: &mut Ctx) -> Result<(), PipelineError> {
+        Pipeline::execute(self, ctx).await
+    }
+
+    fn name(&self) -> &str {
+        "pipeline-step"
     }
 }

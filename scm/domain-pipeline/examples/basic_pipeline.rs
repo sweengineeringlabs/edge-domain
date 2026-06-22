@@ -48,7 +48,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Initial context: {}", context);
     println!("\nExecuting pipeline...");
 
-    Pipeline::execute(&pipeline, &mut context).await?;
+    pipeline.execute(&mut context).await?;
 
     println!("\nFinal context: {}", context);
     println!("Expected: 16 (5 + 3 = 8, 8 * 2 = 16)");

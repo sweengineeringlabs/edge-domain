@@ -11,6 +11,7 @@
 mod api;
 mod core;
 mod saf;
-mod spi;
+pub mod spi;
 
 pub use saf::*;
+pub use spi::noop_step::{AlwaysFailStep, AlwaysPassStep, MutatingStep, NoopStep};

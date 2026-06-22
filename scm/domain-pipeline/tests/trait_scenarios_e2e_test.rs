@@ -1,7 +1,7 @@
 //! Scenario-labeled tests for trait methods: happy/error/edge paths
 //! Required by audit: every trait fn must have _happy, _error, _edge test coverage
 
-use edge_domain_pipeline::{create_pipeline, create_pipeline_with_config, {Pipeline, Step, PipelineError, DefaultPipeline, AlwaysPassStep, AlwaysFailStep};
+use edge_domain_pipeline::{create_pipeline, create_pipeline_with_config, Pipeline, Step, PipelineError, DefaultPipeline, AlwaysPassStep, AlwaysFailStep};
 use std::sync::Arc;
 
 // ─── Step trait: execute ───────────────────────────────────────────────────
@@ -73,7 +73,7 @@ async fn test_pipeline_execute_nominal_happy() {
         Arc::new(AlwaysPassStep::new()),
     ]);
     let mut ctx = 0;
-    assert!(Pipeline::execute(&pipeline, &mut ctx).await.is_ok());
+    assert!(pipeline.execute(&mut ctx).await.is_ok());
 }
 
 /// @covers: execute
@@ -83,7 +83,7 @@ async fn test_pipeline_execute_nominal_error() {
         Arc::new(AlwaysFailStep::new("stop")),
     ]);
     let mut ctx = 0;
-    assert!(Pipeline::execute(&pipeline, &mut ctx).await.is_err());
+    assert!(pipeline.execute(&mut ctx).await.is_err());
 }
 
 /// @covers: execute
@@ -95,7 +95,7 @@ async fn test_pipeline_execute_nominal_edge() {
     }
     let pipeline = create_pipeline(steps);
     let mut ctx = 0;
-    assert!(Pipeline::execute(&pipeline, &mut ctx).await.is_ok());
+    assert!(pipeline.execute(&mut ctx).await.is_ok());
 }
 
 // ─── Pipeline trait: step_count ────────────────────────────────────────────

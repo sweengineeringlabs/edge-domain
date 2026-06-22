@@ -2,7 +2,7 @@
 //!
 //! @covers DefaultPipeline
 
-use edge_domain_pipeline::{ create_pipeline, create_pipeline_with_config, Pipeline, Step, PipelineError, PipelineConfig, NoopStep, AlwaysPassStep, AlwaysFailStep, MutatingStep};
+use edge_domain_pipeline::{ create_pipeline, create_pipeline_with_config, Pipeline, Step, PipelineError, PipelineConfig, PipelineAsStep, NoopStep, AlwaysPassStep, MutatingStep};
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -31,8 +31,8 @@ async fn struct_default_pipeline_executes_sequentially() {
         Arc::new(TraceStep(3)),
     ];
 
-    let pipeline = create_pipeline(steps);
-    assert!(Pipeline::execute(&pipeline, &mut trace).await.is_ok());
+    let pipeline: Box<dyn Pipeline<Vec<usize>>> = create_pipeline(steps);
+    assert!(pipeline.execute(&mut trace).await.is_ok());
     assert_eq!(trace, vec![1, 2, 3]);
 }
 
@@ -45,7 +45,7 @@ async fn struct_default_pipeline_with_config_timeout() {
         abort_on_error: true,
     };
 
-    let pipeline = create_pipeline_with_config(
+    let pipeline: Box<dyn Pipeline<i32>> = create_pipeline_with_config(
         vec![Arc::new(NoopStep)],
         config.clone(),
     );
@@ -89,8 +89,8 @@ async fn struct_default_pipeline_abort_on_error_true() {
         Arc::new(CountingFailStep),
     ];
 
-    let pipeline = create_pipeline_with_config(steps, config);
-    let result = Pipeline::execute(&pipeline, &mut exec_count).await;
+    let pipeline: Box<dyn Pipeline<usize>> = create_pipeline_with_config(steps, config);
+    let result = pipeline.execute(&mut exec_count).await;
 
     assert!(result.is_err());
     assert_eq!(exec_count, 2);
@@ -105,7 +105,7 @@ async fn struct_default_pipeline_config_with_lifecycle_events() {
         abort_on_error: true,
     };
 
-    let pipeline = create_pipeline_with_config(vec![], config.clone());
+    let pipeline: Box<dyn Pipeline<i32>> = create_pipeline_with_config(vec![], config.clone());
     assert!(pipeline.config().emit_lifecycle_events);
 }
 
@@ -117,7 +117,8 @@ async fn struct_default_pipeline_as_step_nesting() {
         Arc::new(AlwaysPassStep::new()),
     ]);
 
-    let outer: Arc<dyn Step<i32>> = Arc::new(inner);
+    let inner_as_step: Arc<dyn Step<i32>> = Arc::new(PipelineAsStep::new(inner));
+    let outer: Box<dyn Pipeline<i32>> = create_pipeline(vec![inner_as_step]);
     let mut ctx = 0;
     assert!(outer.execute(&mut ctx).await.is_ok());
 }
@@ -133,7 +134,7 @@ async fn struct_default_pipeline_with_mixed_steps() {
 
     let pipeline = create_pipeline(steps);
     let mut ctx = 10;
-    assert!(Pipeline::execute(&pipeline, &mut ctx).await.is_ok());
+    assert!(pipeline.execute(&mut ctx).await.is_ok());
     assert_eq!(ctx, 15);
 }
 
@@ -167,7 +168,7 @@ async fn struct_default_pipeline_short_circuits_on_fail() {
     ];
 
     let pipeline = create_pipeline(steps);
-    let result = Pipeline::execute(&pipeline, &mut executed).await;
+    let result = pipeline.execute(&mut executed).await;
 
     assert!(result.is_err());
     assert_eq!(executed, vec!["a", "b"]);

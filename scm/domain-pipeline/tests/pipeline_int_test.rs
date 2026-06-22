@@ -2,7 +2,7 @@
 //!
 //! @covers Pipeline
 
-use edge_domain_pipeline::{create_pipeline, create_pipeline_with_config, {Pipeline, Step, PipelineError, DefaultPipeline, AlwaysPassStep, AlwaysFailStep};
+use edge_domain_pipeline::{create_pipeline, create_pipeline_with_config, Pipeline, Step, PipelineError, DefaultPipeline, AlwaysPassStep, AlwaysFailStep};
 use std::sync::Arc;
 
 /// @covers: general
@@ -31,7 +31,7 @@ async fn trait_pipeline_executes_all_steps_in_order() {
     let pipeline = create_pipeline(steps);
     let mut ctx = Vec::new();
 
-    assert!(Pipeline::execute(&pipeline, &mut ctx).await.is_ok());
+    assert!(pipeline.execute(&mut ctx).await.is_ok());
     assert_eq!(ctx, vec!["a", "b", "c"]);
 }
 
@@ -88,7 +88,7 @@ async fn trait_pipeline_halts_on_first_error() {
     ];
 
     let pipeline = create_pipeline(steps);
-    let result = Pipeline::execute(&pipeline, &mut step_count).await;
+    let result = pipeline.execute(&mut step_count).await;
 
     assert!(result.is_err());
     assert_eq!(step_count, 2);

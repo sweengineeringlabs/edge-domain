@@ -6,7 +6,7 @@ use crate::api::{PipelineError, Step};
 ///
 /// Used in tests to fill pipelines without side effects.
 #[derive(Clone, Debug)]
-pub(crate) struct NoopStep;
+pub struct NoopStep;
 
 #[async_trait::async_trait]
 impl<Ctx: Send> Step<Ctx> for NoopStep {
@@ -23,7 +23,7 @@ impl<Ctx: Send> Step<Ctx> for NoopStep {
 ///
 /// Used to test successful step execution and context propagation.
 #[derive(Clone, Debug)]
-pub(crate) struct AlwaysPassStep {
+pub struct AlwaysPassStep {
     _phantom: std::marker::PhantomData<()>,
 }
 
@@ -57,7 +57,7 @@ impl Default for AlwaysPassStep {
 ///
 /// Generic version for more complex test scenarios.
 #[derive(Clone, Debug)]
-pub(crate) struct MutatingStep<F> {
+pub struct MutatingStep<F> {
     mutate_fn: F,
 }
 
@@ -84,7 +84,7 @@ impl<Ctx: Send, F: Fn(&mut Ctx) + Send + Sync> Step<Ctx> for MutatingStep<F> {
 ///
 /// Used to test error handling and pipeline abort behavior.
 #[derive(Clone, Debug)]
-pub(crate) struct AlwaysFailStep {
+pub struct AlwaysFailStep {
     error_msg: String,
 }
 

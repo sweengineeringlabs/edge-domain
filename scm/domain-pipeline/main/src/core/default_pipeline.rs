@@ -43,6 +43,10 @@ impl<Ctx: Send> Pipeline<Ctx> for DefaultPipeline<Ctx> {
     fn step_count(&self) -> usize {
         self.steps.len()
     }
+
+    fn config(&self) -> &PipelineConfig {
+        &self.config
+    }
 }
 
 #[async_trait::async_trait]
