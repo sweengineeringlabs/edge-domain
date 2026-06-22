@@ -18,6 +18,7 @@ use super::super::error::PipelineError;
 /// - `Err(PipelineError::StepFailed(_))` — Step failed; abort pipeline
 /// - `Err(PipelineError::StepTimeout)` — Step exceeded timeout; abort or skip based on config
 /// - `Err(PipelineError::ConfigError(_))` — Configuration error; abort pipeline
+#[async_trait::async_trait]
 pub trait Step<Ctx>: Send + Sync {
     /// Execute this step, mutating the context in-place.
     ///

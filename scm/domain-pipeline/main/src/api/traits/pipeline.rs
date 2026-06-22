@@ -11,6 +11,7 @@ use super::super::error::PipelineError;
 /// # Invariant
 ///
 /// Steps execute sequentially. The pipeline is not parallel.
+#[async_trait::async_trait]
 pub trait Pipeline<Ctx>: Send + Sync {
     /// Execute all steps in order.
     ///
