@@ -1,2 +1,6 @@
 target/
 Cargo.lock
+
+# Transient local artifacts — never track in any crate (keeps crate roots clean)
+.claude/
+arch_audit.txt
