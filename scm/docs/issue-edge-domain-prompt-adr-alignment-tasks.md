@@ -1,10 +1,11 @@
-# ISSUE #: Align edge-llm-prompt Implementation to ADR-034
+# ISSUE #97: Align edge-llm-prompt Implementation to ADR-034
 
+**GitHub Issue:** [#97](https://github.com/sweengineeringlabs/edge-domain/issues/97)  
 **Epic:** [edge-domain-prompt Architectural Compliance — 181/183 → 183/183](epic-edge-domain-prompt-arch-remediation.md)  
 **Issue Document:** [issue-edge-domain-prompt-adr-alignment.md](issue-edge-domain-prompt-adr-alignment.md)  
 **Crate:** `domain/llm/prompt`  
 **Status:** Open  
-**Created:** 2026-06-22 (commit 56c09c1)  
+**Created:** 2026-06-22 (commit 56c09c1, issue e1546fb)  
 
 ---
 
