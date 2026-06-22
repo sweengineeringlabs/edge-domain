@@ -13,4 +13,6 @@ mod core;
 mod saf;
 mod spi;
 
-pub use saf::*;
+// Public API surface
+pub use api::{PipelineConfig, PipelineError, Pipeline, Step, Validator};
+pub use saf::{create_pipeline, create_pipeline_with_config, create_validator, PIPELINE_SVC, STEP_SVC, VALIDATOR_SVC};

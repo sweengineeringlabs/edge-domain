@@ -2,7 +2,7 @@
 
 mod error;
 mod traits;
-pub mod types;
+mod types;
 
 pub use error::PipelineError;
 pub use traits::{Pipeline, Step, Validator};

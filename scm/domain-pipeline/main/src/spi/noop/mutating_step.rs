@@ -6,13 +6,13 @@ use crate::api::{PipelineError, Step};
 ///
 /// Generic version for more complex test scenarios.
 #[derive(Clone, Debug)]
-pub struct MutatingStep<F> {
+pub(crate) struct MutatingStep<F> {
     mutate_fn: F,
 }
 
 impl<F> MutatingStep<F> {
     /// Create a step that applies the given mutation.
-    pub fn new(mutate_fn: F) -> Self {
+    pub(crate) fn new(mutate_fn: F) -> Self {
         Self { mutate_fn }
     }
 }

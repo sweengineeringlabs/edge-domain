@@ -6,13 +6,13 @@ use crate::api::{PipelineError, Step};
 ///
 /// Used to test error handling and pipeline abort behavior.
 #[derive(Clone, Debug)]
-pub struct AlwaysFailStep {
+pub(crate) struct AlwaysFailStep {
     error_msg: String,
 }
 
 impl AlwaysFailStep {
     /// Create a step that always fails with the given error message.
-    pub fn new(error_msg: impl Into<String>) -> Self {
+    pub(crate) fn new(error_msg: impl Into<String>) -> Self {
         Self {
             error_msg: error_msg.into(),
         }

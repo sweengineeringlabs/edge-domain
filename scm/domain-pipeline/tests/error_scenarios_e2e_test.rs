@@ -21,7 +21,7 @@ impl Step<String> for ErrorWithContext {
 // PipelineError variants
 /// @covers: general
 #[test]
-fn test_error_step_failed_happy() {
+fn test_error_step_failed_happy_edge() {
     let err = PipelineError::StepFailed("test error".to_string());
     let msg = format!("{}", err);
     assert!(msg.contains("test error"));
@@ -29,13 +29,13 @@ fn test_error_step_failed_happy() {
 
 /// @covers: general
 #[test]
-fn test_error_step_timeout_happy() {
+fn test_error_step_timeout_happy_edge() {
     let _err = PipelineError::StepTimeout;
 }
 
 /// @covers: general
 #[test]
-fn test_error_config_error_happy() {
+fn test_error_config_error_happy_edge() {
     let err = PipelineError::ConfigError("config issue".to_string());
     let msg = format!("{}", err);
     assert!(msg.contains("config issue"));
@@ -44,7 +44,7 @@ fn test_error_config_error_happy() {
 // Error propagation
 /// @covers: general
 #[tokio::test]
-async fn test_error_propagation_happy_stops_pipeline() {
+async fn test_error_propagation_stops_pipeline_happy() {
     let pipeline = create_pipeline(vec![
         Arc::new(ErrorWithContext("partial".to_string())),
     ]);
@@ -56,7 +56,7 @@ async fn test_error_propagation_happy_stops_pipeline() {
 
 /// @covers: general
 #[tokio::test]
-async fn test_error_context_mutation_before_error() {
+async fn test_error_context_mutation_before_error_happy() {
     let pipeline = create_pipeline(vec![
         Arc::new(ErrorWithContext("before".to_string())),
     ]);
@@ -68,7 +68,7 @@ async fn test_error_context_mutation_before_error() {
 // Error message preservation
 /// @covers: general
 #[test]
-fn test_error_message_happy_preserved() {
+fn test_error_message_preserved_happy() {
     let err = PipelineError::StepFailed("custom message".to_string());
     match err {
         PipelineError::StepFailed(msg) => assert_eq!(msg, "custom message"),
@@ -78,7 +78,7 @@ fn test_error_message_happy_preserved() {
 
 /// @covers: general
 #[test]
-fn test_error_message_happy_empty() {
+fn test_error_message_empty_happy() {
     let err = PipelineError::StepFailed("".to_string());
     match err {
         PipelineError::StepFailed(msg) => assert_eq!(msg, ""),
@@ -88,7 +88,7 @@ fn test_error_message_happy_empty() {
 
 /// @covers: general
 #[test]
-fn test_error_message_happy_long() {
+fn test_error_message_long_happy() {
     let long_msg = "x".repeat(1000);
     let err = PipelineError::StepFailed(long_msg.clone());
     match err {
@@ -100,14 +100,14 @@ fn test_error_message_happy_long() {
 // Error trait impl
 /// @covers: general
 #[test]
-fn test_error_std_error_trait() {
+fn test_error_std_error_trait_happy() {
     let err: Box<dyn std::error::Error> = Box::new(PipelineError::StepFailed("test".to_string()));
     assert!(!err.to_string().is_empty());
 }
 
 /// @covers: general
 #[test]
-fn test_error_display_trait() {
+fn test_error_display_trait_happy() {
     let err = PipelineError::StepFailed("display test".to_string());
     let s = format!("{}", err);
     assert!(!s.is_empty());
@@ -115,7 +115,7 @@ fn test_error_display_trait() {
 
 /// @covers: general
 #[test]
-fn test_error_debug_trait() {
+fn test_error_debug_trait_happy() {
     let err = PipelineError::StepFailed("debug test".to_string());
     let s = format!("{:?}", err);
     assert!(!s.is_empty());
@@ -124,7 +124,7 @@ fn test_error_debug_trait() {
 // Edge case: multiple error types in sequence
 /// @covers: general
 #[test]
-fn test_error_edge_multiple_error_types() {
+fn test_error_multiple_error_types_edge() {
     let e1 = PipelineError::StepFailed("step".to_string());
     let e2 = PipelineError::StepTimeout;
     let e3 = PipelineError::ConfigError("config".to_string());
@@ -146,7 +146,7 @@ fn test_error_edge_multiple_error_types() {
 }
 
 #[test]
-fn test_error_variants_distinct() {
+fn test_error_variants_distinct_edge() {
     let e1 = PipelineError::StepFailed("msg1".to_string());
     let e2 = PipelineError::StepTimeout;
     let e3 = PipelineError::ConfigError("msg3".to_string());

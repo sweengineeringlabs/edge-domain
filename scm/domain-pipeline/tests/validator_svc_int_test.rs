@@ -2,6 +2,40 @@
 
 use edge_domain_pipeline::{create_validator, PipelineConfig};
 
+// Test create_validator factory
+/// @covers: create_validator
+#[test]
+fn test_create_validator_enabled_happy() {
+    let validator = create_validator(true);
+    assert!(validator.is_enabled());
+}
+
+/// @covers: create_validator
+#[test]
+fn test_create_validator_disabled_happy() {
+    let validator = create_validator(false);
+    assert!(!validator.is_enabled());
+}
+
+/// @covers: create_validator
+#[test]
+fn test_create_validator_instance_error() {
+    // Error scenario: verify distinct instances are created
+    let v1 = create_validator(true);
+    let v2 = create_validator(false);
+    assert_ne!(v1.is_enabled(), v2.is_enabled());
+}
+
+/// @covers: create_validator
+#[test]
+fn test_create_validator_multiple_edge() {
+    // Edge case: create multiple validators with same config
+    let v1 = create_validator(true);
+    let v2 = create_validator(true);
+    // Both should have the same enabled state
+    assert_eq!(v1.is_enabled(), v2.is_enabled());
+}
+
 // Test validate method
 /// @covers: validate
 #[tokio::test]

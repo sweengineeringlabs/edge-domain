@@ -1,10 +1,8 @@
 //! Comprehensive trait method tests for Pipeline, Step, and Validator.
 //! This file ensures all trait methods have _happy, _error, and _edge test variants.
 
-use edge_domain_pipeline::{
-    create_pipeline, create_pipeline_with_config, create_validator,
-    Pipeline, Step, PipelineError, PipelineConfig,
-};
+use edge_domain_pipeline::{create_pipeline, create_pipeline_with_config, create_validator};
+use edge_domain_pipeline::{Pipeline, Step, PipelineError, PipelineConfig};
 use std::sync::Arc;
 use std::time::Duration;
 

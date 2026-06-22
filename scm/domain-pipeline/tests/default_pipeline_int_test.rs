@@ -2,7 +2,7 @@
 //!
 //! @covers DefaultPipeline
 
-use edge_domain_pipeline::{ create_pipeline, create_pipeline_with_config, Pipeline, Step, PipelineError, PipelineConfig};
+use edge_domain_pipeline::{create_pipeline, create_pipeline_with_config, Pipeline, Step, PipelineError, PipelineConfig};
 use std::sync::Arc;
 use std::time::Duration;
 

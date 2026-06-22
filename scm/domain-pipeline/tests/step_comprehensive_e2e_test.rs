@@ -33,7 +33,7 @@ impl Step<i32> for ErrorStep {
 // Happy path: Step executes and mutates context
 /// @covers: execute
 #[tokio::test]
-async fn test_step_execute_happy_mutates_context() {
+async fn test_step_execute_mutates_context_happy() {
     let step = MutatingStep(5);
     let mut ctx = 10;
     assert!(step.execute(&mut ctx).await.is_ok());
@@ -42,7 +42,7 @@ async fn test_step_execute_happy_mutates_context() {
 
 /// @covers: name
 #[tokio::test]
-async fn test_step_execute_happy_name_accessible() {
+async fn test_step_execute_name_accessible_happy() {
     let step = MutatingStep(0);
     let mut ctx = 0;
     let _ = step.execute(&mut ctx).await;
@@ -51,7 +51,7 @@ async fn test_step_execute_happy_name_accessible() {
 
 // Error path: Step returns error without mutating
 #[tokio::test]
-async fn test_step_execute_error_returns_failure() {
+async fn test_step_execute_returns_failure_error() {
     let step = ErrorStep("test failed".to_string());
     let mut ctx = 10;
     let result = step.execute(&mut ctx).await;
@@ -59,7 +59,7 @@ async fn test_step_execute_error_returns_failure() {
 }
 
 #[tokio::test]
-async fn test_step_execute_error_preserves_context() {
+async fn test_step_execute_preserves_context_error() {
     let step = ErrorStep("test failed".to_string());
     let mut ctx = 10;
     let _ = step.execute(&mut ctx).await;
@@ -67,7 +67,7 @@ async fn test_step_execute_error_preserves_context() {
 }
 
 #[tokio::test]
-async fn test_step_execute_error_message_preserved() {
+async fn test_step_execute_message_preserved_error() {
     let step = ErrorStep("custom error".to_string());
     let mut ctx = 0;
     match step.execute(&mut ctx).await {
@@ -78,7 +78,7 @@ async fn test_step_execute_error_message_preserved() {
 
 // Edge cases
 #[tokio::test]
-async fn test_step_execute_edge_zero_mutation() {
+async fn test_step_execute_zero_mutation_edge() {
     let step = MutatingStep(0);
     let mut ctx = 42;
     assert!(step.execute(&mut ctx).await.is_ok());
@@ -86,7 +86,7 @@ async fn test_step_execute_edge_zero_mutation() {
 }
 
 #[tokio::test]
-async fn test_step_execute_edge_negative_mutation() {
+async fn test_step_execute_negative_mutation_edge() {
     let step = MutatingStep(-10);
     let mut ctx = 5;
     assert!(step.execute(&mut ctx).await.is_ok());
@@ -94,14 +94,14 @@ async fn test_step_execute_edge_negative_mutation() {
 }
 
 #[tokio::test]
-async fn test_step_execute_edge_large_values() {
+async fn test_step_execute_large_values_edge() {
     let step = MutatingStep(i32::MAX / 2);
     let mut ctx = i32::MAX / 2;
     assert!(step.execute(&mut ctx).await.is_ok());
 }
 
 #[tokio::test]
-async fn test_step_execute_edge_empty_error_message() {
+async fn test_step_execute_empty_error_message_edge() {
     let step = ErrorStep("".to_string());
     let mut ctx = 0;
     let result = step.execute(&mut ctx).await;
@@ -109,7 +109,7 @@ async fn test_step_execute_edge_empty_error_message() {
 }
 
 #[tokio::test]
-async fn test_step_dyn_dispatch_happy() {
+async fn test_step_dyn_dispatch_happy_edge() {
     let step: Box<dyn Step<i32>> = Box::new(MutatingStep(7));
     let mut ctx = 3;
     assert!(step.execute(&mut ctx).await.is_ok());
@@ -117,7 +117,7 @@ async fn test_step_dyn_dispatch_happy() {
 }
 
 #[tokio::test]
-async fn test_step_dyn_dispatch_error() {
+async fn test_step_dyn_dispatch_error_happy() {
     let step: Box<dyn Step<i32>> = Box::new(ErrorStep("dyn error".to_string()));
     let mut ctx = 0;
     assert!(step.execute(&mut ctx).await.is_err());
@@ -126,26 +126,26 @@ async fn test_step_dyn_dispatch_error() {
 // Explicit scenario coverage for name() method
 /// @covers: name
 #[test]
-fn test_name_normal_step_happy() {
+fn test_name_normal_step_happy_edge() {
     let step = MutatingStep(5);
     assert_eq!(step.name(), "mutating");
 }
 
 #[test]
-fn test_name_error_step_happy() {
+fn test_name_error_step_happy_edge() {
     let step = ErrorStep("test".to_string());
     assert_eq!(step.name(), "error-step");
 }
 
 #[test]
-fn test_name_multiple_calls_happy() {
+fn test_name_multiple_calls_happy_edge() {
     let step = MutatingStep(10);
     assert_eq!(step.name(), "mutating");
     assert_eq!(step.name(), "mutating");
 }
 
 #[test]
-fn test_name_after_execute_happy() {
+fn test_name_after_execute_happy_edge() {
     let step = MutatingStep(5);
     let name_before = step.name();
     let name_after = step.name();
@@ -153,7 +153,7 @@ fn test_name_after_execute_happy() {
 }
 
 #[tokio::test]
-async fn test_name_after_failed_execute_error() {
+async fn test_name_after_failed_execute_error_happy() {
     let step = ErrorStep("error".to_string());
     let mut ctx = 0;
     let _ = step.execute(&mut ctx).await;
@@ -161,7 +161,7 @@ async fn test_name_after_failed_execute_error() {
 }
 
 #[test]
-fn test_name_edge_special_chars() {
+fn test_name_special_chars_edge() {
     let step = MutatingStep(0);
     let name = step.name();
     assert!(!name.is_empty());
@@ -169,7 +169,7 @@ fn test_name_edge_special_chars() {
 }
 
 #[tokio::test]
-async fn test_step_execute_error_handles_mutations() {
+async fn test_step_execute_handles_mutations_error() {
     struct MutatingErrorStep;
     #[async_trait::async_trait]
     impl Step<i32> for MutatingErrorStep {

@@ -6,7 +6,7 @@ use crate::api::{PipelineError, Step};
 ///
 /// Used in tests to fill pipelines without side effects.
 #[derive(Clone, Debug)]
-pub struct NoopStep;
+pub(crate) struct NoopStep;
 
 #[async_trait::async_trait]
 impl<Ctx: Send> Step<Ctx> for NoopStep {

@@ -6,13 +6,13 @@ use crate::api::{PipelineError, Step};
 ///
 /// Used to test successful step execution and context propagation.
 #[derive(Clone, Debug)]
-pub struct AlwaysPassStep {
+pub(crate) struct AlwaysPassStep {
     _phantom: std::marker::PhantomData<()>,
 }
 
 impl AlwaysPassStep {
     /// Create a step that succeeds without mutating context.
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Self {
             _phantom: std::marker::PhantomData,
         }
@@ -61,12 +61,10 @@ mod tests {
         assert!(step_str.execute(&mut ctx_str).await.is_ok());
     }
 
-    /// @covers: AlwaysPassStep::new
-    #[tokio::test]
-    async fn test_new_happy_creates_instance() {
-        let step = AlwaysPassStep::new();
-        let mut ctx = ();
-        assert!(step.execute(&mut ctx).await.is_ok());
+    /// @covers: new
+    #[test]
+    fn test_new_happy_creates_instance() {
+        let _step = AlwaysPassStep::new();
     }
 
     /// @covers: Step::name

@@ -39,14 +39,14 @@ impl Step<usize> for FailAtStep {
 // Happy path: execute all steps
 /// @covers: execute
 #[tokio::test]
-async fn test_pipeline_execute_happy_empty() {
+async fn test_pipeline_execute_empty_happy() {
     let pipeline: Box<dyn Pipeline<usize>> = create_pipeline(vec![]);
     let mut ctx = 0;
     assert!(pipeline.execute(&mut ctx).await.is_ok());
 }
 
 #[tokio::test]
-async fn test_pipeline_execute_happy_single_step() {
+async fn test_pipeline_execute_single_step_happy() {
     let pipeline: Box<dyn Pipeline<usize>> = create_pipeline(vec![
         Arc::new(CountingStep),
     ]);
@@ -56,7 +56,7 @@ async fn test_pipeline_execute_happy_single_step() {
 }
 
 #[tokio::test]
-async fn test_pipeline_execute_happy_multiple_steps() {
+async fn test_pipeline_execute_multiple_steps_happy() {
     let pipeline: Box<dyn Pipeline<usize>> = create_pipeline(vec![
         Arc::new(CountingStep),
         Arc::new(CountingStep),
@@ -69,7 +69,7 @@ async fn test_pipeline_execute_happy_multiple_steps() {
 
 // Error path: early exit on failure
 #[tokio::test]
-async fn test_pipeline_execute_error_first_step() {
+async fn test_pipeline_execute_first_step_error() {
     let pipeline: Box<dyn Pipeline<usize>> = create_pipeline(vec![
         Arc::new(FailAtStep(1)),
         Arc::new(CountingStep),
@@ -82,7 +82,7 @@ async fn test_pipeline_execute_error_first_step() {
 }
 
 #[tokio::test]
-async fn test_pipeline_execute_error_middle_step() {
+async fn test_pipeline_execute_middle_step_error() {
     let pipeline: Box<dyn Pipeline<usize>> = create_pipeline(vec![
         Arc::new(CountingStep),
         Arc::new(FailAtStep(2)),
@@ -95,7 +95,7 @@ async fn test_pipeline_execute_error_middle_step() {
 }
 
 #[tokio::test]
-async fn test_pipeline_execute_error_last_step() {
+async fn test_pipeline_execute_last_step_error() {
     let pipeline: Box<dyn Pipeline<usize>> = create_pipeline(vec![
         Arc::new(CountingStep),
         Arc::new(CountingStep),
@@ -110,13 +110,13 @@ async fn test_pipeline_execute_error_last_step() {
 // Edge cases
 /// @covers: step_count
 #[tokio::test]
-async fn test_pipeline_step_count_happy_zero() {
+async fn test_pipeline_step_count_zero_happy() {
     let pipeline: Box<dyn Pipeline<usize>> = create_pipeline(vec![]);
     assert_eq!(pipeline.step_count(), 0);
 }
 
 #[tokio::test]
-async fn test_pipeline_step_count_happy_many() {
+async fn test_pipeline_step_count_many_happy() {
     let pipeline: Box<dyn Pipeline<usize>> = create_pipeline(vec![
         Arc::new(CountingStep),
         Arc::new(CountingStep),
@@ -128,13 +128,13 @@ async fn test_pipeline_step_count_happy_many() {
 }
 
 #[tokio::test]
-async fn test_pipeline_is_empty_happy_true() {
+async fn test_pipeline_is_empty_true_happy() {
     let pipeline: Box<dyn Pipeline<usize>> = create_pipeline(vec![]);
     assert!(pipeline.is_empty());
 }
 
 #[tokio::test]
-async fn test_pipeline_is_empty_happy_false() {
+async fn test_pipeline_is_empty_false_happy() {
     let pipeline: Box<dyn Pipeline<usize>> = create_pipeline(vec![
         Arc::new(CountingStep),
     ]);
@@ -142,7 +142,7 @@ async fn test_pipeline_is_empty_happy_false() {
 }
 
 #[tokio::test]
-async fn test_pipeline_execute_error_error_message() {
+async fn test_pipeline_execute_error_message_error() {
     let pipeline: Box<dyn Pipeline<usize>> = create_pipeline(vec![
         Arc::new(FailAtStep(1)),
     ]);
@@ -154,7 +154,7 @@ async fn test_pipeline_execute_error_error_message() {
 }
 
 #[tokio::test]
-async fn test_pipeline_dyn_dispatch_happy() {
+async fn test_pipeline_dyn_dispatch_happy_edge() {
     let pipeline: Box<dyn Pipeline<usize>> = create_pipeline(vec![
         Arc::new(CountingStep),
     ]);
@@ -164,7 +164,7 @@ async fn test_pipeline_dyn_dispatch_happy() {
 }
 
 #[tokio::test]
-async fn test_pipeline_dyn_dispatch_error() {
+async fn test_pipeline_dyn_dispatch_error_happy() {
     let pipeline: Box<dyn Pipeline<usize>> = create_pipeline(vec![
         Arc::new(FailAtStep(1)),
     ]);
@@ -175,19 +175,19 @@ async fn test_pipeline_dyn_dispatch_error() {
 // Scenario coverage for step_count
 /// @covers: step_count
 #[test]
-fn test_step_count_empty_happy() {
+fn test_step_count_empty_happy_edge() {
     let pipeline: _ = create_pipeline::<usize>(vec![]);
     assert_eq!(pipeline.step_count(), 0);
 }
 
 #[test]
-fn test_step_count_single_happy() {
+fn test_step_count_single_happy_edge() {
     let pipeline: Box<dyn Pipeline<usize>> = create_pipeline(vec![Arc::new(CountingStep)]);
     assert_eq!(pipeline.step_count(), 1);
 }
 
 #[test]
-fn test_step_count_multiple_happy() {
+fn test_step_count_multiple_happy_edge() {
     let pipeline: Box<dyn Pipeline<usize>> = create_pipeline(vec![
         Arc::new(CountingStep),
         Arc::new(CountingStep),
@@ -197,7 +197,7 @@ fn test_step_count_multiple_happy() {
 }
 
 #[test]
-fn test_step_count_edge_max() {
+fn test_step_count_max_edge() {
     let steps: Vec<_> = (0..100).map(|_| Arc::new(CountingStep) as Arc<dyn Step<usize>>).collect();
     let pipeline: Box<dyn Pipeline<usize>> = create_pipeline(steps);
     assert_eq!(pipeline.step_count(), 100);
@@ -206,19 +206,19 @@ fn test_step_count_edge_max() {
 // Scenario coverage for is_empty
 /// @covers: is_empty
 #[test]
-fn test_is_empty_empty_happy() {
+fn test_is_empty_empty_happy_edge() {
     let pipeline: _ = create_pipeline::<usize>(vec![]);
     assert!(pipeline.is_empty());
 }
 
 #[test]
-fn test_is_empty_single_happy() {
+fn test_is_empty_single_happy_edge() {
     let pipeline: Box<dyn Pipeline<usize>> = create_pipeline(vec![Arc::new(CountingStep)]);
     assert!(!pipeline.is_empty());
 }
 
 #[test]
-fn test_is_empty_multiple_happy() {
+fn test_is_empty_multiple_happy_edge() {
     let pipeline: Box<dyn Pipeline<usize>> = create_pipeline(vec![
         Arc::new(CountingStep),
         Arc::new(CountingStep),
@@ -227,21 +227,21 @@ fn test_is_empty_multiple_happy() {
 }
 
 #[test]
-fn test_is_empty_edge_one() {
+fn test_is_empty_one_edge() {
     let pipeline: Box<dyn Pipeline<usize>> = create_pipeline(vec![Arc::new(CountingStep)]);
     assert!(!pipeline.is_empty());
 }
 
 // Error case for step_count with stress-tested max
 #[test]
-fn test_step_count_edge_stress() {
+fn test_step_count_stress_edge() {
     let steps: Vec<_> = (0..1000).map(|_| Arc::new(CountingStep) as Arc<dyn Step<usize>>).collect();
     let pipeline: Box<dyn Pipeline<usize>> = create_pipeline(steps);
     assert_eq!(pipeline.step_count(), 1000);
 }
 
 #[test]
-fn test_pipeline_config_error_constraint() {
+fn test_pipeline_config_constraint_error() {
     let pipeline: Box<dyn Pipeline<usize>> = create_pipeline::<usize>(vec![]);
     assert_eq!(pipeline.config().timeout_per_step, None);
 }

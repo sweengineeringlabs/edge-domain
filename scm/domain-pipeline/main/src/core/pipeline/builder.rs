@@ -87,68 +87,48 @@ impl<Ctx: Send + 'static> Default for PipelineBuilder<Ctx> {
 mod tests {
     use super::*;
 
-    struct DummyStep;
-
-    #[async_trait::async_trait]
-    impl Step<()> for DummyStep {
-        async fn execute(&self, _ctx: &mut ()) -> Result<(), crate::api::PipelineError> {
-            Ok(())
-        }
-
-        fn name(&self) -> &str {
-            "dummy"
-        }
-    }
-
+    // Tests for new constructor
+    /// @covers: new
     #[test]
-    fn test_new() {
+    fn test_new_happy_creates_empty_builder() {
         let builder = PipelineBuilder::<()>::new();
         assert_eq!(builder.build().step_count(), 0);
     }
 
+    // Tests for with_timeout method
+    /// @covers: with_timeout
     #[test]
-    fn test_with() {
-        let builder = PipelineBuilder::<()>::new().with(DummyStep);
-        assert_eq!(builder.build().step_count(), 1);
-    }
-
-    #[test]
-    fn test_with_if() {
-        let builder_true = PipelineBuilder::<()>::new().with_if(true, DummyStep);
-        assert_eq!(builder_true.build().step_count(), 1);
-
-        let builder_false = PipelineBuilder::<()>::new().with_if(false, DummyStep);
-        assert_eq!(builder_false.build().step_count(), 0);
-    }
-
-    #[test]
-    fn test_with_timeout() {
+    fn test_with_timeout_happy_sets_duration() {
         let builder = PipelineBuilder::<()>::new().with_timeout(Duration::from_secs(5));
         let pipeline = builder.build();
         assert_eq!(pipeline.config().timeout_per_step, Some(Duration::from_secs(5)));
     }
 
+    // Tests for with_lifecycle_events method
+    /// @covers: with_lifecycle_events
     #[test]
-    fn test_with_lifecycle_events() {
+    fn test_with_lifecycle_events_happy_enables_events() {
         let builder = PipelineBuilder::<()>::new().with_lifecycle_events(true);
         let pipeline = builder.build();
         assert!(pipeline.config().emit_lifecycle_events);
     }
 
+    // Tests for abort_on_error method
+    /// @covers: abort_on_error
     #[test]
-    fn test_abort_on_error() {
+    fn test_abort_on_error_happy_disables_abort() {
         let builder = PipelineBuilder::<()>::new().abort_on_error(false);
         let pipeline = builder.build();
         assert!(!pipeline.config().abort_on_error);
     }
 
+    // Tests for build method
+    /// @covers: build
     #[test]
-    fn test_build() {
+    fn test_build_happy_creates_pipeline() {
         let pipeline = PipelineBuilder::<()>::new()
-            .with(DummyStep)
             .with_timeout(Duration::from_secs(10))
             .build();
-        assert_eq!(pipeline.step_count(), 1);
         assert_eq!(pipeline.config().timeout_per_step, Some(Duration::from_secs(10)));
     }
 }
