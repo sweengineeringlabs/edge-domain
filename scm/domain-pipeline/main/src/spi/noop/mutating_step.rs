@@ -33,7 +33,6 @@ impl<Ctx: Send, F: Fn(&mut Ctx) + Send + Sync> Step<Ctx> for MutatingStep<F> {
 mod tests {
     use super::*;
 
-    /// @covers: MutatingStep::execute
     #[tokio::test]
     async fn test_execute_happy_applies_mutation_int() {
         let step = MutatingStep::new(|ctx: &mut i32| *ctx += 10);
@@ -51,7 +50,6 @@ mod tests {
         assert_eq!(ctx, "hello!");
     }
 
-    /// @covers: MutatingStep::new
     #[tokio::test]
     async fn test_new_happy_creates_instance() {
         let step = MutatingStep::new(|_x: &mut i32| {});
@@ -59,7 +57,6 @@ mod tests {
         assert!(step.execute(&mut ctx).await.is_ok());
     }
 
-    /// @covers: Step::name
     #[test]
     fn test_name_happy_returns_mutating() {
         let step = MutatingStep::new(|_x: &mut i32| {});

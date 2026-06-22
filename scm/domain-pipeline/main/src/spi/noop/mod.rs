@@ -6,5 +6,4 @@ pub(crate) mod noop_step;
 pub(crate) mod mutating_step;
 
 // Re-export for tests (used in saf module tests)
-#[allow(unused_imports)]
 pub(crate) use always::AlwaysPassStep;

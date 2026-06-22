@@ -40,7 +40,6 @@ impl Default for AlwaysPassStep {
 mod tests {
     use super::*;
 
-    /// @covers: AlwaysPassStep::execute
     #[tokio::test]
     async fn test_execute_happy_succeeds() {
         let step = AlwaysPassStep::new();
@@ -61,13 +60,11 @@ mod tests {
         assert!(step_str.execute(&mut ctx_str).await.is_ok());
     }
 
-    /// @covers: new
     #[test]
     fn test_new_happy_creates_instance() {
         let _step = AlwaysPassStep::new();
     }
 
-    /// @covers: Step::name
     #[test]
     fn test_name_happy_returns_always_pass() {
         let step = AlwaysPassStep::new();
@@ -75,7 +72,6 @@ mod tests {
         assert_eq!(step_ref.name(), "always-pass");
     }
 
-    /// @covers: AlwaysPassStep::default
     #[tokio::test]
     async fn test_default_happy_equivalent_to_new() {
         let step_new = AlwaysPassStep::new();

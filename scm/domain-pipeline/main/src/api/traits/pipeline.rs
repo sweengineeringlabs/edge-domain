@@ -59,19 +59,6 @@ mod tests {
     use super::*;
     use crate::api::PipelineConfig;
 
-    struct NoopStep;
-
-    #[async_trait::async_trait]
-    impl Step<i32> for NoopStep {
-        async fn execute(&self, _ctx: &mut i32) -> Result<(), PipelineError> {
-            Ok(())
-        }
-
-        fn name(&self) -> &str {
-            "noop"
-        }
-    }
-
     struct MockPipeline {
         empty: bool,
         config: PipelineConfig,
@@ -92,42 +79,36 @@ mod tests {
         }
     }
 
-    /// @covers: Pipeline::name (default impl)
     #[test]
     fn test_pipeline_name_happy_default() {
         let pipeline = MockPipeline { empty: false, config: PipelineConfig::default() };
         assert_eq!(pipeline.name(), "pipeline");
     }
 
-    /// @covers: Pipeline::is_empty
     #[test]
     fn test_pipeline_is_empty_happy_true() {
         let pipeline = MockPipeline { empty: true, config: PipelineConfig::default() };
         assert!(pipeline.is_empty());
     }
 
-    /// @covers: Pipeline::is_empty
     #[test]
     fn test_pipeline_is_empty_happy_false() {
         let pipeline = MockPipeline { empty: false, config: PipelineConfig::default() };
         assert!(!pipeline.is_empty());
     }
 
-    /// @covers: Pipeline::step_count
     #[test]
     fn test_pipeline_step_count_happy_returns_count() {
         let pipeline = MockPipeline { empty: false, config: PipelineConfig::default() };
         assert_eq!(pipeline.step_count(), 1);
     }
 
-    /// @covers: Pipeline::step_count
     #[test]
     fn test_pipeline_step_count_edge_empty_zero() {
         let pipeline = MockPipeline { empty: true, config: PipelineConfig::default() };
         assert_eq!(pipeline.step_count(), 0);
     }
 
-    /// @covers: Pipeline::config
     #[test]
     fn test_pipeline_config_happy_returns_reference() {
         let config = PipelineConfig {
@@ -141,7 +122,6 @@ mod tests {
         assert!(!pipeline.config().abort_on_error);
     }
 
-    /// @covers: Pipeline::config
     #[test]
     fn test_pipeline_config_edge_defaults() {
         let pipeline = MockPipeline { empty: false, config: PipelineConfig::default() };

@@ -23,7 +23,6 @@ impl<Ctx: Send> Step<Ctx> for NoopStep {
 mod tests {
     use super::*;
 
-    /// @covers: NoopStep::execute
     #[tokio::test]
     async fn test_execute_happy_no_mutation() {
         let step = NoopStep;
@@ -41,7 +40,6 @@ mod tests {
         assert_eq!(ctx, "hello");
     }
 
-    /// @covers: Step::name
     #[tokio::test]
     async fn test_name_happy_returns_noop() {
         let step = NoopStep;
@@ -49,7 +47,6 @@ mod tests {
         assert_eq!(step_ref.name(), "noop");
     }
 
-    /// @covers: NoopStep clone
     #[tokio::test]
     async fn test_clone_happy_works() {
         let step = NoopStep;

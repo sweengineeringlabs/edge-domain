@@ -63,7 +63,6 @@ mod tests {
         }
     }
 
-    /// @covers: Step::execute
     #[tokio::test]
     async fn test_execute_happy_mutates_context() {
         let step = SuccessStep;
@@ -92,7 +91,6 @@ mod tests {
         }
     }
 
-    /// @covers: Step::name
     #[test]
     fn test_name_happy_returns_value() {
         let step = SuccessStep;

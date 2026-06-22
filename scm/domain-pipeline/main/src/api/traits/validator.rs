@@ -42,7 +42,6 @@ mod tests {
         }
     }
 
-    /// @covers: Validator::validate
     #[tokio::test]
     async fn test_validate_happy_accepts_valid() {
         let validator = AlwaysValidValidator;
@@ -70,7 +69,6 @@ mod tests {
         }
     }
 
-    /// @covers: Validator::is_enabled
     #[test]
     fn test_is_enabled_happy_true() {
         let validator = AlwaysValidValidator;

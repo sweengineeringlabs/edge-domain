@@ -3,21 +3,18 @@
 use edge_domain_pipeline::{create_validator, PipelineConfig};
 
 // Test create_validator factory
-/// @covers: create_validator
 #[test]
 fn test_create_validator_enabled_happy() {
     let validator = create_validator(true);
     assert!(validator.is_enabled());
 }
 
-/// @covers: create_validator
 #[test]
 fn test_create_validator_disabled_happy() {
     let validator = create_validator(false);
     assert!(!validator.is_enabled());
 }
 
-/// @covers: create_validator
 #[test]
 fn test_create_validator_instance_error() {
     // Error scenario: verify distinct instances are created
@@ -26,7 +23,6 @@ fn test_create_validator_instance_error() {
     assert_ne!(v1.is_enabled(), v2.is_enabled());
 }
 
-/// @covers: create_validator
 #[test]
 fn test_create_validator_multiple_edge() {
     // Edge case: create multiple validators with same config
@@ -37,7 +33,6 @@ fn test_create_validator_multiple_edge() {
 }
 
 // Test validate method
-/// @covers: validate
 #[tokio::test]
 async fn test_validator_validate_happy_enabled() {
     let validator = create_validator(true);
@@ -46,7 +41,6 @@ async fn test_validator_validate_happy_enabled() {
     assert!(result.is_ok());
 }
 
-/// @covers: validate
 #[tokio::test]
 async fn test_validator_validate_happy_disabled() {
     let validator = create_validator(false);
@@ -55,7 +49,6 @@ async fn test_validator_validate_happy_disabled() {
     assert!(result.is_ok());
 }
 
-/// @covers: validate
 #[tokio::test]
 async fn test_validator_validate_edge_custom_config() {
     let validator = create_validator(true);
@@ -69,7 +62,6 @@ async fn test_validator_validate_edge_custom_config() {
 }
 
 // Test is_enabled method
-/// @covers: is_enabled
 #[test]
 fn test_validator_is_enabled_happy_true() {
     let validator = create_validator(true);
@@ -98,7 +90,6 @@ fn test_validator_is_enabled_edge_consistency() {
 }
 
 // Integration: behavior depends on enabled state
-/// @covers: validate
 #[tokio::test]
 async fn test_validator_validate_respects_enabled_state() {
     let enabled = create_validator(true);

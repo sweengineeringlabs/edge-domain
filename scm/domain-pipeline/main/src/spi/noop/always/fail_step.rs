@@ -34,7 +34,6 @@ impl<Ctx: Send> Step<Ctx> for AlwaysFailStep {
 mod tests {
     use super::*;
 
-    /// @covers: AlwaysFailStep::execute
     #[tokio::test]
     async fn test_execute_error_returns_failure() {
         let step = AlwaysFailStep::new("test error");
@@ -54,7 +53,6 @@ mod tests {
         }
     }
 
-    /// @covers: AlwaysFailStep::new
     #[tokio::test]
     async fn test_new_happy_creates_instance() {
         let step = AlwaysFailStep::new("error");
@@ -62,7 +60,6 @@ mod tests {
         assert!(step.execute(&mut ctx).await.is_err());
     }
 
-    /// @covers: Step::name
     #[test]
     fn test_name_happy_returns_always_fail() {
         let step = AlwaysFailStep::new("test");
