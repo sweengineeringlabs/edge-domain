@@ -1,6 +1,6 @@
 //! Error scenario tests for PipelineError and error handling.
 
-use edge_domain_pipeline::{PipelineError, Pipeline, DefaultPipeline, Step};
+use edge_domain_pipeline::{create_pipeline, create_pipeline_with_config, {PipelineError, Pipeline, DefaultPipeline, Step};
 use std::sync::Arc;
 
 struct ErrorWithContext(String);
@@ -40,7 +40,7 @@ fn test_error_config_error_happy() {
 // Error propagation
 #[tokio::test]
 async fn test_error_propagation_happy_stops_pipeline() {
-    let pipeline: DefaultPipeline<String> = DefaultPipeline::new(vec![
+    let pipeline = create_pipeline(vec![
         Arc::new(ErrorWithContext("partial".to_string())),
     ]);
     let mut ctx = String::new();
@@ -51,7 +51,7 @@ async fn test_error_propagation_happy_stops_pipeline() {
 
 #[tokio::test]
 async fn test_error_context_mutation_before_error() {
-    let pipeline: DefaultPipeline<String> = DefaultPipeline::new(vec![
+    let pipeline = create_pipeline(vec![
         Arc::new(ErrorWithContext("before".to_string())),
     ]);
     let mut ctx = String::new();

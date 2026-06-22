@@ -8,7 +8,7 @@ use std::time::Duration;
 /// @covers: build
 #[test]
 fn test_spi_pipeline_builder_builds_pipeline() {
-    let pipeline: edge_domain_pipeline::DefaultPipeline<i32> = PipelineBuilder::new()
+    let pipeline: impl edge_domain_pipeline::Pipeline = PipelineBuilder::new()
         .with(AlwaysPassStep::new())
         .build();
 
@@ -18,7 +18,7 @@ fn test_spi_pipeline_builder_builds_pipeline() {
 /// @covers: with
 #[test]
 fn test_spi_pipeline_builder_multi_step() {
-    let pipeline: edge_domain_pipeline::DefaultPipeline<i32> = PipelineBuilder::new()
+    let pipeline: impl edge_domain_pipeline::Pipeline = PipelineBuilder::new()
         .with(AlwaysPassStep::new())
         .with(AlwaysPassStep::new())
         .with(AlwaysPassStep::new())
@@ -30,11 +30,11 @@ fn test_spi_pipeline_builder_multi_step() {
 /// @covers: with_if
 #[test]
 fn test_spi_pipeline_builder_with_if_condition() {
-    let pipeline_true: edge_domain_pipeline::DefaultPipeline<i32> = PipelineBuilder::new()
+    let pipeline_true: impl edge_domain_pipeline::Pipeline = PipelineBuilder::new()
         .with_if(true, AlwaysPassStep::new())
         .build();
 
-    let pipeline_false: edge_domain_pipeline::DefaultPipeline<i32> = PipelineBuilder::new()
+    let pipeline_false: impl edge_domain_pipeline::Pipeline = PipelineBuilder::new()
         .with_if(false, AlwaysPassStep::new())
         .build();
 
@@ -45,7 +45,7 @@ fn test_spi_pipeline_builder_with_if_condition() {
 /// @covers: with_if
 #[test]
 fn test_spi_pipeline_builder_mixed_conditions() {
-    let pipeline: edge_domain_pipeline::DefaultPipeline<i32> = PipelineBuilder::new()
+    let pipeline: impl edge_domain_pipeline::Pipeline = PipelineBuilder::new()
         .with_if(true, AlwaysPassStep::new())
         .with_if(false, AlwaysPassStep::new())
         .with_if(true, AlwaysPassStep::new())
@@ -58,7 +58,7 @@ fn test_spi_pipeline_builder_mixed_conditions() {
 #[test]
 fn test_spi_pipeline_builder_with_timeout_nominal_happy() {
     let timeout = Duration::from_secs(30);
-    let pipeline: edge_domain_pipeline::DefaultPipeline<i32> = PipelineBuilder::new()
+    let pipeline: impl edge_domain_pipeline::Pipeline = PipelineBuilder::new()
         .with_timeout(timeout)
         .build();
 
@@ -68,7 +68,7 @@ fn test_spi_pipeline_builder_with_timeout_nominal_happy() {
 /// @covers: with_lifecycle_events
 #[test]
 fn test_spi_pipeline_builder_with_lifecycle_events() {
-    let pipeline: edge_domain_pipeline::DefaultPipeline<i32> = PipelineBuilder::new()
+    let pipeline: impl edge_domain_pipeline::Pipeline = PipelineBuilder::new()
         .with_lifecycle_events(true)
         .build();
 
@@ -78,7 +78,7 @@ fn test_spi_pipeline_builder_with_lifecycle_events() {
 /// @covers: abort_on_error
 #[test]
 fn test_spi_pipeline_builder_abort_on_error_false() {
-    let pipeline: edge_domain_pipeline::DefaultPipeline<i32> = PipelineBuilder::new()
+    let pipeline: impl edge_domain_pipeline::Pipeline = PipelineBuilder::new()
         .abort_on_error(false)
         .build();
 
@@ -88,7 +88,7 @@ fn test_spi_pipeline_builder_abort_on_error_false() {
 /// @covers: build
 #[test]
 fn test_spi_pipeline_builder_chaining_all_options() {
-    let pipeline: edge_domain_pipeline::DefaultPipeline<i32> = PipelineBuilder::new()
+    let pipeline: impl edge_domain_pipeline::Pipeline = PipelineBuilder::new()
         .with(AlwaysPassStep::new())
         .with_timeout(Duration::from_secs(5))
         .with(AlwaysPassStep::new())
@@ -130,6 +130,6 @@ async fn test_spi_pipeline_builder_with_fail_step() {
 
 #[test]
 fn test_spi_pipeline_builder_default_is_empty() {
-    let pipeline: edge_domain_pipeline::DefaultPipeline<i32> = PipelineBuilder::default().build();
+    let pipeline: impl edge_domain_pipeline::Pipeline = PipelineBuilder::default().build();
     assert!(pipeline.is_empty());
 }

@@ -1,7 +1,7 @@
 //! Scenario-labeled tests for trait methods: happy/error/edge paths
 //! Required by audit: every trait fn must have _happy, _error, _edge test coverage
 
-use edge_domain_pipeline::{Pipeline, Step, PipelineError, DefaultPipeline, AlwaysPassStep, AlwaysFailStep};
+use edge_domain_pipeline::{create_pipeline, create_pipeline_with_config, {Pipeline, Step, PipelineError, DefaultPipeline, AlwaysPassStep, AlwaysFailStep};
 use std::sync::Arc;
 
 // ─── Step trait: execute ───────────────────────────────────────────────────
@@ -69,7 +69,7 @@ fn test_name_accessor_edge() {
 /// @covers: execute
 #[tokio::test]
 async fn test_pipeline_execute_nominal_happy() {
-    let pipeline: DefaultPipeline<i32> = DefaultPipeline::new(vec![
+    let pipeline = create_pipeline(vec![
         Arc::new(AlwaysPassStep::new()),
     ]);
     let mut ctx = 0;
@@ -79,7 +79,7 @@ async fn test_pipeline_execute_nominal_happy() {
 /// @covers: execute
 #[tokio::test]
 async fn test_pipeline_execute_nominal_error() {
-    let pipeline: DefaultPipeline<i32> = DefaultPipeline::new(vec![
+    let pipeline = create_pipeline(vec![
         Arc::new(AlwaysFailStep::new("stop")),
     ]);
     let mut ctx = 0;
@@ -93,7 +93,7 @@ async fn test_pipeline_execute_nominal_edge() {
     for _ in 0..1000 {
         steps.push(Arc::new(AlwaysPassStep::new()));
     }
-    let pipeline: DefaultPipeline<i32> = DefaultPipeline::new(steps);
+    let pipeline = create_pipeline(steps);
     let mut ctx = 0;
     assert!(Pipeline::execute(&pipeline, &mut ctx).await.is_ok());
 }
@@ -103,7 +103,7 @@ async fn test_pipeline_execute_nominal_edge() {
 /// @covers: step_count
 #[test]
 fn test_step_count_accessor_happy() {
-    let pipeline: DefaultPipeline<i32> = DefaultPipeline::new(vec![
+    let pipeline = create_pipeline(vec![
         Arc::new(AlwaysPassStep::new()),
         Arc::new(AlwaysPassStep::new()),
     ]);
@@ -113,7 +113,7 @@ fn test_step_count_accessor_happy() {
 /// @covers: step_count
 #[test]
 fn test_step_count_accessor_error() {
-    let pipeline: DefaultPipeline<i32> = DefaultPipeline::new(vec![
+    let pipeline = create_pipeline(vec![
         Arc::new(AlwaysFailStep::new("err")),
     ]);
     assert_eq!(pipeline.step_count(), 1);
@@ -126,7 +126,7 @@ fn test_step_count_accessor_edge() {
     for _ in 0..1000 {
         steps.push(Arc::new(AlwaysPassStep::new()));
     }
-    let pipeline: DefaultPipeline<i32> = DefaultPipeline::new(steps);
+    let pipeline = create_pipeline(steps);
     assert_eq!(pipeline.step_count(), 1000);
 }
 
@@ -135,14 +135,14 @@ fn test_step_count_accessor_edge() {
 /// @covers: is_empty
 #[test]
 fn test_is_empty_predicate_happy() {
-    let pipeline: DefaultPipeline<i32> = DefaultPipeline::new(vec![]);
+    let pipeline = create_pipeline(vec![]);
     assert!(pipeline.is_empty());
 }
 
 /// @covers: is_empty
 #[test]
 fn test_is_empty_predicate_error() {
-    let pipeline: DefaultPipeline<i32> = DefaultPipeline::new(vec![
+    let pipeline = create_pipeline(vec![
         Arc::new(AlwaysFailStep::new("fail")),
     ]);
     assert!(!pipeline.is_empty());
@@ -155,7 +155,7 @@ fn test_is_empty_predicate_edge() {
     for _ in 0..1000 {
         steps.push(Arc::new(AlwaysPassStep::new()));
     }
-    let pipeline: DefaultPipeline<i32> = DefaultPipeline::new(steps);
+    let pipeline = create_pipeline(steps);
     assert!(!pipeline.is_empty());
     assert_eq!(pipeline.step_count() > 0, !pipeline.is_empty());
 }

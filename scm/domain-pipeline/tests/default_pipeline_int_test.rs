@@ -2,7 +2,7 @@
 //!
 //! @covers DefaultPipeline
 
-use edge_domain_pipeline::{DefaultPipeline, Pipeline, Step, PipelineError, PipelineConfig, NoopStep, AlwaysPassStep, AlwaysFailStep, MutatingStep};
+use edge_domain_pipeline::{ create_pipeline, create_pipeline_with_config, Pipeline, Step, PipelineError, PipelineConfig, NoopStep, AlwaysPassStep, AlwaysFailStep, MutatingStep};
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -30,7 +30,7 @@ async fn struct_default_pipeline_executes_sequentially() {
         Arc::new(TraceStep(3)),
     ];
 
-    let pipeline = DefaultPipeline::new(steps);
+    let pipeline = create_pipeline(steps);
     assert!(Pipeline::execute(&pipeline, &mut trace).await.is_ok());
     assert_eq!(trace, vec![1, 2, 3]);
 }
@@ -43,7 +43,7 @@ async fn struct_default_pipeline_with_config_timeout() {
         abort_on_error: true,
     };
 
-    let pipeline: DefaultPipeline<i32> = DefaultPipeline::with_config(
+    let pipeline = create_pipeline_with_config(
         vec![Arc::new(NoopStep)],
         config.clone(),
     );
@@ -86,7 +86,7 @@ async fn struct_default_pipeline_abort_on_error_true() {
         Arc::new(CountingFailStep),
     ];
 
-    let pipeline = DefaultPipeline::with_config(steps, config);
+    let pipeline = create_pipeline_with_config(steps, config);
     let result = Pipeline::execute(&pipeline, &mut exec_count).await;
 
     assert!(result.is_err());
@@ -101,13 +101,13 @@ async fn struct_default_pipeline_config_with_lifecycle_events() {
         abort_on_error: true,
     };
 
-    let pipeline: DefaultPipeline<i32> = DefaultPipeline::with_config(vec![], config.clone());
+    let pipeline = create_pipeline_with_config(vec![], config.clone());
     assert!(pipeline.config().emit_lifecycle_events);
 }
 
 #[tokio::test]
 async fn struct_default_pipeline_as_step_nesting() {
-    let inner = DefaultPipeline::new(vec![
+    let inner = create_pipeline(vec![
         Arc::new(AlwaysPassStep::new()),
         Arc::new(AlwaysPassStep::new()),
     ]);
@@ -125,7 +125,7 @@ async fn struct_default_pipeline_with_mixed_steps() {
         Arc::new(AlwaysPassStep::new()),
     ];
 
-    let pipeline = DefaultPipeline::new(steps);
+    let pipeline = create_pipeline(steps);
     let mut ctx = 10;
     assert!(Pipeline::execute(&pipeline, &mut ctx).await.is_ok());
     assert_eq!(ctx, 15);
@@ -159,7 +159,7 @@ async fn struct_default_pipeline_short_circuits_on_fail() {
         Arc::new(RecordingFailStep("c")),
     ];
 
-    let pipeline = DefaultPipeline::new(steps);
+    let pipeline = create_pipeline(steps);
     let result = Pipeline::execute(&pipeline, &mut executed).await;
 
     assert!(result.is_err());

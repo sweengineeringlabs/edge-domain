@@ -5,5 +5,5 @@ mod traits;
 pub mod types;
 
 pub use error::PipelineError;
-pub use traits::{Pipeline, Step};
+pub use traits::{Pipeline, Step, Validator};
 pub use types::PipelineConfig;

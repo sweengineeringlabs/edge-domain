@@ -2,7 +2,7 @@
 //!
 //! @covers Pipeline
 
-use edge_domain_pipeline::{Pipeline, Step, PipelineError, DefaultPipeline, AlwaysPassStep, AlwaysFailStep};
+use edge_domain_pipeline::{create_pipeline, create_pipeline_with_config, {Pipeline, Step, PipelineError, DefaultPipeline, AlwaysPassStep, AlwaysFailStep};
 use std::sync::Arc;
 
 #[tokio::test]
@@ -27,7 +27,7 @@ async fn trait_pipeline_executes_all_steps_in_order() {
         Arc::new(RecordingStep("c")),
     ];
 
-    let pipeline = DefaultPipeline::new(steps);
+    let pipeline = create_pipeline(steps);
     let mut ctx = Vec::new();
 
     assert!(Pipeline::execute(&pipeline, &mut ctx).await.is_ok());
@@ -36,7 +36,7 @@ async fn trait_pipeline_executes_all_steps_in_order() {
 
 #[tokio::test]
 async fn trait_pipeline_step_count_accurate() {
-    let pipeline: DefaultPipeline<i32> = DefaultPipeline::new(vec![
+    let pipeline = create_pipeline(vec![
         Arc::new(AlwaysPassStep::new()),
         Arc::new(AlwaysPassStep::new()),
     ]);
@@ -46,10 +46,10 @@ async fn trait_pipeline_step_count_accurate() {
 
 #[tokio::test]
 async fn trait_pipeline_is_empty_works() {
-    let empty_pipeline: DefaultPipeline<i32> = DefaultPipeline::new(vec![]);
+    let empty_pipeline: _ = create_pipeline(vec![]);
     assert!(empty_pipeline.is_empty());
 
-    let nonempty_pipeline: DefaultPipeline<i32> = DefaultPipeline::new(vec![
+    let nonempty_pipeline: _ = create_pipeline(vec![
         Arc::new(AlwaysPassStep::new()),
     ]);
     assert!(!nonempty_pipeline.is_empty());
@@ -83,7 +83,7 @@ async fn trait_pipeline_halts_on_first_error() {
         Arc::new(CountingStep(3)),
     ];
 
-    let pipeline = DefaultPipeline::new(steps);
+    let pipeline = create_pipeline(steps);
     let result = Pipeline::execute(&pipeline, &mut step_count).await;
 
     assert!(result.is_err());
@@ -92,7 +92,7 @@ async fn trait_pipeline_halts_on_first_error() {
 
 #[tokio::test]
 async fn trait_pipeline_dyn_dispatch_works() {
-    let pipeline: Box<dyn Pipeline<i32>> = Box::new(DefaultPipeline::new(vec![
+    let pipeline: Box<dyn Pipeline<i32>> = Box::new(create_pipeline(vec![
         Arc::new(AlwaysPassStep::new()),
     ]));
 
@@ -105,7 +105,7 @@ async fn trait_pipeline_dyn_dispatch_works() {
 
 #[tokio::test]
 async fn trait_pipeline_composable_as_step() {
-    let inner = DefaultPipeline::new(vec![
+    let inner = create_pipeline(vec![
         Arc::new(AlwaysPassStep::new()),
     ]);
 

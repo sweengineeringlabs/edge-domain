@@ -1,5 +1,3 @@
-//! Default implementations of pipeline patterns.
+//! Default implementations of pipeline patterns (internal only).
 
-pub mod default_pipeline;
-
-pub use default_pipeline::DefaultPipeline;
+pub(crate) mod default_pipeline;

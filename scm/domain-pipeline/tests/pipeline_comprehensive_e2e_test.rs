@@ -1,7 +1,7 @@
 //! Comprehensive scenario coverage for Pipeline trait.
 //! Tests: happy path, error path, edge cases
 
-use edge_domain_pipeline::{Pipeline, Step, PipelineError, DefaultPipeline, AlwaysPassStep, AlwaysFailStep};
+use edge_domain_pipeline::{create_pipeline, create_pipeline_with_config, Pipeline, Step, PipelineError, AlwaysPassStep, AlwaysFailStep};
 use std::sync::Arc;
 
 struct CountingStep;
@@ -40,14 +40,14 @@ impl Step<usize> for FailAtStep {
 /// @covers: execute
 #[tokio::test]
 async fn test_pipeline_execute_happy_empty() {
-    let pipeline: DefaultPipeline<usize> = DefaultPipeline::new(vec![]);
+    let pipeline = create_pipeline(vec![]);
     let mut ctx = 0;
     assert!(Pipeline::execute(&pipeline, &mut ctx).await.is_ok());
 }
 
 #[tokio::test]
 async fn test_pipeline_execute_happy_single_step() {
-    let pipeline: DefaultPipeline<usize> = DefaultPipeline::new(vec![
+    let pipeline = create_pipeline(vec![
         Arc::new(CountingStep),
     ]);
     let mut ctx = 0;
@@ -57,7 +57,7 @@ async fn test_pipeline_execute_happy_single_step() {
 
 #[tokio::test]
 async fn test_pipeline_execute_happy_multiple_steps() {
-    let pipeline: DefaultPipeline<usize> = DefaultPipeline::new(vec![
+    let pipeline = create_pipeline(vec![
         Arc::new(CountingStep),
         Arc::new(CountingStep),
         Arc::new(CountingStep),
@@ -70,7 +70,7 @@ async fn test_pipeline_execute_happy_multiple_steps() {
 // Error path: early exit on failure
 #[tokio::test]
 async fn test_pipeline_execute_error_first_step() {
-    let pipeline: DefaultPipeline<usize> = DefaultPipeline::new(vec![
+    let pipeline = create_pipeline(vec![
         Arc::new(FailAtStep(1)),
         Arc::new(CountingStep),
         Arc::new(CountingStep),
@@ -83,7 +83,7 @@ async fn test_pipeline_execute_error_first_step() {
 
 #[tokio::test]
 async fn test_pipeline_execute_error_middle_step() {
-    let pipeline: DefaultPipeline<usize> = DefaultPipeline::new(vec![
+    let pipeline = create_pipeline(vec![
         Arc::new(CountingStep),
         Arc::new(FailAtStep(2)),
         Arc::new(CountingStep),
@@ -96,7 +96,7 @@ async fn test_pipeline_execute_error_middle_step() {
 
 #[tokio::test]
 async fn test_pipeline_execute_error_last_step() {
-    let pipeline: DefaultPipeline<usize> = DefaultPipeline::new(vec![
+    let pipeline = create_pipeline(vec![
         Arc::new(CountingStep),
         Arc::new(CountingStep),
         Arc::new(FailAtStep(3)),
@@ -111,13 +111,13 @@ async fn test_pipeline_execute_error_last_step() {
 /// @covers: step_count
 #[tokio::test]
 async fn test_pipeline_step_count_happy_zero() {
-    let pipeline: DefaultPipeline<usize> = DefaultPipeline::new(vec![]);
+    let pipeline = create_pipeline(vec![]);
     assert_eq!(pipeline.step_count(), 0);
 }
 
 #[tokio::test]
 async fn test_pipeline_step_count_happy_many() {
-    let pipeline: DefaultPipeline<usize> = DefaultPipeline::new(vec![
+    let pipeline = create_pipeline(vec![
         Arc::new(CountingStep),
         Arc::new(CountingStep),
         Arc::new(CountingStep),
@@ -129,13 +129,13 @@ async fn test_pipeline_step_count_happy_many() {
 
 #[tokio::test]
 async fn test_pipeline_is_empty_happy_true() {
-    let pipeline: DefaultPipeline<usize> = DefaultPipeline::new(vec![]);
+    let pipeline = create_pipeline(vec![]);
     assert!(pipeline.is_empty());
 }
 
 #[tokio::test]
 async fn test_pipeline_is_empty_happy_false() {
-    let pipeline: DefaultPipeline<usize> = DefaultPipeline::new(vec![
+    let pipeline = create_pipeline(vec![
         Arc::new(CountingStep),
     ]);
     assert!(!pipeline.is_empty());
@@ -143,7 +143,7 @@ async fn test_pipeline_is_empty_happy_false() {
 
 #[tokio::test]
 async fn test_pipeline_execute_error_error_message() {
-    let pipeline: DefaultPipeline<usize> = DefaultPipeline::new(vec![
+    let pipeline = create_pipeline(vec![
         Arc::new(FailAtStep(1)),
     ]);
     let mut ctx = 0;
@@ -155,7 +155,7 @@ async fn test_pipeline_execute_error_error_message() {
 
 #[tokio::test]
 async fn test_pipeline_dyn_dispatch_happy() {
-    let pipeline: Box<dyn Pipeline<usize>> = Box::new(DefaultPipeline::new(vec![
+    let pipeline = Box::new(create_pipeline(vec![
         Arc::new(CountingStep),
     ]));
     let mut ctx = 0;
@@ -165,7 +165,7 @@ async fn test_pipeline_dyn_dispatch_happy() {
 
 #[tokio::test]
 async fn test_pipeline_dyn_dispatch_error() {
-    let pipeline: Box<dyn Pipeline<usize>> = Box::new(DefaultPipeline::new(vec![
+    let pipeline = Box::new(create_pipeline(vec![
         Arc::new(FailAtStep(1)),
     ]));
     let mut ctx = 0;

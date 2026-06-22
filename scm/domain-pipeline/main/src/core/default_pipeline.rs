@@ -6,14 +6,14 @@ use crate::api::{Pipeline, PipelineConfig, PipelineError, Step};
 
 /// Executes a sequence of steps in order, passing context through each.
 #[derive(Clone)]
-pub struct DefaultPipeline<Ctx> {
+pub(crate) struct DefaultPipeline<Ctx> {
     steps: Vec<Arc<dyn Step<Ctx>>>,
     config: PipelineConfig,
 }
 
 impl<Ctx: Send> DefaultPipeline<Ctx> {
     /// Create a new pipeline with given steps and default config.
-    pub fn new(steps: Vec<Arc<dyn Step<Ctx>>>) -> Self {
+    pub(crate) fn new(steps: Vec<Arc<dyn Step<Ctx>>>) -> Self {
         Self {
             steps,
             config: PipelineConfig::default(),
@@ -21,12 +21,12 @@ impl<Ctx: Send> DefaultPipeline<Ctx> {
     }
 
     /// Create a new pipeline with custom config.
-    pub fn with_config(steps: Vec<Arc<dyn Step<Ctx>>>, config: PipelineConfig) -> Self {
+    pub(crate) fn with_config(steps: Vec<Arc<dyn Step<Ctx>>>, config: PipelineConfig) -> Self {
         Self { steps, config }
     }
 
     /// Return a reference to the config.
-    pub fn config(&self) -> &PipelineConfig {
+    pub(crate) fn config(&self) -> &PipelineConfig {
         &self.config
     }
 }
