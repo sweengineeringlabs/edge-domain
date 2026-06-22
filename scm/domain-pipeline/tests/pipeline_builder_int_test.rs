@@ -56,7 +56,7 @@ fn test_spi_pipeline_builder_mixed_conditions() {
 
 /// @covers: with_timeout
 #[test]
-fn test_spi_pipeline_builder_with_timeout() {
+fn test_spi_pipeline_builder_with_timeout_nominal_happy() {
     let timeout = Duration::from_secs(30);
     let pipeline: edge_domain_pipeline::DefaultPipeline<i32> = PipelineBuilder::new()
         .with_timeout(timeout)
