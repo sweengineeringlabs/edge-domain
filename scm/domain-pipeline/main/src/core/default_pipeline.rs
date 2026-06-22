@@ -84,6 +84,34 @@ impl<Ctx: Send> Step<Ctx> for DefaultPipeline<Ctx> {
 mod tests {
     use super::*;
 
+    #[test]
+    fn test_new() {
+        let pipeline: DefaultPipeline<i32> = DefaultPipeline::new(vec![]);
+        assert_eq!(pipeline.step_count(), 0);
+    }
+
+    #[test]
+    fn test_with_config() {
+        let config = PipelineConfig {
+            timeout_per_step: Some(std::time::Duration::from_secs(5)),
+            emit_lifecycle_events: true,
+            abort_on_error: false,
+        };
+        let pipeline: DefaultPipeline<i32> = DefaultPipeline::with_config(vec![], config.clone());
+        assert_eq!(pipeline.config().timeout_per_step, Some(std::time::Duration::from_secs(5)));
+    }
+
+    #[test]
+    fn test_config() {
+        let config = PipelineConfig {
+            timeout_per_step: Some(std::time::Duration::from_secs(10)),
+            emit_lifecycle_events: false,
+            abort_on_error: true,
+        };
+        let pipeline: DefaultPipeline<i32> = DefaultPipeline::with_config(vec![], config);
+        assert_eq!(pipeline.config().timeout_per_step, Some(std::time::Duration::from_secs(10)));
+    }
+
     #[tokio::test]
     async fn test_empty_pipeline_succeeds() {
         let pipeline = DefaultPipeline::new(vec![]);

@@ -9,8 +9,8 @@
 #![cfg_attr(test, allow(clippy::unwrap_used, clippy::expect_used))]
 
 mod api;
-pub mod core;
+mod core;
 mod saf;
-pub mod spi;
+mod spi;
 
 pub use saf::*;
