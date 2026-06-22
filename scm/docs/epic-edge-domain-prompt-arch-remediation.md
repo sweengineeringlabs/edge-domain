@@ -122,19 +122,29 @@ None — public API changes are backward-incompatible but the crate is early-sta
 
 ---
 
-## Sub-Issues (for GitHub Tracking)
+## Related Issues
 
-Once this epic is approved, create:
+### ISSUE: ADR Alignment (Blocking)
+**Link:** [issue-edge-domain-prompt-adr-alignment-tasks.md](issue-edge-domain-prompt-adr-alignment-tasks.md)
+
+Before implementing arch remediation, implementation must align to ADR-034:
+- 6 misalignments documented (see issue for details)
+- 11 subtasks across 5 task groups
+- Estimated effort: ~5 hours
+- Decision required: Amend ADR or align implementation
+- Status: Open (Blocking this epic)
+
+### Sub-Issues (Arch Remediation Tasks)
 
 1. **edge-domain#[N]** — `fix(prompt): remove concrete types from lib.rs public surface (root_whitelist cleanup)`
    - Labels: `arch-compliance`, `llm`, `low-priority`
    - Assignee: (whoever takes the work)
-   - Subtask: Delete .claude and arch_audit.txt
+   - Task: Delete .claude and arch_audit.txt
 
 2. **edge-domain#[N+1]** — `fix(prompt): resolve encapsulation.package_access_violation — concrete impls leaking to public API`
    - Labels: `arch-compliance`, `llm`, `high-priority`, `sai-layer-violation`
    - Assignee: (whoever takes the work)
-   - Subtasks: Phase 1-5 above
+   - Task: Replace `pub use saf::*` with explicit exports (Phase 2 in epic)
 
 ---
 
