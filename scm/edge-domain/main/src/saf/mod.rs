@@ -223,6 +223,28 @@ pub use edge_domain_event::NoopEventBus;
 #[cfg(feature = "event")]
 pub use edge_domain_event::NoopEventPublisher;
 
+// ── pipeline (sub-crate when feature enabled) ────────────────────────────────
+#[cfg(feature = "pipeline")]
+pub use edge_domain_pipeline::AlwaysFailStep;
+#[cfg(feature = "pipeline")]
+pub use edge_domain_pipeline::AlwaysPassStep;
+#[cfg(feature = "pipeline")]
+pub use edge_domain_pipeline::DefaultPipeline;
+#[cfg(feature = "pipeline")]
+pub use edge_domain_pipeline::MutatingStep;
+#[cfg(feature = "pipeline")]
+pub use edge_domain_pipeline::NoopStep;
+#[cfg(feature = "pipeline")]
+pub use edge_domain_pipeline::Pipeline;
+#[cfg(feature = "pipeline")]
+pub use edge_domain_pipeline::PipelineBuilder;
+#[cfg(feature = "pipeline")]
+pub use edge_domain_pipeline::PipelineConfig;
+#[cfg(feature = "pipeline")]
+pub use edge_domain_pipeline::PipelineError;
+#[cfg(feature = "pipeline")]
+pub use edge_domain_pipeline::Step;
+
 // ── projection (sub-crate when feature enabled) ───────────────────────────────
 #[cfg(feature = "projection")]
 pub use edge_domain_projection::InMemoryProjection;
