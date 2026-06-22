@@ -28,7 +28,7 @@ async fn test_validator_validate_edge_custom_config() {
     let config = PipelineConfig {
         timeout_per_step: Some(std::time::Duration::from_secs(5)),
         emit_lifecycle_events: true,
-        abort_on_error: false,
+        abort_on_error: true,
     };
     let result = validator.validate(&config).await;
     assert!(result.is_ok());
