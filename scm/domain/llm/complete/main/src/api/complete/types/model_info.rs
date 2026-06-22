@@ -21,7 +21,12 @@ pub struct ModelInfo {
 
 impl ModelInfo {
     /// Construct a model info with all capability flags set to false.
-    pub fn new(id: impl Into<String>, name: impl Into<String>, provider: impl Into<String>, context_window: u32) -> Self {
+    pub fn new(
+        id: impl Into<String>,
+        name: impl Into<String>,
+        provider: impl Into<String>,
+        context_window: u32,
+    ) -> Self {
         Self {
             id: id.into(),
             name: name.into(),

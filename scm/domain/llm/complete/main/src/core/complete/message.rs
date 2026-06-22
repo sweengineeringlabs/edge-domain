@@ -8,4 +8,3 @@ impl CacheableMessage for Message {
         self
     }
 }
-

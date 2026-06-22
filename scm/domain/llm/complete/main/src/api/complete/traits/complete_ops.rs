@@ -36,7 +36,11 @@ pub trait CompleteOps: Send + Sync {
     where
         Self: Sized,
     {
-        CompletionResponse { id, model, ..Default::default() }
+        CompletionResponse {
+            id,
+            model,
+            ..Default::default()
+        }
     }
 
     /// Construct a zeroed token usage record.

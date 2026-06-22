@@ -20,7 +20,9 @@ fn test_echo_completer_model_info_unknown_returns_error_error() {
 
 #[test]
 fn test_echo_completer_supported_models_contains_echo_edge() {
-    assert!(EchoCompleter.supported_models().contains(&"echo".to_string()));
+    assert!(EchoCompleter
+        .supported_models()
+        .contains(&"echo".to_string()));
 }
 
 #[test]

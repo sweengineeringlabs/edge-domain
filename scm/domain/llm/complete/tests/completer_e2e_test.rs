@@ -1,7 +1,7 @@
 //! Scenario coverage for the `Completer` trait.
 
 use edge_llm_complete::{
-    CompleteError, CompletionRequest, Completer, EchoCompleter, Message, NoopCompleter,
+    CompleteError, Completer, CompletionRequest, EchoCompleter, Message, NoopCompleter,
 };
 use futures::executor::block_on;
 use futures::StreamExt;
@@ -62,7 +62,9 @@ fn test_complete_stream_empty_messages_yields_empty_delta_edge() {
 
 #[test]
 fn test_supported_models_echo_contains_echo_happy() {
-    assert!(EchoCompleter.supported_models().contains(&"echo".to_string()));
+    assert!(EchoCompleter
+        .supported_models()
+        .contains(&"echo".to_string()));
 }
 
 #[test]
@@ -153,4 +155,23 @@ fn test_is_model_available_unknown_returns_false_error() {
 #[test]
 fn test_is_model_available_noop_always_false_edge() {
     assert!(!block_on(NoopCompleter.is_model_available("echo")));
+}
+
+// ── health_check ────────────────────────────────────────────────────────────
+
+#[test]
+fn test_health_check_echo_returns_true_happy() {
+    assert!(block_on(EchoCompleter.health_check()));
+}
+
+#[test]
+fn test_health_check_noop_returns_true_error() {
+    assert!(block_on(NoopCompleter.health_check()));
+}
+
+#[test]
+fn test_health_check_delegates_to_list_models_edge() {
+    let echo_health = block_on(EchoCompleter.health_check());
+    let echo_models = block_on(EchoCompleter.list_models());
+    assert_eq!(echo_health, echo_models.is_ok());
 }

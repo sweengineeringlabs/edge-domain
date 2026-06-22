@@ -1,8 +1,6 @@
 //! Scenario coverage for the `CompletionStream` type alias.
 
-use edge_llm_complete::{
-    CompletionStream, EchoCompleter, Completer, CompletionRequest, Message,
-};
+use edge_llm_complete::{Completer, CompletionRequest, CompletionStream, EchoCompleter, Message};
 use futures::executor::block_on;
 use futures::StreamExt;
 

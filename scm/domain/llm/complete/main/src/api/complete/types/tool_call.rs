@@ -13,7 +13,15 @@ pub struct ToolCall {
 
 impl ToolCall {
     /// Construct a tool call.
-    pub fn new(id: impl Into<String>, name: impl Into<String>, arguments: impl Into<String>) -> Self {
-        Self { id: id.into(), name: name.into(), arguments: arguments.into() }
+    pub fn new(
+        id: impl Into<String>,
+        name: impl Into<String>,
+        arguments: impl Into<String>,
+    ) -> Self {
+        Self {
+            id: id.into(),
+            name: name.into(),
+            arguments: arguments.into(),
+        }
     }
 }

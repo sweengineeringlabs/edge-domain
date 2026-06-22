@@ -17,7 +17,9 @@ fn test_noop_completer_is_constructable_happy() {
 fn test_noop_completer_type_is_noop_error() {
     // NoopCompleter has no models — confirms it is the noop variant.
     use edge_llm_complete::Completer;
-    assert!(StdCompleteFactory::noop_completer().supported_models().is_empty());
+    assert!(StdCompleteFactory::noop_completer()
+        .supported_models()
+        .is_empty());
 }
 
 #[test]
@@ -44,7 +46,9 @@ fn test_echo_completer_does_not_support_unknown_model_error() {
 #[test]
 fn test_echo_completer_supported_models_nonempty_edge() {
     use edge_llm_complete::Completer;
-    assert!(!StdCompleteFactory::echo_completer().supported_models().is_empty());
+    assert!(!StdCompleteFactory::echo_completer()
+        .supported_models()
+        .is_empty());
 }
 
 // ── request ──────────────────────────────────────────────────────────────────
@@ -65,7 +69,11 @@ fn test_request_empty_messages_is_valid_error() {
 
 #[test]
 fn test_request_preserves_all_messages_edge() {
-    let msgs = vec![Message::system("sys"), Message::user("u"), Message::assistant("a")];
+    let msgs = vec![
+        Message::system("sys"),
+        Message::user("u"),
+        Message::assistant("a"),
+    ];
     let req = StdCompleteFactory::request("m".to_string(), msgs);
     assert_eq!(req.messages.len(), 3);
 }
@@ -97,7 +105,10 @@ fn test_message_all_roles_constructable_edge() {
 
 #[test]
 fn test_user_message_has_user_role_happy() {
-    assert_eq!(StdCompleteFactory::user_message("hi".to_string()).role, Role::User);
+    assert_eq!(
+        StdCompleteFactory::user_message("hi".to_string()).role,
+        Role::User
+    );
 }
 
 #[test]
@@ -117,7 +128,10 @@ fn test_user_message_content_matches_input_edge() {
 
 #[test]
 fn test_assistant_message_has_assistant_role_happy() {
-    assert_eq!(StdCompleteFactory::assistant_message("ok".to_string()).role, Role::Assistant);
+    assert_eq!(
+        StdCompleteFactory::assistant_message("ok".to_string()).role,
+        Role::Assistant
+    );
 }
 
 #[test]
@@ -137,7 +151,10 @@ fn test_assistant_message_content_set_edge() {
 
 #[test]
 fn test_system_message_has_system_role_happy() {
-    assert_eq!(StdCompleteFactory::system_message("sys".to_string()).role, Role::System);
+    assert_eq!(
+        StdCompleteFactory::system_message("sys".to_string()).role,
+        Role::System
+    );
 }
 
 #[test]
@@ -252,11 +269,7 @@ fn test_tool_definition_sets_fields_happy() {
 
 #[test]
 fn test_tool_definition_empty_name_is_valid_error() {
-    let td = StdCompleteFactory::tool_definition(
-        String::new(),
-        "desc".to_string(),
-        json!({}),
-    );
+    let td = StdCompleteFactory::tool_definition(String::new(), "desc".to_string(), json!({}));
     assert!(td.name.is_empty());
 }
 
@@ -274,7 +287,11 @@ fn test_tool_definition_accepts_array_schema_edge() {
 
 #[test]
 fn test_tool_call_sets_all_fields_happy() {
-    let tc = StdCompleteFactory::tool_call("id-1".to_string(), "search".to_string(), r#"{"q":"x"}"#.to_string());
+    let tc = StdCompleteFactory::tool_call(
+        "id-1".to_string(),
+        "search".to_string(),
+        r#"{"q":"x"}"#.to_string(),
+    );
     assert_eq!(tc.id, "id-1");
     assert_eq!(tc.name, "search");
 }
@@ -287,7 +304,8 @@ fn test_tool_call_empty_fields_are_valid_error() {
 
 #[test]
 fn test_tool_call_arguments_is_raw_json_string_edge() {
-    let tc = StdCompleteFactory::tool_call("x".to_string(), "y".to_string(), r#"{"a":1}"#.to_string());
+    let tc =
+        StdCompleteFactory::tool_call("x".to_string(), "y".to_string(), r#"{"a":1}"#.to_string());
     assert!(tc.arguments.contains('{'));
 }
 
@@ -381,7 +399,12 @@ fn test_token_usage_cache_fields_are_zero_edge() {
 
 #[test]
 fn test_model_info_sets_all_fields_happy() {
-    let m = StdCompleteFactory::model_info("gpt-4".to_string(), "GPT-4".to_string(), "openai".to_string(), 128_000);
+    let m = StdCompleteFactory::model_info(
+        "gpt-4".to_string(),
+        "GPT-4".to_string(),
+        "openai".to_string(),
+        128_000,
+    );
     assert_eq!(m.id, "gpt-4");
     assert_eq!(m.context_window, 128_000);
 }

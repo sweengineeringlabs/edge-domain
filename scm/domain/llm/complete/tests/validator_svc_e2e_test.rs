@@ -1,6 +1,8 @@
 //! Scenario coverage for the `validator_svc` SAF surface.
 
-use edge_llm_complete::{CompleteError, CompletionRequest, EchoCompleter, Validator, VALIDATOR_SVC};
+use edge_llm_complete::{
+    CompleteError, CompletionRequest, EchoCompleter, Validator, VALIDATOR_SVC,
+};
 
 #[test]
 fn test_validator_svc_constant_is_expected_value_happy() {

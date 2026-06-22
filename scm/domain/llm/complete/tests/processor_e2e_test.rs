@@ -11,7 +11,10 @@ struct PassthroughProcessor;
 
 #[async_trait]
 impl Processor for PassthroughProcessor {
-    async fn process(&self, request: &CompletionRequest) -> Result<CompletionResponse, CompleteError> {
+    async fn process(
+        &self,
+        request: &CompletionRequest,
+    ) -> Result<CompletionResponse, CompleteError> {
         EchoCompleter.complete(request).await
     }
 }

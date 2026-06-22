@@ -4,9 +4,9 @@ use async_trait::async_trait;
 use futures::stream;
 
 use crate::api::{
-    CompleteError, CompleterHandler, CompletionRequest, CompletionResponse, CompletionStream,
-    Completer, EchoCompleter, FinishReason, MessageContent, ModelInfo, Processor, StreamChunk,
-    StreamDelta, Validator,
+    CompleteError, Completer, CompleterHandler, CompletionRequest, CompletionResponse,
+    CompletionStream, EchoCompleter, FinishReason, MessageContent, ModelInfo, Processor,
+    StreamChunk, StreamDelta, Validator,
 };
 
 impl EchoCompleter {
@@ -24,7 +24,10 @@ impl EchoCompleter {
 
 #[async_trait]
 impl Completer for EchoCompleter {
-    async fn complete(&self, request: &CompletionRequest) -> Result<CompletionResponse, CompleteError> {
+    async fn complete(
+        &self,
+        request: &CompletionRequest,
+    ) -> Result<CompletionResponse, CompleteError> {
         let content = self.last_user_text(request);
         Ok(CompletionResponse::text("echo-1", &request.model, content))
     }
@@ -34,11 +37,7 @@ impl Completer for EchoCompleter {
         request: &CompletionRequest,
     ) -> Result<CompletionStream, CompleteError> {
         let content = self.last_user_text(request);
-        let chunk = StreamChunk::terminal(
-            "echo-1",
-            StreamDelta::text(content),
-            FinishReason::Stop,
-        );
+        let chunk = StreamChunk::terminal("echo-1", StreamDelta::text(content), FinishReason::Stop);
         Ok(Box::pin(stream::once(async move { Ok(chunk) })))
     }
 
@@ -61,7 +60,10 @@ impl Completer for EchoCompleter {
 
 #[async_trait]
 impl Processor for EchoCompleter {
-    async fn process(&self, request: &CompletionRequest) -> Result<CompletionResponse, CompleteError> {
+    async fn process(
+        &self,
+        request: &CompletionRequest,
+    ) -> Result<CompletionResponse, CompleteError> {
         self.complete(request).await
     }
 }
@@ -71,7 +73,9 @@ impl CompleterHandler for EchoCompleter {}
 impl Validator for EchoCompleter {
     fn validate(&self, request: &CompletionRequest) -> Result<(), CompleteError> {
         if request.model.is_empty() {
-            return Err(CompleteError::InvalidRequest("model cannot be empty".to_string()));
+            return Err(CompleteError::InvalidRequest(
+                "model cannot be empty".to_string(),
+            ));
         }
         Ok(())
     }

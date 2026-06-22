@@ -18,5 +18,7 @@ fn test_content_part_image_url_variant_wraps_url_error() {
 #[test]
 fn test_content_part_base64_sets_media_type_edge() {
     let part = ContentPart::image_base64("abc123", "image/png");
-    assert!(matches!(&part, ContentPart::ImageBase64 { media_type, .. } if media_type == "image/png"));
+    assert!(
+        matches!(&part, ContentPart::ImageBase64 { media_type, .. } if media_type == "image/png")
+    );
 }

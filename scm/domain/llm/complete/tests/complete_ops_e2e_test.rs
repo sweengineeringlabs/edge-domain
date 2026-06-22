@@ -42,7 +42,10 @@ fn test_assemble_preserves_message_count_edge() {
 
 #[test]
 fn test_extract_usage_returns_usage_ref_happy() {
-    let resp = CompletionResponse { usage: Box::new(TokenUsage::new(10, 5, 15, 0, 0)), ..Default::default() };
+    let resp = CompletionResponse {
+        usage: Box::new(TokenUsage::new(10, 5, 15, 0, 0)),
+        ..Default::default()
+    };
     let u = StdOps::extract_usage(&resp);
     assert_eq!(u.total_tokens, 15);
 }
@@ -56,7 +59,10 @@ fn test_extract_usage_zero_tokens_error() {
 
 #[test]
 fn test_extract_usage_cache_tokens_accessible_edge() {
-    let resp = CompletionResponse { usage: Box::new(TokenUsage::new(0, 0, 0, 100, 50)), ..Default::default() };
+    let resp = CompletionResponse {
+        usage: Box::new(TokenUsage::new(0, 0, 0, 100, 50)),
+        ..Default::default()
+    };
     let u = StdOps::extract_usage(&resp);
     assert_eq!(u.cache_read_input_tokens, 100);
 }
@@ -71,13 +77,19 @@ fn test_extract_finish_returns_stop_by_default_happy() {
 
 #[test]
 fn test_extract_finish_length_reason_error() {
-    let resp = CompletionResponse { finish_reason: FinishReason::Length, ..Default::default() };
+    let resp = CompletionResponse {
+        finish_reason: FinishReason::Length,
+        ..Default::default()
+    };
     assert_eq!(*StdOps::extract_finish(&resp), FinishReason::Length);
 }
 
 #[test]
 fn test_extract_finish_tool_calls_reason_edge() {
-    let resp = CompletionResponse { finish_reason: FinishReason::ToolCalls, ..Default::default() };
+    let resp = CompletionResponse {
+        finish_reason: FinishReason::ToolCalls,
+        ..Default::default()
+    };
     assert_eq!(*StdOps::extract_finish(&resp), FinishReason::ToolCalls);
 }
 

@@ -1,6 +1,8 @@
 //! Scenario coverage for the `ToolOps` trait.
 
-use edge_llm_complete::{CompleteError, ToolCall, ToolCallDelta, ToolChoice, ToolDefinition, ToolOps};
+use edge_llm_complete::{
+    CompleteError, ToolCall, ToolCallDelta, ToolChoice, ToolDefinition, ToolOps,
+};
 use serde_json::json;
 
 struct EchoToolOps;
@@ -8,7 +10,9 @@ struct EchoToolOps;
 impl ToolOps for EchoToolOps {
     fn execute(&self, call: &ToolCall) -> Result<String, CompleteError> {
         if call.name.is_empty() {
-            return Err(CompleteError::InvalidRequest("tool name required".to_string()));
+            return Err(CompleteError::InvalidRequest(
+                "tool name required".to_string(),
+            ));
         }
         Ok(format!("result:{}", call.name))
     }

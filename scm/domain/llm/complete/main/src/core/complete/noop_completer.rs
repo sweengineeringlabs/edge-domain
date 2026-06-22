@@ -5,15 +5,17 @@ use async_trait::async_trait;
 use futures::stream;
 
 use crate::api::{
-    CompleteError, CompleteOps, CompletionRequest, CompletionResponse, CompletionStream,
-    Completer, ContentFlattener, ContentPart, MessageContent, ModelInfo,
-    ModelOps, NoopCompleter, StreamChunk, StreamDelta, StreamOps, ToolCall, ToolCallDelta,
-    ToolChoice, ToolDefinition, ToolOps,
+    CompleteError, CompleteOps, Completer, CompletionRequest, CompletionResponse, CompletionStream,
+    ContentFlattener, ContentPart, MessageContent, ModelInfo, ModelOps, NoopCompleter, StreamChunk,
+    StreamDelta, StreamOps, ToolCall, ToolCallDelta, ToolChoice, ToolDefinition, ToolOps,
 };
 
 #[async_trait]
 impl Completer for NoopCompleter {
-    async fn complete(&self, _request: &CompletionRequest) -> Result<CompletionResponse, CompleteError> {
+    async fn complete(
+        &self,
+        _request: &CompletionRequest,
+    ) -> Result<CompletionResponse, CompleteError> {
         Err(CompleteError::ProviderNotFound("noop".to_string()))
     }
 
@@ -40,7 +42,9 @@ impl Completer for NoopCompleter {
 impl CompleteOps for NoopCompleter {
     fn check(&self, request: &CompletionRequest) -> Result<(), CompleteError> {
         if request.model.is_empty() {
-            return Err(CompleteError::InvalidRequest("model cannot be empty".to_string()));
+            return Err(CompleteError::InvalidRequest(
+                "model cannot be empty".to_string(),
+            ));
         }
         Ok(())
     }
@@ -83,7 +87,9 @@ impl StreamOps for NoopCompleter {
 
 impl ToolOps for NoopCompleter {
     fn execute(&self, _call: &ToolCall) -> Result<String, CompleteError> {
-        Err(CompleteError::InvalidRequest("no tools registered".to_string()))
+        Err(CompleteError::InvalidRequest(
+            "no tools registered".to_string(),
+        ))
     }
 
     fn available_tools(&self) -> Vec<ToolDefinition> {

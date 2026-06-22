@@ -22,7 +22,11 @@ pub struct Message {
 impl Message {
     /// Construct a user message with plain-text content.
     pub fn user(content: impl Into<String>) -> Self {
-        Self { role: Role::User, content: MessageContent::Text(content.into()), ..Default::default() }
+        Self {
+            role: Role::User,
+            content: MessageContent::Text(content.into()),
+            ..Default::default()
+        }
     }
 
     /// Construct an assistant message with plain-text content.
@@ -36,7 +40,11 @@ impl Message {
 
     /// Construct a system message with plain-text content.
     pub fn system(content: impl Into<String>) -> Self {
-        Self { role: Role::System, content: MessageContent::Text(content.into()), ..Default::default() }
+        Self {
+            role: Role::System,
+            content: MessageContent::Text(content.into()),
+            ..Default::default()
+        }
     }
 
     /// Construct a tool-result message.

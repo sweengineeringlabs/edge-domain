@@ -7,7 +7,10 @@ use edge_llm_complete::{CacheControl, CacheableMessage, Message, MessageContent,
 #[test]
 fn test_with_cache_control_attaches_hint_happy() {
     let msg = Message::user("hello").with_cache_control(CacheControl::ephemeral());
-    assert_eq!(msg.cache_control.as_ref().map(|c| c.cache_type.as_str()), Some("ephemeral"));
+    assert_eq!(
+        msg.cache_control.as_ref().map(|c| c.cache_type.as_str()),
+        Some("ephemeral")
+    );
 }
 
 #[test]
@@ -36,7 +39,10 @@ fn test_with_cache_control_preserves_role_and_content_edge() {
 #[test]
 fn test_mark_ephemeral_sets_ephemeral_hint_happy() {
     let msg = Message::user("hi").mark_ephemeral();
-    assert_eq!(msg.cache_control.as_ref().map(|c| c.cache_type.as_str()), Some("ephemeral"));
+    assert_eq!(
+        msg.cache_control.as_ref().map(|c| c.cache_type.as_str()),
+        Some("ephemeral")
+    );
 }
 
 #[test]

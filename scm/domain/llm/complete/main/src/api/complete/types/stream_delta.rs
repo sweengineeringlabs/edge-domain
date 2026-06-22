@@ -14,7 +14,10 @@ pub struct StreamDelta {
 impl StreamDelta {
     /// Construct a text-only delta.
     pub fn text(content: impl Into<String>) -> Self {
-        Self { content: Some(content.into()), tool_calls: None }
+        Self {
+            content: Some(content.into()),
+            tool_calls: None,
+        }
     }
 
     /// Construct an empty delta (heartbeat / keep-alive).

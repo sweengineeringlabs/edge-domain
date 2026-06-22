@@ -16,7 +16,10 @@ pub struct ToolCallDelta {
 impl ToolCallDelta {
     /// Construct a tool-call delta at the given stream position.
     pub fn new(index: u32) -> Self {
-        Self { index, ..Default::default() }
+        Self {
+            index,
+            ..Default::default()
+        }
     }
 
     /// Attach the tool id to this delta.

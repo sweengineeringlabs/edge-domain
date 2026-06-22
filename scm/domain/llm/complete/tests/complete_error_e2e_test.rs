@@ -13,18 +13,25 @@ fn test_is_retryable_invalid_request_returns_false() {
 
 #[test]
 fn test_is_retryable_rate_limited_returns_true() {
-    assert!(CompleteError::RateLimited { retry_after_ms: None }.is_retryable());
+    assert!(CompleteError::RateLimited {
+        retry_after_ms: None
+    }
+    .is_retryable());
 }
 
 #[test]
 fn test_retry_after_rate_limited_with_ms_returns_duration() {
-    let err = CompleteError::RateLimited { retry_after_ms: Some(5_000) };
+    let err = CompleteError::RateLimited {
+        retry_after_ms: Some(5_000),
+    };
     assert_eq!(err.retry_after(), Some(Duration::from_millis(5_000)));
 }
 
 #[test]
 fn test_retry_after_network_error_returns_none() {
-    assert!(CompleteError::NetworkError("x".to_string()).retry_after().is_none());
+    assert!(CompleteError::NetworkError("x".to_string())
+        .retry_after()
+        .is_none());
 }
 
 #[test]
@@ -46,7 +53,10 @@ fn test_model_not_found_display_contains_model_name() {
 
 #[test]
 fn test_context_length_exceeded_display_contains_counts() {
-    let err = CompleteError::ContextLengthExceeded { used: 200_000, max: 128_000 };
+    let err = CompleteError::ContextLengthExceeded {
+        used: 200_000,
+        max: 128_000,
+    };
     let msg = format!("{err}");
     assert!(msg.contains("200000") && msg.contains("128000"));
 }

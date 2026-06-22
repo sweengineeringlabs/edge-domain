@@ -42,4 +42,12 @@ pub trait Completer: Send + Sync {
     async fn is_model_available(&self, model: &str) -> bool {
         self.model_info(model).await.is_ok()
     }
+
+    /// Returns `true` if the completer is healthy and can process requests.
+    ///
+    /// Default implementation probes by attempting to list models.
+    /// Implementations may override with a lighter probe (e.g., a dedicated health endpoint).
+    async fn health_check(&self) -> bool {
+        self.list_models().await.is_ok()
+    }
 }

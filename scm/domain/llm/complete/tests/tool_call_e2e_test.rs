@@ -4,7 +4,11 @@ use edge_llm_complete::ToolCall;
 
 #[test]
 fn test_tool_call_new_sets_all_fields_happy() {
-    let tc = ToolCall::new("id-1".to_string(), "search".to_string(), r#"{"q":"x"}"#.to_string());
+    let tc = ToolCall::new(
+        "id-1".to_string(),
+        "search".to_string(),
+        r#"{"q":"x"}"#.to_string(),
+    );
     assert_eq!(tc.id, "id-1");
     assert_eq!(tc.name, "search");
 }

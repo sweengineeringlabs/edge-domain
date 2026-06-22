@@ -20,6 +20,9 @@ fn test_roundtrip_serialization() {
 fn test_parameters_field_name_is_parameters_not_input_schema() {
     let td = ToolDefinition::new("t", "d", json!({}));
     let json = serde_json::to_value(&td).unwrap();
-    assert!(json.get("parameters").is_some(), "field must be named 'parameters'");
+    assert!(
+        json.get("parameters").is_some(),
+        "field must be named 'parameters'"
+    );
     assert!(json.get("input_schema").is_none());
 }

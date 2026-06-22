@@ -1,6 +1,6 @@
 //! Scenario coverage for the `CompleterHandler` marker trait.
 
-use edge_llm_complete::{CompleterHandler, Completer, EchoCompleter};
+use edge_llm_complete::{Completer, CompleterHandler, EchoCompleter};
 use futures::executor::block_on;
 
 #[test]

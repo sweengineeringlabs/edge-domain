@@ -7,10 +7,14 @@ struct MinimalValidator;
 impl Validator for MinimalValidator {
     fn validate(&self, request: &CompletionRequest) -> Result<(), CompleteError> {
         if request.model.is_empty() {
-            return Err(CompleteError::InvalidRequest("model is required".to_string()));
+            return Err(CompleteError::InvalidRequest(
+                "model is required".to_string(),
+            ));
         }
         if request.messages.is_empty() {
-            return Err(CompleteError::InvalidRequest("messages must not be empty".to_string()));
+            return Err(CompleteError::InvalidRequest(
+                "messages must not be empty".to_string(),
+            ));
         }
         Ok(())
     }

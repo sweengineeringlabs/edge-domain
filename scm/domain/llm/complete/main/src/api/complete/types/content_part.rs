@@ -33,11 +33,16 @@ impl ContentPart {
 
     /// Construct an image URL part.
     pub fn image_url(image_url: ImageUrl) -> Self {
-        Self::ImageUrl { image_url: Box::new(image_url) }
+        Self::ImageUrl {
+            image_url: Box::new(image_url),
+        }
     }
 
     /// Construct a base64-image part.
     pub fn image_base64(data: impl Into<String>, media_type: impl Into<String>) -> Self {
-        Self::ImageBase64 { data: data.into(), media_type: media_type.into() }
+        Self::ImageBase64 {
+            data: data.into(),
+            media_type: media_type.into(),
+        }
     }
 }

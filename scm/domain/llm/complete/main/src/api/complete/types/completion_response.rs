@@ -21,7 +21,11 @@ pub struct CompletionResponse {
 
 impl CompletionResponse {
     /// Construct a response with text content.
-    pub fn text(id: impl Into<String>, model: impl Into<String>, content: impl Into<String>) -> Self {
+    pub fn text(
+        id: impl Into<String>,
+        model: impl Into<String>,
+        content: impl Into<String>,
+    ) -> Self {
         Self {
             id: id.into(),
             model: model.into(),

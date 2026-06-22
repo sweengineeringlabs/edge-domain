@@ -26,6 +26,10 @@ pub struct CompletionRequest {
 impl CompletionRequest {
     /// Construct a minimal request with a model and message list.
     pub fn new(model: impl Into<String>, messages: Vec<Message>) -> Self {
-        Self { model: model.into(), messages, ..Default::default() }
+        Self {
+            model: model.into(),
+            messages,
+            ..Default::default()
+        }
     }
 }

@@ -5,7 +5,11 @@ use edge_llm_complete::{CompleteError, FinishReason, StreamChunk, StreamDelta, S
 struct AccumulatorOps;
 
 impl StreamOps for AccumulatorOps {
-    fn apply_delta(&self, chunk: &mut StreamChunk, delta: &StreamDelta) -> Result<(), CompleteError> {
+    fn apply_delta(
+        &self,
+        chunk: &mut StreamChunk,
+        delta: &StreamDelta,
+    ) -> Result<(), CompleteError> {
         match (&mut chunk.delta.content, delta.content.clone()) {
             (Some(existing), Some(new)) => existing.push_str(&new),
             (slot @ None, Some(new)) => *slot = Some(new),
@@ -28,14 +32,18 @@ fn test_apply_delta_appends_content_happy() {
 #[test]
 fn test_apply_delta_empty_delta_is_noop_error() {
     let mut chunk = StreamChunk::partial("id-1", StreamDelta::text("hi"));
-    AccumulatorOps.apply_delta(&mut chunk, &StreamDelta::empty()).unwrap();
+    AccumulatorOps
+        .apply_delta(&mut chunk, &StreamDelta::empty())
+        .unwrap();
     assert_eq!(chunk.delta.content, Some("hi".to_string()));
 }
 
 #[test]
 fn test_apply_delta_initialises_none_content_edge() {
     let mut chunk = StreamChunk::partial("id-1", StreamDelta::empty());
-    AccumulatorOps.apply_delta(&mut chunk, &StreamDelta::text("init")).unwrap();
+    AccumulatorOps
+        .apply_delta(&mut chunk, &StreamDelta::text("init"))
+        .unwrap();
     assert_eq!(chunk.delta.content, Some("init".to_string()));
 }
 

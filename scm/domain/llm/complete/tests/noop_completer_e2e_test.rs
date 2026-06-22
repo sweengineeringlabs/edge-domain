@@ -30,7 +30,9 @@ fn test_noop_completer_flatten_text_content_edge() {
 #[test]
 fn test_noop_completer_apply_delta_updates_chunk_happy() {
     let mut chunk = StreamChunk::partial("id", StreamDelta::empty());
-    NoopCompleter.apply_delta(&mut chunk, &StreamDelta::text("x")).unwrap();
+    NoopCompleter
+        .apply_delta(&mut chunk, &StreamDelta::text("x"))
+        .unwrap();
     assert_eq!(chunk.delta.content, Some("x".to_string()));
 }
 

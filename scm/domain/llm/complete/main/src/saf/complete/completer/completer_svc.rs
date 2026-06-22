@@ -1,8 +1,8 @@
 pub use crate::api::CacheControl;
 pub use crate::api::CompleteError;
+pub use crate::api::Completer;
 pub use crate::api::CompletionRequest;
 pub use crate::api::CompletionResponse;
-pub use crate::api::Completer;
 pub use crate::api::ContentPart;
 pub use crate::api::EchoCompleter;
 pub use crate::api::FinishReason;
