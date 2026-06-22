@@ -33,12 +33,19 @@ impl Handler for DefaultProviderHandler {
     async fn execute(
         &self,
         goal: String,
-        _ctx: HandlerContext<'_>,
+        ctx: HandlerContext<'_>,
     ) -> Result<ExecutionStepResult, HandlerError> {
-        self.model
+        let span = ctx
+            .observer()
+            .tracer()
+            .start_span("provider", "execute_step");
+        let result = self
+            .model
             .execute_step("", &goal, "", Vec::new())
             .await
-            .map_err(|e| HandlerError::ExecutionFailed(e.message()))
+            .map_err(|e| HandlerError::ExecutionFailed(e.message()));
+        span.finish();
+        result
     }
 }
 
@@ -67,6 +74,15 @@ mod tests {
         let out =
             block_on(Handler::execute(&handler(), "ship it".to_string(), ctx)).expect("handler ok");
         assert!(out.reasoning.contains("ship it"));
+    }
+
+    #[test]
+    fn test_execute_opens_and_finishes_span_happy() {
+        let security = SecurityContext::unauthenticated();
+        let commands = StdCommandBusFactory::direct();
+        let observer = StdObserveFactory::noop_observe_context();
+        let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
+        block_on(Handler::execute(&handler(), "goal".to_string(), ctx)).expect("handler ok");
     }
 
     #[test]

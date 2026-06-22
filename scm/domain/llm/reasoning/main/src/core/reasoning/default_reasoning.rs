@@ -35,12 +35,16 @@ impl Handler for DefaultReasoningHandler {
     async fn execute(
         &self,
         problem: String,
-        _ctx: HandlerContext<'_>,
+        ctx: HandlerContext<'_>,
     ) -> Result<ThinkingProcess, HandlerError> {
-        self.reasoner
+        let span = ctx.observer().tracer().start_span("reasoning", "reason");
+        let result = self
+            .reasoner
             .reason(&problem, REASONING_DEFAULT_PATTERN)
             .await
-            .map_err(|e| HandlerError::ExecutionFailed(e.message()))
+            .map_err(|e| HandlerError::ExecutionFailed(e.message()));
+        span.finish();
+        result
     }
 }
 
@@ -69,6 +73,15 @@ mod tests {
             .expect("handler ok");
         assert!(out.is_complete);
         assert!(out.conclusion.is_some());
+    }
+
+    #[test]
+    fn test_handler_execute_opens_and_finishes_span_happy() {
+        let security = SecurityContext::unauthenticated();
+        let commands = StdCommandBusFactory::direct();
+        let observer = StdObserveFactory::noop_observe_context();
+        let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
+        block_on(Handler::execute(&handler(), "solve x".to_string(), ctx)).expect("handler ok");
     }
 
     #[test]

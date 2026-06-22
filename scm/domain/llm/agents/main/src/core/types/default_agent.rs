@@ -27,14 +27,21 @@ impl Handler for DefaultAgentHandler {
     async fn execute(
         &self,
         input: String,
-        _ctx: HandlerContext<'_>,
+        ctx: HandlerContext<'_>,
     ) -> Result<String, HandlerError> {
         if input.is_empty() {
             return Err(HandlerError::ExecutionFailed(
                 "agent skill input must not be empty".to_string(),
             ));
         }
-        Ok(format!("{}:{}", self.skill, input))
+        let span = ctx.observer().tracer().start_span("agent", &self.skill);
+        ctx.observer()
+            .metrics()
+            .counter("agent.dispatch")
+            .increment(1);
+        let result = Ok(format!("{}:{}", self.skill, input));
+        span.finish();
+        result
     }
 }
 
@@ -61,6 +68,25 @@ mod tests {
         let out =
             block_on(Handler::execute(&handler(), "diff".to_string(), ctx)).expect("handler ok");
         assert_eq!(out, "code_review:diff");
+    }
+
+    #[test]
+    fn test_handler_execute_dispatch_increments_counter_happy() {
+        let security = SecurityContext::unauthenticated();
+        let commands = StdCommandBusFactory::direct();
+        let observer = StdObserveFactory::noop_observe_context();
+        let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
+        block_on(Handler::execute(&handler(), "diff".to_string(), ctx)).expect("handler ok");
+    }
+
+    #[test]
+    fn test_handler_execute_empty_input_does_not_emit_span_error() {
+        let security = SecurityContext::unauthenticated();
+        let commands = StdCommandBusFactory::direct();
+        let observer = StdObserveFactory::noop_observe_context();
+        let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
+        let result = block_on(Handler::execute(&handler(), String::new(), ctx));
+        assert!(result.is_err());
     }
 
     #[test]

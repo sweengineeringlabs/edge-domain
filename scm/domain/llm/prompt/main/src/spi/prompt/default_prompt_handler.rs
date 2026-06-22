@@ -37,12 +37,16 @@ impl Handler for DefaultPromptHandler {
     async fn execute(
         &self,
         context: RenderContext,
-        _ctx: HandlerContext<'_>,
+        ctx: HandlerContext<'_>,
     ) -> Result<String, HandlerError> {
-        self.prompt
+        let span = ctx.observer().tracer().start_span("prompt", "render");
+        let result = self
+            .prompt
             .render(&context)
             .await
-            .map_err(|e| HandlerError::ExecutionFailed(e.message()))
+            .map_err(|e| HandlerError::ExecutionFailed(e.message()));
+        span.finish();
+        result
     }
 }
 
@@ -74,9 +78,21 @@ mod tests {
         let commands = StdCommandBusFactory::direct();
         let observer = StdObserveFactory::noop_observe_context();
         let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
-        let context = RenderContext::new().with_variable("name".to_string(), serde_json::json!("Ada"));
+        let context =
+            RenderContext::new().with_variable("name".to_string(), serde_json::json!("Ada"));
         let out = block_on(Handler::execute(&handler(), context, ctx)).expect("handler ok");
         assert_eq!(out, "Hello Ada");
+    }
+
+    #[test]
+    fn test_handler_execute_opens_and_finishes_span_happy() {
+        let security = SecurityContext::unauthenticated();
+        let commands = StdCommandBusFactory::direct();
+        let observer = StdObserveFactory::noop_observe_context();
+        let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
+        let context =
+            RenderContext::new().with_variable("name".to_string(), serde_json::json!("Ada"));
+        block_on(Handler::execute(&handler(), context, ctx)).expect("handler ok");
     }
 
     #[test]
