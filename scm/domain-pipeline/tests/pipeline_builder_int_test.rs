@@ -1,0 +1,127 @@
+//! Integration tests for the [`PipelineBuilder`] API.
+//!
+//! @covers PipelineBuilder
+
+use edge_domain_pipeline::{PipelineBuilder, Pipeline, Step, PipelineError, AlwaysPassStep, AlwaysFailStep, MutatingStep};
+use std::time::Duration;
+
+#[test]
+fn spi_pipeline_builder_builds_pipeline() {
+    let pipeline: edge_domain_pipeline::DefaultPipeline<i32> = PipelineBuilder::new()
+        .with(AlwaysPassStep::new())
+        .build();
+
+    assert_eq!(pipeline.step_count(), 1);
+}
+
+#[test]
+fn spi_pipeline_builder_multi_step() {
+    let pipeline: edge_domain_pipeline::DefaultPipeline<i32> = PipelineBuilder::new()
+        .with(AlwaysPassStep::new())
+        .with(AlwaysPassStep::new())
+        .with(AlwaysPassStep::new())
+        .build();
+
+    assert_eq!(pipeline.step_count(), 3);
+}
+
+#[test]
+fn spi_pipeline_builder_with_if_condition() {
+    let pipeline_true: edge_domain_pipeline::DefaultPipeline<i32> = PipelineBuilder::new()
+        .with_if(true, AlwaysPassStep::new())
+        .build();
+
+    let pipeline_false: edge_domain_pipeline::DefaultPipeline<i32> = PipelineBuilder::new()
+        .with_if(false, AlwaysPassStep::new())
+        .build();
+
+    assert_eq!(pipeline_true.step_count(), 1);
+    assert_eq!(pipeline_false.step_count(), 0);
+}
+
+#[test]
+fn spi_pipeline_builder_mixed_conditions() {
+    let pipeline: edge_domain_pipeline::DefaultPipeline<i32> = PipelineBuilder::new()
+        .with_if(true, AlwaysPassStep::new())
+        .with_if(false, AlwaysPassStep::new())
+        .with_if(true, AlwaysPassStep::new())
+        .build();
+
+    assert_eq!(pipeline.step_count(), 2);
+}
+
+#[test]
+fn spi_pipeline_builder_with_timeout() {
+    let timeout = Duration::from_secs(30);
+    let pipeline: edge_domain_pipeline::DefaultPipeline<i32> = PipelineBuilder::new()
+        .with_timeout(timeout)
+        .build();
+
+    assert_eq!(pipeline.config().timeout_per_step, Some(timeout));
+}
+
+#[test]
+fn spi_pipeline_builder_with_lifecycle_events() {
+    let pipeline: edge_domain_pipeline::DefaultPipeline<i32> = PipelineBuilder::new()
+        .with_lifecycle_events(true)
+        .build();
+
+    assert!(pipeline.config().emit_lifecycle_events);
+}
+
+#[test]
+fn spi_pipeline_builder_abort_on_error_false() {
+    let pipeline: edge_domain_pipeline::DefaultPipeline<i32> = PipelineBuilder::new()
+        .abort_on_error(false)
+        .build();
+
+    assert!(!pipeline.config().abort_on_error);
+}
+
+#[test]
+fn spi_pipeline_builder_chaining_all_options() {
+    let pipeline: edge_domain_pipeline::DefaultPipeline<i32> = PipelineBuilder::new()
+        .with(AlwaysPassStep::new())
+        .with_timeout(Duration::from_secs(5))
+        .with(AlwaysPassStep::new())
+        .with_lifecycle_events(true)
+        .with(AlwaysFailStep::new("expected"))
+        .abort_on_error(false)
+        .build();
+
+    assert_eq!(pipeline.step_count(), 3);
+    assert_eq!(pipeline.config().timeout_per_step, Some(Duration::from_secs(5)));
+    assert!(pipeline.config().emit_lifecycle_events);
+    assert!(!pipeline.config().abort_on_error);
+}
+
+#[tokio::test]
+async fn spi_pipeline_builder_executes_pipeline() {
+    let pipeline = PipelineBuilder::new()
+        .with(MutatingStep::new(|ctx: &mut i32| *ctx += 10))
+        .with(MutatingStep::new(|ctx: &mut i32| *ctx *= 2))
+        .build();
+
+    let mut ctx = 5;
+    assert!(Pipeline::execute(&pipeline, &mut ctx).await.is_ok());
+    assert_eq!(ctx, 30);
+}
+
+#[tokio::test]
+async fn spi_pipeline_builder_with_fail_step() {
+    let pipeline = PipelineBuilder::new()
+        .with(AlwaysPassStep::new())
+        .with(AlwaysFailStep::new("boom"))
+        .with(AlwaysPassStep::new())
+        .build();
+
+    let mut ctx = 0i32;
+    let result = Pipeline::execute(&pipeline, &mut ctx).await;
+    assert!(result.is_err());
+}
+
+#[test]
+fn spi_pipeline_builder_default_is_empty() {
+    let pipeline: edge_domain_pipeline::DefaultPipeline<i32> = PipelineBuilder::default().build();
+    assert!(pipeline.is_empty());
+}
