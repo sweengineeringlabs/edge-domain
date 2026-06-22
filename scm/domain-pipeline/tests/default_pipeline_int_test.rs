@@ -2,9 +2,81 @@
 //!
 //! @covers DefaultPipeline
 
-use edge_domain_pipeline::{ create_pipeline, create_pipeline_with_config, Pipeline, Step, PipelineError, PipelineConfig, PipelineAsStep, NoopStep, AlwaysPassStep, MutatingStep};
+use edge_domain_pipeline::{ create_pipeline, create_pipeline_with_config, Pipeline, Step, PipelineError, PipelineConfig};
 use std::sync::Arc;
 use std::time::Duration;
+
+// Test doubles
+struct NoopStep;
+
+#[async_trait::async_trait]
+impl Step<i32> for NoopStep {
+    async fn execute(&self, _ctx: &mut i32) -> Result<(), PipelineError> {
+        Ok(())
+    }
+    fn name(&self) -> &str {
+        "noop"
+    }
+}
+
+struct AlwaysPassStep;
+
+#[async_trait::async_trait]
+impl Step<i32> for AlwaysPassStep {
+    async fn execute(&self, _ctx: &mut i32) -> Result<(), PipelineError> {
+        Ok(())
+    }
+    fn name(&self) -> &str {
+        "always-pass"
+    }
+}
+
+impl AlwaysPassStep {
+    fn new() -> Self {
+        Self
+    }
+}
+
+struct MutatingStep<F> {
+    f: F,
+}
+
+impl<F> MutatingStep<F> {
+    fn new(f: F) -> Self {
+        Self { f }
+    }
+}
+
+#[async_trait::async_trait]
+impl<F: Fn(&mut i32) + Send + Sync> Step<i32> for MutatingStep<F> {
+    async fn execute(&self, ctx: &mut i32) -> Result<(), PipelineError> {
+        (self.f)(ctx);
+        Ok(())
+    }
+    fn name(&self) -> &str {
+        "mutating"
+    }
+}
+
+struct PipelineAsStep {
+    pipeline: Box<dyn Pipeline<i32>>,
+}
+
+impl PipelineAsStep {
+    fn new(pipeline: Box<dyn Pipeline<i32>>) -> Self {
+        Self { pipeline }
+    }
+}
+
+#[async_trait::async_trait]
+impl Step<i32> for PipelineAsStep {
+    async fn execute(&self, ctx: &mut i32) -> Result<(), PipelineError> {
+        self.pipeline.execute(ctx).await
+    }
+    fn name(&self) -> &str {
+        "pipeline-as-step"
+    }
+}
 
 /// @covers: general
 #[tokio::test]

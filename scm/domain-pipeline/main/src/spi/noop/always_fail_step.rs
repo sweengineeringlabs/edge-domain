@@ -34,18 +34,18 @@ impl<Ctx: Send> Step<Ctx> for AlwaysFailStep {
 mod tests {
     use super::*;
 
+    /// @covers: AlwaysFailStep::execute
     #[tokio::test]
-    async fn test_always_fail_step_fails() {
+    async fn test_execute_error_returns_failure() {
         let step = AlwaysFailStep::new("test error");
         let mut ctx: i32 = 0;
         let result = step.execute(&mut ctx).await;
         assert!(result.is_err());
-        let step_ref: &dyn crate::api::Step<i32> = &step;
-        assert_eq!(step_ref.name(), "always-fail");
     }
 
+    /// @covers: AlwaysFailStep::execute
     #[tokio::test]
-    async fn test_always_fail_step_error_message() {
+    async fn test_execute_error_preserves_message() {
         let step = AlwaysFailStep::new("custom failure");
         let mut ctx: i32 = 0;
         match step.execute(&mut ctx).await {
@@ -54,10 +54,37 @@ mod tests {
         }
     }
 
+    /// @covers: AlwaysFailStep::new
     #[tokio::test]
-    async fn test_always_fail_step_new() {
+    async fn test_new_happy_creates_instance() {
         let step = AlwaysFailStep::new("error");
-        let step_ref: &dyn crate::api::Step<()> = &step;
+        let mut ctx = ();
+        assert!(step.execute(&mut ctx).await.is_err());
+    }
+
+    /// @covers: Step::name
+    #[test]
+    fn test_name_happy_returns_always_fail() {
+        let step = AlwaysFailStep::new("test");
+        let step_ref: &dyn crate::api::Step<i32> = &step;
         assert_eq!(step_ref.name(), "always-fail");
+    }
+
+    /// @covers: AlwaysFailStep::execute
+    #[tokio::test]
+    async fn test_execute_error_different_messages() {
+        let step1 = AlwaysFailStep::new("error1");
+        let step2 = AlwaysFailStep::new("error2");
+        let mut ctx = 0;
+
+        match step1.execute(&mut ctx).await {
+            Err(PipelineError::StepFailed(msg)) => assert_eq!(msg, "error1"),
+            _ => panic!("expected StepFailed"),
+        }
+
+        match step2.execute(&mut ctx).await {
+            Err(PipelineError::StepFailed(msg)) => assert_eq!(msg, "error2"),
+            _ => panic!("expected StepFailed"),
+        }
     }
 }

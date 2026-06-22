@@ -23,14 +23,38 @@ impl<Ctx: Send> Step<Ctx> for NoopStep {
 mod tests {
     use super::*;
 
+    /// @covers: NoopStep::execute
     #[tokio::test]
-    async fn test_noop_step_succeeds() {
+    async fn test_execute_happy_no_mutation() {
         let step = NoopStep;
         let mut ctx: i32 = 42;
         assert!(step.execute(&mut ctx).await.is_ok());
         assert_eq!(ctx, 42);
-        // Verify name by casting to trait object
+    }
+
+    /// @covers: NoopStep::execute
+    #[tokio::test]
+    async fn test_execute_happy_string_context() {
+        let step = NoopStep;
+        let mut ctx = "hello".to_string();
+        assert!(step.execute(&mut ctx).await.is_ok());
+        assert_eq!(ctx, "hello");
+    }
+
+    /// @covers: Step::name
+    #[tokio::test]
+    async fn test_name_happy_returns_noop() {
+        let step = NoopStep;
         let step_ref: &dyn crate::api::Step<i32> = &step;
         assert_eq!(step_ref.name(), "noop");
+    }
+
+    /// @covers: NoopStep clone
+    #[tokio::test]
+    async fn test_clone_happy_works() {
+        let step = NoopStep;
+        let step_cloned = step.clone();
+        let mut ctx = 0;
+        assert!(step_cloned.execute(&mut ctx).await.is_ok());
     }
 }

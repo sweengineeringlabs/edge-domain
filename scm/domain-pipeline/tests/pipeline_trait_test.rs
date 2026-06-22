@@ -3,7 +3,7 @@
 
 use edge_domain_pipeline::{
     create_pipeline, create_pipeline_with_config, create_validator,
-    Pipeline, Step, Validator, PipelineError, PipelineConfig,
+    Pipeline, Step, PipelineError, PipelineConfig,
 };
 use std::sync::Arc;
 use std::time::Duration;

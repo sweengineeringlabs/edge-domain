@@ -35,6 +35,11 @@ pub trait Pipeline<Ctx>: Send + Sync {
 
     /// Get the pipeline configuration.
     fn config(&self) -> &super::super::PipelineConfig;
+
+    /// Return the name of this pipeline.
+    fn name(&self) -> &str {
+        "pipeline"
+    }
 }
 
 /// Blanket impl: any Pipeline can be used as a Step, enabling composition.
@@ -46,5 +51,65 @@ impl<Ctx: Send + 'static> Step<Ctx> for dyn Pipeline<Ctx> {
 
     fn name(&self) -> &str {
         "pipeline-step"
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::api::PipelineConfig;
+
+    struct NoopStep;
+
+    #[async_trait::async_trait]
+    impl Step<i32> for NoopStep {
+        async fn execute(&self, _ctx: &mut i32) -> Result<(), PipelineError> {
+            Ok(())
+        }
+
+        fn name(&self) -> &str {
+            "noop"
+        }
+    }
+
+    struct MockPipeline {
+        empty: bool,
+        config: PipelineConfig,
+    }
+
+    #[async_trait::async_trait]
+    impl Pipeline<i32> for MockPipeline {
+        async fn execute(&self, _ctx: &mut i32) -> Result<(), PipelineError> {
+            Ok(())
+        }
+
+        fn step_count(&self) -> usize {
+            if self.empty { 0 } else { 1 }
+        }
+
+        fn config(&self) -> &PipelineConfig {
+            &self.config
+        }
+    }
+
+    /// @covers: Pipeline::name (default impl)
+    #[test]
+    fn test_pipeline_name_happy_default() {
+        let pipeline = MockPipeline { empty: false, config: PipelineConfig::default() };
+        assert_eq!(pipeline.name(), "pipeline");
+    }
+
+    /// @covers: Pipeline::is_empty
+    #[test]
+    fn test_pipeline_is_empty_happy_true() {
+        let pipeline = MockPipeline { empty: true, config: PipelineConfig::default() };
+        assert!(pipeline.is_empty());
+    }
+
+    /// @covers: Pipeline::is_empty
+    #[test]
+    fn test_pipeline_is_empty_happy_false() {
+        let pipeline = MockPipeline { empty: false, config: PipelineConfig::default() };
+        assert!(!pipeline.is_empty());
     }
 }

@@ -2,9 +2,91 @@
 //! Comprehensive scenario coverage for DefaultPipeline struct.
 //! Tests: config variations, nesting, edge cases
 
-use edge_domain_pipeline::{ create_pipeline, create_pipeline_with_config, Pipeline, Step, PipelineConfig, PipelineAsStep, AlwaysPassStep, AlwaysFailStep, MutatingStep};
+use edge_domain_pipeline::{ create_pipeline, create_pipeline_with_config, Pipeline, Step, PipelineConfig, PipelineError};
 use std::sync::Arc;
 use std::time::Duration;
+
+// Test doubles for integration tests
+struct AlwaysPassStep;
+
+impl AlwaysPassStep {
+    fn new() -> Self {
+        Self
+    }
+}
+
+#[async_trait::async_trait]
+impl<Ctx: Send> Step<Ctx> for AlwaysPassStep {
+    async fn execute(&self, _ctx: &mut Ctx) -> Result<(), PipelineError> {
+        Ok(())
+    }
+    fn name(&self) -> &str {
+        "always-pass"
+    }
+}
+
+struct AlwaysFailStep {
+    msg: String,
+}
+
+impl AlwaysFailStep {
+    fn new(msg: &str) -> Self {
+        Self { msg: msg.to_string() }
+    }
+}
+
+#[async_trait::async_trait]
+impl Step<i32> for AlwaysFailStep {
+    async fn execute(&self, _ctx: &mut i32) -> Result<(), PipelineError> {
+        Err(PipelineError::StepFailed(self.msg.clone()))
+    }
+    fn name(&self) -> &str {
+        "always-fail"
+    }
+}
+
+struct MutatingStep<Ctx, F> {
+    f: F,
+    _phantom: std::marker::PhantomData<Ctx>,
+}
+
+impl<Ctx, F> MutatingStep<Ctx, F> {
+    fn new(f: F) -> Self {
+        Self { f, _phantom: std::marker::PhantomData }
+    }
+}
+
+#[async_trait::async_trait]
+impl<Ctx: Send + Sync, F: Fn(&mut Ctx) + Send + Sync> Step<Ctx> for MutatingStep<Ctx, F> {
+    async fn execute(&self, ctx: &mut Ctx) -> Result<(), PipelineError> {
+        (self.f)(ctx);
+        Ok(())
+    }
+    fn name(&self) -> &str {
+        "mutating"
+    }
+}
+
+// Wrapper to allow pipelines to be used as steps
+struct PipelineAsStep {
+    pipeline: Box<dyn Pipeline<i32>>,
+}
+
+impl PipelineAsStep {
+    fn new(pipeline: Box<dyn Pipeline<i32>>) -> Self {
+        Self { pipeline }
+    }
+}
+
+#[async_trait::async_trait]
+impl Step<i32> for PipelineAsStep {
+    async fn execute(&self, ctx: &mut i32) -> Result<(), PipelineError> {
+        self.pipeline.execute(ctx).await
+    }
+    fn name(&self) -> &str {
+        "pipeline-as-step"
+    }
+}
 
 // Config variation: timeout
 #[test]
