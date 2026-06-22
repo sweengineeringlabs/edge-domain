@@ -1,3 +1,4 @@
+//! @covers error handling and edge cases
 //! Error scenario tests for PipelineError and error handling.
 
 use edge_domain_pipeline::{create_pipeline, create_pipeline_with_config, {PipelineError, Pipeline, DefaultPipeline, Step};

@@ -171,3 +171,63 @@ async fn test_pipeline_dyn_dispatch_error() {
     let mut ctx = 0;
     assert!(Pipeline::execute(pipeline.as_ref(), &mut ctx).await.is_err());
 }
+
+// Scenario coverage for step_count
+/// @covers: step_count
+#[test]
+fn test_step_count_empty_happy() {
+    let pipeline = create_pipeline(vec![]);
+    assert_eq!(pipeline.step_count(), 0);
+}
+
+#[test]
+fn test_step_count_single_happy() {
+    let pipeline = create_pipeline(vec![Arc::new(CountingStep)]);
+    assert_eq!(pipeline.step_count(), 1);
+}
+
+#[test]
+fn test_step_count_multiple_happy() {
+    let pipeline = create_pipeline(vec![
+        Arc::new(CountingStep),
+        Arc::new(CountingStep),
+        Arc::new(CountingStep),
+    ]);
+    assert_eq!(pipeline.step_count(), 3);
+}
+
+#[test]
+fn test_step_count_edge_max() {
+    let steps: Vec<_> = (0..100).map(|_| Arc::new(CountingStep) as Arc<dyn Step<_>>).collect();
+    let pipeline = create_pipeline(steps);
+    assert_eq!(pipeline.step_count(), 100);
+}
+
+// Scenario coverage for is_empty
+/// @covers: is_empty
+#[test]
+fn test_is_empty_empty_happy() {
+    let pipeline = create_pipeline(vec![]);
+    assert!(pipeline.is_empty());
+}
+
+#[test]
+fn test_is_empty_single_happy() {
+    let pipeline = create_pipeline(vec![Arc::new(CountingStep)]);
+    assert!(!pipeline.is_empty());
+}
+
+#[test]
+fn test_is_empty_multiple_happy() {
+    let pipeline = create_pipeline(vec![
+        Arc::new(CountingStep),
+        Arc::new(CountingStep),
+    ]);
+    assert!(!pipeline.is_empty());
+}
+
+#[test]
+fn test_is_empty_edge_one() {
+    let pipeline = create_pipeline(vec![Arc::new(CountingStep)]);
+    assert!(!pipeline.is_empty());
+}

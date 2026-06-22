@@ -1,3 +1,4 @@
+//! @covers DefaultPipeline config and nesting
 //! Comprehensive scenario coverage for DefaultPipeline struct.
 //! Tests: config variations, nesting, edge cases
 

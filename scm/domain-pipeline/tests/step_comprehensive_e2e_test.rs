@@ -122,3 +122,48 @@ async fn test_step_dyn_dispatch_error() {
     let mut ctx = 0;
     assert!(step.execute(&mut ctx).await.is_err());
 }
+
+// Explicit scenario coverage for name() method
+/// @covers: name
+#[test]
+fn test_name_normal_step_happy() {
+    let step = MutatingStep(5);
+    assert_eq!(step.name(), "mutating");
+}
+
+#[test]
+fn test_name_error_step_happy() {
+    let step = ErrorStep("test".to_string());
+    assert_eq!(step.name(), "error-step");
+}
+
+#[test]
+fn test_name_multiple_calls_happy() {
+    let step = MutatingStep(10);
+    assert_eq!(step.name(), "mutating");
+    assert_eq!(step.name(), "mutating");
+}
+
+#[test]
+fn test_name_after_execute_happy() {
+    let step = MutatingStep(5);
+    let name_before = step.name();
+    let name_after = step.name();
+    assert_eq!(name_before, name_after);
+}
+
+#[tokio::test]
+async fn test_name_after_failed_execute_error() {
+    let step = ErrorStep("error".to_string());
+    let mut ctx = 0;
+    let _ = step.execute(&mut ctx).await;
+    assert_eq!(step.name(), "error-step");
+}
+
+#[test]
+fn test_name_edge_special_chars() {
+    let step = MutatingStep(0);
+    let name = step.name();
+    assert!(!name.is_empty());
+    assert!(name.chars().all(|c| c.is_ascii()));
+}
