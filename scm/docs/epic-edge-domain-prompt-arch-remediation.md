@@ -1,10 +1,15 @@
 # EPIC: edge-domain-prompt Architectural Compliance — 181/183 → 183/183
 
 **Status:** Open  
-**Created:** 2026-06-22  
+**Created:** 2026-06-22 (commit 5103735)  
 **Epic Owner:** Senior Agentic Engine Engineer  
-**Related ADR:** [ADR-034: LLM Prompt Domain Primitive](../docs/adr/ADR-034-llm-prompt.md)  
-**Related Crate:** `domain/llm/prompt`  
+**GitHub Epic:** [#97 - Align edge-llm-prompt implementation to ADR-034](https://github.com/sweengineeringlabs/edge-domain/issues/97)  
+
+## Related ADR
+**ADR-034:** [LLM Prompt Domain Primitive](../docs/adr/ADR-034-llm-prompt.md)  
+**Status:** Accepted (2026-06-16), Amended (2026-06-18 — ADR-024 handler pattern)  
+**Needs Amendment:** Yes — 6 misalignments between spec and implementation (issue #97)  
+**Crate:** `domain/llm/prompt` (edge-llm-prompt v0.1.0)  
 
 ---
 
@@ -122,30 +127,48 @@ None — public API changes are backward-incompatible but the crate is early-sta
 
 ---
 
-## Related Issues
+## Blocking Issue
 
-### ISSUE #97: ADR Alignment (Blocking)
+### ISSUE #97: ADR Alignment (MUST COMPLETE FIRST)
 **GitHub:** [#97 - Align edge-llm-prompt implementation to ADR-034](https://github.com/sweengineeringlabs/edge-domain/issues/97)  
-**Documentation:** [issue-edge-domain-prompt-adr-alignment-tasks.md](issue-edge-domain-prompt-adr-alignment-tasks.md)
+**Relates to ADR:** [ADR-034: LLM Prompt Domain Primitive](../docs/adr/ADR-034-llm-prompt.md)  
+**Documentation:** [issue-edge-domain-prompt-adr-alignment-tasks.md](issue-edge-domain-prompt-adr-alignment-tasks.md)  
+**Status:** Open (Blocking this epic)
 
 Before implementing arch remediation, implementation must align to ADR-034:
-- 6 misalignments documented (see issue for details)
+- 6 misalignments documented
 - 11 subtasks across 5 task groups
 - Estimated effort: ~5 hours
-- Decision required: Amend ADR or align implementation
-- Status: Open (Blocking this epic)
+- Decisions required: Amend ADR or align implementation
+- **Blocks all tasks below until closed**
 
-### Sub-Issues (Arch Remediation Tasks)
+## Epic Tasks (Linked to Issue #97)
 
-1. **edge-domain#[N]** — `fix(prompt): remove concrete types from lib.rs public surface (root_whitelist cleanup)`
-   - Labels: `arch-compliance`, `llm`, `low-priority`
-   - Assignee: (whoever takes the work)
-   - Task: Delete .claude and arch_audit.txt
+### Task #1: Fix prompt root_whitelist violation
+**Links:** [Epic](epic-edge-domain-prompt-arch-remediation.md) | [Issue #97](#blocking-issue)  
+**Description:** `fix(prompt): remove concrete types from lib.rs public surface (root_whitelist cleanup)`  
+**Work:** Delete .claude and arch_audit.txt from repo root  
+**Effort:** 15 min  
+**Arch Impact:** Reaches 182/183
 
-2. **edge-domain#[N+1]** — `fix(prompt): resolve encapsulation.package_access_violation — concrete impls leaking to public API`
-   - Labels: `arch-compliance`, `llm`, `high-priority`, `sai-layer-violation`
-   - Assignee: (whoever takes the work)
-   - Task: Replace `pub use saf::*` with explicit exports (Phase 2 in epic)
+### Task #2: Resolve encapsulation.package_access_violation  
+**Links:** [Epic](epic-edge-domain-prompt-arch-remediation.md) | [Issue #97](#blocking-issue)  
+**Description:** `fix(prompt): resolve encapsulation.package_access_violation — concrete impls leaking to public API`  
+**Work:** Replace `pub use saf::*` with explicit exports (only traits, factories, value types)  
+**Effort:** 1 hour  
+**Arch Impact:** Reaches 183/183 (completes epic)
+
+### Task #3: Retrofit completed issues #88-#95
+**Links:** [Epic](epic-edge-domain-prompt-arch-remediation.md) | [Issue #97](#blocking-issue)  
+**Description:** `docs: retrofit completed issues #88-#95 with epic/ADR documentation links`  
+**Work:** Create tracking entries linking each issue to its ADR/epic  
+**Effort:** 1 hour
+
+### Task #4: Verify and commit prompt arch remediation
+**Links:** [Epic](epic-edge-domain-prompt-arch-remediation.md) | [Issue #97](#blocking-issue)  
+**Description:** `verify: test + audit + push prompt arch compliance to 183/183`  
+**Work:** Run tests, arch audit, clippy, commit  
+**Effort:** 30 min
 
 ---
 
