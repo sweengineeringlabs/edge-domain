@@ -3,10 +3,7 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::HandlerContext;
-use edge_domain_observe::StdObserveFactory;
-use edge_domain_security::SecurityContext;
 use edge_llm_provider::Provider;
 
 use crate::api::{Agent, AgentError, Skill};
@@ -70,16 +67,17 @@ impl Agent for DefaultAgent {
         self.skills.clone()
     }
 
-    async fn execute_skill(&self, skill_name: &str, input: String) -> Result<String, AgentError> {
+    async fn execute_skill(
+        &self,
+        skill_name: &str,
+        input: String,
+        ctx: HandlerContext<'_>,
+    ) -> Result<String, AgentError> {
         let skill = self
             .skills
             .iter()
             .find(|s| s.name() == skill_name)
             .ok_or_else(|| AgentError::SkillNotFound(skill_name.to_string()))?;
-        let security = SecurityContext::unauthenticated();
-        let commands = StdCommandBusFactory::direct();
-        let observer = StdObserveFactory::noop_observe_context();
-        let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         skill
             .execute(input, ctx)
             .await
@@ -90,6 +88,7 @@ impl Agent for DefaultAgent {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use edge_domain_observe::StdObserveFactory;
     use edge_llm_provider::{
         EchoProviderCompleter, ModelInfo, ProviderBootstrap, ProviderConfig, StdProviderFactory,
     };
@@ -132,16 +131,30 @@ mod tests {
     /// @covers: execute_skill
     #[test]
     fn test_execute_skill_error_unknown_skill_returns_not_found() {
+        use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+        use edge_domain_observe::StdObserveFactory;
+        use edge_domain_security::SecurityContext;
         let agent = DefaultAgent::new("a", "A", "d", noop_provider(), vec![]);
-        let result = block_on(agent.execute_skill("ghost", "x".to_string()));
+        let security = SecurityContext::unauthenticated();
+        let commands = StdCommandBusFactory::direct();
+        let observer = StdObserveFactory::noop_observe_context();
+        let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
+        let result = block_on(agent.execute_skill("ghost", "x".to_string(), ctx));
         assert!(matches!(result, Err(AgentError::SkillNotFound(_))));
     }
 
     /// @covers: execute_skill
     #[test]
     fn test_execute_skill_edge_no_skills_returns_not_found() {
+        use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+        use edge_domain_observe::StdObserveFactory;
+        use edge_domain_security::SecurityContext;
         let agent = DefaultAgent::new("a", "A", "d", noop_provider(), vec![]);
-        let result = block_on(agent.execute_skill("any", String::new()));
+        let security = SecurityContext::unauthenticated();
+        let commands = StdCommandBusFactory::direct();
+        let observer = StdObserveFactory::noop_observe_context();
+        let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
+        let result = block_on(agent.execute_skill("any", String::new(), ctx));
         assert!(matches!(result, Err(AgentError::SkillNotFound(_))));
     }
 }

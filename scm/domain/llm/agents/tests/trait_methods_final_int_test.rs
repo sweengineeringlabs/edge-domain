@@ -5,9 +5,11 @@
 //! with happy, error, and edge cases.
 
 use async_trait::async_trait;
+use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
 use edge_domain_observe::StdObserveFactory;
 use edge_domain_registry::Registry;
+use edge_domain_security::SecurityContext;
 use edge_llm_agent::{
     Agent, AgentError, AgentManager, AgentMetadata, AgentRegistry, NoopAgentManager, Parameter,
     Skill, SkillMetadata,
@@ -48,7 +50,12 @@ impl Agent for SuccessAgent {
         "Test agent that succeeds"
     }
 
-    async fn execute_skill(&self, skill_name: &str, input: String) -> Result<String, AgentError> {
+    async fn execute_skill(
+        &self,
+        skill_name: &str,
+        input: String,
+        _ctx: HandlerContext<'_>,
+    ) -> Result<String, AgentError> {
         Ok(format!("{}:{}", skill_name, input))
     }
 
@@ -78,7 +85,12 @@ impl Agent for FailingAgent {
         "Test agent that fails"
     }
 
-    async fn execute_skill(&self, _skill_name: &str, _input: String) -> Result<String, AgentError> {
+    async fn execute_skill(
+        &self,
+        _skill_name: &str,
+        _input: String,
+        _ctx: HandlerContext<'_>,
+    ) -> Result<String, AgentError> {
         Err(AgentError::ExecutionFailed(
             "intentional failure".to_string(),
         ))
@@ -110,7 +122,12 @@ impl Agent for EmptyAgent {
         ""
     }
 
-    async fn execute_skill(&self, _skill_name: &str, _input: String) -> Result<String, AgentError> {
+    async fn execute_skill(
+        &self,
+        _skill_name: &str,
+        _input: String,
+        _ctx: HandlerContext<'_>,
+    ) -> Result<String, AgentError> {
         Ok("".to_string())
     }
 
@@ -437,9 +454,19 @@ fn test_description_agent_edge() {
 /// @covers: Agent::execute_skill
 #[test]
 fn test_execute_skill_agent_happy() {
-    let result = futures::executor::block_on(
-        SuccessAgent.execute_skill("code_review", "input.rs".to_string()),
-    );
+    use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+    use edge_domain_handler::HandlerContext;
+    use edge_domain_observe::StdObserveFactory;
+    use edge_domain_security::SecurityContext;
+    let security = SecurityContext::unauthenticated();
+    let commands = StdCommandBusFactory::direct();
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
+    let result = futures::executor::block_on(SuccessAgent.execute_skill(
+        "code_review",
+        "input.rs".to_string(),
+        ctx,
+    ));
     assert!(result.is_ok());
     assert_eq!(result.unwrap(), "code_review:input.rs");
 }
@@ -447,8 +474,19 @@ fn test_execute_skill_agent_happy() {
 /// @covers: Agent::execute_skill
 #[test]
 fn test_execute_skill_agent_error() {
-    let result =
-        futures::executor::block_on(FailingAgent.execute_skill("any_skill", "input".to_string()));
+    use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+    use edge_domain_handler::HandlerContext;
+    use edge_domain_observe::StdObserveFactory;
+    use edge_domain_security::SecurityContext;
+    let security = SecurityContext::unauthenticated();
+    let commands = StdCommandBusFactory::direct();
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
+    let result = futures::executor::block_on(FailingAgent.execute_skill(
+        "any_skill",
+        "input".to_string(),
+        ctx,
+    ));
     assert!(result.is_err());
     match result {
         Err(AgentError::ExecutionFailed(msg)) => {
@@ -461,7 +499,15 @@ fn test_execute_skill_agent_error() {
 /// @covers: Agent::execute_skill
 #[test]
 fn test_execute_skill_agent_edge() {
-    let result = futures::executor::block_on(SuccessAgent.execute_skill("", "".to_string()));
+    use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+    use edge_domain_handler::HandlerContext;
+    use edge_domain_observe::StdObserveFactory;
+    use edge_domain_security::SecurityContext;
+    let security = SecurityContext::unauthenticated();
+    let commands = StdCommandBusFactory::direct();
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
+    let result = futures::executor::block_on(SuccessAgent.execute_skill("", "".to_string(), ctx));
     assert!(result.is_ok());
     assert_eq!(result.unwrap(), ":");
 }

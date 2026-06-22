@@ -2,7 +2,10 @@
 //! Integration tests — `Agent` trait.
 
 use async_trait::async_trait;
+use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+use edge_domain_handler::HandlerContext;
 use edge_domain_observe::StdObserveFactory;
+use edge_domain_security::SecurityContext;
 use edge_llm_agent::{Agent, AgentError, MessageContent, Role, Skill, ToolChoice};
 use edge_llm_provider::{
     EchoProviderCompleter, ModelInfo, Provider, ProviderBootstrap, ProviderConfig,
@@ -35,7 +38,12 @@ impl Agent for SuccessAgent {
         "Always succeeds"
     }
 
-    async fn execute_skill(&self, skill_name: &str, input: String) -> Result<String, AgentError> {
+    async fn execute_skill(
+        &self,
+        skill_name: &str,
+        input: String,
+        _ctx: HandlerContext<'_>,
+    ) -> Result<String, AgentError> {
         Ok(format!("{}:{}", skill_name, input))
     }
 
@@ -64,7 +72,12 @@ impl Agent for FailingAgent {
         "Always fails"
     }
 
-    async fn execute_skill(&self, _skill_name: &str, _input: String) -> Result<String, AgentError> {
+    async fn execute_skill(
+        &self,
+        _skill_name: &str,
+        _input: String,
+        _ctx: HandlerContext<'_>,
+    ) -> Result<String, AgentError> {
         Err(AgentError::ExecutionFailed(
             "deliberate failure".to_string(),
         ))
@@ -106,9 +119,15 @@ fn test_trait_agent_happy_description_returns_configured_description() {
 /// @covers: Agent::execute_skill — success case
 #[test]
 fn test_trait_agent_happy_execute_skill_success_returns_ok_response() {
-    let result = futures::executor::block_on(
-        SuccessAgent.execute_skill("analyze", "test_input".to_string()),
-    );
+    let security = SecurityContext::unauthenticated();
+    let commands = StdCommandBusFactory::direct();
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
+    let result = futures::executor::block_on(SuccessAgent.execute_skill(
+        "analyze",
+        "test_input".to_string(),
+        ctx,
+    ));
     assert!(result.is_ok());
     assert_eq!(result.unwrap(), "analyze:test_input");
 }
@@ -116,8 +135,15 @@ fn test_trait_agent_happy_execute_skill_success_returns_ok_response() {
 /// @covers: Agent::execute_skill — failure case
 #[test]
 fn test_trait_agent_error_execute_skill_failure_returns_execution_failed() {
-    let result =
-        futures::executor::block_on(FailingAgent.execute_skill("any_skill", "input".to_string()));
+    let security = SecurityContext::unauthenticated();
+    let commands = StdCommandBusFactory::direct();
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
+    let result = futures::executor::block_on(FailingAgent.execute_skill(
+        "any_skill",
+        "input".to_string(),
+        ctx,
+    ));
     assert!(result.is_err());
     match result {
         Err(AgentError::ExecutionFailed(msg)) => {
@@ -130,8 +156,15 @@ fn test_trait_agent_error_execute_skill_failure_returns_execution_failed() {
 /// @covers: Agent::execute_skill — input is passed through
 #[test]
 fn test_trait_agent_happy_execute_skill_preserves_input() {
-    let result =
-        futures::executor::block_on(SuccessAgent.execute_skill("skill", "preserved".to_string()));
+    let security = SecurityContext::unauthenticated();
+    let commands = StdCommandBusFactory::direct();
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
+    let result = futures::executor::block_on(SuccessAgent.execute_skill(
+        "skill",
+        "preserved".to_string(),
+        ctx,
+    ));
     assert_eq!(result.unwrap(), "skill:preserved");
 }
 

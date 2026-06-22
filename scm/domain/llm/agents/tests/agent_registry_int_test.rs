@@ -1,8 +1,11 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Integration tests — `AgentRegistry` trait.
 
+use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+use edge_domain_handler::HandlerContext;
 use edge_domain_observe::StdObserveFactory;
 use edge_domain_registry::Registry;
+use edge_domain_security::SecurityContext;
 use edge_llm_agent::{Agent, AgentError, AgentMetadata, AgentRegistry, Skill};
 use edge_llm_provider::{
     EchoProviderCompleter, ModelInfo, Provider, ProviderBootstrap, ProviderConfig,
@@ -35,7 +38,12 @@ impl Agent for DummyAgent {
         "Test agent"
     }
 
-    async fn execute_skill(&self, _skill_name: &str, _input: String) -> Result<String, AgentError> {
+    async fn execute_skill(
+        &self,
+        _skill_name: &str,
+        _input: String,
+        _ctx: HandlerContext<'_>,
+    ) -> Result<String, AgentError> {
         Ok("ok".to_string())
     }
 

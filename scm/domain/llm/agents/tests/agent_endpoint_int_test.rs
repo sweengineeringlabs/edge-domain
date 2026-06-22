@@ -134,7 +134,11 @@ fn test_default_agent_executes_registered_skill_happy() {
         noop_provider(),
         vec![Arc::new(EchoSkill)],
     );
-    let result = block_on(agent.execute_skill("echo", "hi".to_string())).expect("ok");
+    let security = SecurityContext::unauthenticated();
+    let commands = StdCommandBusFactory::direct();
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
+    let result = block_on(agent.execute_skill("echo", "hi".to_string(), ctx)).expect("ok");
     assert_eq!(result, "echo:hi");
 }
 
@@ -142,7 +146,12 @@ fn test_default_agent_executes_registered_skill_happy() {
 #[test]
 fn test_default_agent_missing_skill_returns_not_found_error() {
     let agent = NoopAgentManager.default_agent("a", "A", "desc", noop_provider(), vec![]);
-    let err = block_on(agent.execute_skill("ghost", "x".to_string())).expect_err("should fail");
+    let security = SecurityContext::unauthenticated();
+    let commands = StdCommandBusFactory::direct();
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
+    let err =
+        block_on(agent.execute_skill("ghost", "x".to_string(), ctx)).expect_err("should fail");
     assert!(matches!(err, AgentError::SkillNotFound(_)));
 }
 

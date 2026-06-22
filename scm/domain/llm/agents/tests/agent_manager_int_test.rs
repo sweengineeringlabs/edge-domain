@@ -2,8 +2,10 @@
 //! Integration tests — `AgentManager` trait.
 
 use async_trait::async_trait;
+use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
 use edge_domain_observe::StdObserveFactory;
+use edge_domain_security::SecurityContext;
 use edge_llm_agent::{Agent, AgentError, AgentManager, Skill};
 use edge_llm_provider::{
     EchoProviderCompleter, ModelInfo, Provider, ProviderBootstrap, ProviderConfig,
@@ -106,7 +108,12 @@ impl Agent for DummyAgent {
         "Dummy agent for testing"
     }
 
-    async fn execute_skill(&self, _skill_name: &str, _input: String) -> Result<String, AgentError> {
+    async fn execute_skill(
+        &self,
+        _skill_name: &str,
+        _input: String,
+        _ctx: HandlerContext<'_>,
+    ) -> Result<String, AgentError> {
         Ok("dummy_response".to_string())
     }
 

@@ -2,6 +2,7 @@
 
 use std::sync::Arc;
 
+use edge_domain_handler::HandlerContext;
 use edge_domain_observe::StdObserveFactory;
 use edge_llm_provider::{
     EchoProviderCompleter, ModelInfo, Provider, ProviderBootstrap, ProviderConfig,
@@ -25,7 +26,12 @@ impl Agent for NoopAgent {
         Self::DESCRIPTION
     }
 
-    async fn execute_skill(&self, skill_name: &str, _input: String) -> Result<String, AgentError> {
+    async fn execute_skill(
+        &self,
+        skill_name: &str,
+        _input: String,
+        _ctx: HandlerContext<'_>,
+    ) -> Result<String, AgentError> {
         Err(AgentError::SkillNotFound(skill_name.to_string()))
     }
 
@@ -61,8 +67,15 @@ mod tests {
 
     #[test]
     fn test_noop_agent_error_execute_skill_returns_skill_not_found() {
+        use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+        use edge_domain_observe::StdObserveFactory;
+        use edge_domain_security::SecurityContext;
+        let security = SecurityContext::unauthenticated();
+        let commands = StdCommandBusFactory::direct();
+        let observer = StdObserveFactory::noop_observe_context();
+        let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         let result =
-            futures::executor::block_on(NoopAgent.execute_skill("any", "input".to_string()));
+            futures::executor::block_on(NoopAgent.execute_skill("any", "input".to_string(), ctx));
         assert!(matches!(result, Err(AgentError::SkillNotFound(_))));
     }
 

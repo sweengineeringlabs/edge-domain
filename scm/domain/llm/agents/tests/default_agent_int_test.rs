@@ -4,8 +4,10 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
+use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
 use edge_domain_observe::StdObserveFactory;
+use edge_domain_security::SecurityContext;
 use edge_llm_agent::{
     AgentError, AgentManager, NoopAgentManager, Skill, SkillMetadata, DEFAULT_AGENT_SVC,
 };
@@ -115,7 +117,11 @@ fn test_default_agent_happy_skills_returned() {
 fn test_default_agent_happy_execute_skill_routes_to_echo_skill() {
     let agent =
         NoopAgentManager.default_agent("a", "A", "desc", noop_provider(), vec![echo_skill()]);
-    let result = block_on(agent.execute_skill("echo", "hello".to_string())).expect("ok");
+    let security = SecurityContext::unauthenticated();
+    let commands = StdCommandBusFactory::direct();
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
+    let result = block_on(agent.execute_skill("echo", "hello".to_string(), ctx)).expect("ok");
     assert_eq!(result, "echo:hello");
 }
 
@@ -124,7 +130,12 @@ fn test_default_agent_happy_execute_skill_routes_to_echo_skill() {
 fn test_default_agent_error_execute_skill_unknown_returns_skill_not_found() {
     let agent =
         NoopAgentManager.default_agent("a", "A", "desc", noop_provider(), vec![echo_skill()]);
-    let err = block_on(agent.execute_skill("missing", "x".to_string())).expect_err("should fail");
+    let security = SecurityContext::unauthenticated();
+    let commands = StdCommandBusFactory::direct();
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
+    let err =
+        block_on(agent.execute_skill("missing", "x".to_string(), ctx)).expect_err("should fail");
     assert!(matches!(err, AgentError::SkillNotFound(_)));
 }
 
@@ -133,7 +144,11 @@ fn test_default_agent_error_execute_skill_unknown_returns_skill_not_found() {
 fn test_default_agent_error_execute_skill_bad_input_propagates_execution_failed() {
     let agent =
         NoopAgentManager.default_agent("a", "A", "desc", noop_provider(), vec![echo_skill()]);
-    let err = block_on(agent.execute_skill("echo", String::new()))
+    let security = SecurityContext::unauthenticated();
+    let commands = StdCommandBusFactory::direct();
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
+    let err = block_on(agent.execute_skill("echo", String::new(), ctx))
         .expect_err("should fail on empty input");
     assert!(matches!(err, AgentError::ExecutionFailed(_)));
 }
@@ -142,7 +157,12 @@ fn test_default_agent_error_execute_skill_bad_input_propagates_execution_failed(
 #[test]
 fn test_default_agent_edge_execute_skill_no_skills_returns_not_found() {
     let agent = NoopAgentManager.default_agent("a", "A", "desc", noop_provider(), vec![]);
-    let err = block_on(agent.execute_skill("anything", "x".to_string())).expect_err("should fail");
+    let security = SecurityContext::unauthenticated();
+    let commands = StdCommandBusFactory::direct();
+    let observer = StdObserveFactory::noop_observe_context();
+    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
+    let err =
+        block_on(agent.execute_skill("anything", "x".to_string(), ctx)).expect_err("should fail");
     assert!(matches!(err, AgentError::SkillNotFound(_)));
 }
 

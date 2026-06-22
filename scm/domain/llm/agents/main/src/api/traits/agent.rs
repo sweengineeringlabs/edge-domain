@@ -2,6 +2,7 @@
 
 use std::sync::Arc;
 
+use edge_domain_handler::HandlerContext;
 use edge_llm_provider::Provider;
 
 use super::skill::Skill;
@@ -28,10 +29,16 @@ pub trait Agent: Send + Sync {
     /// # Arguments
     /// * `skill_name` - Name of the skill to execute (e.g., "code_review")
     /// * `input` - Serialized input (typically JSON) to the skill
+    /// * `ctx` - Handler context with security principal and observer seam
     ///
     /// # Returns
     /// Serialized output from the skill execution
-    async fn execute_skill(&self, skill_name: &str, input: String) -> Result<String, AgentError>;
+    async fn execute_skill(
+        &self,
+        skill_name: &str,
+        input: String,
+        ctx: HandlerContext<'_>,
+    ) -> Result<String, AgentError>;
 
     /// List all available skills.
     fn skills(&self) -> Vec<Arc<dyn Skill<Request = String, Response = String>>>;
