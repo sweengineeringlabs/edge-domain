@@ -1,6 +1,7 @@
 //! Basic example: sequentially execute steps with shared context mutation
 
-use edge_domain_pipeline::{PipelineBuilder, Pipeline, Step, PipelineError};
+use edge_domain_pipeline::{create_pipeline_with_config, Step, PipelineError, PipelineConfig};
+use std::sync::Arc;
 use std::time::Duration;
 
 struct IncrementStep(i32);
@@ -38,11 +39,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== Basic Pipeline Example ===\n");
 
     // Build a pipeline: 5 → +3 → *2 → 16
-    let pipeline = PipelineBuilder::new()
-        .with(IncrementStep(3))
-        .with(MultiplyStep(2))
-        .with_timeout(Duration::from_secs(10))
-        .build();
+    let config = PipelineConfig {
+        timeout_per_step: Some(Duration::from_secs(10)),
+        emit_lifecycle_events: false,
+        abort_on_error: true,
+    };
+
+    let pipeline = create_pipeline_with_config(
+        vec![
+            Arc::new(IncrementStep(3)) as Arc<dyn Step<i32>>,
+            Arc::new(MultiplyStep(2)) as Arc<dyn Step<i32>>,
+        ],
+        config,
+    );
 
     let mut context = 5;
     println!("Initial context: {}", context);

@@ -1,6 +1,6 @@
 //! Integration tests for pipeline service facade.
 
-use edge_domain_pipeline::{create_pipeline, create_pipeline_with_config, Pipeline, Step, PipelineError, PIPELINE_SVC};
+use edge_domain_pipeline::{create_pipeline, create_pipeline_with_config, Step, PipelineError, PIPELINE_SVC};
 use std::sync::Arc;
 use std::time::Duration;
 

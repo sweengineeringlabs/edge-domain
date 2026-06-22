@@ -1,11 +1,11 @@
 //! Pipeline service facade — provides orchestration interface.
 
 use std::sync::Arc;
-use crate::api::{Step, PipelineError};
+use crate::api::{Step, PipelineError, PipelineConfig};
 use crate::spi::{create_default_pipeline, create_default_pipeline_with_config};
 
-// Re-export public types from api (through this module)
-pub use crate::api::{Pipeline, PipelineConfig};
+// Re-export Pipeline trait from api
+pub use crate::api::Pipeline;
 
 /// Marker constant for pipeline service identification.
 pub const PIPELINE_SVC: &str = "pipeline";
