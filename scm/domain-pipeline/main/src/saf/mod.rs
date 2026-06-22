@@ -1,8 +1,8 @@
 //! Service Abstraction Framework — public API surface (traits only).
 
-pub mod pipeline_svc;
-pub mod step_svc;
-pub mod validator_svc;
+mod pipeline_svc;
+mod step_svc;
+mod validator_svc;
 
 // Re-export through _svc modules
 pub use pipeline_svc::{create_pipeline, create_pipeline_with_config, PIPELINE_SVC};
