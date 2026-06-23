@@ -9,6 +9,7 @@
 #![cfg_attr(test, allow(clippy::unwrap_used, clippy::expect_used))]
 
 mod api;
+mod convenience;
 mod core;
 mod saf;
 mod spi;
@@ -17,4 +18,5 @@ mod spi;
 pub use api::{
     PipelineConfig, PipelineError, Pipeline, Step, Validator, PipelineService, ValidatorService,
 };
-pub use saf::{PIPELINE_SVC, STEP_SVC, VALIDATOR_SVC, PipelineFactory, ValidatorFactory};
+pub use convenience::{create_pipeline, create_pipeline_with_config, create_validator};
+pub use saf::{PIPELINE_SVC, STEP_SVC, VALIDATOR_SVC};

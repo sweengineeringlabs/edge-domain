@@ -1,10 +1,7 @@
-//! Step service — exposes the Step trait for composition.
+//! Step service — marker for step composition operations.
 //!
-//! The Step trait is re-exported here to provide a unified service interface.
-//! Steps are typically created by domain logic or composite pipelines.
+//! The Step trait is not re-exported here as it's already available from the api module.
+//! This module exists to provide a consistent service facade pattern across the crate.
 
-/// Re-export of the Step trait for service interface.
-pub use crate::api::Step;
-
-/// Marker for step operations.
-pub const STEP_OPS: &str = "step_ops";
+/// Service marker constant for step operations.
+pub const STEP_FACTORY: &str = "step_factory";

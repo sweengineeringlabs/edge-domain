@@ -1,21 +1,25 @@
-//! Pipeline service wrapper — re-exports pipeline service.
+//! Pipeline service wrapper — factory and facade for creating pipelines.
 //!
-//! This module provides facade for creating pipelines through the service layer.
+//! This module provides the implementation-facing factory for creating pipelines.
+//! The public API is available through convenience functions in lib.rs.
 
 use std::sync::Arc;
 use crate::api::{Pipeline, PipelineConfig, PipelineService, Step};
 
-/// Factory for creating pipeline instances.
+/// Service marker constant for pipeline factory operations.
+pub const PIPELINE_FACTORY: &str = "pipeline_factory";
+
+/// Internal factory for creating pipeline instances.
 ///
-/// This facade provides convenient factory methods for constructing pipelines.
+/// This factory conceals the concrete implementation type, returning opaque trait objects.
 #[derive(Debug, Clone, Copy)]
-pub struct PipelineFactory;
+pub(crate) struct PipelineFactory;
 
 impl PipelineFactory {
     /// Create a pipeline with the given steps and default config.
     ///
     /// This is a convenience wrapper delegating to [`PipelineService`].
-    pub fn create<Ctx: Send + 'static>(
+    pub(crate) fn create<Ctx: Send + 'static>(
         steps: Vec<Arc<dyn Step<Ctx>>>,
     ) -> Box<dyn Pipeline<Ctx>> {
         PipelineService::create_pipeline(steps)
@@ -24,7 +28,7 @@ impl PipelineFactory {
     /// Create a pipeline with the given steps and custom config.
     ///
     /// This is a convenience wrapper delegating to [`PipelineService`].
-    pub fn create_with_config<Ctx: Send + 'static>(
+    pub(crate) fn create_with_config<Ctx: Send + 'static>(
         steps: Vec<Arc<dyn Step<Ctx>>>,
         config: PipelineConfig,
     ) -> Box<dyn Pipeline<Ctx>> {
