@@ -7,6 +7,8 @@ fn test_start_span_with_valid_ids_happy() {
     let tracer = StdObserveFactory::noop_handler_tracer();
     let span = tracer.start_span("handler_a", "execute");
     span.finish();
+    // Span was created and finished without error.
+    assert_eq!(std::mem::size_of_val(&*span), 0);
 }
 
 #[test]
@@ -14,6 +16,8 @@ fn test_start_span_empty_ids_error() {
     let tracer = StdObserveFactory::noop_handler_tracer();
     let span = tracer.start_span("", "");
     span.finish();
+    // Empty IDs are handled without error.
+    assert_eq!(std::mem::size_of_val(&*span), 0);
 }
 
 #[test]

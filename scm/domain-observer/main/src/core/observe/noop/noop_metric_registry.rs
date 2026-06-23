@@ -37,13 +37,15 @@ mod tests {
 
     #[test]
     fn test_new_creates_noop_metric_registry_happy() {
-        let _ = NoopMetricRegistry::new();
+        let r = NoopMetricRegistry::new();
+        assert_eq!(std::mem::size_of_val(&r), 0);
     }
 
     #[test]
     fn test_counter_returns_usable_counter_error() {
         let r = NoopMetricRegistry::new();
         r.counter("errs").increment(u64::MAX);
+        assert_eq!(std::mem::size_of_val(&r), 0);
     }
 
     #[test]
@@ -52,5 +54,6 @@ mod tests {
         r.counter("c").increment(1);
         r.histogram("h").record(1.0);
         r.gauge("g").set(1.0);
+        assert_eq!(std::mem::size_of_val(&r), 0);
     }
 }

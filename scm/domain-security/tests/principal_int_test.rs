@@ -30,7 +30,10 @@ fn test_id_empty_principal_returns_empty_error() {
 #[test]
 fn test_kind_is_stable_across_calls_edge() {
     let p = AnonymousPrincipal;
-    assert_eq!(p.kind(), p.kind());
+    let kind1 = p.kind();
+    let kind2 = p.kind();
+    assert_eq!(kind1, kind2, "kind must be stable across calls");
+    assert_eq!(kind1, "anonymous", "kind must return expected value");
 }
 
 /// @covers: Principal::id — anonymous id matches expected value

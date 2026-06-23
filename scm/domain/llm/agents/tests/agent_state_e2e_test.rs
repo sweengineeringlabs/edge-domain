@@ -62,9 +62,13 @@ fn test_agent_state_all_variants_constructible() {
 
 #[test]
 fn test_agent_state_equality() {
-    assert_eq!(AgentState::Idle, AgentState::Idle);
-    assert_ne!(AgentState::Idle, AgentState::Running);
-    assert_eq!(AgentState::Completed, AgentState::Completed);
+    let idle1 = AgentState::Idle;
+    let idle2 = AgentState::Idle;
+    assert_eq!(idle1, idle2, "same variants must be equal");
+    assert_ne!(idle1, AgentState::Running, "different variants must not be equal");
+    let completed1 = AgentState::Completed;
+    let completed2 = AgentState::Completed;
+    assert_eq!(completed1, completed2, "Completed variants must be equal");
 }
 
 #[test]

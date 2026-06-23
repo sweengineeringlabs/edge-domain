@@ -13,7 +13,10 @@ fn test_model_family_variants_distinct_happy() {
 /// @covers: ModelFamily — equality holds for same variant
 #[test]
 fn test_model_family_equality_error() {
-    assert_eq!(ModelFamily::Anthropic, ModelFamily::Anthropic);
+    let fam1 = ModelFamily::Anthropic;
+    let fam2 = ModelFamily::Anthropic;
+    assert_eq!(fam1, fam2, "same variant must be equal");
+    assert_ne!(fam1, ModelFamily::OpenAI, "different variants must not be equal");
 }
 
 /// @covers: ModelFamily — serializes and deserializes correctly

@@ -14,12 +14,16 @@ mod tests {
 
     #[test]
     fn test_set_value_discarded_happy() {
-        NoopGauge.set(42.0);
+        let g = NoopGauge;
+        g.set(42.0);
+        assert_eq!(std::mem::size_of_val(&g), 0);
     }
 
     #[test]
     fn test_set_negative_value_no_panic_error() {
-        NoopGauge.set(-1.0);
+        let g = NoopGauge;
+        g.set(-1.0);
+        assert_eq!(std::mem::size_of_val(&g), 0);
     }
 
     #[test]

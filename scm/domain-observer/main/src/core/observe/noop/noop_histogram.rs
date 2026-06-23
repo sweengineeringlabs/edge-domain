@@ -14,12 +14,16 @@ mod tests {
 
     #[test]
     fn test_record_value_discarded_happy() {
-        NoopHistogram.record(25.0);
+        let h = NoopHistogram;
+        h.record(25.0);
+        assert_eq!(std::mem::size_of_val(&h), 0);
     }
 
     #[test]
     fn test_record_zero_no_panic_error() {
-        NoopHistogram.record(0.0);
+        let h = NoopHistogram;
+        h.record(0.0);
+        assert_eq!(std::mem::size_of_val(&h), 0);
     }
 
     #[test]

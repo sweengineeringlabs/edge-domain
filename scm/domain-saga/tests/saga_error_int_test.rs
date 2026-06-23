@@ -16,16 +16,24 @@ fn test_not_found_display_contains_id_error() {
 
 #[test]
 fn test_errors_are_equality_comparable_edge() {
+    let err1 = SagaError::AlreadyRegistered("x".into());
+    let err2 = SagaError::AlreadyRegistered("x".into());
     assert_eq!(
-        SagaError::AlreadyRegistered("x".into()),
-        SagaError::AlreadyRegistered("x".into())
+        err1,
+        err2,
+        "identical AlreadyRegistered errors must be equal"
     );
+
+    let notfound1 = SagaError::NotFound("y".into());
+    let notfound2 = SagaError::NotFound("y".into());
     assert_eq!(
-        SagaError::NotFound("y".into()),
-        SagaError::NotFound("y".into())
+        notfound1,
+        notfound2,
+        "identical NotFound errors must be equal"
     );
     assert_ne!(
-        SagaError::AlreadyRegistered("x".into()),
-        SagaError::NotFound("x".into())
+        err1,
+        SagaError::NotFound("x".into()),
+        "different error variants must not be equal"
     );
 }

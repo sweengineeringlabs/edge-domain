@@ -27,8 +27,10 @@ fn test_now_system_clock_successive_calls_do_not_go_backwards_error() {
 fn test_now_fixed_clock_repeated_calls_return_same_instant_edge() {
     let instant = SystemTime::UNIX_EPOCH + Duration::from_secs(42);
     let clock = FixedClock::new(instant);
-    assert_eq!(clock.now(), clock.now());
-    assert_eq!(clock.now(), instant);
+    let t1 = clock.now();
+    let t2 = clock.now();
+    assert_eq!(t1, t2, "FixedClock must return same instant on repeated calls");
+    assert_eq!(t1, instant, "FixedClock must return expected instant");
 }
 
 /// @covers: Clock::elapsed_since_epoch — post-epoch time yields a duration

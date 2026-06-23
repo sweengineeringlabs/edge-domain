@@ -15,5 +15,8 @@ fn test_counter_svc_key_has_edge_prefix_error() {
 
 #[test]
 fn test_counter_svc_key_stable_across_calls_edge() {
-    assert_eq!(COUNTER_SVC, COUNTER_SVC);
+    let key1 = COUNTER_SVC;
+    let key2 = COUNTER_SVC;
+    assert_eq!(key1, key2, "COUNTER_SVC must be stable");
+    assert_eq!(key1, "edge.observe.counter", "COUNTER_SVC must have expected value");
 }

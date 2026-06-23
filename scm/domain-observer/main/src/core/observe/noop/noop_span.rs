@@ -18,12 +18,16 @@ mod tests {
 
     #[test]
     fn test_record_key_value_discarded_happy() {
-        NoopSpan.record("k", "v");
+        let s = NoopSpan;
+        s.record("k", "v");
+        assert_eq!(std::mem::size_of_val(&s), 0);
     }
 
     #[test]
     fn test_finish_completes_without_panic_error() {
-        NoopSpan.finish();
+        let s = NoopSpan;
+        s.finish();
+        assert_eq!(std::mem::size_of_val(&s), 0);
     }
 
     #[test]

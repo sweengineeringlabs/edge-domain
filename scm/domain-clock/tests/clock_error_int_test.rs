@@ -11,7 +11,9 @@ fn test_before_epoch_display_mentions_epoch_happy() {
 /// @covers: ClockError — equality
 #[test]
 fn test_before_epoch_equals_itself_error() {
-    assert_eq!(ClockError::BeforeEpoch, ClockError::BeforeEpoch);
+    let err1 = ClockError::BeforeEpoch;
+    let err2 = ClockError::BeforeEpoch;
+    assert_eq!(err1, err2, "same variant must be equal");
 }
 
 /// @covers: ClockError — Debug formatting

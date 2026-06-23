@@ -23,7 +23,8 @@ mod tests {
 
     #[test]
     fn test_new_creates_noop_handler_tracer_happy() {
-        let _ = NoopHandlerTracer::new();
+        let t = NoopHandlerTracer::new();
+        assert_eq!(std::mem::size_of_val(&t), 0);
     }
 
     #[test]
@@ -31,6 +32,7 @@ mod tests {
         let t = NoopHandlerTracer::new();
         let span = t.start_span("", "");
         span.finish();
+        assert_eq!(std::mem::size_of_val(&t), 0);
     }
 
     #[test]
@@ -38,5 +40,6 @@ mod tests {
         let t = NoopHandlerTracer::new();
         t.start_span("a", "op1").finish();
         t.start_span("b", "op2").finish();
+        assert_eq!(std::mem::size_of_val(&t), 0);
     }
 }

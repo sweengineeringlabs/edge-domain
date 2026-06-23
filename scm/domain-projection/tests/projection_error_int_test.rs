@@ -16,13 +16,20 @@ fn test_internal_error_display_contains_message_error() {
 
 #[test]
 fn test_errors_are_equality_comparable_edge() {
-    assert_eq!(ProjectionError::EmptyStream, ProjectionError::EmptyStream);
+    let err1 = ProjectionError::EmptyStream;
+    let err2 = ProjectionError::EmptyStream;
+    assert_eq!(err1, err2, "same variant must be equal");
+
+    let internal1 = ProjectionError::Internal("x".into());
+    let internal2 = ProjectionError::Internal("x".into());
     assert_eq!(
-        ProjectionError::Internal("x".into()),
-        ProjectionError::Internal("x".into())
+        internal1,
+        internal2,
+        "identical internal errors must be equal"
     );
     assert_ne!(
-        ProjectionError::EmptyStream,
-        ProjectionError::Internal("x".into())
+        err1,
+        internal1,
+        "different variants must not be equal"
     );
 }

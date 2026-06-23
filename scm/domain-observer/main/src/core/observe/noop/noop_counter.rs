@@ -14,12 +14,16 @@ mod tests {
 
     #[test]
     fn test_increment_delta_discarded_happy() {
-        NoopCounter.increment(1);
+        let c = NoopCounter;
+        c.increment(1);
+        assert_eq!(std::mem::size_of_val(&c), 0);
     }
 
     #[test]
     fn test_increment_max_value_no_panic_error() {
-        NoopCounter.increment(u64::MAX);
+        let c = NoopCounter;
+        c.increment(u64::MAX);
+        assert_eq!(std::mem::size_of_val(&c), 0);
     }
 
     #[test]

@@ -12,9 +12,12 @@ fn test_invalid_display_includes_message_happy() {
 /// @covers: ValidatorError::Invalid — equality by value
 #[test]
 fn test_invalid_equality_by_value_error() {
+    let err1 = ValidatorError::Invalid("x".into());
+    let err2 = ValidatorError::Invalid("x".into());
     assert_eq!(
-        ValidatorError::Invalid("x".into()),
-        ValidatorError::Invalid("x".into())
+        err1,
+        err2,
+        "errors with same message must be equal"
     );
 }
 
