@@ -14,22 +14,3 @@ pub const STEP_SVC: &str = "step";
 
 /// Service name constant for validator service.
 pub const VALIDATOR_SVC: &str = "validator";
-
-/// Create a pipeline with the given steps and default config.
-///
-/// Returns an opaque trait object so callers never see concrete implementation types.
-///
-/// This is a convenience wrapper around [`pipeline_svc`].
-pub use pipeline_svc::create as create_pipeline;
-
-/// Create a pipeline with the given steps and custom config.
-///
-/// Returns an opaque trait object so callers never see concrete implementation types.
-///
-/// This is a convenience wrapper around [`pipeline_svc`].
-pub use pipeline_svc::create_with_config as create_pipeline_with_config;
-
-/// Create a config validator strategy.
-///
-/// This is a convenience wrapper around [`validator_svc`].
-pub use validator_svc::create as create_validator;

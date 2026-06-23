@@ -71,7 +71,6 @@ mod tests {
         assert_eq!(ctx, 6);
     }
 
-    /// @covers: Step::execute
     #[tokio::test]
     async fn test_execute_error_returns_failure() {
         let step = FailureStep;
@@ -80,7 +79,6 @@ mod tests {
         assert!(result.is_err());
     }
 
-    /// @covers: Step::execute
     #[tokio::test]
     async fn test_execute_error_message_preserved() {
         let step = FailureStep;
@@ -97,7 +95,6 @@ mod tests {
         assert_eq!(step.name(), "success-step");
     }
 
-    /// @covers: Step::name
     #[test]
     fn test_name_happy_failure_step() {
         let step = FailureStep;

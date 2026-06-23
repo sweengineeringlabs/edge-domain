@@ -48,7 +48,6 @@ mod tests {
         assert_eq!(ctx, 0); // Verify no mutation
     }
 
-    /// @covers: AlwaysPassStep::execute
     #[tokio::test]
     async fn test_execute_happy_multiple_types() {
         let step_int = AlwaysPassStep::new();

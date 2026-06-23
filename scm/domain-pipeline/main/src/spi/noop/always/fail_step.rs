@@ -42,7 +42,6 @@ mod tests {
         assert!(result.is_err());
     }
 
-    /// @covers: AlwaysFailStep::execute
     #[tokio::test]
     async fn test_execute_error_preserves_message() {
         let step = AlwaysFailStep::new("custom failure");
@@ -67,7 +66,6 @@ mod tests {
         assert_eq!(step_ref.name(), "always-fail");
     }
 
-    /// @covers: AlwaysFailStep::execute
     #[tokio::test]
     async fn test_execute_error_different_messages() {
         let step1 = AlwaysFailStep::new("error1");
@@ -83,5 +81,11 @@ mod tests {
             Err(PipelineError::StepFailed(msg)) => assert_eq!(msg, "error2"),
             _ => panic!("expected StepFailed"),
         }
+    }
+
+    #[test]
+    fn test_new_happy_stores_error_message() {
+        let step = AlwaysFailStep::new("test error");
+        assert_eq!(step.error_msg, "test error");
     }
 }

@@ -59,10 +59,6 @@ impl Pipeline<i32> for TestPipeline {
     fn config(&self) -> &PipelineConfig {
         &self.config
     }
-
-    fn name(&self) -> &str {
-        "test-pipeline"
-    }
 }
 
 struct TestValidator {
@@ -177,40 +173,6 @@ fn test_is_empty_consistency_implies_step_count_error() {
     let step_count = pipeline.step_count();
     // Validate invariant: is_empty iff step_count == 0
     assert_eq!(is_empty, step_count == 0);
-}
-
-// =============================================================================
-// Pipeline::name Tests
-// =============================================================================
-
-#[test]
-fn test_name_happy_returns_string() {
-    let pipeline = TestPipeline {
-        steps: vec![],
-        config: PipelineConfig::default(),
-    };
-    assert_eq!(pipeline.name(), "test-pipeline");
-}
-
-#[test]
-fn test_name_consistency_error() {
-    // Error test: name should be consistent across calls
-    let pipeline = TestPipeline {
-        steps: vec![Arc::new(TestPassStep)],
-        config: PipelineConfig::default(),
-    };
-    let name1 = pipeline.name();
-    let name2 = pipeline.name();
-    assert_eq!(name1, name2);
-}
-
-#[test]
-fn test_name_edge_not_empty() {
-    let pipeline = TestPipeline {
-        steps: vec![],
-        config: PipelineConfig::default(),
-    };
-    assert!(!pipeline.name().is_empty());
 }
 
 // =============================================================================

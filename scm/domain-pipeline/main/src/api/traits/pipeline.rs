@@ -35,9 +35,6 @@ pub trait Pipeline<Ctx>: Send + Sync {
 
     /// Get the pipeline configuration.
     fn config(&self) -> &super::super::PipelineConfig;
-
-    /// Return the name of this pipeline.
-    fn name(&self) -> &str;
 }
 
 /// Blanket impl: any Pipeline can be used as a Step, enabling composition.
@@ -75,16 +72,6 @@ mod tests {
         fn config(&self) -> &PipelineConfig {
             &self.config
         }
-
-        fn name(&self) -> &str {
-            "pipeline"
-        }
-    }
-
-    #[test]
-    fn test_pipeline_name_happy_default() {
-        let pipeline = MockPipeline { empty: false, config: PipelineConfig::default() };
-        assert_eq!(pipeline.name(), "pipeline");
     }
 
     #[test]
@@ -99,7 +86,6 @@ mod tests {
         assert!(!pipeline.is_empty());
     }
 
-    /// @covers: Pipeline::is_empty
     #[test]
     fn test_pipeline_is_empty_error_consistency() {
         let pipeline = MockPipeline { empty: true, config: PipelineConfig::default() };
@@ -119,7 +105,6 @@ mod tests {
         assert_eq!(pipeline.step_count(), 0);
     }
 
-    /// @covers: Pipeline::step_count
     #[test]
     fn test_pipeline_step_count_error_consistency() {
         let pipeline = MockPipeline { empty: false, config: PipelineConfig::default() };
@@ -149,7 +134,6 @@ mod tests {
         assert!(pipeline.config().abort_on_error);
     }
 
-    /// @covers: Pipeline::config
     #[test]
     fn test_pipeline_config_error_multiple_calls_consistent() {
         let config = PipelineConfig {

@@ -1,12 +1,19 @@
 //! Validator service wrapper — re-exports validator service.
 //!
-//! This module provides wrapper functions for creating validators through the service layer.
+//! This module provides facade for creating validators through the service layer.
 
 use crate::api::{Validator, ValidatorService};
 
-/// Create a config validator strategy.
+/// Factory for creating validator instances.
 ///
-/// This is a convenience wrapper delegating to [`ValidatorService`].
-pub fn create(enabled: bool) -> Box<dyn Validator> {
-    ValidatorService::create_validator(enabled)
+/// This facade provides convenient factory methods for constructing validators.
+pub struct ValidatorFactory;
+
+impl ValidatorFactory {
+    /// Create a config validator strategy.
+    ///
+    /// This is a convenience wrapper delegating to [`ValidatorService`].
+    pub fn create(enabled: bool) -> Box<dyn Validator> {
+        ValidatorService::create_validator(enabled)
+    }
 }

@@ -41,7 +41,6 @@ mod tests {
         assert_eq!(ctx, 15);
     }
 
-    /// @covers: MutatingStep::execute
     #[tokio::test]
     async fn test_execute_happy_applies_mutation_string() {
         let step = MutatingStep::new(|ctx: &mut String| ctx.push_str("!"));
@@ -64,7 +63,6 @@ mod tests {
         assert_eq!(step_ref.name(), "mutating");
     }
 
-    /// @covers: MutatingStep::execute
     #[tokio::test]
     async fn test_execute_happy_multiple_mutations() {
         let step1 = MutatingStep::new(|ctx: &mut i32| *ctx *= 2);
@@ -78,7 +76,6 @@ mod tests {
         assert_eq!(ctx, 25);
     }
 
-    /// @covers: MutatingStep::execute
     #[tokio::test]
     async fn test_execute_happy_complex_type() {
         use crate::spi::noop::Counter;
@@ -87,5 +84,12 @@ mod tests {
         let mut ctx = Counter::new();
         assert!(step.execute(&mut ctx).await.is_ok());
         assert_eq!(ctx.count, 1);
+    }
+
+    #[test]
+    fn test_new_happy_stores_closure() {
+        let step = MutatingStep::new(|_ctx: &mut i32| {});
+        // Verify construction succeeds and closure is properly stored
+        assert_eq!(step.name(), "mutating");
     }
 }

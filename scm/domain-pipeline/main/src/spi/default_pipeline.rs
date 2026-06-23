@@ -47,10 +47,6 @@ impl<Ctx: Send> Pipeline<Ctx> for DefaultPipeline<Ctx> {
     fn config(&self) -> &PipelineConfig {
         &self.config
     }
-
-    fn name(&self) -> &str {
-        "default-pipeline"
-    }
 }
 
 #[async_trait::async_trait]

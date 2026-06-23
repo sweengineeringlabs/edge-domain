@@ -49,7 +49,6 @@ mod tests {
         assert!(validator.validate(&config).await.is_ok());
     }
 
-    /// @covers: Validator::validate
     #[tokio::test]
     async fn test_validate_error_rejects_invalid() {
         let validator = AlwaysFailValidator;
@@ -58,7 +57,6 @@ mod tests {
         assert!(result.is_err());
     }
 
-    /// @covers: Validator::validate
     #[tokio::test]
     async fn test_validate_error_message_preserved() {
         let validator = AlwaysFailValidator;
@@ -75,14 +73,12 @@ mod tests {
         assert!(validator.is_enabled());
     }
 
-    /// @covers: Validator::is_enabled
     #[test]
     fn test_is_enabled_happy_false() {
         let validator = AlwaysFailValidator;
         assert!(!validator.is_enabled());
     }
 
-    /// @covers: Validator::is_enabled
     #[test]
     fn test_is_enabled_edge_multiple_calls_consistent() {
         let validator = AlwaysValidValidator;
@@ -90,7 +86,6 @@ mod tests {
         assert!(validator.is_enabled());  // Should be idempotent
     }
 
-    /// @covers: Validator::is_enabled
     #[test]
     fn test_is_enabled_happy_state_toggles() {
         let enabled = AlwaysValidValidator;
@@ -99,7 +94,6 @@ mod tests {
         assert!(!disabled.is_enabled());
     }
 
-    /// @covers: Validator::is_enabled
     #[test]
     fn test_is_enabled_error_disabled_remains_disabled() {
         let validator = AlwaysFailValidator;

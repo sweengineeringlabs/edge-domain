@@ -5,3 +5,6 @@
 
 /// Re-export of the Step trait for service interface.
 pub use crate::api::Step;
+
+/// Marker for step operations.
+pub const STEP_OPS: &str = "step_ops";

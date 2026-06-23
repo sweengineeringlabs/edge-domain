@@ -8,6 +8,5 @@ pub(crate) mod noop;
 pub(crate) mod pipeline_factory;
 pub(crate) mod validator_factory;
 
-// Internal factory types - not exposed as public API
-pub(crate) struct PipelineFactory;
-pub(crate) struct ValidatorFactory;
+pub(crate) use pipeline_factory::PipelineFactory;
+pub(crate) use validator_factory::ValidatorFactory;
