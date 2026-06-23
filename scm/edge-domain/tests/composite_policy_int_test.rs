@@ -47,7 +47,9 @@ fn test_evaluate_all_policies_pass_returns_ok_happy() {
     let policy = CompositePolicy::new()
         .with(Box::new(NonEmpty))
         .with(Box::new(MaxLength(10)));
-    assert!(policy.evaluate(&"hello".to_string()).is_ok());
+    let result = policy.evaluate(&"hello".to_string());
+    assert!(result.is_ok(), "both policies should pass for valid input");
+    assert_eq!(result.unwrap(), ());
 }
 
 /// @covers: Policy::evaluate (composite, first fails)
@@ -75,7 +77,8 @@ fn test_evaluate_second_policy_fails_returns_its_violation_error() {
 #[test]
 fn test_evaluate_empty_composite_always_returns_ok_edge() {
     let policy: CompositePolicy<String> = CompositePolicy::new();
-    assert!(policy.evaluate(&"anything".to_string()).is_ok());
+    let result = policy.evaluate(&"anything".to_string());
+    assert_eq!(result, Ok(()), "empty composite should always pass");
 }
 
 /// @covers: Policy::name (composite)
@@ -89,6 +92,10 @@ fn test_name_returns_composite_happy() {
 #[test]
 fn test_add_single_policy_is_evaluated_edge() {
     let policy = CompositePolicy::new().with(Box::new(MaxLength(5)));
-    assert!(policy.evaluate(&"hi".to_string()).is_ok());
-    assert!(policy.evaluate(&"exceeds".to_string()).is_err());
+    let pass = policy.evaluate(&"hi".to_string());
+    assert_eq!(pass, Ok(()), "short string should pass max length");
+    let fail = policy.evaluate(&"exceeds".to_string());
+    assert!(fail.is_err(), "long string should fail max length");
+    let err = fail.unwrap_err();
+    assert_eq!(err.policy, "max-length");
 }

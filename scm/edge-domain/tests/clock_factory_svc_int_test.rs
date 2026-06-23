@@ -39,7 +39,9 @@ fn test_system_is_not_stuck_in_past_error() {
 /// @covers ClockBootstrap::system — edge: returned type is SystemClock
 #[test]
 fn test_system_returns_system_clock_type_edge() {
-    let _: SystemClock = TestClocks::system();
+    let clock: SystemClock = TestClocks::system();
+    let t = clock.now();
+    assert!(t <= SystemTime::now());
 }
 
 // --- ClockBootstrap::fixed ---

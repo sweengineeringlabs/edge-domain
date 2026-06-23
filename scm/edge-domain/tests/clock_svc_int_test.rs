@@ -43,5 +43,8 @@ fn test_now_fixed_clock_at_unix_epoch_returns_epoch_edge() {
 fn test_now_fixed_clock_repeated_calls_return_same_instant_edge() {
     let instant = SystemTime::UNIX_EPOCH + Duration::from_secs(42);
     let clock = FixedClock::new(instant);
-    assert_eq!(clock.now(), clock.now());
+    let t1 = clock.now();
+    let t2 = clock.now();
+    assert_eq!(t1, instant);
+    assert_eq!(t2, instant);
 }
