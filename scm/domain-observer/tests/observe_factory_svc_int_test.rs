@@ -4,7 +4,8 @@ use edge_domain_observer::{LogRecord, ObserveBootstrap, StdObserveFactory, OBSER
 #[test]
 fn test_create_factory_svc_validate_passes_happy() {
     let factory = StdObserveFactory::create_factory();
-    assert!(factory.validate().is_ok());
+    let result = factory.validate();
+    assert_eq!(result, Ok(()), "created factory should validate successfully");
 }
 
 // @covers StdObserveFactory::create_factory

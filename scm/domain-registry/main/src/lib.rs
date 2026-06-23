@@ -14,10 +14,7 @@ mod api;
 mod core;
 mod saf;
 
-pub use saf::InMemoryRegistry;
 pub use saf::Registry;
-pub use saf::RegistryError;
 pub use saf::RegistryBootstrap;
-pub use saf::StdRegistryFactory;
 pub use saf::REGISTRY_FACTORY_SVC;
 pub use saf::REGISTRY_SVC;

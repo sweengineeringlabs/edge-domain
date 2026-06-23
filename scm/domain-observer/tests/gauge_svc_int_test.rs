@@ -15,5 +15,5 @@ fn test_gauge_svc_key_has_edge_prefix_error() {
 
 #[test]
 fn test_gauge_svc_key_stable_across_calls_edge() {
-    assert_eq!(GAUGE_SVC, "gauge");
+    assert_eq!(GAUGE_SVC, "edge.observe.gauge");
 }

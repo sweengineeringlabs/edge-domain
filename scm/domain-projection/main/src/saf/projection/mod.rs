@@ -2,6 +2,6 @@ mod projection_bootstrap_svc;
 mod projection_svc;
 
 pub use projection_bootstrap_svc::{
-    StdProjectionFactory, InMemoryProjection, ProjectionBootstrap, PROJECTION_FACTORY_SVC,
+    ProjectionBootstrap, PROJECTION_FACTORY_SVC,
 };
-pub use projection_svc::{Projection, ProjectionError, PROJECTION_SVC};
+pub use projection_svc::{Projection, PROJECTION_SVC};

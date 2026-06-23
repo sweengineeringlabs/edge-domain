@@ -15,5 +15,5 @@ fn test_span_svc_key_has_edge_prefix_error() {
 
 #[test]
 fn test_span_svc_key_stable_across_calls_edge() {
-    assert_eq!(SPAN_SVC, "span");
+    assert_eq!(SPAN_SVC, "edge.observe.span");
 }

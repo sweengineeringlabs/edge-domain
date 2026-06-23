@@ -17,11 +17,7 @@ mod core;
 mod saf;
 
 pub use saf::Lifecycle;
-pub use saf::LifecycleError;
 pub use saf::LifecycleBootstrap;
-pub use saf::ManagedLifecycle;
-pub use saf::PermissivePolicy;
-pub use saf::StdLifecycleFactory;
 pub use saf::TransitionPolicy;
 pub use saf::LIFECYCLE_FACTORY_SVC;
 pub use saf::LIFECYCLE_SVC;

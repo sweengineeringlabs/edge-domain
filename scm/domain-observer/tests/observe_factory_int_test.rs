@@ -29,20 +29,24 @@ fn test_std_factory_all_three_primitives_edge() {
 #[test]
 fn test_validate_initialized_factory_happy() {
     let factory = StdObserveFactory::create_factory();
-    assert!(factory.validate().is_ok());
+    let result = factory.validate();
+    assert_eq!(result, Ok(()), "factory.validate() should return Ok");
 }
 
 #[test]
 fn test_validate_std_factory_returns_ok_error() {
     let factory = StdObserveFactory;
-    assert!(factory.validate().is_ok());
+    let result = factory.validate();
+    assert_eq!(result, Ok(()), "StdObserveFactory.validate() should return Ok");
 }
 
 #[test]
 fn test_validate_called_multiple_times_edge() {
     let factory = StdObserveFactory::create_factory();
-    assert!(factory.validate().is_ok());
-    assert!(factory.validate().is_ok());
+    let first = factory.validate();
+    let second = factory.validate();
+    assert_eq!(first, Ok(()), "first validate should succeed");
+    assert_eq!(second, Ok(()), "second validate should also succeed");
 }
 
 // --- build_handler_tracer ---

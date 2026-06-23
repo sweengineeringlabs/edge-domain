@@ -2,9 +2,7 @@
 
 mod value;
 
-pub use value::NonEmptyString;
 pub use value::ValueObject;
-pub use value::ValueObjectError;
 pub use value::ValueObjectBootstrap;
 pub use value::VALUE_OBJECT_FACTORY_SVC;
 pub use value::VALUE_OBJECT_SVC;

@@ -42,15 +42,13 @@ mod tests {
 
     #[test]
     fn test_new_creates_noop_observer_context_happy() {
-        let ctx = NoopObserverContext::new();
-        assert!(!std::ptr::eq(ctx.tracer() as *const _, std::ptr::null()));
+        let _ = NoopObserverContext::new();
     }
 
     #[test]
     fn test_tracer_start_span_no_panic_error() {
         let ctx = NoopObserverContext::new();
         ctx.tracer().start_span("h", "op").finish();
-        assert!(true);
     }
 
     #[test]

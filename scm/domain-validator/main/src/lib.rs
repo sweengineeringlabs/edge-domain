@@ -13,8 +13,5 @@ mod api;
 mod core;
 mod saf;
 
-pub use saf::AlwaysValid;
-pub use saf::StdValidatorFactory;
 pub use saf::Validator;
-pub use saf::ValidatorError;
 pub use saf::ValidatorBootstrap;

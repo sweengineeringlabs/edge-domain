@@ -35,12 +35,5 @@ mod saf;
 mod spi;
 
 pub use saf::TunnelManager;
-pub use saf::TunnelStatus;
-pub use saf::VpnClientConfig;
-pub use saf::VpnError;
-pub use saf::VpnManagerFactory;
-pub use saf::VpnResult;
 pub use saf::TUNNEL_MANAGER_SVC;
 pub use saf::CLIENT_CONFIG_SVC;
-
-pub use api::NoopTunnelManager;

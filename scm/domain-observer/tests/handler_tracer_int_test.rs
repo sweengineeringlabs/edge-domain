@@ -8,6 +8,7 @@ fn test_start_span_handler_and_op_happy() {
     let span = tracer.start_span("handler_b", "validate");
     span.record("result", "ok");
     span.finish();
+    assert_eq!(std::mem::size_of_val(&*span), 0, "noop span is a ZST");
 }
 
 #[test]
@@ -15,6 +16,7 @@ fn test_start_span_empty_handler_id_error() {
     let tracer = StdObserveFactory::noop_handler_tracer();
     let span = tracer.start_span("", "op");
     span.finish();
+    assert_eq!(std::mem::size_of_val(&*span), 0, "noop span handles empty ids");
 }
 
 #[test]
@@ -23,6 +25,7 @@ fn test_start_span_very_long_ids_edge() {
     let long_id = "x".repeat(1024);
     let span = tracer.start_span(&long_id, &long_id);
     span.finish();
+    assert_eq!(std::mem::size_of_val(&*span), 0, "noop span handles long ids");
 }
 
 #[test]
