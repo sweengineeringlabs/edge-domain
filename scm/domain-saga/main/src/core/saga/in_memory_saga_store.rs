@@ -75,7 +75,8 @@ mod tests {
         let mut store = TestStore::new();
         store.register("s1".to_string(), InMemorySagaStoreTestSaga::default())
             .ok();
-        assert!(store.get(&"s1".to_string()).is_ok());
+        let saga = store.get(&"s1".to_string()).unwrap();
+        assert_eq!(saga.is_complete(), false, "newly registered saga should not be complete");
     }
 
     #[test]

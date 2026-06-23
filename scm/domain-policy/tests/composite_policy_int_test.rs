@@ -28,7 +28,7 @@ impl Policy for Accept {
 #[test]
 fn test_evaluate_empty_composite_passes_happy() {
     let c: CompositePolicy<String> = CompositePolicy::new();
-    assert!(c.evaluate(&"x".to_string()).is_ok());
+    assert_eq!(c.evaluate(&"x".to_string()), Ok(()), "empty composite should pass");
 }
 
 /// @covers: CompositePolicy::with + evaluate — failing member short-circuits

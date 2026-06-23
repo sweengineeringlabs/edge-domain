@@ -7,14 +7,14 @@ use edge_domain_security::{AnonymousPrincipal, NoopSecurity, Security, SecurityC
 #[test]
 fn test_enforce_authenticated_context_returns_ok_happy() {
     let ctx = SecurityContext::authenticated_with(Box::new(AnonymousPrincipal));
-    assert!(NoopSecurity.enforce(&ctx).is_ok());
+    assert_eq!(NoopSecurity.enforce(&ctx), Ok(()), "noop security should accept authenticated context");
 }
 
 /// @covers: NoopSecurity::enforce — accepts unauthenticated context too
 #[test]
 fn test_enforce_unauthenticated_context_returns_ok_error() {
     let ctx = SecurityContext::unauthenticated();
-    assert!(NoopSecurity.enforce(&ctx).is_ok());
+    assert_eq!(NoopSecurity.enforce(&ctx), Ok(()), "noop security should accept unauthenticated context");
 }
 
 /// @covers: NoopSecurity — zero-sized marker struct

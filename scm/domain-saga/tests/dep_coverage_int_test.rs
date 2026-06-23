@@ -26,7 +26,7 @@ fn test_domain_event_default_impls_are_callable_happy() {
 #[test]
 fn test_command_execute_returns_ok_error() {
     let result = block_on(DepCmd.execute());
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()), "command execute should return Ok(())");
 }
 
 #[test]

@@ -20,7 +20,7 @@ impl Policy for AlwaysFails {
 #[test]
 fn test_composite_empty_always_passes_happy() {
     let policy = TestPolicies::composite::<String>();
-    assert!(policy.evaluate(&"anything".to_string()).is_ok());
+    assert_eq!(policy.evaluate(&"anything".to_string()), Ok(()), "empty composite should pass");
 }
 
 /// @covers: PolicyBootstrap::composite — first failing rule rejects input

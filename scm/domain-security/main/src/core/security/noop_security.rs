@@ -18,6 +18,6 @@ mod tests {
     #[test]
     fn test_enforce_authenticated_context_returns_ok() {
         let ctx = SecurityContext::unauthenticated();
-        assert!(NoopSecurity.enforce(&ctx).is_ok());
+        assert_eq!(NoopSecurity.enforce(&ctx), Ok(()), "noop security enforce should return Ok(())");
     }
 }
