@@ -1,6 +1,5 @@
 //! SAF — entity service facade.
 pub use crate::api::Entity;
-pub use crate::api::EntityError;
+pub(crate) use crate::api::EntityError;
 /// SAF contract identifier for the entity service.
-#[allow(dead_code)]
 pub const ENTITY_SVC: &str = "entity";

@@ -14,8 +14,4 @@ mod core;
 mod saf;
 
 pub use saf::Clock;
-pub use saf::ClockError;
 pub use saf::ClockBootstrap;
-pub use saf::StdClockFactory;
-pub use saf::FixedClock;
-pub use saf::SystemClock;

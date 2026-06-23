@@ -14,4 +14,3 @@ mod core;
 mod saf;
 
 pub use saf::Entity;
-pub use saf::EntityError;

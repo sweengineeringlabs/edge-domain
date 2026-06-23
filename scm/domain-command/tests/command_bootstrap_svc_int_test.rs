@@ -14,11 +14,14 @@ fn test_bootstrap_name_returns_nonempty_string_happy() {
 #[test]
 fn test_bootstrap_name_is_idempotent_error() {
     let f = StdCommandBusFactory;
+    let name1 = f.bootstrap_name();
+    let name2 = f.bootstrap_name();
     assert_eq!(
-        f.bootstrap_name(),
-        f.bootstrap_name(),
+        name1,
+        name2,
         "bootstrap_name must return the same value on repeated calls"
     );
+    assert_eq!(name1, "StdCommandBusFactory", "bootstrap_name must return expected identifier");
 }
 
 /// @covers: CommandBootstrap::bootstrap_name
