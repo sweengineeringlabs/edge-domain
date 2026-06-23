@@ -1,4 +1,4 @@
-# edge-domain-observe
+# edge-domain-observer
 
 The observability port contracts — injectable `HandlerTracer`, `MetricRegistry`, and `LogDrain` primitives.
 

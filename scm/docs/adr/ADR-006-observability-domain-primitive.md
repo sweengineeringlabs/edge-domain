@@ -4,22 +4,22 @@
 **Date:** 2026-06-18
 **Governing ADR:** [ADR-022](https://github.com/sweengineeringlabs/edge/blob/main/docs/3-architecture/adr/ADR-022-cloud-native-extension-tier.md) — Cloud-Native Extension Tier
 **Relates to:** [ADR-001](ADR-001-security-context-propagation.md) — Security Context Propagation, [ADR-005](ADR-005-command-query-bus-stack.md) — CommandBus and QueryBus Middleware Stack
-**GitHub Issue:** [#29](https://github.com/sweengineeringlabs/edge-domain/issues/29) — scaffold edge-domain-observe sub-crate
+**GitHub Issue:** [#29](https://github.com/sweengineeringlabs/edge-domain/issues/29) — scaffold edge-domain-observer sub-crate
 
 ---
 
 ## Mandate
 
-Introduce `edge-domain-observe` as a new sub-crate in this workspace — a peer to `edge-domain-handler`, `edge-domain-service`, `edge-domain-security`. Owns the observability port contracts: `HandlerTracer`, `MetricRegistry`, `LogDrain`, and their primitive sub-traits (`Span`, `Counter`, `Histogram`, `Gauge`). No SDK dependencies — pure trait definitions only, same rule as all `edge-domain-*` sub-crates.
+Introduce `edge-domain-observer` as a new sub-crate in this workspace — a peer to `edge-domain-handler`, `edge-domain-service`, `edge-domain-security`. Owns the observability port contracts: `HandlerTracer`, `MetricRegistry`, `LogDrain`, and their primitive sub-traits (`Span`, `Counter`, `Histogram`, `Gauge`). No SDK dependencies — pure trait definitions only, same rule as all `edge-domain-*` sub-crates.
 
 `swe-edge-observ-config` is not modified. It remains the infrastructure bootstrap crate for subscriber configuration and initialisation. This workspace owns the domain-layer port contracts only; `edge-observe` (a future opt-in extension repo) owns the SDK-backed implementations.
 
 ---
 
-## New crate: `edge-domain-observe`
+## New crate: `edge-domain-observer`
 
 Location: `domain-observe/` (peer to `domain-clock/`, `domain-security/`)
-Crate name: `edge-domain-observe`
+Crate name: `edge-domain-observer`
 `service_type`: `"observe"`
 
 Zero external deps — only `std` and `thiserror`.
@@ -77,7 +77,7 @@ All noop types live under `api/observe/types/noop/` (grouped per `shared_prefix_
 | Subscriber bootstrap, TOML tracing config | `swe-edge-observ-config` |
 | Runtime-level ingress counters, `MetricsProvider` | `swe-observ-metrics` |
 | Pipeline span per handler invocation (`"pipeline.stage"`) | `edge-dispatch` |
-| Domain port contracts (this ADR) | `edge-domain-observe` |
+| Domain port contracts (this ADR) | `edge-domain-observer` |
 | OTel subscriber, Prometheus exporter, OTLP exporter | `edge-observe` (future) |
 
 `HandlerTracer` spans are children of the `"pipeline.stage"` span that `edge-dispatch` already creates — not a replacement for it.
@@ -88,7 +88,7 @@ All noop types live under `api/observe/types/noop/` (grouped per `shared_prefix_
 
 ## Boundary rules
 
-**B1 — No SDK deps.** `edge-domain-observe` must not depend on Prometheus, OTel, StatsD, or any external SDK. It defines contracts; infrastructure implements them.
+**B1 — No SDK deps.** `edge-domain-observer` must not depend on Prometheus, OTel, StatsD, or any external SDK. It defines contracts; infrastructure implements them.
 
 **B2 — No dep on `swe-edge-observ-config`.** The domain primitive must not import from the infra bootstrap crate.
 

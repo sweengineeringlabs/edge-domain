@@ -1,4 +1,4 @@
-# Changelog — edge-domain-observe
+# Changelog — edge-domain-observer
 
 ## [0.1.0] — 2026-06-18
 

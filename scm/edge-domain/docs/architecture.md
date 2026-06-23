@@ -1,5 +1,29 @@
 # Domain Architecture
 
+## Core Principle: Abstraction as a Contract
+
+**The consumer doesn't know or care what's behind the contract.**
+
+Every trait in this crate is a **contract layer**. Callers depend on the trait interface, not the implementation. This achieves:
+
+1. **Provider independence** — Swap implementations without changing business logic
+2. **Testability** — Inject noop or in-memory implementations in tests
+3. **Transparency** — Callers see only the contract, never the backend
+
+### Examples
+
+| Contract | What the caller sees | What happens behind it |
+|----------|---------------------|------------------------|
+| `EventStore<E>` | `.append()`, `.load()` | In-mem RwLock, Postgres, Kafka, DynamoDB — doesn't matter |
+| `Repository<T, Id>` | `.save()`, `.find()`, `.list()` | HashMap, SQLite, MongoDB — caller is blind |
+| `CommandBus` | `.dispatch(cmd)` | Inline, async queue, message broker — abstracted |
+| `Handler<Req, Res>` | `.execute(req)` | Echo handler, LLM handler, database handler — handler code is portable |
+| `ObserveContext` (from `edge-domain-observer`) | `.tracer()`, `.metrics()`, `.drain()` | Noop (tests), OpenTelemetry, Prometheus — observer backend is pluggable |
+
+**This is why business logic code is transport-agnostic, persistence-agnostic, and observability-agnostic.** The domain layer defines what it needs; infrastructure layers satisfy those contracts.
+
+---
+
 ## Workspace overview
 
 The domain workspace is a single Rust crate — `edge-domain` — that provides provider-agnostic
@@ -137,6 +161,35 @@ fn find_by(&self, spec: &dyn Spec<T>)     -> BoxFuture<'_, Result<Vec<T>, Reposi
 fn find_one_by(&self, spec: &dyn Spec<T>) -> BoxFuture<'_, Result<Option<T>, RepositoryError>>;
 fn count_by(&self, spec: &dyn Spec<T>)    -> BoxFuture<'_, Result<usize, RepositoryError>>;
 ```
+
+---
+
+### Observability (edge-domain-observer)
+
+**From the handler's perspective, this IS the observer.** Handlers don't know or care what's behind it.
+
+```rust
+pub trait ObserveContext: Send + Sync {
+    fn tracer(&self) -> &dyn HandlerTracer;   // Distributed tracing (Jaeger? Datadog? Noop?)
+    fn drain(&self) -> &dyn LogDrain;         // Structured logs (ELK? Loki? /dev/null?)
+    fn metrics(&self) -> &dyn MetricRegistry; // Metrics (Prometheus? Grafana? Silent?)
+}
+```
+
+**HandlerContext injects the observer at request time:**
+
+```rust
+pub struct HandlerContext<'a> {
+    pub security: &'a SecurityContext,
+    pub commands: &'a dyn CommandBus,
+    pub observer: &'a dyn ObserveContext,  // ← Observability seam
+}
+```
+
+**In tests:** Use `StdObserveFactory::noop_observe_context()` — handlers observe, but nothing happens.  
+**In production:** Wire OpenTelemetry, Prometheus, Datadog, or any backend to the same interface.
+
+The handler code **never changes**. It just calls `ctx.observer().tracer().start_span(...)` and trust the abstraction.
 
 ---
 
