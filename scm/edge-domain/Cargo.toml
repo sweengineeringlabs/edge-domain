@@ -55,10 +55,10 @@ full        = [
 ]
 
 [dependencies]
-thiserror.workspace   = true
-async-trait.workspace = true
-parking_lot.workspace = true
-tracing.workspace     = true
+thiserror     = "2"
+async-trait   = "0.1"
+parking_lot   = "0.12"
+tracing       = { version = "0.1", default-features = false }
 
 edge-domain-entity      = { path = "../domain-entity", optional = true }
 edge-domain-valueobject = { path = "../domain-valueobject", optional = true }
@@ -78,12 +78,12 @@ edge-domain-saga        = { path = "../domain-saga", optional = true }
 edge-domain-registry    = { path = "../domain-registry", optional = true }
 edge-domain-lifecycle   = { path = "../domain-lifecycle", optional = true }
 edge-domain-observer    = { path = "../domain-observer", optional = true }
-edge-domain-security.workspace = true
+edge-domain-security    = { path = "../domain-security" }
 
 [dev-dependencies]
-tokio   = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
-futures.workspace                  = true
-edge-domain-entity.workspace       = true
+tokio       = { version = "1", features = ["macros", "rt", "rt-multi-thread"] }
+futures     = "0.3"
+edge-domain-entity = { path = "../domain-entity" }
 edge-domain-valueobject.workspace  = true
 edge-domain-clock.workspace        = true
 edge-domain-validator.workspace    = true
