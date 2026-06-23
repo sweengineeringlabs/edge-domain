@@ -9,5 +9,4 @@ pub use traits::SecurityBootstrap;
 pub use types::AnonymousPrincipal;
 pub use types::NoopSecurity;
 pub use types::SecurityContext;
-pub use types::SecurityContextBuilder;
 pub use types::SecurityServices;

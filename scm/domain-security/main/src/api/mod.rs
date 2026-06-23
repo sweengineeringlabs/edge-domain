@@ -6,5 +6,4 @@ pub use security::SecurityBootstrap;
 pub use security::AnonymousPrincipal;
 pub use security::NoopSecurity;
 pub use security::SecurityContext;
-pub use security::SecurityContextBuilder;
 pub use security::SecurityServices;

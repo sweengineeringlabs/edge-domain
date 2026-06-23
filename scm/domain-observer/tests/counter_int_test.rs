@@ -32,4 +32,5 @@ fn test_counter_is_send_sync() {
     let registry = StdObserveFactory::noop_metric_registry();
     let counter = registry.counter("c");
     assert_send_sync(&counter);
+    assert_eq!(std::mem::size_of_val(&*counter), 0, "counter is Send+Sync ZST");
 }

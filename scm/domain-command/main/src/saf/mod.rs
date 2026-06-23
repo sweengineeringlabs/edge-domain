@@ -1,8 +1,7 @@
 mod command;
 
 pub use command::{
-    Command, CommandBus, CommandBusBootstrap, CommandBootstrap, COMMAND_BUS_FACTORY_SVC,
-    COMMAND_BUS_SVC, COMMAND_FACTORY_SVC, COMMAND_SVC,
+    Command, CommandBus, CommandBusBootstrap, CommandBootstrap,
 };
 pub(crate) use command::{
     CommandError, DirectCommandBus, LoggingCommandBus, NoopCommand, NoopCommandBus,

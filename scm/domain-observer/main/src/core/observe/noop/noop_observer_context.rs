@@ -43,19 +43,24 @@ mod tests {
     #[test]
     fn test_new_creates_noop_observer_context_happy() {
         let ctx = NoopObserverContext::new();
-        assert!(!std::ptr::eq(ctx.tracer() as *const _, std::ptr::null()));
+        let span = ctx.tracer().start_span("h", "op");
+        span.finish();
+        assert_eq!(std::mem::size_of_val(&*span), 0, "noop observer context is a ZST");
     }
 
     #[test]
     fn test_tracer_start_span_no_panic_error() {
         let ctx = NoopObserverContext::new();
-        ctx.tracer().start_span("h", "op").finish();
-        assert!(true);
+        let span = ctx.tracer().start_span("h", "op");
+        span.finish();
+        assert_eq!(std::mem::size_of_val(&*span), 0, "tracer span is a ZST");
     }
 
     #[test]
     fn test_metrics_counter_no_panic_edge() {
         let ctx = NoopObserverContext::new();
-        ctx.metrics().counter("m").increment(1);
+        let counter = ctx.metrics().counter("m");
+        counter.increment(1);
+        assert_eq!(std::mem::size_of_val(&*counter), 0, "metric counter is a ZST");
     }
 }

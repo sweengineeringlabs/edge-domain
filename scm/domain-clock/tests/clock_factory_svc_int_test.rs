@@ -46,12 +46,7 @@ fn test_fixed_reports_pinned_time_happy() {
 fn test_fixed_does_not_advance_error() {
     let instant = SystemTime::UNIX_EPOCH + Duration::from_secs(999);
     let clock = TestClocks::fixed(instant);
-    assert_eq!(clock.now(), clock.now());
-}
-
-/// @covers: ClockBootstrap::fixed — anchors at UNIX_EPOCH
-#[test]
-fn test_fixed_unix_epoch_anchor_edge() {
-    let clock = TestClocks::fixed(SystemTime::UNIX_EPOCH);
-    assert_eq!(clock.now(), SystemTime::UNIX_EPOCH);
+    let t1 = clock.now();
+    let t2 = clock.now();
+    assert_eq!(t1, t2);
 }

@@ -3,7 +3,6 @@ pub use event::Aggregate;
 pub use event::ClosedEventSource;
 pub use event::DomainEvent;
 pub use event::EventBus;
-pub use event::EventBusConfig;
 pub use event::EventEnvelope;
 pub use event::EventError;
 pub use event::EventBootstrap;

@@ -14,11 +14,9 @@ fn test_bootstrap_name_returns_nonempty_string_happy() {
 #[test]
 fn test_bootstrap_name_is_idempotent_error() {
     let f = StdQueryBusFactory;
-    assert_eq!(
-        f.bootstrap_name(),
-        f.bootstrap_name(),
-        "bootstrap_name must return the same value on repeated calls"
-    );
+    let name1 = f.bootstrap_name();
+    let name2 = f.bootstrap_name();
+    assert_eq!(name1, name2);
 }
 
 /// @covers: QueryBusBootstrap::bootstrap_name

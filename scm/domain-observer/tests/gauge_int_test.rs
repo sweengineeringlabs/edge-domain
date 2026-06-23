@@ -32,4 +32,5 @@ fn test_gauge_is_send_sync() {
     let registry = StdObserveFactory::noop_metric_registry();
     let gauge = registry.gauge("g");
     assert_send_sync(&gauge);
+    assert_eq!(std::mem::size_of_val(&*gauge), 0, "gauge is Send+Sync ZST");
 }

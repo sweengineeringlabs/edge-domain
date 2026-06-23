@@ -18,7 +18,9 @@ fn test_now_returns_exact_configured_instant_happy() {
 fn test_now_repeated_calls_return_same_instant_error() {
     let instant = SystemTime::UNIX_EPOCH + Duration::from_secs(999);
     let clock = FixedClock::new(instant);
-    assert_eq!(clock.now(), clock.now());
+    let t1 = clock.now();
+    let t2 = clock.now();
+    assert_eq!(t1, t2);
 }
 
 /// @covers: FixedClock (Clock::now at UNIX_EPOCH)

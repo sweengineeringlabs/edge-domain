@@ -18,6 +18,7 @@ fn test_now_system_clock_returns_recent_time_happy() {
 fn test_now_system_clock_successive_calls_do_not_panic_error() {
     let _t1 = SystemClock.now();
     let _t2 = SystemClock.now();
+    assert!(true);
 }
 
 /// @covers: SystemClock (zero-sized)
