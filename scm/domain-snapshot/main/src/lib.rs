@@ -11,6 +11,7 @@ mod core;
 mod saf;
 
 pub use api::InMemorySnapshotStore;
+pub use api::SnapshotError;
 pub use saf::Snapshot;
 pub use saf::SnapshotStore;
 pub use saf::SnapshotStoreBootstrap;

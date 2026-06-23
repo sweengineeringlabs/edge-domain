@@ -10,7 +10,8 @@ mod api;
 mod core;
 mod saf;
 
-pub use edge_domain_event::DomainEvent;
 pub use api::InMemoryProjection;
+pub use api::ProjectionError;
+pub use edge_domain_event::DomainEvent;
 pub use saf::Projection;
 pub use saf::ProjectionBootstrap;

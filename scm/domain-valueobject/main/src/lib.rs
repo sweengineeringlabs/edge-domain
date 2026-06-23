@@ -12,6 +12,8 @@ mod api;
 mod core;
 mod saf;
 
+pub use api::NonEmptyString;
+pub use api::ValueObjectError;
 pub use saf::ValueObject;
 pub use saf::ValueObjectBootstrap;
 pub use saf::VALUE_OBJECT_FACTORY_SVC;

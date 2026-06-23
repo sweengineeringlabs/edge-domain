@@ -34,6 +34,12 @@ mod core;
 mod saf;
 mod spi;
 
+pub use api::NoopTunnelManager;
+pub use api::TunnelStatus;
+pub use api::VpnClientConfig;
+pub use api::VpnError;
+pub use api::VpnManagerFactory;
+pub use api::VpnResult;
 pub use saf::TunnelManager;
-pub use saf::TUNNEL_MANAGER_SVC;
 pub use saf::CLIENT_CONFIG_SVC;
+pub use saf::TUNNEL_MANAGER_SVC;

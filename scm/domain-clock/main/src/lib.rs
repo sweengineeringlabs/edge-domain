@@ -13,6 +13,8 @@ mod api;
 mod core;
 mod saf;
 
+pub use api::ClockError;
+pub use api::FixedClock;
+pub use api::SystemClock;
 pub use saf::Clock;
 pub use saf::ClockBootstrap;
-pub use crate::api::ClockError;

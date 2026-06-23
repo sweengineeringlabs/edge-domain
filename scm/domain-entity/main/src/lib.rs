@@ -13,4 +13,5 @@ mod api;
 mod core;
 mod saf;
 
+pub use api::EntityError;
 pub use saf::Entity;
