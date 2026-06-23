@@ -338,7 +338,7 @@ fn test_validator_trait_is_enabled_edge_consistency() {
     let validator_true = create_validator(true);
     let validator_false = create_validator(false);
 
-    // Multiple calls should return the same value
-    assert_eq!(validator_true.is_enabled(), validator_true.is_enabled());
-    assert_eq!(validator_false.is_enabled(), validator_false.is_enabled());
+    // Multiple calls should return consistent values
+    assert!(validator_true.is_enabled());
+    assert!(!validator_false.is_enabled());
 }

@@ -37,9 +37,7 @@ pub trait Pipeline<Ctx>: Send + Sync {
     fn config(&self) -> &super::super::PipelineConfig;
 
     /// Return the name of this pipeline.
-    fn name(&self) -> &str {
-        "pipeline"
-    }
+    fn name(&self) -> &str;
 }
 
 /// Blanket impl: any Pipeline can be used as a Step, enabling composition.
@@ -76,6 +74,10 @@ mod tests {
 
         fn config(&self) -> &PipelineConfig {
             &self.config
+        }
+
+        fn name(&self) -> &str {
+            "pipeline"
         }
     }
 

@@ -30,7 +30,9 @@ fn test_error_step_failed_happy_edge() {
 /// @covers: general
 #[test]
 fn test_error_step_timeout_happy_edge() {
-    let _err = PipelineError::StepTimeout;
+    let err = PipelineError::StepTimeout;
+    let msg = format!("{}", err);
+    assert!(!msg.is_empty());
 }
 
 /// @covers: general

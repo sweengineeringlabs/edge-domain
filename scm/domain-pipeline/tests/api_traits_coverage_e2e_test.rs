@@ -151,7 +151,8 @@ fn test_is_empty_consistency_edge() {
         steps: vec![Arc::new(TestPassStep)],
         config: PipelineConfig::default(),
     };
-    assert_eq!(pipeline.is_empty(), pipeline.is_empty());
+    assert!(!pipeline.is_empty());
+    assert_eq!(pipeline.step_count(), 1);
 }
 
 // =============================================================================
@@ -230,7 +231,8 @@ fn test_is_enabled_disabled_happy() {
 #[test]
 fn test_is_enabled_consistency_edge() {
     let validator = TestValidator { enabled: true };
-    assert_eq!(validator.is_enabled(), validator.is_enabled());
+    assert!(validator.is_enabled());
+    assert!(!TestValidator { enabled: false }.is_enabled());
 }
 
 // =============================================================================

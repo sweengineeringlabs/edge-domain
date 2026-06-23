@@ -81,12 +81,10 @@ mod tests {
     /// @covers: MutatingStep::execute
     #[tokio::test]
     async fn test_execute_happy_complex_type() {
-        struct Counter {
-            count: usize,
-        }
+        use crate::spi::noop::Counter;
 
         let step = MutatingStep::new(|ctx: &mut Counter| ctx.count += 1);
-        let mut ctx = Counter { count: 0 };
+        let mut ctx = Counter::new();
         assert!(step.execute(&mut ctx).await.is_ok());
         assert_eq!(ctx.count, 1);
     }

@@ -62,7 +62,9 @@ mod tests {
 
     #[test]
     fn test_new_happy_creates_instance() {
-        let _step = AlwaysPassStep::new();
+        let step = AlwaysPassStep::new();
+        let step_ref: &dyn crate::api::Step<i32> = &step;
+        assert_eq!(step_ref.name(), "always-pass");
     }
 
     #[test]

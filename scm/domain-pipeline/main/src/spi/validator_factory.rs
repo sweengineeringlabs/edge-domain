@@ -1,7 +1,7 @@
 //! Factory for creating validator instances (implementation).
 
-use crate::api::{Validator, ValidatorFactory};
-use crate::spi::config_validator::ConfigValidator;
+use crate::api::Validator;
+use crate::spi::{ValidatorFactory, config_validator::ConfigValidator};
 
 impl ValidatorFactory {
     /// Create a config validator strategy.
@@ -11,7 +11,7 @@ impl ValidatorFactory {
     ///
     /// # Returns
     /// A boxed validator instance
-    pub fn create(enabled: bool) -> Box<dyn Validator> {
+    pub(crate) fn create(enabled: bool) -> Box<dyn Validator> {
         Box::new(ConfigValidator::new(enabled))
     }
 }

@@ -126,16 +126,7 @@ mod tests {
     /// @covers: with_if
     #[test]
     fn test_with_if_happy_condition_true_adds_step() {
-        struct DummyStep;
-        #[async_trait::async_trait]
-        impl Step<()> for DummyStep {
-            async fn execute(&self, _ctx: &mut ()) -> Result<(), crate::api::PipelineError> {
-                Ok(())
-            }
-            fn name(&self) -> &str {
-                "dummy"
-            }
-        }
+        use crate::spi::dummy_step::DummyStep;
 
         let builder = PipelineBuilder::<()>::new().with_if(true, DummyStep);
         let pipeline = builder.build();
@@ -145,16 +136,7 @@ mod tests {
     /// @covers: with_if
     #[test]
     fn test_with_if_happy_condition_false_skips_step() {
-        struct DummyStep;
-        #[async_trait::async_trait]
-        impl Step<()> for DummyStep {
-            async fn execute(&self, _ctx: &mut ()) -> Result<(), crate::api::PipelineError> {
-                Ok(())
-            }
-            fn name(&self) -> &str {
-                "dummy"
-            }
-        }
+        use crate::spi::dummy_step::DummyStep;
 
         let builder = PipelineBuilder::<()>::new().with_if(false, DummyStep);
         let pipeline = builder.build();
