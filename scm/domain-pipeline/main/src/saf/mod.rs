@@ -6,6 +6,9 @@ pub mod pipeline_svc;
 pub mod step_svc;
 pub mod validator_svc;
 
+pub use pipeline_svc::PipelineFactory;
+pub use validator_svc::ValidatorFactory;
+
 /// Service name constant for pipeline service.
 pub const PIPELINE_SVC: &str = "pipeline";
 

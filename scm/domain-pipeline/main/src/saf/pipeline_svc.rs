@@ -8,6 +8,7 @@ use crate::api::{Pipeline, PipelineConfig, PipelineService, Step};
 /// Factory for creating pipeline instances.
 ///
 /// This facade provides convenient factory methods for constructing pipelines.
+#[derive(Debug, Clone, Copy)]
 pub struct PipelineFactory;
 
 impl PipelineFactory {

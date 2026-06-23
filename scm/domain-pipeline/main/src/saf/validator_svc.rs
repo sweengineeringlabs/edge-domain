@@ -7,6 +7,7 @@ use crate::api::{Validator, ValidatorService};
 /// Factory for creating validator instances.
 ///
 /// This facade provides convenient factory methods for constructing validators.
+#[derive(Debug, Clone, Copy)]
 pub struct ValidatorFactory;
 
 impl ValidatorFactory {
