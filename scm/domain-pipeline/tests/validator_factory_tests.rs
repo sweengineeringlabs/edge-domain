@@ -1,4 +1,4 @@
-use edge_domain_pipeline::api::{ValidatorFactory, Validator};
+use edge_domain_pipeline::{ValidatorFactory, Validator};
 
 /// @covers ValidatorFactory::create - enabled
 #[test]

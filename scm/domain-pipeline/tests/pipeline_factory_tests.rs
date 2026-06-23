@@ -1,4 +1,4 @@
-use edge_domain_pipeline::api::{Pipeline, PipelineFactory, Step, PipelineError};
+use edge_domain_pipeline::{Pipeline, PipelineFactory, Step, PipelineError, PipelineConfig};
 use std::sync::Arc;
 
 /// A test step that always passes.
@@ -28,8 +28,6 @@ async fn test_pipeline_factory_create_happy_returns_pipeline() {
 /// @covers PipelineFactory::create_with_config
 #[tokio::test]
 async fn test_pipeline_factory_create_with_config_happy_uses_config() {
-    use edge_domain_pipeline::api::PipelineConfig;
-
     let steps: Vec<Arc<dyn Step<i32>>> = vec![Arc::new(TestPassStep)];
     let config = PipelineConfig::default();
     let pipeline = PipelineFactory::create_with_config(steps, config);
