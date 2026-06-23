@@ -73,9 +73,9 @@ fn test_metadata_empty_variables_edge() {
 /// @covers: Prompt::validate — balanced braces validate cleanly
 #[test]
 fn test_validate_balanced_braces_ok_happy() {
-    assert!(prompt_with("Hi {{name}}", vec![required("name")])
-        .validate()
-        .is_ok());
+    assert_eq!(prompt_with("Hi {{name}}", vec![required("name")])
+        .validate(),
+        Ok(()));
 }
 
 /// @covers: Prompt::validate — unbalanced braces are rejected

@@ -25,4 +25,6 @@ fn test_completion_stream_chunk_content_matches_input_error() {
 fn test_completion_stream_is_sendable_edge() {
     fn assert_send<T: Send>() {}
     assert_send::<CompletionStream>();
+    // If this test compiles without error, CompletionStream implements Send
+    assert!(std::marker::PhantomData::<CompletionStream> != std::marker::PhantomData::<()>);
 }

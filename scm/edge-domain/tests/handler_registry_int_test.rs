@@ -45,7 +45,7 @@ fn test_new_registry_is_empty() {
 fn test_register_makes_handler_retrievable() {
     let reg = registry();
     reg.register(echo("svc"));
-    assert!(reg.get("svc").is_some());
+    assert_eq!(reg.get("svc").is_some(), true, "registered handler must be retrievable");
 }
 
 /// @covers: HandlerRegistry::deregister

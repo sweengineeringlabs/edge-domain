@@ -20,8 +20,8 @@ fn test_event_receiver_recv_after_publish_returns_ok_happy() {
     block_on(async {
         let bus = Domain::in_process_event_bus(EventBusConfig::default());
         let mut rx = bus.subscribe();
-        assert!(bus.publish(Arc::new(TestEvent)).await.is_ok());
-        assert!(rx.recv().await.is_ok());
+        assert_eq!(bus.publish(Arc::new(TestEvent)).await, Ok(()), "publish should succeed");
+        assert_eq!(rx.recv().await.is_ok(), true, "receiver should get event");
     });
 }
 
@@ -41,8 +41,8 @@ fn test_event_receiver_multiple_subscribers_both_receive_event_happy() {
         let bus = Domain::in_process_event_bus(EventBusConfig::default());
         let mut rx1 = bus.subscribe();
         let mut rx2 = bus.subscribe();
-        assert!(bus.publish(Arc::new(TestEvent)).await.is_ok());
-        assert!(rx1.recv().await.is_ok());
-        assert!(rx2.recv().await.is_ok());
+        assert_eq!(bus.publish(Arc::new(TestEvent)).await, Ok(()), "publish should succeed");
+        assert_eq!(rx1.recv().await.is_ok(), true, "first receiver should get event");
+        assert_eq!(rx2.recv().await.is_ok(), true, "second receiver should get event");
     });
 }

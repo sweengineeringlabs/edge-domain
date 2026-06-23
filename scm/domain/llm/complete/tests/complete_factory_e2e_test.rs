@@ -10,7 +10,8 @@ use serde_json::json;
 
 #[test]
 fn test_noop_completer_is_constructable_happy() {
-    let _: NoopCompleter = StdCompleteFactory::noop_completer();
+    let nc: NoopCompleter = StdCompleteFactory::noop_completer();
+    assert_eq!(nc, NoopCompleter);
 }
 
 #[test]
@@ -465,7 +466,7 @@ fn test_tool_choice_auto_is_not_required_edge() {
 #[test]
 fn test_std_complete_factory_returns_instance_happy() {
     let factory = StdCompleteFactory::std_complete_factory();
-    let _ = factory; // StdCompleteFactory is a zero-size unit struct
+    assert_eq!(std::mem::size_of_val(&factory), 0); // StdCompleteFactory is a zero-size unit struct
 }
 
 #[test]
