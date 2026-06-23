@@ -10,15 +10,9 @@ mod api;
 mod core;
 mod saf;
 
-pub use saf::DirectQueryBus;
-pub use saf::LoggingQueryBus;
-pub use saf::NoopQuery;
-pub use saf::NoopQueryBus;
 pub use saf::Query;
 pub use saf::QueryBus;
 pub use saf::QueryBusBootstrap;
-pub use saf::QueryError;
-pub use saf::StdQueryBusFactory;
 pub use saf::QUERY_BUS_FACTORY_SVC;
 pub use saf::QUERY_BUS_SVC;
 pub use saf::QUERY_SVC;

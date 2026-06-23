@@ -15,7 +15,7 @@ fn test_noop_observe_svc_key_has_edge_prefix_error() {
 // @covers NOOP_OBSERVE_SVC
 #[test]
 fn test_noop_observe_svc_key_stable_across_reads_edge() {
-    assert_eq!(NOOP_OBSERVE_SVC, NOOP_OBSERVE_SVC);
+    assert_eq!(NOOP_OBSERVE_SVC, "noop-observe");
 }
 
 #[test]

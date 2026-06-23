@@ -17,11 +17,9 @@ fn test_bootstrap_name_returns_nonempty_string_happy() {
 #[test]
 fn test_bootstrap_name_is_idempotent_error() {
     let f = StdObserveFactory;
-    assert_eq!(
-        f.bootstrap_name(),
-        f.bootstrap_name(),
-        "bootstrap_name must return the same value on repeated calls"
-    );
+    let first = f.bootstrap_name();
+    let second = f.bootstrap_name();
+    assert_eq!(first, second, "bootstrap_name must return the same value on repeated calls");
 }
 
 /// @covers: ObserveBootstrap::bootstrap_name

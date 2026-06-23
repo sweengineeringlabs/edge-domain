@@ -15,5 +15,5 @@ fn test_histogram_svc_key_has_edge_prefix_error() {
 
 #[test]
 fn test_histogram_svc_key_stable_across_calls_edge() {
-    assert_eq!(HISTOGRAM_SVC, HISTOGRAM_SVC);
+    assert_eq!(HISTOGRAM_SVC, "histogram");
 }

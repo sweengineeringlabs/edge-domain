@@ -7,7 +7,7 @@ mod histogram;
 mod log_drain;
 mod metric_registry;
 mod observe_bootstrap;
-mod observe_context;
+mod observer_context;
 mod span;
 
 pub use counter::Counter;
@@ -17,5 +17,5 @@ pub use histogram::Histogram;
 pub use log_drain::LogDrain;
 pub use metric_registry::MetricRegistry;
 pub use observe_bootstrap::ObserveBootstrap;
-pub use observe_context::ObserverContext;
+pub use observer_context::ObserverContext;
 pub use span::Span;

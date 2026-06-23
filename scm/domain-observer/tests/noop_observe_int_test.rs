@@ -201,7 +201,10 @@ fn test_noop_name_returns_nonempty_identifier_happy() {
 #[test]
 fn test_noop_name_default_is_stable_error() {
     // Calling on a second instance must return the same value (no state leakage).
-    assert_eq!(StdObserveFactory.noop_name(), StdObserveFactory.noop_name());
+    let first = StdObserveFactory.noop_name();
+    let second = StdObserveFactory.noop_name();
+    assert_eq!(first, second);
+    assert!(!first.is_empty(), "noop_name should not be empty");
 }
 
 /// @covers: NoopObserve::noop_name
