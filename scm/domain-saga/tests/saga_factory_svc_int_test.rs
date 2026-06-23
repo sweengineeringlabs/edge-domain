@@ -53,7 +53,7 @@ fn test_in_memory_store_creates_empty_registry_happy() {
 #[test]
 fn test_in_memory_store_accepts_registration_error() {
     let mut reg = Factories::in_memory_store::<SimpleSaga>();
-    assert!(reg.register("s1".to_string(), SimpleSaga).is_ok());
+    assert_eq!(reg.register("s1".to_string(), SimpleSaga), Ok(()));
 }
 
 /// @covers: in_memory_store
@@ -122,7 +122,7 @@ fn test_noop_command_execute_returns_ok_happy() {
     use futures::executor::block_on;
     use edge_domain_saga::Command;
     let cmd: NoopSagaCommand = Factories::noop_command();
-    assert!(block_on(cmd.execute()).is_ok());
+    assert_eq!(block_on(cmd.execute()), Ok(()));
 }
 
 /// @covers: noop_command
@@ -141,8 +141,8 @@ fn test_noop_command_can_be_called_repeatedly_edge() {
     let cmd: NoopSagaCommand = Factories::noop_command();
     let r1 = block_on(cmd.execute());
     let r2 = block_on(cmd.execute());
-    assert!(r1.is_ok());
-    assert!(r2.is_ok());
+    assert_eq!(r1, Ok(()));
+    assert_eq!(r2, Ok(()));
 }
 
 /// @covers: std_factory

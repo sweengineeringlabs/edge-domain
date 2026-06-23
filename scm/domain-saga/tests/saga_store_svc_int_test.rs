@@ -50,7 +50,7 @@ fn new_store() -> InMemorySagaStore<PingSaga> {
 #[test]
 fn test_register_new_saga_returns_ok_happy() {
     let mut store = new_store();
-    assert!(store.register("s1".to_string(), PingSaga::default()).is_ok());
+    assert_eq!(store.register("s1".to_string(), PingSaga::default()), Ok(()));
 }
 
 /// @covers: register
@@ -69,8 +69,8 @@ fn test_register_duplicate_id_returns_already_registered_error() {
 #[test]
 fn test_register_multiple_sagas_with_different_ids_edge() {
     let mut store = new_store();
-    assert!(store.register("a".to_string(), PingSaga::default()).is_ok());
-    assert!(store.register("b".to_string(), PingSaga::default()).is_ok());
+    assert_eq!(store.register("a".to_string(), PingSaga::default()), Ok(()));
+    assert_eq!(store.register("b".to_string(), PingSaga::default()), Ok(()));
     assert!(store.get(&"a".to_string()).is_ok());
     assert!(store.get(&"b".to_string()).is_ok());
 }
@@ -80,7 +80,11 @@ fn test_register_multiple_sagas_with_different_ids_edge() {
 fn test_get_registered_saga_returns_saga_happy() {
     let mut store = new_store();
     store.register("s1".to_string(), PingSaga::default()).ok();
-    assert!(store.get(&"s1".to_string()).is_ok());
+    let saga = store.get(&"s1".to_string());
+    assert_eq!(saga.is_ok(), true);
+    if let Ok(s) = saga {
+        assert!(!s.is_complete());
+    }
 }
 
 /// @covers: get

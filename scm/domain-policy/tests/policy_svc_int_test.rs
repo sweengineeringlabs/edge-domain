@@ -43,7 +43,7 @@ fn test_name_via_dyn_dispatch_edge() {
 /// @covers: Policy::evaluate — satisfied rule returns Ok
 #[test]
 fn test_evaluate_satisfied_rule_returns_ok_happy() {
-    assert!(NonZero.evaluate(&5).is_ok());
+    assert_eq!(NonZero.evaluate(&5), Ok(()));
 }
 
 /// @covers: Policy::evaluate — violated rule returns Err

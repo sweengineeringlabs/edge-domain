@@ -3,7 +3,7 @@ use edge_domain_policy::{CompositePolicy, Policy, PolicyBootstrap, PolicyViolati
 #[test]
 fn test_std_factory_composite_creates_empty_policy_happy() {
     let p: CompositePolicy<String> = StdPolicyFactory::composite();
-    assert!(p.evaluate(&"input".to_string()).is_ok());
+    assert_eq!(p.evaluate(&"input".to_string()), Ok(()));
 }
 
 #[test]
@@ -16,7 +16,7 @@ fn test_std_factory_std_factory_returns_instance_happy() {
 #[test]
 fn test_std_factory_composite_empty_evaluates_ok_happy() {
     let p: CompositePolicy<String> = StdPolicyFactory::composite();
-    assert!(p.evaluate(&"input".to_string()).is_ok());
+    assert_eq!(p.evaluate(&"input".to_string()), Ok(()));
 }
 
 #[test]

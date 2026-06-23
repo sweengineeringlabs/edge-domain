@@ -50,7 +50,7 @@ fn test_in_memory_store_std_factory_creates_empty_registry_happy() {
 #[test]
 fn test_in_memory_store_std_factory_accepts_registration_error() {
     let mut reg = StdSagaFactory::in_memory_store::<FactorySaga>();
-    assert!(reg.register("s1".to_string(), FactorySaga).is_ok());
+    assert_eq!(reg.register("s1".to_string(), FactorySaga), Ok(()));
 }
 
 /// @covers: in_memory_store

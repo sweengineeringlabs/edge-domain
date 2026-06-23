@@ -3,13 +3,13 @@ use edge_domain_validator::{StdValidatorFactory, ValidatorBootstrap, Validator};
 #[test]
 fn test_std_factory_always_valid_accepts_any_input_happy() {
     let v = StdValidatorFactory::always_valid();
-    assert!(v.validate().is_ok());
+    assert_eq!(v.validate(), Ok(()));
 }
 
 #[test]
 fn test_std_factory_always_valid_never_errors_happy() {
     let v = StdValidatorFactory::always_valid();
-    assert!(v.validate().is_ok());
+    assert_eq!(v.validate(), Ok(()));
 }
 
 #[test]

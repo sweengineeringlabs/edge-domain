@@ -16,7 +16,7 @@ impl Validator for NonEmpty {
 /// @covers: Validator::validate — valid input
 #[test]
 fn test_validate_valid_input_returns_ok_happy() {
-    assert!(NonEmpty("hello".into()).validate().is_ok());
+    assert_eq!(NonEmpty("hello".into()).validate(), Ok(()));
 }
 
 /// @covers: Validator::validate — returns Err for invalid input
@@ -30,5 +30,5 @@ fn test_validate_empty_input_returns_err_error() {
 #[test]
 fn test_validate_via_dyn_trait_object_returns_ok_edge() {
     let v: &dyn Validator = &NonEmpty("x".into());
-    assert!(v.validate().is_ok());
+    assert_eq!(v.validate(), Ok(()));
 }

@@ -9,14 +9,14 @@ impl ValidatorBootstrap for TestValidators {}
 #[test]
 fn test_always_valid_returns_passing_validator_happy() {
     let v = TestValidators::always_valid();
-    assert!(v.validate().is_ok());
+    assert_eq!(v.validate(), Ok(()));
 }
 
 /// @covers: ValidatorBootstrap::always_valid — never rejects
 #[test]
 fn test_always_valid_never_rejects_error() {
     let v = TestValidators::always_valid();
-    assert!(v.validate().is_ok());
+    assert_eq!(v.validate(), Ok(()));
 }
 
 /// @covers: ValidatorBootstrap::always_valid — zero-sized marker
