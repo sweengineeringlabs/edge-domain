@@ -131,7 +131,9 @@ impl Agent for DummyAgent {
 fn test_trait_agent_manager_happy_load_agent_valid_spec_returns_ok() {
     let manager = TestManager { should_fail: false };
     let result = futures::executor::block_on(manager.load_agent("valid.yaml"));
-    assert_eq!(result, Ok(()));
+    assert!(result.is_ok(), "load_agent should succeed with valid spec");
+    let agent = result.unwrap();
+    assert_eq!(agent.id(), "dummy", "agent id should match");
 }
 
 /// @covers: AgentManager::load_agent — invalid spec
@@ -214,10 +216,23 @@ fn test_trait_agent_manager_happy_all_methods_work_together() {
     let load_result = futures::executor::block_on(manager.load_agent("test.yaml"));
     let agent_result = manager.agent("exists");
     let list_result = manager.list_agent_ids();
-    // All calls succeeded when should_fail is false
+
+    // Check load_agent returns valid agent
     assert!(load_result.is_ok(), "load_agent should succeed");
+    let agent = load_result.unwrap();
+    assert_eq!(agent.id(), "dummy");
+
+    // Check agent retrieval returns existing agent
     assert!(agent_result.is_ok(), "agent should succeed");
+    let found_agent = agent_result.unwrap();
+    assert_eq!(found_agent.id(), "dummy");
+
+    // Check list returns multiple agents
     assert!(list_result.is_ok(), "list_agent_ids should succeed");
+    let ids = list_result.unwrap();
+    assert_eq!(ids.len(), 2, "should have exactly 2 agents");
+    assert!(ids.contains(&"agent1".to_string()), "should contain agent1");
+    assert!(ids.contains(&"agent2".to_string()), "should contain agent2");
 }
 
 /// @covers: AgentManager::agent_metadata_builder

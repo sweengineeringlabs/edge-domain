@@ -40,12 +40,26 @@ fn test_schema_validator_trait_validation_error_debug() {
 
 #[test]
 fn test_schema_validator_trait_json_validation_types() {
-    let _object = json!({"key": "value"});
-    let _array = json!([1, 2, 3]);
-    let _string = json!("test");
-    let _number = json!(42);
-    let _null = json!(null);
-    let _bool = json!(true);
+    let object = json!({"key": "value"});
+    let array = json!([1, 2, 3]);
+    let string = json!("test");
+    let number = json!(42);
+    let null_val = json!(null);
+    let bool_val = json!(true);
+
+    // Verify correct JSON types
+    assert!(object.is_object(), "should be object");
+    assert!(array.is_array(), "should be array");
+    assert!(string.is_string(), "should be string");
+    assert!(number.is_number(), "should be number");
+    assert!(null_val.is_null(), "should be null");
+    assert!(bool_val.is_boolean(), "should be boolean");
+
+    // Verify values
+    assert_eq!(object["key"], "value");
+    assert_eq!(array[0], 1);
+    assert_eq!(string, "test");
+    assert_eq!(number, 42);
 }
 
 #[test]
