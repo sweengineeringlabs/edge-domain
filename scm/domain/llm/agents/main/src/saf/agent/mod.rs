@@ -15,8 +15,11 @@ mod validator_svc;
 
 pub use agent_lifecycle_svc::{AgentLifecycle, AGENT_LIFECYCLE_SVC};
 pub use agent_manager_svc::{AgentManager, AGENT_MANAGER_SVC};
+pub use agent_metadata_builder_svc::AGENT_METADATA_BUILDER_SVC;
 pub use agent_registry_svc::{AgentRegistry, AGENT_REGISTRY_SVC};
 pub use agent_svc::{Agent, AGENT_SVC};
+pub use default_agent_svc::DEFAULT_AGENT_SVC;
+pub use metadata::builder_svc::SKILL_METADATA_BUILDER_SVC;
 pub use schema_validator_svc::{SchemaValidator, SCHEMA_VALIDATOR_SVC};
 pub use skill_svc::{Skill, SKILL_SVC};
 pub use validator_svc::{Validator, VALIDATOR_SVC};

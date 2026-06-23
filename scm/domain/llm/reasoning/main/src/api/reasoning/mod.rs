@@ -10,4 +10,6 @@ pub use types::{
     LinearReasoning, PatternMetadata, ReasoningChain,
     ReasoningPattern, ReasoningStep, StdReasoningFactory, StepResult,
     ThinkingProcess,
+    PatternMetadataBuilder, ReasoningChainBuilder, ReasoningStepBuilder,
+    StepResultBuilder, ThinkingProcessBuilder,
 };

@@ -1,4 +1,4 @@
 //! SAF service exports for skill metadata types.
 
-mod builder_svc;
-mod svc;
+pub mod builder_svc;
+pub mod svc;

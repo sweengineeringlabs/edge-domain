@@ -35,7 +35,10 @@ fn test_in_memory_usable_for_registration_edge() {
 /// @covers: RegistryBootstrap::std_factory
 #[test]
 fn test_std_factory_returns_factory_instance_happy() {
-    let _f: StdRegistryFactory = StdRegistryFactory::std_factory();
+    let f: StdRegistryFactory = StdRegistryFactory::std_factory();
+    // Assert that factory can be used to construct registries
+    let r = f.in_memory::<str>();
+    assert!(r.is_empty(), "factory-constructed registry should be empty");
 }
 
 /// @covers: RegistryBootstrap::std_factory

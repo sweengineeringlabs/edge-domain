@@ -11,6 +11,7 @@ pub use traits::{
 };
 pub use types::{
     CacheControl, CompletionRequest, CompletionResponse, ContentPart, EchoCompleter, FinishReason,
+    ImageUrl,
     Message, MessageContent, ModelInfo, NoopCompleter, Role, StdCompleteFactory,
     StreamChunk, StreamDelta, TokenUsage, ToolCall, ToolCallDelta, ToolChoice, ToolDefinition,
 };

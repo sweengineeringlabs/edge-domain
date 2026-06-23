@@ -8,7 +8,8 @@ pub use errors::PromptError;
 pub use traits::{ContextManager, Prompt, PromptBootstrap, TemplateProvider, TokenCounter};
 pub use types::{
     CatalogTemplateProvider, HeuristicTokenCounter, MapContextManager, PromptCache,
-    PromptMetadata, PromptTemplate,
+    PromptMetadata, PromptTemplate, PromptTemplateBuilder,
     RenderContext, StaticPrompt, StdPromptFactory, Variable,
     VariableType,
+    PromptCacheBuilder, PromptMetadataBuilder, VariableBuilder,
 };

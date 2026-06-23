@@ -30,7 +30,8 @@ pub use saf::{
 
 // Re-export types used by provider and other consumer crates
 pub use crate::api::{
-    CompleteError, CompletionRequest, CompletionResponse, ContentPart, FinishReason,
+    CacheControl, CompleteError, CompletionRequest, CompletionResponse, ContentPart, EchoCompleter,
+    FinishReason, ImageUrl,
     Message, MessageContent, ModelInfo, NoopCompleter, Role, StreamChunk, StreamDelta,
-    TokenUsage, ToolCall, ToolChoice,
+    StdCompleteFactory, TokenUsage, ToolCall, ToolCallDelta, ToolChoice, ToolDefinition,
 };

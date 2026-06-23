@@ -15,8 +15,17 @@ mod core;
 mod saf;
 mod spi;
 
+// Re-export SAF layer traits and factory markers
 pub use saf::{
     ContextManager, Prompt,
     PromptBootstrap, TemplateProvider, TokenCounter,
     CONTEXT_MANAGER_SVC, PROMPT_FACTORY_SVC, PROMPT_SVC, TEMPLATE_PROVIDER_SVC, TOKEN_COUNTER_SVC,
+};
+
+// Re-export API value types for integration tests and client libraries
+pub use api::{
+    CatalogTemplateProvider, HeuristicTokenCounter, MapContextManager,
+    PromptCache, PromptError, PromptMetadata,
+    PromptTemplate, PromptTemplateBuilder, RenderContext, StaticPrompt,
+    StdPromptFactory, Variable, VariableType,
 };

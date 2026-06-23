@@ -15,7 +15,10 @@ mod saf;
 mod spi;
 
 pub use api::{
-    EchoProviderCompleter, ModelInfo, ProviderConfig, StdProviderFactory,
+    BufferedStreamHandler, CompletionInput, CompletionMessage, EchoExecutionModel, EchoProviderCompleter,
+    ExecutionConfig, ExecutionError, ExecutionMode, ExecutionStepResult,
+    FinishReason, MessageRole, ModelFamily, ModelInfo, ProviderConfig, ProviderCore,
+    StdProviderFactory, StreamChunk, StreamDelta, TokenUsage, TokenizerAccuracy, ToolCallDelta, ToolDefinition,
 };
 pub use saf::{
     ExecutionModel, Provider, ProviderBootstrap, StreamHandler, EXECUTION_MODEL_SVC,

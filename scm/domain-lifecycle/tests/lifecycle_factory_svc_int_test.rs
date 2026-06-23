@@ -101,7 +101,9 @@ fn test_permissive_allows_self_transition_edge() {
 /// @covers: LifecycleBootstrap::std_factory
 #[test]
 fn test_std_factory_returns_factory_instance_happy() {
-    let _f: StdLifecycleFactory = StdLifecycleFactory::std_factory();
+    let f: StdLifecycleFactory = StdLifecycleFactory::std_factory();
+    let lc = f.permissive(S::A);
+    assert_eq!(lc.state(), S::A);
 }
 
 /// @covers: LifecycleBootstrap::std_factory
@@ -113,7 +115,7 @@ fn test_std_factory_is_zero_sized_error() {
 /// @covers: LifecycleBootstrap::std_factory
 #[test]
 fn test_std_factory_constructs_usable_lifecycle_edge() {
-    let _f = StdLifecycleFactory::std_factory();
-    let lc = StdLifecycleFactory::permissive(S::A);
+    let f = StdLifecycleFactory::std_factory();
+    let lc = f.permissive(S::A);
     assert_eq!(lc.state(), S::A);
 }

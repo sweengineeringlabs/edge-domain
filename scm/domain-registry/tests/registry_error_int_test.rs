@@ -14,17 +14,13 @@ fn test_duplicate_id_display_includes_id_happy() {
 /// @covers: RegistryError::DuplicateId — equality discriminates on id
 #[test]
 fn test_duplicate_id_equality_discriminates_error() {
-    let err1 = RegistryError::DuplicateId("a".to_string());
-    let err2 = RegistryError::DuplicateId("a".to_string());
+    let err_a = RegistryError::DuplicateId("a".to_string());
+    let err_b = RegistryError::DuplicateId("b".to_string());
+    assert_ne!(err_a, err_b, "errors with different ids must not be equal");
     assert_eq!(
-        err1,
-        err2,
-        "errors with same id must be equal"
-    );
-    assert_ne!(
+        err_a,
         RegistryError::DuplicateId("a".to_string()),
-        RegistryError::DuplicateId("b".to_string()),
-        "errors with different ids must not be equal"
+        "errors with same id must be equal"
     );
 }
 

@@ -18,8 +18,10 @@ fn rt() -> tokio::runtime::Runtime {
 /// @covers: StdLifecycleFactory — constructs via literal and `std_factory`
 #[test]
 fn test_std_lifecycle_factory_constructs_happy() {
-    let _f = StdLifecycleFactory;
-    let _g = StdLifecycleFactory::std_factory();
+    let f = StdLifecycleFactory;
+    let g = StdLifecycleFactory::std_factory();
+    assert_eq!(std::mem::size_of_val(&f), 0, "factory via literal is ZST");
+    assert_eq!(std::mem::size_of_val(&g), 0, "factory via std_factory is ZST");
 }
 
 /// @covers: StdLifecycleFactory — zero-sized marker type
