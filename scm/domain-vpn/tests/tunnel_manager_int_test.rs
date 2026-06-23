@@ -53,13 +53,15 @@ fn valid_config() -> VpnClientConfig {
 
 #[test]
 fn test_factory_noop_returns_vpn_manager_factory_happy() {
-    let _marker: VpnManagerFactory = NoopTunnelManager::factory();
+    let marker: VpnManagerFactory = NoopTunnelManager::factory();
+    assert_eq!(std::mem::size_of_val(&marker), 0);
 }
 
 #[test]
 fn test_factory_failing_impl_also_returns_factory_marker_error() {
     // Even a failing TunnelManager provides a valid factory marker.
-    let _marker: VpnManagerFactory = FailingTunnelManager::factory();
+    let marker: VpnManagerFactory = FailingTunnelManager::factory();
+    assert_eq!(std::mem::size_of_val(&marker), 0);
 }
 
 #[test]

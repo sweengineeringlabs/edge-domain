@@ -181,7 +181,7 @@ mod tests {
     #[test]
     fn test_complete_happy_returns_response() {
         let result = block_on(EchoProviderCompleter.complete(&req("ping")));
-        assert!(result.is_ok());
+        assert_eq!(result.is_ok(), true);
         let resp = result.expect("should succeed");
         assert!(resp.content.is_some());
         assert_eq!(resp.model, "echo");
@@ -191,13 +191,13 @@ mod tests {
     fn test_complete_empty_messages_returns_response_error() {
         let empty_req = CompletionRequest::new("echo", vec![]);
         let result = block_on(EchoProviderCompleter.complete(&empty_req));
-        assert!(result.is_ok());
+        assert_eq!(result.is_ok(), true);
     }
 
     #[test]
     fn test_complete_stream_happy_yields_chunk_edge() {
         let stream = block_on(EchoProviderCompleter.complete_stream(&req("stream test")));
-        assert!(stream.is_ok());
+        assert_eq!(stream.is_ok(), true);
     }
 
     #[test]
@@ -215,7 +215,7 @@ mod tests {
     #[test]
     fn test_list_models_returns_empty_happy() {
         let result = block_on(EchoProviderCompleter.list_models());
-        assert!(result.is_ok());
-        assert!(result.expect("should succeed").is_empty());
+        let models = result.expect("should succeed");
+        assert!(models.is_empty());
     }
 }

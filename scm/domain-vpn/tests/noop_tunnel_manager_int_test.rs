@@ -5,13 +5,15 @@ use tokio::runtime::Runtime;
 
 #[test]
 fn test_noop_tunnel_manager_new_creates_instance_happy() {
-    let _mgr = NoopTunnelManager::new();
+    let mgr = NoopTunnelManager::new();
+    assert_eq!(std::mem::size_of_val(&mgr), 0);
 }
 
 #[test]
 fn test_noop_tunnel_manager_default_equals_new_edge() {
-    let _a = NoopTunnelManager::new();
-    let _b = NoopTunnelManager::default();
+    let a = NoopTunnelManager::new();
+    let b = NoopTunnelManager::default();
+    assert_eq!(std::mem::size_of_val(&a), std::mem::size_of_val(&b));
 }
 
 #[test]

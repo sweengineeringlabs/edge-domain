@@ -20,5 +20,6 @@ fn test_value_object_error_invalid_displays_message_happy() {
 #[test]
 fn test_value_object_error_implements_debug_edge() {
     let e = ValueObjectError::Empty;
-    let _ = format!("{e:?}");
+    let debug_str = format!("{e:?}");
+    assert!(!debug_str.is_empty());
 }

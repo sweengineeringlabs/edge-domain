@@ -2,11 +2,10 @@ use std::sync::Arc;
 
 use edge_domain_handler::Handler;
 
-use crate::api::{Prompt, PromptMetadata, RenderContext, StaticPrompt};
+use crate::api::{Prompt, PromptMetadata, RenderContext, StaticPrompt, StdPromptFactory};
 use crate::spi::DefaultPromptHandler;
 
 pub use crate::api::PromptBootstrap;
-pub use crate::api::StdPromptFactory;
 
 /// SAF contract identifier for the prompt-factory service.
 pub const PROMPT_FACTORY_SVC: &str = "prompt_factory";

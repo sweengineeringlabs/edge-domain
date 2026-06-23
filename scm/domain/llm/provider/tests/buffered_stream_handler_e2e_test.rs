@@ -15,7 +15,9 @@ fn test_buffered_stream_handler_starts_empty() {
 fn test_buffered_stream_handler_accumulates_text() {
     let mut handler = BufferedStreamHandler::new();
     handler.accumulate(StreamDelta::text("hi".to_string()));
-    assert!(handler.next_chunk().is_some());
+    let chunk = handler.next_chunk();
+    assert!(chunk.is_some(), "handler should accumulate text into a chunk");
+    assert_eq!(chunk.unwrap().text, "hi", "accumulated text should match input");
 }
 
 /// @covers: BufferedStreamHandler — tracks a pending tool call
@@ -23,5 +25,7 @@ fn test_buffered_stream_handler_accumulates_text() {
 fn test_buffered_stream_handler_tracks_pending_call() {
     let mut handler = BufferedStreamHandler::new();
     handler.accumulate(StreamDelta::tool_calls(vec![ToolCallDelta::new(0)]));
-    assert!(handler.pending_tool_call().is_some());
+    let pending = handler.pending_tool_call();
+    assert!(pending.is_some(), "handler should track pending tool call");
+    assert_eq!(pending.unwrap().id, 0, "pending tool call id should match input");
 }

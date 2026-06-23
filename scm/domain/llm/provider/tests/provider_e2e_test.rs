@@ -108,7 +108,7 @@ fn test_model_family_not_openai_error() {
 #[test]
 fn test_model_family_stable_across_calls_edge() {
     let p = provider("claude");
-    assert_eq!(p.model_family(), p.model_family());
+    assert_eq!(p.model_family(), ModelFamily::Anthropic, "model family should be stable and known");
 }
 
 // --- tokenizer_accuracy ---
@@ -135,7 +135,7 @@ fn test_tokenizer_accuracy_not_exact_error() {
 #[test]
 fn test_tokenizer_accuracy_stable_edge() {
     let p = provider("claude");
-    assert_eq!(p.tokenizer_accuracy(), p.tokenizer_accuracy());
+    assert_eq!(p.tokenizer_accuracy(), TokenizerAccuracy::Approximate, "tokenizer accuracy should be stable and known");
 }
 
 // --- last_token_usage ---
@@ -176,7 +176,7 @@ fn test_last_finish_reason_not_error_error() {
 #[test]
 fn test_last_finish_reason_stable_edge() {
     let p = provider("claude");
-    assert_eq!(p.last_finish_reason(), p.last_finish_reason());
+    assert_eq!(p.last_finish_reason(), FinishReason::Stop, "finish reason should be stable and default to Stop");
 }
 
 // --- health_check ---
@@ -184,7 +184,7 @@ fn test_last_finish_reason_stable_edge() {
 /// @covers: Provider::health_check — healthy when a model is configured
 #[test]
 fn test_health_check_ok_with_model_happy() {
-    assert!(provider("claude").health_check().is_ok());
+    assert_eq!(provider("claude").health_check(), Ok(()), "provider with model should be healthy");
 }
 
 /// @covers: Provider::health_check — errors when model is empty
@@ -196,7 +196,7 @@ fn test_health_check_errs_without_model_error() {
 /// @covers: Provider::health_check — whitespace model is still non-empty
 #[test]
 fn test_health_check_whitespace_model_ok_edge() {
-    assert!(provider(" ").health_check().is_ok());
+    assert_eq!(provider(" ").health_check(), Ok(()), "provider with whitespace model should be healthy");
 }
 
 // --- completer ---
@@ -205,7 +205,8 @@ fn test_health_check_whitespace_model_ok_edge() {
 #[test]
 fn test_completer_returns_usable_delegate_happy() {
     let c = provider("claude").completer();
-    assert!(block_on(c.list_models()).is_ok());
+    let result = block_on(c.list_models());
+    assert_eq!(result, Ok(vec![]), "completer list_models should succeed with empty list");
 }
 
 /// @covers: Provider::completer — noop delegate has no supported models

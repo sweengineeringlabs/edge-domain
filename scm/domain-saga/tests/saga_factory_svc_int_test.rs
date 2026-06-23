@@ -148,8 +148,9 @@ fn test_noop_command_can_be_called_repeatedly_edge() {
 /// @covers: std_factory
 #[test]
 fn test_std_factory_returns_std_saga_factory_happy() {
-    let _f: StdSagaFactory = Factories::std_factory();
+    let f: StdSagaFactory = Factories::std_factory();
     // StdSagaFactory is a unit struct — constructing it is the proof
+    assert_eq!(std::mem::size_of_val(&f), 0);
 }
 
 /// @covers: std_factory
@@ -164,7 +165,8 @@ fn test_std_factory_can_create_registry_via_returned_type_error() {
 /// @covers: std_factory
 #[test]
 fn test_std_factory_multiple_calls_produce_equivalent_instances_edge() {
-    let _f1: StdSagaFactory = Factories::std_factory();
-    let _f2: StdSagaFactory = Factories::std_factory();
+    let f1: StdSagaFactory = Factories::std_factory();
+    let f2: StdSagaFactory = Factories::std_factory();
     // Both are unit structs — equivalent by construction
+    assert_eq!(std::mem::size_of_val(&f1), std::mem::size_of_val(&f2));
 }

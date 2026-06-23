@@ -66,7 +66,7 @@ fn test_tokenizer_name_non_empty_error() {
 #[test]
 fn test_tokenizer_name_stable_edge() {
     let c = counter();
-    assert_eq!(c.tokenizer_name(), c.tokenizer_name());
+    assert_eq!(c.tokenizer_name(), "heuristic-chars", "tokenizer name should be stable and known");
 }
 
 // --- is_exact ---
@@ -87,5 +87,5 @@ fn test_is_exact_not_true_error() {
 #[test]
 fn test_is_exact_stable_edge() {
     let c = counter();
-    assert_eq!(c.is_exact(), c.is_exact());
+    assert_eq!(c.is_exact(), false, "heuristic counter should never claim exactness");
 }

@@ -111,7 +111,8 @@ mod tests {
     #[test]
     fn test_bootstrap_name_is_static_str_edge() {
         let repo = VecRepo { items: vec![] };
-        let _name: &'static str = repo.bootstrap_name();
+        let name: &'static str = repo.bootstrap_name();
+        assert!(!name.is_empty());
     }
     impl Spec<u32> for EvenSpec {
         fn matches(&self, entity: &u32) -> bool {

@@ -71,7 +71,7 @@ use crate::api::SagaStore;
 #[cfg(feature = "service")]
 use crate::api::ServiceRegistryTrait;
 #[cfg(feature = "service")]
-use crate::api::ServiceRegistry;
+use edge_domain_service::ServiceRegistryBootstrap;
 
 #[cfg(feature = "snapshot")]
 use crate::api::Snapshot;
@@ -151,7 +151,7 @@ impl Domain {
         Request: Send + 'static,
         Response: Send + 'static,
     {
-        let r = ServiceRegistry::new();
+        let r = <() as ServiceRegistryBootstrap>::new_registry::<Request, Response>();
         Arc::new(r)
     }
 

@@ -23,7 +23,7 @@ mod tests {
     #[test]
     fn test_publish_any_event_returns_ok_happy() {
         let result = futures::executor::block_on(NoopEventPublisher.publish(&NoopEventPublisherTestEvt));
-        assert!(result.is_ok());
+        assert_eq!(result, Ok(()));
     }
 
     /// @covers: publish
@@ -32,14 +32,14 @@ mod tests {
         let pub_: &dyn EventPublisher = &NoopEventPublisher;
         let evt: &dyn DomainEvent = &NoopEventPublisherTestEvt;
         let result = futures::executor::block_on(pub_.publish(evt));
-        assert!(result.is_ok());
+        assert_eq!(result, Ok(()));
     }
 
     /// @covers: publish
     #[test]
     fn test_publish_repeated_calls_all_ok_edge() {
         for _ in 0..5 {
-            assert!(futures::executor::block_on(NoopEventPublisher.publish(&NoopEventPublisherTestEvt)).is_ok());
+            assert_eq!(futures::executor::block_on(NoopEventPublisher.publish(&NoopEventPublisherTestEvt)), Ok(()));
         }
     }
 }

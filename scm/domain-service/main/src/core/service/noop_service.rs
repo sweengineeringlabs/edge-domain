@@ -36,14 +36,15 @@ mod tests {
     #[test]
     fn test_execute_noop_returns_ok_happy() {
         let result = block_on(NoopService.execute(()));
-        assert!(result.is_ok());
+        assert_eq!(result, Ok(()));
     }
 
     /// @covers: execute
     #[test]
     fn test_execute_noop_never_errors_edge() {
-        for _ in 0..3 {
-            assert!(block_on(NoopService.execute(())).is_ok());
+        for _i in 0..3 {
+            let result = block_on(NoopService.execute(()));
+            assert_eq!(result, Ok(()));
         }
     }
 }

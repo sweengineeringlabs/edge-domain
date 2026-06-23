@@ -103,7 +103,8 @@ fn test_noop_guard_successive_calls_are_independent_edge() {
 /// @covers: SecurityBootstrap::anonymous_principal — returns AnonymousPrincipal
 #[test]
 fn test_anonymous_principal_constructs_successfully_happy() {
-    let _: AnonymousPrincipal = TestSecurity::anonymous_principal();
+    let ap: AnonymousPrincipal = TestSecurity::anonymous_principal();
+    assert_eq!(std::mem::size_of_val(&ap), 0);
 }
 
 /// @covers: SecurityBootstrap::anonymous_principal — is zero-sized
@@ -163,7 +164,8 @@ fn test_context_builder_successive_calls_independent_edge() {
 /// @covers: SecurityBootstrap::default_services — returns SecurityServices
 #[test]
 fn test_default_services_constructs_successfully_happy() {
-    let _: SecurityServices = TestSecurity::default_services();
+    let ss: SecurityServices = TestSecurity::default_services();
+    assert_eq!(std::mem::size_of_val(&ss), 0);
 }
 
 /// @covers: SecurityBootstrap::default_services — is zero-sized
@@ -190,7 +192,9 @@ fn test_security_context_builder_via_factory_happy() {
 /// @covers: SecurityContextBuilder — type is accessible from bootstrap
 #[test]
 fn test_security_context_builder_type_accessible_error() {
-    let _ = SecurityContextBuilder::new();
+    let builder = SecurityContextBuilder::new();
+    let ctx = builder.build();
+    assert!(!ctx.authenticated);
 }
 
 /// @covers: SecurityContextBuilder — default bootstrap and new() produce equal initial state

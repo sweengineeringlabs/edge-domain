@@ -17,5 +17,5 @@ fn test_vpn_result_err_variant_carries_vpn_error_error() {
 #[test]
 fn test_vpn_result_unit_ok_edge() {
     let r: VpnResult<()> = Ok(());
-    assert!(r.is_ok());
+    assert_eq!(r, Ok(()), "unit result should equal Ok(())");
 }

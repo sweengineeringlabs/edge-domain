@@ -11,7 +11,8 @@ use edge_llm_prompt::{
 /// @covers: PromptBootstrap::std_factory — returns the standard factory
 #[test]
 fn test_std_factory_returns_instance_happy() {
-    let _f: StdPromptFactory = StdPromptFactory::std_factory();
+    let f: StdPromptFactory = StdPromptFactory::std_factory();
+    assert_eq!(std::mem::size_of_val(&f), 0, "StdPromptFactory should be zero-sized");
 }
 
 /// @covers: PromptBootstrap::std_factory — instance is zero-sized
@@ -24,8 +25,9 @@ fn test_std_factory_is_zero_sized_error() {
 /// @covers: PromptBootstrap::std_factory — repeated calls are equivalent
 #[test]
 fn test_std_factory_repeatable_edge() {
-    let _a = StdPromptFactory::std_factory();
-    let _b = StdPromptFactory::std_factory();
+    let a = StdPromptFactory::std_factory();
+    let b = StdPromptFactory::std_factory();
+    assert_eq!(std::mem::size_of_val(&a), std::mem::size_of_val(&b), "both calls should be identical");
 }
 
 // --- variable_builder ---
@@ -141,9 +143,8 @@ fn test_prompt_unbalanced_template_invalid_error() {
 #[test]
 fn test_prompt_empty_template_valid_edge() {
     let m = PromptMetadata::new("p".to_string(), "P".to_string(), "1".to_string(), vec![]);
-    assert!(StdPromptFactory::prompt(String::new(), m)
-        .validate()
-        .is_ok());
+    let result = StdPromptFactory::prompt(String::new(), m).validate();
+    assert_eq!(result, Ok(()), "empty template should be valid");
 }
 
 // --- context_manager ---

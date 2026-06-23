@@ -39,5 +39,5 @@ fn test_direct_command_bus_dyn_dispatch_returns_ok_edge() {
     let bus = StdCommandBusFactory::direct();
     let bus_ref: &dyn CommandBus = &bus;
     let result = block_on(bus_ref.dispatch(Box::new(Ok_)));
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()));
 }

@@ -48,7 +48,9 @@ fn test_mark_ephemeral_sets_ephemeral_hint_happy() {
 #[test]
 fn test_mark_ephemeral_on_assistant_message_error() {
     let msg = Message::assistant("ok").mark_ephemeral();
-    assert!(msg.cache_control.is_some());
+    let cache_control = msg.cache_control;
+    assert!(cache_control.is_some(), "mark_ephemeral should set cache_control");
+    assert_eq!(cache_control.unwrap().cache_type, "ephemeral", "should be ephemeral type");
 }
 
 #[test]

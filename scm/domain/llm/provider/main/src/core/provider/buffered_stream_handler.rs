@@ -51,14 +51,22 @@ mod tests {
     fn test_next_chunk_drains_queue() {
         let mut handler = BufferedStreamHandler::new();
         handler.accumulate(StreamDelta::text("hi".to_string()));
-        assert!(handler.next_chunk().is_some());
-        assert!(handler.next_chunk().is_none());
+        let chunk = handler.next_chunk();
+        assert!(chunk.is_some(), "first next_chunk should return Some after accumulate");
+        let chunk_val = chunk.unwrap();
+        assert!(!chunk_val.id.is_empty(), "chunk should have non-empty id");
+        assert!(!chunk_val.delta.is_empty(), "chunk should contain delta data");
+        let empty = handler.next_chunk();
+        assert!(empty.is_none(), "second next_chunk should return None after draining");
     }
 
     #[test]
     fn test_pending_tool_call_tracks_delta() {
         let mut handler = BufferedStreamHandler::new();
         handler.accumulate(StreamDelta::tool_calls(vec![ToolCallDelta::new(0)]));
-        assert!(handler.pending_tool_call().is_some());
+        let pending = handler.pending_tool_call();
+        assert!(pending.is_some(), "pending_tool_call should return Some after tool_calls accumulation");
+        let tool_call = pending.unwrap();
+        assert_eq!(tool_call.index, 0, "tool call index should be preserved");
     }
 }

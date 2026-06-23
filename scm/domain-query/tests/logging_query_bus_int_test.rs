@@ -37,7 +37,8 @@ impl Query for ErrQuery {
 /// @covers: LoggingQueryBus — constructed from noop inner via struct literal
 #[test]
 fn test_logging_query_bus_new_from_noop_inner_happy() {
-    let _bus = LoggingQueryBus::<String> { inner: noop_inner() };
+    let bus = LoggingQueryBus::<String> { inner: noop_inner() };
+    assert!(!Arc::ptr_eq(&bus.inner, &Arc::new(NoopQueryBus::<String>::new())));
 }
 
 /// @covers: LoggingQueryBus — dispatch ok query returns value

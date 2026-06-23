@@ -1,5 +1,4 @@
-/// SAF service identifier for the `ServiceRegistry` type.
-pub const SERVICE_REGISTRY_SVC: &str = "service_registry";
+use crate::api::{ServiceRegistry, ServiceRegistryTrait};
 
-pub use crate::api::ServiceRegistry;
-pub use crate::api::ServiceRegistryTrait as ServiceRegistryImpl;
+/// SAF service identifier for the `ServiceRegistry` trait.
+pub const SERVICE_REGISTRY_SVC: &str = "service_registry";

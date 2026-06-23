@@ -15,6 +15,7 @@ mod tests {
 
     #[test]
     fn test_validate_always_returns_ok() {
-        assert!(AlwaysValid.validate().is_ok());
+        let result = AlwaysValid.validate();
+        assert_eq!(result, Ok(()), "AlwaysValid should always succeed");
     }
 }

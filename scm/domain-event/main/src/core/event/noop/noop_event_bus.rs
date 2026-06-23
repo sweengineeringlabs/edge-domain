@@ -27,36 +27,3 @@ impl EventBus for NoopEventBus {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    struct NoopEventBusTestEvt;
-    impl DomainEvent for NoopEventBusTestEvt {}
-
-    /// @covers: publish
-    #[test]
-    fn test_publish_any_event_returns_ok_happy() {
-        let result =
-            futures::executor::block_on(NoopEventBus.publish(Arc::new(NoopEventBusTestEvt)));
-        assert!(result.is_ok());
-    }
-
-    /// @covers: subscribe
-    #[test]
-    fn test_subscribe_receiver_immediately_unavailable_error() {
-        let mut rx = NoopEventBus.subscribe();
-        let result = futures::executor::block_on(rx.recv());
-        assert!(matches!(result, Err(EventError::Unavailable(_))));
-    }
-
-    /// @covers: publish
-    #[test]
-    fn test_publish_repeated_calls_all_ok_edge() {
-        for _ in 0..5 {
-            assert!(
-                futures::executor::block_on(NoopEventBus.publish(Arc::new(NoopEventBusTestEvt))).is_ok()
-            );
-        }
-    }
-}

@@ -35,7 +35,7 @@ mod tests {
 
     #[test]
     fn test_noop_agent_lifecycle_transition_to_idle_ok() {
-        assert!(block_on(NoopAgentLifecycle.transition_to(AgentState::Idle)).is_ok());
+        assert_eq!(block_on(NoopAgentLifecycle.transition_to(AgentState::Idle)), Ok(()));
     }
 
     #[test]

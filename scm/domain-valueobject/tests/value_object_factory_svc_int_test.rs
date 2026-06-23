@@ -44,5 +44,6 @@ fn test_non_empty_string_factory_method_whitespace_only_edge() {
 fn test_value_object_factory_default_method_works_for_any_implementor_happy() {
     // Proves `non_empty_string` is a real trait method, usable by any implementor.
     let r = TestVo::non_empty_string("world".to_string());
-    assert!(r.is_ok());
+    assert!(r.is_ok(), "should create NonEmptyString from non-empty input");
+    assert_eq!(r.unwrap().as_str(), "world", "value should be preserved");
 }

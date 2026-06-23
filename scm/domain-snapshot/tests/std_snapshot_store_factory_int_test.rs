@@ -21,14 +21,17 @@ fn test_noop_snapshot_clone_is_independent_edge() {
 
 #[test]
 fn test_std_factory_returns_instance_happy() {
-    let _ = StdSnapshotStoreFactory::std_factory();
+    let f = StdSnapshotStoreFactory::std_factory();
+    assert_eq!(std::mem::size_of_val(&f), std::mem::size_of::<StdSnapshotStoreFactory>());
 }
 
 #[test]
 fn test_std_factory_is_copy_type_error() {
     let f = StdSnapshotStoreFactory::std_factory();
-    let _f2 = f;
-    let _f3 = f; // Copy — still usable after move
+    let f2 = f;
+    let f3 = f; // Copy — still usable after move
+    assert_eq!(std::mem::size_of_val(&f), std::mem::size_of_val(&f2));
+    assert_eq!(std::mem::size_of_val(&f2), std::mem::size_of_val(&f3));
 }
 
 #[test]

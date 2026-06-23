@@ -12,7 +12,8 @@ fn test_noop_domain_extension_satisfies_domain_extension_contract() {
 /// @covers: DomainExtension::health — noop implementation always returns Ok
 #[test]
 fn test_health_noop_extension_returns_ok_happy() {
-    assert!(NoopDomainExtension.health().is_ok());
+    let result = NoopDomainExtension.health();
+    assert_eq!(result, Ok(()));
 }
 
 /// @covers: DomainExtension::health — custom implementation can return Err
@@ -26,12 +27,15 @@ fn test_health_failing_extension_returns_err_error() {
             Err(DomainError::ExtensionRejected("unavailable".into()))
         }
     }
-    assert!(FailingExtension.health().is_err());
+    let result = FailingExtension.health();
+    assert!(matches!(result, Err(DomainError::ExtensionRejected(msg)) if msg == "unavailable"));
 }
 
 /// @covers: DomainExtension::health — calling health twice is idempotent
 #[test]
 fn test_health_called_twice_is_idempotent_edge() {
-    assert!(NoopDomainExtension.health().is_ok());
-    assert!(NoopDomainExtension.health().is_ok());
+    let first_result = NoopDomainExtension.health();
+    let second_result = NoopDomainExtension.health();
+    assert_eq!(first_result, Ok(()));
+    assert_eq!(second_result, Ok(()));
 }

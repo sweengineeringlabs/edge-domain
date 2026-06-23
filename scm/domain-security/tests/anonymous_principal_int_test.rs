@@ -6,7 +6,8 @@ use edge_domain_security::AnonymousPrincipal;
 /// @covers: AnonymousPrincipal — constructs without arguments
 #[test]
 fn test_construct_anonymous_principal_succeeds_happy() {
-    let _ = AnonymousPrincipal;
+    let ap = AnonymousPrincipal;
+    assert_eq!(std::mem::size_of_val(&ap), 0);
 }
 
 /// @covers: AnonymousPrincipal — size is zero (marker struct, no heap alloc)

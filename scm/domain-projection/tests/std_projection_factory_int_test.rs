@@ -27,6 +27,7 @@ fn test_std_factory_std_factory_returns_copy_instance_edge() {
     let f = StdProjectionFactory::std_factory();
     let _f2 = f;
     let _f3 = f; // Copy — usable after move
+    assert_eq!(std::mem::size_of_val(&f), std::mem::size_of::<StdProjectionFactory>());
 }
 
 #[test]

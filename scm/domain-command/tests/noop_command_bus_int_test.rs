@@ -30,14 +30,14 @@ fn test_noop_command_bus_is_zero_sized_happy() {
 #[test]
 fn test_noop_command_bus_dispatch_ok_command_returns_ok_happy() {
     let bus = StdCommandBusFactory::noop_bus();
-    assert!(block_on(bus.dispatch(Box::new(Ok_))).is_ok());
+    assert_eq!(block_on(bus.dispatch(Box::new(Ok_))), Ok(()));
 }
 
 /// @covers: NoopCommandBus::dispatch — returns Ok even for a failing command
 #[test]
 fn test_noop_command_bus_dispatch_error_command_still_returns_ok_error() {
     let bus = StdCommandBusFactory::noop_bus();
-    assert!(block_on(bus.dispatch(Box::new(Err_))).is_ok());
+    assert_eq!(block_on(bus.dispatch(Box::new(Err_))), Ok(()));
 }
 
 /// @covers: NoopCommandBus — usable via dyn CommandBus reference
@@ -45,5 +45,5 @@ fn test_noop_command_bus_dispatch_error_command_still_returns_ok_error() {
 fn test_noop_command_bus_dyn_dispatch_returns_ok_edge() {
     let bus = NoopCommandBus;
     let bus_ref: &dyn CommandBus = &bus;
-    assert!(block_on(bus_ref.dispatch(Box::new(Ok_))).is_ok());
+    assert_eq!(block_on(bus_ref.dispatch(Box::new(Ok_))), Ok(()));
 }

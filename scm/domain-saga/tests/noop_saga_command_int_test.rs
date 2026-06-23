@@ -9,7 +9,7 @@ use futures::executor::block_on;
 fn test_execute_noop_saga_command_returns_ok_happy() {
     let cmd = NoopSagaCommand;
     let result = block_on(cmd.execute());
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()), "noop saga command execute should always succeed");
 }
 
 /// @covers: name
@@ -26,6 +26,6 @@ fn test_execute_noop_saga_command_can_be_called_multiple_times_edge() {
     let cmd = NoopSagaCommand;
     let r1 = block_on(cmd.execute());
     let r2 = block_on(cmd.execute());
-    assert!(r1.is_ok());
-    assert!(r2.is_ok());
+    assert_eq!(r1, Ok(()), "first execute should succeed");
+    assert_eq!(r2, Ok(()), "second execute should also succeed");
 }

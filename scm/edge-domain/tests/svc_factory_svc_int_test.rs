@@ -169,13 +169,13 @@ fn test_echo_handler_always_returns_ok_not_error() {
         let security = SecurityContext::unauthenticated();
         let bus = Domain::direct_command_bus();
         let observer = StdObserveFactory::noop_observer_context();
-        assert!(h
+        let result = h
             .execute(
                 "anything".into(),
                 test_ctx(&security, &bus, observer.as_ref())
             )
-            .await
-            .is_ok());
+            .await;
+        assert_eq!(result, Ok("anything".to_string()), "echo handler should return the input unchanged");
     });
 }
 
@@ -332,7 +332,7 @@ fn test_new_in_memory_queryable_repository_find_one_by_none_on_empty_edge() {
 fn test_direct_command_bus_dispatches_successful_command_happy() {
     block_on(async {
         let bus = Domain::direct_command_bus();
-        assert!(bus.dispatch(Box::new(OkCommand)).await.is_ok());
+        assert_eq!(bus.dispatch(Box::new(OkCommand)).await, Ok(()), "should dispatch successfully");
     });
 }
 
@@ -359,7 +359,7 @@ fn test_direct_command_bus_error_message_preserved_edge() {
 fn test_noop_event_publisher_publish_returns_ok_happy() {
     block_on(async {
         let pub_ = Domain::noop_event_publisher();
-        assert!(pub_.publish(&AnyEvent).await.is_ok());
+        assert_eq!(pub_.publish(&AnyEvent).await, Ok(()), "noop publisher should always succeed");
     });
 }
 
@@ -368,7 +368,7 @@ fn test_noop_event_publisher_never_errors_not_error() {
     block_on(async {
         // documents infallibility: returns Ok regardless of event
         let pub_ = Domain::noop_event_publisher();
-        assert!(pub_.publish(&AnyEvent).await.is_ok());
+        assert_eq!(pub_.publish(&AnyEvent).await, Ok(()), "noop publisher is infallible");
     });
 }
 
@@ -376,8 +376,9 @@ fn test_noop_event_publisher_never_errors_not_error() {
 fn test_noop_event_publisher_accepts_repeated_publish_edge() {
     block_on(async {
         let pub_ = Domain::noop_event_publisher();
-        for _ in 0..3 {
-            assert!(pub_.publish(&AnyEvent).await.is_ok());
+        for i in 0..3 {
+            let result = pub_.publish(&AnyEvent).await;
+            assert_eq!(result, Ok(()), "noop publisher should succeed on iteration {}", i);
         }
     });
 }
@@ -498,7 +499,7 @@ fn test_direct_query_bus_dispatches_empty_result_edge() {
 fn test_in_process_event_bus_publish_returns_ok_happy() {
     block_on(async {
         let bus = Domain::in_process_event_bus(EventBusConfig::default());
-        assert!(bus.publish(Arc::new(AnyEvent)).await.is_ok());
+        assert_eq!(bus.publish(Arc::new(AnyEvent)).await, Ok(()), "event bus should publish successfully");
     });
 }
 
@@ -507,13 +508,14 @@ fn test_in_process_event_bus_publish_no_subscriber_not_error() {
     block_on(async {
         // fire-and-forget: publish without subscribers must succeed
         let bus = Domain::in_process_event_bus(EventBusConfig::default());
-        assert!(bus.publish(Arc::new(AnyEvent)).await.is_ok());
+        assert_eq!(bus.publish(Arc::new(AnyEvent)).await, Ok(()), "publish without subscribers should succeed");
     });
 }
 
 #[test]
 fn test_in_process_event_bus_default_config_creates_valid_bus_edge() {
-    let _bus = Domain::in_process_event_bus(EventBusConfig::default());
+    let bus = Domain::in_process_event_bus(EventBusConfig::default());
+    assert!(!Arc::as_ptr(&bus).is_null(), "bus should be successfully constructed");
 }
 
 // ─── noop_event_bus ──────────────────────────────────────────────────────────
@@ -522,7 +524,7 @@ fn test_in_process_event_bus_default_config_creates_valid_bus_edge() {
 fn test_noop_event_bus_publish_returns_ok_happy() {
     block_on(async {
         let bus = Domain::noop_event_bus();
-        assert!(bus.publish(Arc::new(AnyEvent)).await.is_ok());
+        assert_eq!(bus.publish(Arc::new(AnyEvent)).await, Ok(()), "noop bus should always succeed");
     });
 }
 
@@ -531,7 +533,7 @@ fn test_noop_event_bus_publish_never_errors_not_error() {
     block_on(async {
         // noop bus is infallible — documents no error path
         let bus = Domain::noop_event_bus();
-        assert!(bus.publish(Arc::new(AnyEvent)).await.is_ok());
+        assert_eq!(bus.publish(Arc::new(AnyEvent)).await, Ok(()), "noop bus is infallible");
     });
 }
 
@@ -549,7 +551,7 @@ fn test_noop_event_bus_subscribe_source_is_closed_edge() {
 
 #[test]
 fn test_validate_config_valid_config_returns_ok_happy() {
-    assert!(Domain::validate_config(&AlwaysValid).is_ok());
+    assert_eq!(Domain::validate_config(&AlwaysValid), Ok(()), "valid config should pass validation");
 }
 
 #[test]

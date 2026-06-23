@@ -104,7 +104,7 @@ fn test_validate_config_returns_ok_for_valid_input() {
             Ok(())
         }
     }
-    assert!(Domain::validate_config(&AlwaysValid).is_ok());
+    assert_eq!(Domain::validate_config(&AlwaysValid), Ok(()));
 }
 
 /// @covers: validate_config
@@ -168,7 +168,7 @@ fn test_in_process_event_bus_factory_returns_working_bus() {
     use futures::executor::block_on;
     let bus = Domain::in_process_event_bus(EventBusConfig::default());
     block_on(async move {
-        assert!(bus.publish(Arc::new(AnyEvent)).await.is_ok());
+        assert_eq!(bus.publish(Arc::new(AnyEvent)).await, Ok(()));
     });
 }
 
@@ -178,7 +178,7 @@ fn test_noop_event_bus_factory_returns_working_bus() {
     use futures::executor::block_on;
     let bus = Domain::noop_event_bus();
     block_on(async move {
-        assert!(bus.publish(Arc::new(AnyEvent)).await.is_ok());
+        assert_eq!(bus.publish(Arc::new(AnyEvent)).await, Ok(()));
     });
 }
 

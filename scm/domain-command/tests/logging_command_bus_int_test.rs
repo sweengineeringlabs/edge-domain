@@ -48,7 +48,7 @@ fn test_logging_command_bus_new_from_noop_inner_happy() {
 #[test]
 fn test_logging_command_bus_dispatch_ok_command_returns_ok_happy() {
     let bus = StdCommandBusFactory::logging(noop_inner());
-    assert!(block_on(bus.dispatch(Box::new(Ok_))).is_ok());
+    assert_eq!(block_on(bus.dispatch(Box::new(Ok_))), Ok(()));
 }
 
 /// @covers: LoggingCommandBus::dispatch — propagates Err from inner bus
@@ -63,5 +63,5 @@ fn test_logging_command_bus_dispatch_error_command_returns_err_error() {
 fn test_logging_command_bus_dyn_dispatch_edge() {
     let bus = StdCommandBusFactory::logging(noop_inner());
     let bus_ref: &dyn CommandBus = &bus;
-    assert!(block_on(bus_ref.dispatch(Box::new(Ok_))).is_ok());
+    assert_eq!(block_on(bus_ref.dispatch(Box::new(Ok_))), Ok(()));
 }

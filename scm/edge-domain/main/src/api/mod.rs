@@ -82,8 +82,6 @@ pub use edge_domain_saga::SagaStore;
 #[cfg(feature = "service")]
 pub use edge_domain_service::Service;
 #[cfg(feature = "service")]
-pub use edge_domain_service::ServiceRegistry;
-#[cfg(feature = "service")]
 pub use edge_domain_service::ServiceRegistryTrait;
 
 // ── snapshot ──────────────────────────────────────────────────────────────────

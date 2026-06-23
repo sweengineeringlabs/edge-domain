@@ -1,7 +1,6 @@
 pub use crate::api::ReasoningBootstrap;
-pub use crate::api::StdReasoningFactory;
 
-use crate::api::{Reasoning, ReasoningPattern, ThinkingProcess};
+use crate::api::{Reasoning, ReasoningPattern, StdReasoningFactory, ThinkingProcess};
 use crate::spi::DefaultReasoningHandler;
 use edge_domain_handler::Handler;
 use std::sync::Arc;

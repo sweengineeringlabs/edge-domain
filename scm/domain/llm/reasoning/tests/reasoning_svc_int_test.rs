@@ -95,9 +95,9 @@ fn test_supports_pattern_matches_list_edge() {
 #[test]
 fn test_pattern_metadata_returns_some_happy() {
     let r = reasoner(ReasoningPattern::ChainOfThought);
-    assert!(r
-        .pattern_metadata(ReasoningPattern::ChainOfThought)
-        .is_some());
+    let meta = r.pattern_metadata(ReasoningPattern::ChainOfThought);
+    assert!(meta.is_some(), "should return metadata for supported pattern");
+    assert_eq!(meta.unwrap().pattern, ReasoningPattern::ChainOfThought, "metadata should carry the pattern");
 }
 
 /// @covers: Reasoning::pattern_metadata — none for an unsupported pattern
@@ -123,7 +123,8 @@ fn test_pattern_metadata_carries_pattern_edge() {
 #[test]
 fn test_validate_problem_accepts_nonempty_happy() {
     let r = reasoner(ReasoningPattern::ChainOfThought);
-    assert!(r.validate_problem("solve x").is_ok());
+    let result = r.validate_problem("solve x");
+    assert_eq!(result, Ok(()), "non-empty problem should be valid");
 }
 
 /// @covers: Reasoning::validate_problem — rejects an empty problem

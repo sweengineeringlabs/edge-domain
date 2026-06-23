@@ -12,7 +12,7 @@ fn test_command_factory_trait_noop_returns_noop_command_happy() {
 #[test]
 fn test_command_factory_trait_noop_execute_always_succeeds_error() {
     let cmd = <StdCommandBusFactory as CommandBootstrap>::noop();
-    assert!(block_on(cmd.execute()).is_ok());
+    assert_eq!(block_on(cmd.execute()), Ok(()));
 }
 
 /// @covers: CommandBootstrap::noop

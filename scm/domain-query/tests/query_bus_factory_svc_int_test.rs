@@ -53,7 +53,7 @@ fn test_std_independent_calls_return_same_sized_type_edge() {
 fn test_noop_query_returns_ok_on_execute_happy() {
     let q = Buses::noop_query();
     let result = block_on(q.execute());
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()), "noop query should succeed with unit result");
 }
 
 /// @covers: QueryBusBootstrap::noop_query — NoopQuery uses the default name
@@ -68,8 +68,8 @@ fn test_noop_query_default_name_is_query_error() {
 fn test_noop_query_repeated_calls_are_independent_edge() {
     let q1 = Buses::noop_query();
     let q2 = Buses::noop_query();
-    assert!(block_on(q1.execute()).is_ok());
-    assert!(block_on(q2.execute()).is_ok());
+    assert_eq!(block_on(q1.execute()), Ok(()), "first noop query should succeed");
+    assert_eq!(block_on(q2.execute()), Ok(()), "second noop query should succeed");
 }
 
 /// @covers: QueryBusBootstrap::noop_query_bus — returns a NoopQueryBus that returns NotFound
@@ -162,5 +162,7 @@ fn test_logging_query_delegates_dispatch_to_inner_edge() {
 
     let inner: Arc<dyn QueryBus<Result = String>> = Arc::new(DirectQueryBus::<String>::new());
     let bus: LoggingQueryBus<String> = Buses::logging_query(inner);
-    assert!(block_on(bus.dispatch(Box::new(ErrQuery))).is_err());
+    let result = block_on(bus.dispatch(Box::new(ErrQuery)));
+    assert!(matches!(result, Err(QueryError::NotFound(_))), "should delegate to inner and return NotFound");
+}
 }

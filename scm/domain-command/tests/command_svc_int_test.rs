@@ -43,7 +43,7 @@ fn test_name_via_dyn_dispatch_returns_name_edge() {
 /// @covers: Command::execute — success
 #[test]
 fn test_execute_ok_command_returns_ok_happy() {
-    assert!(block_on(Ping("ok".into()).execute()).is_ok());
+    assert_eq!(block_on(Ping("ok".into()).execute()), Ok(()));
 }
 
 /// @covers: Command::execute — failure propagates
@@ -56,6 +56,6 @@ fn test_execute_failing_command_returns_err_error() {
 #[test]
 fn test_execute_repeated_calls_are_independent_edge() {
     let c = Ping("x".into());
-    assert!(block_on(c.execute()).is_ok());
-    assert!(block_on(c.execute()).is_ok());
+    assert_eq!(block_on(c.execute()), Ok(()));
+    assert_eq!(block_on(c.execute()), Ok(()));
 }

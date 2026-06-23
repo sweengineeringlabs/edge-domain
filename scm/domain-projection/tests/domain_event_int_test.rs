@@ -24,5 +24,8 @@ fn test_domain_event_default_aggregate_id_returns_empty_error() {
 fn test_domain_event_occurred_at_returns_system_time_edge() {
     let e = DomainEventTestEvt;
     let t = e.occurred_at();
-    assert!(t.elapsed().is_ok());
+    let elapsed = t.elapsed();
+    assert!(elapsed.is_ok(), "should be able to calculate elapsed time from occurred_at");
+    let duration = elapsed.unwrap();
+    assert!(duration.as_millis() >= 0, "elapsed time should be non-negative");
 }

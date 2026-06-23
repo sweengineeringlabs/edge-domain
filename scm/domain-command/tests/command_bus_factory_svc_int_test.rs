@@ -89,5 +89,6 @@ fn test_logging_delegates_dispatch_to_inner_edge() {
     let inner: Arc<dyn CommandBus> = Arc::new(NoopCommandBus);
     let bus = Buses::logging(inner);
     let result = block_on(bus.dispatch(Box::new(LoggingFactoryOk)));
-    assert!(result.is_ok(), "dispatch through logging wrapper should succeed");
+    let unit = result.expect("dispatch should succeed");
+    assert_eq!(unit, (), "dispatch result should be unit");
 }

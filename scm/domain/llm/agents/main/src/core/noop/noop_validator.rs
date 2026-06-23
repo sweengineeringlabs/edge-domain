@@ -23,35 +23,37 @@ mod tests {
 
     #[test]
     fn test_noop_validator_happy_validate_agent_id_accepts_valid_id() {
-        assert!(NoopValidator.validate_agent_id("chief_engineer").is_ok());
+        assert_eq!(NoopValidator.validate_agent_id("chief_engineer"), Ok(()));
     }
 
     #[test]
     fn test_noop_validator_happy_validate_skill_name_accepts_valid_name() {
-        assert!(NoopValidator.validate_skill_name("code_review").is_ok());
+        assert_eq!(NoopValidator.validate_skill_name("code_review"), Ok(()));
     }
 
     #[test]
     fn test_noop_validator_happy_validate_skill_input_accepts_valid_json() {
-        assert!(NoopValidator
-            .validate_skill_input(r#"{"key":"value"}"#)
-            .is_ok());
+        assert_eq!(
+            NoopValidator.validate_skill_input(r#"{"key":"value"}"#),
+            Ok(())
+        );
     }
 
     #[test]
     fn test_noop_validator_edge_validate_agent_id_accepts_empty_string() {
-        assert!(NoopValidator.validate_agent_id("").is_ok());
+        assert_eq!(NoopValidator.validate_agent_id(""), Ok(()));
     }
 
     #[test]
     fn test_noop_validator_edge_validate_skill_name_accepts_special_chars() {
-        assert!(NoopValidator
-            .validate_skill_name("skill-with-dashes_and_underscores")
-            .is_ok());
+        assert_eq!(
+            NoopValidator.validate_skill_name("skill-with-dashes_and_underscores"),
+            Ok(())
+        );
     }
 
     #[test]
     fn test_noop_validator_edge_validate_skill_input_accepts_empty_string() {
-        assert!(NoopValidator.validate_skill_input("").is_ok());
+        assert_eq!(NoopValidator.validate_skill_input(""), Ok(()));
     }
 }

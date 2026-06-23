@@ -192,7 +192,7 @@ fn test_name_command_returns_defined_value_happy() {
 fn test_name_query_consistent_across_calls_not_error() {
     // name() must never error — returns same value each call
     let q = OkQry("x".into());
-    assert_eq!(q.name(), q.name());
+    assert_eq!(q.name(), "ok", "query name should be stable and known");
 }
 
 #[test]
@@ -217,7 +217,7 @@ fn test_name_service_can_be_empty_string_edge() {
 #[test]
 fn test_execute_command_returns_ok_happy() {
     block_on(async {
-        assert!(OkCmd.execute().await.is_ok());
+        assert_eq!(OkCmd.execute().await, Ok(()), "command should execute successfully");
     });
 }
 
@@ -243,7 +243,7 @@ fn test_execute_query_with_empty_response_edge() {
 fn test_dispatch_command_returns_ok_happy() {
     block_on(async {
         let bus = Domain::direct_command_bus();
-        assert!(bus.dispatch(Box::new(OkCmd)).await.is_ok());
+        assert_eq!(bus.dispatch(Box::new(OkCmd)).await, Ok(()), "dispatch should succeed");
     });
 }
 
@@ -311,6 +311,7 @@ fn test_apply_no_op_on_default_impl_not_error() {
     }
     let mut agg = NoOpAgg;
     agg.apply(&NoOpEvent); // should not panic
+    assert_eq!(agg.id(), "", "default impl should not modify state");
 }
 
 #[test]
@@ -365,7 +366,7 @@ fn test_event_type_stable_across_calls_not_error() {
     let e = TestEvent {
         aggregate_id: "x".into(),
     };
-    assert_eq!(e.event_type(), e.event_type());
+    assert_eq!(e.event_type(), "test", "event type should be stable and known");
 }
 
 #[test]
@@ -392,7 +393,7 @@ fn test_aggregate_id_consistent_across_calls_not_error() {
     let e = TestEvent {
         aggregate_id: "x".into(),
     };
-    assert_eq!(e.aggregate_id(), e.aggregate_id());
+    assert_eq!(e.aggregate_id(), "x", "aggregate id should be stable and known");
 }
 
 #[test]
@@ -428,7 +429,7 @@ fn test_occurred_at_unix_epoch_is_valid_timestamp_edge() {
         aggregate_id: "x".into(),
     };
     let dur = e.occurred_at().duration_since(SystemTime::UNIX_EPOCH);
-    assert!(dur.is_ok());
+    assert!(dur.is_ok(), "timestamp should be valid and after unix epoch");
 }
 
 // ─── publish ─────────────────────────────────────────────────────────────────
@@ -441,7 +442,7 @@ fn test_publish_to_noop_bus_returns_ok_happy() {
         let e: Arc<dyn DomainEvent> = Arc::new(TestEvent {
             aggregate_id: "x".into(),
         });
-        assert!(bus.publish(e).await.is_ok());
+        assert_eq!(bus.publish(e).await, Ok(()), "noop bus should always succeed");
     });
 }
 
@@ -452,7 +453,7 @@ fn test_publish_to_noop_publisher_never_errors_not_error() {
         let e = TestEvent {
             aggregate_id: "x".into(),
         };
-        assert!(pub_.publish(&e).await.is_ok());
+        assert_eq!(pub_.publish(&e).await, Ok(()), "noop publisher is infallible");
     });
 }
 
@@ -464,7 +465,8 @@ fn test_publish_multiple_events_sequentially_edge() {
             let e: Arc<dyn DomainEvent> = Arc::new(TestEvent {
                 aggregate_id: i.to_string(),
             });
-            assert!(bus.publish(e).await.is_ok());
+            let result = bus.publish(e).await;
+            assert_eq!(result, Ok(()), "noop bus publish should always succeed for iteration {}", i);
         }
     });
 }
@@ -562,8 +564,8 @@ fn test_append_nostream_on_existing_stream_returns_error() {
 fn test_append_any_version_never_conflicts_edge() {
     block_on(async {
         let store = Domain::new_in_memory_event_store::<TestEvent>();
-        for _ in 0..3 {
-            assert!(store
+        for i in 0..3 {
+            let result = store
                 .append(
                     "agg-1",
                     vec![TestEvent {
@@ -571,8 +573,8 @@ fn test_append_any_version_never_conflicts_edge() {
                     }],
                     ExpectedVersion::Any,
                 )
-                .await
-                .is_ok());
+                .await;
+            assert_eq!(result, Ok(()), "append with Any version should succeed iteration {}", i);
         }
     });
 }
@@ -735,7 +737,7 @@ fn test_pattern_handler_matches_constructor_arg_happy() {
 #[test]
 fn test_pattern_stable_across_calls_not_error() {
     let h = make_test_handler();
-    assert_eq!(h.pattern(), h.pattern());
+    assert_eq!(h.pattern(), "test", "handler pattern should be stable and known");
 }
 
 #[test]
@@ -749,7 +751,8 @@ fn test_pattern_can_be_root_path_edge() {
 
 #[test]
 fn test_build_valid_config_returns_ok_happy() {
-    assert!(GoodCfgHandler::build(GoodCfg).is_ok());
+    let result = GoodCfgHandler::build(GoodCfg);
+    assert_eq!(result, Ok(GoodCfgHandler), "valid config should build successfully");
 }
 
 #[test]
@@ -818,8 +821,11 @@ fn test_deregister_leaves_registry_empty_edge() {
 #[test]
 fn test_get_registered_handler_returns_some_happy() {
     let reg = Domain::new_handler_registry::<String, String>();
-    reg.register(make_test_handler());
-    assert!(reg.get("test").is_some());
+    let h = make_test_handler();
+    reg.register(h.clone());
+    let result = reg.get("test");
+    assert!(result.is_some(), "registered handler should be retrievable");
+    assert_eq!(result.unwrap().pattern(), "test", "retrieved handler should match registered handler");
 }
 
 #[test]

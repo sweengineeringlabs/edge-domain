@@ -27,12 +27,13 @@ fn test_composite_empty_always_passes_happy() {
 #[test]
 fn test_composite_with_failing_rule_rejects_input_error() {
     let policy = TestPolicies::composite::<String>().with(Box::new(AlwaysFails));
-    assert!(policy.evaluate(&"input".to_string()).is_err());
+    let result = policy.evaluate(&"input".to_string());
+    assert!(matches!(result, Err(v) if v.policy() == "always-fails"), "should reject with always-fails policy");
 }
 
 /// @covers: PolicyBootstrap::composite — generic over input type
 #[test]
 fn test_composite_generic_over_input_type_edge() {
     let policy = TestPolicies::composite::<u64>();
-    assert!(policy.evaluate(&42).is_ok());
+    assert_eq!(policy.evaluate(&42), Ok(()), "empty composite with u64 should pass");
 }

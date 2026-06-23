@@ -13,7 +13,7 @@ impl DomainEvent for SignalEvt {}
 #[test]
 fn test_noop_event_bus_publish_returns_ok_happy() {
     let result = futures::executor::block_on(NoopEventBus.publish(Arc::new(SignalEvt)));
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()), "noop bus publish must always return Ok(())");
 }
 
 /// @covers: NoopEventBus::publish — repeated publishes never error

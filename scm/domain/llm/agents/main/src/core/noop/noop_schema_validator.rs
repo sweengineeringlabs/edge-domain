@@ -26,7 +26,7 @@ mod tests {
 
     #[test]
     fn test_noop_schema_validator_accepts_object() {
-        assert!(NoopSchemaValidator.validate(&json!({"k": "v"})).is_ok());
+        assert_eq!(NoopSchemaValidator.validate(&json!({"k": "v"})), Ok(()));
     }
 
     #[test]
@@ -42,6 +42,6 @@ mod tests {
             name: "search".to_string(),
             arguments: r#"{"q":"rust"}"#.to_string(),
         };
-        assert!(NoopSchemaValidator.validate_tool_call(&call).is_ok());
+        assert_eq!(NoopSchemaValidator.validate_tool_call(&call), Ok(()));
     }
 }
