@@ -2,7 +2,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain::*;
-use edge_domain_observe::{ObserveContext, StdObserveFactory};
+use edge_domain_observer::{ObserveContext, StdObserveFactory};
 use edge_domain_security::SecurityContext;
 use futures::executor::block_on;
 use futures::future::BoxFuture;

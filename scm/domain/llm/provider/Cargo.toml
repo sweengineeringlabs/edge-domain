@@ -24,7 +24,7 @@ serde.workspace = true
 serde_json.workspace = true
 futures.workspace = true
 edge-domain-handler.workspace = true
-edge-domain-observe.workspace = true
+edge-domain-observer.workspace = true
 swe-edge-configbuilder.workspace = true
 edge-llm-complete.workspace = true
 

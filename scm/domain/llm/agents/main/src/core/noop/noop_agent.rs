@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use edge_domain_handler::HandlerContext;
-use edge_domain_observe::StdObserveFactory;
+use edge_domain_observer::StdObserveFactory;
 use edge_llm_provider::{
     EchoProviderCompleter, ModelInfo, Provider, ProviderBootstrap, ProviderConfig,
     StdProviderFactory,
@@ -68,7 +68,7 @@ mod tests {
     #[test]
     fn test_noop_agent_error_execute_skill_returns_skill_not_found() {
         use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
-        use edge_domain_observe::StdObserveFactory;
+        use edge_domain_observer::StdObserveFactory;
         use edge_domain_security::SecurityContext;
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();

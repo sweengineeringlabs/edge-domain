@@ -53,7 +53,7 @@ mod tests {
     use super::*;
     use crate::api::LinearReasoning;
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
-    use edge_domain_observe::StdObserveFactory;
+    use edge_domain_observer::StdObserveFactory;
     use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
 

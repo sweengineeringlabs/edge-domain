@@ -42,6 +42,7 @@ pub trait HandlerProvider {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::api::handler::traits::handler_bootstrap::HandlerBootstrap;
 
     struct Prov;
     impl HandlerProvider for Prov {}
@@ -57,14 +58,15 @@ mod tests {
     #[test]
     fn test_bootstrap_name_is_deterministic_error() {
         let p = Prov;
-        assert_eq!(p.bootstrap_name(), p.bootstrap_name());
+        assert_eq!(p.bootstrap_name(), "handler_provider");
     }
 
     /// @covers: bootstrap_name
     #[test]
     fn test_bootstrap_name_is_static_str_edge() {
         let p = Prov;
-        let _name: &'static str = p.bootstrap_name();
+        let name: &'static str = p.bootstrap_name();
+        assert_eq!(name, "handler_provider");
     }
 
     #[test]
@@ -82,6 +84,7 @@ mod tests {
 
     #[test]
     fn test_noop_handler_factory_constructs_instance_edge() {
-        let _f: NoopHandlerFactory = Prov::noop_handler_factory();
+        let f: NoopHandlerFactory = Prov::noop_handler_factory();
+        assert_eq!(f.bootstrap_name(), "handler");
     }
 }

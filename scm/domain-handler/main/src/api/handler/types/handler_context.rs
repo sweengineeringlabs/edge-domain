@@ -1,7 +1,7 @@
 //! [`HandlerContext`] — request-scoped execution context threaded to every `Handler::execute` call.
 
 use edge_domain_command::CommandBus;
-use edge_domain_observe::ObserveContext;
+use edge_domain_observer::ObserveContext;
 use edge_domain_security::SecurityContext;
 
 /// Request-scoped context threaded to every [`Handler::execute`](crate::api::handler::traits::Handler::execute) call.

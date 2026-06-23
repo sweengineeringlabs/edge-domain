@@ -7,7 +7,7 @@ use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{
     Handler, HandlerContext, HandlerError, HandlerRegistry, InProcessHandlerRegistry,
 };
-use edge_domain_observe::StdObserveFactory;
+use edge_domain_observer::StdObserveFactory;
 use edge_domain_security::SecurityContext;
 use futures::executor::block_on;
 
@@ -60,7 +60,9 @@ fn test_register_makes_handler_retrievable_happy() {
         id: "s1",
         response: "r1",
     }));
-    assert!(reg.get("s1").is_some());
+    let handler = reg.get("s1");
+    assert!(handler.is_some());
+    assert_eq!(handler.unwrap().id(), "s1");
 }
 
 /// @covers: InProcessHandlerRegistry::register — duplicate id replaces

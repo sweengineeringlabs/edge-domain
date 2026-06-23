@@ -4,7 +4,7 @@
 use std::sync::Arc;
 
 use edge_domain::{Domain, HandlerContext, HandlerError, Repository};
-use edge_domain_observe::StdObserveFactory;
+use edge_domain_observer::StdObserveFactory;
 use edge_domain_security::SecurityContext;
 
 struct WriteHandler {

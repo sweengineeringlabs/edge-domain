@@ -48,7 +48,10 @@ mod tests {
 
     #[test]
     fn test_build_valid_config_returns_ok_happy() {
-        assert!(MyHandler::build(Cfg { valid: true }).is_ok());
+        let result = MyHandler::build(Cfg { valid: true });
+        assert!(result.is_ok());
+        // Verify the result is actually the expected type
+        let _h: MyHandler = result.unwrap();
     }
 
     #[test]

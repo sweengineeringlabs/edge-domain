@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{EchoHandler, Handler, HandlerContext};
-use edge_domain_observe::{ObserveContext, StdObserveFactory};
+use edge_domain_observer::{ObserveContext, StdObserveFactory};
 use edge_domain_security::SecurityContext;
 use futures::executor::block_on;
 

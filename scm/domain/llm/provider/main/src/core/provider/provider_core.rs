@@ -78,7 +78,7 @@ impl Provider for ProviderCore {
 mod tests {
     use std::sync::Arc;
 
-    use edge_domain_observe::StdObserveFactory;
+    use edge_domain_observer::StdObserveFactory;
     use edge_llm_complete::NoopCompleter;
 
     use crate::api::{ModelFamily, ModelInfo, Provider, ProviderConfig, ProviderCore};

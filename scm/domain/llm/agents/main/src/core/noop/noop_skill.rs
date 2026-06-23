@@ -42,7 +42,7 @@ impl Skill for NoopSkill {
 mod tests {
     use super::*;
     use edge_domain_command::CommandBusBootstrap;
-    use edge_domain_observe::StdObserveFactory;
+    use edge_domain_observer::StdObserveFactory;
 
     #[test]
     fn test_noop_skill_happy_name_returns_noop() {

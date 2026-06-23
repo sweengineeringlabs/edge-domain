@@ -6,7 +6,7 @@ use edge_domain::Handler;
 use edge_domain::HandlerBootstrap;
 use edge_domain::HandlerContext;
 use edge_domain::HandlerError;
-use edge_domain_observe::StdObserveFactory;
+use edge_domain_observer::StdObserveFactory;
 use edge_domain_security::SecurityContext;
 
 struct Cfg {

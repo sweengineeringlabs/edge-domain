@@ -7,7 +7,7 @@ use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{
     Handler, HandlerContext, HandlerError, HandlerRegistry, InProcessHandlerRegistry,
 };
-use edge_domain_observe::StdObserveFactory;
+use edge_domain_observer::StdObserveFactory;
 use edge_domain_security::SecurityContext;
 use futures::executor::block_on;
 
@@ -37,7 +37,9 @@ fn make_reg() -> InProcessHandlerRegistry<String, String> {
 fn test_register_handler_can_be_retrieved_happy() {
     let reg = make_reg();
     reg.register(Arc::new(Fixed { id: "alpha" }));
-    assert!(reg.get("alpha").is_some());
+    let handler = reg.get("alpha");
+    assert!(handler.is_some());
+    assert_eq!(handler.unwrap().id(), "alpha");
 }
 
 /// @covers: HandlerRegistry::register — replaces duplicate id
@@ -144,7 +146,9 @@ fn test_deregister_already_removed_id_returns_false_edge() {
 fn test_get_registered_handler_returns_some_happy() {
     let reg = make_reg();
     reg.register(Arc::new(Fixed { id: "present" }));
-    assert!(reg.get("present").is_some());
+    let handler = reg.get("present");
+    assert!(handler.is_some());
+    assert_eq!(handler.unwrap().id(), "present");
 }
 
 /// @covers: HandlerRegistry::get — re-deregistered handler is gone

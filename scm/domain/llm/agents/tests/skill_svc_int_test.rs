@@ -4,7 +4,7 @@
 use async_trait::async_trait;
 use edge_domain_command::CommandBusBootstrap;
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
-use edge_domain_observe::StdObserveFactory;
+use edge_domain_observer::StdObserveFactory;
 use edge_llm_agent::{Parameter, Skill, SkillMetadata};
 
 struct TestSkill {

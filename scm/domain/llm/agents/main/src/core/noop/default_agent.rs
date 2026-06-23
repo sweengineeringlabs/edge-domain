@@ -88,7 +88,7 @@ impl Agent for DefaultAgent {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use edge_domain_observe::StdObserveFactory;
+    use edge_domain_observer::StdObserveFactory;
     use edge_llm_provider::{
         EchoProviderCompleter, ModelInfo, ProviderBootstrap, ProviderConfig, StdProviderFactory,
     };
@@ -132,7 +132,7 @@ mod tests {
     #[test]
     fn test_execute_skill_error_unknown_skill_returns_not_found() {
         use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
-        use edge_domain_observe::StdObserveFactory;
+        use edge_domain_observer::StdObserveFactory;
         use edge_domain_security::SecurityContext;
         let agent = DefaultAgent::new("a", "A", "d", noop_provider(), vec![]);
         let security = SecurityContext::unauthenticated();
@@ -147,7 +147,7 @@ mod tests {
     #[test]
     fn test_execute_skill_edge_no_skills_returns_not_found() {
         use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
-        use edge_domain_observe::StdObserveFactory;
+        use edge_domain_observer::StdObserveFactory;
         use edge_domain_security::SecurityContext;
         let agent = DefaultAgent::new("a", "A", "d", noop_provider(), vec![]);
         let security = SecurityContext::unauthenticated();

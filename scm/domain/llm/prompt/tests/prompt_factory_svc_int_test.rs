@@ -203,7 +203,7 @@ fn test_token_counter_not_exact_edge() {
 fn test_default_prompt_handler_renders_happy() {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::{Handler, HandlerContext};
-    use edge_domain_observe::StdObserveFactory;
+    use edge_domain_observer::StdObserveFactory;
     use edge_domain_security::SecurityContext;
     use edge_llm_prompt::{RenderContext, Variable};
     use futures::executor::block_on;
@@ -225,7 +225,7 @@ fn test_default_prompt_handler_renders_happy() {
 fn test_default_prompt_handler_missing_variable_errors_error() {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::{Handler, HandlerContext};
-    use edge_domain_observe::StdObserveFactory;
+    use edge_domain_observer::StdObserveFactory;
     use edge_domain_security::SecurityContext;
     use edge_llm_prompt::{RenderContext, Variable};
     use futures::executor::block_on;
@@ -255,7 +255,7 @@ fn test_default_prompt_handler_id_is_stable_edge() {
 fn test_prompt_handler_renders_with_arc_prompt_happy() {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::{Handler, HandlerContext};
-    use edge_domain_observe::StdObserveFactory;
+    use edge_domain_observer::StdObserveFactory;
     use edge_domain_security::SecurityContext;
     use edge_llm_prompt::{RenderContext, Variable};
     use futures::executor::block_on;
@@ -279,7 +279,7 @@ fn test_prompt_handler_renders_with_arc_prompt_happy() {
 fn test_prompt_handler_missing_required_variable_error() {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::{Handler, HandlerContext};
-    use edge_domain_observe::StdObserveFactory;
+    use edge_domain_observer::StdObserveFactory;
     use edge_domain_security::SecurityContext;
     use edge_llm_prompt::{RenderContext, Variable};
     use futures::executor::block_on;

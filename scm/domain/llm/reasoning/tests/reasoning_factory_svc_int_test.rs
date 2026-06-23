@@ -186,7 +186,7 @@ fn test_reasoning_chain_builder_final_answer_edge() {
 fn test_default_reasoning_handler_runs_happy() {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::{Handler, HandlerContext};
-    use edge_domain_observe::StdObserveFactory;
+    use edge_domain_observer::StdObserveFactory;
     use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
     let h = StdReasoningFactory::default_reasoning_handler(ReasoningPattern::ChainOfThought);
@@ -203,7 +203,7 @@ fn test_default_reasoning_handler_runs_happy() {
 fn test_default_reasoning_handler_pattern_mismatch_errors_error() {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::{Handler, HandlerContext};
-    use edge_domain_observe::StdObserveFactory;
+    use edge_domain_observer::StdObserveFactory;
     use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
     let h = StdReasoningFactory::default_reasoning_handler(ReasoningPattern::GraphBased);
@@ -229,7 +229,7 @@ fn test_default_reasoning_handler_id_is_stable_edge() {
 fn test_reasoning_handler_produces_thinking_process_happy() {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::{Handler, HandlerContext};
-    use edge_domain_observe::StdObserveFactory;
+    use edge_domain_observer::StdObserveFactory;
     use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
     use std::sync::Arc;
@@ -248,7 +248,7 @@ fn test_reasoning_handler_produces_thinking_process_happy() {
 fn test_reasoning_handler_rejects_unsupported_pattern_error() {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::{Handler, HandlerContext};
-    use edge_domain_observe::StdObserveFactory;
+    use edge_domain_observer::StdObserveFactory;
     use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
     use std::sync::Arc;

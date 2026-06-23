@@ -71,7 +71,10 @@ mod tests {
     fn test_register_handler_is_retrievable_happy() {
         let reg = make_registry();
         reg.register(Arc::new(InProcessHandlerRegistryFixture));
-        assert!(reg.get("fixture").is_some());
+        let handler = reg.get("fixture");
+        assert!(handler.is_some());
+        // Verify the retrieved handler is the expected one
+        assert_eq!(handler.unwrap().id(), "fixture");
     }
 
     #[test]

@@ -6,7 +6,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
-use edge_domain_observe::StdObserveFactory;
+use edge_domain_observer::StdObserveFactory;
 use edge_domain_security::SecurityContext;
 use edge_llm_agent::{
     AgentError, AgentManager, NoopAgentManager, Skill, SkillMetadata, DEFAULT_AGENT_SVC,

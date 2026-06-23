@@ -3,7 +3,7 @@
 
 use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{Handler, HandlerContext};
-use edge_domain_observe::StdObserveFactory;
+use edge_domain_observer::StdObserveFactory;
 use edge_domain_security::SecurityContext;
 use edge_llm_reasoning::{StdReasoningFactory, ReasoningPattern};
 use futures::executor::block_on;

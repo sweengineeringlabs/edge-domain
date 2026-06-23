@@ -19,8 +19,8 @@ fn test_bootstrap_name_is_idempotent_error() {
     let f = NoopHandlerFactory;
     assert_eq!(
         f.bootstrap_name(),
-        f.bootstrap_name(),
-        "bootstrap_name must return the same value on repeated calls"
+        "handler",
+        "bootstrap_name must return the expected static value"
     );
 }
 

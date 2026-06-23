@@ -7,7 +7,7 @@
 use async_trait::async_trait;
 use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
-use edge_domain_observe::StdObserveFactory;
+use edge_domain_observer::StdObserveFactory;
 use edge_domain_registry::Registry;
 use edge_domain_security::SecurityContext;
 use edge_llm_agent::{
@@ -456,7 +456,7 @@ fn test_description_agent_edge() {
 fn test_execute_skill_agent_happy() {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::HandlerContext;
-    use edge_domain_observe::StdObserveFactory;
+    use edge_domain_observer::StdObserveFactory;
     use edge_domain_security::SecurityContext;
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
@@ -476,7 +476,7 @@ fn test_execute_skill_agent_happy() {
 fn test_execute_skill_agent_error() {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::HandlerContext;
-    use edge_domain_observe::StdObserveFactory;
+    use edge_domain_observer::StdObserveFactory;
     use edge_domain_security::SecurityContext;
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
@@ -501,7 +501,7 @@ fn test_execute_skill_agent_error() {
 fn test_execute_skill_agent_edge() {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::HandlerContext;
-    use edge_domain_observe::StdObserveFactory;
+    use edge_domain_observer::StdObserveFactory;
     use edge_domain_security::SecurityContext;
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();

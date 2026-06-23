@@ -5,7 +5,7 @@
 
 use edge_domain::*;
 use edge_domain_handler::HandlerContext;
-use edge_domain_observe::StdObserveFactory;
+use edge_domain_observer::StdObserveFactory;
 use edge_domain_security::SecurityContext;
 use std::sync::Arc;
 

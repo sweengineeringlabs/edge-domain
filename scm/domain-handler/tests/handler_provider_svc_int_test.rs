@@ -5,9 +5,9 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{
-    Handler, HandlerContext, HandlerError, HandlerProvider, HandlerRegistry,
+    Handler, HandlerBootstrap, HandlerContext, HandlerError, HandlerProvider, HandlerRegistry,
 };
-use edge_domain_observe::StdObserveFactory;
+use edge_domain_observer::StdObserveFactory;
 use edge_domain_security::SecurityContext;
 use futures::executor::block_on;
 
@@ -118,15 +118,17 @@ fn test_in_process_registry_empty_state_is_not_an_error_error() {
 /// @covers: HandlerProvider::noop_handler_factory — constructs a NoopHandlerFactory
 #[test]
 fn test_noop_handler_factory_constructs_instance_happy() {
-    use edge_domain_handler::NoopHandlerFactory;
-    let _f: NoopHandlerFactory = Prov::noop_handler_factory();
+    use edge_domain_handler::{HandlerBootstrap, NoopHandlerFactory};
+    let f: NoopHandlerFactory = Prov::noop_handler_factory();
+    assert_eq!(f.bootstrap_name(), "handler");
 }
 
 /// @covers: HandlerProvider::noop_handler_factory — infallible (no error path; documents absence)
 #[test]
 fn test_noop_handler_factory_is_always_infallible_error() {
     use edge_domain_handler::NoopHandlerFactory;
-    let _f: NoopHandlerFactory = Prov::noop_handler_factory();
+    let f: NoopHandlerFactory = Prov::noop_handler_factory();
+    assert_eq!(f.bootstrap_name(), "handler");
 }
 
 /// @covers: HandlerProvider::noop_handler_factory — Copy semantics allow multiple uses

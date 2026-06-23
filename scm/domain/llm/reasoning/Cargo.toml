@@ -22,7 +22,7 @@ thiserror.workspace = true
 async-trait.workspace = true
 serde.workspace = true
 edge-domain-handler.workspace  = true
-edge-domain-observe.workspace  = true
+edge-domain-observer.workspace  = true
 
 [dev-dependencies]
 serde_json.workspace = true

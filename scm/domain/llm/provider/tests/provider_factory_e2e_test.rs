@@ -3,7 +3,7 @@
 
 use std::sync::Arc;
 
-use edge_domain_observe::StdObserveFactory;
+use edge_domain_observer::StdObserveFactory;
 use edge_llm_complete::{Completer, CompletionRequest, Message, NoopCompleter};
 use edge_llm_provider::{
     CompletionMessage, EchoProviderCompleter, ExecutionConfig, ExecutionMode, ExecutionModel,
@@ -20,7 +20,7 @@ use serde_json::json;
 fn test_default_provider_handler_runs_happy() {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::{Handler, HandlerContext};
-    use edge_domain_observe::StdObserveFactory;
+    use edge_domain_observer::StdObserveFactory;
     use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
     let config = ExecutionConfig::new(4096, 30_000, true, false, ExecutionMode::Async);
@@ -38,7 +38,7 @@ fn test_default_provider_handler_runs_happy() {
 fn test_default_provider_handler_zero_budget_errors_error() {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::{Handler, HandlerContext};
-    use edge_domain_observe::StdObserveFactory;
+    use edge_domain_observer::StdObserveFactory;
     use edge_domain_security::SecurityContext;
     use futures::executor::block_on;
     let config = ExecutionConfig::new(0, 30_000, true, false, ExecutionMode::Async);

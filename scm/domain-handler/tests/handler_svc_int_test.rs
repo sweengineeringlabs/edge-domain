@@ -3,7 +3,7 @@
 use async_trait::async_trait;
 use edge_domain_command::{CommandBus, CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
-use edge_domain_observe::{ObserveContext, StdObserveFactory};
+use edge_domain_observer::{ObserveContext, StdObserveFactory};
 use edge_domain_security::SecurityContext;
 use futures::executor::block_on;
 

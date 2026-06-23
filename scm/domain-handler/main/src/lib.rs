@@ -10,16 +10,19 @@ mod api;
 mod core;
 mod saf;
 
-pub use saf::EchoHandler;
+// Trait contracts through SAF
 pub use saf::Handler;
 pub use saf::HandlerBootstrap;
-pub use saf::HandlerContext;
-pub use saf::HandlerError;
 pub use saf::HandlerProvider;
 pub use saf::HandlerRegistry;
-pub use saf::InProcessHandlerRegistry;
-pub use saf::NoopHandlerFactory;
 pub use saf::HANDLER_BOOTSTRAP_SVC;
 pub use saf::HANDLER_PROVIDER_SVC;
 pub use saf::HANDLER_REGISTRY_SVC;
 pub use saf::HANDLER_SVC;
+
+// Concrete types from api (needed for trait method signatures)
+pub use api::EchoHandler;
+pub use api::HandlerContext;
+pub use api::HandlerError;
+pub use api::InProcessHandlerRegistry;
+pub use api::NoopHandlerFactory;

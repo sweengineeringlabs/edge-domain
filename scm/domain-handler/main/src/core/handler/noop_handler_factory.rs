@@ -18,7 +18,9 @@ mod tests {
 
     #[test]
     fn test_build_unit_config_returns_ok_happy() {
-        assert!(NoopHandlerFactory::build(()).is_ok());
+        let result = NoopHandlerFactory::build(());
+        assert!(result.is_ok());
+        let _: NoopHandlerFactory = result.unwrap();
     }
 
     #[test]
@@ -32,5 +34,6 @@ mod tests {
         // This test documents that absence explicitly.
         let result = NoopHandlerFactory::build(());
         assert!(result.is_ok());
+        let _: NoopHandlerFactory = result.unwrap();
     }
 }

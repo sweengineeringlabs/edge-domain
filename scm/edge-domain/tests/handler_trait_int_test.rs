@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use edge_domain::{Domain, Handler, HandlerContext, HandlerError};
-use edge_domain_observe::{ObserveContext, StdObserveFactory};
+use edge_domain_observer::{ObserveContext, StdObserveFactory};
 use edge_domain_security::SecurityContext;
 
 struct Counter {

@@ -4,7 +4,7 @@
 use async_trait::async_trait;
 use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::HandlerContext;
-use edge_domain_observe::StdObserveFactory;
+use edge_domain_observer::StdObserveFactory;
 use edge_domain_security::SecurityContext;
 use edge_llm_agent::{Agent, AgentError, MessageContent, Role, Skill, ToolChoice};
 use edge_llm_provider::{

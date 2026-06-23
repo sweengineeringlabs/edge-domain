@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use edge_domain_observe::ObserveContext;
+use edge_domain_observer::ObserveContext;
 use edge_llm_complete::Completer;
 
 use crate::api::{
