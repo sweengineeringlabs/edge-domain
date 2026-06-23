@@ -13,5 +13,4 @@ mod saf;
 pub use api::InMemoryProjection;
 pub use api::ProjectionError;
 pub use edge_domain_event::DomainEvent;
-pub use saf::Projection;
-pub use saf::ProjectionBootstrap;
+pub use saf::{Projection, ProjectionBootstrap, PROJECTION_BOOTSTRAP_SVC, PROJECTION_SVC};
