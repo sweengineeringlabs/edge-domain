@@ -10,6 +10,7 @@ mod api;
 mod core;
 mod saf;
 
+pub use api::InMemorySnapshotStore;
 pub use saf::Snapshot;
 pub use saf::SnapshotStore;
 pub use saf::SnapshotStoreBootstrap;

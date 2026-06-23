@@ -1,10 +1,7 @@
 use crate::api::NoopTunnelManager;
 
 pub use crate::api::TunnelManager;
-pub use crate::api::TunnelStatus;
-pub use crate::api::VpnError;
 pub use crate::api::VpnManagerFactory;
-pub use crate::api::VpnResult;
 
 /// SAF contract identifier for the tunnel-manager service.
 pub const TUNNEL_MANAGER_SVC: &str = "edge.vpn.tunnel_manager";

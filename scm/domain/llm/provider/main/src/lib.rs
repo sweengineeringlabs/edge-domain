@@ -14,6 +14,9 @@ mod core;
 mod saf;
 mod spi;
 
+pub use api::{
+    EchoProviderCompleter, ModelInfo, ProviderConfig, StdProviderFactory,
+};
 pub use saf::{
     ExecutionModel, Provider, ProviderBootstrap, StreamHandler, EXECUTION_MODEL_SVC,
     PROVIDER_BOOTSTRAP_SVC, PROVIDER_COMPLETER_SVC, PROVIDER_SVC, STREAM_HANDLER_SVC,

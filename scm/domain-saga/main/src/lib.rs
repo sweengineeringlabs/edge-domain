@@ -13,6 +13,7 @@ mod saf;
 pub use edge_domain_command::Command;
 pub use edge_domain_command::CommandError;
 pub use edge_domain_event::DomainEvent;
+pub use api::InMemorySagaStore;
 pub use saf::Saga;
 pub use saf::SagaBootstrap;
 pub use saf::SagaStore;

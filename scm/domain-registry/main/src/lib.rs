@@ -16,3 +16,4 @@ mod saf;
 
 pub use saf::Registry;
 pub use saf::RegistryBootstrap;
+pub use api::RegistryError;

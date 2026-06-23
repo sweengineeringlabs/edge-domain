@@ -8,7 +8,7 @@ use edge_llm_provider::Provider;
 use super::skill::Skill;
 use crate::api::types::MessageBuilder;
 use crate::api::types::{Message, Role, ToolChoice};
-use crate::AgentError;
+use crate::api::AgentError;
 
 /// An Agent is an autonomous entity that pursues goals through skill execution.
 ///

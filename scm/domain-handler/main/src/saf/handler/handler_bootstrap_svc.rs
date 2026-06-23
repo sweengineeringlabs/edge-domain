@@ -2,4 +2,3 @@
 pub const HANDLER_BOOTSTRAP_SVC: &str = "handler";
 
 pub use crate::api::HandlerBootstrap;
-pub(crate) use crate::api::NoopHandlerFactory;

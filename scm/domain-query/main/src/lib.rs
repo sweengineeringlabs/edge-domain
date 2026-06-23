@@ -10,6 +10,7 @@ mod api;
 mod core;
 mod saf;
 
+pub use api::DirectQueryBus;
 pub use saf::Query;
 pub use saf::QueryBus;
 pub use saf::QueryBusBootstrap;

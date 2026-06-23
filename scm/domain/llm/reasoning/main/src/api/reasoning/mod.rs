@@ -7,7 +7,7 @@ pub mod types;
 pub use errors::ReasoningError;
 pub use traits::{Reasoning, ReasoningBootstrap};
 pub use types::{
-    LinearReasoning, PatternMetadata, PatternMetadataBuilder, ReasoningChain, ReasoningChainBuilder,
-    ReasoningPattern, ReasoningStep, ReasoningStepBuilder, StdReasoningFactory, StepResult,
-    StepResultBuilder, ThinkingProcess, ThinkingProcessBuilder,
+    LinearReasoning, PatternMetadata, ReasoningChain,
+    ReasoningPattern, ReasoningStep, StdReasoningFactory, StepResult,
+    ThinkingProcess,
 };

@@ -8,7 +8,7 @@ use edge_llm_provider::Provider;
 use super::agent::Agent;
 use super::skill::Skill;
 use crate::api::types::{AgentMetadataBuilder, SkillMetadataBuilder};
-use crate::AgentError;
+use crate::api::AgentError;
 
 /// AgentManager is the service that loads and provides access to agents.
 ///

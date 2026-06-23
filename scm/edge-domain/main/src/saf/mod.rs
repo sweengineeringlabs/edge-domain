@@ -123,6 +123,7 @@ pub use edge_domain_event::EventStore;
 // ── pipeline (sub-crate when feature enabled) ────────────────────────────────
 #[cfg(feature = "pipeline")]
 pub use edge_domain_pipeline::Pipeline;
+#[cfg(feature = "pipeline")]
 pub use edge_domain_pipeline::Step;
 
 // ── projection (sub-crate when feature enabled) ───────────────────────────────
@@ -139,12 +140,15 @@ pub use edge_domain_saga::SagaStore;
 // ── registry (opt-in; NOT in default features) ────────────────────────────────
 #[cfg(feature = "registry")]
 pub use edge_domain_registry::Registry;
+#[cfg(feature = "registry")]
 pub use edge_domain_registry::RegistryBootstrap;
 
 // ── lifecycle (opt-in; NOT in default features) ───────────────────────────────
 #[cfg(feature = "lifecycle")]
 pub use edge_domain_lifecycle::Lifecycle;
+#[cfg(feature = "lifecycle")]
 pub use edge_domain_lifecycle::LifecycleBootstrap;
+#[cfg(feature = "lifecycle")]
 pub use edge_domain_lifecycle::TransitionPolicy;
 
 // ── security (opt-in; NOT in default features) ───────────────────────────────
