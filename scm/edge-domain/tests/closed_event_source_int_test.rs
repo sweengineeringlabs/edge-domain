@@ -3,7 +3,8 @@ use edge_domain::ClosedEventSource;
 
 #[test]
 fn test_closed_event_source_is_constructible_happy() {
-    let _src = ClosedEventSource;
+    let src = ClosedEventSource;
+    assert_eq!(std::mem::size_of_val(&src), 0, "ClosedEventSource is a ZST");
 }
 
 #[test]
@@ -13,6 +14,8 @@ fn test_closed_event_source_zst_size_edge() {
 
 #[test]
 fn test_closed_event_source_two_instances_are_independent_edge() {
-    let _a = ClosedEventSource;
-    let _b = ClosedEventSource;
+    let a = ClosedEventSource;
+    let b = ClosedEventSource;
+    assert_eq!(std::mem::size_of_val(&a), 0);
+    assert_eq!(std::mem::size_of_val(&b), 0);
 }
