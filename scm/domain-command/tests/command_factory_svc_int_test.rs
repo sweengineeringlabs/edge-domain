@@ -20,5 +20,6 @@ fn test_command_factory_trait_noop_execute_always_succeeds_error() {
 fn test_command_factory_trait_noop_result_is_copy_edge() {
     let a = <StdCommandBusFactory as CommandBootstrap>::noop();
     let b = a;
-    let _ = (a, b);
+    // Both a and b should still be valid, proving Copy semantics
+    assert_eq!(a.name(), b.name());
 }

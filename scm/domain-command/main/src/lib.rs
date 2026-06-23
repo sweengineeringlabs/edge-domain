@@ -12,6 +12,7 @@ mod saf;
 
 pub use api::CommandError;
 pub use api::DirectCommandBus;
+pub use api::StdCommandBusFactory;
 pub use saf::Command;
 pub use saf::CommandBus;
 pub use saf::CommandBusBootstrap;

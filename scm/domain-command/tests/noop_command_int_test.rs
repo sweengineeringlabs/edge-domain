@@ -20,5 +20,6 @@ fn test_noop_command_default_name_does_not_signal_failure_error() {
 fn test_noop_command_is_copy_type_edge() {
     let a = NoopCommand;
     let b = a;
-    let _ = (a, b); // Copy — both usable after "move"
+    // Both a and b should still be valid, proving Copy semantics
+    assert_eq!(a.name(), b.name());
 }

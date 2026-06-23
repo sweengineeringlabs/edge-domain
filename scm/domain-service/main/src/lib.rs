@@ -11,6 +11,7 @@ mod core;
 mod saf;
 
 pub use api::ServiceRegistry as ServiceRegistryImpl;
+pub use api::ServiceRegistryTrait;
 pub use saf::Service;
 pub use saf::ServiceError;
 pub use saf::ServiceRegistry;

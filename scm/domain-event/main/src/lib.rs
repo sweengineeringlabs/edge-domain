@@ -10,9 +10,13 @@ mod api;
 mod core;
 mod saf;
 
+pub use api::ClosedEventSource;
 pub use api::EventBusConfig;
+pub use api::EventEnvelope;
 pub use api::EventError;
+pub use api::EventReceiver;
 pub use api::EventStoreError;
+pub use api::ExpectedVersion;
 pub use api::InMemoryEventStore;
 pub use api::InProcessEventBus;
 pub use api::NoopEventBus;

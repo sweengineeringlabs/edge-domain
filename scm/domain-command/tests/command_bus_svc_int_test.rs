@@ -25,7 +25,8 @@ impl Command for Err_ {
 #[test]
 fn test_dispatch_ok_command_returns_ok_happy() {
     let bus = Buses::direct();
-    assert!(block_on(bus.dispatch(Box::new(Ok_))).is_ok());
+    let result = block_on(bus.dispatch(Box::new(Ok_)));
+    assert_eq!(result, Ok(()), "dispatch should succeed with unit return");
 }
 
 /// @covers: CommandBus::dispatch — failure propagates

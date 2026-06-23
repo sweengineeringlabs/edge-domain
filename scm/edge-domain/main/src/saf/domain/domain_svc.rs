@@ -69,9 +69,9 @@ use crate::api::Saga;
 use crate::api::SagaStore;
 
 #[cfg(feature = "service")]
-use crate::api::ServiceRegistry as ServiceRegistryTrait;
+use crate::api::ServiceRegistryTrait;
 #[cfg(feature = "service")]
-use crate::api::ServiceRegistryImpl;
+use crate::api::ServiceRegistry;
 
 #[cfg(feature = "snapshot")]
 use crate::api::Snapshot;
@@ -151,7 +151,7 @@ impl Domain {
         Request: Send + 'static,
         Response: Send + 'static,
     {
-        let r = ServiceRegistryImpl::new();
+        let r = ServiceRegistry::new();
         Arc::new(r)
     }
 

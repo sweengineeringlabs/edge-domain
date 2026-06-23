@@ -13,5 +13,7 @@ mod api;
 mod core;
 mod saf;
 
+pub use api::FixedClock;
+pub use api::SystemClock;
 pub use saf::Clock;
 pub use saf::ClockBootstrap;

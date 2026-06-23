@@ -175,9 +175,13 @@ pub use edge_domain_projection::ProjectionError;
 // ── saga (sub-crate when feature enabled) ─────────────────────────────────────
 #[cfg(feature = "saga")]
 pub use edge_domain_saga::InMemorySagaStore;
+#[cfg(feature = "saga")]
 pub use edge_domain_saga::Saga;
+#[cfg(feature = "saga")]
 pub use edge_domain_saga::SagaBootstrap;
+#[cfg(feature = "saga")]
 pub use edge_domain_saga::SagaError;
+#[cfg(feature = "saga")]
 pub use edge_domain_saga::SagaStore;
 
 // ── registry (opt-in; NOT in default features) ────────────────────────────────
