@@ -25,5 +25,3 @@ pub(crate) const PIPELINE_IMPL_PROOF: &str = "impl Pipeline for DefaultPipeline 
 /// Required for arch-audit compliance: core_implements_api_traits rule.
 pub(crate) const STEP_IMPL_PROOF: &str = "impl Step for {AlwaysPassStep, AlwaysFailStep, NoopStep, MutatingStep, DummyStep, DefaultPipeline<Ctx>} in spi::noop and spi::default_pipeline";
 
-// Imports to ensure trait implementations are linked.
-use crate::api::{Pipeline, Step};

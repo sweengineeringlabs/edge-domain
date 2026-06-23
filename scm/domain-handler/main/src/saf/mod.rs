@@ -6,7 +6,3 @@ pub use handler::{
     HANDLER_PROVIDER_SVC, HANDLER_REGISTRY_SVC, HANDLER_SVC,
 };
 
-// Concrete types: internal use only
-pub(crate) use handler::{
-    EchoHandler, HandlerContext, HandlerError, InProcessHandlerRegistry, NoopHandlerFactory,
-};

@@ -1,9 +1,9 @@
 mod provider;
 
 pub use provider::{
-    BufferedStreamHandler, CompletionInput, CompletionMessage, EchoExecutionModel,
+    BufferedStreamHandler, EchoExecutionModel,
     EchoProviderCompleter, ExecutionConfig, ExecutionError, ExecutionMode, ExecutionModel,
-    ExecutionStepResult, FinishReason, MessageRole, ModelFamily, ModelInfo, Provider,
+    ExecutionStepResult, FinishReason, ModelFamily, ModelInfo, Provider,
     ProviderBootstrap, ProviderConfig, ProviderCore, StdProviderFactory, StreamChunk, StreamDelta,
-    StreamHandler, TokenUsage, TokenizerAccuracy, ToolCallDelta, ToolDefinition,
+    StreamHandler, TokenUsage, TokenizerAccuracy, ToolCallDelta,
 };

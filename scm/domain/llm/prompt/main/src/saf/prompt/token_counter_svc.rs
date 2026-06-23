@@ -1,4 +1,3 @@
-pub use crate::api::HeuristicTokenCounter;
 pub use crate::api::TokenCounter;
 
 /// SAF contract identifier for the token-counter service.

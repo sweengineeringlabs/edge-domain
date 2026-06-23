@@ -31,7 +31,6 @@ pub use execution_step_result::ExecutionStepResult;
 pub use finish_reason::FinishReason;
 pub use model_family::ModelFamily;
 pub use model_info::ModelInfo;
-pub use oauth_token_source_factory::OAuthTokenSourceFactory;
 pub use provider_config::ProviderConfig;
 pub use stream_chunk::StreamChunk;
 pub use stream_delta::StreamDelta;

@@ -2,13 +2,16 @@ use edge_domain_observer::StdObserveFactory;
 
 #[test]
 fn test_std_observe_factory_is_constructible_happy() {
-    let _ = StdObserveFactory;
+    let f = StdObserveFactory;
+    assert_eq!(std::mem::size_of_val(&f), 0, "StdObserveFactory is ZST");
 }
 
 #[test]
 fn test_std_observe_factory_two_instances_are_distinct_error() {
-    let _a = StdObserveFactory;
-    let _b = StdObserveFactory;
+    let a = StdObserveFactory;
+    let b = StdObserveFactory;
+    assert_eq!(std::mem::size_of_val(&a), 0, "both instances are ZST");
+    assert_eq!(std::mem::size_of_val(&b), 0, "both instances are ZST");
 }
 
 #[test]

@@ -17,7 +17,8 @@ fn test_observe_error_not_initialised_display_is_non_empty() {
 #[test]
 fn test_observe_error_debug_does_not_panic() {
     let err = ObserveError::NotInitialised;
-    let _ = format!("{err:?}");
+    let debug_output = format!("{err:?}");
+    assert!(!debug_output.is_empty(), "debug output must not be empty");
 }
 
 #[test]
