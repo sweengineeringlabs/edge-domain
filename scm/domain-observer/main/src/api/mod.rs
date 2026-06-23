@@ -11,7 +11,7 @@ pub use observe::LogRecord;
 pub use observe::MetricRegistry;
 pub use observe::NoopObserve;
 pub use observe::ObserveBootstrap;
-pub use observe::ObserveContext;
+pub use observe::ObserverContext;
 pub use observe::ObserveError;
 pub use observe::Span;
 pub use observe::StdObserveFactory;

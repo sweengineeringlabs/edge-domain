@@ -192,7 +192,7 @@ fn test_default_reasoning_handler_runs_happy() {
     let h = StdReasoningFactory::default_reasoning_handler(ReasoningPattern::ChainOfThought);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let out = block_on(Handler::execute(&h, "solve x".to_string(), ctx)).expect("ok");
     assert!(out.is_complete);
@@ -209,7 +209,7 @@ fn test_default_reasoning_handler_pattern_mismatch_errors_error() {
     let h = StdReasoningFactory::default_reasoning_handler(ReasoningPattern::GraphBased);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     assert!(block_on(Handler::execute(&h, "solve x".to_string(), ctx)).is_err());
 }
@@ -237,7 +237,7 @@ fn test_reasoning_handler_produces_thinking_process_happy() {
     let h = StdReasoningFactory::reasoning_handler(reasoner);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let out = block_on(Handler::execute(&h, "what is 2+2?".to_string(), ctx)).expect("ok");
     assert!(out.is_complete);
@@ -256,7 +256,7 @@ fn test_reasoning_handler_rejects_unsupported_pattern_error() {
     let h = StdReasoningFactory::reasoning_handler(reasoner);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     assert!(block_on(Handler::execute(&h, "x".to_string(), ctx)).is_err());
 }

@@ -56,7 +56,7 @@ mod tests {
         let h = NoopAgentManager.agent_handler("review");
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let observer = StdObserveFactory::noop_observe_context();
+        let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         let out = block_on(Handler::execute(&*h, "code".to_string(), ctx)).expect("ok");
         assert_eq!(out, "review:code");
@@ -68,7 +68,7 @@ mod tests {
         let h = NoopAgentManager.agent_handler("review");
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let observer = StdObserveFactory::noop_observe_context();
+        let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         assert!(block_on(Handler::execute(&*h, String::new(), ctx)).is_err());
     }
@@ -79,7 +79,7 @@ mod tests {
         let h = NoopAgentManager.agent_handler("");
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let observer = StdObserveFactory::noop_observe_context();
+        let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         let out = block_on(Handler::execute(&*h, "x".to_string(), ctx)).expect("ok");
         assert_eq!(out, ":x");

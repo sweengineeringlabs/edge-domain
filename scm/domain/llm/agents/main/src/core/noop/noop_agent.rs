@@ -72,7 +72,7 @@ mod tests {
         use edge_domain_security::SecurityContext;
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let observer = StdObserveFactory::noop_observe_context();
+        let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         let result =
             futures::executor::block_on(NoopAgent.execute_skill("any", "input".to_string(), ctx));

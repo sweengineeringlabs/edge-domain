@@ -10,7 +10,7 @@ use edge_domain_security::SecurityContext;
 fn test_handler_context_constructs_with_unauthenticated_security_happy() {
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &bus, observer.as_ref());
     // security accessor returns the context
     let _sec = ctx.security();
@@ -25,7 +25,7 @@ fn test_handler_context_commands_field_is_accessible_error() {
 
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &bus, observer.as_ref());
     // dispatch through ctx.commands() must not panic — direct bus dispatches inline
     let result = block_on(ctx.commands().dispatch(Box::new(NoopCommand)));
@@ -39,7 +39,7 @@ fn test_handler_context_commands_field_is_accessible_error() {
 fn test_handler_context_is_copy_edge() {
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &bus, observer.as_ref());
     let ctx2 = ctx; // Copy — ctx is still usable
                     // Both copies have access to security context
@@ -50,12 +50,12 @@ fn test_handler_context_is_copy_edge() {
 
 // ── observer accessor ─────────────────────────────────────────────────────────
 
-/// @covers: HandlerContext::observer — returns bound ObserveContext
+/// @covers: HandlerContext::observer — returns bound ObserverContext
 #[test]
 fn test_observer_returns_bound_observe_context_happy() {
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &bus, observer.as_ref());
     // Observer is accessible and spans can be created
     ctx.observer().tracer().start_span("h", "op").finish();
@@ -67,7 +67,7 @@ fn test_observer_returns_bound_observe_context_happy() {
 fn test_observer_tracer_usable_after_construction_happy() {
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &bus, observer.as_ref());
     // Multiple span creations succeed without panic
     for i in 0..3 {
@@ -84,7 +84,7 @@ fn test_observer_tracer_usable_after_construction_happy() {
 fn test_observer_empty_span_ids_no_panic_error() {
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &bus, observer.as_ref());
     // Empty span IDs are handled gracefully without panic
     ctx.observer().tracer().start_span("", "").finish();
@@ -96,7 +96,7 @@ fn test_observer_empty_span_ids_no_panic_error() {
 fn test_handler_context_with_observer_is_copy_edge() {
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &bus, observer.as_ref());
     let ctx2 = ctx; // Copy — ctx still usable
                     // Both copies can reach the observer

@@ -22,7 +22,7 @@ fn test_provider_handler_custom_model_happy_executes_step() {
     let h = StdProviderFactory::provider_handler(model);
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let result = block_on(h.execute(
         "step input".to_string(),
         HandlerContext::new(&security, &bus, observer.as_ref()),
@@ -38,7 +38,7 @@ fn test_provider_handler_zero_token_budget_error_returns_err() {
     let h = StdProviderFactory::provider_handler(model);
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     assert!(block_on(h.execute(
         "step".to_string(),
         HandlerContext::new(&security, &bus, observer.as_ref())
@@ -62,7 +62,7 @@ fn test_default_provider_handler_happy_returns_non_empty_reasoning() {
     let h = StdProviderFactory::default_provider_handler(config(4096));
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let result = block_on(h.execute(
         "echo this".to_string(),
         HandlerContext::new(&security, &bus, observer.as_ref()),
@@ -77,7 +77,7 @@ fn test_default_provider_handler_zero_budget_error_propagates() {
     let h = StdProviderFactory::default_provider_handler(config(0));
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     assert!(block_on(h.execute(
         "echo".to_string(),
         HandlerContext::new(&security, &bus, observer.as_ref())

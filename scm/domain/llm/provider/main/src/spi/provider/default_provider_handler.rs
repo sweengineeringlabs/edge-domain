@@ -69,7 +69,7 @@ mod tests {
     fn test_execute_returns_reasoning_containing_goal_happy() {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let observer = StdObserveFactory::noop_observe_context();
+        let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         let out =
             block_on(Handler::execute(&handler(), "ship it".to_string(), ctx)).expect("handler ok");
@@ -80,7 +80,7 @@ mod tests {
     fn test_execute_opens_and_finishes_span_happy() {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let observer = StdObserveFactory::noop_observe_context();
+        let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         block_on(Handler::execute(&handler(), "goal".to_string(), ctx)).expect("handler ok");
     }

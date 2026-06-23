@@ -71,7 +71,7 @@ mod tests {
     fn test_handler_execute_returns_complete_process_happy() {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let observer = StdObserveFactory::noop_observe_context();
+        let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         let out = block_on(Handler::execute(&handler(), "solve x".to_string(), ctx))
             .expect("handler ok");
@@ -93,7 +93,7 @@ mod tests {
     fn test_handler_execute_blank_problem_error() {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let observer = StdObserveFactory::noop_observe_context();
+        let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         let result = block_on(Handler::execute(&handler(), "   ".to_string(), ctx));
         assert!(result.is_err());

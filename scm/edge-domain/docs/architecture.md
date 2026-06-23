@@ -18,7 +18,7 @@ Every trait in this crate is a **contract layer**. Callers depend on the trait i
 | `Repository<T, Id>` | `.save()`, `.find()`, `.list()` | HashMap, SQLite, MongoDB — caller is blind |
 | `CommandBus` | `.dispatch(cmd)` | Inline, async queue, message broker — abstracted |
 | `Handler<Req, Res>` | `.execute(req)` | Echo handler, LLM handler, database handler — handler code is portable |
-| `ObserveContext` (from `edge-domain-observer`) | `.tracer()`, `.metrics()`, `.drain()` | Noop (tests), OpenTelemetry, Prometheus — observer backend is pluggable |
+| `ObserverContext` (from `edge-domain-observer`) | `.tracer()`, `.metrics()`, `.drain()` | Noop (tests), OpenTelemetry, Prometheus — observer backend is pluggable |
 
 **This is why business logic code is transport-agnostic, persistence-agnostic, and observability-agnostic.** The domain layer defines what it needs; infrastructure layers satisfy those contracts.
 
@@ -169,7 +169,7 @@ fn count_by(&self, spec: &dyn Spec<T>)    -> BoxFuture<'_, Result<usize, Reposit
 **From the handler's perspective, this IS the observer.** Handlers don't know or care what's behind it.
 
 ```rust
-pub trait ObserveContext: Send + Sync {
+pub trait ObserverContext: Send + Sync {
     fn tracer(&self) -> &dyn HandlerTracer;   // Distributed tracing (Jaeger? Datadog? Noop?)
     fn drain(&self) -> &dyn LogDrain;         // Structured logs (ELK? Loki? /dev/null?)
     fn metrics(&self) -> &dyn MetricRegistry; // Metrics (Prometheus? Grafana? Silent?)
@@ -182,7 +182,7 @@ pub trait ObserveContext: Send + Sync {
 pub struct HandlerContext<'a> {
     pub security: &'a SecurityContext,
     pub commands: &'a dyn CommandBus,
-    pub observer: &'a dyn ObserveContext,  // ← Observability seam
+    pub observer: &'a dyn ObserverContext,  // ← Observability seam
 }
 ```
 

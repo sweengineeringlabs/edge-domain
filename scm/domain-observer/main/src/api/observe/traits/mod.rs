@@ -17,5 +17,5 @@ pub use histogram::Histogram;
 pub use log_drain::LogDrain;
 pub use metric_registry::MetricRegistry;
 pub use observe_bootstrap::ObserveBootstrap;
-pub use observe_context::ObserveContext;
+pub use observe_context::ObserverContext;
 pub use span::Span;

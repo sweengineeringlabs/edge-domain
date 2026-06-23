@@ -91,7 +91,7 @@ fn test_svc_agent_happy_trait_can_be_implemented() {
 fn test_svc_agent_happy_execute_skill_success() {
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let result =
         futures::executor::block_on(TestAgent.execute_skill("success", "input".to_string(), ctx));
@@ -104,7 +104,7 @@ fn test_svc_agent_happy_execute_skill_success() {
 fn test_svc_agent_error_execute_skill_unknown_skill() {
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let result =
         futures::executor::block_on(TestAgent.execute_skill("unknown", "input".to_string(), ctx));

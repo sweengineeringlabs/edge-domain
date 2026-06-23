@@ -76,7 +76,7 @@ mod tests {
     fn test_handler_execute_renders_template_happy() {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let observer = StdObserveFactory::noop_observe_context();
+        let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         let context =
             RenderContext::new().with_variable("name".to_string(), serde_json::json!("Ada"));
@@ -88,7 +88,7 @@ mod tests {
     fn test_handler_execute_opens_and_finishes_span_happy() {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let observer = StdObserveFactory::noop_observe_context();
+        let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         let context =
             RenderContext::new().with_variable("name".to_string(), serde_json::json!("Ada"));
@@ -109,7 +109,7 @@ mod tests {
     fn test_handler_execute_missing_variable_error() {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let observer = StdObserveFactory::noop_observe_context();
+        let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         let empty_ctx = RenderContext::new();
         let result = block_on(Handler::execute(&handler(), empty_ctx, ctx));

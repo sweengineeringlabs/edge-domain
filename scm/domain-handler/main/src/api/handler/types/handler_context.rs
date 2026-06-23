@@ -1,7 +1,7 @@
 //! [`HandlerContext`] — request-scoped execution context threaded to every `Handler::execute` call.
 
 use edge_domain_command::CommandBus;
-use edge_domain_observer::ObserveContext;
+use edge_domain_observer::ObserverContext;
 use edge_domain_security::SecurityContext;
 
 /// Request-scoped context threaded to every [`Handler::execute`](crate::api::handler::traits::Handler::execute) call.
@@ -18,7 +18,7 @@ pub enum HandlerContext<'a> {
         /// The write bus — all handler-initiated writes must go through this.
         commands: &'a dyn CommandBus,
         /// Observability seam — tracer, log drain, and metric registry for this request.
-        observer: &'a dyn ObserveContext,
+        observer: &'a dyn ObserverContext,
     },
 }
 
@@ -27,7 +27,7 @@ impl<'a> HandlerContext<'a> {
     pub fn new(
         security: &'a SecurityContext,
         commands: &'a dyn CommandBus,
-        observer: &'a dyn ObserveContext,
+        observer: &'a dyn ObserverContext,
     ) -> Self {
         Self::Standard {
             security,
@@ -51,7 +51,7 @@ impl<'a> HandlerContext<'a> {
     }
 
     /// Return the observability context for this request.
-    pub fn observer(&self) -> &'a dyn ObserveContext {
+    pub fn observer(&self) -> &'a dyn ObserverContext {
         match self {
             Self::Standard { observer, .. } => *observer,
         }

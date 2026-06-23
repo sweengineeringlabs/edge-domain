@@ -63,7 +63,7 @@ mod tests {
     fn test_handler_execute_returns_skill_colon_input_happy() {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let observer = StdObserveFactory::noop_observe_context();
+        let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         let out =
             block_on(Handler::execute(&handler(), "diff".to_string(), ctx)).expect("handler ok");
@@ -74,7 +74,7 @@ mod tests {
     fn test_handler_execute_dispatch_increments_counter_happy() {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let observer = StdObserveFactory::noop_observe_context();
+        let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         block_on(Handler::execute(&handler(), "diff".to_string(), ctx)).expect("handler ok");
     }
@@ -83,7 +83,7 @@ mod tests {
     fn test_handler_execute_empty_input_does_not_emit_span_error() {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let observer = StdObserveFactory::noop_observe_context();
+        let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         let result = block_on(Handler::execute(&handler(), String::new(), ctx));
         assert!(result.is_err());
@@ -103,7 +103,7 @@ mod tests {
     fn test_handler_execute_empty_input_error() {
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let observer = StdObserveFactory::noop_observe_context();
+        let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         let result = block_on(Handler::execute(&handler(), String::new(), ctx));
         assert!(result.is_err());

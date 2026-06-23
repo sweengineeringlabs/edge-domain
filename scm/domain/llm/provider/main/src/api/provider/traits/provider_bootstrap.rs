@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use edge_domain_observer::ObserveContext;
+use edge_domain_observer::ObserverContext;
 use edge_llm_complete::Completer;
 use serde_json::Value;
 
@@ -35,7 +35,7 @@ pub trait ProviderBootstrap {
         config: ProviderConfig,
         model: ModelInfo,
         completer: Arc<dyn Completer>,
-        observer: Arc<dyn ObserveContext>,
+        observer: Arc<dyn ObserverContext>,
     ) -> Arc<dyn Provider>
     where
         Self: Sized;

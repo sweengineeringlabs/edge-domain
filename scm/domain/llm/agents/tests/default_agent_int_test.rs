@@ -119,7 +119,7 @@ fn test_default_agent_happy_execute_skill_routes_to_echo_skill() {
         NoopAgentManager.default_agent("a", "A", "desc", noop_provider(), vec![echo_skill()]);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let result = block_on(agent.execute_skill("echo", "hello".to_string(), ctx)).expect("ok");
     assert_eq!(result, "echo:hello");
@@ -132,7 +132,7 @@ fn test_default_agent_error_execute_skill_unknown_returns_skill_not_found() {
         NoopAgentManager.default_agent("a", "A", "desc", noop_provider(), vec![echo_skill()]);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let err =
         block_on(agent.execute_skill("missing", "x".to_string(), ctx)).expect_err("should fail");
@@ -146,7 +146,7 @@ fn test_default_agent_error_execute_skill_bad_input_propagates_execution_failed(
         NoopAgentManager.default_agent("a", "A", "desc", noop_provider(), vec![echo_skill()]);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let err = block_on(agent.execute_skill("echo", String::new(), ctx))
         .expect_err("should fail on empty input");
@@ -159,7 +159,7 @@ fn test_default_agent_edge_execute_skill_no_skills_returns_not_found() {
     let agent = NoopAgentManager.default_agent("a", "A", "desc", noop_provider(), vec![]);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let err =
         block_on(agent.execute_skill("anything", "x".to_string(), ctx)).expect_err("should fail");

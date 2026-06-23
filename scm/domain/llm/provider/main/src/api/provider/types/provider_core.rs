@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use edge_domain_observer::ObserveContext;
+use edge_domain_observer::ObserverContext;
 use edge_llm_complete::Completer;
 
 use crate::api::provider::types::{ModelInfo, ProviderConfig};
@@ -16,7 +16,7 @@ pub struct ProviderCore {
     pub(crate) config: ProviderConfig,
     pub(crate) model: Option<ModelInfo>,
     pub(crate) completer: Arc<dyn Completer>,
-    pub(crate) observer: Arc<dyn ObserveContext>,
+    pub(crate) observer: Arc<dyn ObserverContext>,
 }
 
 impl ProviderCore {
@@ -25,7 +25,7 @@ impl ProviderCore {
         config: ProviderConfig,
         model: ModelInfo,
         completer: Arc<dyn Completer>,
-        observer: Arc<dyn ObserveContext>,
+        observer: Arc<dyn ObserverContext>,
     ) -> Self {
         Self {
             config,

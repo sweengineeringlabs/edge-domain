@@ -3,7 +3,7 @@
 //! **Observer contract layer** — the abstraction through which handlers observe their own behavior.
 //!
 //! This crate provides trait contracts for **request-scoped observability**: handlers call methods on
-//! [`ObserveContext`] to emit traces, logs, and metrics without knowing or caring how that telemetry
+//! [`ObserverContext`] to emit traces, logs, and metrics without knowing or caring how that telemetry
 //! is collected or where it goes.
 //!
 //! ## What it does
@@ -13,11 +13,11 @@
 //! - [`LogDrain`] — write structured log records
 //! - [`MetricRegistry`] — increment counters, set gauges, record histograms
 //!
-//! All accessed via a single [`ObserveContext`] injected at request time.
+//! All accessed via a single [`ObserverContext`] injected at request time.
 //!
 //! ## How it works
 //!
-//! 1. **In tests:** Use [`StdObserveFactory::noop_observe_context()`] — handlers observe, but nothing happens
+//! 1. **In tests:** Use [`StdObserveFactory::noop_observer_context()`] — handlers observe, but nothing happens
 //! 2. **In production:** Wire SDK-backed implementations (OpenTelemetry, Prometheus) to the same interface
 //!
 //! The handler code never changes. The observer backend is pluggable.
@@ -26,7 +26,7 @@
 //!
 //! ```ignore
 //! // Handler receives observer at dispatch time
-//! let observer = StdObserveFactory::noop_observe_context();
+//! let observer = StdObserveFactory::noop_observer_context();
 //!
 //! // Handler observes its behavior
 //! observer.tracer().start_span("my_handler", "execute").finish();
@@ -54,7 +54,7 @@ pub use saf::LogDrain;
 pub use saf::MetricRegistry;
 pub use saf::NoopObserve;
 pub use saf::ObserveBootstrap;
-pub use saf::ObserveContext;
+pub use saf::ObserverContext;
 pub use saf::Span;
 pub use saf::COUNTER_SVC;
 pub use saf::GAUGE_SVC;

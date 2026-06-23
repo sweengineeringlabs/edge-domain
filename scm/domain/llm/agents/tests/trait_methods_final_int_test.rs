@@ -460,7 +460,7 @@ fn test_execute_skill_agent_happy() {
     use edge_domain_security::SecurityContext;
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let result = futures::executor::block_on(SuccessAgent.execute_skill(
         "code_review",
@@ -480,7 +480,7 @@ fn test_execute_skill_agent_error() {
     use edge_domain_security::SecurityContext;
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let result = futures::executor::block_on(FailingAgent.execute_skill(
         "any_skill",
@@ -505,7 +505,7 @@ fn test_execute_skill_agent_edge() {
     use edge_domain_security::SecurityContext;
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let result = futures::executor::block_on(SuccessAgent.execute_skill("", "".to_string(), ctx));
     assert!(result.is_ok());

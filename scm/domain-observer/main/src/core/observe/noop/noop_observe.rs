@@ -4,7 +4,7 @@ use super::noop_handler_tracer::NoopHandlerTracer;
 use super::noop_histogram::NoopHistogram;
 use super::noop_log_drain::NoopLogDrain;
 use super::noop_metric_registry::NoopMetricRegistry;
-use super::noop_observe_context::NoopObserveContext;
+use super::noop_observer_context::NoopObserverContext;
 use super::noop_span::NoopSpan;
 use crate::api::Counter;
 use crate::api::Gauge;
@@ -13,7 +13,7 @@ use crate::api::Histogram;
 use crate::api::LogDrain;
 use crate::api::MetricRegistry;
 use crate::api::NoopObserve;
-use crate::api::ObserveContext;
+use crate::api::ObserverContext;
 use crate::api::Span;
 use crate::api::StdObserveFactory;
 
@@ -46,7 +46,7 @@ impl NoopObserve for StdObserveFactory {
         Box::new(NoopMetricRegistry::new())
     }
 
-    fn build_noop_observe_context() -> Box<dyn ObserveContext> {
-        Box::new(NoopObserveContext::new())
+    fn build_noop_observer_context() -> Box<dyn ObserverContext> {
+        Box::new(NoopObserverContext::new())
     }
 }

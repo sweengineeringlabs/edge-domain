@@ -118,7 +118,7 @@ fn test_retrieved_handler_executes_correctly_happy() {
     let h = reg.get("exec").unwrap();
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &bus, observer.as_ref());
     assert_eq!(block_on(h.execute("data".into(), ctx)).unwrap(), "data");
 }

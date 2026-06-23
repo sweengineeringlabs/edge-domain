@@ -2,7 +2,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain::*;
-use edge_domain_observer::{ObserveContext, StdObserveFactory};
+use edge_domain_observer::{ObserverContext, StdObserveFactory};
 use edge_domain_security::SecurityContext;
 use futures::executor::block_on;
 use futures::future::BoxFuture;
@@ -11,7 +11,7 @@ use std::sync::Arc;
 fn test_ctx<'a>(
     security: &'a SecurityContext,
     bus: &'a Arc<dyn CommandBus>,
-    observer: &'a dyn ObserveContext,
+    observer: &'a dyn ObserverContext,
 ) -> HandlerContext<'a> {
     HandlerContext::new(security, bus.as_ref(), observer)
 }
@@ -151,7 +151,7 @@ fn test_echo_handler_string_roundtrip_happy() {
         let h = Domain::echo_handler::<String>("id", "/");
         let security = SecurityContext::unauthenticated();
         let bus = Domain::direct_command_bus();
-        let observer = StdObserveFactory::noop_observe_context();
+        let observer = StdObserveFactory::noop_observer_context();
         assert_eq!(
             h.execute("ping".into(), test_ctx(&security, &bus, observer.as_ref()))
                 .await
@@ -168,7 +168,7 @@ fn test_echo_handler_always_returns_ok_not_error() {
         let h = Domain::echo_handler::<String>("id", "/");
         let security = SecurityContext::unauthenticated();
         let bus = Domain::direct_command_bus();
-        let observer = StdObserveFactory::noop_observe_context();
+        let observer = StdObserveFactory::noop_observer_context();
         assert!(h
             .execute(
                 "anything".into(),
@@ -185,7 +185,7 @@ fn test_echo_handler_empty_string_preserved_edge() {
         let h = Domain::echo_handler::<String>("id", "/");
         let security = SecurityContext::unauthenticated();
         let bus = Domain::direct_command_bus();
-        let observer = StdObserveFactory::noop_observe_context();
+        let observer = StdObserveFactory::noop_observer_context();
         assert_eq!(
             h.execute(String::new(), test_ctx(&security, &bus, observer.as_ref()))
                 .await

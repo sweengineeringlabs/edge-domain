@@ -17,5 +17,5 @@ pub use log_drain_svc::{LogDrain, LOG_DRAIN_SVC};
 pub use metric_registry_svc::{MetricRegistry, METRIC_REGISTRY_SVC};
 pub use noop_observe_svc::{NoopObserve, NOOP_OBSERVE_SVC};
 pub use observe_bootstrap_svc::{ObserveBootstrap, OBSERVE_FACTORY_SVC};
-pub use observe_context_svc::{ObserveContext, OBSERVE_CONTEXT_SVC};
+pub use observe_context_svc::{ObserverContext, OBSERVE_CONTEXT_SVC};
 pub use span_svc::{Span, SPAN_SVC};

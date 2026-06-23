@@ -58,7 +58,7 @@ mod tests {
     fn test_noop_skill_error_execute_returns_error() {
         let security = edge_domain_security::SecurityContext::unauthenticated();
         let bus = edge_domain_command::StdCommandBusFactory::direct();
-        let observer = StdObserveFactory::noop_observe_context();
+        let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext::new(&security, &bus, observer.as_ref());
         let result = futures::executor::block_on(NoopSkill.execute("input".to_string(), ctx));
         assert!(result.is_err());

@@ -137,7 +137,7 @@ mod tests {
         let agent = DefaultAgent::new("a", "A", "d", noop_provider(), vec![]);
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let observer = StdObserveFactory::noop_observe_context();
+        let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         let result = block_on(agent.execute_skill("ghost", "x".to_string(), ctx));
         assert!(matches!(result, Err(AgentError::SkillNotFound(_))));
@@ -152,7 +152,7 @@ mod tests {
         let agent = DefaultAgent::new("a", "A", "d", noop_provider(), vec![]);
         let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
-        let observer = StdObserveFactory::noop_observe_context();
+        let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
         let result = block_on(agent.execute_skill("any", String::new(), ctx));
         assert!(matches!(result, Err(AgentError::SkillNotFound(_))));

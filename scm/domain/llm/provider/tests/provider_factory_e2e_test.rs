@@ -27,7 +27,7 @@ fn test_default_provider_handler_runs_happy() {
     let h = StdProviderFactory::default_provider_handler(config);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let out = block_on(Handler::execute(&h, "go".to_string(), ctx)).expect("ok");
     assert!(out.reasoning.contains("go"));
@@ -45,7 +45,7 @@ fn test_default_provider_handler_zero_budget_errors_error() {
     let h = StdProviderFactory::default_provider_handler(config);
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     assert!(block_on(Handler::execute(&h, "go".to_string(), ctx)).is_err());
 }

@@ -14,7 +14,7 @@ pub use traits::Histogram;
 pub use traits::LogDrain;
 pub use traits::MetricRegistry;
 pub use traits::ObserveBootstrap;
-pub use traits::ObserveContext;
+pub use traits::ObserverContext;
 pub use traits::Span;
 pub use types::LogRecord;
 pub use types::StdObserveFactory;

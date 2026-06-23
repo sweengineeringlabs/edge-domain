@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use edge_domain_observer::ObserveContext;
+use edge_domain_observer::ObserverContext;
 use edge_llm_complete::Completer;
 
 use crate::api::{
@@ -14,7 +14,7 @@ impl ProviderBootstrap for StdProviderFactory {
         config: ProviderConfig,
         model: ModelInfo,
         completer: Arc<dyn Completer>,
-        observer: Arc<dyn ObserveContext>,
+        observer: Arc<dyn ObserverContext>,
     ) -> Arc<dyn Provider> {
         Arc::new(ProviderCore::new(config, model, completer, observer))
     }

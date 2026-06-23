@@ -4,7 +4,7 @@
 **Date:** 2026-06-19  
 **Governing ADR:** [ADR-006](ADR-006-observability-domain-primitive.md) — Observability Domain Primitive  
 **Relates to:** [ADR-033](https://github.com/sweengineeringlabs/edge/blob/main/docs/3-architecture/adr/ADR-033-llm-provider-domain-primitive.md) — LLM Provider Domain Primitive, [ADR-043](ADR-043-llm-complete-domain-primitive.md) — LLM Complete Domain Primitive  
-**GitHub Issues:** TBD — ObserveContext trait in edge-domain-observer, TBD — HandlerContext observe seam, TBD — ProviderFactory observe seam
+**GitHub Issues:** TBD — ObserverContext trait in edge-domain-observer, TBD — HandlerContext observe seam, TBD — ProviderFactory observe seam
 
 ---
 
@@ -83,7 +83,7 @@ The return type is `ProviderCore` (concrete, pub(crate)), not `Arc<dyn Provider>
 
 ### No LLM crate depends on edge-domain-observer
 
-Confirmed `Cargo.toml` for all five LLM crates: none lists `edge-domain-observer` as a dependency. The `ObserveContext` trait named in this ADR does not yet exist anywhere in the codebase.
+Confirmed `Cargo.toml` for all five LLM crates: none lists `edge-domain-observer` as a dependency. The `ObserverContext` trait named in this ADR does not yet exist anywhere in the codebase.
 
 ---
 
@@ -93,19 +93,19 @@ Rather than stitching observability into each LLM crate independently (which wou
 
 ---
 
-### Seam 1 — `HandlerContext` carries `ObserveContext`
+### Seam 1 — `HandlerContext` carries `ObserverContext`
 
 **New trait in `edge-domain-observer`:**
 
 ```rust
-pub trait ObserveContext: Send + Sync {
+pub trait ObserverContext: Send + Sync {
     fn tracer(&self) -> &dyn HandlerTracer;
     fn drain(&self) -> &dyn LogDrain;
     fn metrics(&self) -> &dyn MetricRegistry;
 }
 ```
 
-`ObserveContext` is a composition handle — a single object the runtime injects once that gives handler logic access to all three observability ports. It does not own the ports; it borrows them. Implementers hold `Arc<dyn HandlerTracer>`, `Arc<dyn LogDrain>`, `Arc<dyn MetricRegistry>` and return references to their inner data.
+`ObserverContext` is a composition handle — a single object the runtime injects once that gives handler logic access to all three observability ports. It does not own the ports; it borrows them. Implementers hold `Arc<dyn HandlerTracer>`, `Arc<dyn LogDrain>`, `Arc<dyn MetricRegistry>` and return references to their inner data.
 
 **Change to `HandlerContext` in `edge-domain-handler`:**
 
@@ -116,7 +116,7 @@ pub enum HandlerContext<'a> {
     Standard {
         security: &'a SecurityContext,
         commands: &'a dyn CommandBus,
-        observer: &'a dyn ObserveContext,   // NEW
+        observer: &'a dyn ObserverContext,   // NEW
     },
 }
 
@@ -124,26 +124,26 @@ impl<'a> HandlerContext<'a> {
     pub fn new(
         security: &'a SecurityContext,
         commands: &'a dyn CommandBus,
-        observer: &'a dyn ObserveContext,   // NEW
+        observer: &'a dyn ObserverContext,   // NEW
     ) -> Self {
         Self::Standard { security, commands, observer }
     }
 
-    pub fn observer(&self) -> &dyn ObserveContext {
+    pub fn observer(&self) -> &dyn ObserverContext {
         match self { Self::Standard { observer, .. } => *observer }
     }
 }
 ```
 
-`observer` uses `&'a dyn ObserveContext` — same lifetime discipline as `security` and `commands`. The `Copy + Clone` derive is preserved: the type holds only references.
+`observer` uses `&'a dyn ObserverContext` — same lifetime discipline as `security` and `commands`. The `Copy + Clone` derive is preserved: the type holds only references.
 
 **Coverage:** every `Skill`, `DefaultAgentHandler`, `DefaultPromptHandler`, `DefaultReasoningHandler`, `DefaultProviderHandler`, and any future `Handler` impl automatically receives the observer. Handlers call `ctx.observer().tracer()` to open a span, `ctx.observer().drain()` to emit a log record, or `ctx.observer().metrics()` to record a counter.
 
-**Noop path:** `NoopObserveContext` is unconditionally available from `edge-domain-observer`'s SAF. Tests construct `HandlerContext::new(security, commands, &NoopObserveContext)`.
+**Noop path:** `NoopObserverContext` is unconditionally available from `edge-domain-observer`'s SAF. Tests construct `HandlerContext::new(security, commands, &NoopObserverContext)`.
 
 ---
 
-### Seam 2 — `ProviderFactory` returns `Arc<dyn Provider>` and accepts `Arc<dyn ObserveContext>`
+### Seam 2 — `ProviderFactory` returns `Arc<dyn Provider>` and accepts `Arc<dyn ObserverContext>`
 
 Two changes are required together — the return type must be sealed behind the trait before the observer parameter can be stored inside the `Provider` impl:
 
@@ -153,14 +153,14 @@ pub trait ProviderFactory {
         config: ProviderConfig,
         model: ModelInfo,
         completer: Arc<dyn Completer>,
-        observer: Arc<dyn ObserveContext>,   // NEW
+        observer: Arc<dyn ObserverContext>,   // NEW
     ) -> Arc<dyn Provider>;                  // was: -> ProviderCore
 }
 ```
 
 `ProviderCore` is replaced by `Arc<dyn Provider>` as the return type. `ProviderCore` becomes the internal implementation detail that `StdProviderFactory` wraps in `Arc::new(...)`. Callers never name `ProviderCore`.
 
-The `Provider` impl stores `Arc<dyn ObserveContext>` and uses it inside `execute_step()` to:
+The `Provider` impl stores `Arc<dyn ObserverContext>` and uses it inside `execute_step()` to:
 
 - Increment a `Counter` for total completion calls.
 - Record a `Histogram` observation for round-trip latency (duration of the `Completer::complete()` call).
@@ -173,7 +173,7 @@ The `Provider` impl stores `Arc<dyn ObserveContext>` and uses it inside `execute
 
 ## What this is NOT
 
-- **Not an OTel SDK integration.** `ObserveContext` is a pure domain trait. The OTel subscriber, Prometheus exporter, and OTLP exporter remain in `edge-observe` (future assembler-layer crate). This ADR only establishes the domain-level injection points.
+- **Not an OTel SDK integration.** `ObserverContext` is a pure domain trait. The OTel subscriber, Prometheus exporter, and OTLP exporter remain in `edge-observe` (future assembler-layer crate). This ADR only establishes the domain-level injection points.
 
 - **Not a replacement for `edge-dispatch`'s pipeline span.** The `"pipeline.stage"` span that `edge-dispatch` creates covers the router-to-handler boundary. `HandlerTracer` spans created via `ctx.observer().tracer()` are children of that span — they cover handler-internal operations.
 
@@ -187,7 +187,7 @@ The `Provider` impl stores `Arc<dyn ObserveContext>` and uses it inside `execute
 
 | Crate | Change | Dep added |
 |---|---|---|
-| `edge-domain-observer` | New `ObserveContext` trait + `NoopObserveContext` struct | None |
+| `edge-domain-observer` | New `ObserverContext` trait + `NoopObserverContext` struct | None |
 | `edge-domain-handler` | `HandlerContext::Standard` variant gains `observer`; `new()` updated | `edge-domain-observer` |
 | `edge-llm-provider` | `ProviderFactory::provider` return type → `Arc<dyn Provider>`; gains `observer` param | `edge-domain-observer` |
 | `edge-llm-agent` | `DefaultAgentHandler::execute` removes `_ctx` prefix; uses `ctx.observer()` | Transitive via handler |
@@ -202,13 +202,13 @@ The `Provider` impl stores `Arc<dyn ObserveContext>` and uses it inside `execute
 
 ## Boundary rules
 
-**B1 — `ObserveContext` is defined in `edge-domain-observer` only.** No LLM crate defines a parallel observe-context type. All LLM crates depend on `edge-domain-observer` for this trait.
+**B1 — `ObserverContext` is defined in `edge-domain-observer` only.** No LLM crate defines a parallel observe-context type. All LLM crates depend on `edge-domain-observer` for this trait.
 
 **B2 — `HandlerContext` is the sole dispatch carrier.** Observability context must not be threaded through method parameters separately. Handlers receive one context object; they access the observer through it.
 
 **B3 — Provider observability is emission-only.** The `Provider` impl records metrics and log records. It does not create top-level spans — it emits child spans via `tracer().start_span(...)`. Span propagation is an infrastructure concern.
 
-**B4 — Noop impls are unconditionally available.** `NoopObserveContext` must compile without feature flags. Any handler test that constructs a `HandlerContext` uses `NoopObserveContext` by default.
+**B4 — Noop impls are unconditionally available.** `NoopObserverContext` must compile without feature flags. Any handler test that constructs a `HandlerContext` uses `NoopObserverContext` by default.
 
 **B5 — No SDK deps in domain crates.** `edge-domain-observer`, `edge-domain-handler`, and all `edge-llm-*` crates must not import OTel, Prometheus, or any metrics SDK. Port contracts only.
 
@@ -222,20 +222,20 @@ The `Provider` impl stores `Arc<dyn ObserveContext>` and uses it inside `execute
 
 | Site | File | Observer to pass |
 |---|---|---|
-| `edge-dispatch` | Router dispatch loop | Runtime-injected `Arc<dyn ObserveContext>` |
+| `edge-dispatch` | Router dispatch loop | Runtime-injected `Arc<dyn ObserverContext>` |
 | `DefaultAgent::execute_skill` | `core/types/default_agent.rs` | Forward the caller's `ctx` instead of constructing a new one |
-| All LLM integration tests | `tests/*.rs` in each LLM crate | `&NoopObserveContext` |
-| `edge-domain-handler` tests | `tests/*.rs` | `&NoopObserveContext` |
+| All LLM integration tests | `tests/*.rs` in each LLM crate | `&NoopObserverContext` |
+| `edge-domain-handler` tests | `tests/*.rs` | `&NoopObserverContext` |
 
 `DefaultAgent::execute_skill` is the most important site — it currently constructs its own `HandlerContext` with `SecurityContext::unauthenticated()`, silently dropping the caller's security principal. The fix is to accept `HandlerContext<'_>` as a parameter and forward it to `skill.execute()`.
 
-**`ProviderFactory::provider()` call sites** — every location that calls `StdProviderFactory::provider(config, model, completer)` must add a `NoopObserveContext` (tests) or a runtime-injected observer (assembler).
+**`ProviderFactory::provider()` call sites** — every location that calls `StdProviderFactory::provider(config, model, completer)` must add a `NoopObserverContext` (tests) or a runtime-injected observer (assembler).
 
 ---
 
 ## Known limitations (deferred)
 
-**L1 — `ObserveContext` has no context propagation.** W3C traceparent and baggage threading are assembler concerns, not domain concerns. The domain creates spans; the OTel subscriber propagates them. If distributed trace correlation across service boundaries is required, it must be injected via a separate `PropagationContext` — not layered onto `ObserveContext`. Tracked: TBD.
+**L1 — `ObserverContext` has no context propagation.** W3C traceparent and baggage threading are assembler concerns, not domain concerns. The domain creates spans; the OTel subscriber propagates them. If distributed trace correlation across service boundaries is required, it must be injected via a separate `PropagationContext` — not layered onto `ObserverContext`. Tracked: TBD.
 
 **L2 — `Completer::complete()` latency is measured at the `Provider` level, not the `Completer` level.** A slow completer that is called from multiple providers will be attributed to the provider, not to the underlying HTTP transport. SDK-backed `Completer` impls that instrument themselves individually are a future concern for `edge-observe`. Tracked: TBD.
 
@@ -249,24 +249,24 @@ The `Provider` impl stores `Arc<dyn ObserveContext>` and uses it inside `execute
 
 ## Implementation order (layer-gated TDD)
 
-1. **`ObserveContext` + `NoopObserveContext` in `edge-domain-observer`**  
-   Add `api/observe/traits/observe_context.rs`; add `core/observe/noop/noop_observe_context.rs`; factory fn `noop_observe_context()` in `saf/observe/observe_context_svc.rs`; export from `lib.rs` and `saf/mod.rs`.  
+1. **`ObserverContext` + `NoopObserverContext` in `edge-domain-observer`**  
+   Add `api/observe/traits/observe_context.rs`; add `core/observe/noop/noop_observer_context.rs`; factory fn `noop_observer_context()` in `saf/observe/observe_context_svc.rs`; export from `lib.rs` and `saf/mod.rs`.  
    Gate: `cargo test`, `arch audit --rs` 183/183, `cargo clippy -D warnings`.
 
 2. **`HandlerContext` seam in `edge-domain-handler`**  
-   Add `edge-domain-observer` to `Cargo.toml`; add `observer: &'a dyn ObserveContext` to `HandlerContext::Standard`; update `new()` and `observer()` accessor; update all construction sites in `edge-domain-handler`'s own tests to pass `&NoopObserveContext`.  
+   Add `edge-domain-observer` to `Cargo.toml`; add `observer: &'a dyn ObserverContext` to `HandlerContext::Standard`; update `new()` and `observer()` accessor; update all construction sites in `edge-domain-handler`'s own tests to pass `&NoopObserverContext`.  
    Gate: `cargo test`, `arch audit --rs`, `cargo clippy -D warnings`.
 
 3. **`ProviderFactory` seam in `edge-llm-provider`**  
-   Add `edge-domain-observer` to `Cargo.toml`; change `provider()` return type from `ProviderCore` to `Arc<dyn Provider>`; add `observer: Arc<dyn ObserveContext>` param; store in `ProviderCore`; emit counter + histogram + log records in `execute_step()`; update `StdProviderFactory`; update all integration test call sites.  
+   Add `edge-domain-observer` to `Cargo.toml`; change `provider()` return type from `ProviderCore` to `Arc<dyn Provider>`; add `observer: Arc<dyn ObserverContext>` param; store in `ProviderCore`; emit counter + histogram + log records in `execute_step()`; update `StdProviderFactory`; update all integration test call sites.  
    Gate: `cargo test`, `arch audit --rs`, `cargo clippy -D warnings`.
 
 4. **Handler instrumentation across LLM crates**  
-   Remove `_ctx` prefix in `DefaultProviderHandler`, `DefaultReasoningHandler`, `DefaultPromptHandler`, `DefaultAgentHandler`; open a child span and emit a completion log record via `ctx.observer()` in each; update construction sites in integration tests to pass `&NoopObserveContext` via `HandlerContext::new`.  
+   Remove `_ctx` prefix in `DefaultProviderHandler`, `DefaultReasoningHandler`, `DefaultPromptHandler`, `DefaultAgentHandler`; open a child span and emit a completion log record via `ctx.observer()` in each; update construction sites in integration tests to pass `&NoopObserverContext` via `HandlerContext::new`.  
    Gate: `cargo test`, `arch audit --rs`, `cargo clippy -D warnings`, `cargo fmt --check`.
 
 5. **`DefaultAgent::execute_skill` context propagation** _(may be sequenced separately — see L5)_  
    Change `Agent::execute_skill(&self, skill_name: &str, input: String)` to `execute_skill(&self, skill_name: &str, input: String, ctx: HandlerContext<'_>)`; remove internal `HandlerContext` construction from `DefaultAgent::execute_skill`; forward caller's `ctx` to `skill.execute()`; update all `Agent` implementors and call sites.  
    Gate: same as step 4.
 
-Each step is blocked on the previous — `HandlerContext` cannot be updated before `ObserveContext` is defined; `ProviderFactory` and handler instrumentation cannot be updated before `HandlerContext` carries the observer.
+Each step is blocked on the previous — `HandlerContext` cannot be updated before `ObserverContext` is defined; `ProviderFactory` and handler instrumentation cannot be updated before `HandlerContext` carries the observer.

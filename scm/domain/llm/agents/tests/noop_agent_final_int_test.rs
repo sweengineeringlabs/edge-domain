@@ -22,7 +22,7 @@ fn test_noop_agent_exposes_no_skills() {
 fn test_noop_agent_execute_skill_reports_missing_skill() {
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let result = futures::executor::block_on(NoopAgent.execute_skill("x", "{}".to_string(), ctx));
     assert!(result.is_err());

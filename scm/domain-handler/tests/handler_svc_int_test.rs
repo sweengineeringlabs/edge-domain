@@ -3,7 +3,7 @@
 use async_trait::async_trait;
 use edge_domain_command::{CommandBus, CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{Handler, HandlerContext, HandlerError};
-use edge_domain_observer::{ObserveContext, StdObserveFactory};
+use edge_domain_observer::{ObserverContext, StdObserveFactory};
 use edge_domain_security::SecurityContext;
 use futures::executor::block_on;
 
@@ -64,7 +64,7 @@ impl Handler for UnhealthyHandler {
 fn make_ctx<'a>(
     security: &'a SecurityContext,
     bus: &'a dyn CommandBus,
-    observer: &'a dyn ObserveContext,
+    observer: &'a dyn ObserverContext,
 ) -> HandlerContext<'a> {
     HandlerContext::new(security, bus, observer)
 }
@@ -74,7 +74,7 @@ fn make_ctx<'a>(
 fn test_execute_ok_handler_returns_response_happy() {
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = make_ctx(&security, &bus, observer.as_ref());
     assert_eq!(
         block_on(OkHandler.execute("hello".into(), ctx)).unwrap(),
@@ -87,7 +87,7 @@ fn test_execute_ok_handler_returns_response_happy() {
 fn test_execute_failing_handler_returns_err_error() {
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = make_ctx(&security, &bus, observer.as_ref());
     assert!(block_on(FailHandler.execute("x".into(), ctx)).is_err());
 }
@@ -133,7 +133,7 @@ fn test_health_check_unhealthy_handler_returns_false_error() {
 fn test_execute_with_unauthenticated_context_returns_response_happy() {
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = make_ctx(&security, &bus, observer.as_ref());
     assert_eq!(
         block_on(OkHandler.execute("world".into(), ctx)).unwrap(),
@@ -147,7 +147,7 @@ fn test_execute_with_authenticated_context_still_executes_edge() {
     use edge_domain_security::AnonymousPrincipal;
     let security = SecurityContext::authenticated_with(Box::new(AnonymousPrincipal));
     let bus = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = make_ctx(&security, &bus, observer.as_ref());
     assert_eq!(
         block_on(OkHandler.execute("test".into(), ctx)).unwrap(),

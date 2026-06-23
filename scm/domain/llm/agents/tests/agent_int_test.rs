@@ -121,7 +121,7 @@ fn test_trait_agent_happy_description_returns_configured_description() {
 fn test_trait_agent_happy_execute_skill_success_returns_ok_response() {
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let result = futures::executor::block_on(SuccessAgent.execute_skill(
         "analyze",
@@ -137,7 +137,7 @@ fn test_trait_agent_happy_execute_skill_success_returns_ok_response() {
 fn test_trait_agent_error_execute_skill_failure_returns_execution_failed() {
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let result = futures::executor::block_on(FailingAgent.execute_skill(
         "any_skill",
@@ -158,7 +158,7 @@ fn test_trait_agent_error_execute_skill_failure_returns_execution_failed() {
 fn test_trait_agent_happy_execute_skill_preserves_input() {
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
-    let observer = StdObserveFactory::noop_observe_context();
+    let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let result = futures::executor::block_on(SuccessAgent.execute_skill(
         "skill",
