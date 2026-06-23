@@ -43,6 +43,7 @@ saga        = ["dep:edge-domain-saga",        "event", "command"]
 security    = []
 registry    = ["dep:edge-domain-registry"]
 lifecycle   = ["dep:edge-domain-lifecycle"]
+observer    = ["dep:edge-domain-observer"]
 full        = [
     "entity", "valueobject",
     "clock", "validator", "policy",
@@ -50,7 +51,7 @@ full        = [
     "repository", "handler", "event", "pipeline",
     "projection", "saga",
     "security",
-    "registry", "lifecycle",
+    "registry", "lifecycle", "observer",
 ]
 
 [dependencies]
@@ -76,6 +77,7 @@ edge-domain-projection  = { workspace = true, optional = true }
 edge-domain-saga        = { workspace = true, optional = true }
 edge-domain-registry    = { workspace = true, optional = true }
 edge-domain-lifecycle   = { workspace = true, optional = true }
+edge-domain-observer    = { workspace = true, optional = true }
 edge-domain-security.workspace = true
 
 [dev-dependencies]
@@ -98,6 +100,7 @@ edge-domain-projection.workspace   = true
 edge-domain-saga.workspace         = true
 edge-domain-registry.workspace     = true
 edge-domain-lifecycle.workspace    = true
+edge-domain-observer.workspace     = true
 edge-domain-security.workspace     = true
 
 [lints.rust]

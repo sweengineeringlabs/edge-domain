@@ -11,7 +11,6 @@ mod core;
 mod saf;
 
 pub use api::InMemoryRepository;
-pub use api::Page;
 pub use api::RepositoryError;
 pub use saf::QueryableRepository;
 pub use saf::Repository;

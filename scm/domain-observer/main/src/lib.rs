@@ -43,9 +43,6 @@ mod core;
 mod saf;
 mod spi;
 
-pub use api::LogRecord;
-pub use api::ObserveError;
-pub use api::StdObserveFactory;
 pub use saf::Counter;
 pub use saf::Gauge;
 pub use saf::HandlerTracer;

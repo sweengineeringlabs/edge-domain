@@ -182,15 +182,25 @@ pub use edge_domain_saga::SagaStore;
 
 // ── registry (opt-in; NOT in default features) ────────────────────────────────
 #[cfg(feature = "registry")]
+pub use edge_domain_registry::InMemoryRegistry;
+#[cfg(feature = "registry")]
 pub use edge_domain_registry::Registry;
 #[cfg(feature = "registry")]
 pub use edge_domain_registry::RegistryBootstrap;
+#[cfg(feature = "registry")]
+pub use edge_domain_registry::RegistryError;
 
 // ── lifecycle (opt-in; NOT in default features) ───────────────────────────────
+#[cfg(feature = "lifecycle")]
+pub use edge_domain_lifecycle::LifecycleError;
 #[cfg(feature = "lifecycle")]
 pub use edge_domain_lifecycle::Lifecycle;
 #[cfg(feature = "lifecycle")]
 pub use edge_domain_lifecycle::LifecycleBootstrap;
+#[cfg(feature = "lifecycle")]
+pub use edge_domain_lifecycle::ManagedLifecycle;
+#[cfg(feature = "lifecycle")]
+pub use edge_domain_lifecycle::PermissivePolicy;
 #[cfg(feature = "lifecycle")]
 pub use edge_domain_lifecycle::TransitionPolicy;
 
@@ -199,6 +209,7 @@ pub use edge_domain_lifecycle::TransitionPolicy;
 pub use edge_domain_security::Principal;
 pub use edge_domain_security::Security;
 pub use edge_domain_security::SecurityBootstrap;
+pub use edge_domain_security::SecurityError;
 
 // ── observer (opt-in; NOT in default features) ───────────────────────────────
 #[cfg(feature = "observer")]

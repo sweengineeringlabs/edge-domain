@@ -9,3 +9,6 @@ pub use self::domain_event_svc::*;
 pub use self::domain_extension_svc::*;
 pub use self::domain_spi_svc::*;
 pub use self::domain_svc::*;
+
+// Explicit re-export of Domain for public API
+pub use crate::api::Domain;

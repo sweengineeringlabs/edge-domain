@@ -13,6 +13,5 @@ mod api;
 mod core;
 mod saf;
 
-pub use api::ValidatorError;
 pub use saf::Validator;
 pub use saf::ValidatorBootstrap;

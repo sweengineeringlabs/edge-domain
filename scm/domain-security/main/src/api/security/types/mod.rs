@@ -7,4 +7,5 @@ pub mod security_services;
 pub use anonymous_principal::AnonymousPrincipal;
 pub use noop_security::NoopSecurity;
 pub use security_context::SecurityContext;
+pub use security_context_builder::SecurityContextBuilder;
 pub use security_services::SecurityServices;

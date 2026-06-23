@@ -13,7 +13,5 @@ mod api;
 mod core;
 mod saf;
 
-pub use api::CompositePolicy;
-pub use api::PolicyViolation;
 pub use saf::Policy;
 pub use saf::PolicyBootstrap;

@@ -14,9 +14,5 @@ mod core;
 mod saf;
 mod spi;
 
-// Public API surface: traits, types, and services
-pub use api::{
-    PipelineConfig, PipelineError, Pipeline, Step, Validator, PipelineService, ValidatorService,
-};
-pub use convenience::{create_pipeline, create_pipeline_with_config, create_validator};
 pub use saf::{PIPELINE_SVC, STEP_SVC, VALIDATOR_SVC};
+pub use convenience::{create_pipeline, create_pipeline_with_config, create_validator};

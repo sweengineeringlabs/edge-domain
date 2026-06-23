@@ -13,9 +13,8 @@ mod api;
 mod core;
 mod saf;
 
+pub use api::SecurityContext;
+pub use api::SecurityError;
 pub use saf::Principal;
 pub use saf::Security;
 pub use saf::SecurityBootstrap;
-pub use crate::api::AnonymousPrincipal;
-pub use crate::api::SecurityServices;
-pub use crate::api::SecurityContext;

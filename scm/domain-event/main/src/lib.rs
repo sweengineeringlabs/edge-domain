@@ -10,6 +10,13 @@ mod api;
 mod core;
 mod saf;
 
+pub use api::EventBusConfig;
+pub use api::EventError;
+pub use api::EventStoreError;
+pub use api::InMemoryEventStore;
+pub use api::InProcessEventBus;
+pub use api::NoopEventBus;
+pub use api::NoopEventPublisher;
 pub use saf::Aggregate;
 pub use saf::DomainEvent;
 pub use saf::EventBus;
@@ -24,16 +31,3 @@ pub use saf::EVENT_FACTORY_SVC;
 pub use saf::EVENT_PUBLISHER_SVC;
 pub use saf::EVENT_SOURCE_SVC;
 pub use saf::EVENT_STORE_SVC;
-
-// Re-export types used by other domain crates
-pub use api::ClosedEventSource;
-pub use api::EventBusConfig;
-pub use api::EventEnvelope;
-pub use api::EventError;
-pub use api::EventReceiver;
-pub use api::EventStoreError;
-pub use api::ExpectedVersion;
-pub use api::InMemoryEventStore;
-pub use api::InProcessEventBus;
-pub use api::NoopEventBus;
-pub use api::NoopEventPublisher;
