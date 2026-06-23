@@ -211,10 +211,13 @@ fn test_trait_agent_manager_edge_list_agent_ids_empty_list() {
 #[test]
 fn test_trait_agent_manager_happy_all_methods_work_together() {
     let manager = TestManager { should_fail: false };
-    let _ = futures::executor::block_on(manager.load_agent("test.yaml"));
-    let _ = manager.agent("exists");
-    let _ = manager.list_agent_ids();
+    let load_result = futures::executor::block_on(manager.load_agent("test.yaml"));
+    let agent_result = manager.agent("exists");
+    let list_result = manager.list_agent_ids();
     // All calls succeeded when should_fail is false
+    assert!(load_result.is_ok(), "load_agent should succeed");
+    assert!(agent_result.is_ok(), "agent should succeed");
+    assert!(list_result.is_ok(), "list_agent_ids should succeed");
 }
 
 /// @covers: AgentManager::agent_metadata_builder

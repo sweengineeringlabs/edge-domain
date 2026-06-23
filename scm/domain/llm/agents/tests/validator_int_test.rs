@@ -66,9 +66,9 @@ fn test_validate_skill_name_valid_name_happy() {
 #[test]
 fn test_validate_skill_input_json_object_happy() {
     let validator = StrictValidator;
-    assert!(validator
-        .validate_skill_input(r#"{"key":"value","nested":{"inner":42}}"#)
-        .is_ok());
+    assert_eq!(validator
+        .validate_skill_input(r#"{"key":"value","nested":{"inner":42}}"#),
+        Ok(()));
 }
 
 // @covers: validate_skill_input
@@ -181,9 +181,9 @@ fn test_validate_skill_name_single_character_edge() {
 #[test]
 fn test_validate_skill_input_whitespace_before_json_edge() {
     let validator = StrictValidator;
-    assert!(validator
-        .validate_skill_input("  {\"key\":\"value\"}")
-        .is_ok());
+    assert_eq!(validator
+        .validate_skill_input("  {\"key\":\"value\"}"),
+        Ok(()));
 }
 
 // @covers: validate_skill_input

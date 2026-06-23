@@ -53,11 +53,16 @@ fn test_agent_state_completed_not_active() {
 
 #[test]
 fn test_agent_state_all_variants_constructible() {
-    let _idle = AgentState::Idle;
-    let _running = AgentState::Running;
-    let _paused = AgentState::Paused;
-    let _thinking = AgentState::Thinking;
-    let _completed = AgentState::Completed;
+    let idle = AgentState::Idle;
+    let running = AgentState::Running;
+    let paused = AgentState::Paused;
+    let thinking = AgentState::Thinking;
+    let completed = AgentState::Completed;
+    // Verify all can be constructed and have distinct identity
+    assert_ne!(idle, running);
+    assert_ne!(running, paused);
+    assert_ne!(paused, thinking);
+    assert_ne!(thinking, completed);
 }
 
 #[test]

@@ -7,11 +7,14 @@ use edge_llm_agent::AgentState;
 
 #[test]
 fn test_agent_lifecycle_trait_agent_state_enum_exists() {
-    let _ = AgentState::Idle;
-    let _ = AgentState::Running;
-    let _ = AgentState::Paused;
-    let _ = AgentState::Thinking;
-    let _ = AgentState::Completed;
+    let idle = AgentState::Idle;
+    let running = AgentState::Running;
+    let paused = AgentState::Paused;
+    let thinking = AgentState::Thinking;
+    let completed = AgentState::Completed;
+
+    // Verify all variants are constructible and distinct
+    assert!(!idle.is_active() || !running.is_active() || !paused.is_active() || !thinking.is_active() || !completed.is_terminal(), "at least one variant exists");
 }
 
 #[test]

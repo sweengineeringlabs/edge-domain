@@ -316,5 +316,6 @@ fn test_provider_distinct_per_impl_error() {
 fn test_provider_completer_accessible_from_provider_edge() {
     // Completer is reachable through the provider seam without naming ProviderCore.
     let p = SuccessAgent.provider();
-    let _completer = p.completer();
+    let completer = p.completer();
+    assert!(!completer.as_ref().is_none(), "completer must be accessible");
 }

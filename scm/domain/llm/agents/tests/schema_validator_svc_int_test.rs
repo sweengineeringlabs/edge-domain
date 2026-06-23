@@ -34,9 +34,9 @@ fn test_schema_validator_svc_constant_value() {
 /// @covers: validate
 #[test]
 fn test_validate_accepts_valid_object_happy() {
-    assert!(NamedSchemaValidator
-        .validate(&json!({"name": "ok"}))
-        .is_ok());
+    assert_eq!(NamedSchemaValidator
+        .validate(&json!({"name": "ok"})),
+        Ok(()));
 }
 
 /// @covers: validate

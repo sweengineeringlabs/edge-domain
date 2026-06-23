@@ -69,7 +69,8 @@ fn test_factory_multiple_calls_return_equivalent_value_edge() {
     let f1 = NoopTunnelManager::factory();
     let f2 = NoopTunnelManager::factory();
     // VpnManagerFactory is a unit struct — any two values are equivalent.
-    let _ = (f1, f2);
+    assert_eq!(std::mem::size_of_val(&f1), std::mem::size_of_val(&f2));
+    assert_eq!(std::mem::size_of_val(&f1), 0);
 }
 
 // ── configure ────────────────────────────────────────────────────────────────

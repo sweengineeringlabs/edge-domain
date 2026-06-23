@@ -13,8 +13,12 @@ mod api;
 mod core;
 mod saf;
 
+pub use api::AnonymousPrincipal;
+pub use api::NoopSecurity;
 pub use api::SecurityContext;
+pub use api::SecurityContextBuilder;
 pub use api::SecurityError;
+pub use api::SecurityServices;
 pub use saf::Principal;
 pub use saf::Security;
 pub use saf::SecurityBootstrap;

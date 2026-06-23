@@ -8,7 +8,7 @@ use edge_domain_security::{Security, SecurityBootstrap, SecurityServices};
 fn test_security_services_noop_guard_enforces_ok_happy() {
     let guard = SecurityServices::noop_guard();
     let ctx = SecurityServices::unauthenticated();
-    assert!(guard.enforce(&ctx).is_ok());
+    assert_eq!(guard.enforce(&ctx), Ok(()));
 }
 
 /// @covers: SecurityServices — is zero-sized (no configuration state)

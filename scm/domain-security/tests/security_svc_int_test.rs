@@ -8,7 +8,7 @@ use edge_domain_security::{AnonymousPrincipal, NoopSecurity, Security, SecurityC
 fn test_enforce_noop_guard_allows_any_context_happy() {
     let guard: &dyn Security = &NoopSecurity;
     let ctx = SecurityContext::unauthenticated();
-    assert!(guard.enforce(&ctx).is_ok());
+    assert_eq!(guard.enforce(&ctx), Ok(()));
 }
 
 /// @covers: Security::enforce — strict guard rejects unauthenticated
@@ -35,6 +35,6 @@ fn test_enforce_guard_is_object_safe_edge() {
     let guards: Vec<Box<dyn Security>> = vec![Box::new(NoopSecurity)];
     let ctx = SecurityContext::authenticated_with(Box::new(AnonymousPrincipal));
     for g in &guards {
-        assert!(g.enforce(&ctx).is_ok());
+        assert_eq!(g.enforce(&ctx), Ok(()));
     }
 }

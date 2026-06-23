@@ -83,7 +83,7 @@ fn test_from_claims_multiple_entries_all_stored_edge() {
 fn test_noop_guard_constructs_successfully_happy() {
     let guard: NoopSecurity = TestSecurity::noop_guard();
     let ctx = TestSecurity::unauthenticated();
-    assert!(guard.enforce(&ctx).is_ok());
+    assert_eq!(guard.enforce(&ctx), Ok(()));
 }
 
 /// @covers: SecurityBootstrap::noop_guard — is zero-sized
@@ -124,7 +124,7 @@ fn test_anonymous_principal_successive_calls_equal_edge() {
 fn test_security_services_constructs_without_args_happy() {
     let guard = SecurityServices::noop_guard();
     let ctx = SecurityServices::unauthenticated();
-    assert!(guard.enforce(&ctx).is_ok());
+    assert_eq!(guard.enforce(&ctx), Ok(()));
 }
 
 /// @covers: SecurityServices — is zero-sized

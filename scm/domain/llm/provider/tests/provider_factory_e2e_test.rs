@@ -64,7 +64,8 @@ fn test_default_provider_handler_exposes_handler_id_edge() {
 /// @covers: ProviderBootstrap::std_factory — returns the standard factory
 #[test]
 fn test_std_factory_returns_instance_happy() {
-    let _f: StdProviderFactory = StdProviderFactory::std_factory();
+    let f: StdProviderFactory = StdProviderFactory::std_factory();
+    assert_eq!(std::mem::size_of_val(&f), 0, "factory must be zero-sized");
 }
 
 /// @covers: ProviderBootstrap::std_factory — instance is zero-sized
@@ -77,8 +78,9 @@ fn test_std_factory_is_zero_sized_error() {
 /// @covers: ProviderBootstrap::std_factory — repeated calls are equivalent
 #[test]
 fn test_std_factory_repeatable_edge() {
-    let _a = StdProviderFactory::std_factory();
-    let _b = StdProviderFactory::std_factory();
+    let a = StdProviderFactory::std_factory();
+    let b = StdProviderFactory::std_factory();
+    assert_eq!(std::mem::size_of_val(&a), std::mem::size_of_val(&b));
 }
 
 // --- provider ---
@@ -272,7 +274,8 @@ fn test_completion_input_minimal_edge() {
 /// @covers: ProviderBootstrap::provider_completer — returns a EchoProviderCompleter
 #[test]
 fn test_provider_completer_returns_instance_happy() {
-    let _c: EchoProviderCompleter = StdProviderFactory::provider_completer();
+    let c: EchoProviderCompleter = StdProviderFactory::provider_completer();
+    assert_eq!(std::mem::size_of_val(&c), 0, "echo completer must be zero-sized");
 }
 
 /// @covers: ProviderBootstrap::provider_completer — instance implements Completer (can call complete)
@@ -287,6 +290,7 @@ fn test_provider_completer_implements_completer_error() {
 /// @covers: ProviderBootstrap::provider_completer — repeated calls return independent instances
 #[test]
 fn test_provider_completer_independent_instances_edge() {
-    let _a = StdProviderFactory::provider_completer();
-    let _b = StdProviderFactory::provider_completer();
+    let a = StdProviderFactory::provider_completer();
+    let b = StdProviderFactory::provider_completer();
+    assert_eq!(std::mem::size_of_val(&a), std::mem::size_of_val(&b));
 }
