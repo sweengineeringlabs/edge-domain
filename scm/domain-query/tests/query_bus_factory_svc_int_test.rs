@@ -165,4 +165,3 @@ fn test_logging_query_delegates_dispatch_to_inner_edge() {
     let result = block_on(bus.dispatch(Box::new(ErrQuery)));
     assert!(matches!(result, Err(QueryError::NotFound(_))), "should delegate to inner and return NotFound");
 }
-}

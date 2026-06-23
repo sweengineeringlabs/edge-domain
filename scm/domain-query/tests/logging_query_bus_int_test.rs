@@ -38,7 +38,9 @@ impl Query for ErrQuery {
 #[test]
 fn test_logging_query_bus_new_from_noop_inner_happy() {
     let bus = LoggingQueryBus::<String> { inner: noop_inner() };
-    assert!(!Arc::ptr_eq(&bus.inner, &Arc::new(NoopQueryBus::<String>::new())));
+    // Verify that the inner Arc was properly stored by checking we can dispatch through it
+    let result = block_on(bus.dispatch(Box::new(ErrQuery)));
+    assert!(result.is_err(), "noop inner should return NotFound error");
 }
 
 /// @covers: LoggingQueryBus — dispatch ok query returns value

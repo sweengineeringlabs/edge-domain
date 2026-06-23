@@ -62,6 +62,6 @@ fn test_execute_failing_query_returns_err_error() {
 #[test]
 fn test_execute_repeated_calls_are_independent_edge() {
     let q = GetStr("z".into());
-    assert!(block_on(q.execute()).is_ok());
-    assert!(block_on(q.execute()).is_ok());
+    assert_eq!(block_on(q.execute()), Ok("z".to_string()), "first call should return correct value");
+    assert_eq!(block_on(q.execute()), Ok("z".to_string()), "second call should return correct value");
 }
