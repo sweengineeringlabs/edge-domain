@@ -50,7 +50,7 @@ fn test_validator_svc_error() {
 #[test]
 fn test_validator_svc_edge() {
     let validator = TestValidator;
-    assert!(validator.validate_agent_id("agent").is_ok());
-    assert!(validator.validate_skill_name("skill").is_ok());
-    assert!(validator.validate_skill_input("{}").is_ok());
+    assert_eq!(validator.validate_agent_id("agent"), Ok(()));
+    assert_eq!(validator.validate_skill_name("skill"), Ok(()));
+    assert_eq!(validator.validate_skill_input("{}"), Ok(()));
 }

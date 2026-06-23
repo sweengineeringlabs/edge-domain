@@ -10,10 +10,10 @@ fn test_tokenizer_accuracy_variants_distinct_happy() {
     assert_ne!(TokenizerAccuracy::Approximate, TokenizerAccuracy::Fallback);
 }
 
-/// @covers: TokenizerAccuracy — equality holds for same variant
+/// @covers: TokenizerAccuracy — approximate is not exact
 #[test]
-fn test_tokenizer_accuracy_equality_error() {
-    assert_eq!(TokenizerAccuracy::Exact, TokenizerAccuracy::Exact);
+fn test_tokenizer_accuracy_approximate_not_exact_error() {
+    assert_ne!(TokenizerAccuracy::Approximate, TokenizerAccuracy::Exact);
 }
 
 /// @covers: TokenizerAccuracy — serializes and deserializes correctly

@@ -23,7 +23,7 @@ impl Validator for MinimalValidator {
 #[test]
 fn test_validate_valid_request_returns_ok_happy() {
     let req = CompletionRequest::new("gpt-4", vec![Message::user("hi")]);
-    assert!(MinimalValidator.validate(&req).is_ok());
+    assert_eq!(MinimalValidator.validate(&req), Ok(()));
 }
 
 #[test]

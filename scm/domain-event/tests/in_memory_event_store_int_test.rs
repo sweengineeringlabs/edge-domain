@@ -27,7 +27,8 @@ fn test_in_memory_event_store_default_same_as_new_error() {
     let result = futures::executor::block_on(
         store.append("x", vec![ItemEvt("x".into())], ExpectedVersion::Any),
     );
-    assert!(result.is_ok());
+    let seq = result.expect("append should succeed");
+    assert_eq!(seq, 1);
 }
 
 /// @covers: InMemoryEventStore — multiple aggregates are independent

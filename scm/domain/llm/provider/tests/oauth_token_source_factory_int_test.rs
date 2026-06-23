@@ -31,7 +31,7 @@ impl OAuthTokenSourceFactory for FailingTokenFactory {
 fn test_create_from_file_valid_path_happy() {
     let factory = StubTokenFactory;
     let result = factory.create_from_file(Path::new("/tmp/token.json"));
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()));
 }
 
 /// @covers: OAuthTokenSourceFactory::create_from_file — error case
@@ -48,5 +48,5 @@ fn test_create_from_file_missing_file_error() {
 fn test_create_from_file_empty_path_edge() {
     let factory = StubTokenFactory;
     let result = factory.create_from_file(Path::new(""));
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()));
 }

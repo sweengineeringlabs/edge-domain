@@ -44,7 +44,7 @@ impl Validator for TestValidator {
 fn test_validate_agent_id_happy_valid_id() {
     let validator = TestValidator { should_fail: false };
     let result = validator.validate_agent_id("test_agent");
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()));
 }
 
 /// @covers Validator::validate_agent_id error path
@@ -68,7 +68,7 @@ fn test_validate_agent_id_edge_empty_id() {
 fn test_validate_skill_name_happy_valid_name() {
     let validator = TestValidator { should_fail: false };
     let result = validator.validate_skill_name("test_skill");
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()));
 }
 
 /// @covers Validator::validate_skill_name error path
@@ -92,7 +92,7 @@ fn test_validate_skill_name_edge_empty_name() {
 fn test_validate_skill_input_happy_valid_input() {
     let validator = TestValidator { should_fail: false };
     let result = validator.validate_skill_input(r#"{"key":"value"}"#);
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()));
 }
 
 /// @covers Validator::validate_skill_input error path

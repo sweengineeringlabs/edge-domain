@@ -21,7 +21,7 @@ fn test_variable_builder_default_value_optional() {
         .default_value(serde_json::json!("x"))
         .build();
     assert!(!v.required);
-    assert!(v.default.is_some());
+    assert!(v.default.unwrap());
 }
 
 /// @covers: VariableBuilder — description carried through

@@ -87,7 +87,7 @@ fn test_validate_unbalanced_braces_rejected_error() {
 /// @covers: Prompt::validate — template with no placeholders is valid
 #[test]
 fn test_validate_no_placeholders_ok_edge() {
-    assert!(prompt_with("plain text", vec![]).validate().is_ok());
+    assert_eq!(prompt_with("plain text", vec![]).validate(), Ok(()));
 }
 
 // --- variable_type ---

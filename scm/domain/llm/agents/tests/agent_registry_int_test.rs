@@ -124,7 +124,6 @@ impl AgentRegistry for TestRegistry {
 fn test_trait_agent_registry_happy_metadata_existing_agent_returns_ok() {
     let registry = TestRegistry { has_agent: true };
     let result = registry.metadata("found");
-    assert!(result.is_ok());
     let meta = result.unwrap();
     assert_eq!(meta.id, "found");
     assert_eq!(meta.name, "Found Agent");
@@ -144,7 +143,8 @@ fn test_trait_agent_registry_error_metadata_missing_agent_returns_not_found() {
 fn test_trait_agent_registry_happy_get_existing_returns_some() {
     let registry = TestRegistry { has_agent: true };
     let result = registry.get("found");
-    assert!(result.is_some());
+    let agent = result.unwrap();
+    assert_eq!(agent.id(), "test");
 }
 
 /// @covers: Registry::get (inherited) — missing
@@ -205,7 +205,9 @@ fn test_trait_agent_registry_happy_is_empty_when_has_items_returns_false() {
 fn test_trait_agent_registry_happy_all_methods_together() {
     let registry = TestRegistry { has_agent: true };
     assert!(!registry.is_empty());
-    assert!(registry.metadata("found").is_ok());
-    assert!(registry.get("found").is_some());
+    let meta = registry.metadata("found").unwrap();
+    assert_eq!(meta.id, "found");
+    let agent = registry.get("found").unwrap();
+    assert_eq!(agent.id(), "test");
     assert_eq!(registry.list_ids().len(), 1);
 }

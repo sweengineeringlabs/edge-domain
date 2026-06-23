@@ -281,7 +281,7 @@ fn test_provider_completer_implements_completer_error() {
     let c = StdProviderFactory::provider_completer();
     let req = CompletionRequest::new("echo", vec![Message::user("hi")]);
     let result = block_on(c.complete(&req));
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()));
 }
 
 /// @covers: ProviderBootstrap::provider_completer — repeated calls return independent instances

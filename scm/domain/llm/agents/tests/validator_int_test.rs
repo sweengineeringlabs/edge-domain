@@ -45,21 +45,21 @@ impl Validator for StrictValidator {
 #[test]
 fn test_validate_agent_id_alphanumeric_happy() {
     let validator = StrictValidator;
-    assert!(validator.validate_agent_id("agent_123").is_ok());
+    assert_eq!(validator.validate_agent_id("agent_123"), Ok(()));
 }
 
 // @covers: validate_agent_id
 #[test]
 fn test_validate_agent_id_with_underscores_happy() {
     let validator = StrictValidator;
-    assert!(validator.validate_agent_id("chief_engineer").is_ok());
+    assert_eq!(validator.validate_agent_id("chief_engineer"), Ok(()));
 }
 
 // @covers: validate_skill_name
 #[test]
 fn test_validate_skill_name_valid_name_happy() {
     let validator = StrictValidator;
-    assert!(validator.validate_skill_name("code_review").is_ok());
+    assert_eq!(validator.validate_skill_name("code_review"), Ok(()));
 }
 
 // @covers: validate_skill_input
@@ -75,7 +75,7 @@ fn test_validate_skill_input_json_object_happy() {
 #[test]
 fn test_validate_skill_input_json_array_happy() {
     let validator = StrictValidator;
-    assert!(validator.validate_skill_input(r#"[1,2,3,4,5]"#).is_ok());
+    assert_eq!(validator.validate_skill_input(r#"[1,2,3,4,5]"#), Ok(()));
 }
 
 // @covers: validate_agent_id
@@ -145,21 +145,21 @@ fn test_validate_skill_input_invalid_json_error() {
 #[test]
 fn test_validate_agent_id_single_character_edge() {
     let validator = StrictValidator;
-    assert!(validator.validate_agent_id("a").is_ok());
+    assert_eq!(validator.validate_agent_id("a"), Ok(()));
 }
 
 // @covers: validate_agent_id
 #[test]
 fn test_validate_agent_id_all_underscores_edge() {
     let validator = StrictValidator;
-    assert!(validator.validate_agent_id("___").is_ok());
+    assert_eq!(validator.validate_agent_id("___"), Ok(()));
 }
 
 // @covers: validate_agent_id
 #[test]
 fn test_validate_agent_id_all_digits_edge() {
     let validator = StrictValidator;
-    assert!(validator.validate_agent_id("12345").is_ok());
+    assert_eq!(validator.validate_agent_id("12345"), Ok(()));
 }
 
 // @covers: validate_skill_name
@@ -167,14 +167,14 @@ fn test_validate_agent_id_all_digits_edge() {
 fn test_validate_skill_name_exactly_100_chars_edge() {
     let validator = StrictValidator;
     let exact_name = "a".repeat(100);
-    assert!(validator.validate_skill_name(&exact_name).is_ok());
+    assert_eq!(validator.validate_skill_name(&exact_name), Ok(()));
 }
 
 // @covers: validate_skill_name
 #[test]
 fn test_validate_skill_name_single_character_edge() {
     let validator = StrictValidator;
-    assert!(validator.validate_skill_name("x").is_ok());
+    assert_eq!(validator.validate_skill_name("x"), Ok(()));
 }
 
 // @covers: validate_skill_input
@@ -190,12 +190,12 @@ fn test_validate_skill_input_whitespace_before_json_edge() {
 #[test]
 fn test_validate_skill_input_empty_json_object_edge() {
     let validator = StrictValidator;
-    assert!(validator.validate_skill_input("{}").is_ok());
+    assert_eq!(validator.validate_skill_input("{}"), Ok(()));
 }
 
 // @covers: validate_skill_input
 #[test]
 fn test_validate_skill_input_empty_json_array_edge() {
     let validator = StrictValidator;
-    assert!(validator.validate_skill_input("[]").is_ok());
+    assert_eq!(validator.validate_skill_input("[]"), Ok(()));
 }

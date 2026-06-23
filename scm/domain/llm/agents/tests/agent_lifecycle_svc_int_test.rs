@@ -102,7 +102,7 @@ fn test_is_in_terminal_state_edge() {
 #[test]
 fn test_transition_to_valid_target_happy() {
     let lc = StatefulLifecycle::new(AgentState::Idle);
-    assert!(block_on(lc.transition_to(AgentState::Running)).is_ok());
+    assert_eq!(block_on(lc.transition_to(AgentState::Running)), Ok(()));
 }
 
 /// @covers: transition_to
@@ -120,7 +120,7 @@ fn test_transition_to_from_terminal_error() {
 #[test]
 fn test_transition_to_same_state_edge() {
     let lc = StatefulLifecycle::new(AgentState::Running);
-    assert!(block_on(lc.transition_to(AgentState::Running)).is_ok());
+    assert_eq!(block_on(lc.transition_to(AgentState::Running)), Ok(()));
 }
 
 // --- pause ---
@@ -144,7 +144,7 @@ fn test_pause_from_terminal_error() {
 #[test]
 fn test_pause_when_already_paused_edge() {
     let lc = StatefulLifecycle::new(AgentState::Paused);
-    assert!(block_on(lc.pause()).is_ok());
+    assert_eq!(block_on(lc.pause()), Ok(()));
 }
 
 // --- resume ---
@@ -168,7 +168,7 @@ fn test_resume_from_terminal_error() {
 #[test]
 fn test_resume_when_already_running_edge() {
     let lc = StatefulLifecycle::new(AgentState::Running);
-    assert!(block_on(lc.resume()).is_ok());
+    assert_eq!(block_on(lc.resume()), Ok(()));
 }
 
 // --- abort ---
@@ -192,5 +192,5 @@ fn test_abort_from_terminal_error() {
 #[test]
 fn test_abort_when_already_idle_edge() {
     let lc = StatefulLifecycle::new(AgentState::Idle);
-    assert!(block_on(lc.abort()).is_ok());
+    assert_eq!(block_on(lc.abort()), Ok(()));
 }

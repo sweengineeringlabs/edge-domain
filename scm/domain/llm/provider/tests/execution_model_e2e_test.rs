@@ -42,7 +42,7 @@ fn test_execute_step_no_tools_has_no_action_edge() {
 /// @covers: ExecutionModel::can_execute — ok with a positive budget
 #[test]
 fn test_can_execute_ok_with_budget_happy() {
-    assert!(model(4096, ExecutionMode::Async).can_execute().is_ok());
+    assert_eq!(model(4096, ExecutionMode::Async).can_execute(), Ok(()));
 }
 
 /// @covers: ExecutionModel::can_execute — errors with zero budget
@@ -54,7 +54,7 @@ fn test_can_execute_errors_zero_budget_error() {
 /// @covers: ExecutionModel::can_execute — minimal budget of one is allowed
 #[test]
 fn test_can_execute_minimal_budget_ok_edge() {
-    assert!(model(1, ExecutionMode::Async).can_execute().is_ok());
+    assert_eq!(model(1, ExecutionMode::Async).can_execute(), Ok(()));
 }
 
 // --- config ---

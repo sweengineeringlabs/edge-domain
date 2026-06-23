@@ -296,7 +296,8 @@ fn test_provider_returns_arc_dyn_provider_happy() {
 /// @covers: Agent::provider
 #[test]
 fn test_provider_health_check_ok_happy() {
-    assert!(SuccessAgent.provider().health_check().is_ok());
+    let result = SuccessAgent.provider().health_check();
+    assert_eq!(result, Ok(()));
 }
 
 /// @covers: Agent::provider
@@ -306,8 +307,8 @@ fn test_provider_distinct_per_impl_error() {
     let p1 = SuccessAgent.provider();
     let p2 = FailingAgent.provider();
     // Both healthy — confirming each returns a usable provider.
-    assert!(p1.health_check().is_ok());
-    assert!(p2.health_check().is_ok());
+    assert_eq!(p1.health_check(), Ok(()));
+    assert_eq!(p2.health_check(), Ok(()));
 }
 
 /// @covers: Agent::provider

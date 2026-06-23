@@ -27,7 +27,7 @@ fn test_accumulate_appends_text_happy() {
 fn test_accumulate_empty_delta_error() {
     let mut h = handler();
     h.accumulate(StreamDelta::empty());
-    assert!(h.next_chunk().is_some());
+    assert!(h.next_chunk().unwrap());
 }
 
 /// @covers: StreamHandler::accumulate — tool-call delta sets pending state
@@ -35,7 +35,7 @@ fn test_accumulate_empty_delta_error() {
 fn test_accumulate_tool_call_sets_pending_edge() {
     let mut h = handler();
     h.accumulate(StreamDelta::tool_calls(vec![ToolCallDelta::new(0)]));
-    assert!(h.pending_tool_call().is_some());
+    assert!(h.pending_tool_call().unwrap());
 }
 
 // --- next_chunk ---
@@ -45,7 +45,7 @@ fn test_accumulate_tool_call_sets_pending_edge() {
 fn test_next_chunk_yields_queued_happy() {
     let mut h = handler();
     h.accumulate(StreamDelta::text("hi".to_string()));
-    assert!(h.next_chunk().is_some());
+    assert!(h.next_chunk().unwrap());
 }
 
 /// @covers: StreamHandler::next_chunk — empty handler yields nothing

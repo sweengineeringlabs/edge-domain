@@ -62,7 +62,7 @@ fn test_validate_tool_call_valid_arguments_happy() {
         name: "search".to_string(),
         arguments: r#"{"name":"rust"}"#.to_string(),
     };
-    assert!(NamedSchemaValidator.validate_tool_call(&call).is_ok());
+    assert_eq!(NamedSchemaValidator.validate_tool_call(&call), Ok(()));
 }
 
 /// @covers: validate_tool_call

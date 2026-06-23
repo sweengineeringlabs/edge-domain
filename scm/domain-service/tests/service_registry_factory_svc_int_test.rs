@@ -42,7 +42,7 @@ fn test_noop_service_returns_noop_service_instance_happy() {
 fn test_noop_service_execute_returns_ok_error() {
     let svc = Factories::noop_service();
     let result = block_on(svc.execute(()));
-    assert!(result.is_ok(), "NoopService::execute must never fail");
+    assert_eq!(result, Ok(()));
 }
 
 /// @covers: ServiceRegistryBootstrap::noop_service — multiple calls return independent instances

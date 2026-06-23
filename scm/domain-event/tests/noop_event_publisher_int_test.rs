@@ -12,14 +12,14 @@ impl DomainEvent for SomeEvt {}
 #[test]
 fn test_noop_event_publisher_publish_returns_ok_happy() {
     let result = futures::executor::block_on(NoopEventPublisher.publish(&SomeEvt));
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()));
 }
 
 /// @covers: NoopEventPublisher::publish — repeated calls never error
 #[test]
 fn test_noop_event_publisher_publish_repeated_never_errors_error() {
     for _ in 0..5 {
-        assert!(futures::executor::block_on(NoopEventPublisher.publish(&SomeEvt)).is_ok());
+        assert_eq!(futures::executor::block_on(NoopEventPublisher.publish(&SomeEvt)), Ok(()));
     }
 }
 
@@ -28,5 +28,5 @@ fn test_noop_event_publisher_publish_repeated_never_errors_error() {
 fn test_noop_event_publisher_dyn_dispatch_ok_edge() {
     let pub_ = Events::noop_publisher();
     let evt: &dyn DomainEvent = &SomeEvt;
-    assert!(futures::executor::block_on(pub_.publish(evt)).is_ok());
+    assert_eq!(futures::executor::block_on(pub_.publish(evt)), Ok(()));
 }

@@ -17,37 +17,26 @@ impl<Ctx: Send> Step<Ctx> for NoopStep {
     }
 }
 
-/// A concrete, non-generic step for testing.
-pub(crate) struct ConcreteStep;
-
-#[async_trait::async_trait]
-impl Step<()> for ConcreteStep {
-    async fn execute(&self, _ctx: &mut ()) -> Result<(), PipelineError> {
-        Ok(())
-    }
-
-    fn name(&self) -> &str {
-        "concrete-step"
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    /// @covers NoopStep execute
+    /// @covers NoopStep::execute
     #[tokio::test]
     async fn test_noop_execute_happy_succeeds() {
         let step = NoopStep;
         let mut ctx = 42;
         assert!(step.execute(&mut ctx).await.is_ok());
-        assert_eq!(ctx, 42); // Context should be unchanged
+        assert_eq!(ctx, 42);
     }
 
-    /// @covers NoopStep name
+    /// @covers NoopStep::name
     #[test]
     fn test_noop_name_happy_returns_identifier() {
         let step = NoopStep;
-        assert_eq!(step.name(), "noop-step");
+        assert_eq!(
+            <NoopStep as Step<i32>>::name(&step),
+            "noop-step"
+        );
     }
 }

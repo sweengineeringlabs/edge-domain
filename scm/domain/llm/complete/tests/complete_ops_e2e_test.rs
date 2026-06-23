@@ -139,7 +139,7 @@ fn test_create_usage_cache_tokens_zero_edge() {
 #[test]
 fn test_check_valid_request_returns_ok_happy() {
     let req = CompletionRequest::new("gpt-4", vec![]);
-    assert!(StdOps.check(&req).is_ok());
+    assert_eq!(StdOps.check(&req), Ok(()));
 }
 
 #[test]
@@ -151,5 +151,5 @@ fn test_check_empty_model_returns_error_error() {
 #[test]
 fn test_check_long_model_name_is_valid_edge() {
     let req = CompletionRequest::new("a".repeat(200), vec![]);
-    assert!(StdOps.check(&req).is_ok());
+    assert_eq!(StdOps.check(&req), Ok(()));
 }

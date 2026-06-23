@@ -156,8 +156,8 @@ fn test_svc_skill_happy_metadata_has_optional_schemas() {
         custom_name: "test",
     };
     let meta = skill.metadata();
-    assert!(meta.input_schema.is_some());
-    assert!(meta.output_schema.is_some());
+    assert!(meta.input_schema.unwrap());
+    assert!(meta.output_schema.unwrap());
     assert_eq!(meta.input_schema.unwrap(), "{}");
 }
 
@@ -209,7 +209,7 @@ fn test_svc_skill_happy_execute_processes_request() {
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &bus, observer.as_ref());
     let result = futures::executor::block_on(skill.execute("input".to_string(), ctx));
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()));
     assert_eq!(result.unwrap(), "processed: input");
 }
 

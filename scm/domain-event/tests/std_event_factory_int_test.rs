@@ -66,7 +66,7 @@ fn test_noop_bus_publish_returns_ok_error() {
     use std::sync::Arc;
     let bus = StdEventFactory::noop_bus();
     let result = futures::executor::block_on(bus.publish(Arc::new(NoopDomainEvent)));
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()));
 }
 
 /// @covers: StdEventFactory — noop_publisher publish never errors
@@ -74,7 +74,7 @@ fn test_noop_bus_publish_returns_ok_error() {
 fn test_noop_publisher_publish_returns_ok_error() {
     let pub_ = StdEventFactory::noop_publisher();
     let result = futures::executor::block_on(pub_.publish(&NoopDomainEvent));
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()));
 }
 
 /// @covers: StdEventFactory — closed_source returns Unavailable

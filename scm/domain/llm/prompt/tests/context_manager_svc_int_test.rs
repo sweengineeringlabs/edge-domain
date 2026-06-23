@@ -25,7 +25,7 @@ fn test_register_variable_stores_named_happy() {
     let mut m = manager();
     m.register_variable("a".to_string(), required("a"))
         .expect("register");
-    assert!(m.get_variable("a").is_some());
+    assert!(m.get_variable("a").unwrap());
 }
 
 /// @covers: ContextManager::register_variable — empty name is rejected
@@ -43,7 +43,7 @@ fn test_register_variable_overwrites_edge() {
         .expect("register");
     m.register_variable("a".to_string(), with_value("a", serde_json::json!("v")))
         .expect("register again");
-    assert!(m.get_variable("a").expect("present").value.is_some());
+    assert!(m.get_variable("a").expect("present").value.unwrap());
 }
 
 // --- get_variable ---

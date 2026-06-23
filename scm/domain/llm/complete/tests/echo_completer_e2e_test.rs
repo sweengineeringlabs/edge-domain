@@ -41,5 +41,5 @@ fn test_echo_completer_validator_rejects_empty_model_error() {
 #[test]
 fn test_echo_completer_validator_accepts_valid_request_edge() {
     let req = CompletionRequest::new("echo", vec![Message::user("ok")]);
-    assert!(EchoCompleter.validate(&req).is_ok());
+    assert_eq!(EchoCompleter.validate(&req), Ok(()));
 }

@@ -2,8 +2,8 @@
 use edge_domain::ExpectedVersion;
 
 #[test]
-fn test_expected_version_any_equals_any() {
-    assert_eq!(ExpectedVersion::Any, ExpectedVersion::Any);
+fn test_expected_version_any_not_equal_to_exact() {
+    assert_ne!(ExpectedVersion::Any, ExpectedVersion::Exact(1));
 }
 
 #[test]

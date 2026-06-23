@@ -15,12 +15,12 @@ fn test_bootstrap_name_returns_nonempty_string_happy() {
 
 /// @covers: CompleteBootstrap::bootstrap_name
 #[test]
-fn test_bootstrap_name_is_idempotent_error() {
+fn test_bootstrap_name_returns_known_identifier_error() {
     let f = StdCompleteFactory;
+    let name = f.bootstrap_name();
     assert_eq!(
-        f.bootstrap_name(),
-        f.bootstrap_name(),
-        "bootstrap_name must return the same value on repeated calls"
+        name, "complete",
+        "StdCompleteFactory should return 'complete' as bootstrap_name"
     );
 }
 

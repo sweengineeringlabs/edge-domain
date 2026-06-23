@@ -21,7 +21,7 @@ fn test_noop_event_bus_publish_returns_ok_happy() {
 fn test_noop_event_bus_publish_repeated_never_errors_error() {
     for _ in 0..5 {
         let result = futures::executor::block_on(NoopEventBus.publish(Arc::new(SignalEvt)));
-        assert!(result.is_ok(), "noop publish must never error");
+        assert_eq!(result, Ok(()));
     }
 }
 

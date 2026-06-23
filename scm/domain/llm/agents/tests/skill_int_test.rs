@@ -107,8 +107,8 @@ fn test_trait_skill_happy_metadata_returns_skill_metadata() {
 fn test_trait_skill_happy_metadata_has_schemas() {
     let skill = TestSkill { should_fail: false };
     let meta = skill.metadata();
-    assert!(meta.input_schema.is_some());
-    assert!(meta.output_schema.is_some());
+    assert!(meta.input_schema.unwrap());
+    assert!(meta.output_schema.unwrap());
 }
 
 /// @covers: Skill::metadata — execution flags
@@ -171,7 +171,7 @@ fn test_trait_skill_happy_execute_processes_request() {
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &bus, observer.as_ref());
     let result = futures::executor::block_on(skill.execute("input".to_string(), ctx));
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()));
     assert_eq!(result.unwrap(), "processed: input");
 }
 
@@ -242,7 +242,7 @@ fn test_input_schema_defaults_none_happy() {
 fn test_input_schema_distinct_from_metadata_error() {
     // The default `input_schema` getter is None even though `metadata` sets one.
     let skill = sample_skill();
-    assert!(skill.metadata().input_schema.is_some());
+    assert!(skill.metadata().input_schema.unwrap());
     assert!(skill.input_schema().is_none());
 }
 
@@ -285,7 +285,7 @@ fn test_output_schema_defaults_none_happy() {
 #[test]
 fn test_output_schema_distinct_from_metadata_error() {
     let skill = sample_skill();
-    assert!(skill.metadata().output_schema.is_some());
+    assert!(skill.metadata().output_schema.unwrap());
     assert!(skill.output_schema().is_none());
 }
 

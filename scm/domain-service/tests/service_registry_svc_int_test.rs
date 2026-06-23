@@ -29,7 +29,8 @@ fn make_registry() -> ServiceRegistry<String, String> {
 fn test_register_new_service_is_findable_happy() {
     let reg = make_registry();
     reg.register(Arc::new(Fixed("alpha".into(), "a".into())));
-    assert!(reg.get("alpha").is_some());
+    let svc = reg.get("alpha").expect("service must be registered");
+    assert_eq!(svc.name(), "alpha");
 }
 
 /// @covers: ServiceRegistry::register — duplicate name overwrites previous
@@ -86,7 +87,8 @@ fn test_deregister_twice_second_call_returns_false_edge() {
 fn test_get_present_service_returns_some_happy() {
     let reg = make_registry();
     reg.register(Arc::new(Fixed("present".into(), "ok".into())));
-    assert!(reg.get("present").is_some());
+    let svc = reg.get("present").expect("service must exist");
+    assert_eq!(svc.name(), "present");
 }
 
 /// @covers: ServiceRegistry::get — absent name returns None

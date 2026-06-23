@@ -22,7 +22,7 @@ fn test_echo_execution_model_reports_mode() {
 /// @covers: EchoExecutionModel — can execute with a budget
 #[test]
 fn test_echo_execution_model_can_execute_with_budget() {
-    assert!(build(4096).can_execute().is_ok());
+    assert_eq!(build(4096).can_execute(), Ok(()));
 }
 
 /// @covers: EchoExecutionModel — blocks execution without a budget

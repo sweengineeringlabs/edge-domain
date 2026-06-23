@@ -23,7 +23,7 @@ fn test_catalog_template_provider_with_templates_seeds_registry() {
         template("b", "general"),
     ]);
     assert_eq!(p.len(), 2);
-    assert!(p.get_template("a").is_some());
+    assert!(p.get_template("a").unwrap());
 }
 
 /// @covers: CatalogTemplateProvider::insert — adds and replaces by id

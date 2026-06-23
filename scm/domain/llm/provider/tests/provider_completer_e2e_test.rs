@@ -16,7 +16,7 @@ fn req(model: &str, text: &str) -> CompletionRequest {
 fn test_complete_with_user_message_returns_content_happy() {
     let resp = block_on(EchoProviderCompleter.complete(&req("echo", "hello")))
         .expect("complete should succeed");
-    assert!(resp.content.is_some());
+    assert!(resp.content.unwrap());
     assert!(!resp.content.expect("content present").is_empty());
 }
 
@@ -43,7 +43,7 @@ fn test_complete_finish_reason_stop_happy() {
 fn test_complete_empty_messages_returns_ok_error() {
     let empty = CompletionRequest::new("echo", vec![]);
     let result = block_on(EchoProviderCompleter.complete(&empty));
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()));
 }
 
 /// @covers: EchoProviderCompleter::complete — multi-turn conversation extracts last user turn
@@ -67,7 +67,7 @@ fn test_complete_multiturn_extracts_last_user_message_error() {
 fn test_complete_unicode_content_edge() {
     let resp = block_on(EchoProviderCompleter.complete(&req("echo", "こんにちは")))
         .expect("complete should succeed");
-    assert!(resp.content.is_some());
+    assert!(resp.content.unwrap());
 }
 
 // --- complete_stream ---
@@ -76,7 +76,7 @@ fn test_complete_unicode_content_edge() {
 #[test]
 fn test_complete_stream_returns_stream_happy() {
     let stream = block_on(EchoProviderCompleter.complete_stream(&req("echo", "stream me")));
-    assert!(stream.is_ok());
+    assert_eq!(stream, Ok(()));
 }
 
 /// @covers: EchoProviderCompleter::complete_stream — stream error when underlying complete fails
@@ -84,7 +84,7 @@ fn test_complete_stream_returns_stream_happy() {
 fn test_complete_stream_propagates_error_error() {
     // EchoExecutionModel succeeds on all inputs, so this tests the ok path too
     let result = block_on(EchoProviderCompleter.complete_stream(&req("echo", "ok")));
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()));
 }
 
 /// @covers: EchoProviderCompleter::complete_stream — stream contains exactly one terminal chunk
@@ -162,7 +162,7 @@ fn test_list_models_returns_empty_happy() {
 /// @covers: EchoProviderCompleter::list_models — returns ok not err
 #[test]
 fn test_list_models_does_not_error_error() {
-    assert!(block_on(EchoProviderCompleter.list_models()).is_ok());
+    assert_eq!(block_on(EchoProviderCompleter.list_models()), Ok(()));
 }
 
 /// @covers: EchoProviderCompleter::list_models — idempotent across calls

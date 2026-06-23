@@ -17,5 +17,5 @@ fn test_cacheable_message_trait_accessible_via_svc_surface_edge() {
     use edge_llm_complete::CacheControl;
     let msg = Message::user("hi");
     let cached = msg.with_cache_control(CacheControl::ephemeral());
-    assert!(cached.cache_control.is_some());
+    assert!(cached.cache_control.unwrap());
 }

@@ -15,7 +15,7 @@ impl DomainEvent for Evt {
 #[test]
 fn test_publish_noop_returns_ok_happy() {
     let result = futures::executor::block_on(NoopEventBus.publish(Arc::new(Evt)));
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()));
 }
 
 /// @covers: NoopEventBus::subscribe — receiver is immediately closed
@@ -51,7 +51,7 @@ fn test_in_process_bus_publish_no_subscribers_returns_ok_edge() {
         .expect("tokio rt");
     rt.block_on(async {
         let bus = Events::in_process_bus(edge_domain_event::EventBusConfig::default());
-        assert!(bus.publish(Arc::new(Evt)).await.is_ok());
+        assert_eq!(bus.publish(Arc::new(Evt)).await, Ok(()));
     });
 }
 
@@ -60,7 +60,7 @@ fn test_in_process_bus_publish_no_subscribers_returns_ok_edge() {
 fn test_publish_noop_repeated_publishes_all_ok_error() {
     for _ in 0..3 {
         let result = futures::executor::block_on(NoopEventBus.publish(Arc::new(Evt)));
-        assert!(result.is_ok(), "noop publish must never return error");
+        assert_eq!(result, Ok(()));
     }
 }
 

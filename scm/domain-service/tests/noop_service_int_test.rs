@@ -13,13 +13,13 @@ fn test_name_noop_service_returns_noop_happy() {
 #[test]
 fn test_execute_noop_service_returns_ok_happy() {
     let result = block_on(NoopService.execute(()));
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()));
 }
 
 /// @covers: Service::execute
 #[test]
 fn test_execute_noop_service_repeated_always_succeeds_edge() {
     for _ in 0..3 {
-        assert!(block_on(NoopService.execute(())).is_ok());
+        assert_eq!(block_on(NoopService.execute(())), Ok(()));
     }
 }

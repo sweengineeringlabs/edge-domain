@@ -57,7 +57,7 @@ fn test_noop_bus_publish_never_errors_error() {
     use edge_domain_event::EventBus;
     let bus = Events::noop_bus();
     let result = futures::executor::block_on(bus.publish(Arc::new(Evt)));
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()));
 }
 
 /// @covers: EventBootstrap::noop_bus — subscribe returns a receiver
@@ -76,7 +76,7 @@ fn test_noop_publisher_publish_never_errors_error() {
     use edge_domain_event::EventPublisher;
     let pub_ = Events::noop_publisher();
     let result = futures::executor::block_on(pub_.publish(&Evt));
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()));
 }
 
 /// @covers: EventBootstrap::noop_publisher — dyn dispatch works
@@ -85,7 +85,7 @@ fn test_noop_publisher_dyn_dispatch_never_errors_edge() {
     use edge_domain_event::{EventPublisher, DomainEvent as DomainEventTrait};
     let pub_ = Events::noop_publisher();
     let evt: &dyn DomainEventTrait = &Evt;
-    assert!(futures::executor::block_on(pub_.publish(evt)).is_ok());
+    assert_eq!(futures::executor::block_on(pub_.publish(evt)), Ok(()));
 }
 
 /// @covers: EventBootstrap::in_memory_store — append conflict on NoStream after stream exists

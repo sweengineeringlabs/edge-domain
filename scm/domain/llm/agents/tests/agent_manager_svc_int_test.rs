@@ -130,7 +130,8 @@ fn test_svc_agent_manager_happy_trait_can_be_implemented() {
         })],
     };
     let agent = manager.agent("test");
-    assert!(agent.is_ok());
+    let a = agent.unwrap();
+    assert_eq!(a.id(), "test");
 }
 
 /// @covers: AgentManager trait re-export — load_agent
@@ -138,8 +139,8 @@ fn test_svc_agent_manager_happy_trait_can_be_implemented() {
 fn test_svc_agent_manager_happy_load_agent_valid_spec() {
     let manager = TestAgentManager { agents: vec![] };
     let result = futures::executor::block_on(manager.load_agent("valid"));
-    assert!(result.is_ok());
-    assert_eq!(result.unwrap().id(), "loaded_agent");
+    let agent = result.unwrap();
+    assert_eq!(agent.id(), "loaded_agent");
 }
 
 /// @covers: AgentManager trait re-export — load_agent error
@@ -171,7 +172,6 @@ fn test_svc_agent_manager_happy_list_agent_ids_returns_list() {
         })],
     };
     let result = manager.list_agent_ids();
-    assert!(result.is_ok());
     let ids = result.unwrap();
     assert_eq!(ids.len(), 1);
     assert_eq!(ids[0], "agent1");
@@ -182,6 +182,6 @@ fn test_svc_agent_manager_happy_list_agent_ids_returns_list() {
 fn test_svc_agent_manager_edge_list_agent_ids_empty() {
     let manager = TestAgentManager { agents: vec![] };
     let result = manager.list_agent_ids();
-    assert!(result.is_ok());
-    assert_eq!(result.unwrap().len(), 0);
+    let ids = result.unwrap();
+    assert_eq!(ids.len(), 0);
 }

@@ -19,8 +19,11 @@ fn test_tool_call_fields_are_accessible() {
 }
 
 #[test]
-fn test_tool_call_equality() {
-    assert_eq!(sample(), sample());
+fn test_tool_call_inequality_different_ids() {
+    let mut tc1 = sample();
+    let mut tc2 = sample();
+    tc2.id = "2".to_string();
+    assert_ne!(tc1, tc2, "different ids should not be equal");
 }
 
 #[test]

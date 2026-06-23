@@ -64,6 +64,6 @@ fn test_execute_failing_service_returns_err_error() {
 #[test]
 fn test_execute_repeated_calls_are_independent_edge() {
     let svc = Echo("e".into());
-    assert!(block_on(svc.execute("a".into())).is_ok());
-    assert!(block_on(svc.execute("b".into())).is_ok());
+    assert_eq!(block_on(svc.execute("a".into())).ok(), Some("a".into()));
+    assert_eq!(block_on(svc.execute("b".into())).ok(), Some("b".into()));
 }

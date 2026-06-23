@@ -56,11 +56,16 @@ fn test_supported_patterns_excludes_others_error() {
         .contains(&ReasoningPattern::GraphBased));
 }
 
-/// @covers: Reasoning::supported_patterns — stable across calls
+/// @covers: Reasoning::supported_patterns — contains the configured pattern
 #[test]
-fn test_supported_patterns_stable_edge() {
+fn test_supported_patterns_contains_configured_edge() {
     let r = reasoner(ReasoningPattern::Reflection);
-    assert_eq!(r.supported_patterns(), r.supported_patterns());
+    assert!(
+        r.supported_patterns()
+            .iter()
+            .any(|p| *p == ReasoningPattern::Reflection),
+        "supported_patterns should include the configured pattern"
+    );
 }
 
 // --- supports_pattern ---

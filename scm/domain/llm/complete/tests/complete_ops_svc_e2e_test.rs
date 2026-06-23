@@ -15,5 +15,5 @@ fn test_complete_ops_svc_constant_is_nonempty_error() {
 #[test]
 fn test_complete_ops_check_valid_request_returns_ok_edge() {
     let req = NoopCompleter::assemble("model".to_string(), vec![Message::user("hi")]);
-    assert!(NoopCompleter.check(&req).is_ok());
+    assert_eq!(NoopCompleter.check(&req), Ok(()));
 }

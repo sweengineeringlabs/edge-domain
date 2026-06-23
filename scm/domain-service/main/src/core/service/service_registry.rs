@@ -70,7 +70,8 @@ mod tests {
     fn test_register_service_is_retrievable_via_trait_happy() {
         let reg = make_registry();
         ServiceRegistryTrait::register(&reg, Arc::new(ServiceRegistryFixture));
-        assert!(ServiceRegistryTrait::get(&reg, "fixture").is_some());
+        let svc = ServiceRegistryTrait::get(&reg, "fixture").expect("service must be registered");
+        assert_eq!(svc.name(), "fixture");
     }
 
     /// @covers: deregister

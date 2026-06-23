@@ -18,5 +18,5 @@ fn test_processor_trait_accessible_via_svc_surface_edge() {
     use edge_llm_complete::CompletionRequest;
     let req = CompletionRequest::new("echo", vec![Message::user("hi")]);
     let resp = block_on(EchoCompleter.process(&req)).unwrap();
-    assert!(resp.content.is_some());
+    assert!(resp.content.unwrap());
 }

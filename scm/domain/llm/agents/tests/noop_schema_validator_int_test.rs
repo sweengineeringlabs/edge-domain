@@ -6,7 +6,7 @@ use serde_json::json;
 
 #[test]
 fn test_noop_schema_validator_accepts_object() {
-    assert!(NoopSchemaValidator.validate(&json!({"k": "v"})).is_ok());
+    assert_eq!(NoopSchemaValidator.validate(&json!({"k": "v"})), Ok(()));
 }
 
 #[test]

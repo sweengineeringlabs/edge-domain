@@ -467,7 +467,7 @@ fn test_execute_skill_agent_happy() {
         "input.rs".to_string(),
         ctx,
     ));
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()));
     assert_eq!(result.unwrap(), "code_review:input.rs");
 }
 
@@ -508,7 +508,7 @@ fn test_execute_skill_agent_edge() {
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let result = futures::executor::block_on(SuccessAgent.execute_skill("", "".to_string(), ctx));
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()));
     assert_eq!(result.unwrap(), ":");
 }
 
@@ -623,8 +623,8 @@ fn test_metadata_skill_happy() {
     let meta = TestSkill.metadata();
     assert_eq!(meta.name, "test_skill_name");
     assert_eq!(meta.description, "Test skill for integration tests");
-    assert!(meta.input_schema.is_some());
-    assert!(meta.output_schema.is_some());
+    assert!(meta.input_schema.unwrap());
+    assert!(meta.output_schema.unwrap());
     assert!(meta.async_execution);
     assert!(!meta.long_running);
 }
@@ -655,7 +655,7 @@ fn test_metadata_skill_edge() {
 fn test_load_agent_manager_happy() {
     let manager = TestAgentManager::new();
     let result = futures::executor::block_on(manager.load_agent("success.yaml"));
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()));
 }
 
 /// @covers: AgentManager::load_agent
@@ -685,7 +685,7 @@ fn test_load_agent_manager_edge() {
 fn test_agent_manager_happy() {
     let manager = TestAgentManager::new();
     let result = manager.agent("success_agent");
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()));
     assert_eq!(result.unwrap().id(), "success_agent");
 }
 
@@ -715,7 +715,7 @@ fn test_agent_manager_edge() {
 fn test_list_agent_ids_manager_happy() {
     let manager = TestAgentManager::new();
     let result = manager.list_agent_ids();
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()));
     let ids = result.unwrap();
     assert!(ids.len() >= 2);
     assert!(ids.contains(&"success_agent".to_string()));
@@ -729,7 +729,7 @@ fn test_list_agent_ids_manager_error() {
     // Testing that it's callable and returns consistent result.
     let manager = TestAgentManager::new();
     let result = manager.list_agent_ids();
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()));
 }
 
 /// @covers: AgentManager::list_agent_ids
@@ -741,7 +741,7 @@ fn test_list_agent_ids_manager_edge() {
         fail_load: false,
     };
     let result = manager.list_agent_ids();
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()));
     assert_eq!(result.unwrap().len(), 0);
 }
 
@@ -754,7 +754,7 @@ fn test_list_agent_ids_manager_edge() {
 fn test_metadata_registry_happy() {
     let registry = TestAgentRegistry::new();
     let result = registry.metadata("test_agent");
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()));
     let meta = result.unwrap();
     assert_eq!(meta.id, "test_agent");
     assert_eq!(meta.name, "Success Agent");
@@ -789,7 +789,7 @@ fn test_metadata_registry_edge() {
 fn test_registry_get_happy() {
     let registry = TestAgentRegistry::new();
     let agent = registry.get("test_agent");
-    assert!(agent.is_some());
+    assert!(agent.unwrap());
 }
 
 /// @covers: Registry::get (inherited by AgentRegistry)

@@ -95,7 +95,7 @@ fn test_svc_agent_happy_execute_skill_success() {
     let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
     let result =
         futures::executor::block_on(TestAgent.execute_skill("success", "input".to_string(), ctx));
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()));
     assert_eq!(result.unwrap(), "executed");
 }
 

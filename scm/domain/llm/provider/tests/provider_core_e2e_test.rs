@@ -74,7 +74,7 @@ fn test_provider_core_last_finish_reason_default_stop_happy() {
 /// @covers: ProviderCore::health_check — ok when model set
 #[test]
 fn test_provider_core_health_check_ok_with_model_happy() {
-    assert!(make_provider("claude").health_check().is_ok());
+    assert_eq!(make_provider("claude").health_check(), Ok(()));
 }
 
 /// @covers: ProviderCore::health_check — error when model empty

@@ -170,7 +170,8 @@ fn test_svc_agent_registry_happy_trait_can_be_implemented() {
     });
     registry.register("test", agent);
     let retrieved = registry.get("test");
-    assert!(retrieved.is_some());
+    let a = retrieved.unwrap();
+    assert_eq!(a.id(), "test");
 }
 
 /// @covers: AgentRegistry trait re-export — inherits Registry::register
@@ -182,8 +183,8 @@ fn test_svc_agent_registry_happy_register_stores_agent() {
     });
     registry.register("agent1", agent);
     let retrieved = registry.get("agent1");
-    assert!(retrieved.is_some());
-    assert_eq!(retrieved.unwrap().id(), "agent1");
+    let a = retrieved.unwrap();
+    assert_eq!(a.id(), "agent1");
 }
 
 /// @covers: AgentRegistry trait re-export — inherits Registry::get
@@ -221,7 +222,6 @@ fn test_svc_agent_registry_happy_metadata_returns_agent_info() {
     });
     registry.register("test_agent", agent);
     let metadata = registry.metadata("test_agent");
-    assert!(metadata.is_ok());
     let meta = metadata.unwrap();
     assert_eq!(meta.id, "test_agent");
 }

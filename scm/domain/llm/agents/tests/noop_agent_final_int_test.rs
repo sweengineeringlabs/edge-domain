@@ -48,7 +48,7 @@ fn test_noop_agent_provider_returns_arc_dyn_provider_happy() {
 /// @covers: NoopAgent::provider
 #[test]
 fn test_noop_agent_provider_health_check_ok_happy() {
-    assert!(NoopAgent.provider().health_check().is_ok());
+    assert_eq!(NoopAgent.provider().health_check(), Ok(()));
 }
 
 /// @covers: NoopAgent::provider

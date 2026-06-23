@@ -126,8 +126,8 @@ fn test_skill_metadata_builder_fluent_chain_all_fields() {
 
     assert_eq!(metadata.name, "complex_skill");
     assert_eq!(metadata.description, "A complex skill with all fields set");
-    assert!(metadata.input_schema.is_some());
-    assert!(metadata.output_schema.is_some());
+    assert!(metadata.input_schema.unwrap());
+    assert!(metadata.output_schema.unwrap());
     assert!(metadata.async_execution);
     assert!(metadata.long_running);
 }
