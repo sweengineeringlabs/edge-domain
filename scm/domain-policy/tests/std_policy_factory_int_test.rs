@@ -8,7 +8,9 @@ fn test_std_factory_composite_creates_empty_policy_happy() {
 
 #[test]
 fn test_std_factory_std_factory_returns_instance_happy() {
-    let _ = StdPolicyFactory::std_factory();
+    let f = StdPolicyFactory::std_factory();
+    // Verify factory is zero-sized marker type
+    assert_eq!(std::mem::size_of_val(&f), 0);
 }
 
 #[test]
@@ -36,4 +38,6 @@ fn test_std_factory_is_copy_type_edge() {
     let f = StdPolicyFactory::std_factory();
     let _f2 = f;
     let _f3 = f; // Copy — usable after "move"
+    // Verify all copies are identical zero-sized marker types
+    assert_eq!(std::mem::size_of_val(&f), std::mem::size_of_val(&_f2));
 }

@@ -21,6 +21,8 @@ fn test_apply_noop_aggregate_after_apply_id_unchanged_happy() {
 #[test]
 fn test_default_noop_aggregate_constructs_edge() {
     let _agg = NoopAggregate::default();
+    // Verify default constructs a valid aggregate
+    assert_eq!(_agg.id(), "");
 }
 
 /// @covers: NoopAggregate::apply — repeated apply calls don't panic
@@ -38,4 +40,6 @@ fn test_apply_noop_aggregate_repeated_calls_do_not_panic_edge() {
 fn test_noop_aggregate_satisfies_send_sync_bounds_happy() {
     fn assert_send_sync<T: Send + Sync>() {}
     assert_send_sync::<NoopAggregate>();
+    // Verify NoopAggregate is actually a unit type (zero-sized)
+    assert_eq!(std::mem::size_of::<NoopAggregate>(), 0);
 }

@@ -69,6 +69,8 @@ fn test_publish_noop_repeated_publishes_all_ok_error() {
 fn test_subscribe_noop_returns_receiver_happy() {
     let _rx = NoopEventBus.subscribe();
     // subscribe must not panic
+    // Verify receiver is zero-sized noop type
+    assert_eq!(std::mem::size_of_val(&_rx), 0);
 }
 
 /// @covers: NoopEventBus::subscribe — multiple subscribe calls each get a closed receiver

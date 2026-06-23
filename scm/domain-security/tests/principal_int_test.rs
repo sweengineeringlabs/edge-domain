@@ -57,7 +57,10 @@ fn test_anonymous_principal_is_zero_sized_edge() {
 /// @covers: Principal::id — id of two anonymous principals are the same
 #[test]
 fn test_id_two_anonymous_principals_match_edge() {
-    assert_eq!(AnonymousPrincipal.id(), AnonymousPrincipal.id());
+    let id1 = AnonymousPrincipal.id();
+    let id2 = AnonymousPrincipal.id();
+    assert_eq!(id1, id2, "AnonymousPrincipal IDs must be stable");
+    assert_eq!(id1, "anonymous", "AnonymousPrincipal must return expected ID");
 }
 
 /// @covers: Principal::kind — kind of minimal stub principal is not anonymous

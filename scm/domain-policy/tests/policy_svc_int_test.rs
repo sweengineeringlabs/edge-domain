@@ -27,7 +27,10 @@ fn test_name_returns_static_label_happy() {
 #[test]
 fn test_name_is_stable_across_calls_error() {
     let p = NonZero;
-    assert_eq!(p.name(), p.name());
+    let name1 = p.name();
+    let name2 = p.name();
+    assert_eq!(name1, name2, "Policy name must be stable across calls");
+    assert_eq!(name1, "non-zero", "Policy name must match expected value");
 }
 
 /// @covers: Policy::name — usable via dyn dispatch

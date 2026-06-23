@@ -24,8 +24,8 @@ fn test_invalid_equality_by_value_error() {
 /// @covers: ValidatorError::Invalid — distinct messages differ
 #[test]
 fn test_invalid_distinct_messages_differ_edge() {
-    assert_ne!(
-        ValidatorError::Invalid("a".into()),
-        ValidatorError::Invalid("b".into())
-    );
+    let err_a = ValidatorError::Invalid("a".into());
+    let err_b = ValidatorError::Invalid("b".into());
+    assert_ne!(err_a, err_b, "errors with different messages must not be equal");
+    assert_eq!(err_a, ValidatorError::Invalid("a".into()), "same messages must be equal");
 }

@@ -33,4 +33,7 @@ fn test_entity_svc_entity_error_is_accessible_via_public_api_edge() {
         }
     }
     let _check = check; // bind to confirm function compiles
+
+    // Verify EntityError type name is correct (edge case for empty enum)
+    assert_eq!(std::any::type_name::<EntityError>(), "edge_domain_entity::EntityError");
 }

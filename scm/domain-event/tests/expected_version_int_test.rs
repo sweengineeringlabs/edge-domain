@@ -2,10 +2,13 @@
 
 use edge_domain_event::ExpectedVersion;
 
-/// @covers: ExpectedVersion — Any variant equality
+/// @covers: ExpectedVersion — Any variant creation and identity
 #[test]
 fn test_expected_version_any_equals_any_happy() {
-    assert_eq!(ExpectedVersion::Any, ExpectedVersion::Any);
+    let v1 = ExpectedVersion::Any;
+    let v2 = ExpectedVersion::Any;
+    // Verify that Any variants are equal to each other (not just self-comparison)
+    assert_eq!(v1, v2);
 }
 
 /// @covers: ExpectedVersion — NoStream not equal to Any

@@ -56,6 +56,8 @@ fn test_in_memory_store_std_event_factory_conflict_on_double_no_stream_error() {
 #[test]
 fn test_in_process_bus_std_event_factory_custom_capacity_edge() {
     let _bus = StdEventFactory::in_process_bus(EventBusConfig { capacity: 64 });
+    // Verify the bus is a non-zero-sized in-process implementation
+    assert!(std::mem::size_of_val(&_bus) > 0);
 }
 
 /// @covers: StdEventFactory::noop_bus — publish never errors
@@ -88,6 +90,8 @@ fn test_closed_source_recv_next_returns_unavailable_error() {
 #[test]
 fn test_std_factory_constructs_std_event_factory_happy() {
     let _f = StdEventFactory::std();
+    // Verify the factory is a zero-sized marker type
+    assert_eq!(std::mem::size_of_val(&_f), 0);
 }
 
 /// @covers: StdEventFactory::noop_event — returns a NoopDomainEvent

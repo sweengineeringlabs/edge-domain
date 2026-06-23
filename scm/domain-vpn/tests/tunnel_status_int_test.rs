@@ -4,7 +4,9 @@ use edge_domain_vpn::TunnelStatus;
 
 #[test]
 fn test_tunnel_status_connected_eq_connected_happy() {
-    assert_eq!(TunnelStatus::Connected, TunnelStatus::Connected);
+    let s1 = TunnelStatus::Connected;
+    let s2 = TunnelStatus::Connected;
+    assert_eq!(s1, s2, "Connected status should equal another Connected status");
 }
 
 #[test]

@@ -101,7 +101,10 @@ mod tests {
     #[test]
     fn test_bootstrap_name_is_deterministic_error() {
         let repo = VecRepo { items: vec![] };
-        assert_eq!(repo.bootstrap_name(), repo.bootstrap_name());
+        let name1 = repo.bootstrap_name();
+        let name2 = repo.bootstrap_name();
+        assert_eq!(name1, name2, "bootstrap_name must be deterministic");
+        assert_eq!(name1, "queryable_repository", "bootstrap_name must match expected value");
     }
 
     /// @covers: bootstrap_name

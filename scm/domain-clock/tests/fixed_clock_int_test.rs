@@ -20,7 +20,11 @@ fn test_now_repeated_calls_return_same_instant_error() {
     let clock = FixedClock::new(instant);
     let t1 = clock.now();
     let t2 = clock.now();
-    assert_eq!(t1, t2);
+    // Verify monotonicity — time should never go backward
+    assert!(t2 >= t1, "Clock should be monotonic");
+    // And verify they're equal since this is a fixed clock
+    assert_eq!(t1, instant);
+    assert_eq!(t2, instant);
 }
 
 /// @covers: FixedClock (Clock::now at UNIX_EPOCH)

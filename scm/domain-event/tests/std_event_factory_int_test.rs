@@ -56,6 +56,8 @@ fn test_in_memory_store_std_event_factory_no_stream_conflict_error() {
 #[test]
 fn test_in_process_bus_std_event_factory_large_capacity_edge() {
     let _bus = StdEventFactory::in_process_bus(EventBusConfig { capacity: 256 });
+    // Verify bus is non-zero-sized (it holds channels)
+    assert!(std::mem::size_of_val(&_bus) > 0);
 }
 
 /// @covers: StdEventFactory — noop_bus publish never errors

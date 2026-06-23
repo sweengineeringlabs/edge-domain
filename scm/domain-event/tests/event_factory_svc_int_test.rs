@@ -163,6 +163,8 @@ fn test_in_process_bus_publish_subscribe_round_trip_error() {
 fn test_std_returns_std_event_factory_happy() {
     use edge_domain_event::StdEventFactory;
     let _f: StdEventFactory = Events::std();
+    // Verify factory is zero-sized marker type
+    assert_eq!(std::mem::size_of_val(&_f), 0);
 }
 
 /// @covers: EventBootstrap::std — std factory is zero-sized (pure dispatch)
@@ -176,7 +178,9 @@ fn test_std_factory_is_zero_sized_error() {
 #[test]
 fn test_std_factory_can_call_noop_bus_immediately_edge() {
     use edge_domain_event::{EventBootstrap, StdEventFactory};
-    let _ = StdEventFactory::noop_bus();
+    let bus = StdEventFactory::noop_bus();
+    // Verify noop bus is zero-sized
+    assert_eq!(std::mem::size_of_val(&bus), 0);
 }
 
 /// @covers: EventBootstrap::noop_aggregate — returns a NoopAggregate
