@@ -26,7 +26,6 @@ impl<Ctx: Send> DefaultPipeline<Ctx> {
     }
 
     /// Return a reference to the config.
-    #[allow(dead_code)]
     pub(crate) fn config(&self) -> &PipelineConfig {
         &self.config
     }

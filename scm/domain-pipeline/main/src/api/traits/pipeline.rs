@@ -97,6 +97,14 @@ mod tests {
         assert!(!pipeline.is_empty());
     }
 
+    /// @covers: Pipeline::is_empty
+    #[test]
+    fn test_pipeline_is_empty_error_consistency() {
+        let pipeline = MockPipeline { empty: true, config: PipelineConfig::default() };
+        assert!(pipeline.is_empty());
+        assert!(pipeline.is_empty()); // Should be consistent
+    }
+
     #[test]
     fn test_pipeline_step_count_happy_returns_count() {
         let pipeline = MockPipeline { empty: false, config: PipelineConfig::default() };
@@ -107,6 +115,15 @@ mod tests {
     fn test_pipeline_step_count_edge_empty_zero() {
         let pipeline = MockPipeline { empty: true, config: PipelineConfig::default() };
         assert_eq!(pipeline.step_count(), 0);
+    }
+
+    /// @covers: Pipeline::step_count
+    #[test]
+    fn test_pipeline_step_count_error_consistency() {
+        let pipeline = MockPipeline { empty: false, config: PipelineConfig::default() };
+        let count1 = pipeline.step_count();
+        let count2 = pipeline.step_count();
+        assert_eq!(count1, count2); // Should be consistent across calls
     }
 
     #[test]
@@ -128,5 +145,19 @@ mod tests {
         assert!(pipeline.config().timeout_per_step.is_none());
         assert!(!pipeline.config().emit_lifecycle_events);
         assert!(pipeline.config().abort_on_error);
+    }
+
+    /// @covers: Pipeline::config
+    #[test]
+    fn test_pipeline_config_error_multiple_calls_consistent() {
+        let config = PipelineConfig {
+            timeout_per_step: Some(std::time::Duration::from_secs(5)),
+            emit_lifecycle_events: false,
+            abort_on_error: true,
+        };
+        let pipeline = MockPipeline { empty: false, config };
+        let ref1 = pipeline.config();
+        let ref2 = pipeline.config();
+        assert_eq!(ref1.timeout_per_step, ref2.timeout_per_step);
     }
 }

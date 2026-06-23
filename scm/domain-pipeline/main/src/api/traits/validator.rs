@@ -89,4 +89,21 @@ mod tests {
         assert!(validator.is_enabled());
         assert!(validator.is_enabled());  // Should be idempotent
     }
+
+    /// @covers: Validator::is_enabled
+    #[test]
+    fn test_is_enabled_happy_state_toggles() {
+        let enabled = AlwaysValidValidator;
+        let disabled = AlwaysFailValidator;
+        assert!(enabled.is_enabled());
+        assert!(!disabled.is_enabled());
+    }
+
+    /// @covers: Validator::is_enabled
+    #[test]
+    fn test_is_enabled_error_disabled_remains_disabled() {
+        let validator = AlwaysFailValidator;
+        assert!(!validator.is_enabled());
+        assert!(!validator.is_enabled());
+    }
 }

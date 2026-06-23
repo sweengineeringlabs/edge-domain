@@ -14,7 +14,40 @@ mod saf;
 mod spi;
 
 // Public API surface
-pub use api::{PipelineConfig, PipelineError, Pipeline, Step, Validator, PipelineFactory, ValidatorFactory};
+pub use api::{PipelineConfig, PipelineError, Pipeline, Step, Validator};
+pub use spi::{PipelineFactory, ValidatorFactory};
 pub use saf::{PIPELINE_SVC, STEP_SVC, VALIDATOR_SVC};
-pub use saf::pipeline_svc::{create_pipeline, create_pipeline_with_config};
-pub use saf::validator_svc::create_validator;
+pub use saf::pipeline_svc::PipelineService;
+pub use saf::validator_svc::ValidatorService;
+
+use std::sync::Arc;
+
+/// Create a pipeline with the given steps and default config.
+///
+/// Returns an opaque trait object so callers never see concrete implementation types.
+///
+/// This is a convenience wrapper around [`PipelineService::create_pipeline`].
+pub fn create_pipeline<Ctx: Send + 'static>(
+    steps: Vec<Arc<dyn Step<Ctx>>>,
+) -> Box<dyn Pipeline<Ctx>> {
+    PipelineService::create_pipeline(steps)
+}
+
+/// Create a pipeline with the given steps and custom config.
+///
+/// Returns an opaque trait object so callers never see concrete implementation types.
+///
+/// This is a convenience wrapper around [`PipelineService::create_pipeline_with_config`].
+pub fn create_pipeline_with_config<Ctx: Send + 'static>(
+    steps: Vec<Arc<dyn Step<Ctx>>>,
+    config: PipelineConfig,
+) -> Box<dyn Pipeline<Ctx>> {
+    PipelineService::create_pipeline_with_config(steps, config)
+}
+
+/// Create a config validator strategy.
+///
+/// This is a convenience wrapper around [`ValidatorService::create_validator`].
+pub fn create_validator(enabled: bool) -> Box<dyn Validator> {
+    ValidatorService::create_validator(enabled)
+}

@@ -4,7 +4,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use crate::api::{Pipeline, PipelineConfig, Step};
-use crate::spi::DefaultPipeline;
+use crate::spi::default_pipeline::DefaultPipeline;
 
 /// Fluent builder for composing [`DefaultPipeline<Ctx>`] from steps.
 ///
