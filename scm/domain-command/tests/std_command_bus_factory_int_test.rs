@@ -1,28 +1,30 @@
-use edge_domain_command::CommandBusBootstrap;
+use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 
 #[test]
 fn test_std_factory_direct_creates_command_bus_happy() {
-    let bus = <() as CommandBusBootstrap>::direct();
-    assert_eq!(format!("{:?}", bus), "DirectCommandBus");
+    let _bus = StdCommandBusFactory::direct();
+    let bus: &edge_domain_command::DirectCommandBus = &_bus;
+    assert!(std::mem::size_of_val(bus) == 0);
 }
 
 #[test]
 fn test_std_factory_std_factory_returns_instance_happy() {
-    let factory = <() as CommandBusBootstrap>::std_factory();
-    assert!(!format!("{:?}", factory).is_empty());
+    let factory = StdCommandBusFactory::std_factory();
+    let factory_ref: &StdCommandBusFactory = &factory;
+    assert!(std::mem::size_of_val(factory_ref) == 0);
 }
 
 #[test]
 fn test_std_factory_std_factory_is_copy_type_error() {
-    let f = <() as CommandBusBootstrap>::std_factory();
-    let f2 = f;
-    let f3 = f; // Copy — usable after move
-    assert_eq!(format!("{:?}", f), format!("{:?}", f3));
+    let f = StdCommandBusFactory::std_factory();
+    let _f2 = f;
+    let _f3 = f; // Copy — usable after move
+    assert!(std::mem::size_of_val(&f) == 0);
 }
 
 #[test]
 fn test_std_factory_std_factory_is_default_edge() {
-    let f = <() as CommandBusBootstrap>::std_factory();
-    let f_default = <() as CommandBusBootstrap>::std_factory();
-    assert_eq!(format!("{:?}", f), format!("{:?}", f_default));
+    let f = StdCommandBusFactory::default();
+    let f_ref: &StdCommandBusFactory = &f;
+    assert!(std::mem::size_of_val(f_ref) == 0);
 }

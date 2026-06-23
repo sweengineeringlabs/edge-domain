@@ -55,30 +55,30 @@ full        = [
 ]
 
 [dependencies]
-thiserror.workspace   = true
-async-trait.workspace = true
-parking_lot.workspace = true
-tracing.workspace     = true
+thiserror     = "2"
+async-trait   = "0.1"
+parking_lot   = "0.12"
+tracing       = { version = "0.1", default-features = false }
 
-edge-domain-entity      = { workspace = true, optional = true }
-edge-domain-valueobject = { workspace = true, optional = true }
-edge-domain-clock       = { workspace = true, optional = true }
-edge-domain-validator   = { workspace = true, optional = true }
-edge-domain-policy      = { workspace = true, optional = true }
-edge-domain-command     = { workspace = true, optional = true }
-edge-domain-query       = { workspace = true, optional = true }
-edge-domain-snapshot    = { workspace = true, optional = true }
-edge-domain-service     = { workspace = true, optional = true }
-edge-domain-repository  = { workspace = true, optional = true }
-edge-domain-handler     = { workspace = true, optional = true }
-edge-domain-event       = { workspace = true, optional = true }
-edge-domain-pipeline    = { workspace = true, optional = true }
-edge-domain-projection  = { workspace = true, optional = true }
-edge-domain-saga        = { workspace = true, optional = true }
-edge-domain-registry    = { workspace = true, optional = true }
-edge-domain-lifecycle   = { workspace = true, optional = true }
-edge-domain-observer    = { workspace = true, optional = true }
-edge-domain-security.workspace = true
+edge-domain-entity      = { path = "../domain-entity", optional = true }
+edge-domain-valueobject = { path = "../domain-valueobject", optional = true }
+edge-domain-clock       = { path = "../domain-clock", optional = true }
+edge-domain-validator   = { path = "../domain-validator", optional = true }
+edge-domain-policy      = { path = "../domain-policy", optional = true }
+edge-domain-command     = { path = "../domain-command", optional = true }
+edge-domain-query       = { path = "../domain-query", optional = true }
+edge-domain-snapshot    = { path = "../domain-snapshot", optional = true }
+edge-domain-service     = { path = "../domain-service", optional = true }
+edge-domain-repository  = { path = "../domain-repository", optional = true }
+edge-domain-handler     = { path = "../domain-handler", optional = true }
+edge-domain-event       = { path = "../domain-event", optional = true }
+edge-domain-pipeline    = { path = "../domain-pipeline", optional = true }
+edge-domain-projection  = { path = "../domain-projection", optional = true }
+edge-domain-saga        = { path = "../domain-saga", optional = true }
+edge-domain-registry    = { path = "../domain-registry", optional = true }
+edge-domain-lifecycle   = { path = "../domain-lifecycle", optional = true }
+edge-domain-observer    = { path = "../domain-observer", optional = true }
+edge-domain-security    = { path = "../domain-security" }
 
 [dev-dependencies]
 tokio   = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
