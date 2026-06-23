@@ -15,3 +15,4 @@ mod saf;
 
 pub use saf::Clock;
 pub use saf::ClockBootstrap;
+pub use crate::api::ClockError;

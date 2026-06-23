@@ -24,3 +24,11 @@ pub use saf::EVENT_FACTORY_SVC;
 pub use saf::EVENT_PUBLISHER_SVC;
 pub use saf::EVENT_SOURCE_SVC;
 pub use saf::EVENT_STORE_SVC;
+
+// Re-export types used by other domain crates
+pub use crate::api::EventBusConfig;
+pub use crate::api::EventStoreError;
+pub use crate::api::InMemoryEventStore;
+pub use crate::api::NoopEventBus;
+pub use crate::api::NoopEventPublisher;
+pub use crate::api::InProcessEventBus;

@@ -25,7 +25,8 @@ fn test_log_record_eq_different_level_not_equal() {
 #[test]
 fn test_log_record_debug_does_not_panic() {
     let r = LogRecord::new("INFO", "h", "msg");
-    let _ = format!("{r:?}");
+    let debug_output = format!("{r:?}");
+    assert!(!debug_output.is_empty(), "debug output should not be empty");
 }
 
 #[test]

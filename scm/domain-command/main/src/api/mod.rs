@@ -1,11 +1,11 @@
 ﻿mod command;
-pub(crate) use command::DirectCommandBus;
-pub(crate) use command::CommandError;
-pub(crate) use command::LoggingCommandBus;
+pub use command::DirectCommandBus;
+pub use command::CommandError;
+pub use command::LoggingCommandBus;
 pub use command::Command;
 pub use command::CommandBus;
 pub use command::CommandBusBootstrap;
 pub use command::CommandBootstrap;
 pub(crate) use command::NoopCommand;
 pub(crate) use command::NoopCommandBus;
-pub(crate) use command::StdCommandBusFactory;
+pub use command::StdCommandBusFactory;

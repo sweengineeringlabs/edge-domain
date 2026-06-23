@@ -15,5 +15,3 @@ mod saf;
 
 pub use saf::Policy;
 pub use saf::PolicyBootstrap;
-pub use saf::POLICY_SVC;
-pub use saf::POLICY_FACTORY_SVC;

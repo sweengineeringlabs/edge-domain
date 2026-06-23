@@ -14,3 +14,7 @@ pub use saf::Command;
 pub use saf::CommandBus;
 pub use saf::CommandBusBootstrap;
 pub use saf::CommandBootstrap;
+pub use crate::api::CommandError;
+pub use crate::api::DirectCommandBus;
+pub use crate::api::LoggingCommandBus;
+pub use crate::api::StdCommandBusFactory;

@@ -11,9 +11,6 @@ pub use traits::{
 };
 pub use types::{
     CacheControl, CompletionRequest, CompletionResponse, ContentPart, EchoCompleter, FinishReason,
-    Message, MessageContent, ModelInfo, NoopCompleter, StdCompleteFactory,
-    StreamChunk, StreamDelta, ToolCall, ToolCallDelta, ToolChoice, ToolDefinition,
+    ImageUrl, Message, MessageContent, ModelInfo, NoopCompleter, Role, StdCompleteFactory,
+    StreamChunk, StreamDelta, TokenUsage, ToolCall, ToolCallDelta, ToolChoice, ToolDefinition,
 };
-
-// Internal API only (needed for trait signatures)
-pub(super) use types::{ImageUrl, Role, TokenUsage};

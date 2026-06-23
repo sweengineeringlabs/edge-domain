@@ -27,3 +27,9 @@ pub use saf::{
     COMPLETE_OPS_SVC, CONTENT_FLATTENER_SVC, MODEL_OPS_SVC, PROCESSOR_SVC, STREAM_OPS_SVC,
     TOOL_OPS_SVC, VALIDATOR_SVC,
 };
+
+// Re-export types used by provider and other consumer crates
+pub use crate::api::{
+    CompleteError, CompletionRequest, CompletionResponse, ContentPart, FinishReason,
+    MessageContent, ModelInfo, Role, StreamChunk, StreamDelta, TokenUsage,
+};

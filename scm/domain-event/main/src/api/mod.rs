@@ -19,3 +19,6 @@ pub use event::NoopDomainEvent;
 pub use event::NoopEventBus;
 pub use event::NoopEventPublisher;
 pub use event::StdEventFactory;
+
+// Re-export for public API (needed for trait signatures and test usage)
+pub use event::EventBusConfig;

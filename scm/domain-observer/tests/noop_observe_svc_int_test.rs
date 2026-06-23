@@ -21,5 +21,6 @@ fn test_noop_observe_svc_key_stable_across_reads_edge() {
 #[test]
 fn test_noop_observe_trait_accessible_via_svc_import_happy() {
     use edge_domain_observer::StdObserveFactory;
-    let _ = StdObserveFactory::build_noop_counter();
+    let c = StdObserveFactory::build_noop_counter();
+    assert_eq!(std::mem::size_of_val(&*c), 0, "noop counter is ZST");
 }

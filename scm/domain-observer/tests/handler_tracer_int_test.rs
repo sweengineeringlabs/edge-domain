@@ -33,6 +33,7 @@ fn test_handler_tracer_is_send_sync() {
     fn assert_send_sync<T: Send + Sync>(_: &T) {}
     let tracer = StdObserveFactory::noop_handler_tracer();
     assert_send_sync(&tracer);
+    assert_eq!(std::mem::size_of_val(&*tracer), 0, "noop handler tracer is ZST");
 }
 
 #[test]
@@ -40,4 +41,5 @@ fn test_handler_tracer_returns_dyn_trait_object() {
     let tracer: Box<dyn HandlerTracer> = StdObserveFactory::noop_handler_tracer();
     let span = tracer.start_span("h", "op");
     span.finish();
+    assert_eq!(std::mem::size_of_val(&*span), 0, "noop span is ZST");
 }
