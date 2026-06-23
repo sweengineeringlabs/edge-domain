@@ -8,7 +8,8 @@ use edge_llm_reasoning::{Reasoning, ReasoningBootstrap, ReasoningPattern, StdRea
 /// @covers: ReasoningBootstrap::std_factory — returns the standard factory
 #[test]
 fn test_std_factory_returns_instance_happy() {
-    let _f: StdReasoningFactory = StdReasoningFactory::std_factory();
+    let f: StdReasoningFactory = StdReasoningFactory::std_factory();
+    assert_eq!(std::mem::size_of_val(&f), 0);
 }
 
 /// @covers: ReasoningBootstrap::std_factory — instance is zero-sized
@@ -21,8 +22,9 @@ fn test_std_factory_is_zero_sized_error() {
 /// @covers: ReasoningBootstrap::std_factory — repeated calls are equivalent
 #[test]
 fn test_std_factory_repeatable_edge() {
-    let _a = StdReasoningFactory::std_factory();
-    let _b = StdReasoningFactory::std_factory();
+    let a = StdReasoningFactory::std_factory();
+    let b = StdReasoningFactory::std_factory();
+    assert_eq!(std::mem::size_of_val(&a), std::mem::size_of_val(&b));
 }
 
 // --- reasoning ---

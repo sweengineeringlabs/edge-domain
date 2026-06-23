@@ -6,7 +6,8 @@ use edge_llm_reasoning::{Reasoning, ReasoningBootstrap, ReasoningPattern, StdRea
 /// @covers: StdReasoningFactory — std_factory returns the factory instance
 #[test]
 fn test_std_reasoning_factory_std_factory_returns_instance() {
-    let _factory: StdReasoningFactory = StdReasoningFactory::std_factory();
+    let factory: StdReasoningFactory = StdReasoningFactory::std_factory();
+    assert_eq!(std::mem::size_of_val(&factory), 0);
 }
 
 /// @covers: StdReasoningFactory — is zero-sized
