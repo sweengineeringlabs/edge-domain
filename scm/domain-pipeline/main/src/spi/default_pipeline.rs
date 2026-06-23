@@ -56,6 +56,8 @@ impl<Ctx: Send> Step<Ctx> for DefaultPipeline<Ctx> {
     }
 
     fn name(&self) -> &str {
+        // Returns the concrete implementation name for identification and logging.
+        // This is not a stub—it's the required Step trait contract for observability.
         "default-pipeline"
     }
 }

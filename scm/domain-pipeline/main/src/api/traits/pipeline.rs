@@ -35,6 +35,11 @@ pub trait Pipeline<Ctx>: Send + Sync {
 
     /// Get the pipeline configuration.
     fn config(&self) -> &super::super::PipelineConfig;
+
+    /// Human-readable name for this pipeline (logging, debugging).
+    fn name(&self) -> &str {
+        std::any::type_name::<Self>()
+    }
 }
 
 /// Blanket impl: any Pipeline can be used as a Step, enabling composition.
@@ -45,7 +50,8 @@ impl<Ctx: Send + 'static> Step<Ctx> for dyn Pipeline<Ctx> {
     }
 
     fn name(&self) -> &str {
-        "pipeline-step"
+        // Use the pipeline's own name() method
+        Pipeline::name(self)
     }
 }
 

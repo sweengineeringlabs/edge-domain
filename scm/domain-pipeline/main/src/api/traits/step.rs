@@ -29,7 +29,9 @@ pub trait Step<Ctx>: Send + Sync {
     async fn execute(&self, ctx: &mut Ctx) -> Result<(), PipelineError>;
 
     /// Human-readable name for this step (logging, debugging, observability).
-    fn name(&self) -> &str;
+    fn name(&self) -> &str {
+        std::any::type_name::<Self>()
+    }
 }
 
 #[cfg(test)]

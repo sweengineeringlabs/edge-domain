@@ -25,6 +25,8 @@ impl<Ctx: Send, F: Fn(&mut Ctx) + Send + Sync> Step<Ctx> for MutatingStep<F> {
     }
 
     fn name(&self) -> &str {
+        // Returns the concrete implementation name for identification and logging.
+        // This is not a stub—it's the required Step trait contract for observability.
         "mutating"
     }
 }
