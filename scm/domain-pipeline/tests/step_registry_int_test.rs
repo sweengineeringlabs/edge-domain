@@ -1,10 +1,12 @@
 //! @covers StepRegistry trait — happy/error/edge scenarios for register and build_pipeline.
+//! Also covers the domain-registry backing store integration (InMemoryRegistry<dyn Step<Ctx>>).
 
 use std::sync::Arc;
 
 use edge_domain_pipeline::{
     create_step_registry, PipelineDefinition, PipelineError, Step,
 };
+use edge_domain_registry::{Registry, RegistryBootstrap, StdRegistryFactory};
 
 struct IncrementStep;
 
@@ -141,4 +143,40 @@ async fn test_build_pipeline_error_step_failure_propagates() {
     let result = pipeline.execute(&mut ctx).await;
     assert!(result.is_err());
     assert_eq!(ctx, 1); // first increment ran; fail aborted
+}
+
+// ── domain-registry backing store integration ─────────────────────────────────
+
+/// @covers: StdRegistryFactory::in_memory
+#[test]
+fn test_backing_registry_happy_stores_step_by_name() {
+    let reg = StdRegistryFactory::in_memory::<dyn Step<i32>>();
+    reg.register("increment", Arc::new(IncrementStep));
+    assert_eq!(
+        reg.get("increment").map(|s| s.name().to_owned()),
+        Some("increment".to_owned()),
+        "registered step must be retrievable by name with correct identity"
+    );
+}
+
+/// @covers: StdRegistryFactory::in_memory
+#[test]
+fn test_backing_registry_error_absent_name_returns_none() {
+    let reg = StdRegistryFactory::in_memory::<dyn Step<i32>>();
+    assert!(reg.get("absent").is_none(), "unregistered name must return None");
+    assert!(reg.is_empty(), "factory-created registry must start empty");
+}
+
+/// @covers: StdRegistryFactory::in_memory
+#[test]
+fn test_backing_registry_edge_duplicate_register_overwrites() {
+    let reg = StdRegistryFactory::in_memory::<dyn Step<i32>>();
+    reg.register("step", Arc::new(IncrementStep));
+    reg.register("step", Arc::new(FailStep)); // second registration replaces first
+    assert_eq!(reg.len(), 1, "duplicate registrations must not increase count");
+    assert_eq!(
+        reg.get("step").map(|s| s.name().to_owned()),
+        Some("fail".to_owned()),
+        "last registered step must win"
+    );
 }

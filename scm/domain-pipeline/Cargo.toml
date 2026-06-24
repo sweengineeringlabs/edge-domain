@@ -18,11 +18,12 @@ service_type     = "pipeline"
 path = "main/src/lib.rs"
 
 [dependencies]
-async-trait.workspace        = true
-thiserror.workspace          = true
-tokio.workspace              = true
-serde.workspace              = true
-swe-edge-configbuilder.workspace = true
+async-trait.workspace             = true
+thiserror.workspace               = true
+tokio.workspace                   = true
+serde.workspace                   = true
+swe-edge-configbuilder.workspace  = true
+edge-domain-registry.workspace    = true
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
