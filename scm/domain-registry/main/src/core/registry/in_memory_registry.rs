@@ -1,26 +1,10 @@
-//! `Registry` impl for `InMemoryRegistry` + inherent construction.
+//! `Registry` impl for `InMemoryRegistry`.
 
-use std::collections::HashMap;
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
 
 use crate::api::RegistryError;
 use crate::api::Registry;
 use crate::api::InMemoryRegistry;
-
-impl<V: ?Sized + Send + Sync> InMemoryRegistry<V> {
-    /// Construct an empty registry.
-    pub fn new() -> Self {
-        Self {
-            entries: RwLock::new(HashMap::new()),
-        }
-    }
-}
-
-impl<V: ?Sized + Send + Sync> Default for InMemoryRegistry<V> {
-    fn default() -> Self {
-        Self::new()
-    }
-}
 
 impl<V: ?Sized + Send + Sync> Registry for InMemoryRegistry<V> {
     type Value = V;

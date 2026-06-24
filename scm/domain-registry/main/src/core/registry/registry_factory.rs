@@ -1,9 +1,6 @@
 //! `impl RegistryBootstrap for StdRegistryFactory`.
 
-use crate::api::{InMemoryRegistry, RegistryBootstrap, StdRegistryFactory};
+use crate::api::RegistryBootstrap;
+use crate::api::StdRegistryFactory;
 
-impl RegistryBootstrap for StdRegistryFactory {
-    fn in_memory<V: ?Sized + Send + Sync>() -> InMemoryRegistry<V> {
-        InMemoryRegistry::new()
-    }
-}
+impl RegistryBootstrap for StdRegistryFactory {}
