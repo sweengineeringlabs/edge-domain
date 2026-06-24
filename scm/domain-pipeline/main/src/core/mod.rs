@@ -1,5 +1,3 @@
-//! Default implementations of pipeline patterns (internal only).
+//! Primary trait implementation for Pipeline orchestration.
 
-pub(crate) mod noop;
 pub(crate) mod pipeline;
-pub(crate) mod validator;
