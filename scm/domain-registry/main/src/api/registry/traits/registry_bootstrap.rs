@@ -10,9 +10,7 @@ pub trait RegistryBootstrap {
     }
 
     /// Construct an empty in-memory registry of shared `V` entries.
-    fn in_memory<V: ?Sized + Send + Sync>() -> InMemoryRegistry<V> where Self: Sized {
-        InMemoryRegistry::new()
-    }
+    fn in_memory<V: ?Sized + Send + Sync>() -> InMemoryRegistry<V> where Self: Sized;
 
     /// Return the standard registry-factory instance.
     fn std_factory() -> StdRegistryFactory where Self: Sized {
