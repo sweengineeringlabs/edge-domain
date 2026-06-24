@@ -2,3 +2,4 @@
 
 pub(crate) mod noop;
 pub(crate) mod pipeline;
+pub(crate) mod validator;

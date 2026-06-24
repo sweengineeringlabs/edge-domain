@@ -5,6 +5,7 @@ mod pipeline;
 mod services;
 mod traits;
 mod types;
+mod validator;
 
 pub use error::PipelineError;
 pub use pipeline::Pipeline;
