@@ -49,10 +49,6 @@ impl<Ctx: Send> Step<Ctx> for DefaultPipeline<Ctx> {
     async fn execute(&self, ctx: &mut Ctx) -> Result<(), PipelineError> {
         Pipeline::execute(self, ctx).await
     }
-
-    fn name(&self) -> &str {
-        "default-pipeline"
-    }
 }
 
 #[cfg(test)]

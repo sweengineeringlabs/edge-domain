@@ -18,10 +18,6 @@ impl<Ctx: Send> Step<Ctx> for DefaultStep {
     async fn execute(&self, _ctx: &mut Ctx) -> Result<(), PipelineError> {
         Ok(())
     }
-
-    fn name(&self) -> &str {
-        "default-step"
-    }
 }
 
 #[cfg(test)]
@@ -55,9 +51,9 @@ mod tests {
 
     /// @covers DefaultStep::name
     #[test]
-    fn test_name_happy_returns_identifier() {
+    fn test_name_happy_uses_type_name() {
         let step = DefaultStep;
-        assert_eq!(step.name(), "default-step");
+        assert_eq!(step.name(), "core::step::default_step::DefaultStep");
     }
 
     /// @covers DefaultStep::name
@@ -67,6 +63,5 @@ mod tests {
         let name1 = step.name();
         let name2 = step.name();
         assert_eq!(name1, name2);
-        assert_eq!(name1, "default-step");
     }
 }
