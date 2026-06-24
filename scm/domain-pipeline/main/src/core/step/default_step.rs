@@ -53,15 +53,17 @@ mod tests {
     #[test]
     fn test_name_happy_uses_type_name() {
         let step = DefaultStep;
-        assert_eq!(step.name(), "core::step::default_step::DefaultStep");
+        let step_ref: &dyn crate::api::Step<i32> = &step;
+        assert_eq!(step_ref.name(), "edge_domain_pipeline::core::step::default_step::DefaultStep");
     }
 
     /// @covers DefaultStep::name
     #[test]
     fn test_name_edge_consistent_across_calls() {
         let step = DefaultStep;
-        let name1 = step.name();
-        let name2 = step.name();
+        let step_ref: &dyn crate::api::Step<i32> = &step;
+        let name1 = step_ref.name();
+        let name2 = step_ref.name();
         assert_eq!(name1, name2);
     }
 }

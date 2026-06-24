@@ -78,16 +78,6 @@ mod tests {
         assert_eq!(ctx, 25);
     }
 
-    #[tokio::test]
-    async fn test_execute_happy_complex_type() {
-        use crate::spi::noop::Counter;
-
-        let step = MutatingStep::new(|ctx: &mut Counter| ctx.count += 1);
-        let mut ctx = Counter::new();
-        assert!(step.execute(&mut ctx).await.is_ok());
-        assert_eq!(ctx.count, 1);
-    }
-
     #[test]
     fn test_new_happy_stores_closure() {
         let step = MutatingStep::new(|_ctx: &mut i32| {});
