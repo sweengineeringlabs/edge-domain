@@ -4,9 +4,9 @@
 
 use std::sync::Arc;
 
-use crate::api::{Pipeline, PipelineBuilder, PipelineConfig, Step, Validator};
-use crate::core::traits::DefaultValidator;
+use crate::api::{Pipeline, PipelineBuilder, PipelineConfig, Step, StepRegistry, Validator};
 use crate::core::pipeline::DefaultPipeline;
+use crate::core::traits::{DefaultStepRegistry, DefaultValidator};
 
 /// Create a pipeline with default configuration.
 pub fn create_pipeline<Ctx: Send + 'static>(
@@ -40,4 +40,13 @@ pub fn create_validator(enabled: bool) -> Box<dyn Validator> {
 /// ```
 pub fn build_pipeline<Ctx: Send + 'static>(builder: PipelineBuilder<Ctx>) -> Box<dyn Pipeline<Ctx>> {
     Box::new(DefaultPipeline::with_config(builder.steps, builder.config))
+}
+
+/// Create a [`StepRegistry`] for assembling TOML-defined pipelines.
+///
+/// Register steps by name, then call
+/// [`build_pipeline`](StepRegistry::build_pipeline) with a [`PipelineDefinition`](crate::PipelineDefinition)
+/// loaded from TOML.
+pub fn create_step_registry<Ctx: Send + 'static>() -> Box<dyn StepRegistry<Ctx>> {
+    Box::new(DefaultStepRegistry::new())
 }

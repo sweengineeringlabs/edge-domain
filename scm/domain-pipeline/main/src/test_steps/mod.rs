@@ -1,5 +1,5 @@
 //! Test doubles and fixtures for pipeline testing.
 
-mod always;
-mod default_step;
-mod mutating_step;
+pub(crate) mod always;
+pub(crate) mod default_step;
+pub(crate) mod mutating_step;
