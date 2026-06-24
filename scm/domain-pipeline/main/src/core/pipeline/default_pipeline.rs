@@ -1,6 +1,8 @@
-//! [`DefaultPipeline`] — executes a sequence of steps in order.
+//! [`DefaultPipeline<Ctx>`] — orchestrates sequential step execution.
 
 use std::sync::Arc;
+
+use tokio::time;
 
 use crate::api::{Pipeline, PipelineConfig, PipelineError, Step};
 
@@ -9,6 +11,7 @@ use crate::api::{Pipeline, PipelineConfig, PipelineError, Step};
 pub(crate) struct DefaultPipeline<Ctx> {
     steps: Vec<Arc<dyn Step<Ctx>>>,
     config: PipelineConfig,
+    step_name: &'static str,
 }
 
 impl<Ctx: Send> DefaultPipeline<Ctx> {
@@ -17,12 +20,17 @@ impl<Ctx: Send> DefaultPipeline<Ctx> {
         Self {
             steps,
             config: PipelineConfig::default(),
+            step_name: "default-pipeline",
         }
     }
 
     /// Create a new pipeline with custom config.
     pub(crate) fn with_config(steps: Vec<Arc<dyn Step<Ctx>>>, config: PipelineConfig) -> Self {
-        Self { steps, config }
+        Self {
+            steps,
+            config,
+            step_name: "default-pipeline",
+        }
     }
 }
 
@@ -30,7 +38,18 @@ impl<Ctx: Send> DefaultPipeline<Ctx> {
 impl<Ctx: Send> Pipeline<Ctx> for DefaultPipeline<Ctx> {
     async fn execute(&self, ctx: &mut Ctx) -> Result<(), PipelineError> {
         for step in &self.steps {
-            step.execute(ctx).await?;
+            let result = match self.config.timeout_per_step {
+                Some(dur) => match time::timeout(dur, step.execute(ctx)).await {
+                    Ok(r) => r,
+                    Err(_elapsed) => Err(PipelineError::StepTimeout),
+                },
+                None => step.execute(ctx).await,
+            };
+            if let Err(e) = result {
+                if self.config.abort_on_error {
+                    return Err(e);
+                }
+            }
         }
         Ok(())
     }
@@ -49,34 +68,41 @@ impl<Ctx: Send> Step<Ctx> for DefaultPipeline<Ctx> {
     async fn execute(&self, ctx: &mut Ctx) -> Result<(), PipelineError> {
         Pipeline::execute(self, ctx).await
     }
+
+    fn name(&self) -> &str {
+        self.step_name
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    /// @covers DefaultPipeline::new
+    /// @covers: new
     #[test]
-    fn test_new_constructor_happy_creates_empty() {
+    fn test_new_happy_creates_empty() {
         let pipeline: DefaultPipeline<i32> = DefaultPipeline::new(vec![]);
         assert_eq!(pipeline.step_count(), 0);
     }
 
-    /// @covers DefaultPipeline::with_config
+    /// @covers: with_config
     #[test]
-    fn test_with_config_constructor_happy_sets_timeout() {
+    fn test_with_config_happy_sets_timeout() {
         let config = PipelineConfig {
             timeout_per_step: Some(std::time::Duration::from_secs(5)),
             emit_lifecycle_events: true,
             abort_on_error: false,
         };
         let pipeline: DefaultPipeline<i32> = DefaultPipeline::with_config(vec![], config.clone());
-        assert_eq!(pipeline.config().timeout_per_step, Some(std::time::Duration::from_secs(5)));
+        assert_eq!(
+            pipeline.config().timeout_per_step,
+            Some(std::time::Duration::from_secs(5))
+        );
     }
 
-    /// @covers DefaultPipeline::config
+    /// @covers: config
     #[test]
-    fn test_config_happy_returns_reference() {
+    fn test_config_happy_returns_defaults() {
         let pipeline: DefaultPipeline<i32> = DefaultPipeline::new(vec![]);
         let config = pipeline.config();
         assert!(config.timeout_per_step.is_none());

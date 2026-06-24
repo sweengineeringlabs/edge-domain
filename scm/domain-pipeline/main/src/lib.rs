@@ -12,11 +12,10 @@ mod api;
 mod convenience;
 mod core;
 mod saf;
-mod spi;
 
 #[cfg(test)]
 mod test_steps;
 
-pub use api::{Pipeline, PipelineConfig, PipelineError, Step, Validator};
-pub use saf::{PIPELINE_SVC, STEP_SVC, VALIDATOR_SVC};
-pub use convenience::{create_pipeline, create_pipeline_with_config, create_validator};
+pub use api::{PipelineBuilder, PipelineConfig, PipelineError};
+pub use saf::{Pipeline, Step, Validator, PIPELINE_SVC, STEP_SVC, VALIDATOR_SVC};
+pub use convenience::{build_pipeline, create_pipeline, create_pipeline_with_config, create_validator};

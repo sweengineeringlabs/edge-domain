@@ -135,7 +135,23 @@ pub use edge_domain_event::ExpectedVersion;
 #[cfg(feature = "pipeline")]
 pub use edge_domain_pipeline::Pipeline;
 #[cfg(feature = "pipeline")]
+pub use edge_domain_pipeline::PipelineBuilder;
+#[cfg(feature = "pipeline")]
+pub use edge_domain_pipeline::PipelineConfig;
+#[cfg(feature = "pipeline")]
+pub use edge_domain_pipeline::PipelineError;
+#[cfg(feature = "pipeline")]
 pub use edge_domain_pipeline::Step;
+#[cfg(feature = "pipeline")]
+pub use edge_domain_pipeline::Validator as PipelineValidator;
+#[cfg(feature = "pipeline")]
+pub use edge_domain_pipeline::build_pipeline;
+#[cfg(feature = "pipeline")]
+pub use edge_domain_pipeline::create_pipeline;
+#[cfg(feature = "pipeline")]
+pub use edge_domain_pipeline::create_pipeline_with_config;
+#[cfg(feature = "pipeline")]
+pub use edge_domain_pipeline::create_validator as create_pipeline_validator;
 
 // ── projection (sub-crate when feature enabled) ───────────────────────────────
 #[cfg(feature = "projection")]

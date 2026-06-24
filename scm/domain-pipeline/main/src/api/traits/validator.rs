@@ -1,12 +1,26 @@
 //! [`Validator`] — validates pipeline configuration and execution constraints.
 
-use crate::api::{PipelineConfig, PipelineError};
+use crate::api::{PipelineBuilder, PipelineConfig, PipelineError};
 
 /// Validates pipeline configuration and execution constraints.
 #[async_trait::async_trait]
 pub trait Validator: Send + Sync {
     /// Validate the pipeline configuration.
     async fn validate(&self, config: &PipelineConfig) -> Result<(), PipelineError>;
+
+    /// Validate the configuration embedded in a pipeline builder.
+    ///
+    /// Default: delegates to [`validate`](Validator::validate) using the builder's config.
+    /// The `where Self: Sized` bound keeps the overall trait dyn-compatible.
+    async fn validate_builder<Ctx: Send + 'static>(
+        &self,
+        builder: &PipelineBuilder<Ctx>,
+    ) -> Result<(), PipelineError>
+    where
+        Self: Sized,
+    {
+        self.validate(&builder.config).await
+    }
 
     /// Check if this validator is enabled.
     fn is_enabled(&self) -> bool;
@@ -83,7 +97,7 @@ mod tests {
     fn test_is_enabled_edge_multiple_calls_consistent() {
         let validator = AlwaysValidValidator;
         assert!(validator.is_enabled());
-        assert!(validator.is_enabled());  // Should be idempotent
+        assert!(validator.is_enabled());
     }
 
     #[test]

@@ -24,20 +24,6 @@ impl<Ctx: Send> Step<Ctx> for TestPassStep {
     }
 }
 
-#[derive(Clone)]
-struct TestFailStep;
-
-#[async_trait::async_trait]
-impl<Ctx: Send> Step<Ctx> for TestFailStep {
-    async fn execute(&self, _ctx: &mut Ctx) -> Result<(), PipelineError> {
-        Err(PipelineError::StepFailed("test failure".to_string()))
-    }
-
-    fn name(&self) -> &str {
-        "test-fail"
-    }
-}
-
 struct TestPipeline {
     steps: Vec<Arc<dyn Step<i32>>>,
     config: PipelineConfig,

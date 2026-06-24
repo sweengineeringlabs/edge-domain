@@ -2,7 +2,7 @@
 //! Comprehensive trait implementation tests for Validator interface.
 //! Ensures all trait methods have proper test coverage across happy, error, and edge paths.
 
-use edge_domain_pipeline::{create_validator, Validator, PipelineConfig};
+use edge_domain_pipeline::{create_validator, PipelineBuilder, PipelineConfig, PipelineError};
 use std::time::Duration;
 
 // Validator::validate tests
@@ -125,6 +125,54 @@ fn test_validator_is_enabled_instances_error() {
     let disabled = create_validator(false);
 
     assert_ne!(enabled.is_enabled(), disabled.is_enabled());
+}
+
+// Validator::validate_builder tests
+//
+// validate_builder has `where Self: Sized` (keeps Validator dyn-compatible), so
+// it must be tested through a concrete type, not Box<dyn Validator>.
+
+use edge_domain_pipeline::{Validator};
+
+struct ConcreteValidator {
+    enabled: bool,
+}
+
+#[async_trait::async_trait]
+impl Validator for ConcreteValidator {
+    async fn validate(&self, config: &PipelineConfig) -> Result<(), PipelineError> {
+        if !self.enabled { return Ok(()); }
+        if config.abort_on_error { Ok(()) }
+        else { Err(PipelineError::ConfigError("abort_on_error must be true".to_string())) }
+    }
+    fn is_enabled(&self) -> bool { self.enabled }
+}
+
+/// validate_builder delegates to validate — valid config succeeds
+#[tokio::test]
+async fn test_validate_builder_happy_valid_config_succeeds() {
+    let validator = ConcreteValidator { enabled: true };
+    let builder = PipelineBuilder::<i32>::new(); // default config has abort_on_error=true
+    assert!(validator.validate_builder(&builder).await.is_ok());
+}
+
+/// validate_builder delegates to validate — invalid config (abort_on_error=false) fails
+#[tokio::test]
+async fn test_validate_builder_error_invalid_config_fails() {
+    let validator = ConcreteValidator { enabled: true };
+    let builder = PipelineBuilder::<i32>::new().abort_on_error(false);
+    match validator.validate_builder(&builder).await {
+        Err(PipelineError::ConfigError(_)) => {}
+        other => panic!("expected ConfigError, got {:?}", other),
+    }
+}
+
+/// validate_builder passes when validator is disabled regardless of config
+#[tokio::test]
+async fn test_validate_builder_edge_disabled_validator_passes_any_config() {
+    let validator = ConcreteValidator { enabled: false };
+    let builder = PipelineBuilder::<i32>::new().abort_on_error(false);
+    assert!(validator.validate_builder(&builder).await.is_ok());
 }
 
 /// Test multiple enabled validators

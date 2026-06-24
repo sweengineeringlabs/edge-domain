@@ -1,6 +1,7 @@
 //! [`Pipeline<Ctx>`] — orchestrates a sequence of steps.
 
 use super::super::error::PipelineError;
+use super::super::types::PipelineBuilder;
 
 /// Orchestrates a sequence of [`Step`] operations.
 ///
@@ -38,6 +39,20 @@ pub trait Pipeline<Ctx>: Send + Sync {
     /// Human-readable name for this pipeline (logging, debugging).
     fn name(&self) -> &str {
         std::any::type_name::<Self>()
+    }
+
+    /// Create a new fluent builder for assembling a pipeline.
+    ///
+    /// Call [`build_pipeline`](crate::build_pipeline) on the completed builder to obtain
+    /// a concrete pipeline instance.
+    fn new_builder() -> PipelineBuilder<Ctx>
+    where
+        Self: Sized,
+    {
+        PipelineBuilder {
+            steps: Vec::new(),
+            config: super::super::PipelineConfig::default(),
+        }
     }
 }
 

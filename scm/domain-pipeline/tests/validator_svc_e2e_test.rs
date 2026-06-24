@@ -1,6 +1,6 @@
 //! E2E tests for validator service (SAF layer).
 
-use edge_domain_pipeline::{Validator, PipelineConfig, PipelineError, create_validator};
+use edge_domain_pipeline::{PipelineConfig, create_validator};
 
 #[test]
 fn test_create_validator_happy_enabled() {

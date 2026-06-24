@@ -1,3 +1,1 @@
-//! Validator trait contract and implementations.
-
-pub use super::traits::Validator;
+//! Validator domain — see api/traits/validator.rs for the Validator contract.

@@ -1,30 +1,43 @@
-//! Convenience re-exports for direct function calls.
+//! Convenience free functions — the crate's public construction surface.
+//!
+//! Constructs concrete core implementations and returns opaque trait objects.
 
 use std::sync::Arc;
-use crate::api::{Pipeline, PipelineConfig, PipelineService, Step, Validator, ValidatorService};
+
+use crate::api::{Pipeline, PipelineBuilder, PipelineConfig, Step, Validator};
+use crate::core::traits::DefaultValidator;
+use crate::core::pipeline::DefaultPipeline;
 
 /// Create a pipeline with default configuration.
-///
-/// Convenience function equivalent to `PipelineService::create_pipeline`.
 pub fn create_pipeline<Ctx: Send + 'static>(
     steps: Vec<Arc<dyn Step<Ctx>>>,
 ) -> Box<dyn Pipeline<Ctx>> {
-    PipelineService::create_pipeline(steps)
+    Box::new(DefaultPipeline::new(steps))
 }
 
 /// Create a pipeline with custom configuration.
-///
-/// Convenience function equivalent to `PipelineService::create_pipeline_with_config`.
 pub fn create_pipeline_with_config<Ctx: Send + 'static>(
     steps: Vec<Arc<dyn Step<Ctx>>>,
     config: PipelineConfig,
 ) -> Box<dyn Pipeline<Ctx>> {
-    PipelineService::create_pipeline_with_config(steps, config)
+    Box::new(DefaultPipeline::with_config(steps, config))
 }
 
 /// Create a validator with the given enabled state.
-///
-/// Convenience function equivalent to `ValidatorService::create_validator`.
 pub fn create_validator(enabled: bool) -> Box<dyn Validator> {
-    ValidatorService::create_validator(enabled)
+    Box::new(DefaultValidator::new(enabled))
+}
+
+/// Build a pipeline from a completed [`PipelineBuilder`].
+///
+/// This is the terminal step of the builder pattern:
+/// ```rust,ignore
+/// let pipeline = build_pipeline(
+///     PipelineBuilder::new()
+///         .with(my_step)
+///         .with_timeout(Duration::from_secs(5))
+/// );
+/// ```
+pub fn build_pipeline<Ctx: Send + 'static>(builder: PipelineBuilder<Ctx>) -> Box<dyn Pipeline<Ctx>> {
+    Box::new(DefaultPipeline::with_config(builder.steps, builder.config))
 }

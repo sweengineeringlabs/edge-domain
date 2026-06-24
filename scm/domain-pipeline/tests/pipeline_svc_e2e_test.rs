@@ -1,6 +1,6 @@
 //! E2E tests for pipeline service (SAF layer).
 
-use edge_domain_pipeline::{Pipeline, PipelineConfig, Step, PipelineError, create_pipeline, create_pipeline_with_config};
+use edge_domain_pipeline::{PipelineConfig, Step, PipelineError, create_pipeline, create_pipeline_with_config};
 use std::sync::Arc;
 
 #[derive(Clone)]

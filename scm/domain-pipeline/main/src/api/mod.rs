@@ -2,7 +2,6 @@
 
 mod error;
 mod pipeline;
-mod services;
 mod step;
 mod traits;
 mod types;
@@ -10,6 +9,5 @@ mod validator;
 
 pub use error::PipelineError;
 pub use pipeline::Pipeline;
-pub use services::{PipelineService, ValidatorService};
 pub use traits::{Step, Validator};
-pub use types::PipelineConfig;
+pub use types::{PipelineBuilder, PipelineConfig};

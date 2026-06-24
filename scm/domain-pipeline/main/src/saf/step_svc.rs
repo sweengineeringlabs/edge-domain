@@ -1,7 +1,6 @@
-//! Step service — marker for step composition operations.
-//!
-//! The Step trait is not re-exported here as it's already available from the api module.
-//! This module exists to provide a consistent service facade pattern across the crate.
+//! Step service marker — re-exports the Step trait.
 
-/// Service marker constant for step operations.
-pub const STEP_FACTORY: &str = "step_factory";
+pub use crate::api::Step;
+
+/// Service name constant for the step port.
+pub const STEP_SVC: &str = "step";

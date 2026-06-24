@@ -1,16 +1,11 @@
-//! Service Abstraction Framework — re-exports and service name constants.
+//! Service Abstraction Framework — one `<trait>_svc.rs` per api port.
 //!
-//! Provides trait re-exports and constants for service access.
+//! Each file re-exports the trait from api/ and exposes its service-identity constant.
 
 pub mod pipeline_svc;
 pub mod step_svc;
 pub mod validator_svc;
 
-/// Service name constant for pipeline service.
-pub const PIPELINE_SVC: &str = "pipeline";
-
-/// Service name constant for step service.
-pub const STEP_SVC: &str = "step";
-
-/// Service name constant for validator service.
-pub const VALIDATOR_SVC: &str = "validator";
+pub use pipeline_svc::{Pipeline, PIPELINE_SVC};
+pub use step_svc::{Step, STEP_SVC};
+pub use validator_svc::{Validator, VALIDATOR_SVC};

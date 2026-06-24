@@ -1,5 +1,5 @@
-//! Pipeline orchestration — core implementations.
+//! Pipeline orchestration implementations.
 
-pub(crate) mod default_pipeline;
+mod default_pipeline;
 
 pub(crate) use default_pipeline::DefaultPipeline;

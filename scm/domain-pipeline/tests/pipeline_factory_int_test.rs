@@ -1,4 +1,4 @@
-use edge_domain_pipeline::{Pipeline, Step, PipelineError, PipelineConfig, create_pipeline, create_pipeline_with_config};
+use edge_domain_pipeline::{Step, PipelineError, PipelineConfig, create_pipeline, create_pipeline_with_config};
 use std::sync::Arc;
 
 /// A test step that always passes.

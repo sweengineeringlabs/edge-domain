@@ -1,24 +1,6 @@
-//! Validator service wrapper — factory and facade for creating validators.
-//!
-//! This module provides the implementation-facing factory for creating validators.
-//! The public API is available through the root crate exports.
+//! Validator service marker — re-exports the Validator trait.
 
-use crate::api::{Validator, ValidatorService};
+pub use crate::api::Validator;
 
-/// Service marker constant for validator factory operations.
-pub const VALIDATOR_FACTORY: &str = "validator_factory";
-
-/// Internal factory for creating validator instances.
-///
-/// This factory conceals the concrete implementation type, returning opaque trait objects.
-#[derive(Debug, Clone, Copy)]
-pub(crate) struct ValidatorFactory;
-
-impl ValidatorFactory {
-    /// Create a config validator strategy.
-    ///
-    /// This is a convenience wrapper delegating to [`ValidatorService`].
-    pub(crate) fn create(enabled: bool) -> Box<dyn Validator> {
-        ValidatorService::create_validator(enabled)
-    }
-}
+/// Service name constant for the validator port.
+pub const VALIDATOR_SVC: &str = "validator";
