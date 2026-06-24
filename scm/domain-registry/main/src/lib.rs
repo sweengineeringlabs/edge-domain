@@ -17,5 +17,9 @@ mod saf;
 pub use saf::Registry;
 pub use saf::RegistryBootstrap;
 
+// ── concrete reference types ──────────────────────────────────────────────────
+pub use api::InMemoryRegistry;
+pub use api::StdRegistryFactory;
+
 // ── error types ───────────────────────────────────────────────────────────────
 pub use api::RegistryError;

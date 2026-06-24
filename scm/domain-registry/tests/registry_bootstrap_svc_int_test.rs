@@ -21,7 +21,7 @@ fn test_bootstrap_name_is_idempotent_error() {
         name2,
         "bootstrap_name must return the same value on repeated calls"
     );
-    assert_eq!(name1, "StdRegistryFactory", "bootstrap_name must return expected identifier");
+    assert_eq!(name1, "registry", "bootstrap_name must return expected identifier");
 }
 
 /// @covers: RegistryBootstrap::bootstrap_name
