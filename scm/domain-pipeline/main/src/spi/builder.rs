@@ -126,9 +126,9 @@ mod tests {
     /// @covers: with_if
     #[test]
     fn test_with_if_happy_condition_true_adds_step() {
-        use crate::spi::dummy_step::DummyStep;
+        use crate::core::step::DefaultStep;
 
-        let builder = PipelineBuilder::<()>::new().with_if(true, DummyStep);
+        let builder = PipelineBuilder::<()>::new().with_if(true, DefaultStep);
         let pipeline = builder.build();
         assert_eq!(pipeline.step_count(), 1);
     }
@@ -136,9 +136,9 @@ mod tests {
     /// @covers: with_if
     #[test]
     fn test_with_if_happy_condition_false_skips_step() {
-        use crate::spi::dummy_step::DummyStep;
+        use crate::core::step::DefaultStep;
 
-        let builder = PipelineBuilder::<()>::new().with_if(false, DummyStep);
+        let builder = PipelineBuilder::<()>::new().with_if(false, DefaultStep);
         let pipeline = builder.build();
         assert_eq!(pipeline.step_count(), 0);
     }
