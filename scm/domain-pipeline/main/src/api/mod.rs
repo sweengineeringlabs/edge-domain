@@ -3,6 +3,7 @@
 mod error;
 mod pipeline;
 mod services;
+mod step;
 mod traits;
 mod types;
 mod validator;
