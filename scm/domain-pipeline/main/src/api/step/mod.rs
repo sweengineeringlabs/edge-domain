@@ -1,3 +1,5 @@
 //! Step trait contract and implementations.
 
-pub use super::traits::Step;
+mod step;
+
+pub use step::Step;
