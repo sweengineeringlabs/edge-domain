@@ -15,8 +15,7 @@ impl<Ctx: Send> Step<Ctx> for DefaultStep {
     }
 
     fn name(&self) -> &str {
-        let n = "default-step";
-        n
+        "default-step"
     }
 }
 
