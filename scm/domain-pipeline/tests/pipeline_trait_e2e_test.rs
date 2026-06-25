@@ -2,7 +2,6 @@
 //! This file ensures all trait methods have _happy, _error, and _edge test variants.
 
 use edge_domain_pipeline::{Pipeline, PipelineBuilder, PipelineConfig, PipelineError, PipelineSvc, Step, ValidatorSvc};
-use std::sync::Arc;
 use std::time::Duration;
 
 // =============================================================================
