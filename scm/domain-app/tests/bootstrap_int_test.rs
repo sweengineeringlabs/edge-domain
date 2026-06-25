@@ -82,3 +82,28 @@ fn test_noop_bootstrap_is_copy_edge() {
     let app = copy.build().expect("copy builds ok");
     assert_eq!(app.name(), "application");
 }
+
+/// @covers: Bootstrap::noop_runtime — returns NoopAppRuntime
+#[test]
+fn test_noop_runtime_returns_noop_app_runtime_happy() {
+    use edge_domain_app::NoopAppRuntime;
+    let r: NoopAppRuntime = AlwaysBuilds::noop_runtime();
+    assert_eq!(format!("{r:?}"), "NoopAppRuntime");
+}
+
+/// @covers: Bootstrap::noop_runtime — returned value has the expected name
+#[test]
+fn test_noop_runtime_name_is_app_runtime_error() {
+    use edge_domain_app::{AppRuntime, NoopAppRuntime};
+    let r: NoopAppRuntime = AlwaysBuilds::noop_runtime();
+    assert_eq!(r.name(), "app_runtime");
+}
+
+/// @covers: Bootstrap::noop_runtime — is Copy
+#[test]
+fn test_noop_runtime_is_copy_edge() {
+    use edge_domain_app::NoopAppRuntime;
+    let a: NoopAppRuntime = AlwaysBuilds::noop_runtime();
+    let b = a;
+    assert_eq!(a, b);
+}

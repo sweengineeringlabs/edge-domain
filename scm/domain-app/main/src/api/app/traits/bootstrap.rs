@@ -3,6 +3,7 @@
 use crate::api::AppError;
 use crate::api::Application;
 use crate::api::NoopAppBootstrap;
+use crate::api::NoopAppRuntime;
 
 /// Constructs an [`Application`] from a resolved service graph.
 ///
@@ -17,5 +18,13 @@ pub trait Bootstrap: Send + Sync {
         Self: Sized,
     {
         NoopAppBootstrap
+    }
+
+    /// Return a no-operation runtime for tests and default wiring.
+    fn noop_runtime() -> NoopAppRuntime
+    where
+        Self: Sized,
+    {
+        NoopAppRuntime
     }
 }
