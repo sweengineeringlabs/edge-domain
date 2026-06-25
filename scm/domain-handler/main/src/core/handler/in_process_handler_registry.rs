@@ -1,10 +1,33 @@
 //! `HandlerRegistry` impl for [`InProcessHandlerRegistry`] — RwLock-backed in-process store.
 
+use std::collections::HashMap;
 use std::sync::Arc;
+
+use parking_lot::RwLock;
 
 use crate::api::Handler;
 use crate::api::HandlerRegistry;
 use crate::api::InProcessHandlerRegistry;
+
+impl<Req, Resp> InProcessHandlerRegistry<Req, Resp>
+where
+    Req: Send + 'static,
+    Resp: Send + 'static,
+{
+    pub(crate) fn new() -> Self {
+        Self { handlers: RwLock::new(HashMap::new()) }
+    }
+}
+
+impl<Req, Resp> Default for InProcessHandlerRegistry<Req, Resp>
+where
+    Req: Send + 'static,
+    Resp: Send + 'static,
+{
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl<Req: Send + 'static, Resp: Send + 'static> HandlerRegistry
     for InProcessHandlerRegistry<Req, Resp>
@@ -41,6 +64,7 @@ impl<Req: Send + 'static, Resp: Send + 'static> HandlerRegistry
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::api::HandlerContext;
     use crate::api::HandlerError;
     use async_trait::async_trait;
 
@@ -57,7 +81,7 @@ mod tests {
         async fn execute(
             &self,
             req: String,
-            _ctx: crate::api::HandlerContext<'_>,
+            _ctx: HandlerContext<'_>,
         ) -> Result<String, HandlerError> {
             Ok(req)
         }
@@ -73,7 +97,6 @@ mod tests {
         reg.register(Arc::new(InProcessHandlerRegistryFixture));
         let handler = reg.get("fixture");
         assert!(handler.is_some());
-        // Verify the retrieved handler is the expected one
         assert_eq!(handler.unwrap().id(), "fixture");
     }
 
@@ -120,6 +143,14 @@ mod tests {
     fn test_register_replaces_existing_handler_with_same_id_edge() {
         let reg = make_registry();
         reg.register(Arc::new(InProcessHandlerRegistryFixture));
+        reg.register(Arc::new(InProcessHandlerRegistryFixture));
+        assert_eq!(reg.len(), 1);
+    }
+
+    #[test]
+    fn test_len_returns_registered_count_happy() {
+        let reg = make_registry();
+        assert_eq!(reg.len(), 0);
         reg.register(Arc::new(InProcessHandlerRegistryFixture));
         assert_eq!(reg.len(), 1);
     }

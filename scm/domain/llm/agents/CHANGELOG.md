@@ -21,7 +21,7 @@ All notable changes to the `edge-domain-agent` crate are documented in this file
 - Agents are first-class edge domain primitives (not plugins)
 - Skills extend Handler for protocol-agnostic invocation
 - Core layer is intentionally empty; implementations live in plugins
-- Follows SEA (Structural Engineering Architecture) patterns
+- Follows SEA (Service Encapsulation Architecture) patterns
 
 ### References
 

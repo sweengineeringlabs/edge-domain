@@ -1,8 +1,7 @@
 //! Comprehensive trait method tests for Pipeline, Step, and Validator.
 //! This file ensures all trait methods have _happy, _error, and _edge test variants.
 
-use edge_domain_pipeline::{create_pipeline, create_pipeline_with_config, create_validator};
-use edge_domain_pipeline::{Pipeline, Step, PipelineError, PipelineConfig};
+use edge_domain_pipeline::{Pipeline, PipelineBuilder, PipelineConfig, PipelineError, PipelineSvc, Step, ValidatorSvc};
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -41,45 +40,42 @@ impl Step<()> for FailStep {
 /// @covers: Pipeline::execute _happy path
 #[tokio::test]
 async fn test_pipeline_trait_execute_happy_empty() {
-    let pipeline: Box<dyn Pipeline<()>> = create_pipeline(vec![]);
+    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(PipelineBuilder::new());
     let mut ctx = ();
-    assert!(pipeline.execute(&mut ctx).await.is_ok());
+    assert!(pipeline.run(&mut ctx).await.is_ok());
 }
 
 /// @covers: Pipeline::execute _happy path
 #[tokio::test]
 async fn test_pipeline_trait_execute_happy_with_steps() {
-    let pipeline: Box<dyn Pipeline<()>> = create_pipeline(vec![
-        Arc::new(DummyStep),
-        Arc::new(DummyStep),
-    ]);
+    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(
+        PipelineBuilder::new().with(DummyStep).with(DummyStep),
+    );
     let mut ctx = ();
-    assert!(pipeline.execute(&mut ctx).await.is_ok());
+    assert!(pipeline.run(&mut ctx).await.is_ok());
 }
 
 /// @covers: Pipeline::execute _error path
 #[tokio::test]
 async fn test_pipeline_trait_execute_error_fails_on_step() {
-    let pipeline: Box<dyn Pipeline<()>> = create_pipeline(vec![
-        Arc::new(DummyStep),
-        Arc::new(FailStep),
-        Arc::new(DummyStep),
-    ]);
+    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(
+        PipelineBuilder::new().with(DummyStep).with(FailStep).with(DummyStep),
+    );
     let mut ctx = ();
-    let result = pipeline.execute(&mut ctx).await;
+    let result = pipeline.run(&mut ctx).await;
     assert!(result.is_err());
 }
 
 /// @covers: Pipeline::execute _edge case
 #[tokio::test]
 async fn test_pipeline_trait_execute_edge_many_steps() {
-    let mut steps: Vec<Arc<dyn Step<()>>> = vec![];
+    let mut builder = PipelineBuilder::new();
     for _ in 0..50 {
-        steps.push(Arc::new(DummyStep));
+        builder = builder.with(DummyStep);
     }
-    let pipeline: Box<dyn Pipeline<()>> = create_pipeline(steps);
+    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(builder);
     let mut ctx = ();
-    assert!(pipeline.execute(&mut ctx).await.is_ok());
+    assert!(pipeline.run(&mut ctx).await.is_ok());
 }
 
 // Pipeline::step_count tests
@@ -87,29 +83,27 @@ async fn test_pipeline_trait_execute_edge_many_steps() {
 /// @covers: Pipeline::step_count _happy path
 #[test]
 fn test_pipeline_trait_step_count_happy_empty() {
-    let pipeline: Box<dyn Pipeline<()>> = create_pipeline(vec![]);
+    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(PipelineBuilder::new());
     assert_eq!(pipeline.step_count(), 0);
 }
 
 /// @covers: Pipeline::step_count _happy path
 #[test]
 fn test_pipeline_trait_step_count_happy_with_steps() {
-    let pipeline: Box<dyn Pipeline<()>> = create_pipeline(vec![
-        Arc::new(DummyStep),
-        Arc::new(DummyStep),
-        Arc::new(DummyStep),
-    ]);
+    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(
+        PipelineBuilder::new().with(DummyStep).with(DummyStep).with(DummyStep),
+    );
     assert_eq!(pipeline.step_count(), 3);
 }
 
 /// @covers: Pipeline::step_count _edge case
 #[test]
 fn test_pipeline_trait_step_count_edge_many_steps() {
-    let mut steps: Vec<Arc<dyn Step<()>>> = vec![];
+    let mut builder = PipelineBuilder::new();
     for _ in 0..100 {
-        steps.push(Arc::new(DummyStep));
+        builder = builder.with(DummyStep);
     }
-    let pipeline: Box<dyn Pipeline<()>> = create_pipeline(steps);
+    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(builder);
     assert_eq!(pipeline.step_count(), 100);
 }
 
@@ -118,25 +112,25 @@ fn test_pipeline_trait_step_count_edge_many_steps() {
 /// @covers: Pipeline::is_empty _happy path (true case)
 #[test]
 fn test_pipeline_trait_is_empty_happy_true() {
-    let pipeline: Box<dyn Pipeline<()>> = create_pipeline(vec![]);
+    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(PipelineBuilder::new());
     assert!(pipeline.is_empty());
 }
 
 /// @covers: Pipeline::is_empty _happy path (false case)
 #[test]
 fn test_pipeline_trait_is_empty_happy_false() {
-    let pipeline: Box<dyn Pipeline<()>> = create_pipeline(vec![Arc::new(DummyStep)]);
+    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(PipelineBuilder::new().with(DummyStep));
     assert!(!pipeline.is_empty());
 }
 
 /// @covers: Pipeline::is_empty _edge case
 #[test]
 fn test_pipeline_trait_is_empty_edge_many_steps() {
-    let mut steps: Vec<Arc<dyn Step<()>>> = vec![];
+    let mut builder = PipelineBuilder::new();
     for _ in 0..50 {
-        steps.push(Arc::new(DummyStep));
+        builder = builder.with(DummyStep);
     }
-    let pipeline: Box<dyn Pipeline<()>> = create_pipeline(steps);
+    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(builder);
     assert!(!pipeline.is_empty());
 }
 
@@ -145,7 +139,7 @@ fn test_pipeline_trait_is_empty_edge_many_steps() {
 /// @covers: Pipeline::config _happy path (default config)
 #[test]
 fn test_pipeline_trait_config_happy_default() {
-    let pipeline: Box<dyn Pipeline<()>> = create_pipeline(vec![]);
+    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(PipelineBuilder::new());
     let config = pipeline.config();
     assert!(config.timeout_per_step.is_none());
     assert!(!config.emit_lifecycle_events);
@@ -155,12 +149,12 @@ fn test_pipeline_trait_config_happy_default() {
 /// @covers: Pipeline::config _happy path (custom config)
 #[test]
 fn test_pipeline_trait_config_happy_custom() {
-    let custom_config = PipelineConfig {
-        timeout_per_step: Some(Duration::from_secs(5)),
-        emit_lifecycle_events: true,
-        abort_on_error: false,
-    };
-    let pipeline: Box<dyn Pipeline<()>> = create_pipeline_with_config(vec![], custom_config);
+    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(
+        PipelineBuilder::new()
+            .with_timeout(Duration::from_secs(5))
+            .emit_lifecycle_events(true)
+            .abort_on_error(false),
+    );
     let config = pipeline.config();
     assert_eq!(config.timeout_per_step, Some(Duration::from_secs(5)));
     assert!(config.emit_lifecycle_events);
@@ -170,12 +164,12 @@ fn test_pipeline_trait_config_happy_custom() {
 /// @covers: Pipeline::config _edge case
 #[test]
 fn test_pipeline_trait_config_edge_all_options_set() {
-    let custom_config = PipelineConfig {
-        timeout_per_step: Some(Duration::from_secs(30)),
-        emit_lifecycle_events: true,
-        abort_on_error: true,
-    };
-    let pipeline: Box<dyn Pipeline<()>> = create_pipeline_with_config(vec![], custom_config);
+    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(
+        PipelineBuilder::new()
+            .with_timeout(Duration::from_secs(30))
+            .emit_lifecycle_events(true)
+            .abort_on_error(true),
+    );
     let config = pipeline.config();
     assert_eq!(config.timeout_per_step, Some(Duration::from_secs(30)));
     assert!(config.emit_lifecycle_events);
@@ -288,7 +282,7 @@ fn test_step_trait_name_edge_error_step() {
 /// @covers: Validator::validate _happy path
 #[tokio::test]
 async fn test_validator_trait_validate_happy_enabled() {
-    let validator = create_validator(true);
+    let validator = ValidatorSvc::create(true);
     let config = PipelineConfig::default();
     let result = validator.validate(&config).await;
     assert!(result.is_ok());
@@ -297,7 +291,7 @@ async fn test_validator_trait_validate_happy_enabled() {
 /// @covers: Validator::validate _happy path (disabled)
 #[tokio::test]
 async fn test_validator_trait_validate_happy_disabled() {
-    let validator = create_validator(false);
+    let validator = ValidatorSvc::create(false);
     let config = PipelineConfig::default();
     let result = validator.validate(&config).await;
     assert!(result.is_ok());
@@ -306,7 +300,7 @@ async fn test_validator_trait_validate_happy_disabled() {
 /// @covers: Validator::validate _edge case (custom config)
 #[tokio::test]
 async fn test_validator_trait_validate_edge_custom_config() {
-    let validator = create_validator(true);
+    let validator = ValidatorSvc::create(true);
     let config = PipelineConfig {
         timeout_per_step: Some(Duration::from_secs(10)),
         emit_lifecycle_events: true,
@@ -321,24 +315,23 @@ async fn test_validator_trait_validate_edge_custom_config() {
 /// @covers: Validator::is_enabled _happy path (true)
 #[test]
 fn test_validator_trait_is_enabled_happy_true() {
-    let validator = create_validator(true);
+    let validator = ValidatorSvc::create(true);
     assert!(validator.is_enabled());
 }
 
 /// @covers: Validator::is_enabled _happy path (false)
 #[test]
 fn test_validator_trait_is_enabled_happy_false() {
-    let validator = create_validator(false);
+    let validator = ValidatorSvc::create(false);
     assert!(!validator.is_enabled());
 }
 
 /// @covers: Validator::is_enabled _edge case (consistency check)
 #[test]
 fn test_validator_trait_is_enabled_edge_consistency() {
-    let validator_true = create_validator(true);
-    let validator_false = create_validator(false);
+    let validator_true = ValidatorSvc::create(true);
+    let validator_false = ValidatorSvc::create(false);
 
-    // Multiple calls should return consistent values
     assert!(validator_true.is_enabled());
     assert!(!validator_false.is_enabled());
 }

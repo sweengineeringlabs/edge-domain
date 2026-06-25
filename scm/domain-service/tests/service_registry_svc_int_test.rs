@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use edge_domain_service::{Service, ServiceError, ServiceRegistry, ServiceRegistryImpl};
+use edge_domain_service::{Service, ServiceError, ServiceRegistry, ServiceRegistryTrait};
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 
@@ -21,7 +21,7 @@ impl Service for Fixed {
 }
 
 fn make_registry() -> ServiceRegistry<String, String> {
-    ServiceRegistry::new()
+    ServiceRegistry::default()
 }
 
 /// @covers: ServiceRegistry::register — service is findable after registration
@@ -193,9 +193,9 @@ fn test_is_empty_fresh_registry_returns_true_edge() {
 #[test]
 fn test_trait_impl_delegates_correctly_happy() {
     let reg = make_registry();
-    ServiceRegistryImpl::register(&reg, Arc::new(Fixed("via_trait".into(), "ok".into())));
-    assert_eq!(ServiceRegistryImpl::len(&reg), 1);
-    assert!(ServiceRegistryImpl::get(&reg, "via_trait").is_some());
-    assert!(ServiceRegistryImpl::deregister(&reg, "via_trait"));
-    assert!(ServiceRegistryImpl::is_empty(&reg));
+    ServiceRegistryTrait::register(&reg, Arc::new(Fixed("via_trait".into(), "ok".into())));
+    assert_eq!(ServiceRegistryTrait::len(&reg), 1);
+    assert!(ServiceRegistryTrait::get(&reg, "via_trait").is_some());
+    assert!(ServiceRegistryTrait::deregister(&reg, "via_trait"));
+    assert!(ServiceRegistryTrait::is_empty(&reg));
 }

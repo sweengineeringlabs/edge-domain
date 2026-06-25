@@ -1,0 +1,7 @@
+error: unexpected argument '--no-dynamic' found
+
+  tip: to pass '--no-dynamic' as a value, use '-- --no-dynamic'
+
+Usage: arch.exe audit --rs [PATHS]...
+
+For more information, try '--help'.

@@ -4,7 +4,7 @@
 use std::sync::Arc;
 
 use edge_domain_pipeline::{
-    create_step_registry, PipelineDefinition, PipelineError, Step,
+    PipelineDefinition, PipelineError, Step, StepRegistrySvc,
 };
 use edge_domain_registry::{Registry, RegistryBootstrap, StdRegistryFactory};
 
@@ -34,19 +34,19 @@ impl Step<i32> for FailStep {
 /// @covers: register
 #[tokio::test]
 async fn test_register_happy_step_is_available_for_build() {
-    let mut registry = create_step_registry::<i32>();
+    let mut registry = StepRegistrySvc::create::<i32>();
     registry.register("increment", Arc::new(IncrementStep));
     let def = PipelineDefinition { steps: vec!["increment".to_owned()], ..Default::default() };
     let pipeline = registry.build_pipeline(&def).expect("registered step must build");
     let mut ctx = 0i32;
-    pipeline.execute(&mut ctx).await.expect("pipeline must execute");
+    pipeline.run(&mut ctx).await.expect("pipeline must execute");
     assert_eq!(ctx, 1);
 }
 
 /// @covers: register
 #[test]
 fn test_register_error_unregistered_name_causes_unknown_step() {
-    let registry = create_step_registry::<i32>();
+    let registry = StepRegistrySvc::create::<i32>();
     let def = PipelineDefinition { steps: vec!["missing".to_owned()], ..Default::default() };
     match registry.build_pipeline(&def) {
         Err(PipelineError::UnknownStep(name)) => assert_eq!(name, "missing"),
@@ -58,14 +58,14 @@ fn test_register_error_unregistered_name_causes_unknown_step() {
 /// @covers: register
 #[tokio::test]
 async fn test_register_edge_duplicate_name_overwrites() {
-    let mut registry = create_step_registry::<i32>();
+    let mut registry = StepRegistrySvc::create::<i32>();
     registry.register("step", Arc::new(IncrementStep));
-    registry.register("step", Arc::new(IncrementStep)); // second registration replaces first
+    registry.register("step", Arc::new(IncrementStep));
     let def = PipelineDefinition { steps: vec!["step".to_owned()], ..Default::default() };
     let pipeline = registry.build_pipeline(&def).expect("overwritten step must still build");
     let mut ctx = 0i32;
-    pipeline.execute(&mut ctx).await.expect("pipeline must execute");
-    assert_eq!(ctx, 1); // exactly one step registered; duplicate didn't double it
+    pipeline.run(&mut ctx).await.expect("pipeline must execute");
+    assert_eq!(ctx, 1);
 }
 
 // ── build_pipeline ────────────────────────────────────────────────────────────
@@ -73,7 +73,7 @@ async fn test_register_edge_duplicate_name_overwrites() {
 /// @covers: build_pipeline
 #[tokio::test]
 async fn test_build_pipeline_happy_executes_steps_in_order() {
-    let mut registry = create_step_registry::<i32>();
+    let mut registry = StepRegistrySvc::create::<i32>();
     registry.register("inc", Arc::new(IncrementStep));
     let def = PipelineDefinition {
         steps: vec!["inc".to_owned(), "inc".to_owned(), "inc".to_owned()],
@@ -81,14 +81,14 @@ async fn test_build_pipeline_happy_executes_steps_in_order() {
     };
     let pipeline = registry.build_pipeline(&def).expect("should build");
     let mut ctx = 0i32;
-    pipeline.execute(&mut ctx).await.expect("should succeed");
+    pipeline.run(&mut ctx).await.expect("should succeed");
     assert_eq!(ctx, 3);
 }
 
 /// @covers: build_pipeline
 #[test]
 fn test_build_pipeline_error_unknown_step_name_first_miss_returned() {
-    let mut registry = create_step_registry::<i32>();
+    let mut registry = StepRegistrySvc::create::<i32>();
     registry.register("known", Arc::new(IncrementStep));
     let def = PipelineDefinition {
         steps: vec!["known".to_owned(), "unknown".to_owned()],
@@ -104,11 +104,11 @@ fn test_build_pipeline_error_unknown_step_name_first_miss_returned() {
 /// @covers: build_pipeline
 #[tokio::test]
 async fn test_build_pipeline_edge_empty_steps_succeeds_immediately() {
-    let registry = create_step_registry::<i32>();
-    let def = PipelineDefinition::default(); // steps: vec![]
+    let registry = StepRegistrySvc::create::<i32>();
+    let def = PipelineDefinition::default();
     let pipeline = registry.build_pipeline(&def).expect("empty pipeline is valid");
     let mut ctx = 0i32;
-    pipeline.execute(&mut ctx).await.expect("empty pipeline succeeds");
+    pipeline.run(&mut ctx).await.expect("empty pipeline succeeds");
     assert_eq!(ctx, 0);
 }
 
@@ -116,7 +116,7 @@ async fn test_build_pipeline_edge_empty_steps_succeeds_immediately() {
 #[tokio::test]
 async fn test_build_pipeline_happy_reuses_shared_step_instance() {
     let step: Arc<dyn Step<i32>> = Arc::new(IncrementStep);
-    let mut registry = create_step_registry::<i32>();
+    let mut registry = StepRegistrySvc::create::<i32>();
     registry.register("inc", Arc::clone(&step));
     let def = PipelineDefinition {
         steps: vec!["inc".to_owned(), "inc".to_owned()],
@@ -124,14 +124,14 @@ async fn test_build_pipeline_happy_reuses_shared_step_instance() {
     };
     let pipeline = registry.build_pipeline(&def).expect("should build");
     let mut ctx = 0i32;
-    pipeline.execute(&mut ctx).await.expect("should succeed");
+    pipeline.run(&mut ctx).await.expect("should succeed");
     assert_eq!(ctx, 2);
 }
 
 /// @covers: build_pipeline
 #[tokio::test]
 async fn test_build_pipeline_error_step_failure_propagates() {
-    let mut registry = create_step_registry::<i32>();
+    let mut registry = StepRegistrySvc::create::<i32>();
     registry.register("inc", Arc::new(IncrementStep));
     registry.register("fail", Arc::new(FailStep));
     let def = PipelineDefinition {
@@ -140,9 +140,9 @@ async fn test_build_pipeline_error_step_failure_propagates() {
     };
     let pipeline = registry.build_pipeline(&def).expect("should build");
     let mut ctx = 0i32;
-    let result = pipeline.execute(&mut ctx).await;
+    let result = pipeline.run(&mut ctx).await;
     assert!(result.is_err());
-    assert_eq!(ctx, 1); // first increment ran; fail aborted
+    assert_eq!(ctx, 1);
 }
 
 // ── domain-registry backing store integration ─────────────────────────────────
@@ -172,7 +172,7 @@ fn test_backing_registry_error_absent_name_returns_none() {
 fn test_backing_registry_edge_duplicate_register_overwrites() {
     let reg = StdRegistryFactory::in_memory::<dyn Step<i32>>();
     reg.register("step", Arc::new(IncrementStep));
-    reg.register("step", Arc::new(FailStep)); // second registration replaces first
+    reg.register("step", Arc::new(FailStep));
     assert_eq!(reg.len(), 1, "duplicate registrations must not increase count");
     assert_eq!(
         reg.get("step").map(|s| s.name().to_owned()),

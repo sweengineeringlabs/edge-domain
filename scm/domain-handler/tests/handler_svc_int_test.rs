@@ -66,7 +66,7 @@ fn make_ctx<'a>(
     bus: &'a dyn CommandBus,
     observer: &'a dyn ObserverContext,
 ) -> HandlerContext<'a> {
-    HandlerContext::new(security, bus, observer)
+    HandlerContext { security, commands: bus, observer }
 }
 
 /// @covers: Handler::execute — success path

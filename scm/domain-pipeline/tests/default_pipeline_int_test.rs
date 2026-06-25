@@ -2,49 +2,34 @@
 //!
 //! @covers DefaultPipeline
 
-use edge_domain_pipeline::{create_pipeline, create_pipeline_with_config, Pipeline, Step, PipelineError, PipelineConfig};
+use edge_domain_pipeline::{Pipeline, PipelineBuilder, PipelineConfig, PipelineError, PipelineSvc, Step};
 use std::sync::Arc;
 use std::time::Duration;
 
-// Test doubles
 struct NoopStep;
 
 #[async_trait::async_trait]
 impl Step<i32> for NoopStep {
-    async fn execute(&self, _ctx: &mut i32) -> Result<(), PipelineError> {
-        Ok(())
-    }
-    fn name(&self) -> &str {
-        "noop"
-    }
+    async fn execute(&self, _ctx: &mut i32) -> Result<(), PipelineError> { Ok(()) }
+    fn name(&self) -> &str { "noop" }
 }
 
 struct AlwaysPassStep;
 
+impl AlwaysPassStep {
+    fn new() -> Self { Self }
+}
+
 #[async_trait::async_trait]
 impl Step<i32> for AlwaysPassStep {
-    async fn execute(&self, _ctx: &mut i32) -> Result<(), PipelineError> {
-        Ok(())
-    }
-    fn name(&self) -> &str {
-        "always-pass"
-    }
+    async fn execute(&self, _ctx: &mut i32) -> Result<(), PipelineError> { Ok(()) }
+    fn name(&self) -> &str { "always-pass" }
 }
 
-impl AlwaysPassStep {
-    fn new() -> Self {
-        Self
-    }
-}
-
-struct MutatingStep<F> {
-    f: F,
-}
+struct MutatingStep<F> { f: F }
 
 impl<F> MutatingStep<F> {
-    fn new(f: F) -> Self {
-        Self { f }
-    }
+    fn new(f: F) -> Self { Self { f } }
 }
 
 #[async_trait::async_trait]
@@ -53,29 +38,21 @@ impl<F: Fn(&mut i32) + Send + Sync> Step<i32> for MutatingStep<F> {
         (self.f)(ctx);
         Ok(())
     }
-    fn name(&self) -> &str {
-        "mutating"
-    }
+    fn name(&self) -> &str { "mutating" }
 }
 
-struct PipelineAsStep {
-    pipeline: Box<dyn Pipeline<i32>>,
-}
+struct PipelineAsStep { pipeline: Box<dyn Pipeline<i32>> }
 
 impl PipelineAsStep {
-    fn new(pipeline: Box<dyn Pipeline<i32>>) -> Self {
-        Self { pipeline }
-    }
+    fn new(pipeline: Box<dyn Pipeline<i32>>) -> Self { Self { pipeline } }
 }
 
 #[async_trait::async_trait]
 impl Step<i32> for PipelineAsStep {
     async fn execute(&self, ctx: &mut i32) -> Result<(), PipelineError> {
-        self.pipeline.execute(ctx).await
+        self.pipeline.run(ctx).await
     }
-    fn name(&self) -> &str {
-        "pipeline-as-step"
-    }
+    fn name(&self) -> &str { "pipeline-as-step" }
 }
 
 /// @covers: general
@@ -91,10 +68,7 @@ async fn struct_default_pipeline_executes_sequentially() {
             ctx.push(self.0);
             Ok(())
         }
-
-        fn name(&self) -> &str {
-            "trace"
-        }
+        fn name(&self) -> &str { "trace" }
     }
 
     let steps: Vec<Arc<dyn Step<Vec<usize>>>> = vec![
@@ -102,9 +76,8 @@ async fn struct_default_pipeline_executes_sequentially() {
         Arc::new(TraceStep(2)),
         Arc::new(TraceStep(3)),
     ];
-
-    let pipeline: Box<dyn Pipeline<Vec<usize>>> = create_pipeline(steps);
-    assert!(pipeline.execute(&mut trace).await.is_ok());
+    let pipeline: Box<dyn Pipeline<Vec<usize>>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default() });
+    assert!(pipeline.run(&mut trace).await.is_ok());
     assert_eq!(trace, vec![1, 2, 3]);
 }
 
@@ -116,12 +89,8 @@ async fn struct_default_pipeline_with_config_timeout() {
         emit_lifecycle_events: false,
         abort_on_error: true,
     };
-
-    let pipeline: Box<dyn Pipeline<i32>> = create_pipeline_with_config(
-        vec![Arc::new(NoopStep)],
-        config.clone(),
-    );
-
+    let steps: Vec<Arc<dyn Step<i32>>> = vec![Arc::new(NoopStep)];
+    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps, config });
     assert_eq!(pipeline.config().timeout_per_step, Some(Duration::from_secs(1)));
     assert_eq!(pipeline.config().abort_on_error, true);
 }
@@ -129,7 +98,7 @@ async fn struct_default_pipeline_with_config_timeout() {
 /// @covers: general
 #[tokio::test]
 async fn struct_default_pipeline_abort_on_error_true() {
-    let mut exec_count = 0;
+    let mut exec_count = 0usize;
 
     struct CountingFailStep;
 
@@ -143,27 +112,17 @@ async fn struct_default_pipeline_abort_on_error_true() {
                 Ok(())
             }
         }
-
-        fn name(&self) -> &str {
-            "counter"
-        }
+        fn name(&self) -> &str { "counter" }
     }
 
-    let config = PipelineConfig {
-        timeout_per_step: None,
-        emit_lifecycle_events: false,
-        abort_on_error: true,
-    };
-
+    let config = PipelineConfig { timeout_per_step: None, emit_lifecycle_events: false, abort_on_error: true };
     let steps: Vec<Arc<dyn Step<usize>>> = vec![
         Arc::new(CountingFailStep),
         Arc::new(CountingFailStep),
         Arc::new(CountingFailStep),
     ];
-
-    let pipeline: Box<dyn Pipeline<usize>> = create_pipeline_with_config(steps, config);
-    let result = pipeline.execute(&mut exec_count).await;
-
+    let pipeline: Box<dyn Pipeline<usize>> = PipelineSvc::build(PipelineBuilder { steps, config });
+    let result = pipeline.run(&mut exec_count).await;
     assert!(result.is_err());
     assert_eq!(exec_count, 2);
 }
@@ -171,28 +130,21 @@ async fn struct_default_pipeline_abort_on_error_true() {
 /// @covers: general
 #[tokio::test]
 async fn struct_default_pipeline_config_with_lifecycle_events() {
-    let config = PipelineConfig {
-        timeout_per_step: None,
-        emit_lifecycle_events: true,
-        abort_on_error: true,
-    };
-
-    let pipeline: Box<dyn Pipeline<i32>> = create_pipeline_with_config(vec![], config.clone());
+    let config = PipelineConfig { timeout_per_step: None, emit_lifecycle_events: true, abort_on_error: true };
+    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps: vec![], config });
     assert!(pipeline.config().emit_lifecycle_events);
 }
 
 /// @covers: general
 #[tokio::test]
 async fn struct_default_pipeline_as_step_nesting() {
-    let inner = create_pipeline(vec![
-        Arc::new(AlwaysPassStep::new()),
-        Arc::new(AlwaysPassStep::new()),
-    ]);
-
+    let inner: Box<dyn Pipeline<i32>> = PipelineSvc::build(
+        PipelineBuilder::new().with(AlwaysPassStep::new()).with(AlwaysPassStep::new()),
+    );
     let inner_as_step: Arc<dyn Step<i32>> = Arc::new(PipelineAsStep::new(inner));
-    let outer: Box<dyn Pipeline<i32>> = create_pipeline(vec![inner_as_step]);
+    let outer: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder::new().with_shared(inner_as_step));
     let mut ctx = 0;
-    assert!(outer.execute(&mut ctx).await.is_ok());
+    assert!(outer.run(&mut ctx).await.is_ok());
 }
 
 /// @covers: general
@@ -203,17 +155,16 @@ async fn struct_default_pipeline_with_mixed_steps() {
         Arc::new(MutatingStep::new(|ctx: &mut i32| *ctx += 5)),
         Arc::new(AlwaysPassStep::new()),
     ];
-
-    let pipeline = create_pipeline(steps);
+    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default() });
     let mut ctx = 10;
-    assert!(pipeline.execute(&mut ctx).await.is_ok());
+    assert!(pipeline.run(&mut ctx).await.is_ok());
     assert_eq!(ctx, 15);
 }
 
 /// @covers: general
 #[tokio::test]
 async fn struct_default_pipeline_short_circuits_on_fail() {
-    let mut executed = Vec::new();
+    let mut executed: Vec<&'static str> = Vec::new();
 
     struct RecordingFailStep(&'static str);
 
@@ -227,10 +178,7 @@ async fn struct_default_pipeline_short_circuits_on_fail() {
                 Ok(())
             }
         }
-
-        fn name(&self) -> &str {
-            self.0
-        }
+        fn name(&self) -> &str { self.0 }
     }
 
     let steps: Vec<Arc<dyn Step<Vec<&'static str>>>> = vec![
@@ -238,10 +186,8 @@ async fn struct_default_pipeline_short_circuits_on_fail() {
         Arc::new(RecordingFailStep("b")),
         Arc::new(RecordingFailStep("c")),
     ];
-
-    let pipeline = create_pipeline(steps);
-    let result = pipeline.execute(&mut executed).await;
-
+    let pipeline: Box<dyn Pipeline<Vec<&'static str>>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default() });
+    let result = pipeline.run(&mut executed).await;
     assert!(result.is_err());
     assert_eq!(executed, vec!["a", "b"]);
 }

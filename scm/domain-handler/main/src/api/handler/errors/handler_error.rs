@@ -1,7 +1,7 @@
 //! Error type for [`Handler`](super::super::traits::Handler) operations.
 
 /// Error produced by handler execution.
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, PartialEq, thiserror::Error)]
 pub enum HandlerError {
     /// The requested operation is not supported.
     #[error("unsupported operation: {0}")]
@@ -36,16 +36,4 @@ pub enum HandlerError {
     /// The handler was intentionally skipped.
     #[error("handler skipped")]
     Skipped,
-}
-
-impl HandlerError {
-    /// Construct an [`ExecutionFailed`](HandlerError::ExecutionFailed) from any displayable value.
-    pub fn internal(e: impl ToString) -> Self {
-        HandlerError::ExecutionFailed(e.to_string())
-    }
-
-    /// Construct an [`InvalidRequest`](HandlerError::InvalidRequest) from any displayable value.
-    pub fn invalid(e: impl ToString) -> Self {
-        HandlerError::InvalidRequest(e.to_string())
-    }
 }

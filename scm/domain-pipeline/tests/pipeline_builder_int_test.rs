@@ -4,7 +4,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use edge_domain_pipeline::{
-    build_pipeline, PipelineBuilder, PipelineConfig, PipelineError, Step,
+    PipelineBuilder, PipelineConfig, PipelineError, PipelineSvc, Step,
 };
 
 struct IncrementStep;
@@ -87,40 +87,40 @@ fn test_pipeline_builder_edge_chained_configuration() {
 
 #[tokio::test]
 async fn test_pipeline_build_happy_executes_steps() {
-    let pipeline = build_pipeline(
+    let pipeline = PipelineSvc::build(
         PipelineBuilder::new()
             .with(IncrementStep)
             .with(IncrementStep),
     );
     let mut ctx = 0i32;
-    pipeline.execute(&mut ctx).await.expect("pipeline should succeed");
+    pipeline.run(&mut ctx).await.expect("pipeline should succeed");
     assert_eq!(ctx, 2);
 }
 
 #[tokio::test]
 async fn test_pipeline_build_happy_empty_pipeline() {
-    let pipeline = build_pipeline(PipelineBuilder::<i32>::new());
+    let pipeline = PipelineSvc::build(PipelineBuilder::<i32>::new());
     let mut ctx = 0i32;
-    assert!(pipeline.execute(&mut ctx).await.is_ok());
+    assert!(pipeline.run(&mut ctx).await.is_ok());
     assert_eq!(ctx, 0);
 }
 
 #[tokio::test]
 async fn test_pipeline_build_error_step_failure_propagates() {
-    let pipeline = build_pipeline(
+    let pipeline = PipelineSvc::build(
         PipelineBuilder::new()
             .with(IncrementStep)
             .with(FailStep),
     );
     let mut ctx = 0i32;
-    let result = pipeline.execute(&mut ctx).await;
+    let result = pipeline.run(&mut ctx).await;
     assert!(result.is_err());
     assert_eq!(ctx, 1); // increment ran before fail
 }
 
 #[tokio::test]
 async fn test_pipeline_build_edge_config_carried_through() {
-    let pipeline = build_pipeline(
+    let pipeline = PipelineSvc::build(
         PipelineBuilder::new()
             .with(IncrementStep)
             .emit_lifecycle_events(true),
@@ -133,34 +133,34 @@ async fn test_pipeline_build_edge_config_carried_through() {
 #[tokio::test]
 async fn test_pipeline_with_shared_happy_reuses_step() {
     let step = Arc::new(IncrementStep);
-    let pipeline = build_pipeline(
+    let pipeline = PipelineSvc::build(
         PipelineBuilder::new()
             .with_shared(step.clone())
             .with_shared(step),
     );
     let mut ctx = 0i32;
-    pipeline.execute(&mut ctx).await.expect("should succeed");
+    pipeline.run(&mut ctx).await.expect("should succeed");
     assert_eq!(ctx, 2);
 }
 
 #[tokio::test]
 async fn test_pipeline_with_shared_error_fail_step_aborts() {
     let step = Arc::new(FailStep);
-    let pipeline = build_pipeline(PipelineBuilder::new().with_shared(step));
+    let pipeline = PipelineSvc::build(PipelineBuilder::new().with_shared(step));
     let mut ctx = 0i32;
-    assert!(pipeline.execute(&mut ctx).await.is_err());
+    assert!(pipeline.run(&mut ctx).await.is_err());
 }
 
 #[tokio::test]
 async fn test_pipeline_with_shared_edge_mix_owned_and_shared() {
     let shared = Arc::new(IncrementStep);
-    let pipeline = build_pipeline(
+    let pipeline = PipelineSvc::build(
         PipelineBuilder::new()
             .with(IncrementStep)
             .with_shared(shared),
     );
     let mut ctx = 0i32;
-    pipeline.execute(&mut ctx).await.expect("should succeed");
+    pipeline.run(&mut ctx).await.expect("should succeed");
     assert_eq!(ctx, 2);
 }
 

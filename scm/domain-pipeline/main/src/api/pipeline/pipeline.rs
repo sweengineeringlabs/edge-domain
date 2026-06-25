@@ -1,9 +1,16 @@
 //! [`Pipeline<Ctx>`] — orchestrates a sequence of steps.
 
+use edge_domain_service::Service;
+
 use super::super::error::PipelineError;
 use super::super::types::PipelineBuilder;
 
 /// Orchestrates a sequence of [`Step`] operations.
+///
+/// `Pipeline<Ctx>` extends [`Service`] with `Request = Ctx` and `Response = Ctx`,
+/// making every pipeline a first-class domain service. The dispatcher bridge
+/// ([`edge_domain_handler::IntoHandler`]) fires automatically on any `Pipeline<Ctx>`
+/// implementor — no wrapper required.
 ///
 /// The pipeline executes steps in order, passing a mutable context through each step.
 /// Each step enriches or validates the context. If any step fails, the pipeline
@@ -13,17 +20,21 @@ use super::super::types::PipelineBuilder;
 ///
 /// Steps execute sequentially. The pipeline is not parallel.
 #[async_trait::async_trait]
-pub trait Pipeline<Ctx>: Send + Sync {
-    /// Execute all steps in order.
+pub trait Pipeline<Ctx: Send + 'static>: Service<Request = Ctx, Response = Ctx> {
+    /// Run all steps in order, passing a mutable context through each.
     ///
-    /// Steps are run sequentially. Context is mutated in-place by each step.
-    /// If any step returns an error, execution stops and that error is returned.
+    /// Steps execute sequentially; the context is mutated in-place. On the
+    /// first step error, execution stops and the error is returned (unless
+    /// `abort_on_error` is `false` in the pipeline config).
+    ///
+    /// Distinct from [`Service::execute`] (which takes ownership for dispatcher
+    /// bridge use): `run` is the step-by-step orchestration entry point.
     ///
     /// # Errors
     ///
     /// Returns the first [`PipelineError`] encountered. The context may be
     /// partially mutated from earlier steps.
-    async fn execute(&self, ctx: &mut Ctx) -> Result<(), PipelineError>;
+    async fn run(&self, ctx: &mut Ctx) -> Result<(), PipelineError>;
 
     /// Return the number of steps in this pipeline.
     fn step_count(&self) -> usize;
@@ -36,15 +47,7 @@ pub trait Pipeline<Ctx>: Send + Sync {
     /// Get the pipeline configuration.
     fn config(&self) -> &super::super::PipelineConfig;
 
-    /// Human-readable name for this pipeline (logging, debugging).
-    fn name(&self) -> &str {
-        std::any::type_name::<Self>()
-    }
-
     /// Create a new fluent builder for assembling a pipeline.
-    ///
-    /// Call [`build_pipeline`](crate::build_pipeline) on the completed builder to obtain
-    /// a concrete pipeline instance.
     fn new_builder() -> PipelineBuilder<Ctx>
     where
         Self: Sized,
@@ -56,20 +59,34 @@ pub trait Pipeline<Ctx>: Send + Sync {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::api::PipelineConfig;
+    use edge_domain_service::ServiceError;
+    use futures::future::BoxFuture;
 
     struct MockPipeline {
         empty: bool,
         config: PipelineConfig,
     }
 
+    impl Service for MockPipeline {
+        type Request = i32;
+        type Response = i32;
+
+        fn name(&self) -> &str {
+            "mock.pipeline"
+        }
+
+        fn execute(&self, ctx: i32) -> BoxFuture<'_, Result<i32, ServiceError>> {
+            Box::pin(async move { Ok(ctx) })
+        }
+    }
+
     #[async_trait::async_trait]
     impl Pipeline<i32> for MockPipeline {
-        async fn execute(&self, _ctx: &mut i32) -> Result<(), PipelineError> {
+        async fn run(&self, _ctx: &mut i32) -> Result<(), PipelineError> {
             Ok(())
         }
 
@@ -98,7 +115,7 @@ mod tests {
     fn test_pipeline_is_empty_error_consistency() {
         let pipeline = MockPipeline { empty: true, config: PipelineConfig::default() };
         assert!(pipeline.is_empty());
-        assert!(pipeline.is_empty()); // Should be consistent
+        assert!(pipeline.is_empty());
     }
 
     #[test]
@@ -118,7 +135,7 @@ mod tests {
         let pipeline = MockPipeline { empty: false, config: PipelineConfig::default() };
         let count1 = pipeline.step_count();
         let count2 = pipeline.step_count();
-        assert_eq!(count1, count2); // Should be consistent across calls
+        assert_eq!(count1, count2);
     }
 
     #[test]

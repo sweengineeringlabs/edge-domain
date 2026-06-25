@@ -7,4 +7,8 @@ pub use handler::HandlerError;
 pub use handler::HandlerProvider;
 pub use handler::HandlerRegistry;
 pub use handler::InProcessHandlerRegistry;
+pub use handler::IntoHandler;
 pub use handler::NoopHandlerFactory;
+pub use handler::ServiceHandler;
+pub use handler::ServiceBridge;
+pub use handler::Validator;

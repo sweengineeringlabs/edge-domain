@@ -9,13 +9,11 @@
 #![cfg_attr(test, allow(clippy::unwrap_used, clippy::expect_used))]
 
 mod api;
-mod convenience;
 mod core;
 mod saf;
 
 #[cfg(test)]
 mod test_steps;
 
-pub use api::{PipelineBuilder, PipelineConfig, PipelineDefinition, PipelineError};
-pub use saf::{Pipeline, Step, StepRegistry, Validator, PIPELINE_SVC, STEP_REGISTRY_SVC, STEP_SVC, VALIDATOR_SVC};
-pub use convenience::{build_pipeline, create_pipeline, create_pipeline_with_config, create_step_registry, create_validator};
+pub use api::{Pipeline, PipelineBuilder, PipelineConfig, PipelineDefinition, PipelineError, Step, StepRegistry, Validator};
+pub use saf::{PipelineSvc, PIPELINE_SVC, PIPELINE_SVC_FACTORY, StepRegistrySvc, STEP_REGISTRY_SVC, STEP_REGISTRY_SVC_FACTORY, STEP_SVC, STEP_SVC_FACTORY, ValidatorSvc, VALIDATOR_SVC, VALIDATOR_SVC_FACTORY};

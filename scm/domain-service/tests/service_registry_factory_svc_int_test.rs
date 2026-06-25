@@ -1,6 +1,6 @@
 //! SAF facade tests — `ServiceRegistryBootstrap` constructors.
 
-use edge_domain_service::{StdServiceRegistryFactory, NoopService, Service, ServiceRegistry, ServiceRegistryBootstrap};
+use edge_domain_service::{StdServiceRegistryFactory, NoopService, Service, ServiceRegistry, ServiceRegistryBootstrap, ServiceRegistryTrait};
 use futures::executor::block_on;
 
 struct Factories;

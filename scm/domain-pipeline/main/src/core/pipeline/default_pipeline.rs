@@ -2,6 +2,8 @@
 
 use std::sync::Arc;
 
+use edge_domain_service::{Service, ServiceError};
+use futures::future::BoxFuture;
 use tokio::time;
 
 use crate::api::{Pipeline, PipelineConfig, PipelineError, Step};
@@ -14,17 +16,7 @@ pub(crate) struct DefaultPipeline<Ctx> {
     step_name: &'static str,
 }
 
-impl<Ctx: Send> DefaultPipeline<Ctx> {
-    /// Create a new pipeline with given steps and default config.
-    pub(crate) fn new(steps: Vec<Arc<dyn Step<Ctx>>>) -> Self {
-        Self {
-            steps,
-            config: PipelineConfig::default(),
-            step_name: "default-pipeline",
-        }
-    }
-
-    /// Create a new pipeline with custom config.
+impl<Ctx: Send + 'static> DefaultPipeline<Ctx> {
     pub(crate) fn with_config(steps: Vec<Arc<dyn Step<Ctx>>>, config: PipelineConfig) -> Self {
         Self {
             steps,
@@ -34,9 +26,32 @@ impl<Ctx: Send> DefaultPipeline<Ctx> {
     }
 }
 
+/// `Service` impl — exposes `DefaultPipeline` to the dispatcher bridge.
+///
+/// `Service::execute` takes ownership of `Ctx`, delegates to `Pipeline::run(&mut ctx)`,
+/// then returns the mutated context. `PipelineError` maps to `ServiceError::Internal`.
+impl<Ctx: Send + 'static> Service for DefaultPipeline<Ctx> {
+    type Request = Ctx;
+    type Response = Ctx;
+
+    fn name(&self) -> &str {
+        crate::PIPELINE_SVC
+    }
+
+    fn execute(&self, ctx: Ctx) -> BoxFuture<'_, Result<Ctx, ServiceError>> {
+        Box::pin(async move {
+            let mut ctx = ctx;
+            Pipeline::run(self, &mut ctx)
+                .await
+                .map(|_| ctx)
+                .map_err(|e| ServiceError::Internal(e.to_string()))
+        })
+    }
+}
+
 #[async_trait::async_trait]
-impl<Ctx: Send> Pipeline<Ctx> for DefaultPipeline<Ctx> {
-    async fn execute(&self, ctx: &mut Ctx) -> Result<(), PipelineError> {
+impl<Ctx: Send + 'static> Pipeline<Ctx> for DefaultPipeline<Ctx> {
+    async fn run(&self, ctx: &mut Ctx) -> Result<(), PipelineError> {
         for step in &self.steps {
             let result = match self.config.timeout_per_step {
                 Some(dur) => match time::timeout(dur, step.execute(ctx)).await {
@@ -64,9 +79,9 @@ impl<Ctx: Send> Pipeline<Ctx> for DefaultPipeline<Ctx> {
 }
 
 #[async_trait::async_trait]
-impl<Ctx: Send> Step<Ctx> for DefaultPipeline<Ctx> {
+impl<Ctx: Send + 'static> Step<Ctx> for DefaultPipeline<Ctx> {
     async fn execute(&self, ctx: &mut Ctx) -> Result<(), PipelineError> {
-        Pipeline::execute(self, ctx).await
+        Pipeline::run(self, ctx).await
     }
 
     fn name(&self) -> &str {
@@ -78,10 +93,10 @@ impl<Ctx: Send> Step<Ctx> for DefaultPipeline<Ctx> {
 mod tests {
     use super::*;
 
-    /// @covers: new
+    /// @covers: with_config
     #[test]
     fn test_new_happy_creates_empty() {
-        let pipeline: DefaultPipeline<i32> = DefaultPipeline::new(vec![]);
+        let pipeline: DefaultPipeline<i32> = DefaultPipeline::with_config(vec![], PipelineConfig::default());
         assert_eq!(pipeline.step_count(), 0);
     }
 
@@ -103,10 +118,17 @@ mod tests {
     /// @covers: config
     #[test]
     fn test_config_happy_returns_defaults() {
-        let pipeline: DefaultPipeline<i32> = DefaultPipeline::new(vec![]);
+        let pipeline: DefaultPipeline<i32> = DefaultPipeline::with_config(vec![], PipelineConfig::default());
         let config = pipeline.config();
         assert!(config.timeout_per_step.is_none());
         assert!(!config.emit_lifecycle_events);
         assert!(config.abort_on_error);
+    }
+
+    /// @covers: Service::name
+    #[test]
+    fn test_service_name_happy_returns_pipeline_svc() {
+        let pipeline: DefaultPipeline<i32> = DefaultPipeline::with_config(vec![], PipelineConfig::default());
+        assert_eq!(Service::name(&pipeline), crate::PIPELINE_SVC);
     }
 }

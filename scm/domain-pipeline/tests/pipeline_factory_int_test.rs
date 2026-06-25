@@ -1,7 +1,6 @@
-use edge_domain_pipeline::{Step, PipelineError, PipelineConfig, create_pipeline, create_pipeline_with_config};
+use edge_domain_pipeline::{PipelineBuilder, PipelineConfig, PipelineError, PipelineSvc, Step};
 use std::sync::Arc;
 
-/// A test step that always passes.
 #[derive(Clone)]
 struct TestPassStep;
 
@@ -19,16 +18,16 @@ impl<Ctx: Send> Step<Ctx> for TestPassStep {
 #[tokio::test]
 async fn test_pipeline_factory_create_happy_returns_pipeline() {
     let steps: Vec<Arc<dyn Step<i32>>> = vec![Arc::new(TestPassStep)];
-    let pipeline = create_pipeline(steps);
+    let pipeline = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default() });
     let mut ctx = 0;
-    assert!(pipeline.execute(&mut ctx).await.is_ok());
+    assert!(pipeline.run(&mut ctx).await.is_ok());
 }
 
 #[tokio::test]
 async fn test_pipeline_factory_create_with_config_happy_uses_config() {
     let steps: Vec<Arc<dyn Step<i32>>> = vec![Arc::new(TestPassStep)];
     let config = PipelineConfig::default();
-    let pipeline = create_pipeline_with_config(steps, config);
+    let pipeline = PipelineSvc::build(PipelineBuilder { steps, config });
     let mut ctx = 0;
-    assert!(pipeline.execute(&mut ctx).await.is_ok());
+    assert!(pipeline.run(&mut ctx).await.is_ok());
 }

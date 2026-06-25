@@ -20,7 +20,7 @@ let req = StdCompleteFactory::request("my-model".into(), vec![
 
 ## Architecture
 
-Follows the SEA (Structural Engineering Architecture) leaf pattern:
+Follows the SEA (Service Encapsulation Architecture) leaf pattern:
 - `api/` — public traits and value types
 - `core/` — default implementations (`pub(crate)`)
 - `saf/` — service abstraction surface (factory functions + SVC constants)

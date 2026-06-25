@@ -18,7 +18,7 @@ pub trait ServiceRegistryBootstrap {
         Resp: Send + 'static,
         Self: Sized,
     {
-        ServiceRegistry::new()
+        ServiceRegistry::default()
     }
 
     /// Construct a [`NoopService`] — a no-operation sentinel service.

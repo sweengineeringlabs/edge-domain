@@ -25,11 +25,8 @@ pub trait Handler: Send + Sync {
     }
 
     /// Execute the handler with the given request and request-scoped context.
-    async fn execute(
-        &self,
-        req: Self::Request,
-        ctx: HandlerContext<'_>,
-    ) -> Result<Self::Response, HandlerError>;
+    #[allow(clippy::missing_errors_doc)]
+    async fn execute(&self, req: Self::Request, ctx: HandlerContext<'_>) -> Result<Self::Response, HandlerError>;
 
     /// Return `true` if the handler is healthy and able to process requests.
     async fn health_check(&self) -> bool {
@@ -81,7 +78,7 @@ mod tests {
         let security = SecurityContext::unauthenticated();
         let bus = StdCommandBusFactory::direct();
         let observer = StdObserveFactory::noop_observer_context();
-        let ctx = HandlerContext::new(&security, &bus, observer.as_ref());
+        let ctx = HandlerContext { security: &security, commands: &bus, observer: observer.as_ref() };
         assert!(AlwaysOk.execute("hi".into(), ctx).await.is_ok());
     }
 
@@ -90,7 +87,7 @@ mod tests {
         let security = SecurityContext::unauthenticated();
         let bus = StdCommandBusFactory::direct();
         let observer = StdObserveFactory::noop_observer_context();
-        let ctx = HandlerContext::new(&security, &bus, observer.as_ref());
+        let ctx = HandlerContext { security: &security, commands: &bus, observer: observer.as_ref() };
         assert!(AlwaysFail.execute("hi".into(), ctx).await.is_err());
     }
 

@@ -1,8 +1,7 @@
 //! Integration tests for `abort_on_error` config — ADR-048 Phase 1.
 
 use edge_domain_pipeline::{
-    build_pipeline, create_pipeline_with_config, PipelineBuilder, PipelineConfig, PipelineError,
-    Step,
+    PipelineBuilder, PipelineConfig, PipelineError, PipelineSvc, Step,
 };
 
 struct IncrementStep;
@@ -36,23 +35,23 @@ impl Step<Vec<i32>> for FailStep {
 
 #[tokio::test]
 async fn test_abort_on_error_happy_stops_at_first_failure() {
-    let pipeline = build_pipeline(
+    let pipeline = PipelineSvc::build(
         PipelineBuilder::new()
             .with(IncrementStep)
             .with(FailStep)
             .with(IncrementStep), // should NOT run
     );
     let mut ctx: Vec<i32> = vec![];
-    let result = pipeline.execute(&mut ctx).await;
+    let result = pipeline.run(&mut ctx).await;
     assert!(result.is_err());
     assert_eq!(ctx.len(), 1, "only one step ran before abort");
 }
 
 #[tokio::test]
 async fn test_abort_on_error_happy_propagates_error() {
-    let pipeline = build_pipeline(PipelineBuilder::new().with(FailStep));
+    let pipeline = PipelineSvc::build(PipelineBuilder::new().with(FailStep));
     let mut ctx: Vec<i32> = vec![];
-    match pipeline.execute(&mut ctx).await {
+    match pipeline.run(&mut ctx).await {
         Err(PipelineError::StepFailed(msg)) => assert_eq!(msg, "fail"),
         other => panic!("expected StepFailed, got {:?}", other),
     }
@@ -60,13 +59,13 @@ async fn test_abort_on_error_happy_propagates_error() {
 
 #[tokio::test]
 async fn test_abort_on_error_edge_succeeds_with_no_errors() {
-    let pipeline = build_pipeline(
+    let pipeline = PipelineSvc::build(
         PipelineBuilder::new()
             .with(IncrementStep)
             .with(IncrementStep),
     );
     let mut ctx: Vec<i32> = vec![];
-    assert!(pipeline.execute(&mut ctx).await.is_ok());
+    assert!(pipeline.run(&mut ctx).await.is_ok());
     assert_eq!(ctx.len(), 2);
 }
 
@@ -74,7 +73,7 @@ async fn test_abort_on_error_edge_succeeds_with_no_errors() {
 
 #[tokio::test]
 async fn test_abort_on_error_false_happy_continues_past_failure() {
-    let pipeline = build_pipeline(
+    let pipeline = PipelineSvc::build(
         PipelineBuilder::new()
             .abort_on_error(false)
             .with(IncrementStep)
@@ -82,14 +81,14 @@ async fn test_abort_on_error_false_happy_continues_past_failure() {
             .with(IncrementStep), // MUST run despite FailStep
     );
     let mut ctx: Vec<i32> = vec![];
-    let result = pipeline.execute(&mut ctx).await;
+    let result = pipeline.run(&mut ctx).await;
     assert!(result.is_ok(), "pipeline should succeed when abort_on_error=false");
     assert_eq!(ctx.len(), 2, "both increment steps must have run");
 }
 
 #[tokio::test]
 async fn test_abort_on_error_false_error_all_steps_run_despite_failures() {
-    let pipeline = build_pipeline(
+    let pipeline = PipelineSvc::build(
         PipelineBuilder::new()
             .abort_on_error(false)
             .with(FailStep)
@@ -98,15 +97,15 @@ async fn test_abort_on_error_false_error_all_steps_run_despite_failures() {
             .with(IncrementStep),
     );
     let mut ctx: Vec<i32> = vec![];
-    assert!(pipeline.execute(&mut ctx).await.is_ok());
+    assert!(pipeline.run(&mut ctx).await.is_ok());
     assert_eq!(ctx.len(), 2, "both increment steps must have run past failures");
 }
 
 #[tokio::test]
 async fn test_abort_on_error_false_edge_no_steps_returns_ok() {
-    let pipeline = build_pipeline(PipelineBuilder::<Vec<i32>>::new().abort_on_error(false));
+    let pipeline = PipelineSvc::build(PipelineBuilder::<Vec<i32>>::new().abort_on_error(false));
     let mut ctx: Vec<i32> = vec![];
-    assert!(pipeline.execute(&mut ctx).await.is_ok());
+    assert!(pipeline.run(&mut ctx).await.is_ok());
 }
 
 // ── via create_pipeline_with_config ──────────────────────────────────────────
@@ -117,9 +116,9 @@ async fn test_abort_on_error_via_config_happy_stops_on_error() {
     let steps: Vec<Arc<dyn Step<Vec<i32>>>> =
         vec![Arc::new(IncrementStep), Arc::new(FailStep), Arc::new(IncrementStep)];
     let config = PipelineConfig { abort_on_error: true, ..PipelineConfig::default() };
-    let pipeline = create_pipeline_with_config(steps, config);
+    let pipeline = PipelineSvc::build(PipelineBuilder { steps, config });
     let mut ctx: Vec<i32> = vec![];
-    assert!(pipeline.execute(&mut ctx).await.is_err());
+    assert!(pipeline.run(&mut ctx).await.is_err());
     assert_eq!(ctx.len(), 1);
 }
 
@@ -129,9 +128,9 @@ async fn test_abort_on_error_via_config_error_continues_when_false() {
     let steps: Vec<Arc<dyn Step<Vec<i32>>>> =
         vec![Arc::new(IncrementStep), Arc::new(FailStep), Arc::new(IncrementStep)];
     let config = PipelineConfig { abort_on_error: false, ..PipelineConfig::default() };
-    let pipeline = create_pipeline_with_config(steps, config);
+    let pipeline = PipelineSvc::build(PipelineBuilder { steps, config });
     let mut ctx: Vec<i32> = vec![];
-    assert!(pipeline.execute(&mut ctx).await.is_ok());
+    assert!(pipeline.run(&mut ctx).await.is_ok());
     assert_eq!(ctx.len(), 2);
 }
 
@@ -141,8 +140,8 @@ async fn test_abort_on_error_via_config_edge_all_pass() {
     let steps: Vec<Arc<dyn Step<Vec<i32>>>> =
         vec![Arc::new(IncrementStep), Arc::new(IncrementStep)];
     let config = PipelineConfig::default();
-    let pipeline = create_pipeline_with_config(steps, config);
+    let pipeline = PipelineSvc::build(PipelineBuilder { steps, config });
     let mut ctx: Vec<i32> = vec![];
-    assert!(pipeline.execute(&mut ctx).await.is_ok());
+    assert!(pipeline.run(&mut ctx).await.is_ok());
     assert_eq!(ctx.len(), 2);
 }

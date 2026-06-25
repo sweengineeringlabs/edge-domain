@@ -79,23 +79,25 @@ fn test_display_skipped_variant_happy() {
     assert_eq!(e.to_string(), "handler skipped");
 }
 
-/// @covers: HandlerError::internal helper
+/// @covers: HandlerError::ExecutionFailed — wraps execution failure message
 #[test]
-fn test_internal_helper_produces_execution_failed_happy() {
-    let e = HandlerError::internal("db down");
+fn test_execution_failed_variant_wraps_message_happy() {
+    let e = HandlerError::ExecutionFailed("db down".into());
     assert!(matches!(e, HandlerError::ExecutionFailed(_)));
+    assert_eq!(e.to_string(), "execution failed: db down");
 }
 
-/// @covers: HandlerError::invalid helper
+/// @covers: HandlerError::InvalidRequest — wraps invalid input message
 #[test]
-fn test_invalid_helper_produces_invalid_request_happy() {
-    let e = HandlerError::invalid("null pointer");
+fn test_invalid_request_variant_wraps_message_happy() {
+    let e = HandlerError::InvalidRequest("null pointer".into());
     assert!(matches!(e, HandlerError::InvalidRequest(_)));
+    assert_eq!(e.to_string(), "invalid request: null pointer");
 }
 
-/// @covers: HandlerError::internal with empty message
+/// @covers: HandlerError::ExecutionFailed — empty message produces variant
 #[test]
-fn test_internal_helper_empty_message_produces_variant_edge() {
-    let e = HandlerError::internal("");
+fn test_execution_failed_empty_message_produces_variant_edge() {
+    let e = HandlerError::ExecutionFailed(String::new());
     assert_eq!(e.to_string(), "execution failed: ");
 }

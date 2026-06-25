@@ -2,10 +2,10 @@
 //!
 //! Each file re-exports the trait from api/ and exposes its service-identity constant.
 
-pub mod pipeline_svc;
+pub mod pipeline_svc_factory;
 mod step;
-pub mod validator_svc;
+pub mod validator_svc_factory;
 
-pub use pipeline_svc::{Pipeline, PIPELINE_SVC};
-pub use step::{Step, StepRegistry, STEP_REGISTRY_SVC, STEP_SVC};
-pub use validator_svc::{Validator, VALIDATOR_SVC};
+pub use pipeline_svc_factory::{PipelineSvc, PIPELINE_SVC, PIPELINE_SVC_FACTORY};
+pub use step::{StepRegistrySvc, STEP_REGISTRY_SVC, STEP_REGISTRY_SVC_FACTORY, STEP_SVC, STEP_SVC_FACTORY};
+pub use validator_svc_factory::{ValidatorSvc, VALIDATOR_SVC, VALIDATOR_SVC_FACTORY};

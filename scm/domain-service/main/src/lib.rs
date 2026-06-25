@@ -10,6 +10,11 @@ mod api;
 mod core;
 mod saf;
 
+pub use api::NoopService;
+pub use api::Service;
+pub use api::ServiceError;
+pub use api::ServiceRegistry;
+pub use api::ServiceRegistryBootstrap;
 pub use api::ServiceRegistryTrait;
-pub use saf::Service;
-pub use saf::ServiceRegistryBootstrap;
+pub use api::StdServiceRegistryFactory;
+pub use saf::{SERVICE_REGISTRY_FACTORY_SVC, SERVICE_REGISTRY_SVC, SERVICE_SVC};

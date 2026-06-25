@@ -6,54 +6,14 @@ use edge_domain_security::SecurityContext;
 
 /// Request-scoped context threaded to every [`Handler::execute`](crate::api::handler::traits::Handler::execute) call.
 ///
-/// Enum so the parameter type satisfies `api_field_type_purity` — pipeline
-/// stages can reborrow without cloning across the loop because all variants
-/// carry only references (`Copy` is derived).
+/// All fields are public references — callers construct with a struct literal and read fields
+/// directly. Construction and accessor methods live in `core::handler::handler_context`.
 #[derive(Copy, Clone)]
-pub enum HandlerContext<'a> {
-    /// Standard authenticated (or unauthenticated) request context.
-    Standard {
-        /// The authenticated (or unauthenticated) principal for this request.
-        security: &'a SecurityContext,
-        /// The write bus — all handler-initiated writes must go through this.
-        commands: &'a dyn CommandBus,
-        /// Observability seam — tracer, log drain, and metric registry for this request.
-        observer: &'a dyn ObserverContext,
-    },
-}
-
-impl<'a> HandlerContext<'a> {
-    /// Construct a standard request context.
-    pub fn new(
-        security: &'a SecurityContext,
-        commands: &'a dyn CommandBus,
-        observer: &'a dyn ObserverContext,
-    ) -> Self {
-        Self::Standard {
-            security,
-            commands,
-            observer,
-        }
-    }
-
-    /// Return the security principal for this request.
-    pub fn security(&self) -> &'a SecurityContext {
-        match self {
-            Self::Standard { security, .. } => security,
-        }
-    }
-
-    /// Return the command bus for this request.
-    pub fn commands(&self) -> &'a dyn CommandBus {
-        match self {
-            Self::Standard { commands, .. } => *commands,
-        }
-    }
-
-    /// Return the observability context for this request.
-    pub fn observer(&self) -> &'a dyn ObserverContext {
-        match self {
-            Self::Standard { observer, .. } => *observer,
-        }
-    }
+pub struct HandlerContext<'a> {
+    /// The authenticated (or unauthenticated) principal for this request.
+    pub security: &'a SecurityContext,
+    /// The write bus — all handler-initiated writes must go through this.
+    pub commands: &'a dyn CommandBus,
+    /// Observability seam — tracer, log drain, and metric registry for this request.
+    pub observer: &'a dyn ObserverContext,
 }

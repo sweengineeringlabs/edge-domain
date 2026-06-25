@@ -1,6 +1,6 @@
 //! Integration tests for [`StdServiceRegistryFactory`].
 
-use edge_domain_service::{StdServiceRegistryFactory, ServiceRegistry, ServiceRegistryBootstrap};
+use edge_domain_service::{StdServiceRegistryFactory, ServiceRegistry, ServiceRegistryBootstrap, ServiceRegistryTrait};
 
 /// @covers: ServiceRegistryBootstrap::new_registry
 #[test]

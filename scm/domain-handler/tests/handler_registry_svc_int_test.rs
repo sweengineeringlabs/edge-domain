@@ -29,7 +29,7 @@ impl Handler for Fixed {
 }
 
 fn make_reg() -> InProcessHandlerRegistry<String, String> {
-    InProcessHandlerRegistry::new()
+    InProcessHandlerRegistry::default()
 }
 
 /// @covers: HandlerRegistry::register — handler is retrievable after registration
@@ -119,7 +119,7 @@ fn test_retrieved_handler_executes_correctly_happy() {
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = HandlerContext::new(&security, &bus, observer.as_ref());
+    let ctx = HandlerContext { security: &security, commands: &bus, observer: observer.as_ref() };
     assert_eq!(block_on(h.execute("data".into(), ctx)).unwrap(), "data");
 }
 

@@ -1,7 +1,7 @@
 //! Error type for [`Service`](super::super::traits::Service) operations.
 
 /// Error produced by service execution.
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, PartialEq, thiserror::Error)]
 pub enum ServiceError {
     /// The service request was invalid.
     #[error("invalid request: {0}")]

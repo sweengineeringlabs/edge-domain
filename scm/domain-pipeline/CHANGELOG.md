@@ -31,7 +31,7 @@
 
 ## Architecture
 
-- Structural Engineering Architecture (SEA) L0/L1/L2 layers
+- Service Encapsulation Architecture (SEA) L0/L1/L2 layers
 - api/ — trait contracts
 - core/ — implementations
 - spi/ — builders and test doubles

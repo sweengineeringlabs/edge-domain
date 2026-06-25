@@ -3,6 +3,8 @@
 //! Tests for Pipeline and Validator trait methods with happy, error, and edge scenarios.
 
 use edge_domain_pipeline::{Pipeline, PipelineConfig, PipelineError, Step, Validator};
+use edge_domain_service::{Service, ServiceError};
+use futures::future::BoxFuture;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -29,9 +31,18 @@ struct TestPipeline {
     config: PipelineConfig,
 }
 
+impl Service for TestPipeline {
+    type Request = i32;
+    type Response = i32;
+    fn name(&self) -> &str { "test-pipeline" }
+    fn execute(&self, ctx: i32) -> BoxFuture<'_, Result<i32, ServiceError>> {
+        Box::pin(async move { Ok(ctx) })
+    }
+}
+
 #[async_trait::async_trait]
 impl Pipeline<i32> for TestPipeline {
-    async fn execute(&self, ctx: &mut i32) -> Result<(), PipelineError> {
+    async fn run(&self, ctx: &mut i32) -> Result<(), PipelineError> {
         for step in &self.steps {
             step.execute(ctx).await?;
         }

@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use edge_domain_service::{Service, ServiceError, ServiceRegistry};
+use edge_domain_service::{Service, ServiceError, ServiceRegistry, ServiceRegistryTrait};
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 
@@ -20,12 +20,12 @@ impl Service for Constant {
     }
 }
 
-/// @covers: ServiceRegistry::new — constructs an empty registry
+/// @covers: ServiceRegistry — constructs an empty registry via Default
 #[test]
 fn test_new_creates_empty_registry_happy() {
-    let reg: ServiceRegistry<i32, i32> = ServiceRegistry::new();
-    assert_eq!(reg.len(), 0);
-    assert!(reg.is_empty());
+    let reg: ServiceRegistry<i32, i32> = ServiceRegistry::default();
+    assert_eq!(ServiceRegistryTrait::len(&reg), 0);
+    assert!(ServiceRegistryTrait::is_empty(&reg));
 }
 
 /// @covers: ServiceRegistry::default — equivalent to new()
@@ -38,7 +38,7 @@ fn test_default_is_equivalent_to_new_error() {
 /// @covers: ServiceRegistry — register then execute via get
 #[test]
 fn test_register_then_execute_produces_expected_value_edge() {
-    let reg: ServiceRegistry<i32, i32> = ServiceRegistry::new();
+    let reg: ServiceRegistry<i32, i32> = ServiceRegistry::default();
     reg.register(Arc::new(Constant("forty-two".into(), 42)));
     let svc = reg.get("forty-two").expect("service must be present");
     let result = block_on(svc.execute(0));

@@ -24,6 +24,7 @@ parking_lot.workspace        = true
 edge-domain-command.workspace  = true
 edge-domain-observer.workspace  = true
 edge-domain-security.workspace = true
+edge-domain-service.workspace  = true
 
 [dev-dependencies]
 tokio   = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }

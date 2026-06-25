@@ -1,7 +1,7 @@
 //! @covers error handling and edge cases
 //! Error scenario tests for PipelineError and error handling.
 
-use edge_domain_pipeline::{create_pipeline, PipelineError, Step};
+use edge_domain_pipeline::{PipelineBuilder, PipelineConfig, PipelineError, PipelineSvc, Step};
 use std::sync::Arc;
 
 struct ErrorWithContext(String);
@@ -12,10 +12,7 @@ impl Step<String> for ErrorWithContext {
         ctx.push_str(&self.0);
         Err(PipelineError::StepFailed("step error".to_string()))
     }
-
-    fn name(&self) -> &str {
-        "error-step"
-    }
+    fn name(&self) -> &str { "error-step" }
 }
 
 // PipelineError variants
@@ -47,11 +44,10 @@ fn test_error_config_error_happy_edge() {
 /// @covers: general
 #[tokio::test]
 async fn test_error_propagation_stops_pipeline_happy() {
-    let pipeline = create_pipeline(vec![
-        Arc::new(ErrorWithContext("partial".to_string())),
-    ]);
+    let steps: Vec<Arc<dyn Step<String>>> = vec![Arc::new(ErrorWithContext("partial".to_string()))];
+    let pipeline = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default() });
     let mut ctx = String::new();
-    let result = pipeline.execute(&mut ctx).await;
+    let result = pipeline.run(&mut ctx).await;
     assert!(result.is_err());
     assert_eq!(ctx, "partial");
 }
@@ -59,11 +55,10 @@ async fn test_error_propagation_stops_pipeline_happy() {
 /// @covers: general
 #[tokio::test]
 async fn test_error_context_mutation_before_error_happy() {
-    let pipeline = create_pipeline(vec![
-        Arc::new(ErrorWithContext("before".to_string())),
-    ]);
+    let steps: Vec<Arc<dyn Step<String>>> = vec![Arc::new(ErrorWithContext("before".to_string()))];
+    let pipeline = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default() });
     let mut ctx = String::new();
-    let _ = pipeline.execute(&mut ctx).await;
+    let _ = pipeline.run(&mut ctx).await;
     assert_eq!(ctx, "before");
 }
 
@@ -131,20 +126,9 @@ fn test_error_multiple_error_types_edge() {
     let e2 = PipelineError::StepTimeout;
     let e3 = PipelineError::ConfigError("config".to_string());
 
-    match e1 {
-        PipelineError::StepFailed(_) => {},
-        _ => panic!("expected StepFailed"),
-    }
-
-    match e2 {
-        PipelineError::StepTimeout => {},
-        _ => panic!("expected StepTimeout"),
-    }
-
-    match e3 {
-        PipelineError::ConfigError(_) => {},
-        _ => panic!("expected ConfigError"),
-    }
+    match e1 { PipelineError::StepFailed(_) => {}, _ => panic!("expected StepFailed") }
+    match e2 { PipelineError::StepTimeout => {}, _ => panic!("expected StepTimeout") }
+    match e3 { PipelineError::ConfigError(_) => {}, _ => panic!("expected ConfigError") }
 }
 
 #[test]
@@ -152,7 +136,6 @@ fn test_error_variants_distinct_edge() {
     let e1 = PipelineError::StepFailed("msg1".to_string());
     let e2 = PipelineError::StepTimeout;
     let e3 = PipelineError::ConfigError("msg3".to_string());
-    // Verify all three error types are distinct
     assert!(matches!(e1, PipelineError::StepFailed(_)));
     assert!(matches!(e2, PipelineError::StepTimeout));
     assert!(matches!(e3, PipelineError::ConfigError(_)));

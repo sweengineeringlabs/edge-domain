@@ -45,7 +45,7 @@ All dependencies are:
 
 ## Compliance
 
-- Follows SEA (Structural Engineering Architecture) pattern
+- Follows SEA (Service Encapsulation Architecture) pattern
 - Complies with production-grade engineering standards
 - Regular security audits and dependency updates
 

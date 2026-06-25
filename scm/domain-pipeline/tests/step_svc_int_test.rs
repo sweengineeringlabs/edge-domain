@@ -1,7 +1,7 @@
 //! Integration tests for step and step-registry service facades.
 
 use edge_domain_pipeline::{
-    create_step_registry, PipelineDefinition, PipelineError, Step, StepRegistry,
+    PipelineDefinition, PipelineError, Step, StepRegistry, StepRegistrySvc,
     STEP_REGISTRY_SVC, STEP_SVC,
 };
 use std::sync::Arc;
@@ -72,19 +72,19 @@ fn test_step_registry_svc_constant() {
 /// @covers: StepRegistry::register, StepRegistry::build_pipeline
 #[tokio::test]
 async fn test_step_registry_svc_happy_register_and_execute() {
-    let mut registry: Box<dyn StepRegistry<i32>> = create_step_registry();
+    let mut registry: Box<dyn StepRegistry<i32>> = StepRegistrySvc::create::<i32>();
     registry.register("add5", Arc::new(TestStep(5)));
     let def = PipelineDefinition { steps: vec!["add5".to_owned()], ..Default::default() };
     let pipeline = registry.build_pipeline(&def).expect("registered step must build");
     let mut ctx = 0i32;
-    pipeline.execute(&mut ctx).await.expect("pipeline must execute");
+    pipeline.run(&mut ctx).await.expect("pipeline must execute");
     assert_eq!(ctx, 5);
 }
 
 /// @covers: StepRegistry::build_pipeline
 #[test]
 fn test_step_registry_svc_error_unknown_step_rejected() {
-    let registry: Box<dyn StepRegistry<i32>> = create_step_registry();
+    let registry: Box<dyn StepRegistry<i32>> = StepRegistrySvc::create::<i32>();
     let def = PipelineDefinition { steps: vec!["ghost".to_owned()], ..Default::default() };
     let result = registry.build_pipeline(&def);
     assert!(result.is_err(), "unregistered step name must be rejected");
@@ -93,10 +93,10 @@ fn test_step_registry_svc_error_unknown_step_rejected() {
 /// @covers: StepRegistry::register
 #[tokio::test]
 async fn test_step_registry_svc_edge_empty_definition_succeeds() {
-    let registry: Box<dyn StepRegistry<i32>> = create_step_registry();
+    let registry: Box<dyn StepRegistry<i32>> = StepRegistrySvc::create::<i32>();
     let def = PipelineDefinition::default();
     let pipeline = registry.build_pipeline(&def).expect("empty definition must build");
     let mut ctx = 0i32;
-    pipeline.execute(&mut ctx).await.expect("empty pipeline must execute");
+    pipeline.run(&mut ctx).await.expect("empty pipeline must execute");
     assert_eq!(ctx, 0);
 }

@@ -17,7 +17,7 @@ pub trait HandlerProvider {
     where
         Self: Sized,
     {
-        EchoHandler::new(id, pattern)
+        EchoHandler::from((id, pattern))
     }
 
     /// Construct a [`NoopHandlerFactory`] for use in tests and structural compliance.
@@ -35,7 +35,7 @@ pub trait HandlerProvider {
         Resp: Send + 'static,
         Self: Sized,
     {
-        InProcessHandlerRegistry::new()
+        InProcessHandlerRegistry::default()
     }
 }
 
@@ -72,14 +72,15 @@ mod tests {
     #[test]
     fn test_echo_handler_creates_handler_with_id_happy() {
         let h = Prov::echo_handler("my-id", "/route");
-        assert_eq!(h.id_str(), "my-id");
-        assert_eq!(h.pattern_str(), "/route");
+        assert_eq!(h.id, "my-id");
+        assert_eq!(h.pattern, "/route");
     }
 
     #[test]
     fn test_in_process_registry_creates_empty_registry_happy() {
+        use crate::api::handler::traits::handler_registry::HandlerRegistry;
         let reg = Prov::in_process_registry::<String, String>();
-        assert_eq!(reg.handler_count(), 0);
+        assert_eq!(reg.len(), 0);
     }
 
     #[test]

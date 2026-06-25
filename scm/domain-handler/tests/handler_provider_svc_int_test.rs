@@ -29,7 +29,7 @@ fn test_echo_handler_reflects_request_happy() {
     let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = HandlerContext::new(&security, &bus, observer.as_ref());
+    let ctx = HandlerContext { security: &security, commands: &bus, observer: observer.as_ref() };
     assert_eq!(block_on(h.execute("ping".into(), ctx)).unwrap(), "ping");
 }
 

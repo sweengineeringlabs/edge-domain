@@ -2,7 +2,7 @@
 //! Comprehensive trait implementation tests for Validator interface.
 //! Ensures all trait methods have proper test coverage across happy, error, and edge paths.
 
-use edge_domain_pipeline::{create_validator, PipelineBuilder, PipelineConfig, PipelineError};
+use edge_domain_pipeline::{PipelineBuilder, PipelineConfig, PipelineError, ValidatorSvc};
 use std::time::Duration;
 
 // Validator::validate tests
@@ -10,7 +10,7 @@ use std::time::Duration;
 /// Test validate returns ok for enabled validator with default config
 #[tokio::test]
 async fn test_validator_validate_enabled_happy() {
-    let validator = create_validator(true);
+    let validator = ValidatorSvc::create(true);
     let config = PipelineConfig::default();
     let result = validator.validate(&config).await;
     assert!(result.is_ok());
@@ -19,7 +19,7 @@ async fn test_validator_validate_enabled_happy() {
 /// Test validate returns ok for disabled validator with default config
 #[tokio::test]
 async fn test_validator_validate_disabled_happy() {
-    let validator = create_validator(false);
+    let validator = ValidatorSvc::create(false);
     let config = PipelineConfig::default();
     let result = validator.validate(&config).await;
     assert!(result.is_ok());
@@ -28,7 +28,7 @@ async fn test_validator_validate_disabled_happy() {
 /// Test validate with custom config including timeout
 #[tokio::test]
 async fn test_validator_validate_with_timeout_happy() {
-    let validator = create_validator(true);
+    let validator = ValidatorSvc::create(true);
     let config = PipelineConfig {
         timeout_per_step: Some(Duration::from_secs(5)),
         emit_lifecycle_events: false,
@@ -41,7 +41,7 @@ async fn test_validator_validate_with_timeout_happy() {
 /// Test validate with all options enabled
 #[tokio::test]
 async fn test_validator_validate_all_options_enabled_edge() {
-    let validator = create_validator(true);
+    let validator = ValidatorSvc::create(true);
     let config = PipelineConfig {
         timeout_per_step: Some(Duration::from_secs(10)),
         emit_lifecycle_events: true,
@@ -54,7 +54,7 @@ async fn test_validator_validate_all_options_enabled_edge() {
 /// Test validate with all options disabled
 #[tokio::test]
 async fn test_validator_validate_all_options_disabled_error() {
-    let validator = create_validator(false);
+    let validator = ValidatorSvc::create(false);
     let config = PipelineConfig {
         timeout_per_step: None,
         emit_lifecycle_events: false,
@@ -67,7 +67,7 @@ async fn test_validator_validate_all_options_disabled_error() {
 /// Test validate with very large timeout
 #[tokio::test]
 async fn test_validator_validate_large_timeout_edge() {
-    let validator = create_validator(true);
+    let validator = ValidatorSvc::create(true);
     let config = PipelineConfig {
         timeout_per_step: Some(Duration::from_secs(3600)),
         emit_lifecycle_events: true,
@@ -80,7 +80,7 @@ async fn test_validator_validate_large_timeout_edge() {
 /// Test validate is consistent across multiple calls
 #[tokio::test]
 async fn test_validator_validate_consistency_error() {
-    let validator = create_validator(true);
+    let validator = ValidatorSvc::create(true);
     let config = PipelineConfig::default();
 
     let result1 = validator.validate(&config).await;
@@ -95,25 +95,25 @@ async fn test_validator_validate_consistency_error() {
 /// Test is_enabled returns true when created with true
 #[test]
 fn test_validator_is_enabled_true_happy() {
-    let validator = create_validator(true);
+    let validator = ValidatorSvc::create(true);
     assert!(validator.is_enabled());
 }
 
 /// Test is_enabled returns false when created with false
 #[test]
 fn test_validator_is_enabled_false_happy() {
-    let validator = create_validator(false);
+    let validator = ValidatorSvc::create(false);
     assert!(!validator.is_enabled());
 }
 
 /// Test is_enabled consistency across multiple calls
 #[test]
 fn test_validator_is_enabled_consistency_happy() {
-    let validator_enabled = create_validator(true);
+    let validator_enabled = ValidatorSvc::create(true);
     assert_eq!(validator_enabled.is_enabled(), true);
     assert_eq!(validator_enabled.is_enabled(), true);
 
-    let validator_disabled = create_validator(false);
+    let validator_disabled = ValidatorSvc::create(false);
     assert_eq!(validator_disabled.is_enabled(), false);
     assert_eq!(validator_disabled.is_enabled(), false);
 }
@@ -121,8 +121,8 @@ fn test_validator_is_enabled_consistency_happy() {
 /// Test is_enabled distinguishes between instances
 #[test]
 fn test_validator_is_enabled_instances_error() {
-    let enabled = create_validator(true);
-    let disabled = create_validator(false);
+    let enabled = ValidatorSvc::create(true);
+    let disabled = ValidatorSvc::create(false);
 
     assert_ne!(enabled.is_enabled(), disabled.is_enabled());
 }
@@ -178,9 +178,9 @@ async fn test_validate_builder_edge_disabled_validator_passes_any_config() {
 /// Test multiple enabled validators
 #[test]
 fn test_validator_is_enabled_multiple_enabled_edge() {
-    let v1 = create_validator(true);
-    let v2 = create_validator(true);
-    let v3 = create_validator(true);
+    let v1 = ValidatorSvc::create(true);
+    let v2 = ValidatorSvc::create(true);
+    let v3 = ValidatorSvc::create(true);
 
     assert!(v1.is_enabled());
     assert!(v2.is_enabled());
@@ -190,9 +190,9 @@ fn test_validator_is_enabled_multiple_enabled_edge() {
 /// Test multiple disabled validators
 #[test]
 fn test_validator_is_enabled_multiple_disabled_edge() {
-    let v1 = create_validator(false);
-    let v2 = create_validator(false);
-    let v3 = create_validator(false);
+    let v1 = ValidatorSvc::create(false);
+    let v2 = ValidatorSvc::create(false);
+    let v3 = ValidatorSvc::create(false);
 
     assert!(!v1.is_enabled());
     assert!(!v2.is_enabled());
@@ -204,8 +204,8 @@ fn test_validator_is_enabled_multiple_disabled_edge() {
 /// Test that enabled state is reflected in validation behavior
 #[tokio::test]
 async fn test_validator_enabled_affects_behavior_happy() {
-    let enabled = create_validator(true);
-    let disabled = create_validator(false);
+    let enabled = ValidatorSvc::create(true);
+    let disabled = ValidatorSvc::create(false);
 
     let config = PipelineConfig::default();
 
@@ -220,9 +220,9 @@ async fn test_validator_enabled_affects_behavior_happy() {
 /// Test state independence across validators
 #[test]
 fn test_validator_state_independence_error() {
-    let v1 = create_validator(true);
-    let v2 = create_validator(false);
-    let v3 = create_validator(true);
+    let v1 = ValidatorSvc::create(true);
+    let v2 = ValidatorSvc::create(false);
+    let v3 = ValidatorSvc::create(true);
 
     assert_eq!(v1.is_enabled(), true);
     assert_eq!(v2.is_enabled(), false);
@@ -233,7 +233,7 @@ fn test_validator_state_independence_error() {
 /// Test validator behavior with complex config
 #[tokio::test]
 async fn test_validator_complex_config_edge() {
-    let validator = create_validator(true);
+    let validator = ValidatorSvc::create(true);
 
     // Test with various config combinations (all must have abort_on_error=true for enabled validator)
     let configs = vec![
