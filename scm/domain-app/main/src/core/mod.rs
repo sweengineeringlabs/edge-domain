@@ -1,0 +1,3 @@
+//! Application implementations.
+
+mod app;

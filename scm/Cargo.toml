@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
 members  = [
+    "domain-app",
     "edge-domain",
     "domain/llm/agents",
     "domain/llm/complete",
@@ -53,6 +54,7 @@ tokio       = { version = "1", features = ["sync", "time"] }
 tracing     = "0.1"
 serde       = { version = "1.0", features = ["derive"] }
 serde_json  = "1.0"
+edge-domain-app         = { path = "domain-app" }
 edge-domain-entity      = { path = "domain-entity" }
 edge-domain-valueobject = { path = "domain-valueobject" }
 edge-domain-clock       = { path = "domain-clock" }
