@@ -107,3 +107,29 @@ fn test_noop_runtime_is_copy_edge() {
     let b = a;
     assert_eq!(a, b);
 }
+
+/// @covers: Bootstrap::noop_svc_factory — returns NoopAppSvcFactory
+#[test]
+fn test_noop_svc_factory_returns_noop_app_svc_factory_happy() {
+    use edge_domain_app::NoopAppSvcFactory;
+    let f: NoopAppSvcFactory = AlwaysBuilds::noop_svc_factory();
+    assert_eq!(format!("{f:?}"), "NoopAppSvcFactory");
+}
+
+/// @covers: Bootstrap::noop_svc_factory — built bootstrap produces a runnable application
+#[test]
+fn test_noop_svc_factory_build_always_ok_error() {
+    use edge_domain_app::{AppServiceProvider, NoopAppSvcFactory};
+    let f: NoopAppSvcFactory = AlwaysBuilds::noop_svc_factory();
+    let app = f.build().build().expect("noop provider bootstrap must build");
+    assert_eq!(app.name(), "application");
+}
+
+/// @covers: Bootstrap::noop_svc_factory — is Copy
+#[test]
+fn test_noop_svc_factory_is_copy_edge() {
+    use edge_domain_app::NoopAppSvcFactory;
+    let a: NoopAppSvcFactory = AlwaysBuilds::noop_svc_factory();
+    let b = a;
+    assert_eq!(a, b);
+}

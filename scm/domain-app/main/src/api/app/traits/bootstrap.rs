@@ -4,6 +4,7 @@ use crate::api::AppError;
 use crate::api::Application;
 use crate::api::NoopAppBootstrap;
 use crate::api::NoopAppRuntime;
+use crate::api::NoopAppSvcFactory;
 
 /// Constructs an [`Application`] from a resolved service graph.
 ///
@@ -26,5 +27,13 @@ pub trait Bootstrap: Send + Sync {
         Self: Sized,
     {
         NoopAppRuntime
+    }
+
+    /// Return the no-operation service factory for tests and structural scaffolding.
+    fn noop_svc_factory() -> NoopAppSvcFactory
+    where
+        Self: Sized,
+    {
+        NoopAppSvcFactory
     }
 }

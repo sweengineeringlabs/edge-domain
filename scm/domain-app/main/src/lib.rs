@@ -12,9 +12,11 @@ mod saf;
 
 pub use api::AppError;
 pub use api::AppRuntime;
+pub use api::AppServiceProvider;
 pub use api::Application;
 pub use api::Bootstrap;
 pub use api::NoopAppBootstrap;
 pub use api::NoopAppRuntime;
+pub use api::NoopAppSvcFactory;
 pub use api::NoopApplication;
-pub use saf::{APP_BOOTSTRAP_SVC, APP_BOOTSTRAP_SVC_FACTORY, APP_RUNTIME_SVC, APP_RUNTIME_SVC_FACTORY, APPLICATION_SVC, APPLICATION_SVC_FACTORY};
+pub use saf::{APP_BOOTSTRAP_SVC, APP_BOOTSTRAP_SVC_FACTORY, APP_RUNTIME_SVC, APP_RUNTIME_SVC_FACTORY, APP_SERVICE_PROVIDER_SVC, APP_SERVICE_PROVIDER_SVC_FACTORY, APPLICATION_SVC, APPLICATION_SVC_FACTORY};
