@@ -1,10 +1,9 @@
 //! Pipeline service — opaque construction surface for [`Pipeline`](crate::api::Pipeline).
 
 use std::sync::Arc;
+use std::time::Duration;
 
-use edge_domain_service::Service;
-
-use crate::api::{Pipeline, PipelineBuilder};
+use crate::api::{Pipeline, PipelineBuilder, PipelineConfig, Step};
 use crate::core::pipeline::DefaultPipeline;
 
 /// Identifies the pipeline `Service` implementation at runtime.
@@ -15,10 +14,9 @@ pub const PIPELINE_SVC_FACTORY: &str = "pipeline_svc_factory";
 
 /// Construction handle for [`Pipeline`](crate::api::Pipeline) instances.
 ///
-/// Consumers declare a dependency on `Box<dyn Pipeline<Ctx>>` (exclusive ownership),
-/// `Arc<dyn Pipeline<Ctx>>` (shared ownership), or an opaque `impl Service` for
-/// dispatcher integration via [`as_service`](PipelineSvc::as_service).
-/// The concrete implementation (`DefaultPipeline`) is never exposed.
+/// Consumers declare a dependency on `Box<dyn Pipeline<Ctx>>` (exclusive ownership)
+/// or `Arc<dyn Pipeline<Ctx>>` (shared ownership). The concrete implementation
+/// (`DefaultPipeline`) is never exposed.
 ///
 /// # Examples
 ///
@@ -32,26 +30,13 @@ pub const PIPELINE_SVC_FACTORY: &str = "pipeline_svc_factory";
 ///         .with(EnrichStep)
 ///         .abort_on_error(true),
 /// );
-/// pipeline.execute(&mut ctx).await?;
-/// ```
-///
-/// ## Dispatcher integration (no wrapper)
-///
-/// ```rust,ignore
-/// use edge_domain_pipeline::{PipelineSvc, PipelineBuilder};
-/// use edge_domain_handler::IntoHandler;
-///
-/// let handler = PipelineSvc::as_service(PipelineBuilder::new().with(EnrichStep))
-///     .into_handler();
-/// registry.register(Arc::new(handler));
+/// pipeline.run(&mut ctx).await?;
 /// ```
 pub struct PipelineSvc;
 
 impl PipelineSvc {
     /// Build a pipeline with exclusive ownership.
-    pub fn build<Ctx: Send + 'static>(
-        builder: PipelineBuilder<Ctx>,
-    ) -> Box<dyn Pipeline<Ctx>> {
+    pub fn build<Ctx: Send + 'static>(builder: PipelineBuilder<Ctx>) -> Box<dyn Pipeline<Ctx>> {
         Box::new(DefaultPipeline::with_config(builder.steps, builder.config))
     }
 
@@ -61,14 +46,48 @@ impl PipelineSvc {
     ) -> Arc<dyn Pipeline<Ctx>> {
         Arc::new(DefaultPipeline::with_config(builder.steps, builder.config))
     }
+}
 
-    /// Return an opaque [`Service`] over this pipeline for dispatcher integration.
+impl<Ctx: Send + 'static> PipelineBuilder<Ctx> {
+    /// Create a new builder with default configuration and no steps.
+    pub fn new() -> Self {
+        Self {
+            steps: Vec::new(),
+            config: PipelineConfig::default(),
+        }
+    }
+
+    /// Append a step to the execution sequence.
+    pub fn with<S: Step<Ctx> + 'static>(mut self, step: S) -> Self {
+        self.steps.push(Arc::new(step));
+        self
+    }
+
+    /// Append a shared step (useful when the same step is reused across pipelines).
+    pub fn with_shared(mut self, step: Arc<dyn Step<Ctx>>) -> Self {
+        self.steps.push(step);
+        self
+    }
+
+    /// Apply a per-step execution timeout; steps that exceed it produce
+    /// [`PipelineError::StepTimeout`](crate::PipelineError::StepTimeout).
+    pub fn with_timeout(mut self, duration: Duration) -> Self {
+        self.config.timeout_per_step = Some(duration);
+        self
+    }
+
+    /// Set whether the pipeline halts immediately on the first step error.
     ///
-    /// Callers chain `.into_handler()` (from `edge_domain_handler::IntoHandler`) to
-    /// register the pipeline in a `HandlerRegistry` without any additional wrapper.
-    pub fn as_service<Ctx: Send + 'static>(
-        builder: PipelineBuilder<Ctx>,
-    ) -> impl Service<Request = Ctx, Response = Ctx> {
-        DefaultPipeline::with_config(builder.steps, builder.config)
+    /// Defaults to `true`. When set to `false` the pipeline continues
+    /// past errors and returns `Ok(())` after all steps have run.
+    pub fn abort_on_error(mut self, abort: bool) -> Self {
+        self.config.abort_on_error = abort;
+        self
+    }
+
+    /// Enable or disable lifecycle event emission.
+    pub fn emit_lifecycle_events(mut self, emit: bool) -> Self {
+        self.config.emit_lifecycle_events = emit;
+        self
     }
 }

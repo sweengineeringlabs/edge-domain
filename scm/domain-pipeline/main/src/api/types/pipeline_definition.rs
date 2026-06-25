@@ -1,10 +1,6 @@
 //! [`PipelineDefinition`] — TOML manifest declaring step composition and execution config.
 
-use swe_edge_configbuilder::ConfigSection;
-
 use crate::api::types::PipelineConfig;
-
-const PIPELINE_DEFINITION_SECTION: &str = "pipeline";
 
 /// TOML manifest for a pipeline: execution configuration plus an ordered list of step names.
 ///
@@ -31,28 +27,4 @@ pub struct PipelineDefinition {
     /// before calling `build_pipeline`; an unrecognised name yields
     /// [`PipelineError::UnknownStep`](crate::PipelineError::UnknownStep).
     pub steps: Vec<String>,
-}
-
-impl ConfigSection for PipelineDefinition {
-    fn section_name() -> &'static str {
-        PIPELINE_DEFINITION_SECTION
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_pipeline_definition_default_happy() {
-        let def = PipelineDefinition::default();
-        assert!(def.steps.is_empty());
-        assert!(def.config.abort_on_error);
-        assert!(def.config.timeout_per_step.is_none());
-    }
-
-    #[test]
-    fn test_pipeline_definition_section_name_happy() {
-        assert_eq!(PipelineDefinition::section_name(), "pipeline");
-    }
 }

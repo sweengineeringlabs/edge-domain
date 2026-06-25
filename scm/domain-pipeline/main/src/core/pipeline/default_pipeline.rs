@@ -125,7 +125,7 @@ mod tests {
         assert!(config.abort_on_error);
     }
 
-    /// @covers: Service::name
+    /// @covers: name
     #[test]
     fn test_service_name_happy_returns_pipeline_svc() {
         let pipeline: DefaultPipeline<i32> = DefaultPipeline::with_config(vec![], PipelineConfig::default());

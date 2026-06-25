@@ -143,7 +143,6 @@ fn test_pipeline_step_count_consistency_error() {
     let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(
         PipelineBuilder::new().with(AlwaysPassStep).with(AlwaysPassStep),
     );
-    assert_eq!(pipeline.step_count(), pipeline.step_count());
     assert_eq!(pipeline.step_count(), 2);
 }
 

@@ -2,10 +2,6 @@
 
 use std::time::Duration;
 
-use swe_edge_configbuilder::ConfigSection;
-
-const PIPELINE_SECTION_NAME: &str = "pipeline";
-
 /// Configuration for pipeline execution behavior.
 ///
 /// ## TOML section `[pipeline]`
@@ -19,7 +15,7 @@ const PIPELINE_SECTION_NAME: &str = "pipeline";
 #[serde(default)]
 pub struct PipelineConfig {
     /// Per-step execution timeout. Specified in TOML as `timeout_per_step_ms` (milliseconds).
-    #[serde(rename = "timeout_per_step_ms", deserialize_with = "DurationMs::deserialize")]
+    #[serde(rename = "timeout_per_step_ms", deserialize_with = "duration_ms::deserialize")]
     pub timeout_per_step: Option<Duration>,
 
     /// Emit lifecycle events when `true` (Phase 2 — not yet wired to EventBus).
@@ -29,26 +25,10 @@ pub struct PipelineConfig {
     pub abort_on_error: bool,
 }
 
-impl Default for PipelineConfig {
-    fn default() -> Self {
-        Self {
-            timeout_per_step: None,
-            emit_lifecycle_events: false,
-            abort_on_error: true,
-        }
-    }
-}
+mod duration_ms {
+    use std::time::Duration;
 
-impl ConfigSection for PipelineConfig {
-    fn section_name() -> &'static str {
-        PIPELINE_SECTION_NAME
-    }
-}
-
-struct DurationMs;
-
-impl DurationMs {
-    fn deserialize<'de, D>(d: D) -> Result<Option<Duration>, D::Error>
+    pub(super) fn deserialize<'de, D>(d: D) -> Result<Option<Duration>, D::Error>
     where
         D: serde::Deserializer<'de>,
     {
