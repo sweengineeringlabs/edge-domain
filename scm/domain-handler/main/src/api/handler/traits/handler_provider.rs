@@ -3,6 +3,7 @@
 use crate::api::handler::types::echo_handler::EchoHandler;
 use crate::api::handler::types::in_process_handler_registry::InProcessHandlerRegistry;
 use crate::api::handler::types::noop_handler_factory::NoopHandlerFactory;
+use crate::api::handler::types::std_registry_bridge::StdRegistryBridge;
 
 /// Factory trait providing standard handler constructs without requiring
 /// callers to name concrete types from `core/`.
@@ -36,6 +37,14 @@ pub trait HandlerProvider {
         Self: Sized,
     {
         InProcessHandlerRegistry::default()
+    }
+
+    /// Construct the standard [`StdRegistryBridge`] for bridging service registries into handler registries.
+    fn default_bridge() -> StdRegistryBridge
+    where
+        Self: Sized,
+    {
+        StdRegistryBridge
     }
 }
 
@@ -87,5 +96,26 @@ mod tests {
     fn test_noop_handler_factory_constructs_instance_edge() {
         let f: NoopHandlerFactory = Prov::noop_handler_factory();
         assert_eq!(f.bootstrap_name(), "handler");
+    }
+
+    /// @covers: default_bridge
+    #[test]
+    fn test_default_bridge_constructs_std_registry_bridge_happy() {
+        let b: StdRegistryBridge = Prov::default_bridge();
+        assert_eq!(format!("{b:?}"), "StdRegistryBridge");
+    }
+
+    /// @covers: default_bridge
+    #[test]
+    fn test_default_bridge_bridge_is_zero_sized_error() {
+        assert_eq!(std::mem::size_of::<StdRegistryBridge>(), 0);
+    }
+
+    /// @covers: default_bridge
+    #[test]
+    fn test_default_bridge_is_copy_edge() {
+        let b = Prov::default_bridge();
+        let c = b; // copy — b still usable
+        assert_eq!(b, c);
     }
 }

@@ -1,4 +1,5 @@
 mod handler;
+pub use handler::StdRegistryBridge;
 pub use handler::EchoHandler;
 pub use handler::Handler;
 pub use handler::HandlerBootstrap;
@@ -9,6 +10,7 @@ pub use handler::HandlerRegistry;
 pub use handler::InProcessHandlerRegistry;
 pub use handler::IntoHandler;
 pub use handler::NoopHandlerFactory;
-pub use handler::ServiceHandler;
+pub use handler::RegistryBridge;
 pub use handler::ServiceBridge;
+pub use handler::ServiceHandler;
 pub use handler::Validator;

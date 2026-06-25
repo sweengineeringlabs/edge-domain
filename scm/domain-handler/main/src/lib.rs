@@ -11,6 +11,7 @@ mod core;
 mod saf;
 
 // Types that are part of trait signatures
+pub use api::StdRegistryBridge;
 pub use api::EchoHandler;
 pub use api::HandlerContext;
 pub use api::HandlerError;
@@ -23,6 +24,7 @@ pub use api::HandlerBootstrap;
 pub use api::HandlerProvider;
 pub use api::HandlerRegistry;
 pub use api::IntoHandler;
+pub use api::RegistryBridge;
 pub use api::ServiceBridge;
 pub use api::ServiceHandler;
 pub use api::Validator;
@@ -42,5 +44,7 @@ pub use saf::INTO_HANDLER_SVC_FACTORY;
 pub use saf::MIN_SERVICE_NAME_LEN;
 pub use saf::SERVICE_BRIDGE_SVC;
 pub use saf::SERVICE_BRIDGE_SVC_FACTORY;
+pub use saf::REGISTRY_BRIDGE_SVC;
+pub use saf::REGISTRY_BRIDGE_SVC_FACTORY;
 pub use saf::SERVICE_HANDLER_SVC_FACTORY;
 pub use saf::VALIDATOR_SVC_FACTORY;
