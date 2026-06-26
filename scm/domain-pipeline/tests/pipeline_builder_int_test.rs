@@ -4,14 +4,14 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use edge_domain_pipeline::{
-    PipelineBuilder, PipelineConfig, PipelineError, PipelineSvc, Step,
+    PipelineBuilder, PipelineConfig, PipelineSvc, Step,
 };
 
 struct IncrementStep;
 
 #[async_trait::async_trait]
-impl Step<i32> for IncrementStep {
-    async fn execute(&self, ctx: &mut i32) -> Result<(), PipelineError> {
+impl<E: Send + 'static> Step<i32, E> for IncrementStep {
+    async fn execute(&self, ctx: &mut i32) -> Result<(), E> {
         *ctx += 1;
         Ok(())
     }
@@ -24,9 +24,9 @@ impl Step<i32> for IncrementStep {
 struct FailStep;
 
 #[async_trait::async_trait]
-impl Step<i32> for FailStep {
-    async fn execute(&self, _ctx: &mut i32) -> Result<(), PipelineError> {
-        Err(PipelineError::StepFailed("intentional failure".to_string()))
+impl Step<i32, String> for FailStep {
+    async fn execute(&self, _ctx: &mut i32) -> Result<(), String> {
+        Err("intentional failure".to_string())
     }
 
     fn name(&self) -> &str {
@@ -38,22 +38,22 @@ impl Step<i32> for FailStep {
 
 #[test]
 fn test_new_builder_happy_creates_empty_builder() {
-    let builder: PipelineBuilder<i32> = PipelineBuilder::new();
+    let builder: PipelineBuilder<i32, String> = PipelineBuilder::new();
     assert!(builder.steps.is_empty());
     assert!(builder.config.abort_on_error);
 }
 
 #[test]
 fn test_new_builder_error_default_config_abort_on_error_true() {
-    let builder: PipelineBuilder<i32> = PipelineBuilder::new();
+    let builder: PipelineBuilder<i32, String> = PipelineBuilder::new();
     assert!(builder.config.abort_on_error, "default must abort on error");
     assert!(builder.config.timeout_per_step.is_none(), "default has no timeout");
 }
 
 #[test]
 fn test_new_builder_edge_two_calls_produce_independent_builders() {
-    let b1: PipelineBuilder<i32> = PipelineBuilder::new();
-    let b2: PipelineBuilder<i32> = PipelineBuilder::new();
+    let b1: PipelineBuilder<i32, String> = PipelineBuilder::new();
+    let b2: PipelineBuilder<i32, String> = PipelineBuilder::new();
     assert_eq!(b1.steps.len(), b2.steps.len());
     assert_eq!(b1.config.abort_on_error, b2.config.abort_on_error);
 }
@@ -62,19 +62,19 @@ fn test_new_builder_edge_two_calls_produce_independent_builders() {
 
 #[test]
 fn test_pipeline_builder_happy_creates_empty() {
-    let builder: PipelineBuilder<i32> = PipelineBuilder::new();
+    let builder: PipelineBuilder<i32, String> = PipelineBuilder::new();
     assert!(builder.steps.is_empty());
 }
 
 #[test]
 fn test_pipeline_builder_error_default_abort_on_error() {
-    let builder: PipelineBuilder<i32> = PipelineBuilder::new();
+    let builder: PipelineBuilder<i32, String> = PipelineBuilder::new();
     assert!(builder.config.abort_on_error);
 }
 
 #[test]
 fn test_pipeline_builder_edge_chained_configuration() {
-    let builder: PipelineBuilder<i32> = PipelineBuilder::new()
+    let builder: PipelineBuilder<i32, String> = PipelineBuilder::new()
         .with_timeout(Duration::from_secs(10))
         .abort_on_error(false)
         .emit_lifecycle_events(true);
@@ -88,7 +88,7 @@ fn test_pipeline_builder_edge_chained_configuration() {
 #[tokio::test]
 async fn test_pipeline_build_happy_executes_steps() {
     let pipeline = PipelineSvc::build(
-        PipelineBuilder::new()
+        PipelineBuilder::<i32, String>::new()
             .with(IncrementStep)
             .with(IncrementStep),
     );
@@ -99,7 +99,7 @@ async fn test_pipeline_build_happy_executes_steps() {
 
 #[tokio::test]
 async fn test_pipeline_build_happy_empty_pipeline() {
-    let pipeline = PipelineSvc::build(PipelineBuilder::<i32>::new());
+    let pipeline = PipelineSvc::build(PipelineBuilder::<i32, String>::new());
     let mut ctx = 0i32;
     assert!(pipeline.run(&mut ctx).await.is_ok());
     assert_eq!(ctx, 0);
@@ -108,7 +108,7 @@ async fn test_pipeline_build_happy_empty_pipeline() {
 #[tokio::test]
 async fn test_pipeline_build_error_step_failure_propagates() {
     let pipeline = PipelineSvc::build(
-        PipelineBuilder::new()
+        PipelineBuilder::<i32, String>::new()
             .with(IncrementStep)
             .with(FailStep),
     );
@@ -121,7 +121,7 @@ async fn test_pipeline_build_error_step_failure_propagates() {
 #[tokio::test]
 async fn test_pipeline_build_edge_config_carried_through() {
     let pipeline = PipelineSvc::build(
-        PipelineBuilder::new()
+        PipelineBuilder::<i32, String>::new()
             .with(IncrementStep)
             .emit_lifecycle_events(true),
     );
@@ -132,9 +132,9 @@ async fn test_pipeline_build_edge_config_carried_through() {
 
 #[tokio::test]
 async fn test_pipeline_with_shared_happy_reuses_step() {
-    let step = Arc::new(IncrementStep);
+    let step: Arc<dyn edge_domain_pipeline::Step<i32, String>> = Arc::new(IncrementStep);
     let pipeline = PipelineSvc::build(
-        PipelineBuilder::new()
+        PipelineBuilder::<i32, String>::new()
             .with_shared(step.clone())
             .with_shared(step),
     );
@@ -145,17 +145,17 @@ async fn test_pipeline_with_shared_happy_reuses_step() {
 
 #[tokio::test]
 async fn test_pipeline_with_shared_error_fail_step_aborts() {
-    let step = Arc::new(FailStep);
-    let pipeline = PipelineSvc::build(PipelineBuilder::new().with_shared(step));
+    let step: Arc<dyn edge_domain_pipeline::Step<i32, String>> = Arc::new(FailStep);
+    let pipeline = PipelineSvc::build(PipelineBuilder::<i32, String>::new().with_shared(step));
     let mut ctx = 0i32;
     assert!(pipeline.run(&mut ctx).await.is_err());
 }
 
 #[tokio::test]
 async fn test_pipeline_with_shared_edge_mix_owned_and_shared() {
-    let shared = Arc::new(IncrementStep);
+    let shared: Arc<dyn edge_domain_pipeline::Step<i32, String>> = Arc::new(IncrementStep);
     let pipeline = PipelineSvc::build(
-        PipelineBuilder::new()
+        PipelineBuilder::<i32, String>::new()
             .with(IncrementStep)
             .with_shared(shared),
     );

@@ -22,7 +22,7 @@ impl Default for DefaultValidator {
 
 #[async_trait::async_trait]
 impl Validator for DefaultValidator {
-    async fn validate(&self, config: &PipelineConfig) -> Result<(), PipelineError> {
+    async fn validate(&self, config: &PipelineConfig) -> Result<(), PipelineError<String>> {
         if !self.enabled {
             return Ok(());
         }

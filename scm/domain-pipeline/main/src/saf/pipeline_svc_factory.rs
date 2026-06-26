@@ -1,5 +1,6 @@
 //! Pipeline service — opaque construction surface for [`Pipeline`](crate::api::Pipeline).
 
+use std::fmt;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -16,8 +17,8 @@ pub const PIPELINE_SVC_FACTORY: &str = "pipeline_svc_factory";
 
 /// Construction handle for [`Pipeline`](crate::api::Pipeline) instances.
 ///
-/// Consumers declare a dependency on `Box<dyn Pipeline<Ctx>>` (exclusive ownership)
-/// or `Arc<dyn Pipeline<Ctx>>` (shared ownership). The concrete implementation
+/// Consumers declare a dependency on `Box<dyn Pipeline<Ctx, E>>` (exclusive ownership)
+/// or `Arc<dyn Pipeline<Ctx, E>>` (shared ownership). The concrete implementation
 /// (`DefaultPipeline`) is never exposed.
 ///
 /// # Examples
@@ -38,7 +39,11 @@ pub struct PipelineSvc;
 
 impl PipelineSvc {
     /// Build a pipeline with exclusive ownership.
-    pub fn build<Ctx: Send + 'static>(builder: PipelineBuilder<Ctx>) -> Box<dyn Pipeline<Ctx>> {
+    pub fn build<Ctx, E>(builder: PipelineBuilder<Ctx, E>) -> Box<dyn Pipeline<Ctx, E>>
+    where
+        Ctx: Send + 'static,
+        E: fmt::Display + fmt::Debug + Send + 'static,
+    {
         let pipeline = DefaultPipeline::with_config(builder.steps, builder.config);
         let pipeline = match builder.event_bus {
             Some(bus) => pipeline.with_event_bus(bus),
@@ -48,9 +53,11 @@ impl PipelineSvc {
     }
 
     /// Build a pipeline with shared ownership.
-    pub fn build_shared<Ctx: Send + 'static>(
-        builder: PipelineBuilder<Ctx>,
-    ) -> Arc<dyn Pipeline<Ctx>> {
+    pub fn build_shared<Ctx, E>(builder: PipelineBuilder<Ctx, E>) -> Arc<dyn Pipeline<Ctx, E>>
+    where
+        Ctx: Send + 'static,
+        E: fmt::Display + fmt::Debug + Send + 'static,
+    {
         let pipeline = DefaultPipeline::with_config(builder.steps, builder.config);
         let pipeline = match builder.event_bus {
             Some(bus) => pipeline.with_event_bus(bus),
@@ -60,7 +67,11 @@ impl PipelineSvc {
     }
 }
 
-impl<Ctx: Send + 'static> PipelineBuilder<Ctx> {
+impl<Ctx, E> PipelineBuilder<Ctx, E>
+where
+    Ctx: Send + 'static,
+    E: Send + 'static,
+{
     /// Create a new builder with default configuration and no steps.
     pub fn new() -> Self {
         Self {
@@ -71,13 +82,13 @@ impl<Ctx: Send + 'static> PipelineBuilder<Ctx> {
     }
 
     /// Append a step to the execution sequence.
-    pub fn with<S: Step<Ctx> + 'static>(mut self, step: S) -> Self {
+    pub fn with<S: Step<Ctx, E> + 'static>(mut self, step: S) -> Self {
         self.steps.push(Arc::new(step));
         self
     }
 
     /// Append a shared step (useful when the same step is reused across pipelines).
-    pub fn with_shared(mut self, step: Arc<dyn Step<Ctx>>) -> Self {
+    pub fn with_shared(mut self, step: Arc<dyn Step<Ctx, E>>) -> Self {
         self.steps.push(step);
         self
     }
@@ -106,7 +117,8 @@ impl<Ctx: Send + 'static> PipelineBuilder<Ctx> {
 
     /// Attach an event bus for lifecycle event emission.
     ///
-    /// Events are only published when [`emit_lifecycle_events`] is also set to `true`.
+    /// Events are only published when [`emit_lifecycle_events`](Self::emit_lifecycle_events)
+    /// is also set to `true`.
     pub fn with_event_bus(mut self, bus: Arc<dyn EventBus>) -> Self {
         self.event_bus = Some(bus);
         self

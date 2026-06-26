@@ -8,8 +8,8 @@ use edge_domain_pipeline::{Pipeline, PipelineBuilder, PipelineError, PipelineSvc
 struct AlwaysPass;
 
 #[async_trait::async_trait]
-impl<Ctx: Send> Step<Ctx> for AlwaysPass {
-    async fn execute(&self, _ctx: &mut Ctx) -> Result<(), PipelineError> {
+impl<Ctx: Send, E: Send + 'static> Step<Ctx, E> for AlwaysPass {
+    async fn execute(&self, _ctx: &mut Ctx) -> Result<(), E> {
         Ok(())
     }
     fn name(&self) -> &str { "always-pass" }
@@ -18,9 +18,9 @@ impl<Ctx: Send> Step<Ctx> for AlwaysPass {
 struct AlwaysFail;
 
 #[async_trait::async_trait]
-impl<Ctx: Send> Step<Ctx> for AlwaysFail {
-    async fn execute(&self, _ctx: &mut Ctx) -> Result<(), PipelineError> {
-        Err(PipelineError::StepFailed("forced failure".to_string()))
+impl<Ctx: Send> Step<Ctx, String> for AlwaysFail {
+    async fn execute(&self, _ctx: &mut Ctx) -> Result<(), String> {
+        Err("forced failure".to_string())
     }
     fn name(&self) -> &str { "always-fail" }
 }
@@ -30,7 +30,7 @@ impl<Ctx: Send> Step<Ctx> for AlwaysFail {
 /// @covers: build
 #[tokio::test]
 async fn test_build_with_steps_happy() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(
         PipelineBuilder::new().with(AlwaysPass).with(AlwaysPass),
     );
     let mut ctx = ();
@@ -40,7 +40,7 @@ async fn test_build_with_steps_happy() {
 /// @covers: build
 #[tokio::test]
 async fn test_build_step_failure_propagated_error() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(
         PipelineBuilder::new().with(AlwaysPass).with(AlwaysFail),
     );
     let mut ctx = ();
@@ -52,7 +52,7 @@ async fn test_build_step_failure_propagated_error() {
 /// @covers: build
 #[tokio::test]
 async fn test_build_empty_pipeline_succeeds_edge() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(PipelineBuilder::new());
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(PipelineBuilder::new());
     let mut ctx = ();
     assert!(pipeline.run(&mut ctx).await.is_ok());
     assert_eq!(pipeline.step_count(), 0);
@@ -63,7 +63,7 @@ async fn test_build_empty_pipeline_succeeds_edge() {
 /// @covers: build_shared
 #[tokio::test]
 async fn test_build_shared_with_steps_happy() {
-    let pipeline: Arc<dyn Pipeline<()>> = PipelineSvc::build_shared(
+    let pipeline: Arc<dyn Pipeline<(), String>> = PipelineSvc::build_shared(
         PipelineBuilder::new().with(AlwaysPass),
     );
     let mut ctx = ();
@@ -73,7 +73,7 @@ async fn test_build_shared_with_steps_happy() {
 /// @covers: build_shared
 #[tokio::test]
 async fn test_build_shared_step_failure_propagated_error() {
-    let pipeline: Arc<dyn Pipeline<()>> = PipelineSvc::build_shared(
+    let pipeline: Arc<dyn Pipeline<(), String>> = PipelineSvc::build_shared(
         PipelineBuilder::new().with(AlwaysFail),
     );
     let mut ctx = ();
@@ -85,7 +85,7 @@ async fn test_build_shared_step_failure_propagated_error() {
 /// @covers: build_shared
 #[tokio::test]
 async fn test_build_shared_is_cloneable_edge() {
-    let pipeline: Arc<dyn Pipeline<()>> = PipelineSvc::build_shared(
+    let pipeline: Arc<dyn Pipeline<(), String>> = PipelineSvc::build_shared(
         PipelineBuilder::new().with(AlwaysPass),
     );
     let clone = Arc::clone(&pipeline);
@@ -99,21 +99,21 @@ async fn test_build_shared_is_cloneable_edge() {
 /// @covers: build
 #[test]
 fn test_build_config_timeout_none_happy() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(PipelineBuilder::new());
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(PipelineBuilder::new());
     assert!(pipeline.config().timeout_per_step.is_none());
 }
 
 /// @covers: build
 #[test]
 fn test_build_config_abort_on_error_default_happy() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(PipelineBuilder::new());
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(PipelineBuilder::new());
     assert!(pipeline.config().abort_on_error);
 }
 
 /// @covers: build
 #[test]
 fn test_build_with_custom_config_edge() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(
         PipelineBuilder::new().abort_on_error(false),
     );
     assert!(!pipeline.config().abort_on_error);
@@ -122,7 +122,7 @@ fn test_build_with_custom_config_edge() {
 /// @covers: build_shared
 #[test]
 fn test_build_shared_config_reflects_builder_edge() {
-    let pipeline: Arc<dyn Pipeline<()>> = PipelineSvc::build_shared(
+    let pipeline: Arc<dyn Pipeline<(), String>> = PipelineSvc::build_shared(
         PipelineBuilder::new()
             .abort_on_error(false)
             .emit_lifecycle_events(true),
@@ -136,14 +136,14 @@ fn test_build_shared_config_reflects_builder_edge() {
 /// @covers: with
 #[test]
 fn test_with_adds_step_to_builder_happy() {
-    let builder: PipelineBuilder<i32> = PipelineBuilder::new().with(AlwaysPass);
+    let builder: PipelineBuilder<i32, String> = PipelineBuilder::new().with(AlwaysPass);
     assert_eq!(builder.steps.len(), 1);
 }
 
 /// @covers: with
 #[test]
 fn test_with_multiple_steps_accumulate_error() {
-    let builder: PipelineBuilder<i32> = PipelineBuilder::new()
+    let builder: PipelineBuilder<i32, String> = PipelineBuilder::new()
         .with(AlwaysPass)
         .with(AlwaysPass)
         .with(AlwaysFail);
@@ -153,7 +153,7 @@ fn test_with_multiple_steps_accumulate_error() {
 /// @covers: with
 #[test]
 fn test_with_empty_then_one_step_edge() {
-    let builder: PipelineBuilder<i32> = PipelineBuilder::new();
+    let builder: PipelineBuilder<i32, String> = PipelineBuilder::new();
     assert!(builder.steps.is_empty());
     let builder = builder.with(AlwaysPass);
     assert_eq!(builder.steps.len(), 1);
@@ -165,16 +165,16 @@ fn test_with_empty_then_one_step_edge() {
 #[test]
 fn test_with_shared_adds_arc_step_happy() {
     let step = Arc::new(AlwaysPass);
-    let builder: PipelineBuilder<()> = PipelineBuilder::new().with_shared(step);
+    let builder: PipelineBuilder<(), String> = PipelineBuilder::new().with_shared(step);
     assert_eq!(builder.steps.len(), 1);
 }
 
 /// @covers: with_shared
 #[test]
 fn test_with_shared_multiple_arcs_accumulate_error() {
-    let s1: Arc<dyn Step<()>> = Arc::new(AlwaysPass);
-    let s2: Arc<dyn Step<()>> = Arc::new(AlwaysFail);
-    let builder: PipelineBuilder<()> = PipelineBuilder::new()
+    let s1: Arc<dyn Step<(), String>> = Arc::new(AlwaysPass);
+    let s2: Arc<dyn Step<(), String>> = Arc::new(AlwaysFail);
+    let builder: PipelineBuilder<(), String> = PipelineBuilder::new()
         .with_shared(s1)
         .with_shared(s2);
     assert_eq!(builder.steps.len(), 2);
@@ -183,8 +183,8 @@ fn test_with_shared_multiple_arcs_accumulate_error() {
 /// @covers: with_shared
 #[test]
 fn test_with_shared_same_arc_twice_edge() {
-    let step: Arc<dyn Step<()>> = Arc::new(AlwaysPass);
-    let builder: PipelineBuilder<()> = PipelineBuilder::new()
+    let step: Arc<dyn Step<(), String>> = Arc::new(AlwaysPass);
+    let builder: PipelineBuilder<(), String> = PipelineBuilder::new()
         .with_shared(Arc::clone(&step))
         .with_shared(step);
     assert_eq!(builder.steps.len(), 2);
@@ -197,7 +197,7 @@ fn test_with_shared_same_arc_twice_edge() {
 fn test_with_timeout_sets_duration_happy() {
     use std::time::Duration;
     let dur = Duration::from_secs(5);
-    let builder: PipelineBuilder<()> = PipelineBuilder::new().with_timeout(dur);
+    let builder: PipelineBuilder<(), String> = PipelineBuilder::new().with_timeout(dur);
     assert_eq!(builder.config.timeout_per_step, Some(dur));
 }
 
@@ -205,7 +205,7 @@ fn test_with_timeout_sets_duration_happy() {
 #[test]
 fn test_with_timeout_zero_duration_stored_error() {
     use std::time::Duration;
-    let builder: PipelineBuilder<()> = PipelineBuilder::new().with_timeout(Duration::ZERO);
+    let builder: PipelineBuilder<(), String> = PipelineBuilder::new().with_timeout(Duration::ZERO);
     assert_eq!(builder.config.timeout_per_step, Some(Duration::ZERO));
 }
 
@@ -213,7 +213,7 @@ fn test_with_timeout_zero_duration_stored_error() {
 #[test]
 fn test_with_timeout_overrides_previous_edge() {
     use std::time::Duration;
-    let builder: PipelineBuilder<()> = PipelineBuilder::new()
+    let builder: PipelineBuilder<(), String> = PipelineBuilder::new()
         .with_timeout(Duration::from_secs(1))
         .with_timeout(Duration::from_secs(10));
     assert_eq!(builder.config.timeout_per_step, Some(Duration::from_secs(10)));
@@ -224,14 +224,14 @@ fn test_with_timeout_overrides_previous_edge() {
 /// @covers: emit_lifecycle_events
 #[test]
 fn test_emit_lifecycle_events_enables_flag_happy() {
-    let builder: PipelineBuilder<()> = PipelineBuilder::new().emit_lifecycle_events(true);
+    let builder: PipelineBuilder<(), String> = PipelineBuilder::new().emit_lifecycle_events(true);
     assert!(builder.config.emit_lifecycle_events);
 }
 
 /// @covers: emit_lifecycle_events
 #[test]
 fn test_emit_lifecycle_events_can_be_disabled_error() {
-    let builder: PipelineBuilder<()> = PipelineBuilder::new()
+    let builder: PipelineBuilder<(), String> = PipelineBuilder::new()
         .emit_lifecycle_events(true)
         .emit_lifecycle_events(false);
     assert!(!builder.config.emit_lifecycle_events);
@@ -240,6 +240,6 @@ fn test_emit_lifecycle_events_can_be_disabled_error() {
 /// @covers: emit_lifecycle_events
 #[test]
 fn test_emit_lifecycle_events_default_is_false_edge() {
-    let builder: PipelineBuilder<()> = PipelineBuilder::new();
+    let builder: PipelineBuilder<(), String> = PipelineBuilder::new();
     assert!(!builder.config.emit_lifecycle_events);
 }

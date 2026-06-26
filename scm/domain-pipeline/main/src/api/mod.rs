@@ -7,7 +7,7 @@ mod traits;
 mod types;
 mod validator;
 
-pub use error::PipelineError;
+pub use error::{PipelineError, StepError};
 pub use pipeline::Pipeline;
 pub use traits::{Step, StepRegistry, Validator};
 pub use types::{PipelineBuilder, PipelineConfig, PipelineDefinition};

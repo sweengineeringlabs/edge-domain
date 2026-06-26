@@ -10,8 +10,8 @@ use edge_domain_pipeline::{
 struct AddStep(i32);
 
 #[async_trait::async_trait]
-impl Step<i32> for AddStep {
-    async fn execute(&self, ctx: &mut i32) -> Result<(), PipelineError> {
+impl<E: Send + 'static> Step<i32, E> for AddStep {
+    async fn execute(&self, ctx: &mut i32) -> Result<(), E> {
         *ctx += self.0;
         Ok(())
     }
@@ -44,7 +44,7 @@ fn test_step_registry_svc_constant_edge_is_snake_case() {
 /// @covers: StepRegistry
 #[tokio::test]
 async fn test_step_registry_svc_happy_multi_step_pipeline_executes_all() {
-    let mut registry: Box<dyn StepRegistry<i32>> = StepRegistrySvc::create::<i32>();
+    let mut registry: Box<dyn StepRegistry<Ctx = i32, E = String>> = StepRegistrySvc::create::<i32, String>();
     registry.register("add10", Arc::new(AddStep(10)));
     registry.register("add5", Arc::new(AddStep(5)));
     let def = PipelineDefinition {
@@ -60,7 +60,7 @@ async fn test_step_registry_svc_happy_multi_step_pipeline_executes_all() {
 /// @covers: StepRegistry
 #[test]
 fn test_step_registry_svc_error_build_fails_on_first_unknown() {
-    let mut registry: Box<dyn StepRegistry<i32>> = StepRegistrySvc::create::<i32>();
+    let mut registry: Box<dyn StepRegistry<Ctx = i32, E = String>> = StepRegistrySvc::create::<i32, String>();
     registry.register("known", Arc::new(AddStep(1)));
     let def = PipelineDefinition {
         steps: vec!["known".to_owned(), "absent".to_owned()],
@@ -73,10 +73,39 @@ fn test_step_registry_svc_error_build_fails_on_first_unknown() {
     }
 }
 
+// ── step_error_for ────────────────────────────────────────────────────────────
+
+/// @covers: step_error_for
+#[test]
+fn test_step_error_for_happy_wraps_name_and_cause() {
+    let registry = StepRegistrySvc::create::<i32, String>();
+    let err = registry.step_error_for("my-step", "some error".to_string());
+    assert_eq!(err.step_name, "my-step");
+    assert_eq!(err.cause, "some error");
+}
+
+/// @covers: step_error_for
+#[test]
+fn test_step_error_for_error_empty_step_name_still_sets_cause() {
+    let registry = StepRegistrySvc::create::<i32, String>();
+    let err = registry.step_error_for("", "cause".to_string());
+    assert_eq!(err.step_name, "");
+    assert_eq!(err.cause, "cause");
+}
+
+/// @covers: step_error_for
+#[test]
+fn test_step_error_for_edge_whitespace_step_name() {
+    let registry = StepRegistrySvc::create::<i32, String>();
+    let err = registry.step_error_for("  spaces  ", "cause".to_string());
+    assert_eq!(err.step_name, "  spaces  ", "whitespace in step name must be preserved verbatim");
+    assert_eq!(err.cause, "cause");
+}
+
 /// @covers: StepRegistry
 #[tokio::test]
 async fn test_step_registry_svc_edge_step_registered_multiple_times_only_last_counts() {
-    let mut registry: Box<dyn StepRegistry<i32>> = StepRegistrySvc::create::<i32>();
+    let mut registry: Box<dyn StepRegistry<Ctx = i32, E = String>> = StepRegistrySvc::create::<i32, String>();
     registry.register("s", Arc::new(AddStep(100)));
     registry.register("s", Arc::new(AddStep(1)));
     let def = PipelineDefinition { steps: vec!["s".to_owned()], ..Default::default() };

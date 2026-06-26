@@ -1,4 +1,4 @@
-//! [`PipelineBuilder`] — fluent builder for assembling a pipeline from steps and configuration.
+//! [`PipelineBuilder<Ctx, E>`] — fluent builder for assembling a pipeline from steps and config.
 
 use std::sync::Arc;
 
@@ -8,12 +8,14 @@ use crate::api::{PipelineConfig, Step};
 
 /// Fluent builder for assembling a pipeline.
 ///
-/// Accepts steps one at a time (or shared arcs) and accumulates configuration.
+/// `E` is the consumer's domain error type. All steps added via [`with`](Self::with) or
+/// [`with_shared`](Self::with_shared) must implement `Step<Ctx, E>`.
+///
 /// Hand the completed builder to [`PipelineSvc::build`](crate::PipelineSvc::build) to
 /// construct the concrete pipeline.
-pub struct PipelineBuilder<Ctx> {
+pub struct PipelineBuilder<Ctx, E> {
     /// Ordered list of steps to execute.
-    pub steps: Vec<Arc<dyn Step<Ctx>>>,
+    pub steps: Vec<Arc<dyn Step<Ctx, E>>>,
     /// Accumulated pipeline configuration.
     pub config: PipelineConfig,
     /// Optional event bus for lifecycle event emission.

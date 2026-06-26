@@ -132,7 +132,7 @@ fn test_validator_is_enabled_instances_error() {
 // validate_builder has `where Self: Sized` (keeps Validator dyn-compatible), so
 // it must be tested through a concrete type, not Box<dyn Validator>.
 
-use edge_domain_pipeline::{Validator};
+use edge_domain_pipeline::Validator;
 
 struct ConcreteValidator {
     enabled: bool,
@@ -140,7 +140,7 @@ struct ConcreteValidator {
 
 #[async_trait::async_trait]
 impl Validator for ConcreteValidator {
-    async fn validate(&self, config: &PipelineConfig) -> Result<(), PipelineError> {
+    async fn validate(&self, config: &PipelineConfig) -> Result<(), PipelineError<String>> {
         if !self.enabled { return Ok(()); }
         if config.abort_on_error { Ok(()) }
         else { Err(PipelineError::ConfigError("abort_on_error must be true".to_string())) }
@@ -152,7 +152,7 @@ impl Validator for ConcreteValidator {
 #[tokio::test]
 async fn test_validate_builder_happy_valid_config_succeeds() {
     let validator = ConcreteValidator { enabled: true };
-    let builder = PipelineBuilder::<i32>::new(); // default config has abort_on_error=true
+    let builder = PipelineBuilder::<i32, String>::new();
     assert!(validator.validate_builder(&builder).await.is_ok());
 }
 
@@ -160,7 +160,7 @@ async fn test_validate_builder_happy_valid_config_succeeds() {
 #[tokio::test]
 async fn test_validate_builder_error_invalid_config_fails() {
     let validator = ConcreteValidator { enabled: true };
-    let builder = PipelineBuilder::<i32>::new().abort_on_error(false);
+    let builder = PipelineBuilder::<i32, String>::new().abort_on_error(false);
     match validator.validate_builder(&builder).await {
         Err(PipelineError::ConfigError(_)) => {}
         other => panic!("expected ConfigError, got {:?}", other),
@@ -171,7 +171,7 @@ async fn test_validate_builder_error_invalid_config_fails() {
 #[tokio::test]
 async fn test_validate_builder_edge_disabled_validator_passes_any_config() {
     let validator = ConcreteValidator { enabled: false };
-    let builder = PipelineBuilder::<i32>::new().abort_on_error(false);
+    let builder = PipelineBuilder::<i32, String>::new().abort_on_error(false);
     assert!(validator.validate_builder(&builder).await.is_ok());
 }
 
@@ -209,7 +209,6 @@ async fn test_validator_enabled_affects_behavior_happy() {
 
     let config = PipelineConfig::default();
 
-    // Both should validate but from different enabled states
     assert!(enabled.is_enabled());
     assert!(enabled.validate(&config).await.is_ok());
 
@@ -235,7 +234,6 @@ fn test_validator_state_independence_error() {
 async fn test_validator_complex_config_edge() {
     let validator = ValidatorSvc::create(true);
 
-    // Test with various config combinations (all must have abort_on_error=true for enabled validator)
     let configs = vec![
         PipelineConfig {
             timeout_per_step: Some(Duration::from_millis(100)),

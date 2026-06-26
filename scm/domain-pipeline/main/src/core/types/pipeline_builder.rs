@@ -1,6 +1,6 @@
 use crate::api::{PipelineBuilder, PipelineConfig};
 
-impl<Ctx: Send + 'static> Default for PipelineBuilder<Ctx> {
+impl<Ctx: Send + 'static, E: Send + 'static> Default for PipelineBuilder<Ctx, E> {
     fn default() -> Self {
         Self {
             steps: Vec::new(),

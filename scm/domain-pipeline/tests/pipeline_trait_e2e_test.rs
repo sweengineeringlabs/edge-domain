@@ -11,8 +11,8 @@ use std::time::Duration;
 struct DummyStep;
 
 #[async_trait::async_trait]
-impl Step<()> for DummyStep {
-    async fn execute(&self, _ctx: &mut ()) -> Result<(), PipelineError> {
+impl<Ctx: Send, E: Send + 'static> Step<Ctx, E> for DummyStep {
+    async fn execute(&self, _ctx: &mut Ctx) -> Result<(), E> {
         Ok(())
     }
 
@@ -24,9 +24,9 @@ impl Step<()> for DummyStep {
 struct FailStep;
 
 #[async_trait::async_trait]
-impl Step<()> for FailStep {
-    async fn execute(&self, _ctx: &mut ()) -> Result<(), PipelineError> {
-        Err(PipelineError::StepFailed("test failure".to_string()))
+impl Step<(), String> for FailStep {
+    async fn execute(&self, _ctx: &mut ()) -> Result<(), String> {
+        Err("test failure".to_string())
     }
 
     fn name(&self) -> &str {
@@ -39,7 +39,7 @@ impl Step<()> for FailStep {
 /// @covers: Pipeline::execute _happy path
 #[tokio::test]
 async fn test_pipeline_trait_execute_happy_empty() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(PipelineBuilder::new());
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(PipelineBuilder::new());
     let mut ctx = ();
     assert!(pipeline.run(&mut ctx).await.is_ok());
 }
@@ -47,7 +47,7 @@ async fn test_pipeline_trait_execute_happy_empty() {
 /// @covers: Pipeline::execute _happy path
 #[tokio::test]
 async fn test_pipeline_trait_execute_happy_with_steps() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(
         PipelineBuilder::new().with(DummyStep).with(DummyStep),
     );
     let mut ctx = ();
@@ -57,7 +57,7 @@ async fn test_pipeline_trait_execute_happy_with_steps() {
 /// @covers: Pipeline::execute _error path
 #[tokio::test]
 async fn test_pipeline_trait_execute_error_fails_on_step() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(
         PipelineBuilder::new().with(DummyStep).with(FailStep).with(DummyStep),
     );
     let mut ctx = ();
@@ -68,11 +68,11 @@ async fn test_pipeline_trait_execute_error_fails_on_step() {
 /// @covers: Pipeline::execute _edge case
 #[tokio::test]
 async fn test_pipeline_trait_execute_edge_many_steps() {
-    let mut builder = PipelineBuilder::new();
+    let mut builder: PipelineBuilder<(), String> = PipelineBuilder::new();
     for _ in 0..50 {
         builder = builder.with(DummyStep);
     }
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(builder);
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(builder);
     let mut ctx = ();
     assert!(pipeline.run(&mut ctx).await.is_ok());
 }
@@ -82,14 +82,14 @@ async fn test_pipeline_trait_execute_edge_many_steps() {
 /// @covers: Pipeline::step_count _happy path
 #[test]
 fn test_pipeline_trait_step_count_happy_empty() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(PipelineBuilder::new());
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(PipelineBuilder::new());
     assert_eq!(pipeline.step_count(), 0);
 }
 
 /// @covers: Pipeline::step_count _happy path
 #[test]
 fn test_pipeline_trait_step_count_happy_with_steps() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(
         PipelineBuilder::new().with(DummyStep).with(DummyStep).with(DummyStep),
     );
     assert_eq!(pipeline.step_count(), 3);
@@ -98,11 +98,11 @@ fn test_pipeline_trait_step_count_happy_with_steps() {
 /// @covers: Pipeline::step_count _edge case
 #[test]
 fn test_pipeline_trait_step_count_edge_many_steps() {
-    let mut builder = PipelineBuilder::new();
+    let mut builder: PipelineBuilder<(), String> = PipelineBuilder::new();
     for _ in 0..100 {
         builder = builder.with(DummyStep);
     }
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(builder);
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(builder);
     assert_eq!(pipeline.step_count(), 100);
 }
 
@@ -111,25 +111,25 @@ fn test_pipeline_trait_step_count_edge_many_steps() {
 /// @covers: Pipeline::is_empty _happy path (true case)
 #[test]
 fn test_pipeline_trait_is_empty_happy_true() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(PipelineBuilder::new());
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(PipelineBuilder::new());
     assert!(pipeline.is_empty());
 }
 
 /// @covers: Pipeline::is_empty _happy path (false case)
 #[test]
 fn test_pipeline_trait_is_empty_happy_false() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(PipelineBuilder::new().with(DummyStep));
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(PipelineBuilder::new().with(DummyStep));
     assert!(!pipeline.is_empty());
 }
 
 /// @covers: Pipeline::is_empty _edge case
 #[test]
 fn test_pipeline_trait_is_empty_edge_many_steps() {
-    let mut builder = PipelineBuilder::new();
+    let mut builder: PipelineBuilder<(), String> = PipelineBuilder::new();
     for _ in 0..50 {
         builder = builder.with(DummyStep);
     }
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(builder);
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(builder);
     assert!(!pipeline.is_empty());
 }
 
@@ -138,7 +138,7 @@ fn test_pipeline_trait_is_empty_edge_many_steps() {
 /// @covers: Pipeline::config _happy path (default config)
 #[test]
 fn test_pipeline_trait_config_happy_default() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(PipelineBuilder::new());
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(PipelineBuilder::new());
     let config = pipeline.config();
     assert!(config.timeout_per_step.is_none());
     assert!(!config.emit_lifecycle_events);
@@ -148,7 +148,7 @@ fn test_pipeline_trait_config_happy_default() {
 /// @covers: Pipeline::config _happy path (custom config)
 #[test]
 fn test_pipeline_trait_config_happy_custom() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(
         PipelineBuilder::new()
             .with_timeout(Duration::from_secs(5))
             .emit_lifecycle_events(true)
@@ -163,7 +163,7 @@ fn test_pipeline_trait_config_happy_custom() {
 /// @covers: Pipeline::config _edge case
 #[test]
 fn test_pipeline_trait_config_edge_all_options_set() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(
         PipelineBuilder::new()
             .with_timeout(Duration::from_secs(30))
             .emit_lifecycle_events(true)
@@ -182,8 +182,8 @@ fn test_pipeline_trait_config_edge_all_options_set() {
 struct MutatingStep(i32);
 
 #[async_trait::async_trait]
-impl Step<i32> for MutatingStep {
-    async fn execute(&self, ctx: &mut i32) -> Result<(), PipelineError> {
+impl<E: Send + 'static> Step<i32, E> for MutatingStep {
+    async fn execute(&self, ctx: &mut i32) -> Result<(), E> {
         *ctx += self.0;
         Ok(())
     }
@@ -196,9 +196,9 @@ impl Step<i32> for MutatingStep {
 struct ErrorStep;
 
 #[async_trait::async_trait]
-impl Step<i32> for ErrorStep {
-    async fn execute(&self, _ctx: &mut i32) -> Result<(), PipelineError> {
-        Err(PipelineError::StepFailed("error".to_string()))
+impl Step<i32, String> for ErrorStep {
+    async fn execute(&self, _ctx: &mut i32) -> Result<(), String> {
+        Err("error".to_string())
     }
 
     fn name(&self) -> &str {
@@ -212,7 +212,7 @@ impl Step<i32> for ErrorStep {
 #[tokio::test]
 async fn test_step_trait_execute_happy_succeeds() {
     let step = DummyStep;
-    let step_ref: &dyn Step<()> = &step;
+    let step_ref: &dyn Step<(), String> = &step;
     let mut ctx = ();
     assert!(step_ref.execute(&mut ctx).await.is_ok());
 }
@@ -221,7 +221,7 @@ async fn test_step_trait_execute_happy_succeeds() {
 #[tokio::test]
 async fn test_step_trait_execute_happy_mutates() {
     let step = MutatingStep(10);
-    let step_ref: &dyn Step<i32> = &step;
+    let step_ref: &dyn Step<i32, String> = &step;
     let mut ctx = 5;
     assert!(step_ref.execute(&mut ctx).await.is_ok());
     assert_eq!(ctx, 15);
@@ -231,7 +231,7 @@ async fn test_step_trait_execute_happy_mutates() {
 #[tokio::test]
 async fn test_step_trait_execute_error_returns_error() {
     let step = ErrorStep;
-    let step_ref: &dyn Step<i32> = &step;
+    let step_ref: &dyn Step<i32, String> = &step;
     let mut ctx = 0;
     let result = step_ref.execute(&mut ctx).await;
     assert!(result.is_err());
@@ -241,7 +241,7 @@ async fn test_step_trait_execute_error_returns_error() {
 #[tokio::test]
 async fn test_step_trait_execute_edge_large_mutation() {
     let step = MutatingStep(i32::MAX / 2);
-    let step_ref: &dyn Step<i32> = &step;
+    let step_ref: &dyn Step<i32, String> = &step;
     let mut ctx = i32::MAX / 2;
     assert!(step_ref.execute(&mut ctx).await.is_ok());
 }
@@ -252,7 +252,7 @@ async fn test_step_trait_execute_edge_large_mutation() {
 #[test]
 fn test_step_trait_name_happy_returns_name() {
     let step = DummyStep;
-    let step_ref: &dyn Step<()> = &step;
+    let step_ref: &dyn Step<(), String> = &step;
     assert_eq!(step_ref.name(), "dummy");
 }
 
@@ -260,7 +260,7 @@ fn test_step_trait_name_happy_returns_name() {
 #[test]
 fn test_step_trait_name_happy_mutating_step() {
     let step = MutatingStep(0);
-    let step_ref: &dyn Step<i32> = &step;
+    let step_ref: &dyn Step<i32, String> = &step;
     assert_eq!(step_ref.name(), "mutating");
 }
 
@@ -268,7 +268,7 @@ fn test_step_trait_name_happy_mutating_step() {
 #[test]
 fn test_step_trait_name_edge_error_step() {
     let step = ErrorStep;
-    let step_ref: &dyn Step<i32> = &step;
+    let step_ref: &dyn Step<i32, String> = &step;
     assert_eq!(step_ref.name(), "error");
 }
 
@@ -333,4 +333,36 @@ fn test_validator_trait_is_enabled_edge_consistency() {
 
     assert!(validator_true.is_enabled());
     assert!(!validator_false.is_enabled());
+}
+
+// Validator + Pipeline integration
+
+/// @covers: Validator used with pipeline builder — enabled, valid config
+#[tokio::test]
+async fn test_pipeline_trait_validate_then_build_happy() {
+    let validator = ValidatorSvc::create(true);
+    let config = PipelineConfig::default();
+    validator.validate(&config).await.expect("default config must be valid");
+
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(
+        PipelineBuilder::new().with(DummyStep),
+    );
+    let mut ctx = ();
+    assert!(pipeline.run(&mut ctx).await.is_ok());
+}
+
+/// @covers: PipelineError returned through pipeline run — error wraps cause
+#[tokio::test]
+async fn test_pipeline_trait_error_contains_step_name_error() {
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(
+        PipelineBuilder::new().with(FailStep),
+    );
+    let mut ctx = ();
+    match pipeline.run(&mut ctx).await {
+        Err(PipelineError::StepFailed(e)) => {
+            assert_eq!(e.step_name, "fail-step");
+            assert_eq!(e.cause, "test failure");
+        }
+        other => panic!("expected StepFailed, got {:?}", other),
+    }
 }

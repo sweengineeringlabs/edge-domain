@@ -1,24 +1,29 @@
-//! [`PipelineError`] — error type for pipeline execution.
+//! [`PipelineError<E>`] — error type for pipeline execution.
 
-use thiserror::Error;
+use super::step_error::StepError;
 
 /// Errors that can occur during pipeline execution.
+///
+/// `E` is the consumer's domain error type (e.g. `SecurityError`). The engine
+/// wraps it in [`StepFailed`](PipelineError::StepFailed) with the step name added
+/// as context. Engine-level faults (`StepTimeout`, `ConfigError`, `UnknownStep`) do
+/// not carry `E`.
 #[non_exhaustive]
-#[derive(Debug, Error, Clone)]
-pub enum PipelineError {
-    /// A step returned an error.
-    #[error("step failed: {0}")]
-    StepFailed(String),
+#[derive(Debug)]
+pub enum PipelineError<E> {
+    /// A step returned `Err(cause)`. The engine adds `step_name` context.
+    StepFailed(StepError<E>),
 
-    /// A step exceeded its configured timeout.
-    #[error("step timeout exceeded")]
-    StepTimeout,
+    /// A step exceeded its configured per-step timeout.
+    StepTimeout {
+        /// Name of the step that timed out.
+        step_name: String,
+    },
 
-    /// Pipeline configuration error.
-    #[error("configuration error: {0}")]
+    /// Invalid pipeline configuration (startup-time).
     ConfigError(String),
 
-    /// A step name in a [`PipelineDefinition`](crate::PipelineDefinition) was not found in the registry.
-    #[error("unknown step: {0}")]
+    /// A step name in a [`PipelineDefinition`](crate::PipelineDefinition) was not found
+    /// in the registry (startup-time).
     UnknownStep(String),
 }

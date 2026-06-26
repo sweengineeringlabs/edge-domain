@@ -3,15 +3,15 @@
 //! Ensures all trait methods have proper test coverage across happy, error, and edge paths.
 
 use edge_domain_pipeline::{
-    Pipeline, PipelineBuilder, PipelineConfig, PipelineError, PipelineSvc, Step,
+    Pipeline, PipelineBuilder, PipelineConfig, PipelineSvc, Step,
 };
 use std::time::Duration;
 
 struct AlwaysPassStep;
 
 #[async_trait::async_trait]
-impl Step<()> for AlwaysPassStep {
-    async fn execute(&self, _ctx: &mut ()) -> Result<(), PipelineError> {
+impl<Ctx: Send, E: Send + 'static> Step<Ctx, E> for AlwaysPassStep {
+    async fn execute(&self, _ctx: &mut Ctx) -> Result<(), E> {
         Ok(())
     }
     fn name(&self) -> &str { "always-pass" }
@@ -24,9 +24,9 @@ impl FailureStep {
 }
 
 #[async_trait::async_trait]
-impl Step<()> for FailureStep {
-    async fn execute(&self, _ctx: &mut ()) -> Result<(), PipelineError> {
-        Err(PipelineError::StepFailed(self.reason.clone()))
+impl Step<(), String> for FailureStep {
+    async fn execute(&self, _ctx: &mut ()) -> Result<(), String> {
+        Err(self.reason.clone())
     }
     fn name(&self) -> &str { "failure" }
 }
@@ -38,8 +38,8 @@ impl CounterStep {
 }
 
 #[async_trait::async_trait]
-impl Step<i32> for CounterStep {
-    async fn execute(&self, ctx: &mut i32) -> Result<(), PipelineError> {
+impl<E: Send + 'static> Step<i32, E> for CounterStep {
+    async fn execute(&self, ctx: &mut i32) -> Result<(), E> {
         *ctx += self.value;
         Ok(())
     }
@@ -50,14 +50,14 @@ impl Step<i32> for CounterStep {
 
 #[tokio::test]
 async fn test_pipeline_execute_empty_happy() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(PipelineBuilder::new());
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(PipelineBuilder::new());
     let mut ctx = ();
     assert!(pipeline.run(&mut ctx).await.is_ok());
 }
 
 #[tokio::test]
 async fn test_pipeline_execute_passing_steps_happy() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(
         PipelineBuilder::new().with(AlwaysPassStep).with(AlwaysPassStep).with(AlwaysPassStep),
     );
     let mut ctx = ();
@@ -66,7 +66,7 @@ async fn test_pipeline_execute_passing_steps_happy() {
 
 #[tokio::test]
 async fn test_pipeline_execute_step_failure_error() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(
         PipelineBuilder::new()
             .with(AlwaysPassStep)
             .with(FailureStep::new("intentional failure"))
@@ -78,7 +78,7 @@ async fn test_pipeline_execute_step_failure_error() {
 
 #[tokio::test]
 async fn test_pipeline_execute_stops_on_error_error() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(
         PipelineBuilder::new()
             .with(AlwaysPassStep)
             .with(FailureStep::new("stop here"))
@@ -90,18 +90,18 @@ async fn test_pipeline_execute_stops_on_error_error() {
 
 #[tokio::test]
 async fn test_pipeline_execute_many_steps_edge() {
-    let mut builder = PipelineBuilder::new();
+    let mut builder: PipelineBuilder<(), String> = PipelineBuilder::new();
     for _ in 0..500 {
         builder = builder.with(AlwaysPassStep);
     }
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(builder);
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(builder);
     let mut ctx = ();
     assert!(pipeline.run(&mut ctx).await.is_ok());
 }
 
 #[tokio::test]
 async fn test_pipeline_execute_with_mutations_edge() {
-    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(
+    let pipeline: Box<dyn Pipeline<i32, String>> = PipelineSvc::build(
         PipelineBuilder::new()
             .with(CounterStep::new(10))
             .with(CounterStep::new(20))
@@ -116,13 +116,13 @@ async fn test_pipeline_execute_with_mutations_edge() {
 
 #[test]
 fn test_pipeline_step_count_empty_happy() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(PipelineBuilder::new());
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(PipelineBuilder::new());
     assert_eq!(pipeline.step_count(), 0);
 }
 
 #[test]
 fn test_pipeline_step_count_with_steps_happy() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(
         PipelineBuilder::new().with(AlwaysPassStep).with(AlwaysPassStep).with(AlwaysPassStep),
     );
     assert_eq!(pipeline.step_count(), 3);
@@ -130,17 +130,17 @@ fn test_pipeline_step_count_with_steps_happy() {
 
 #[test]
 fn test_pipeline_step_count_many_steps_edge() {
-    let mut builder = PipelineBuilder::new();
+    let mut builder: PipelineBuilder<(), String> = PipelineBuilder::new();
     for _ in 0..250 {
         builder = builder.with(AlwaysPassStep);
     }
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(builder);
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(builder);
     assert_eq!(pipeline.step_count(), 250);
 }
 
 #[test]
 fn test_pipeline_step_count_consistency_error() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(
         PipelineBuilder::new().with(AlwaysPassStep).with(AlwaysPassStep),
     );
     assert_eq!(pipeline.step_count(), 2);
@@ -150,33 +150,37 @@ fn test_pipeline_step_count_consistency_error() {
 
 #[test]
 fn test_pipeline_is_empty_true_happy() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(PipelineBuilder::new());
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(PipelineBuilder::new());
     assert!(pipeline.is_empty());
 }
 
 #[test]
 fn test_pipeline_is_empty_false_happy() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(PipelineBuilder::new().with(AlwaysPassStep));
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(
+        PipelineBuilder::new().with(AlwaysPassStep),
+    );
     assert!(!pipeline.is_empty());
 }
 
 #[test]
 fn test_pipeline_is_empty_many_steps_edge() {
-    let mut builder = PipelineBuilder::new();
+    let mut builder: PipelineBuilder<(), String> = PipelineBuilder::new();
     for _ in 0..100 {
         builder = builder.with(AlwaysPassStep);
     }
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(builder);
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(builder);
     assert!(!pipeline.is_empty());
 }
 
 #[test]
 fn test_pipeline_is_empty_consistency_error() {
-    let empty: Box<dyn Pipeline<()>> = PipelineSvc::build(PipelineBuilder::new());
+    let empty: Box<dyn Pipeline<(), String>> = PipelineSvc::build(PipelineBuilder::new());
     assert!(empty.is_empty());
     assert_eq!(empty.step_count(), 0);
 
-    let non_empty: Box<dyn Pipeline<()>> = PipelineSvc::build(PipelineBuilder::new().with(AlwaysPassStep));
+    let non_empty: Box<dyn Pipeline<(), String>> = PipelineSvc::build(
+        PipelineBuilder::new().with(AlwaysPassStep),
+    );
     assert!(!non_empty.is_empty());
     assert_eq!(non_empty.step_count(), 1);
 }
@@ -185,7 +189,7 @@ fn test_pipeline_is_empty_consistency_error() {
 
 #[test]
 fn test_pipeline_config_default_happy() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(PipelineBuilder::new());
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(PipelineBuilder::new());
     let config = pipeline.config();
     assert!(config.timeout_per_step.is_none());
     assert!(!config.emit_lifecycle_events);
@@ -194,7 +198,7 @@ fn test_pipeline_config_default_happy() {
 
 #[test]
 fn test_pipeline_config_custom_happy() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(
         PipelineBuilder::new()
             .with_timeout(Duration::from_secs(10))
             .emit_lifecycle_events(true)
@@ -208,7 +212,7 @@ fn test_pipeline_config_custom_happy() {
 
 #[test]
 fn test_pipeline_config_all_enabled_edge() {
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(
         PipelineBuilder::new()
             .with_timeout(Duration::from_secs(5))
             .emit_lifecycle_events(true)
@@ -227,7 +231,9 @@ fn test_pipeline_config_all_disabled_error() {
         emit_lifecycle_events: false,
         abort_on_error: false,
     };
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(PipelineBuilder { steps: vec![], config: custom, event_bus: None });
+    let pipeline: Box<dyn Pipeline<(), String>> = PipelineSvc::build(
+        PipelineBuilder { steps: vec![], config: custom, event_bus: None },
+    );
     let config = pipeline.config();
     assert!(config.timeout_per_step.is_none());
     assert!(!config.emit_lifecycle_events);

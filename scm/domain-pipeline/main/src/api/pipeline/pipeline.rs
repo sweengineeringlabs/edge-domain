@@ -1,40 +1,40 @@
-//! [`Pipeline<Ctx>`] — orchestrates a sequence of steps.
+//! [`Pipeline<Ctx, E>`] — orchestrates a sequence of steps.
 
 use edge_domain_service::Service;
 
 use super::super::error::PipelineError;
 use super::super::types::PipelineBuilder;
 
-/// Orchestrates a sequence of [`Step`] operations.
+/// Orchestrates a sequence of [`Step`](crate::Step) operations.
 ///
-/// `Pipeline<Ctx>` extends [`Service`] with `Request = Ctx` and `Response = Ctx`,
+/// `Pipeline<Ctx, E>` extends [`Service`] with `Request = Ctx` and `Response = Ctx`,
 /// making every pipeline a first-class domain service. The dispatcher bridge
-/// ([`edge_domain_handler::IntoHandler`]) fires automatically on any `Pipeline<Ctx>`
+/// ([`edge_domain_handler::IntoHandler`]) fires automatically on any `Pipeline<Ctx, E>`
 /// implementor — no wrapper required.
 ///
-/// The pipeline executes steps in order, passing a mutable context through each step.
-/// Each step enriches or validates the context. If any step fails, the pipeline
-/// halts and returns the error.
+/// `E` is the consumer's domain error type. All steps registered in this pipeline
+/// must implement `Step<Ctx, E>`. The engine wraps step errors in
+/// [`PipelineError::StepFailed`] with the step name added as context.
 ///
 /// # Invariant
 ///
 /// Steps execute sequentially. The pipeline is not parallel.
 #[async_trait::async_trait]
-pub trait Pipeline<Ctx: Send + 'static>: Service<Request = Ctx, Response = Ctx> {
+pub trait Pipeline<Ctx, E>: Service<Request = Ctx, Response = Ctx>
+where
+    Ctx: Send + 'static,
+    E: Send + 'static,
+{
     /// Run all steps in order, passing a mutable context through each.
     ///
-    /// Steps execute sequentially; the context is mutated in-place. On the
-    /// first step error, execution stops and the error is returned (unless
-    /// `abort_on_error` is `false` in the pipeline config).
-    ///
-    /// Distinct from [`Service::execute`] (which takes ownership for dispatcher
-    /// bridge use): `run` is the step-by-step orchestration entry point.
+    /// On the first step error the engine wraps it in
+    /// [`PipelineError::StepFailed`] and halts (unless `abort_on_error = false`).
     ///
     /// # Errors
     ///
-    /// Returns the first [`PipelineError`] encountered. The context may be
+    /// Returns the first [`PipelineError<E>`] encountered. The context may be
     /// partially mutated from earlier steps.
-    async fn run(&self, ctx: &mut Ctx) -> Result<(), PipelineError>;
+    async fn run(&self, ctx: &mut Ctx) -> Result<(), PipelineError<E>>;
 
     /// Return the number of steps in this pipeline.
     fn step_count(&self) -> usize;
@@ -48,7 +48,7 @@ pub trait Pipeline<Ctx: Send + 'static>: Service<Request = Ctx, Response = Ctx> 
     fn config(&self) -> &super::super::PipelineConfig;
 
     /// Create a new fluent builder for assembling a pipeline.
-    fn new_builder() -> PipelineBuilder<Ctx>
+    fn new_builder() -> PipelineBuilder<Ctx, E>
     where
         Self: Sized,
     {
@@ -86,8 +86,8 @@ mod tests {
     }
 
     #[async_trait::async_trait]
-    impl Pipeline<i32> for MockPipeline {
-        async fn run(&self, _ctx: &mut i32) -> Result<(), PipelineError> {
+    impl Pipeline<i32, String> for MockPipeline {
+        async fn run(&self, _ctx: &mut i32) -> Result<(), PipelineError<String>> {
             Ok(())
         }
 
@@ -172,4 +172,11 @@ mod tests {
         let ref2 = pipeline.config();
         assert_eq!(ref1.timeout_per_step, ref2.timeout_per_step);
     }
+
+    #[test]
+    fn test_pipeline_is_empty_fmt_errors_produce_non_empty_display() {
+        let err: PipelineError<String> = PipelineError::ConfigError("bad".to_string());
+        assert!(!format!("{err}").is_empty());
+    }
 }
+

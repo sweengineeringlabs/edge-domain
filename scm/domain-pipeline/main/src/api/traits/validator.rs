@@ -6,16 +6,16 @@ use crate::api::{PipelineBuilder, PipelineConfig, PipelineError};
 #[async_trait::async_trait]
 pub trait Validator: Send + Sync {
     /// Validate the pipeline configuration.
-    async fn validate(&self, config: &PipelineConfig) -> Result<(), PipelineError>;
+    async fn validate(&self, config: &PipelineConfig) -> Result<(), PipelineError<String>>;
 
     /// Validate the configuration embedded in a pipeline builder.
     ///
     /// Default: delegates to [`validate`](Validator::validate) using the builder's config.
     /// The `where Self: Sized` bound keeps the overall trait dyn-compatible.
-    async fn validate_builder<Ctx: Send + 'static>(
+    async fn validate_builder<Ctx: Send + 'static, E: Send + 'static>(
         &self,
-        builder: &PipelineBuilder<Ctx>,
-    ) -> Result<(), PipelineError>
+        builder: &PipelineBuilder<Ctx, E>,
+    ) -> Result<(), PipelineError<String>>
     where
         Self: Sized,
     {
@@ -34,7 +34,7 @@ mod tests {
 
     #[async_trait::async_trait]
     impl Validator for AlwaysValidValidator {
-        async fn validate(&self, _config: &PipelineConfig) -> Result<(), PipelineError> {
+        async fn validate(&self, _config: &PipelineConfig) -> Result<(), PipelineError<String>> {
             Ok(())
         }
 
@@ -47,7 +47,7 @@ mod tests {
 
     #[async_trait::async_trait]
     impl Validator for AlwaysFailValidator {
-        async fn validate(&self, _config: &PipelineConfig) -> Result<(), PipelineError> {
+        async fn validate(&self, _config: &PipelineConfig) -> Result<(), PipelineError<String>> {
             Err(PipelineError::ConfigError("validation failed".to_string()))
         }
 

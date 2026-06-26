@@ -1,5 +1,6 @@
-//! [`DefaultPipeline<Ctx>`] — orchestrates sequential step execution.
+//! [`DefaultPipeline<Ctx, E>`] — orchestrates sequential step execution.
 
+use std::fmt;
 use std::sync::Arc;
 
 use edge_domain_event::{DomainEvent, EventBus};
@@ -7,25 +8,23 @@ use edge_domain_service::{Service, ServiceError};
 use futures::future::BoxFuture;
 use tokio::time;
 
-use crate::api::{Pipeline, PipelineConfig, PipelineError, Step};
+use crate::api::{Pipeline, PipelineConfig, PipelineError, Step, StepError};
 
 // ── DefaultPipeline ───────────────────────────────────────────────────────────
 
 /// Executes a sequence of steps in order, passing context through each.
 #[derive(Clone)]
-pub(crate) struct DefaultPipeline<Ctx> {
-    steps: Vec<Arc<dyn Step<Ctx>>>,
+pub(crate) struct DefaultPipeline<Ctx, E> {
+    steps: Vec<Arc<dyn Step<Ctx, E>>>,
     config: PipelineConfig,
-    step_name: &'static str,
     event_bus: Option<Arc<dyn EventBus>>,
 }
 
-impl<Ctx: Send + 'static> DefaultPipeline<Ctx> {
-    pub(crate) fn with_config(steps: Vec<Arc<dyn Step<Ctx>>>, config: PipelineConfig) -> Self {
+impl<Ctx: Send + 'static, E: fmt::Display + fmt::Debug + Send + 'static> DefaultPipeline<Ctx, E> {
+    pub(crate) fn with_config(steps: Vec<Arc<dyn Step<Ctx, E>>>, config: PipelineConfig) -> Self {
         Self {
             steps,
             config,
-            step_name: "default-pipeline",
             event_bus: None,
         }
     }
@@ -47,8 +46,10 @@ impl<Ctx: Send + 'static> DefaultPipeline<Ctx> {
 /// `Service` impl — exposes `DefaultPipeline` to the dispatcher bridge.
 ///
 /// `Service::execute` takes ownership of `Ctx`, delegates to `Pipeline::run(&mut ctx)`,
-/// then returns the mutated context. `PipelineError` maps to `ServiceError::Internal`.
-impl<Ctx: Send + 'static> Service for DefaultPipeline<Ctx> {
+/// then returns the mutated context. `PipelineError<E>` maps to `ServiceError::Internal`.
+impl<Ctx: Send + 'static, E: fmt::Display + fmt::Debug + Send + 'static> Service
+    for DefaultPipeline<Ctx, E>
+{
     type Request = Ctx;
     type Response = Ctx;
 
@@ -68,40 +69,50 @@ impl<Ctx: Send + 'static> Service for DefaultPipeline<Ctx> {
 }
 
 #[async_trait::async_trait]
-impl<Ctx: Send + 'static> Pipeline<Ctx> for DefaultPipeline<Ctx> {
-    async fn run(&self, ctx: &mut Ctx) -> Result<(), PipelineError> {
+impl<Ctx: Send + 'static, E: fmt::Display + fmt::Debug + Send + 'static> Pipeline<Ctx, E>
+    for DefaultPipeline<Ctx, E>
+{
+    async fn run(&self, ctx: &mut Ctx) -> Result<(), PipelineError<E>> {
         for step in &self.steps {
+            let step_name = step.name().to_string();
+
             self.emit(Arc::new(DefaultPipelineStepStartedEvt {
-                step_name: step.name().to_string(),
+                step_name: step_name.clone(),
             }))
             .await;
 
-            let result = match self.config.timeout_per_step {
+            let step_result: Result<(), E> = match self.config.timeout_per_step {
                 Some(dur) => match time::timeout(dur, step.execute(ctx)).await {
                     Ok(r) => r,
-                    Err(_elapsed) => Err(PipelineError::StepTimeout),
+                    Err(_elapsed) => {
+                        self.emit(Arc::new(DefaultPipelineStepFailedEvt {
+                            step_name: step_name.clone(),
+                        }))
+                        .await;
+                        if self.config.abort_on_error {
+                            return Err(PipelineError::StepTimeout { step_name });
+                        }
+                        continue;
+                    }
                 },
                 None => step.execute(ctx).await,
             };
 
-            match &result {
+            match step_result {
                 Ok(()) => {
                     self.emit(Arc::new(DefaultPipelineStepCompletedEvt {
-                        step_name: step.name().to_string(),
+                        step_name,
                     }))
                     .await;
                 }
-                Err(_) => {
+                Err(cause) => {
                     self.emit(Arc::new(DefaultPipelineStepFailedEvt {
-                        step_name: step.name().to_string(),
+                        step_name: step_name.clone(),
                     }))
                     .await;
-                }
-            }
-
-            if let Err(e) = result {
-                if self.config.abort_on_error {
-                    return Err(e);
+                    if self.config.abort_on_error {
+                        return Err(PipelineError::StepFailed(StepError { step_name, cause }));
+                    }
                 }
             }
         }
@@ -117,22 +128,7 @@ impl<Ctx: Send + 'static> Pipeline<Ctx> for DefaultPipeline<Ctx> {
     }
 }
 
-#[async_trait::async_trait]
-impl<Ctx: Send + 'static> Step<Ctx> for DefaultPipeline<Ctx> {
-    async fn execute(&self, ctx: &mut Ctx) -> Result<(), PipelineError> {
-        Pipeline::run(self, ctx).await
-    }
-
-    fn name(&self) -> &str {
-        self.step_name
-    }
-}
-
 // ── private lifecycle event types ─────────────────────────────────────────────
-//
-// These types are implementation details of DefaultPipeline and are NOT part
-// of the public API. Consumers subscribe to the EventBus and filter by
-// `event_type()` string rather than pattern-matching on concrete types.
 
 const PIPELINE_STEP_STARTED: &str = "pipeline.step_started";
 const PIPELINE_STEP_COMPLETED: &str = "pipeline.step_completed";
@@ -190,7 +186,8 @@ mod tests {
     /// @covers: with_config
     #[test]
     fn test_new_happy_creates_empty() {
-        let pipeline: DefaultPipeline<i32> = DefaultPipeline::with_config(vec![], PipelineConfig::default());
+        let pipeline: DefaultPipeline<i32, String> =
+            DefaultPipeline::with_config(vec![], PipelineConfig::default());
         assert_eq!(pipeline.step_count(), 0);
     }
 
@@ -202,7 +199,8 @@ mod tests {
             emit_lifecycle_events: true,
             abort_on_error: false,
         };
-        let pipeline: DefaultPipeline<i32> = DefaultPipeline::with_config(vec![], config.clone());
+        let pipeline: DefaultPipeline<i32, String> =
+            DefaultPipeline::with_config(vec![], config.clone());
         assert_eq!(
             pipeline.config().timeout_per_step,
             Some(std::time::Duration::from_secs(5))
@@ -212,7 +210,8 @@ mod tests {
     /// @covers: config
     #[test]
     fn test_config_happy_returns_defaults() {
-        let pipeline: DefaultPipeline<i32> = DefaultPipeline::with_config(vec![], PipelineConfig::default());
+        let pipeline: DefaultPipeline<i32, String> =
+            DefaultPipeline::with_config(vec![], PipelineConfig::default());
         let config = pipeline.config();
         assert!(config.timeout_per_step.is_none());
         assert!(!config.emit_lifecycle_events);
@@ -222,7 +221,8 @@ mod tests {
     /// @covers: name
     #[test]
     fn test_service_name_happy_returns_pipeline_svc() {
-        let pipeline: DefaultPipeline<i32> = DefaultPipeline::with_config(vec![], PipelineConfig::default());
+        let pipeline: DefaultPipeline<i32, String> =
+            DefaultPipeline::with_config(vec![], PipelineConfig::default());
         assert_eq!(Service::name(&pipeline), crate::PIPELINE_SVC);
     }
 
@@ -231,7 +231,7 @@ mod tests {
     fn test_with_event_bus_happy_stores_cloned_arc() {
         let bus: Arc<dyn EventBus> = Arc::new(InProcessEventBus::new(4));
         let initial_count = Arc::strong_count(&bus);
-        let pipeline: DefaultPipeline<i32> =
+        let pipeline: DefaultPipeline<i32, String> =
             DefaultPipeline::with_config(vec![], PipelineConfig::default())
                 .with_event_bus(Arc::clone(&bus));
         assert_eq!(
@@ -249,11 +249,10 @@ mod tests {
         let bus2: Arc<dyn EventBus> = Arc::new(InProcessEventBus::new(8));
         let count1_before = Arc::strong_count(&bus1);
         let count2_before = Arc::strong_count(&bus2);
-        let pipeline: DefaultPipeline<i32> =
+        let pipeline: DefaultPipeline<i32, String> =
             DefaultPipeline::with_config(vec![], PipelineConfig::default())
                 .with_event_bus(Arc::clone(&bus1))
                 .with_event_bus(Arc::clone(&bus2));
-        // bus1 must be released (second call replaces first)
         assert_eq!(Arc::strong_count(&bus1), count1_before, "first bus must be released");
         assert_eq!(Arc::strong_count(&bus2), count2_before + 1, "second bus must be retained");
         assert!(pipeline.event_bus.is_some());
@@ -262,7 +261,7 @@ mod tests {
     /// @covers: with_event_bus
     #[test]
     fn test_with_event_bus_edge_absent_without_call() {
-        let pipeline: DefaultPipeline<i32> =
+        let pipeline: DefaultPipeline<i32, String> =
             DefaultPipeline::with_config(vec![], PipelineConfig::default());
         assert!(
             pipeline.event_bus.is_none(),

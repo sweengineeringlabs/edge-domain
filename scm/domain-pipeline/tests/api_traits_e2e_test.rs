@@ -2,7 +2,7 @@
 //!
 //! Tests for Pipeline and Validator trait methods with happy, error, and edge scenarios.
 
-use edge_domain_pipeline::{Pipeline, PipelineConfig, PipelineError, Step, Validator};
+use edge_domain_pipeline::{Pipeline, PipelineConfig, PipelineError, Step, StepError, Validator};
 use edge_domain_service::{Service, ServiceError};
 use futures::future::BoxFuture;
 use std::sync::Arc;
@@ -16,8 +16,8 @@ use std::time::Duration;
 struct TestPassStep;
 
 #[async_trait::async_trait]
-impl<Ctx: Send> Step<Ctx> for TestPassStep {
-    async fn execute(&self, _ctx: &mut Ctx) -> Result<(), PipelineError> {
+impl<Ctx: Send, E: Send + 'static> Step<Ctx, E> for TestPassStep {
+    async fn execute(&self, _ctx: &mut Ctx) -> Result<(), E> {
         Ok(())
     }
 
@@ -27,7 +27,7 @@ impl<Ctx: Send> Step<Ctx> for TestPassStep {
 }
 
 struct TestPipeline {
-    steps: Vec<Arc<dyn Step<i32>>>,
+    steps: Vec<Arc<dyn Step<i32, String>>>,
     config: PipelineConfig,
 }
 
@@ -41,10 +41,13 @@ impl Service for TestPipeline {
 }
 
 #[async_trait::async_trait]
-impl Pipeline<i32> for TestPipeline {
-    async fn run(&self, ctx: &mut i32) -> Result<(), PipelineError> {
+impl Pipeline<i32, String> for TestPipeline {
+    async fn run(&self, ctx: &mut i32) -> Result<(), PipelineError<String>> {
         for step in &self.steps {
-            step.execute(ctx).await?;
+            step.execute(ctx).await.map_err(|e| PipelineError::StepFailed(StepError {
+                step_name: step.name().to_string(),
+                cause: e,
+            }))?;
         }
         Ok(())
     }
@@ -64,7 +67,7 @@ struct TestValidator {
 
 #[async_trait::async_trait]
 impl Validator for TestValidator {
-    async fn validate(&self, _config: &PipelineConfig) -> Result<(), PipelineError> {
+    async fn validate(&self, _config: &PipelineConfig) -> Result<(), PipelineError<String>> {
         if self.enabled {
             Ok(())
         } else {
@@ -101,10 +104,10 @@ fn test_step_count_with_steps_happy() {
 
 #[test]
 fn test_step_count_many_steps_edge() {
-    let steps: Vec<Arc<dyn Step<i32>>> =
-        (0..100).map(|_| Arc::new(TestPassStep) as Arc<dyn Step<i32>>).collect();
+    let steps: Vec<Arc<dyn Step<i32, String>>> =
+        (0..100).map(|_| Arc::new(TestPassStep) as Arc<dyn Step<i32, String>>).collect();
     let pipeline = TestPipeline {
-        steps: steps.clone(),
+        steps,
         config: PipelineConfig::default(),
     };
     assert_eq!(pipeline.step_count(), 100);
@@ -112,7 +115,6 @@ fn test_step_count_many_steps_edge() {
 
 #[test]
 fn test_step_count_consistency_error() {
-    // Error test: verify step_count stays stable (not growing unexpectedly)
     let pipeline = TestPipeline {
         steps: vec![Arc::new(TestPassStep)],
         config: PipelineConfig::default(),
@@ -120,7 +122,7 @@ fn test_step_count_consistency_error() {
     let count1 = pipeline.step_count();
     let count2 = pipeline.step_count();
     assert_eq!(count1, count2);
-    assert_eq!(count1, 1); // Not an error state, but validates immutability
+    assert_eq!(count1, 1);
 }
 
 // =============================================================================
@@ -151,9 +153,7 @@ fn test_is_empty_consistency_edge() {
         steps: vec![Arc::new(TestPassStep)],
         config: PipelineConfig::default(),
     };
-    // Edge case: pipeline with steps should not be empty
     assert!(!pipeline.is_empty());
-    // Verify consistency: calling twice gives same result
     let first_call = pipeline.is_empty();
     let second_call = pipeline.is_empty();
     assert_eq!(first_call, second_call);
@@ -161,14 +161,12 @@ fn test_is_empty_consistency_edge() {
 
 #[test]
 fn test_is_empty_consistency_implies_step_count_error() {
-    // Error test: is_empty should be consistent with step_count
     let pipeline = TestPipeline {
         steps: vec![Arc::new(TestPassStep)],
         config: PipelineConfig::default(),
     };
     let is_empty = pipeline.is_empty();
     let step_count = pipeline.step_count();
-    // Validate invariant: is_empty iff step_count == 0
     assert_eq!(is_empty, step_count == 0);
 }
 
@@ -181,7 +179,7 @@ fn test_config_default_happy() {
     let config = PipelineConfig::default();
     let pipeline = TestPipeline {
         steps: vec![],
-        config: config.clone(),
+        config,
     };
     assert_eq!(pipeline.config().timeout_per_step, None);
     assert!(!pipeline.config().emit_lifecycle_events);
@@ -197,7 +195,7 @@ fn test_config_custom_happy() {
     };
     let pipeline = TestPipeline {
         steps: vec![],
-        config: config.clone(),
+        config,
     };
     assert_eq!(
         pipeline.config().timeout_per_step,
@@ -225,7 +223,6 @@ fn test_config_reference_stable_edge() {
 
 #[test]
 fn test_config_consistency_error() {
-    // Error test: config should not change between calls
     let config = PipelineConfig {
         timeout_per_step: Some(Duration::from_secs(5)),
         emit_lifecycle_events: true,
@@ -261,9 +258,7 @@ fn test_is_enabled_disabled_happy() {
 #[test]
 fn test_is_enabled_consistency_edge() {
     let validator = TestValidator { enabled: true };
-    // Edge case: enabled validator should return true
     assert!(validator.is_enabled());
-    // Verify consistency: calling twice gives same result
     let first_call = validator.is_enabled();
     let second_call = validator.is_enabled();
     assert_eq!(first_call, second_call);
@@ -271,15 +266,13 @@ fn test_is_enabled_consistency_edge() {
 
 #[test]
 fn test_is_enabled_disabled_error() {
-    // Error test: disabled validator should return false consistently
     let validator = TestValidator { enabled: false };
     assert!(!validator.is_enabled());
-    // Verify it stays disabled across multiple calls
     assert!(!validator.is_enabled());
 }
 
 // =============================================================================
-// Validator::validate Tests (via subtyping - validators are also Steps in composition)
+// Validator::validate Tests
 // =============================================================================
 
 #[tokio::test]
