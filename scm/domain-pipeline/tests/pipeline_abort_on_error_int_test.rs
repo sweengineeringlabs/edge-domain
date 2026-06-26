@@ -116,7 +116,7 @@ async fn test_abort_on_error_via_config_happy_stops_on_error() {
     let steps: Vec<Arc<dyn Step<Vec<i32>>>> =
         vec![Arc::new(IncrementStep), Arc::new(FailStep), Arc::new(IncrementStep)];
     let config = PipelineConfig { abort_on_error: true, ..PipelineConfig::default() };
-    let pipeline = PipelineSvc::build(PipelineBuilder { steps, config });
+    let pipeline = PipelineSvc::build(PipelineBuilder { steps, config, event_bus: None });
     let mut ctx: Vec<i32> = vec![];
     assert!(pipeline.run(&mut ctx).await.is_err());
     assert_eq!(ctx.len(), 1);
@@ -128,7 +128,7 @@ async fn test_abort_on_error_via_config_error_continues_when_false() {
     let steps: Vec<Arc<dyn Step<Vec<i32>>>> =
         vec![Arc::new(IncrementStep), Arc::new(FailStep), Arc::new(IncrementStep)];
     let config = PipelineConfig { abort_on_error: false, ..PipelineConfig::default() };
-    let pipeline = PipelineSvc::build(PipelineBuilder { steps, config });
+    let pipeline = PipelineSvc::build(PipelineBuilder { steps, config, event_bus: None });
     let mut ctx: Vec<i32> = vec![];
     assert!(pipeline.run(&mut ctx).await.is_ok());
     assert_eq!(ctx.len(), 2);
@@ -140,7 +140,7 @@ async fn test_abort_on_error_via_config_edge_all_pass() {
     let steps: Vec<Arc<dyn Step<Vec<i32>>>> =
         vec![Arc::new(IncrementStep), Arc::new(IncrementStep)];
     let config = PipelineConfig::default();
-    let pipeline = PipelineSvc::build(PipelineBuilder { steps, config });
+    let pipeline = PipelineSvc::build(PipelineBuilder { steps, config, event_bus: None });
     let mut ctx: Vec<i32> = vec![];
     assert!(pipeline.run(&mut ctx).await.is_ok());
     assert_eq!(ctx.len(), 2);

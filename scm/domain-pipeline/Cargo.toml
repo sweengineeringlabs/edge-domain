@@ -26,9 +26,12 @@ serde.workspace                   = true
 swe-edge-configbuilder.workspace  = true
 edge-domain-registry.workspace    = true
 edge-domain-service.workspace     = true
+edge-domain-event.workspace       = true
 
 [dev-dependencies]
-tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
+tokio       = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }
+async-trait.workspace = true
+edge-domain-event.workspace = true
 toml  = "0.8"
 
 [lints.rust]

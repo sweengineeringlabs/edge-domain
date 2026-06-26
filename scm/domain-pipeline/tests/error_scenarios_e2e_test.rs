@@ -45,7 +45,7 @@ fn test_error_config_error_happy_edge() {
 #[tokio::test]
 async fn test_error_propagation_stops_pipeline_happy() {
     let steps: Vec<Arc<dyn Step<String>>> = vec![Arc::new(ErrorWithContext("partial".to_string()))];
-    let pipeline = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default() });
+    let pipeline = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default(), event_bus: None });
     let mut ctx = String::new();
     let result = pipeline.run(&mut ctx).await;
     assert!(result.is_err());
@@ -56,7 +56,7 @@ async fn test_error_propagation_stops_pipeline_happy() {
 #[tokio::test]
 async fn test_error_context_mutation_before_error_happy() {
     let steps: Vec<Arc<dyn Step<String>>> = vec![Arc::new(ErrorWithContext("before".to_string()))];
-    let pipeline = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default() });
+    let pipeline = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default(), event_bus: None });
     let mut ctx = String::new();
     let _ = pipeline.run(&mut ctx).await;
     assert_eq!(ctx, "before");

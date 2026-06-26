@@ -47,7 +47,7 @@ fn test_create_pipeline_with_config_timeout_happy() {
         emit_lifecycle_events: false,
         abort_on_error: true,
     };
-    let pipeline = PipelineSvc::build(PipelineBuilder::<()> { steps: vec![], config });
+    let pipeline = PipelineSvc::build(PipelineBuilder::<()> { steps: vec![], config, event_bus: None });
     assert_eq!(pipeline.config().timeout_per_step, Some(Duration::from_secs(5)));
 }
 
@@ -58,7 +58,7 @@ fn test_create_pipeline_with_config_lifecycle_happy() {
         emit_lifecycle_events: true,
         abort_on_error: false,
     };
-    let pipeline = PipelineSvc::build(PipelineBuilder::<()> { steps: vec![], config });
+    let pipeline = PipelineSvc::build(PipelineBuilder::<()> { steps: vec![], config, event_bus: None });
     assert!(pipeline.config().emit_lifecycle_events);
 }
 
@@ -69,7 +69,7 @@ fn test_create_pipeline_with_config_all_options_error() {
         emit_lifecycle_events: true,
         abort_on_error: true,
     };
-    let pipeline = PipelineSvc::build(PipelineBuilder::<()> { steps: vec![], config });
+    let pipeline = PipelineSvc::build(PipelineBuilder::<()> { steps: vec![], config, event_bus: None });
     assert_eq!(pipeline.config().timeout_per_step, Some(Duration::from_secs(10)));
     assert!(pipeline.config().emit_lifecycle_events);
     assert!(pipeline.config().abort_on_error);
@@ -82,7 +82,7 @@ fn test_create_pipeline_with_config_no_options_edge() {
         emit_lifecycle_events: false,
         abort_on_error: false,
     };
-    let pipeline = PipelineSvc::build(PipelineBuilder::<()> { steps: vec![], config });
+    let pipeline = PipelineSvc::build(PipelineBuilder::<()> { steps: vec![], config, event_bus: None });
     assert!(pipeline.config().timeout_per_step.is_none());
     assert!(!pipeline.config().emit_lifecycle_events);
     assert!(!pipeline.config().abort_on_error);

@@ -227,7 +227,7 @@ fn test_pipeline_config_all_disabled_error() {
         emit_lifecycle_events: false,
         abort_on_error: false,
     };
-    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(PipelineBuilder { steps: vec![], config: custom });
+    let pipeline: Box<dyn Pipeline<()>> = PipelineSvc::build(PipelineBuilder { steps: vec![], config: custom, event_bus: None });
     let config = pipeline.config();
     assert!(config.timeout_per_step.is_none());
     assert!(!config.emit_lifecycle_events);

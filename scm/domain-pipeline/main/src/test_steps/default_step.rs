@@ -8,6 +8,8 @@ use crate::api::{PipelineError, Step};
 #[derive(Clone)]
 pub(crate) struct DefaultStep;
 
+const DEFAULT_STEP_NAME: &str = "default-step";
+
 #[async_trait::async_trait]
 impl<Ctx: Send> Step<Ctx> for DefaultStep {
     async fn execute(&self, _ctx: &mut Ctx) -> Result<(), PipelineError> {
@@ -15,7 +17,7 @@ impl<Ctx: Send> Step<Ctx> for DefaultStep {
     }
 
     fn name(&self) -> &str {
-        "default-step"
+        DEFAULT_STEP_NAME
     }
 }
 

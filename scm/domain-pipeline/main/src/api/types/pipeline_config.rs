@@ -18,7 +18,7 @@ pub struct PipelineConfig {
     #[serde(rename = "timeout_per_step_ms", deserialize_with = "duration_ms::deserialize")]
     pub timeout_per_step: Option<Duration>,
 
-    /// Emit lifecycle events when `true` (Phase 2 — not yet wired to EventBus).
+    /// Emit lifecycle events when `true`; requires an event bus attached via [`PipelineBuilder::with_event_bus`].
     pub emit_lifecycle_events: bool,
 
     /// Halt on the first step error when `true`; continue past errors when `false`.

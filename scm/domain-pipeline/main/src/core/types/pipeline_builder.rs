@@ -5,6 +5,7 @@ impl<Ctx: Send + 'static> Default for PipelineBuilder<Ctx> {
         Self {
             steps: Vec::new(),
             config: PipelineConfig::default(),
+            event_bus: None,
         }
     }
 }

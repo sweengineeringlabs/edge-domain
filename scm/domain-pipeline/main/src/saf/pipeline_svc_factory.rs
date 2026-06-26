@@ -3,6 +3,8 @@
 use std::sync::Arc;
 use std::time::Duration;
 
+use edge_domain_event::EventBus;
+
 use crate::api::{Pipeline, PipelineBuilder, PipelineConfig, Step};
 use crate::core::pipeline::DefaultPipeline;
 
@@ -37,14 +39,24 @@ pub struct PipelineSvc;
 impl PipelineSvc {
     /// Build a pipeline with exclusive ownership.
     pub fn build<Ctx: Send + 'static>(builder: PipelineBuilder<Ctx>) -> Box<dyn Pipeline<Ctx>> {
-        Box::new(DefaultPipeline::with_config(builder.steps, builder.config))
+        let pipeline = DefaultPipeline::with_config(builder.steps, builder.config);
+        let pipeline = match builder.event_bus {
+            Some(bus) => pipeline.with_event_bus(bus),
+            None => pipeline,
+        };
+        Box::new(pipeline)
     }
 
     /// Build a pipeline with shared ownership.
     pub fn build_shared<Ctx: Send + 'static>(
         builder: PipelineBuilder<Ctx>,
     ) -> Arc<dyn Pipeline<Ctx>> {
-        Arc::new(DefaultPipeline::with_config(builder.steps, builder.config))
+        let pipeline = DefaultPipeline::with_config(builder.steps, builder.config);
+        let pipeline = match builder.event_bus {
+            Some(bus) => pipeline.with_event_bus(bus),
+            None => pipeline,
+        };
+        Arc::new(pipeline)
     }
 }
 
@@ -54,6 +66,7 @@ impl<Ctx: Send + 'static> PipelineBuilder<Ctx> {
         Self {
             steps: Vec::new(),
             config: PipelineConfig::default(),
+            event_bus: None,
         }
     }
 
@@ -88,6 +101,14 @@ impl<Ctx: Send + 'static> PipelineBuilder<Ctx> {
     /// Enable or disable lifecycle event emission.
     pub fn emit_lifecycle_events(mut self, emit: bool) -> Self {
         self.config.emit_lifecycle_events = emit;
+        self
+    }
+
+    /// Attach an event bus for lifecycle event emission.
+    ///
+    /// Events are only published when [`emit_lifecycle_events`] is also set to `true`.
+    pub fn with_event_bus(mut self, bus: Arc<dyn EventBus>) -> Self {
+        self.event_bus = Some(bus);
         self
     }
 }

@@ -55,6 +55,7 @@ pub trait Pipeline<Ctx: Send + 'static>: Service<Request = Ctx, Response = Ctx> 
         PipelineBuilder {
             steps: Vec::new(),
             config: super::super::PipelineConfig::default(),
+            event_bus: None,
         }
     }
 }

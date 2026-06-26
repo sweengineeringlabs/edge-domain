@@ -16,6 +16,8 @@ mod saf;
 
 pub use saf::Registry;
 pub use saf::RegistryBootstrap;
+pub use saf::REGISTRY_SVC;
+pub use saf::REGISTRY_BOOTSTRAP_SVC;
 
 // ── concrete reference types ──────────────────────────────────────────────────
 pub use api::InMemoryRegistry;

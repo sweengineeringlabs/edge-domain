@@ -42,7 +42,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         emit_lifecycle_events: false,
         abort_on_error: true,
     };
-    let pipeline = PipelineSvc::build(PipelineBuilder { steps, config });
+    let pipeline = PipelineSvc::build(PipelineBuilder { steps, config, event_bus: None });
 
     let mut context = 5;
     println!("Initial context: {}", context);

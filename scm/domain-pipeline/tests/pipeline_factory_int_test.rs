@@ -18,7 +18,7 @@ impl<Ctx: Send> Step<Ctx> for TestPassStep {
 #[tokio::test]
 async fn test_pipeline_factory_create_happy_returns_pipeline() {
     let steps: Vec<Arc<dyn Step<i32>>> = vec![Arc::new(TestPassStep)];
-    let pipeline = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default() });
+    let pipeline = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default(), event_bus: None });
     let mut ctx = 0;
     assert!(pipeline.run(&mut ctx).await.is_ok());
 }
@@ -27,7 +27,7 @@ async fn test_pipeline_factory_create_happy_returns_pipeline() {
 async fn test_pipeline_factory_create_with_config_happy_uses_config() {
     let steps: Vec<Arc<dyn Step<i32>>> = vec![Arc::new(TestPassStep)];
     let config = PipelineConfig::default();
-    let pipeline = PipelineSvc::build(PipelineBuilder { steps, config });
+    let pipeline = PipelineSvc::build(PipelineBuilder { steps, config, event_bus: None });
     let mut ctx = 0;
     assert!(pipeline.run(&mut ctx).await.is_ok());
 }

@@ -65,7 +65,7 @@ async fn test_pipeline_execute_first_step_error() {
         Arc::new(CountingStep),
         Arc::new(CountingStep),
     ];
-    let pipeline: Box<dyn Pipeline<usize>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default() });
+    let pipeline: Box<dyn Pipeline<usize>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default(), event_bus: None });
     let mut ctx = 0;
     let result = pipeline.run(&mut ctx).await;
     assert!(result.is_err());
@@ -79,7 +79,7 @@ async fn test_pipeline_execute_middle_step_error() {
         Arc::new(FailAtStep(2)),
         Arc::new(CountingStep),
     ];
-    let pipeline: Box<dyn Pipeline<usize>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default() });
+    let pipeline: Box<dyn Pipeline<usize>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default(), event_bus: None });
     let mut ctx = 0;
     let result = pipeline.run(&mut ctx).await;
     assert!(result.is_err());
@@ -93,7 +93,7 @@ async fn test_pipeline_execute_last_step_error() {
         Arc::new(CountingStep),
         Arc::new(FailAtStep(3)),
     ];
-    let pipeline: Box<dyn Pipeline<usize>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default() });
+    let pipeline: Box<dyn Pipeline<usize>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default(), event_bus: None });
     let mut ctx = 0;
     let result = pipeline.run(&mut ctx).await;
     assert!(result.is_err());
@@ -180,7 +180,7 @@ fn test_step_count_multiple_happy_edge() {
 #[test]
 fn test_step_count_max_edge() {
     let steps: Vec<Arc<dyn Step<usize>>> = (0..100).map(|_| Arc::new(CountingStep) as Arc<dyn Step<usize>>).collect();
-    let pipeline: Box<dyn Pipeline<usize>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default() });
+    let pipeline: Box<dyn Pipeline<usize>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default(), event_bus: None });
     assert_eq!(pipeline.step_count(), 100);
 }
 
@@ -216,7 +216,7 @@ fn test_is_empty_one_edge() {
 #[test]
 fn test_step_count_stress_edge() {
     let steps: Vec<Arc<dyn Step<usize>>> = (0..1000).map(|_| Arc::new(CountingStep) as Arc<dyn Step<usize>>).collect();
-    let pipeline: Box<dyn Pipeline<usize>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default() });
+    let pipeline: Box<dyn Pipeline<usize>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default(), event_bus: None });
     assert_eq!(pipeline.step_count(), 1000);
 }
 

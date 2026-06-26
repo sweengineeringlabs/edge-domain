@@ -76,7 +76,7 @@ async fn struct_default_pipeline_executes_sequentially() {
         Arc::new(TraceStep(2)),
         Arc::new(TraceStep(3)),
     ];
-    let pipeline: Box<dyn Pipeline<Vec<usize>>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default() });
+    let pipeline: Box<dyn Pipeline<Vec<usize>>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default(), event_bus: None });
     assert!(pipeline.run(&mut trace).await.is_ok());
     assert_eq!(trace, vec![1, 2, 3]);
 }
@@ -90,7 +90,7 @@ async fn struct_default_pipeline_with_config_timeout() {
         abort_on_error: true,
     };
     let steps: Vec<Arc<dyn Step<i32>>> = vec![Arc::new(NoopStep)];
-    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps, config });
+    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps, config, event_bus: None });
     assert_eq!(pipeline.config().timeout_per_step, Some(Duration::from_secs(1)));
     assert_eq!(pipeline.config().abort_on_error, true);
 }
@@ -121,7 +121,7 @@ async fn struct_default_pipeline_abort_on_error_true() {
         Arc::new(CountingFailStep),
         Arc::new(CountingFailStep),
     ];
-    let pipeline: Box<dyn Pipeline<usize>> = PipelineSvc::build(PipelineBuilder { steps, config });
+    let pipeline: Box<dyn Pipeline<usize>> = PipelineSvc::build(PipelineBuilder { steps, config, event_bus: None });
     let result = pipeline.run(&mut exec_count).await;
     assert!(result.is_err());
     assert_eq!(exec_count, 2);
@@ -131,7 +131,7 @@ async fn struct_default_pipeline_abort_on_error_true() {
 #[tokio::test]
 async fn struct_default_pipeline_config_with_lifecycle_events() {
     let config = PipelineConfig { timeout_per_step: None, emit_lifecycle_events: true, abort_on_error: true };
-    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps: vec![], config });
+    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps: vec![], config, event_bus: None });
     assert!(pipeline.config().emit_lifecycle_events);
 }
 
@@ -155,7 +155,7 @@ async fn struct_default_pipeline_with_mixed_steps() {
         Arc::new(MutatingStep::new(|ctx: &mut i32| *ctx += 5)),
         Arc::new(AlwaysPassStep::new()),
     ];
-    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default() });
+    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default(), event_bus: None });
     let mut ctx = 10;
     assert!(pipeline.run(&mut ctx).await.is_ok());
     assert_eq!(ctx, 15);
@@ -186,7 +186,7 @@ async fn struct_default_pipeline_short_circuits_on_fail() {
         Arc::new(RecordingFailStep("b")),
         Arc::new(RecordingFailStep("c")),
     ];
-    let pipeline: Box<dyn Pipeline<Vec<&'static str>>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default() });
+    let pipeline: Box<dyn Pipeline<Vec<&'static str>>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default(), event_bus: None });
     let result = pipeline.run(&mut executed).await;
     assert!(result.is_err());
     assert_eq!(executed, vec!["a", "b"]);

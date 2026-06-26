@@ -65,14 +65,14 @@ impl Step<i32> for PipelineAsStep {
 #[test]
 fn test_default_pipeline_config_with_timeout_happy() {
     let config = PipelineConfig { timeout_per_step: Some(Duration::from_secs(5)), emit_lifecycle_events: false, abort_on_error: true };
-    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps: vec![], config });
+    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps: vec![], config, event_bus: None });
     assert_eq!(pipeline.config().timeout_per_step, Some(Duration::from_secs(5)));
 }
 
 #[test]
 fn test_default_pipeline_config_no_timeout_happy() {
     let config = PipelineConfig { timeout_per_step: None, emit_lifecycle_events: false, abort_on_error: true };
-    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps: vec![], config });
+    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps: vec![], config, event_bus: None });
     assert_eq!(pipeline.config().timeout_per_step, None);
 }
 
@@ -80,14 +80,14 @@ fn test_default_pipeline_config_no_timeout_happy() {
 #[test]
 fn test_default_pipeline_config_lifecycle_enabled_happy() {
     let config = PipelineConfig { timeout_per_step: None, emit_lifecycle_events: true, abort_on_error: true };
-    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps: vec![], config });
+    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps: vec![], config, event_bus: None });
     assert!(pipeline.config().emit_lifecycle_events);
 }
 
 #[test]
 fn test_default_pipeline_config_lifecycle_disabled_happy() {
     let config = PipelineConfig { timeout_per_step: None, emit_lifecycle_events: false, abort_on_error: true };
-    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps: vec![], config });
+    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps: vec![], config, event_bus: None });
     assert!(!pipeline.config().emit_lifecycle_events);
 }
 
@@ -95,14 +95,14 @@ fn test_default_pipeline_config_lifecycle_disabled_happy() {
 #[test]
 fn test_default_pipeline_config_abort_true_happy() {
     let config = PipelineConfig { timeout_per_step: None, emit_lifecycle_events: false, abort_on_error: true };
-    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps: vec![], config });
+    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps: vec![], config, event_bus: None });
     assert!(pipeline.config().abort_on_error);
 }
 
 #[test]
 fn test_default_pipeline_config_abort_false_happy() {
     let config = PipelineConfig { timeout_per_step: None, emit_lifecycle_events: false, abort_on_error: false };
-    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps: vec![], config });
+    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps: vec![], config, event_bus: None });
     assert!(!pipeline.config().abort_on_error);
 }
 
@@ -144,7 +144,7 @@ async fn test_default_pipeline_mutation_accumulate_happy() {
         Arc::new(MutatingStep::new(|ctx: &mut i32| *ctx += 2)),
         Arc::new(MutatingStep::new(|ctx: &mut i32| *ctx += 3)),
     ];
-    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default() });
+    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default(), event_bus: None });
     let mut ctx = 0;
     assert!(pipeline.run(&mut ctx).await.is_ok());
     assert_eq!(ctx, 6);
@@ -157,7 +157,7 @@ async fn test_default_pipeline_mutation_chain_happy() {
         Arc::new(MutatingStep::new(|ctx: &mut String| ctx.push_str("b"))),
         Arc::new(MutatingStep::new(|ctx: &mut String| ctx.push_str("c"))),
     ];
-    let pipeline: Box<dyn Pipeline<String>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default() });
+    let pipeline: Box<dyn Pipeline<String>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default(), event_bus: None });
     let mut ctx = String::new();
     assert!(pipeline.run(&mut ctx).await.is_ok());
     assert_eq!(ctx, "abc");
@@ -185,7 +185,7 @@ async fn test_default_pipeline_mixed_step_types_edge() {
         Arc::new(AlwaysPassStep::new()),
         Arc::new(MutatingStep::new(|ctx: &mut i32| *ctx *= 2)),
     ];
-    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default() });
+    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default(), event_bus: None });
     let mut ctx = 3;
     assert!(pipeline.run(&mut ctx).await.is_ok());
     assert_eq!(ctx, 16);
@@ -199,7 +199,7 @@ async fn test_default_pipeline_fail_in_mixed_chain_edge() {
         Arc::new(AlwaysFailStep::new("stop")),
         Arc::new(MutatingStep::new(|ctx: &mut i32| *ctx *= 2)),
     ];
-    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default() });
+    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default(), event_bus: None });
     let mut ctx = 3;
     let result = pipeline.run(&mut ctx).await;
     assert!(result.is_err());
@@ -222,7 +222,7 @@ fn test_default_pipeline_config_all_enabled_edge() {
         emit_lifecycle_events: true,
         abort_on_error: true,
     };
-    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps: vec![], config });
+    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps: vec![], config, event_bus: None });
     assert_eq!(pipeline.config().timeout_per_step, Some(Duration::from_secs(10)));
     assert!(pipeline.config().emit_lifecycle_events);
     assert!(pipeline.config().abort_on_error);
@@ -231,6 +231,6 @@ fn test_default_pipeline_config_all_enabled_edge() {
 #[tokio::test]
 async fn test_default_pipeline_config_abort_disabled_error() {
     let config = PipelineConfig { timeout_per_step: None, emit_lifecycle_events: false, abort_on_error: false };
-    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps: vec![], config });
+    let pipeline: Box<dyn Pipeline<i32>> = PipelineSvc::build(PipelineBuilder { steps: vec![], config, event_bus: None });
     assert!(!pipeline.config().abort_on_error);
 }

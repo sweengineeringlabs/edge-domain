@@ -2,6 +2,8 @@
 
 use std::sync::Arc;
 
+use edge_domain_event::EventBus;
+
 use crate::api::{PipelineConfig, Step};
 
 /// Fluent builder for assembling a pipeline.
@@ -14,4 +16,6 @@ pub struct PipelineBuilder<Ctx> {
     pub steps: Vec<Arc<dyn Step<Ctx>>>,
     /// Accumulated pipeline configuration.
     pub config: PipelineConfig,
+    /// Optional event bus for lifecycle event emission.
+    pub event_bus: Option<Arc<dyn EventBus>>,
 }
