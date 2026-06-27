@@ -15,6 +15,10 @@ pub struct SecurityContextBuilder {
     claims: HashMap<String, String>,
     trace_id: Option<String>,
     authenticated: bool,
+    token: Option<String>,
+    metadata: HashMap<String, String>,
+    is_authorized: bool,
+    extensions: std::collections::HashMap<String, Box<dyn std::any::Any + Send + Sync>>,
 }
 
 impl SecurityContextBuilder {
@@ -26,6 +30,10 @@ impl SecurityContextBuilder {
             claims: HashMap::new(),
             trace_id: None,
             authenticated: false,
+            token: None,
+            metadata: HashMap::new(),
+            is_authorized: false,
+            extensions: HashMap::new(),
         }
     }
 
@@ -54,6 +62,24 @@ impl SecurityContextBuilder {
         self
     }
 
+    /// Set the raw token.
+    pub fn token(mut self, token: impl Into<String>) -> Self {
+        self.token = Some(token.into());
+        self
+    }
+
+    /// Insert request metadata (e.g. HTTP headers).
+    pub fn metadata(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
+        self.metadata.insert(key.into(), value.into());
+        self
+    }
+
+    /// Set authorization result state.
+    pub fn is_authorized(mut self, authorized: bool) -> Self {
+        self.is_authorized = authorized;
+        self
+    }
+
     /// Consume the builder and return the completed [`SecurityContext`].
     pub fn build(self) -> SecurityContext {
         SecurityContext {
@@ -62,6 +88,10 @@ impl SecurityContextBuilder {
             claims: self.claims,
             trace_id: self.trace_id,
             authenticated: self.authenticated,
+            token: self.token,
+            metadata: self.metadata,
+            is_authorized: self.is_authorized,
+            extensions: self.extensions,
         }
     }
 }

@@ -20,6 +20,14 @@ pub struct SecurityContext {
     pub trace_id: Option<String>,
     /// Whether this context represents an authenticated caller.
     pub authenticated: bool,
+    /// Raw token (e.g. JWT), if available.
+    pub token: Option<String>,
+    /// Request metadata (e.g. HTTP headers).
+    pub metadata: HashMap<String, String>,
+    /// Authorization result state.
+    pub is_authorized: bool,
+    /// Custom extension data for framework interop.
+    pub extensions: std::collections::HashMap<String, Box<dyn std::any::Any + Send + Sync>>,
 }
 
 impl SecurityContext {
@@ -31,6 +39,10 @@ impl SecurityContext {
             claims: HashMap::new(),
             trace_id: None,
             authenticated: false,
+            token: None,
+            metadata: HashMap::new(),
+            is_authorized: false,
+            extensions: HashMap::new(),
         }
     }
 
@@ -42,6 +54,10 @@ impl SecurityContext {
             tenant_id: None,
             claims: HashMap::new(),
             trace_id: None,
+            token: None,
+            metadata: HashMap::new(),
+            is_authorized: false,
+            extensions: HashMap::new(),
         }
     }
 
@@ -69,6 +85,12 @@ impl SecurityContext {
     }
 }
 
+impl Default for SecurityContext {
+    fn default() -> Self {
+        Self::unauthenticated()
+    }
+}
+
 impl fmt::Debug for SecurityContext {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("SecurityContext")
@@ -77,6 +99,9 @@ impl fmt::Debug for SecurityContext {
             .field("tenant_id", &self.tenant_id)
             .field("trace_id", &self.trace_id)
             .field("authenticated", &self.authenticated)
+            .field("token", &self.token.as_ref().map(|_| "***"))
+            .field("metadata_keys", &self.metadata.keys().collect::<Vec<_>>())
+            .field("is_authorized", &self.is_authorized)
             .finish()
     }
 }

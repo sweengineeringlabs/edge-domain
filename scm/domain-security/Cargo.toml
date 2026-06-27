@@ -10,9 +10,8 @@ description = "edge-domain — Security port contract: Principal identity + Secu
 keywords    = ["domain", "security", "principal", "context", "swe"]
 categories  = ["development-tools"]
 
-[package.metadata.struct-engine]
+[package.metadata.arch]
 application_type = "lib"
-service_type     = "security"
 
 [lib]
 path = "main/src/lib.rs"
