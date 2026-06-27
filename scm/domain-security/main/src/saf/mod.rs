@@ -13,6 +13,8 @@ pub use credential::{
     CREDENTIAL_RESOLVER_SVC_FACTORY,
     CREDENTIAL_SOURCE_RESOLVER_SVC_FACTORY,
 };
+pub use credential_resolver_svc_factory::CREDENTIAL_RESOLVER_SVC;
+pub use credential_source_resolver_svc_factory::CREDENTIAL_SOURCE_RESOLVER_SVC;
 pub use security::{
     Principal, Security, SecurityBootstrap,
 };
