@@ -20,3 +20,7 @@ pub use saf::Command;
 pub use saf::CommandBus;
 pub use saf::CommandBusBootstrap;
 pub use saf::CommandBootstrap;
+pub use saf::{
+    COMMAND_BUS_BOOTSTRAP_SVC_FACTORY, COMMAND_BUS_SVC_FACTORY, COMMAND_BOOTSTRAP_SVC_FACTORY,
+    COMMAND_SVC_FACTORY,
+};
