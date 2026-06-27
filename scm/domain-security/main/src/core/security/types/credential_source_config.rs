@@ -31,3 +31,40 @@ impl CredentialSourceConfig {
         self.env_var.is_none() && self.file_path.is_none() && self.file_path_env_override.is_none()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_new_creates_empty_config() {
+        let config = CredentialSourceConfig::new();
+        assert!(config.is_empty());
+    }
+
+    #[test]
+    fn test_with_env_var_sets_value() {
+        let config = CredentialSourceConfig::new().with_env_var("MY_VAR");
+        assert!(!config.is_empty());
+    }
+
+    #[test]
+    fn test_with_file_path_sets_value() {
+        let config = CredentialSourceConfig::new().with_file_path("/path/to/file");
+        assert!(!config.is_empty());
+    }
+
+    #[test]
+    fn test_with_file_path_env_override_sets_value() {
+        let config = CredentialSourceConfig::new().with_file_path_env_override("PATH_OVERRIDE");
+        assert!(!config.is_empty());
+    }
+
+    #[test]
+    fn test_is_empty_with_multiple_sources() {
+        let config = CredentialSourceConfig::new()
+            .with_env_var("VAR")
+            .with_file_path("/path");
+        assert!(!config.is_empty());
+    }
+}

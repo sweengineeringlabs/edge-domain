@@ -14,6 +14,30 @@ impl CredentialSource {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_new_from_str() {
+        let source = CredentialSource::new("my-credential");
+        assert_eq!(source.name(), "my-credential");
+    }
+
+    #[test]
+    fn test_new_from_string() {
+        let source = CredentialSource::new("my-credential".to_string());
+        assert_eq!(source.name(), "my-credential");
+    }
+
+    #[test]
+    fn test_name_returns_slice() {
+        let source = CredentialSource::new("test");
+        let name: &str = source.name();
+        assert_eq!(name, "test");
+    }
+}
+
 impl std::fmt::Display for CredentialSource {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         self.name.fmt(f)

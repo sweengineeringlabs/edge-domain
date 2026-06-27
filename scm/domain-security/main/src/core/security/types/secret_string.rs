@@ -40,3 +40,35 @@ impl From<&str> for SecretString {
         Self(s.to_owned())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_new_creates_secret() {
+        let secret = SecretString::new("my-secret");
+        assert_eq!(secret.expose(), "my-secret");
+    }
+
+    #[test]
+    fn test_expose_returns_value() {
+        let secret = SecretString::new("test-value");
+        assert_eq!(secret.expose(), "test-value");
+    }
+
+    #[test]
+    fn test_debug_redacts_value() {
+        let secret = SecretString::new("secret");
+        let debug_str = format!("{:?}", secret);
+        assert!(debug_str.contains("[REDACTED]"));
+        assert!(!debug_str.contains("secret"));
+    }
+
+    #[test]
+    fn test_display_redacts_value() {
+        let secret = SecretString::new("secret");
+        let display_str = format!("{}", secret);
+        assert_eq!(display_str, "[REDACTED]");
+    }
+}

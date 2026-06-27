@@ -36,3 +36,35 @@ impl From<&str> for Token {
         Self(s.to_owned())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_new_creates_token() {
+        let token = Token::new("my-token");
+        assert_eq!(token.as_str(), "my-token");
+    }
+
+    #[test]
+    fn test_as_str_returns_slice() {
+        let token = Token::new("test-token");
+        assert_eq!(token.as_str(), "test-token");
+    }
+
+    #[test]
+    fn test_into_string_consumes_token() {
+        let token = Token::new("value");
+        let value = token.into_string();
+        assert_eq!(value, "value");
+    }
+
+    #[test]
+    fn test_debug_redacts_value() {
+        let token = Token::new("secret");
+        let debug_str = format!("{:?}", token);
+        assert!(debug_str.contains("[REDACTED]"));
+        assert!(!debug_str.contains("secret"));
+    }
+}
