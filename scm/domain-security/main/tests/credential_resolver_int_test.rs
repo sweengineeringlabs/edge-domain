@@ -36,7 +36,7 @@ impl CredentialResolver for FailResolver {
 }
 
 #[test]
-fn test_credential_resolver_verify_happy() {
+fn test_verify_token_happy() {
     let resolver = SuccessResolver;
     let token = Token::bearer("test-token".to_string());
     let result = resolver.verify(&token);
@@ -45,14 +45,14 @@ fn test_credential_resolver_verify_happy() {
 }
 
 #[test]
-fn test_credential_resolver_verify_error() {
+fn test_verify_invalid_error() {
     let resolver = FailResolver;
     let token = Token::bearer("bad-token".to_string());
     assert!(resolver.verify(&token).is_err());
 }
 
 #[test]
-fn test_credential_resolver_resolve_happy() {
+fn test_resolve_credential_happy() {
     let resolver = SuccessResolver;
     let source = CredentialSource::from("test");
     let ctx = SecurityContext::unauthenticated();
@@ -62,9 +62,27 @@ fn test_credential_resolver_resolve_happy() {
 }
 
 #[test]
-fn test_credential_resolver_resolve_error() {
+fn test_resolve_missing_error() {
     let resolver = FailResolver;
     let source = CredentialSource::from("test");
     let ctx = SecurityContext::unauthenticated();
     assert!(resolver.resolve(&source, &ctx).is_err());
+}
+
+#[test]
+fn test_verify_empty_edge() {
+    let resolver = SuccessResolver;
+    let token = Token::bearer("".to_string());
+    let result = resolver.verify(&token);
+    assert!(result.is_ok());
+}
+
+#[test]
+fn test_resolve_authenticated_edge() {
+    let resolver = SuccessResolver;
+    let source = CredentialSource::from("service");
+    let ctx = SecurityContext::authenticated_with("user-123".to_string());
+    let result = resolver.resolve(&source, &ctx);
+    let secret = result.unwrap();
+    assert_eq!(secret.expose(), "test-secret");
 }

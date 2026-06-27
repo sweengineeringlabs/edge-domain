@@ -19,7 +19,7 @@ impl CredentialSourceResolver for FailSourceResolver {
 }
 
 #[test]
-fn test_credential_source_resolver_resolve_happy() {
+fn test_resolve_config_happy() {
     let resolver = SuccessSourceResolver;
     let config = CredentialSourceConfig::default();
     let result = resolver.resolve(&config);
@@ -28,14 +28,14 @@ fn test_credential_source_resolver_resolve_happy() {
 }
 
 #[test]
-fn test_credential_source_resolver_resolve_error() {
+fn test_resolve_empty_error() {
     let resolver = FailSourceResolver;
     let config = CredentialSourceConfig::default();
     assert!(resolver.resolve(&config).is_err());
 }
 
 #[test]
-fn test_credential_source_resolver_resolve_edge() {
+fn test_resolve_default_edge() {
     let resolver = SuccessSourceResolver;
     let config = CredentialSourceConfig::default();
     let source = resolver.resolve(&config).unwrap();

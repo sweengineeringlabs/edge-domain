@@ -17,7 +17,7 @@ impl AuthzPolicy for RejectAllPolicy {
 }
 
 #[test]
-fn test_authz_policy_check_happy() {
+fn test_check_allow_all_happy() {
     let policy = AllowAllPolicy;
     let ctx = SecurityContext::unauthenticated();
     let result = policy.check(&ctx);
@@ -25,7 +25,7 @@ fn test_authz_policy_check_happy() {
 }
 
 #[test]
-fn test_authz_policy_check_error() {
+fn test_check_reject_error() {
     let policy = RejectAllPolicy;
     let ctx = SecurityContext::unauthenticated();
     let result = policy.check(&ctx);
@@ -33,7 +33,7 @@ fn test_authz_policy_check_error() {
 }
 
 #[test]
-fn test_authz_policy_check_edge_authenticated() {
+fn test_check_authenticated_edge() {
     let policy = AllowAllPolicy;
     let ctx = SecurityContext::authenticated_with("user-123".to_string());
     assert_eq!(policy.check(&ctx), Ok(()));
