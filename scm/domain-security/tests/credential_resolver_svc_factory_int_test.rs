@@ -39,5 +39,5 @@ fn test_credential_resolver_svc_error() {
 /// @covers: CREDENTIAL_RESOLVER_SVC
 #[test]
 fn test_credential_resolver_svc_edge() {
-    assert_eq!(CREDENTIAL_RESOLVER_SVC, CREDENTIAL_RESOLVER_SVC, "service identifier must be consistent");
+    assert_eq!(CREDENTIAL_RESOLVER_SVC.len(), "credential_resolver".len(), "service identifier length must match");
 }
