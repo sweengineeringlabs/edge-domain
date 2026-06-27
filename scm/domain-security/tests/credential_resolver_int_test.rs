@@ -8,7 +8,7 @@ impl CredentialResolver for OkResolver {
         Ok(Claims::default())
     }
     fn resolve(&self, _source: &CredentialSource, _ctx: &SecurityContext) -> Result<SecretString, SecurityError> {
-        Ok(SecretString::new("secret"))
+        Ok(SecretString::from("secret"))
     }
 }
 
@@ -26,7 +26,7 @@ impl CredentialResolver for FailResolver {
 #[test]
 fn test_credential_resolver_verify_happy() {
     let resolver = OkResolver;
-    let result = resolver.verify(&Token::new("valid"));
+    let result = resolver.verify(&Token::from("valid"));
     assert!(result.is_ok());
 }
 
@@ -34,7 +34,7 @@ fn test_credential_resolver_verify_happy() {
 #[test]
 fn test_credential_resolver_verify_error() {
     let resolver = FailResolver;
-    let result = resolver.verify(&Token::new("invalid"));
+    let result = resolver.verify(&Token::from("invalid"));
     assert!(result.is_err());
 }
 
@@ -42,8 +42,8 @@ fn test_credential_resolver_verify_error() {
 #[test]
 fn test_credential_resolver_verify_edge() {
     let resolver = OkResolver;
-    let r1 = resolver.verify(&Token::new(""));
-    let r2 = resolver.verify(&Token::new("x"));
+    let r1 = resolver.verify(&Token::from(""));
+    let r2 = resolver.verify(&Token::from("x"));
     assert!(r1.is_ok() && r2.is_ok());
 }
 
@@ -52,7 +52,7 @@ fn test_credential_resolver_verify_edge() {
 fn test_credential_resolver_resolve_happy() {
     let resolver = OkResolver;
     let ctx = SecurityContext::unauthenticated();
-    let result = resolver.resolve(&CredentialSource::new("test"), &ctx);
+    let result = resolver.resolve(&CredentialSource::from("test"), &ctx);
     assert!(result.is_ok());
 }
 
@@ -61,7 +61,7 @@ fn test_credential_resolver_resolve_happy() {
 fn test_credential_resolver_resolve_error() {
     let resolver = FailResolver;
     let ctx = SecurityContext::unauthenticated();
-    let result = resolver.resolve(&CredentialSource::new("test"), &ctx);
+    let result = resolver.resolve(&CredentialSource::from("test"), &ctx);
     assert!(result.is_err());
 }
 
@@ -70,7 +70,7 @@ fn test_credential_resolver_resolve_error() {
 fn test_credential_resolver_resolve_edge() {
     let resolver = OkResolver;
     let ctx = SecurityContext::unauthenticated();
-    let r1 = resolver.resolve(&CredentialSource::new(""), &ctx);
-    let r2 = resolver.resolve(&CredentialSource::new("x"), &ctx);
+    let r1 = resolver.resolve(&CredentialSource::from(""), &ctx);
+    let r2 = resolver.resolve(&CredentialSource::from("x"), &ctx);
     assert!(r1.is_ok() && r2.is_ok());
 }

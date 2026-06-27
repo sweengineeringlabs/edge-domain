@@ -8,7 +8,7 @@ impl CredentialSourceResolver for OkResolver {
         if config.is_empty() {
             Err(SecurityError::Credential("no config".to_string()))
         } else {
-            Ok(CredentialSource::new("resolved"))
+            Ok(CredentialSource::from("resolved"))
         }
     }
 }
