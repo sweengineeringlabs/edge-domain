@@ -16,6 +16,7 @@ impl AuthzPolicy for RejectAllPolicy {
     }
 }
 
+/// @covers: AuthzPolicy::check
 #[test]
 fn test_check_allow_all_happy() {
     let policy = AllowAllPolicy;
@@ -24,6 +25,7 @@ fn test_check_allow_all_happy() {
     assert_eq!(result, Ok(()));
 }
 
+/// @covers: AuthzPolicy::check
 #[test]
 fn test_check_reject_error() {
     let policy = RejectAllPolicy;
@@ -32,6 +34,7 @@ fn test_check_reject_error() {
     assert!(result.is_err());
 }
 
+/// @covers: AuthzPolicy::check
 #[test]
 fn test_check_authenticated_edge() {
     let policy = AllowAllPolicy;

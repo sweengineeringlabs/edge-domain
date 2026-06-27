@@ -35,8 +35,9 @@ impl CredentialResolver for FailResolver {
     }
 }
 
+/// @covers: CredentialResolver::verify
 #[test]
-fn test_verify_token_happy() {
+fn test_verify_valid_happy() {
     let resolver = SuccessResolver;
     let token = Token::bearer("test-token".to_string());
     let result = resolver.verify(&token);
@@ -44,6 +45,7 @@ fn test_verify_token_happy() {
     assert_eq!(claims, Claims::default());
 }
 
+/// @covers: CredentialResolver::verify
 #[test]
 fn test_verify_invalid_error() {
     let resolver = FailResolver;
@@ -51,6 +53,16 @@ fn test_verify_invalid_error() {
     assert!(resolver.verify(&token).is_err());
 }
 
+/// @covers: CredentialResolver::verify
+#[test]
+fn test_verify_empty_edge() {
+    let resolver = SuccessResolver;
+    let token = Token::bearer("".to_string());
+    let result = resolver.verify(&token);
+    assert!(result.is_ok());
+}
+
+/// @covers: CredentialResolver::resolve
 #[test]
 fn test_resolve_credential_happy() {
     let resolver = SuccessResolver;
@@ -61,6 +73,7 @@ fn test_resolve_credential_happy() {
     assert_eq!(secret.expose(), "test-secret");
 }
 
+/// @covers: CredentialResolver::resolve
 #[test]
 fn test_resolve_missing_error() {
     let resolver = FailResolver;
@@ -69,14 +82,7 @@ fn test_resolve_missing_error() {
     assert!(resolver.resolve(&source, &ctx).is_err());
 }
 
-#[test]
-fn test_verify_empty_edge() {
-    let resolver = SuccessResolver;
-    let token = Token::bearer("".to_string());
-    let result = resolver.verify(&token);
-    assert!(result.is_ok());
-}
-
+/// @covers: CredentialResolver::resolve
 #[test]
 fn test_resolve_authenticated_edge() {
     let resolver = SuccessResolver;

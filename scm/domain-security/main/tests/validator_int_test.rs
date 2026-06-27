@@ -16,12 +16,14 @@ impl Validator for FailValidator {
     }
 }
 
+/// @covers: Validator::validate
 #[test]
 fn test_validate_valid_happy() {
     let validator = SuccessValidator;
     assert_eq!(validator.validate(), Ok(()));
 }
 
+/// @covers: Validator::validate
 #[test]
 fn test_validate_invalid_error() {
     let validator = FailValidator;
@@ -30,6 +32,7 @@ fn test_validate_invalid_error() {
     assert!(matches!(result, Err(ValidationError(_))));
 }
 
+/// @covers: Validator::validate
 #[test]
 fn test_validate_always_valid_edge() {
     let validator = SuccessValidator;
