@@ -12,7 +12,7 @@ impl SecretString {
     ///
     /// Call this only at the point of transmission. Never log or store the
     /// returned slice.
-    pub fn expose(&self) -> &str {
+    pub(crate) fn expose(&self) -> &str {
         &self.0
     }
 }

@@ -9,7 +9,7 @@ impl CredentialSource {
     }
 
     /// Return the credential name as a string slice.
-    pub fn name(&self) -> &str {
+    pub(crate) fn name(&self) -> &str {
         &self.name
     }
 }
