@@ -11,7 +11,6 @@ pub use security::Validator;
 pub use security::Claims;
 pub use security::CredentialSource;
 pub use security::CredentialSourceConfig;
-pub use security::JwtKey;
 pub use security::SecretString;
 pub use security::Token;
 

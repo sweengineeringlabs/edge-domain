@@ -28,7 +28,6 @@ pub use api::Validator;
 pub use api::Claims;
 pub use api::CredentialSource;
 pub use api::CredentialSourceConfig;
-pub use api::JwtKey;
 pub use api::SecretString;
 pub use api::Token;
 pub use api::ValidationError;
