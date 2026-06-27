@@ -25,5 +25,7 @@ mod tests {
         let config = CredentialSourceConfig::default();
         let result = resolver.resolve(&config);
         assert!(result.is_ok());
+        let source = result.unwrap();
+        assert_eq!(source, CredentialSource::from("noop-token"));
     }
 }

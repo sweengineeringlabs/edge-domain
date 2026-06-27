@@ -22,6 +22,6 @@ mod tests {
     fn test_noop_authz_policy_allows_all() {
         let policy = NoopAuthzPolicy;
         let ctx = SecurityContext::unauthenticated();
-        assert!(policy.check(&ctx).is_ok());
+        assert_eq!(policy.check(&ctx), Ok(()));
     }
 }

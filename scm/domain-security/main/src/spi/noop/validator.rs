@@ -20,6 +20,6 @@ mod tests {
     #[test]
     fn test_noop_validator_accepts_all() {
         let validator = NoopValidator;
-        assert!(validator.validate().is_ok());
+        assert_eq!(validator.validate(), Ok(()));
     }
 }
