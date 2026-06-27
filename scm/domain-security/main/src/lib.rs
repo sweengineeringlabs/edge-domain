@@ -16,6 +16,7 @@
 mod api;
 mod core;
 mod saf;
+mod spi;
 
 // Trait contracts (providers implement these)
 pub use api::AuthzPolicy;
