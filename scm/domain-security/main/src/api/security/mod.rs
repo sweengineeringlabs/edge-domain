@@ -2,6 +2,23 @@ pub mod errors;
 pub mod traits;
 pub mod types;
 
+// Trait contracts (from moved security-strategy)
+pub use traits::AuthzPolicy;
+pub use traits::CredentialResolver;
+pub use traits::CredentialSourceResolver;
+pub use traits::TokenVerifier;
+pub use traits::Validator;
+
+// Type contracts (from moved security-strategy)
+pub use types::Claims;
+pub use types::CredentialSource;
+pub use types::CredentialSourceConfig;
+pub use types::JwtConfig;
+pub use types::JwtKey;
+pub use types::SecretString;
+pub use types::Token;
+
+// Original domain-security exports
 pub use errors::SecurityError;
 pub use traits::Principal;
 pub use traits::Security;

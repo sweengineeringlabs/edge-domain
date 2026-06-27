@@ -1,4 +1,22 @@
 ﻿mod security;
+
+// Trait contracts
+pub use security::AuthzPolicy;
+pub use security::CredentialResolver;
+pub use security::CredentialSourceResolver;
+pub use security::TokenVerifier;
+pub use security::Validator;
+
+// Type contracts
+pub use security::Claims;
+pub use security::CredentialSource;
+pub use security::CredentialSourceConfig;
+pub use security::JwtConfig;
+pub use security::JwtKey;
+pub use security::SecretString;
+pub use security::Token;
+
+// Original domain-security exports
 pub use security::AnonymousPrincipal;
 pub use security::NoopSecurity;
 pub use security::Principal;

@@ -1,11 +1,25 @@
 pub mod anonymous_principal;
+pub mod claims;
+pub mod credential_source;
+pub mod credential_source_config;
+pub mod jwt_config;
+pub mod jwt_key;
 pub mod noop_security;
+pub mod secret_string;
 pub mod security_context;
 pub mod security_context_builder;
 pub mod security_services;
+pub mod token;
 
 pub use anonymous_principal::AnonymousPrincipal;
+pub use claims::Claims;
+pub use credential_source::CredentialSource;
+pub use credential_source_config::CredentialSourceConfig;
+pub use jwt_config::JwtConfig;
+pub use jwt_key::JwtKey;
 pub use noop_security::NoopSecurity;
+pub use secret_string::SecretString;
 pub use security_context::SecurityContext;
 pub use security_context_builder::SecurityContextBuilder;
 pub use security_services::SecurityServices;
+pub use token::Token;

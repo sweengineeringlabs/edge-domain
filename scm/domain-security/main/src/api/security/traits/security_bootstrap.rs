@@ -32,10 +32,10 @@ pub trait SecurityBootstrap {
 
     /// Construct a [`SecurityContext`] from a claims map.
     ///
-    /// Returns [`SecurityError::MissingClaims`] when `claims` is empty.
+    /// Returns [`SecurityError::Auth`] when `claims` is empty.
     fn from_claims(claims: HashMap<String, String>) -> Result<SecurityContext, SecurityError> where Self: Sized {
         if claims.is_empty() {
-            return Err(SecurityError::MissingClaims);
+            return Err(SecurityError::Auth("no claims provided".to_string()));
         }
         let mut ctx = SecurityContext::unauthenticated();
         ctx.claims = claims;

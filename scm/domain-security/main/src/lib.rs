@@ -2,8 +2,12 @@
 //!
 //! The `Security` port contract — caller identity and context enforcement.
 //!
-//! Use [`SecurityContext`] to carry principal identity through a request.
-//! Use [`NoopSecurity`] in tests or for open routes that require no guard.
+//! Consolidates all security primitives and trait contracts:
+//! - Principal identity modeling
+//! - SecurityContext carrier
+//! - Token verification contracts (TokenVerifier, Claims)
+//! - Credential resolution (CredentialResolver, CredentialSourceResolver)
+//! - Authorization enforcement (AuthzPolicy)
 
 #![deny(unsafe_code)]
 #![warn(missing_docs)]
@@ -13,6 +17,23 @@ mod api;
 mod core;
 mod saf;
 
+// Trait contracts (providers implement these)
+pub use api::AuthzPolicy;
+pub use api::CredentialResolver;
+pub use api::CredentialSourceResolver;
+pub use api::TokenVerifier;
+pub use api::Validator;
+
+// Type contracts (used in trait signatures)
+pub use api::Claims;
+pub use api::CredentialSource;
+pub use api::CredentialSourceConfig;
+pub use api::JwtConfig;
+pub use api::JwtKey;
+pub use api::SecretString;
+pub use api::Token;
+
+// Original domain-security exports
 pub use api::AnonymousPrincipal;
 pub use api::NoopSecurity;
 pub use api::SecurityContext;
@@ -22,3 +43,13 @@ pub use api::SecurityServices;
 pub use saf::Principal;
 pub use saf::Security;
 pub use saf::SecurityBootstrap;
+
+// Service factory constants
+pub use saf::PRINCIPAL_SVC_FACTORY;
+pub use saf::SECURITY_BOOTSTRAP_SVC_FACTORY;
+pub use saf::SECURITY_SVC_FACTORY;
+pub use saf::TOKEN_VERIFIER_SVC_FACTORY;
+pub use saf::VALIDATOR_SVC_FACTORY;
+pub use saf::CREDENTIAL_RESOLVER_SVC_FACTORY;
+pub use saf::AUTHZ_POLICY_SVC_FACTORY;
+pub use saf::CREDENTIAL_SOURCE_RESOLVER_SVC_FACTORY;
