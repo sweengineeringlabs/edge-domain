@@ -37,7 +37,7 @@ mod tests {
     #[test]
     fn test_noop_credential_resolver_rejects_verify() {
         let resolver = NoopCredentialResolver;
-        let token = Token::bearer("test-token".to_string());
+        let token = Token::from("test-token");
         assert!(resolver.verify(&token).is_err());
     }
 

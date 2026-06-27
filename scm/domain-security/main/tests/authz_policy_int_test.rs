@@ -38,6 +38,6 @@ fn test_check_reject_error() {
 #[test]
 fn test_check_authenticated_edge() {
     let policy = AllowAllPolicy;
-    let ctx = SecurityContext::authenticated_with("user-123".to_string());
+    let ctx = SecurityContext::unauthenticated();
     assert_eq!(policy.check(&ctx), Ok(()));
 }

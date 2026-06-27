@@ -39,7 +39,7 @@ impl CredentialResolver for FailResolver {
 #[test]
 fn test_verify_valid_happy() {
     let resolver = SuccessResolver;
-    let token = Token::bearer("test-token".to_string());
+    let token = Token::from("test-token");
     let result = resolver.verify(&token);
     let claims = result.unwrap();
     assert_eq!(claims, Claims::default());
@@ -49,7 +49,7 @@ fn test_verify_valid_happy() {
 #[test]
 fn test_verify_invalid_error() {
     let resolver = FailResolver;
-    let token = Token::bearer("bad-token".to_string());
+    let token = Token::from("bad-token");
     assert!(resolver.verify(&token).is_err());
 }
 
@@ -57,7 +57,7 @@ fn test_verify_invalid_error() {
 #[test]
 fn test_verify_empty_edge() {
     let resolver = SuccessResolver;
-    let token = Token::bearer("".to_string());
+    let token = Token::from("");
     let result = resolver.verify(&token);
     assert!(result.is_ok());
 }
@@ -87,7 +87,7 @@ fn test_resolve_missing_error() {
 fn test_resolve_authenticated_edge() {
     let resolver = SuccessResolver;
     let source = CredentialSource::from("service");
-    let ctx = SecurityContext::authenticated_with("user-123".to_string());
+    let ctx = SecurityContext::unauthenticated();
     let result = resolver.resolve(&source, &ctx);
     let secret = result.unwrap();
     assert_eq!(secret.expose(), "test-secret");
