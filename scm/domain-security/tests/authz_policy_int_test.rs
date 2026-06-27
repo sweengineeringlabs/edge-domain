@@ -1,42 +1,44 @@
 //! Integration tests for [`AuthzPolicy`] trait.
 
-use edge_domain_security::{AuthzPolicy, SecurityContext, SecurityError};
+use edge_domain_security::{AuthzPolicy, SecurityError, SecurityBootstrap};
 
 struct AllowPolicy;
 impl AuthzPolicy for AllowPolicy {
-    fn check(&self, _ctx: &SecurityContext) -> Result<(), SecurityError> {
+    fn check(&self, _ctx: &edge_domain_security::SecurityContext) -> Result<(), SecurityError> {
         Ok(())
     }
 }
 
 struct DenyPolicy;
 impl AuthzPolicy for DenyPolicy {
-    fn check(&self, _ctx: &SecurityContext) -> Result<(), SecurityError> {
+    fn check(&self, _ctx: &edge_domain_security::SecurityContext) -> Result<(), SecurityError> {
         Err(SecurityError::Auth("denied".to_string()))
     }
 }
 
 /// @covers: check
 #[test]
-fn test_authz_policy_check_happy() {
+fn test_check_allow_happy() {
     let policy = AllowPolicy;
-    let ctx = SecurityContext::unauthenticated();
-    assert!(policy.check(&ctx).is_ok());
+    let ctx = <edge_domain_security::SecurityServices as SecurityBootstrap>::unauthenticated();
+    let result = policy.check(&ctx);
+    assert!(result.is_ok(), "allow policy must approve unauthenticated context");
+    assert_eq!(result.unwrap(), (), "allow policy must return Ok(())");
 }
 
 /// @covers: check
 #[test]
-fn test_authz_policy_check_error() {
+fn test_check_deny_error() {
     let policy = DenyPolicy;
-    let ctx = SecurityContext::unauthenticated();
+    let ctx = <edge_domain_security::SecurityServices as SecurityBootstrap>::unauthenticated();
     assert!(policy.check(&ctx).is_err());
 }
 
 /// @covers: check
 #[test]
-fn test_authz_policy_check_edge() {
+fn test_check_consistent_edge() {
     let policy = AllowPolicy;
-    let ctx = SecurityContext::unauthenticated();
+    let ctx = <edge_domain_security::SecurityServices as SecurityBootstrap>::unauthenticated();
     let r1 = policy.check(&ctx);
     let r2 = policy.check(&ctx);
     assert_eq!(r1.is_ok(), r2.is_ok());

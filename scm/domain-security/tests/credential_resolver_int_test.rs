@@ -27,7 +27,8 @@ impl CredentialResolver for FailResolver {
 fn test_credential_resolver_verify_happy() {
     let resolver = OkResolver;
     let result = resolver.verify(&Token::from("valid"));
-    assert!(result.is_ok());
+    assert!(result.is_ok(), "verify must succeed");
+    assert_eq!(result.unwrap(), Claims::default(), "verify must return default claims");
 }
 
 /// @covers: verify
@@ -49,27 +50,33 @@ fn test_credential_resolver_verify_edge() {
 
 /// @covers: resolve
 #[test]
-fn test_credential_resolver_resolve_happy() {
+fn test_resolve_happy() {
+    use edge_domain_security::SecurityBootstrap;
     let resolver = OkResolver;
-    let ctx = SecurityContext::unauthenticated();
+    let ctx = <edge_domain_security::SecurityServices as SecurityBootstrap>::unauthenticated();
     let result = resolver.resolve(&CredentialSource::from("test"), &ctx);
-    assert!(result.is_ok());
+    assert!(result.is_ok(), "resolve must succeed for test source");
+    let _secret = result.unwrap();
+    // Secret is successfully resolved; the caller is responsible for handling it
+    assert!(true);
 }
 
 /// @covers: resolve
 #[test]
-fn test_credential_resolver_resolve_error() {
+fn test_resolve_error() {
+    use edge_domain_security::SecurityBootstrap;
     let resolver = FailResolver;
-    let ctx = SecurityContext::unauthenticated();
+    let ctx = <edge_domain_security::SecurityServices as SecurityBootstrap>::unauthenticated();
     let result = resolver.resolve(&CredentialSource::from("test"), &ctx);
     assert!(result.is_err());
 }
 
 /// @covers: resolve
 #[test]
-fn test_credential_resolver_resolve_edge() {
+fn test_resolve_edge() {
+    use edge_domain_security::SecurityBootstrap;
     let resolver = OkResolver;
-    let ctx = SecurityContext::unauthenticated();
+    let ctx = <edge_domain_security::SecurityServices as SecurityBootstrap>::unauthenticated();
     let r1 = resolver.resolve(&CredentialSource::from(""), &ctx);
     let r2 = resolver.resolve(&CredentialSource::from("x"), &ctx);
     assert!(r1.is_ok() && r2.is_ok());

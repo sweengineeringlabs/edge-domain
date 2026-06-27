@@ -20,7 +20,9 @@ impl Validator for FailValidator {
 #[test]
 fn test_validator_validate_happy() {
     let validator = OkValidator;
-    assert!(validator.validate().is_ok());
+    let result = validator.validate();
+    assert!(result.is_ok(), "validator must accept valid input");
+    assert_eq!(result.unwrap(), (), "validate must return Ok(())");
 }
 
 /// @covers: validate

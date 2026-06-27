@@ -1,0 +1,5 @@
+mod resolver_svc_factory;
+mod source_resolver_svc_factory;
+
+pub use resolver_svc_factory::CREDENTIAL_RESOLVER_SVC_FACTORY;
+pub use source_resolver_svc_factory::CREDENTIAL_SOURCE_RESOLVER_SVC_FACTORY;

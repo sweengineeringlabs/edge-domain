@@ -4,12 +4,8 @@ use edge_domain_security::{CredentialSource, CredentialSourceConfig, CredentialS
 
 struct OkResolver;
 impl CredentialSourceResolver for OkResolver {
-    fn resolve(&self, config: &CredentialSourceConfig) -> Result<CredentialSource, SecurityError> {
-        if config.is_empty() {
-            Err(SecurityError::Credential("no config".to_string()))
-        } else {
-            Ok(CredentialSource::from("resolved"))
-        }
+    fn resolve(&self, _config: &CredentialSourceConfig) -> Result<CredentialSource, SecurityError> {
+        Ok(CredentialSource::from("resolved"))
     }
 }
 
@@ -22,25 +18,41 @@ impl CredentialSourceResolver for FailResolver {
 
 /// @covers: resolve
 #[test]
-fn test_credential_source_resolver_resolve_happy() {
+fn test_resolve_config_happy() {
     let resolver = OkResolver;
-    let config = CredentialSourceConfig::new().with_env_var("TEST");
-    assert!(resolver.resolve(&config).is_ok());
+    let config = CredentialSourceConfig {
+        env_var: Some("TEST".to_string()),
+        file_path: None,
+        file_path_env_override: None,
+    };
+    let result = resolver.resolve(&config);
+    assert!(result.is_ok(), "resolve must succeed with valid config");
+    let _source = result.unwrap();
+    // Source is successfully resolved
+    assert!(true);
 }
 
 /// @covers: resolve
 #[test]
-fn test_credential_source_resolver_resolve_error() {
+fn test_resolve_config_error() {
     let resolver = FailResolver;
-    let config = CredentialSourceConfig::new().with_env_var("TEST");
+    let config = CredentialSourceConfig {
+        env_var: Some("TEST".to_string()),
+        file_path: None,
+        file_path_env_override: None,
+    };
     assert!(resolver.resolve(&config).is_err());
 }
 
 /// @covers: resolve
 #[test]
-fn test_credential_source_resolver_resolve_edge() {
+fn test_resolve_config_edge() {
     let resolver = OkResolver;
-    let config = CredentialSourceConfig::new().with_env_var("X");
+    let config = CredentialSourceConfig {
+        env_var: Some("X".to_string()),
+        file_path: None,
+        file_path_env_override: None,
+    };
     let r1 = resolver.resolve(&config);
     let r2 = resolver.resolve(&config);
     assert_eq!(r1.is_ok(), r2.is_ok());
