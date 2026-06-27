@@ -24,7 +24,10 @@ fn test_resolve_config_happy() {
     let resolver = SuccessSourceResolver;
     let config = CredentialSourceConfig::default();
     let result = resolver.resolve(&config);
-    assert!(result.is_ok());
+    assert!(result.is_ok(), "resolve must succeed with default config");
+    let _source = result.unwrap();
+    // Source resolved successfully
+    assert!(true);
 }
 
 /// @covers: CredentialSourceResolver::resolve

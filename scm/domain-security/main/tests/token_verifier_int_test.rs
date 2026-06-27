@@ -36,5 +36,8 @@ fn test_verify_invalid_error() {
 #[test]
 fn test_verify_empty_edge() {
     let verifier = SuccessTokenVerifier;
-    assert!(verifier.verify("").is_ok());
+    let result = verifier.verify("");
+    assert!(result.is_ok(), "verify must handle empty token");
+    let claims = result.unwrap();
+    assert_eq!(claims, Claims::default(), "verify must return default claims");
 }

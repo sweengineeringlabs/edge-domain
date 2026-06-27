@@ -59,7 +59,8 @@ fn test_verify_empty_edge() {
     let resolver = SuccessResolver;
     let token = Token::from("");
     let result = resolver.verify(&token);
-    assert!(result.is_ok());
+    assert!(result.is_ok(), "verify must handle empty token");
+    assert_eq!(result.unwrap(), Claims::default(), "verify must return default claims");
 }
 
 /// @covers: CredentialResolver::resolve

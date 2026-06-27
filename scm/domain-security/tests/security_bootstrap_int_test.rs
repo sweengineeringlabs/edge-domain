@@ -110,8 +110,9 @@ fn test_noop_guard_happy() {
     use edge_domain_security::{Security, SecurityBootstrap};
     let guard = TestBootstrap::noop_guard();
     let ctx = <edge_domain_security::SecurityServices as SecurityBootstrap>::unauthenticated();
-    // NoopSecurity allows all, so it must return Ok
-    assert!(guard.enforce(&ctx).is_ok(), "noop_guard must allow all contexts");
+    let result = guard.enforce(&ctx);
+    assert!(result.is_ok(), "noop_guard must allow all contexts");
+    assert_eq!(result.unwrap(), (), "enforce must return Ok(())");
 }
 
 /// @covers: noop_guard
