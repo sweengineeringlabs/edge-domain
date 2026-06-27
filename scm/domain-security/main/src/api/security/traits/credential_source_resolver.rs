@@ -31,4 +31,3 @@ pub trait CredentialSourceResolver: Send + Sync {
     /// 4. If none are available, return error with diagnostic
     fn resolve(&self, config: &CredentialSourceConfig) -> Result<CredentialSource, SecurityError>;
 }
-

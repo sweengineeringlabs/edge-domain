@@ -1,6 +1,6 @@
 //! Integration tests for [`Validator`] trait.
 
-use edge_domain_security::{Validator, ValidationError};
+use edge_domain_security::{ValidationError, Validator};
 
 struct OkValidator;
 impl Validator for OkValidator {

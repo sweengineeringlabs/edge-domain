@@ -39,5 +39,8 @@ fn test_validation_error_debug_happy() {
 fn test_validation_error_display_happy() {
     let error = ValidationError("test message".to_string());
     let display_str = format!("{}", error);
-    assert!(display_str.contains("test message"), "Display must contain message");
+    assert!(
+        display_str.contains("test message"),
+        "Display must contain message"
+    );
 }

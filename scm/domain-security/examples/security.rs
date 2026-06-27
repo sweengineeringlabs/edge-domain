@@ -17,5 +17,5 @@ fn main() {
 
     let claims = [("role".to_string(), "admin".to_string())].into();
     let from_claims = TestSecurity::from_claims(claims).expect("claims must not be empty");
-    println!("role: {:?}", from_claims.claim("role"));
+    println!("role: {:?}", from_claims.claims.get("role"));
 }

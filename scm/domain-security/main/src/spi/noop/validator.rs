@@ -1,7 +1,7 @@
 //! Noop [`Validator`] implementation.
 
-use crate::api::Validator;
 use crate::api::ValidationError;
+use crate::api::Validator;
 
 /// Noop validator that accepts all values.
 #[derive(Debug, Clone, Copy)]

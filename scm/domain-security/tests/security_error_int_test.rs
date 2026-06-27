@@ -5,13 +5,20 @@ use edge_domain_security::SecurityError;
 #[test]
 fn test_security_error_auth_variant_happy() {
     let error = SecurityError::Auth("test".to_string());
-    assert!(matches!(error, SecurityError::Auth(_)), "Auth variant must match");
+    assert!(
+        matches!(error, SecurityError::Auth(_)),
+        "Auth variant must match"
+    );
 }
 
 #[test]
 fn test_security_error_auth_variant_error() {
     let error = SecurityError::Auth("".to_string());
-    assert_eq!(error, SecurityError::Auth("".to_string()), "Empty auth error must match");
+    assert_eq!(
+        error,
+        SecurityError::Auth("".to_string()),
+        "Empty auth error must match"
+    );
 }
 
 #[test]
@@ -39,5 +46,8 @@ fn test_security_error_debug_happy() {
 fn test_security_error_display_happy() {
     let error = SecurityError::Auth("test".to_string());
     let display_str = format!("{}", error);
-    assert!(display_str.contains("auth"), "Display must contain variant info");
+    assert!(
+        display_str.contains("auth"),
+        "Display must contain variant info"
+    );
 }

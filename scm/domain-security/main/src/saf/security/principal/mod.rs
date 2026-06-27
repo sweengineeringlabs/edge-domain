@@ -1,4 +1,4 @@
 mod svc;
 mod svc_factory;
 
-pub use svc::{Principal};
+pub use svc::Principal;

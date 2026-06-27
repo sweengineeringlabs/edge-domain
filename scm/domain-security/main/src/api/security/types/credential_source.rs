@@ -8,4 +8,3 @@
 pub struct CredentialSource {
     pub(crate) name: String,
 }
-

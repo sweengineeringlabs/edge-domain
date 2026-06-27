@@ -4,6 +4,7 @@
 pub use security::AuthzPolicy;
 pub use security::CredentialResolver;
 pub use security::CredentialSourceResolver;
+pub use security::TlsConfig;
 pub use security::TokenVerifier;
 pub use security::Validator;
 
@@ -11,11 +12,13 @@ pub use security::Validator;
 pub use security::Claims;
 pub use security::CredentialSource;
 pub use security::CredentialSourceConfig;
+pub use security::IngressTlsConfig;
 pub use security::SecretString;
 pub use security::Token;
 
 // Original domain-security exports
 pub use security::AnonymousPrincipal;
+pub use security::IngressTlsError;
 pub use security::NoopSecurity;
 pub use security::Principal;
 pub use security::Security;

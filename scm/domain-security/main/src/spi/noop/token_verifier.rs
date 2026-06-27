@@ -10,7 +10,9 @@ pub(crate) struct NoopTokenVerifier;
 
 impl TokenVerifier for NoopTokenVerifier {
     fn verify(&self, _token: &str) -> Result<Claims, SecurityError> {
-        Err(SecurityError::Auth("noop verifier rejects all tokens".to_string()))
+        Err(SecurityError::Auth(
+            "noop verifier rejects all tokens".to_string(),
+        ))
     }
 }
 

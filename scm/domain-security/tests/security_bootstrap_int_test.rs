@@ -1,7 +1,7 @@
 //! Integration tests for [`SecurityBootstrap`] trait.
 
+use edge_domain_security::{Principal, SecurityBootstrap};
 use std::collections::HashMap;
-use edge_domain_security::{SecurityBootstrap, Principal};
 
 struct TestBootstrap;
 impl SecurityBootstrap for TestBootstrap {}
@@ -24,7 +24,11 @@ fn test_bootstrap_name_error() {
 #[test]
 fn test_bootstrap_name_edge() {
     let bootstrap = TestBootstrap;
-    assert_eq!(bootstrap.bootstrap_name(), "security", "bootstrap_name must always return 'security'");
+    assert_eq!(
+        bootstrap.bootstrap_name(),
+        "security",
+        "bootstrap_name must always return 'security'"
+    );
 }
 
 /// @covers: unauthenticated
@@ -38,7 +42,10 @@ fn test_unauthenticated_happy() {
 #[test]
 fn test_unauthenticated_error() {
     let ctx = TestBootstrap::unauthenticated();
-    assert!(ctx.principal.is_none(), "unauthenticated context should have no principal");
+    assert!(
+        ctx.principal.is_none(),
+        "unauthenticated context should have no principal"
+    );
 }
 
 /// @covers: unauthenticated
@@ -63,7 +70,10 @@ fn test_authenticated_error() {
     use edge_domain_security::AnonymousPrincipal;
     let principal = Box::new(AnonymousPrincipal);
     let ctx = TestBootstrap::authenticated(principal);
-    assert!(ctx.principal.is_some() && ctx.authenticated, "authenticated context must have principal and authenticated flag");
+    assert!(
+        ctx.principal.is_some() && ctx.authenticated,
+        "authenticated context must have principal and authenticated flag"
+    );
 }
 
 /// @covers: authenticated
@@ -120,7 +130,10 @@ fn test_noop_guard_happy() {
 fn test_noop_guard_error() {
     let guard1 = TestBootstrap::noop_guard();
     let _guard2 = TestBootstrap::noop_guard();
-    assert_eq!(std::mem::size_of_val(&guard1), std::mem::size_of::<edge_domain_security::NoopSecurity>());
+    assert_eq!(
+        std::mem::size_of_val(&guard1),
+        std::mem::size_of::<edge_domain_security::NoopSecurity>()
+    );
 }
 
 /// @covers: noop_guard
@@ -128,7 +141,10 @@ fn test_noop_guard_error() {
 fn test_noop_guard_edge() {
     let guard1 = TestBootstrap::noop_guard();
     let _guard2 = TestBootstrap::noop_guard();
-    assert_eq!(std::mem::size_of::<edge_domain_security::NoopSecurity>(), std::mem::size_of_val(&guard1));
+    assert_eq!(
+        std::mem::size_of::<edge_domain_security::NoopSecurity>(),
+        std::mem::size_of_val(&guard1)
+    );
 }
 
 /// @covers: anonymous_principal
@@ -157,7 +173,10 @@ fn test_anonymous_principal_edge() {
 #[test]
 fn test_default_services_happy() {
     let services = TestBootstrap::default_services();
-    assert_eq!(std::mem::size_of::<edge_domain_security::SecurityServices>(), std::mem::size_of_val(&services));
+    assert_eq!(
+        std::mem::size_of::<edge_domain_security::SecurityServices>(),
+        std::mem::size_of_val(&services)
+    );
 }
 
 /// @covers: default_services
@@ -173,14 +192,20 @@ fn test_default_services_error() {
 fn test_default_services_edge() {
     let s1 = TestBootstrap::default_services();
     let s2 = TestBootstrap::default_services();
-    assert_eq!(std::mem::size_of::<edge_domain_security::SecurityServices>(), std::mem::size_of_val(&s1));
+    assert_eq!(
+        std::mem::size_of::<edge_domain_security::SecurityServices>(),
+        std::mem::size_of_val(&s1)
+    );
 }
 
 /// @covers: context_builder
 #[test]
 fn test_context_builder_happy() {
     let builder = TestBootstrap::context_builder();
-    assert_eq!(std::mem::size_of::<edge_domain_security::SecurityContextBuilder>(), std::mem::size_of_val(&builder));
+    assert_eq!(
+        std::mem::size_of::<edge_domain_security::SecurityContextBuilder>(),
+        std::mem::size_of_val(&builder)
+    );
 }
 
 /// @covers: context_builder
@@ -196,5 +221,8 @@ fn test_context_builder_error() {
 fn test_context_builder_edge() {
     let b1 = TestBootstrap::context_builder();
     let b2 = TestBootstrap::context_builder();
-    assert_eq!(std::mem::size_of::<edge_domain_security::SecurityContextBuilder>(), std::mem::size_of_val(&b1));
+    assert_eq!(
+        std::mem::size_of::<edge_domain_security::SecurityContextBuilder>(),
+        std::mem::size_of_val(&b1)
+    );
 }

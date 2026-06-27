@@ -2,7 +2,7 @@
 //! This test file provides coverage for main/src/saf/security/svc.rs
 //! which re-exports the Security trait.
 
-use edge_domain_security::{Security, NoopSecurity, SecurityBootstrap};
+use edge_domain_security::{NoopSecurity, Security, SecurityBootstrap};
 
 /// @covers: enforce
 #[test]

@@ -1,13 +1,20 @@
 //! Integration tests for [`CredentialResolver`] trait.
 
-use edge_domain_security::{Claims, CredentialResolver, CredentialSource, SecretString, SecurityContext, SecurityError, Token};
+use edge_domain_security::{
+    Claims, CredentialResolver, CredentialSource, SecretString, SecurityContext, SecurityError,
+    Token,
+};
 
 struct OkResolver;
 impl CredentialResolver for OkResolver {
     fn verify(&self, _token: &Token) -> Result<Claims, SecurityError> {
         Ok(Claims::default())
     }
-    fn resolve(&self, _source: &CredentialSource, _ctx: &SecurityContext) -> Result<SecretString, SecurityError> {
+    fn resolve(
+        &self,
+        _source: &CredentialSource,
+        _ctx: &SecurityContext,
+    ) -> Result<SecretString, SecurityError> {
         Ok(SecretString::from("secret"))
     }
 }
@@ -17,7 +24,11 @@ impl CredentialResolver for FailResolver {
     fn verify(&self, _token: &Token) -> Result<Claims, SecurityError> {
         Err(SecurityError::Token("invalid token".to_string()))
     }
-    fn resolve(&self, _source: &CredentialSource, _ctx: &SecurityContext) -> Result<SecretString, SecurityError> {
+    fn resolve(
+        &self,
+        _source: &CredentialSource,
+        _ctx: &SecurityContext,
+    ) -> Result<SecretString, SecurityError> {
         Err(SecurityError::Auth("no credential".to_string()))
     }
 }
@@ -28,7 +39,11 @@ fn test_verify_valid_happy() {
     let resolver = OkResolver;
     let result = resolver.verify(&Token::from("valid"));
     assert!(result.is_ok(), "verify must succeed");
-    assert_eq!(result.unwrap(), Claims::default(), "verify must return default claims");
+    assert_eq!(
+        result.unwrap(),
+        Claims::default(),
+        "verify must return default claims"
+    );
 }
 
 /// @covers: CredentialResolver::verify
@@ -57,7 +72,11 @@ fn test_resolve_valid_happy() {
     let result = resolver.resolve(&CredentialSource::from("test"), &ctx);
     assert!(result.is_ok(), "resolve must succeed for test source");
     let _secret = result.unwrap();
-    assert_ne!(std::mem::size_of_val(&_secret), 0, "Secret type must be constructible");
+    assert_ne!(
+        std::mem::size_of_val(&_secret),
+        0,
+        "Secret type must be constructible"
+    );
 }
 
 /// @covers: CredentialResolver::resolve

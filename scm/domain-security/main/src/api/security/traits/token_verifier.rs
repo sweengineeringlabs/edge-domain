@@ -15,4 +15,3 @@ pub trait TokenVerifier: Send + Sync {
     /// Returns `SecurityError::Verification` or other variant on failure.
     fn verify(&self, token: &str) -> Result<Claims, SecurityError>;
 }
-

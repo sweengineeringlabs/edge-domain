@@ -29,4 +29,3 @@ pub trait CredentialResolver: Send + Sync {
         ctx: &SecurityContext,
     ) -> Result<SecretString, SecurityError>;
 }
-

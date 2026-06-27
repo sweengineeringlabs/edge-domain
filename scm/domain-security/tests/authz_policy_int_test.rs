@@ -1,6 +1,6 @@
 //! Integration tests for [`AuthzPolicy`] trait.
 
-use edge_domain_security::{AuthzPolicy, SecurityError, SecurityBootstrap};
+use edge_domain_security::{AuthzPolicy, SecurityBootstrap, SecurityError};
 
 struct AllowPolicy;
 impl AuthzPolicy for AllowPolicy {
@@ -22,7 +22,10 @@ fn test_check_allow_happy() {
     let policy = AllowPolicy;
     let ctx = <edge_domain_security::SecurityServices as SecurityBootstrap>::unauthenticated();
     let result = policy.check(&ctx);
-    assert!(result.is_ok(), "allow policy must approve unauthenticated context");
+    assert!(
+        result.is_ok(),
+        "allow policy must approve unauthenticated context"
+    );
     assert_eq!(result.unwrap(), (), "allow policy must return Ok(())");
 }
 

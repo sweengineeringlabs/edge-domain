@@ -13,7 +13,10 @@ fn test_source_resolver_svc_factory_happy() {
 #[test]
 fn test_source_resolver_svc_factory_error() {
     let marker = CREDENTIAL_SOURCE_RESOLVER_SVC_FACTORY;
-    assert!(matches!(marker, ()), "factory marker must match unit pattern");
+    assert!(
+        matches!(marker, ()),
+        "factory marker must match unit pattern"
+    );
 }
 
 /// @covers: CREDENTIAL_SOURCE_RESOLVER_SVC_FACTORY
@@ -21,5 +24,8 @@ fn test_source_resolver_svc_factory_error() {
 fn test_source_resolver_svc_factory_edge() {
     let marker1 = CREDENTIAL_SOURCE_RESOLVER_SVC_FACTORY;
     let marker2 = CREDENTIAL_SOURCE_RESOLVER_SVC_FACTORY;
-    assert_eq!(std::mem::size_of_val(&marker1), std::mem::size_of_val(&marker2));
+    assert_eq!(
+        std::mem::size_of_val(&marker1),
+        std::mem::size_of_val(&marker2)
+    );
 }

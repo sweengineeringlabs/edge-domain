@@ -15,4 +15,3 @@ pub trait Validator: Send + Sync {
     /// Validate this value.
     fn validate(&self) -> Result<(), ValidationError>;
 }
-

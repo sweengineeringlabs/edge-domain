@@ -5,7 +5,11 @@ use edge_domain_security::{AnonymousPrincipal, Principal};
 #[test]
 fn test_anonymous_principal_id_happy() {
     let principal = AnonymousPrincipal;
-    assert_eq!(principal.id(), "anonymous", "AnonymousPrincipal must have 'anonymous' id");
+    assert_eq!(
+        principal.id(),
+        "anonymous",
+        "AnonymousPrincipal must have 'anonymous' id"
+    );
 }
 
 #[test]
@@ -19,13 +23,21 @@ fn test_anonymous_principal_id_error() {
 fn test_anonymous_principal_id_edge() {
     let p1 = AnonymousPrincipal;
     let p2 = AnonymousPrincipal;
-    assert_eq!(p1.id(), p2.id(), "AnonymousPrincipal instances must have same id");
+    assert_eq!(
+        p1.id(),
+        p2.id(),
+        "AnonymousPrincipal instances must have same id"
+    );
 }
 
 #[test]
 fn test_anonymous_principal_kind_happy() {
     let principal = AnonymousPrincipal;
-    assert_eq!(principal.kind(), "anonymous", "AnonymousPrincipal must have 'anonymous' kind");
+    assert_eq!(
+        principal.kind(),
+        "anonymous",
+        "AnonymousPrincipal must have 'anonymous' kind"
+    );
 }
 
 #[test]
@@ -39,5 +51,9 @@ fn test_anonymous_principal_kind_error() {
 fn test_anonymous_principal_kind_edge() {
     let p1 = AnonymousPrincipal;
     let p2 = AnonymousPrincipal;
-    assert_eq!(p1.kind(), p2.kind(), "AnonymousPrincipal instances must have same kind");
+    assert_eq!(
+        p1.kind(),
+        p2.kind(),
+        "AnonymousPrincipal instances must have same kind"
+    );
 }

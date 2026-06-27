@@ -39,5 +39,9 @@ fn test_verify_empty_edge() {
     let verifier = OkVerifier;
     let result = verifier.verify("");
     assert!(result.is_ok(), "verify must handle empty token");
-    assert_eq!(result.unwrap(), Claims::default(), "verify must return default claims");
+    assert_eq!(
+        result.unwrap(),
+        Claims::default(),
+        "verify must return default claims"
+    );
 }

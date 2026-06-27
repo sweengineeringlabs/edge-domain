@@ -13,7 +13,10 @@ fn test_security_services_copy_happy() {
 fn test_security_services_clone_happy() {
     let services = SecurityServices;
     let cloned = services.clone();
-    assert_eq!(services, cloned, "SecurityServices clone must equal original");
+    assert_eq!(
+        services, cloned,
+        "SecurityServices clone must equal original"
+    );
 }
 
 #[test]
@@ -32,5 +35,9 @@ fn test_security_services_equality_happy() {
 
 #[test]
 fn test_security_services_zero_sized_edge() {
-    assert_eq!(std::mem::size_of::<SecurityServices>(), 0, "SecurityServices must be zero-sized");
+    assert_eq!(
+        std::mem::size_of::<SecurityServices>(),
+        0,
+        "SecurityServices must be zero-sized"
+    );
 }

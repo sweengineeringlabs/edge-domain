@@ -14,4 +14,3 @@ pub trait AuthzPolicy: Send + Sync {
     /// otherwise.
     fn check(&self, ctx: &SecurityContext) -> Result<(), SecurityError>;
 }
-

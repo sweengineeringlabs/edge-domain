@@ -2,7 +2,7 @@
 //! This test file provides coverage for main/src/saf/security/principal/svc.rs
 //! which re-exports the Principal trait.
 
-use edge_domain_security::{Principal, AnonymousPrincipal};
+use edge_domain_security::{AnonymousPrincipal, Principal};
 
 #[test]
 fn test_principal_facade_trait_available_happy() {

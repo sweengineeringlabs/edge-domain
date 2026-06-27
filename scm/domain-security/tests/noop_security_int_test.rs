@@ -31,14 +31,21 @@ fn test_noop_security_enforce_edge() {
 
 #[test]
 fn test_noop_security_zst() {
-    assert_eq!(std::mem::size_of::<NoopSecurity>(), 0, "NoopSecurity must be zero-sized");
+    assert_eq!(
+        std::mem::size_of::<NoopSecurity>(),
+        0,
+        "NoopSecurity must be zero-sized"
+    );
 }
 
 #[test]
 fn test_noop_security_copy_happy() {
     let _guard: NoopSecurity = NoopSecurity;
     let guard_copy = _guard;
-    assert!(std::mem::size_of_val(&guard_copy) == 0, "Copy must preserve zero-size");
+    assert!(
+        std::mem::size_of_val(&guard_copy) == 0,
+        "Copy must preserve zero-size"
+    );
 }
 
 #[test]

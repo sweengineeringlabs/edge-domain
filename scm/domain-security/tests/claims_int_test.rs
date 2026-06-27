@@ -20,7 +20,10 @@ fn test_claims_debug_happy() {
     let claims = Claims::default();
     let debug_str = format!("{:?}", claims);
     assert!(!debug_str.is_empty(), "Debug output must not be empty");
-    assert!(debug_str.contains("Claims"), "Debug output must include type name");
+    assert!(
+        debug_str.contains("Claims"),
+        "Debug output must include type name"
+    );
 }
 
 #[test]

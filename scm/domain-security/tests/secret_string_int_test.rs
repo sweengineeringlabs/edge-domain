@@ -5,13 +5,21 @@ use edge_domain_security::SecretString;
 #[test]
 fn test_secret_string_from_str_happy() {
     let secret = SecretString::from("test");
-    assert_eq!(secret, SecretString::from("test"), "SecretString must preserve value");
+    assert_eq!(
+        secret,
+        SecretString::from("test"),
+        "SecretString must preserve value"
+    );
 }
 
 #[test]
 fn test_secret_string_from_string_happy() {
     let secret = SecretString::from("test".to_string());
-    assert_eq!(secret, SecretString::from("test"), "SecretString must handle owned strings");
+    assert_eq!(
+        secret,
+        SecretString::from("test"),
+        "SecretString must handle owned strings"
+    );
 }
 
 #[test]
@@ -25,15 +33,24 @@ fn test_secret_string_clone_happy() {
 fn test_secret_string_debug_redaction_happy() {
     let secret = SecretString::from("sensitive");
     let debug_str = format!("{:?}", secret);
-    assert!(!debug_str.contains("sensitive"), "Debug output must not expose secret");
-    assert!(debug_str.contains("REDACTED"), "Debug output must indicate redaction");
+    assert!(
+        !debug_str.contains("sensitive"),
+        "Debug output must not expose secret"
+    );
+    assert!(
+        debug_str.contains("REDACTED"),
+        "Debug output must indicate redaction"
+    );
 }
 
 #[test]
 fn test_secret_string_display_redaction_happy() {
     let secret = SecretString::from("sensitive");
     let display_str = format!("{}", secret);
-    assert!(!display_str.contains("sensitive"), "Display output must not expose secret");
+    assert!(
+        !display_str.contains("sensitive"),
+        "Display output must not expose secret"
+    );
 }
 
 #[test]

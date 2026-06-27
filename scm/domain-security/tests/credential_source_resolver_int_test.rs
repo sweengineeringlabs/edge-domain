@@ -1,6 +1,8 @@
 //! Integration tests for [`CredentialSourceResolver`] trait.
 
-use edge_domain_security::{CredentialSource, CredentialSourceConfig, CredentialSourceResolver, SecurityError};
+use edge_domain_security::{
+    CredentialSource, CredentialSourceConfig, CredentialSourceResolver, SecurityError,
+};
 
 struct OkResolver;
 impl CredentialSourceResolver for OkResolver {

@@ -4,6 +4,7 @@ pub mod credential_source_resolver;
 pub mod principal;
 pub mod security;
 pub mod security_bootstrap;
+pub mod tls_config;
 pub mod token_verifier;
 pub mod validator;
 
@@ -13,5 +14,6 @@ pub use credential_source_resolver::CredentialSourceResolver;
 pub use principal::Principal;
 pub use security::Security;
 pub use security_bootstrap::SecurityBootstrap;
+pub use tls_config::TlsConfig;
 pub use token_verifier::TokenVerifier;
 pub use validator::Validator;

@@ -14,12 +14,18 @@ fn test_bootstrap_facade_trait_available_happy() {
 fn test_bootstrap_facade_unauthenticated_edge() {
     // Verify bootstrap methods are callable through the facade
     let ctx = <SecurityServices as SecurityBootstrap>::unauthenticated();
-    assert!(!ctx.authenticated, "default context must be unauthenticated");
+    assert!(
+        !ctx.authenticated,
+        "default context must be unauthenticated"
+    );
 }
 
 #[test]
 fn test_bootstrap_facade_authenticated_edge() {
     let principal = Box::new(edge_domain_security::AnonymousPrincipal);
     let ctx = <SecurityServices as SecurityBootstrap>::authenticated(principal);
-    assert!(ctx.authenticated, "authenticated context must be authenticated");
+    assert!(
+        ctx.authenticated,
+        "authenticated context must be authenticated"
+    );
 }

@@ -6,6 +6,7 @@ pub mod types;
 pub use traits::AuthzPolicy;
 pub use traits::CredentialResolver;
 pub use traits::CredentialSourceResolver;
+pub use traits::TlsConfig;
 pub use traits::TokenVerifier;
 pub use traits::Validator;
 
@@ -13,10 +14,12 @@ pub use traits::Validator;
 pub use types::Claims;
 pub use types::CredentialSource;
 pub use types::CredentialSourceConfig;
+pub use types::IngressTlsConfig;
 pub use types::SecretString;
 pub use types::Token;
 
 // Original domain-security exports
+pub use errors::IngressTlsError;
 pub use errors::SecurityError;
 pub use errors::ValidationError;
 pub use traits::Principal;

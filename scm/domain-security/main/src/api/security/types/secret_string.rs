@@ -7,4 +7,3 @@
 /// transmission and only within the transport layer.
 #[derive(Clone, PartialEq, Eq)]
 pub struct SecretString(pub(crate) String);
-

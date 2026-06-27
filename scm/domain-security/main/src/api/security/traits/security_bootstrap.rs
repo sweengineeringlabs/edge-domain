@@ -21,19 +21,28 @@ pub trait SecurityBootstrap {
     }
 
     /// Construct an unauthenticated [`SecurityContext`] with no principal.
-    fn unauthenticated() -> SecurityContext where Self: Sized {
+    fn unauthenticated() -> SecurityContext
+    where
+        Self: Sized,
+    {
         SecurityContext::unauthenticated()
     }
 
     /// Construct an authenticated [`SecurityContext`] for the given principal.
-    fn authenticated(principal: Box<dyn Principal>) -> SecurityContext where Self: Sized {
+    fn authenticated(principal: Box<dyn Principal>) -> SecurityContext
+    where
+        Self: Sized,
+    {
         SecurityContext::authenticated_with(principal)
     }
 
     /// Construct a [`SecurityContext`] from a claims map.
     ///
     /// Returns [`SecurityError::Auth`] when `claims` is empty.
-    fn from_claims(claims: HashMap<String, String>) -> Result<SecurityContext, SecurityError> where Self: Sized {
+    fn from_claims(claims: HashMap<String, String>) -> Result<SecurityContext, SecurityError>
+    where
+        Self: Sized,
+    {
         if claims.is_empty() {
             return Err(SecurityError::Auth("no claims provided".to_string()));
         }
@@ -43,22 +52,34 @@ pub trait SecurityBootstrap {
     }
 
     /// Construct a [`NoopSecurity`] guard that allows every context.
-    fn noop_guard() -> NoopSecurity where Self: Sized {
+    fn noop_guard() -> NoopSecurity
+    where
+        Self: Sized,
+    {
         NoopSecurity
     }
 
     /// Construct an [`AnonymousPrincipal`] reference implementation.
-    fn anonymous_principal() -> AnonymousPrincipal where Self: Sized {
+    fn anonymous_principal() -> AnonymousPrincipal
+    where
+        Self: Sized,
+    {
         AnonymousPrincipal
     }
 
     /// Return the default [`SecurityServices`] factory implementation.
-    fn default_services() -> SecurityServices where Self: Sized {
+    fn default_services() -> SecurityServices
+    where
+        Self: Sized,
+    {
         SecurityServices
     }
 
     /// Return a fresh [`SecurityContextBuilder`] with no fields set.
-    fn context_builder() -> SecurityContextBuilder where Self: Sized {
+    fn context_builder() -> SecurityContextBuilder
+    where
+        Self: Sized,
+    {
         SecurityContextBuilder::new()
     }
 }
