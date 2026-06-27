@@ -1,18 +1,18 @@
 //! Integration tests for [`Validator`] trait.
 
-use edge_domain_security::Validator;
+use edge_domain_security::{Validator, ValidationError};
 
 struct OkValidator;
 impl Validator for OkValidator {
-    fn validate(&self) -> Result<(), String> {
+    fn validate(&self) -> Result<(), ValidationError> {
         Ok(())
     }
 }
 
 struct FailValidator;
 impl Validator for FailValidator {
-    fn validate(&self) -> Result<(), String> {
-        Err("validation failed".to_string())
+    fn validate(&self) -> Result<(), ValidationError> {
+        Err(ValidationError("validation failed".to_string()))
     }
 }
 

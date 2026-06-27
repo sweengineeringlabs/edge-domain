@@ -25,3 +25,4 @@ pub use security::SecurityContext;
 pub use security::SecurityContextBuilder;
 pub use security::SecurityError;
 pub use security::SecurityServices;
+pub use security::ValidationError;

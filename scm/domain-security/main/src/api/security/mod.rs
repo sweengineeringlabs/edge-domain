@@ -19,6 +19,7 @@ pub use types::Token;
 
 // Original domain-security exports
 pub use errors::SecurityError;
+pub use errors::ValidationError;
 pub use traits::Principal;
 pub use traits::Security;
 pub use traits::SecurityBootstrap;

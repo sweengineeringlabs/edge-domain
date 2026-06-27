@@ -31,6 +31,7 @@ pub use api::CredentialSourceConfig;
 pub use api::JwtKey;
 pub use api::SecretString;
 pub use api::Token;
+pub use api::ValidationError;
 
 // Original domain-security exports
 pub use api::AnonymousPrincipal;
