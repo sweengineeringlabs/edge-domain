@@ -1,7 +1,8 @@
 mod bootstrap;
 mod principal;
-mod security;
+mod svc;
+mod svc_factory;
 
 pub use bootstrap::{SecurityBootstrap};
 pub use principal::{Principal};
-pub use security::{Security};
+pub use svc::{Security};

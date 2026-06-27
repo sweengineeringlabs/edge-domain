@@ -80,3 +80,50 @@ impl fmt::Debug for SecurityContext {
             .finish()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_unauthenticated() {
+        let ctx = SecurityContext::unauthenticated();
+        assert!(!ctx.authenticated);
+        assert!(ctx.principal.is_none());
+        assert!(ctx.tenant_id.is_none());
+        assert!(ctx.claims.is_empty());
+    }
+
+    #[test]
+    fn test_authenticated_with() {
+        use crate::AnonymousPrincipal;
+        let principal: Box<dyn Principal> = Box::new(AnonymousPrincipal);
+        let ctx = SecurityContext::authenticated_with(principal);
+        assert!(ctx.authenticated);
+        assert!(ctx.principal.is_some());
+    }
+
+    #[test]
+    fn test_with_tenant() {
+        let ctx = SecurityContext::unauthenticated().with_tenant("tenant-123");
+        assert_eq!(ctx.tenant_id, Some("tenant-123".to_string()));
+    }
+
+    #[test]
+    fn test_with_trace_id() {
+        let ctx = SecurityContext::unauthenticated().with_trace_id("trace-456");
+        assert_eq!(ctx.trace_id, Some("trace-456".to_string()));
+    }
+
+    #[test]
+    fn test_with_claim() {
+        let ctx = SecurityContext::unauthenticated().with_claim("role", "admin");
+        assert_eq!(ctx.claim("role"), Some("admin"));
+    }
+
+    #[test]
+    fn test_claim() {
+        let ctx = SecurityContext::unauthenticated();
+        assert_eq!(ctx.claim("nonexistent"), None);
+    }
+}

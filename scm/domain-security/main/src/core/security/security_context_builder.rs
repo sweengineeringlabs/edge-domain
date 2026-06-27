@@ -84,3 +84,71 @@ impl Default for SecurityContextBuilder {
         Self::new()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_new() {
+        let builder = SecurityContextBuilder::new();
+        assert!(!builder.authenticated);
+        assert!(builder.principal.is_none());
+        assert!(builder.tenant_id.is_none());
+    }
+
+    #[test]
+    fn test_principal() {
+        use crate::AnonymousPrincipal;
+        let principal: Box<dyn Principal> = Box::new(AnonymousPrincipal);
+        let builder = SecurityContextBuilder::new().principal(principal);
+        assert!(builder.authenticated);
+        assert!(builder.principal.is_some());
+    }
+
+    #[test]
+    fn test_tenant_id() {
+        let builder = SecurityContextBuilder::new().tenant_id("tenant-789");
+        assert_eq!(builder.tenant_id, Some("tenant-789".to_string()));
+    }
+
+    #[test]
+    fn test_trace_id() {
+        let builder = SecurityContextBuilder::new().trace_id("trace-xyz");
+        assert_eq!(builder.trace_id, Some("trace-xyz".to_string()));
+    }
+
+    #[test]
+    fn test_claim() {
+        let builder = SecurityContextBuilder::new().claim("scope", "read");
+        assert_eq!(builder.claims.get("scope"), Some(&"read".to_string()));
+    }
+
+    #[test]
+    fn test_token() {
+        let builder = SecurityContextBuilder::new().token("secret-token-123");
+        assert_eq!(builder.token, Some("secret-token-123".to_string()));
+    }
+
+    #[test]
+    fn test_metadata() {
+        let builder = SecurityContextBuilder::new().metadata("x-custom", "value");
+        assert_eq!(builder.metadata.get("x-custom"), Some(&"value".to_string()));
+    }
+
+    #[test]
+    fn test_is_authorized() {
+        let builder = SecurityContextBuilder::new().is_authorized(true);
+        assert!(builder.is_authorized);
+    }
+
+    #[test]
+    fn test_build() {
+        let ctx = SecurityContextBuilder::new()
+            .tenant_id("tenant-001")
+            .claim("role", "user")
+            .build();
+        assert_eq!(ctx.tenant_id, Some("tenant-001".to_string()));
+        assert_eq!(ctx.claim("role"), Some("user"));
+    }
+}
