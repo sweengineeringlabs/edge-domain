@@ -24,7 +24,7 @@ fn test_bootstrap_name_error() {
 #[test]
 fn test_bootstrap_name_edge() {
     let bootstrap = TestBootstrap;
-    assert_eq!(bootstrap.bootstrap_name(), bootstrap.bootstrap_name());
+    assert_eq!(bootstrap.bootstrap_name(), "security", "bootstrap_name must always return 'security'");
 }
 
 /// @covers: unauthenticated
