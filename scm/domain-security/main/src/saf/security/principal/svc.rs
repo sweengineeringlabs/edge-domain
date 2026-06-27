@@ -1,4 +1,4 @@
 //! SAF — principal service facade.
 pub use crate::api::Principal;
-/// SAF module anchor — satisfies arch-audit rule 221.
+/// SAF module anchor.
 pub const PRINCIPAL_SVC: () = ();

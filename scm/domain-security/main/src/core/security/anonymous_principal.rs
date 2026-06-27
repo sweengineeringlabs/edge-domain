@@ -1,7 +1,13 @@
-//! `Principal` impl for `AnonymousPrincipal`.
+//! `Principal` impl and inherent methods for `AnonymousPrincipal`.
 
-use crate::api::Principal;
-use crate::api::AnonymousPrincipal;
+use crate::{AnonymousPrincipal, Principal};
+
+impl AnonymousPrincipal {
+    /// Identity string returned by [`Principal::id`](crate::Principal::id).
+    pub(crate) const ID: &'static str = "anonymous";
+    /// Kind string returned by [`Principal::kind`](crate::Principal::kind).
+    pub(crate) const KIND: &'static str = "anonymous";
+}
 
 impl Principal for AnonymousPrincipal {
     fn id(&self) -> &str {

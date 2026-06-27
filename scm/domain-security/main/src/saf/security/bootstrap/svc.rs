@@ -1,4 +1,4 @@
 //! SAF — security bootstrap service facade.
 pub use crate::api::SecurityBootstrap;
-/// SAF module anchor — satisfies arch-audit rule 221.
+/// SAF module anchor.
 pub const SECURITY_BOOTSTRAP_SVC: () = ();

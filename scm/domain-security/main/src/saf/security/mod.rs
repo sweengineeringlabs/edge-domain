@@ -1,9 +1,7 @@
-mod principal_svc;
-mod security_bootstrap_svc;
-mod security_svc;
+mod bootstrap;
+mod principal;
+mod security;
 
-pub use principal_svc::{Principal};
-pub use security_bootstrap_svc::{SecurityBootstrap};
-pub use security_svc::{
-    Security,
-};
+pub use bootstrap::{SecurityBootstrap};
+pub use principal::{Principal};
+pub use security::{Security};
