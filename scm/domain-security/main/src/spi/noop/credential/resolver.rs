@@ -44,7 +44,7 @@ mod tests {
     #[test]
     fn test_noop_credential_resolver_rejects_resolve() {
         let resolver = NoopCredentialResolver;
-        let source = CredentialSource::env("TEST_CRED".to_string());
+        let source = CredentialSource::from("test");
         let ctx = SecurityContext::unauthenticated();
         assert!(resolver.resolve(&source, &ctx).is_err());
     }
