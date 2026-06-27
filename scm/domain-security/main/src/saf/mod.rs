@@ -1,4 +1,6 @@
 mod credential;
+mod credential_resolver_svc_factory;
+mod credential_source_resolver_svc_factory;
 mod security;
 mod principal_svc_factory;
 mod security_bootstrap_svc_factory;
