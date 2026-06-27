@@ -16,26 +16,26 @@ impl TokenVerifier for FailVerifier {
     }
 }
 
-/// @covers: verify
+/// @covers: TokenVerifier::verify
 #[test]
-fn test_token_verifier_verify_happy() {
+fn test_verify_valid_happy() {
     let verifier = OkVerifier;
     let result = verifier.verify("valid-token");
     assert!(result.is_ok(), "verify must succeed with valid token");
     assert_eq!(result.unwrap(), Claims::default());
 }
 
-/// @covers: verify
+/// @covers: TokenVerifier::verify
 #[test]
-fn test_token_verifier_verify_error() {
+fn test_verify_invalid_error() {
     let verifier = FailVerifier;
     let result = verifier.verify("invalid-token");
     assert!(result.is_err(), "verify must fail with invalid token");
 }
 
-/// @covers: verify
+/// @covers: TokenVerifier::verify
 #[test]
-fn test_token_verifier_verify_edge_empty_token() {
+fn test_verify_empty_edge() {
     let verifier = OkVerifier;
     let result = verifier.verify("");
     assert!(result.is_ok(), "verify must handle empty token");

@@ -16,7 +16,7 @@ impl CredentialSourceResolver for FailResolver {
     }
 }
 
-/// @covers: resolve
+/// @covers: CredentialSourceResolver::resolve
 #[test]
 fn test_resolve_config_happy() {
     let resolver = OkResolver;
@@ -27,12 +27,11 @@ fn test_resolve_config_happy() {
     };
     let result = resolver.resolve(&config);
     assert!(result.is_ok(), "resolve must succeed with valid config");
-    let _source = result.unwrap();
-    // Source is successfully resolved
-    assert!(true);
+    let source = result.unwrap();
+    assert_eq!(source, CredentialSource::from("resolved"));
 }
 
-/// @covers: resolve
+/// @covers: CredentialSourceResolver::resolve
 #[test]
 fn test_resolve_config_error() {
     let resolver = FailResolver;
@@ -44,7 +43,7 @@ fn test_resolve_config_error() {
     assert!(resolver.resolve(&config).is_err());
 }
 
-/// @covers: resolve
+/// @covers: CredentialSourceResolver::resolve
 #[test]
 fn test_resolve_config_edge() {
     let resolver = OkResolver;

@@ -16,7 +16,7 @@ impl AuthzPolicy for DenyPolicy {
     }
 }
 
-/// @covers: check
+/// @covers: AuthzPolicy::check
 #[test]
 fn test_check_allow_happy() {
     let policy = AllowPolicy;
@@ -26,7 +26,7 @@ fn test_check_allow_happy() {
     assert_eq!(result.unwrap(), (), "allow policy must return Ok(())");
 }
 
-/// @covers: check
+/// @covers: AuthzPolicy::check
 #[test]
 fn test_check_deny_error() {
     let policy = DenyPolicy;
@@ -34,7 +34,7 @@ fn test_check_deny_error() {
     assert!(policy.check(&ctx).is_err());
 }
 
-/// @covers: check
+/// @covers: AuthzPolicy::check
 #[test]
 fn test_check_consistent_edge() {
     let policy = AllowPolicy;

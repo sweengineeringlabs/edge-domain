@@ -17,9 +17,9 @@ impl Principal for TestPrincipal {
     }
 }
 
-/// @covers: id
+/// @covers: Principal::id
 #[test]
-fn test_principal_id_happy() {
+fn test_id_user_happy() {
     let principal = TestPrincipal {
         id: "user123".to_string(),
         kind: "tenant".to_string(),
@@ -27,9 +27,9 @@ fn test_principal_id_happy() {
     assert_eq!(principal.id(), "user123");
 }
 
-/// @covers: id
+/// @covers: Principal::id
 #[test]
-fn test_principal_id_error() {
+fn test_id_empty_error() {
     let principal = TestPrincipal {
         id: "".to_string(),
         kind: "tenant".to_string(),
@@ -38,9 +38,9 @@ fn test_principal_id_error() {
     assert!(id.is_empty());
 }
 
-/// @covers: id
+/// @covers: Principal::id
 #[test]
-fn test_principal_id_edge() {
+fn test_id_consistent_edge() {
     let principal = TestPrincipal {
         id: "test-id".to_string(),
         kind: "service".to_string(),
@@ -50,9 +50,9 @@ fn test_principal_id_edge() {
     assert_eq!(id1, id2);
 }
 
-/// @covers: kind
+/// @covers: Principal::kind
 #[test]
-fn test_principal_kind_happy() {
+fn test_kind_tenant_happy() {
     let principal = TestPrincipal {
         id: "user123".to_string(),
         kind: "tenant".to_string(),
@@ -60,9 +60,9 @@ fn test_principal_kind_happy() {
     assert_eq!(principal.kind(), "tenant");
 }
 
-/// @covers: kind
+/// @covers: Principal::kind
 #[test]
-fn test_principal_kind_error() {
+fn test_kind_empty_error() {
     let principal = TestPrincipal {
         id: "user123".to_string(),
         kind: "".to_string(),
@@ -71,9 +71,9 @@ fn test_principal_kind_error() {
     assert!(kind.is_empty());
 }
 
-/// @covers: kind
+/// @covers: Principal::kind
 #[test]
-fn test_principal_kind_edge() {
+fn test_kind_consistent_edge() {
     let principal = TestPrincipal {
         id: "test-id".to_string(),
         kind: "anonymous".to_string(),

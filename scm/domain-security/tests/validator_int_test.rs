@@ -16,25 +16,25 @@ impl Validator for FailValidator {
     }
 }
 
-/// @covers: validate
+/// @covers: Validator::validate
 #[test]
-fn test_validator_validate_happy() {
+fn test_validate_input_happy() {
     let validator = OkValidator;
     let result = validator.validate();
     assert!(result.is_ok(), "validator must accept valid input");
     assert_eq!(result.unwrap(), (), "validate must return Ok(())");
 }
 
-/// @covers: validate
+/// @covers: Validator::validate
 #[test]
-fn test_validator_validate_error() {
+fn test_validate_invalid_error() {
     let validator = FailValidator;
     assert!(validator.validate().is_err());
 }
 
-/// @covers: validate
+/// @covers: Validator::validate
 #[test]
-fn test_validator_validate_edge() {
+fn test_validate_consistent_edge() {
     let validator = OkValidator;
     let r1 = validator.validate();
     let r2 = validator.validate();
