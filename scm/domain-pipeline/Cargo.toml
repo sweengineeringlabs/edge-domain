@@ -10,10 +10,8 @@ description = "edge-domain — Pipeline port contract: immediate/synchronous ste
 keywords    = ["domain", "pipeline", "orchestration", "sea", "swe"]
 categories  = ["development-tools"]
 
-[package.metadata.struct-engine]
+[package.metadata.arch]
 application_type = "lib"
-service_type     = "pipeline"
-
 [lib]
 path = "main/src/lib.rs"
 

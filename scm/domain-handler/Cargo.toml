@@ -10,10 +10,8 @@ description = "edge-domain — Handler port contract: request/response execution
 keywords    = ["domain", "handler", "registry", "sea", "swe"]
 categories  = ["development-tools"]
 
-[package.metadata.struct-engine]
+[package.metadata.arch]
 application_type = "lib"
-service_type     = "handler"
-
 [lib]
 path = "main/src/lib.rs"
 

@@ -10,10 +10,8 @@ description = "edge-domain — Command port contract: CQRS write-side with Comma
 keywords    = ["domain", "command", "cqrs", "sea", "swe"]
 categories  = ["development-tools"]
 
-[package.metadata.struct-engine]
+[package.metadata.arch]
 application_type = "lib"
-service_type     = "command"
-
 [lib]
 path = "main/src/lib.rs"
 
