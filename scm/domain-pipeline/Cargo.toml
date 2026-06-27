@@ -12,6 +12,7 @@ categories  = ["development-tools"]
 
 [package.metadata.arch]
 application_type = "lib"
+service_type     = "framework"
 [lib]
 path = "main/src/lib.rs"
 
