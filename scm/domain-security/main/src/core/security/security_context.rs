@@ -7,7 +7,7 @@ use crate::{Principal, SecurityContext};
 
 impl SecurityContext {
     /// Construct an unauthenticated context with no principal or claims.
-    pub fn unauthenticated() -> Self {
+    pub(crate) fn unauthenticated() -> Self {
         Self {
             principal: None,
             tenant_id: None,
@@ -22,7 +22,7 @@ impl SecurityContext {
     }
 
     /// Construct an authenticated context for the given principal.
-    pub fn authenticated_with(principal: Box<dyn Principal>) -> Self {
+    pub(crate) fn authenticated_with(principal: Box<dyn Principal>) -> Self {
         Self {
             authenticated: true,
             principal: Some(principal),
@@ -55,7 +55,7 @@ impl SecurityContext {
     }
 
     /// Retrieve a claim value by key.
-    pub fn claim(&self, key: &str) -> Option<&str> {
+    pub(crate) fn claim(&self, key: &str) -> Option<&str> {
         self.claims.get(key).map(String::as_str)
     }
 }

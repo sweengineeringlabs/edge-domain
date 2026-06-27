@@ -6,7 +6,7 @@ use crate::{Principal, SecurityContext, SecurityContextBuilder};
 
 impl SecurityContextBuilder {
     /// Start a new builder with no principal and `authenticated = false`.
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Self {
             principal: None,
             tenant_id: None,
@@ -21,50 +21,50 @@ impl SecurityContextBuilder {
     }
 
     /// Set the principal and mark the context authenticated.
-    pub fn principal(mut self, p: Box<dyn Principal>) -> Self {
+    pub(crate) fn principal(mut self, p: Box<dyn Principal>) -> Self {
         self.principal = Some(p);
         self.authenticated = true;
         self
     }
 
     /// Set the tenant scope.
-    pub fn tenant_id(mut self, id: impl Into<String>) -> Self {
+    pub(crate) fn tenant_id(mut self, id: impl Into<String>) -> Self {
         self.tenant_id = Some(id.into());
         self
     }
 
     /// Set the trace identifier.
-    pub fn trace_id(mut self, id: impl Into<String>) -> Self {
+    pub(crate) fn trace_id(mut self, id: impl Into<String>) -> Self {
         self.trace_id = Some(id.into());
         self
     }
 
     /// Insert a claim key-value pair.
-    pub fn claim(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
+    pub(crate) fn claim(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
         self.claims.insert(key.into(), value.into());
         self
     }
 
     /// Set the raw token.
-    pub fn token(mut self, token: impl Into<String>) -> Self {
+    pub(crate) fn token(mut self, token: impl Into<String>) -> Self {
         self.token = Some(token.into());
         self
     }
 
     /// Insert request metadata (e.g. HTTP headers).
-    pub fn metadata(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
+    pub(crate) fn metadata(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
         self.metadata.insert(key.into(), value.into());
         self
     }
 
     /// Set authorization result state.
-    pub fn is_authorized(mut self, authorized: bool) -> Self {
+    pub(crate) fn is_authorized(mut self, authorized: bool) -> Self {
         self.is_authorized = authorized;
         self
     }
 
     /// Consume the builder and return the completed [`SecurityContext`].
-    pub fn build(self) -> SecurityContext {
+    pub(crate) fn build(self) -> SecurityContext {
         SecurityContext {
             principal: self.principal,
             tenant_id: self.tenant_id,
