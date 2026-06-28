@@ -1,31 +1,8 @@
-//! [`IngressTlsConfig`] constructors and [`TlsConfig`] implementation.
+//! [`TlsConfig`] implementation for [`IngressTlsConfig`].
 
 use crate::api::{IngressTlsConfig, IngressTlsError, TlsConfig};
 
 impl IngressTlsConfig {
-    /// TLS-only: server authenticates with `cert`/`key`; client certificates are not required.
-    pub(crate) fn tls(cert_pem_path: impl Into<String>, key_pem_path: impl Into<String>) -> Self {
-        Self {
-            cert_pem_path: cert_pem_path.into(),
-            key_pem_path: key_pem_path.into(),
-            client_ca_pem_path: None,
-        }
-    }
-
-    /// mTLS: server authenticates with `cert`/`key`; clients must present a certificate
-    /// signed by `client_ca`.
-    pub(crate) fn mtls(
-        cert_pem_path: impl Into<String>,
-        key_pem_path: impl Into<String>,
-        client_ca_pem_path: impl Into<String>,
-    ) -> Self {
-        Self {
-            cert_pem_path: cert_pem_path.into(),
-            key_pem_path: key_pem_path.into(),
-            client_ca_pem_path: Some(client_ca_pem_path.into()),
-        }
-    }
-
     /// Validate that all required paths are non-empty.
     pub(crate) fn validate(&self) -> Result<(), IngressTlsError> {
         if self.cert_pem_path.is_empty() {
@@ -56,23 +33,6 @@ impl TlsConfig for IngressTlsConfig {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    /// @covers: tls
-    #[test]
-    fn test_tls_sets_cert_and_key() {
-        let cfg = IngressTlsConfig::tls("cert.pem", "key.pem");
-        assert_eq!(cfg.cert_pem_path, "cert.pem");
-        assert_eq!(cfg.key_pem_path, "key.pem");
-        assert!(cfg.client_ca_pem_path.is_none());
-    }
-
-    /// @covers: mtls
-    #[test]
-    fn test_mtls_sets_cert_key_and_ca() {
-        let cfg = IngressTlsConfig::mtls("c.pem", "k.pem", "ca.pem");
-        assert_eq!(cfg.cert_pem_path, "c.pem");
-        assert_eq!(cfg.client_ca_pem_path, Some("ca.pem".to_string()));
-    }
 
     /// @covers: validate
     #[test]

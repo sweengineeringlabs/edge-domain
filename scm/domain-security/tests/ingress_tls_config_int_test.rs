@@ -18,21 +18,13 @@ impl TlsConfig for TlsEndpoint {
 
 fn tls(cert: &str, key: &str) -> TlsEndpoint {
     TlsEndpoint {
-        config: IngressTlsConfig {
-            cert_pem_path: cert.into(),
-            key_pem_path: key.into(),
-            client_ca_pem_path: None,
-        },
+        config: IngressTlsConfig::tls(cert, key),
     }
 }
 
 fn mtls(cert: &str, key: &str, ca: &str) -> TlsEndpoint {
     TlsEndpoint {
-        config: IngressTlsConfig {
-            cert_pem_path: cert.into(),
-            key_pem_path: key.into(),
-            client_ca_pem_path: Some(ca.into()),
-        },
+        config: IngressTlsConfig::mtls(cert, key, ca),
     }
 }
 
