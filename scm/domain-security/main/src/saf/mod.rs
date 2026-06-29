@@ -1,3 +1,6 @@
+#[cfg(test)]
+mod tests;
+
 mod authz_policy_svc_factory;
 mod credential;
 mod credential_resolver_svc_factory;

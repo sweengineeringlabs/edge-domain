@@ -14,7 +14,7 @@ pub use traits::Validator;
 pub use types::Claims;
 pub use types::CredentialSource;
 pub use types::CredentialSourceConfig;
-pub use types::IngressTlsConfig;
+pub use types::PemTlsConfig;
 pub use types::SecretString;
 pub use types::Token;
 

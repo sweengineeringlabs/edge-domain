@@ -1,13 +1,13 @@
-//! Integration tests for [`IngressTlsConfig`] via the [`TlsConfig`] trait.
+//! Integration tests for [`PemTlsConfig`] via the [`TlsConfig`] trait.
 
-use edge_domain_security::{IngressTlsConfig, IngressTlsError, TlsConfig};
+use edge_domain_security::{IngressTlsError, PemTlsConfig, TlsConfig};
 
 struct TlsEndpoint {
-    config: IngressTlsConfig,
+    config: PemTlsConfig,
 }
 
 impl TlsConfig for TlsEndpoint {
-    fn ingress_tls(&self) -> &IngressTlsConfig {
+    fn ingress_tls(&self) -> &PemTlsConfig {
         &self.config
     }
 
@@ -18,19 +18,19 @@ impl TlsConfig for TlsEndpoint {
 
 fn tls(cert: &str, key: &str) -> TlsEndpoint {
     TlsEndpoint {
-        config: IngressTlsConfig::tls(cert, key),
+        config: PemTlsConfig::tls(cert, key),
     }
 }
 
 fn mtls(cert: &str, key: &str, ca: &str) -> TlsEndpoint {
     TlsEndpoint {
-        config: IngressTlsConfig::mtls(cert, key, ca),
+        config: PemTlsConfig::mtls(cert, key, ca),
     }
 }
 
 /// @covers: tls
 #[test]
-fn test_ingress_tls_config_tls_happy() {
+fn test_pem_tls_config_tls_happy() {
     let ep = tls("cert.pem", "key.pem");
     assert_eq!(ep.cert_path(), "cert.pem");
     assert_eq!(ep.key_path(), "key.pem");
@@ -40,7 +40,7 @@ fn test_ingress_tls_config_tls_happy() {
 
 /// @covers: mtls
 #[test]
-fn test_ingress_tls_config_mtls_happy() {
+fn test_pem_tls_config_mtls_happy() {
     let ep = mtls("cert.pem", "key.pem", "ca.pem");
     assert_eq!(ep.cert_path(), "cert.pem");
     assert_eq!(ep.key_path(), "key.pem");

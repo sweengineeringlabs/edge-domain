@@ -30,7 +30,7 @@ pub use api::Validator;
 pub use api::Claims;
 pub use api::CredentialSource;
 pub use api::CredentialSourceConfig;
-pub use api::IngressTlsConfig;
+pub use api::PemTlsConfig;
 pub use api::SecretString;
 pub use api::Token;
 pub use api::ValidationError;

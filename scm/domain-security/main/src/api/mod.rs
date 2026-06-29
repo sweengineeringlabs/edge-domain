@@ -1,5 +1,8 @@
 ﻿mod security;
 
+#[cfg(test)]
+mod tests;
+
 // Trait contracts
 pub use security::AuthzPolicy;
 pub use security::CredentialResolver;
@@ -12,7 +15,7 @@ pub use security::Validator;
 pub use security::Claims;
 pub use security::CredentialSource;
 pub use security::CredentialSourceConfig;
-pub use security::IngressTlsConfig;
+pub use security::PemTlsConfig;
 pub use security::SecretString;
 pub use security::Token;
 

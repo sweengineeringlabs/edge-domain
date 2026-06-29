@@ -1,13 +1,13 @@
 //! Integration tests for the [`TlsConfig`] trait contract.
 
-use edge_domain_security::{IngressTlsConfig, IngressTlsError, TlsConfig};
+use edge_domain_security::{IngressTlsError, PemTlsConfig, TlsConfig};
 
 struct TlsEndpoint {
-    config: IngressTlsConfig,
+    config: PemTlsConfig,
 }
 
 impl TlsConfig for TlsEndpoint {
-    fn ingress_tls(&self) -> &IngressTlsConfig {
+    fn ingress_tls(&self) -> &PemTlsConfig {
         &self.config
     }
 
@@ -18,13 +18,13 @@ impl TlsConfig for TlsEndpoint {
 
 fn plain_tls(cert: &str, key: &str) -> TlsEndpoint {
     TlsEndpoint {
-        config: IngressTlsConfig::tls(cert, key),
+        config: PemTlsConfig::tls(cert, key),
     }
 }
 
 fn mutual_tls(cert: &str, key: &str, ca: &str) -> TlsEndpoint {
     TlsEndpoint {
-        config: IngressTlsConfig::mtls(cert, key, ca),
+        config: PemTlsConfig::mtls(cert, key, ca),
     }
 }
 
@@ -34,7 +34,7 @@ fn test_ingress_tls_returns_tls_config_happy() {
     let ep = plain_tls("cert.pem", "key.pem");
     assert_eq!(ep.ingress_tls().cert_pem_path, "cert.pem");
     assert_eq!(ep.ingress_tls().key_pem_path, "key.pem");
-    assert!(ep.ingress_tls().client_ca_pem_path.is_none());
+    assert!(ep.ingress_tls().ca_pem_path.is_none());
 }
 
 /// @covers: TlsConfig::ingress_tls
@@ -53,11 +53,11 @@ fn test_ingress_tls_cert_path_reflects_empty_string_error() {
 fn test_ingress_tls_returns_mtls_config_edge() {
     let ep = mutual_tls("cert.pem", "key.pem", "ca.pem");
     assert!(
-        ep.ingress_tls().client_ca_pem_path.is_some(),
-        "mTLS config must have client_ca_pem_path set"
+        ep.ingress_tls().ca_pem_path.is_some(),
+        "mTLS config must have ca_pem_path set"
     );
     assert_eq!(
-        ep.ingress_tls().client_ca_pem_path.as_deref(),
+        ep.ingress_tls().ca_pem_path.as_deref(),
         Some("ca.pem")
     );
 }
