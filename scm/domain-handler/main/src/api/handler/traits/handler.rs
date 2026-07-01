@@ -4,7 +4,7 @@ use async_trait::async_trait;
 
 use crate::api::handler::errors::HandlerError;
 use crate::api::handler::types::{
-    ExecuteRequest, HealthCheckRequest, HealthCheckResponse, IdRequest, IdResponse,
+    ExecutionRequest, HealthCheckRequest, HealthCheckResponse, IdRequest, IdResponse,
     PatternRequest, PatternResponse,
 };
 
@@ -35,7 +35,7 @@ pub trait Handler: Send + Sync {
     #[allow(clippy::missing_errors_doc)]
     async fn execute(
         &self,
-        req: ExecuteRequest<'_, Self::Request>,
+        req: ExecutionRequest<'_, Self::Request>,
     ) -> Result<Self::Response, HandlerError>;
 
     /// Return `true` if the handler is healthy and able to process requests.
@@ -53,7 +53,7 @@ mod tests {
     use crate::api::handler::types::HandlerContext;
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::SecurityContext;
+    use edge_domain_security::{SecurityBootstrap, SecurityServices};
 
     struct AlwaysOk;
 
@@ -62,10 +62,7 @@ mod tests {
         type Request = String;
         type Response = String;
 
-        async fn execute(
-            &self,
-            req: ExecuteRequest<'_, String>,
-        ) -> Result<String, HandlerError> {
+        async fn execute(&self, req: ExecutionRequest<'_, String>) -> Result<String, HandlerError> {
             Ok(req.req)
         }
     }
@@ -79,7 +76,7 @@ mod tests {
 
         async fn execute(
             &self,
-            _req: ExecuteRequest<'_, String>,
+            _req: ExecutionRequest<'_, String>,
         ) -> Result<String, HandlerError> {
             Err(HandlerError::ExecutionFailed("fail".into()))
         }
@@ -87,20 +84,40 @@ mod tests {
 
     #[tokio::test]
     async fn test_execute_ok_handler_returns_response_happy() {
-        let security = SecurityContext::unauthenticated();
+        let security = SecurityServices::unauthenticated();
         let bus = StdCommandBusFactory::direct();
         let observer = StdObserveFactory::noop_observer_context();
-        let ctx = HandlerContext { security: &security, commands: &bus, observer: observer.as_ref() };
-        assert!(AlwaysOk.execute(ExecuteRequest { req: "hi".into(), ctx }).await.is_ok());
+        let ctx = HandlerContext {
+            security: &security,
+            commands: &bus,
+            observer: observer.as_ref(),
+        };
+        assert!(AlwaysOk
+            .execute(ExecutionRequest {
+                req: "hi".into(),
+                ctx: &ctx
+            })
+            .await
+            .is_ok());
     }
 
     #[tokio::test]
     async fn test_execute_failing_handler_returns_err_error() {
-        let security = SecurityContext::unauthenticated();
+        let security = SecurityServices::unauthenticated();
         let bus = StdCommandBusFactory::direct();
         let observer = StdObserveFactory::noop_observer_context();
-        let ctx = HandlerContext { security: &security, commands: &bus, observer: observer.as_ref() };
-        assert!(AlwaysFail.execute(ExecuteRequest { req: "hi".into(), ctx }).await.is_err());
+        let ctx = HandlerContext {
+            security: &security,
+            commands: &bus,
+            observer: observer.as_ref(),
+        };
+        assert!(AlwaysFail
+            .execute(ExecutionRequest {
+                req: "hi".into(),
+                ctx: &ctx
+            })
+            .await
+            .is_err());
     }
 
     #[tokio::test]
@@ -115,6 +132,12 @@ mod tests {
 
     #[tokio::test]
     async fn test_health_check_default_returns_true_happy() {
-        assert!(AlwaysOk.health_check(HealthCheckRequest).await.unwrap().healthy);
+        assert!(
+            AlwaysOk
+                .health_check(HealthCheckRequest)
+                .await
+                .unwrap()
+                .healthy
+        );
     }
 }

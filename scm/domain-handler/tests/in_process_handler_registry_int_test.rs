@@ -1,14 +1,17 @@
 //! Integration tests — `InProcessHandlerRegistry` type.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
 
 use async_trait::async_trait;
 use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{
-    Handler, HandlerContext, HandlerError, HandlerRegistry, InProcessHandlerRegistry,
+    DeregisterHandlerRequest, EmptinessRequest, ExecutionRequest, Handler, HandlerContext,
+    HandlerError, HandlerLookupRequest, HandlerRegistry, IdRequest, IdResponse,
+    InProcessHandlerRegistry, LenRequest, ListIdsRequest, RegisterHandlerRequest,
 };
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::SecurityContext;
+use edge_domain_security::{SecurityBootstrap, SecurityServices};
 use futures::executor::block_on;
 
 struct Stub {
@@ -21,14 +24,12 @@ impl Handler for Stub {
     type Request = String;
     type Response = String;
 
-    fn id(&self) -> &str {
-        self.id
+    fn id(&self, _req: IdRequest) -> Result<IdResponse, HandlerError> {
+        Ok(IdResponse {
+            id: self.id.to_string(),
+        })
     }
-    async fn execute(
-        &self,
-        _req: String,
-        _ctx: HandlerContext<'_>,
-    ) -> Result<String, HandlerError> {
+    async fn execute(&self, _req: ExecutionRequest<'_, String>) -> Result<String, HandlerError> {
         Ok(self.response.into())
     }
 }
@@ -41,87 +42,134 @@ fn make_reg() -> InProcessHandlerRegistry<String, String> {
 #[test]
 fn test_new_creates_empty_registry_happy() {
     let reg = make_reg();
-    assert!(reg.is_empty());
-    assert_eq!(reg.len(), 0);
+    assert!(reg.is_empty(EmptinessRequest).unwrap().empty);
+    assert_eq!(reg.len(LenRequest).unwrap().count, 0);
 }
 
 /// @covers: InProcessHandlerRegistry default
 #[test]
 fn test_default_creates_empty_registry_edge() {
     let reg = InProcessHandlerRegistry::<String, String>::default();
-    assert!(reg.is_empty());
+    assert!(reg.is_empty(EmptinessRequest).unwrap().empty);
 }
 
 /// @covers: InProcessHandlerRegistry::register — get returns Some
 #[test]
 fn test_register_makes_handler_retrievable_happy() {
     let reg = make_reg();
-    reg.register(Arc::new(Stub {
+    reg.register(RegisterHandlerRequest::new(Arc::new(Stub {
         id: "s1",
         response: "r1",
-    }));
-    let handler = reg.get("s1");
+    })))
+    .unwrap();
+    let handler = reg
+        .get(HandlerLookupRequest {
+            id: "s1".to_string(),
+        })
+        .unwrap()
+        .handler;
     assert!(handler.is_some());
-    assert_eq!(handler.unwrap().id(), "s1");
+    assert_eq!(handler.unwrap().id(IdRequest).unwrap().id, "s1");
 }
 
 /// @covers: InProcessHandlerRegistry::register — duplicate id replaces
 #[test]
 fn test_register_duplicate_id_replaces_handler_edge() {
     let reg = make_reg();
-    reg.register(Arc::new(Stub {
+    reg.register(RegisterHandlerRequest::new(Arc::new(Stub {
         id: "dup",
         response: "first",
-    }));
-    reg.register(Arc::new(Stub {
+    })))
+    .unwrap();
+    reg.register(RegisterHandlerRequest::new(Arc::new(Stub {
         id: "dup",
         response: "second",
-    }));
-    assert_eq!(reg.len(), 1);
-    let h = reg.get("dup").unwrap();
-    let security = SecurityContext::unauthenticated();
+    })))
+    .unwrap();
+    assert_eq!(reg.len(LenRequest).unwrap().count, 1);
+    let h = reg
+        .get(HandlerLookupRequest {
+            id: "dup".to_string(),
+        })
+        .unwrap()
+        .handler
+        .unwrap();
+    let security = SecurityServices::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = HandlerContext { security: &security, commands: &bus, observer: observer.as_ref() };
-    assert_eq!(block_on(h.execute("".into(), ctx)).unwrap(), "second");
+    let ctx = HandlerContext {
+        security: &security,
+        commands: &bus,
+        observer: observer.as_ref(),
+    };
+    assert_eq!(
+        block_on(h.execute(ExecutionRequest {
+            req: "".into(),
+            ctx: &ctx
+        }))
+        .unwrap(),
+        "second"
+    );
 }
 
 /// @covers: InProcessHandlerRegistry::deregister — returns true for existing id
 #[test]
 fn test_deregister_existing_returns_true_happy() {
     let reg = make_reg();
-    reg.register(Arc::new(Stub {
+    reg.register(RegisterHandlerRequest::new(Arc::new(Stub {
         id: "to-remove",
         response: "x",
-    }));
-    assert!(reg.deregister("to-remove"));
-    assert!(reg.get("to-remove").is_none());
+    })))
+    .unwrap();
+    assert!(
+        reg.deregister(DeregisterHandlerRequest {
+            id: "to-remove".to_string()
+        })
+        .unwrap()
+        .was_present
+    );
+    assert!(reg
+        .get(HandlerLookupRequest {
+            id: "to-remove".to_string()
+        })
+        .unwrap()
+        .handler
+        .is_none());
 }
 
 /// @covers: InProcessHandlerRegistry::deregister — returns false for missing
 #[test]
 fn test_deregister_missing_returns_false_error() {
     let reg = make_reg();
-    assert!(!reg.deregister("missing"));
+    assert!(
+        !reg.deregister(DeregisterHandlerRequest {
+            id: "missing".to_string()
+        })
+        .unwrap()
+        .was_present
+    );
 }
 
 /// @covers: InProcessHandlerRegistry::list_ids — sorted
 #[test]
 fn test_list_ids_returns_sorted_ids_happy() {
     let reg = make_reg();
-    reg.register(Arc::new(Stub {
+    reg.register(RegisterHandlerRequest::new(Arc::new(Stub {
         id: "z",
         response: "",
-    }));
-    reg.register(Arc::new(Stub {
+    })))
+    .unwrap();
+    reg.register(RegisterHandlerRequest::new(Arc::new(Stub {
         id: "a",
         response: "",
-    }));
-    reg.register(Arc::new(Stub {
+    })))
+    .unwrap();
+    reg.register(RegisterHandlerRequest::new(Arc::new(Stub {
         id: "m",
         response: "",
-    }));
-    let ids = reg.list_ids();
+    })))
+    .unwrap();
+    let ids = reg.list_ids(ListIdsRequest).unwrap().ids;
     assert_eq!(ids, vec!["a", "m", "z"]);
 }
 
@@ -129,21 +177,39 @@ fn test_list_ids_returns_sorted_ids_happy() {
 #[test]
 fn test_list_ids_empty_registry_returns_empty_vec_edge() {
     let reg = make_reg();
-    assert!(reg.list_ids().is_empty());
+    assert!(reg.list_ids(ListIdsRequest).unwrap().ids.is_empty());
 }
 
 /// @covers: retrieved handler executes correctly
 #[test]
 fn test_retrieved_handler_produces_expected_response_happy() {
     let reg = make_reg();
-    reg.register(Arc::new(Stub {
+    reg.register(RegisterHandlerRequest::new(Arc::new(Stub {
         id: "exec",
         response: "pong",
-    }));
-    let h = reg.get("exec").unwrap();
-    let security = SecurityContext::unauthenticated();
+    })))
+    .unwrap();
+    let h = reg
+        .get(HandlerLookupRequest {
+            id: "exec".to_string(),
+        })
+        .unwrap()
+        .handler
+        .unwrap();
+    let security = SecurityServices::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = HandlerContext { security: &security, commands: &bus, observer: observer.as_ref() };
-    assert_eq!(block_on(h.execute("ping".into(), ctx)).unwrap(), "pong");
+    let ctx = HandlerContext {
+        security: &security,
+        commands: &bus,
+        observer: observer.as_ref(),
+    };
+    assert_eq!(
+        block_on(h.execute(ExecutionRequest {
+            req: "ping".into(),
+            ctx: &ctx
+        }))
+        .unwrap(),
+        "pong"
+    );
 }

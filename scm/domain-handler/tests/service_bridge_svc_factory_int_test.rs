@@ -7,7 +7,10 @@ fn test_service_bridge_svc_factory_constant_value_happy() {
 
 #[test]
 fn test_service_bridge_svc_factory_constant_not_empty_error() {
-    assert!(!SERVICE_BRIDGE_SVC_FACTORY.is_empty(), "SERVICE_BRIDGE_SVC_FACTORY must not be empty");
+    assert!(
+        !SERVICE_BRIDGE_SVC_FACTORY.is_empty(),
+        "SERVICE_BRIDGE_SVC_FACTORY must not be empty"
+    );
 }
 
 #[test]

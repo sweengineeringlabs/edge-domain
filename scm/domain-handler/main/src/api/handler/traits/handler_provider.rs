@@ -67,14 +67,21 @@ mod tests {
     #[test]
     fn test_bootstrap_name_returns_nonempty_string_happy() {
         let p = Prov;
-        assert!(!p.bootstrap_name(BootstrapNameRequest).unwrap().name.is_empty());
+        assert!(!p
+            .bootstrap_name(BootstrapNameRequest)
+            .unwrap()
+            .name
+            .is_empty());
     }
 
     /// @covers: bootstrap_name
     #[test]
     fn test_bootstrap_name_is_deterministic_error() {
         let p = Prov;
-        assert_eq!(p.bootstrap_name(BootstrapNameRequest).unwrap().name, "handler_provider");
+        assert_eq!(
+            p.bootstrap_name(BootstrapNameRequest).unwrap().name,
+            "handler_provider"
+        );
     }
 
     /// @covers: bootstrap_name
@@ -103,7 +110,10 @@ mod tests {
     #[test]
     fn test_noop_handler_factory_constructs_instance_edge() {
         let f: NoopHandlerFactory = Prov::noop_handler_factory();
-        assert_eq!(f.bootstrap_name(BootstrapNameRequest).unwrap().name, "handler");
+        assert_eq!(
+            f.bootstrap_name(BootstrapNameRequest).unwrap().name,
+            "handler"
+        );
     }
 
     /// @covers: default_bridge

@@ -12,7 +12,10 @@ fn test_registry_bridge_svc_factory_constant_value_happy() {
 #[test]
 fn test_registry_bridge_svc_factory_constant_not_empty_error() {
     assert!(!REGISTRY_BRIDGE_SVC_FACTORY.is_empty());
-    assert_eq!(REGISTRY_BRIDGE_SVC_FACTORY.len(), "registry_bridge_factory".len());
+    assert_eq!(
+        REGISTRY_BRIDGE_SVC_FACTORY.len(),
+        "registry_bridge_factory".len()
+    );
 }
 
 /// @covers: REGISTRY_BRIDGE_SVC_FACTORY — constant contains no whitespace
@@ -20,5 +23,8 @@ fn test_registry_bridge_svc_factory_constant_not_empty_error() {
 fn test_registry_bridge_svc_factory_constant_no_whitespace_edge() {
     assert!(!REGISTRY_BRIDGE_SVC_FACTORY.contains(' '));
     assert!(!REGISTRY_BRIDGE_SVC_FACTORY.contains('\t'));
-    assert_eq!(REGISTRY_BRIDGE_SVC_FACTORY, REGISTRY_BRIDGE_SVC_FACTORY.trim());
+    assert_eq!(
+        REGISTRY_BRIDGE_SVC_FACTORY,
+        REGISTRY_BRIDGE_SVC_FACTORY.trim()
+    );
 }

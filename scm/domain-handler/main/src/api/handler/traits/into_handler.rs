@@ -17,16 +17,9 @@ pub trait IntoHandler {
     /// The service response type.
     type Response;
 
-    /// Wrap `self` as a [`Handler`] that also satisfies the [`ServiceBackedHandler`](ServiceBackedHandlerTrait)
+    /// Wrap `self` as a [`Handler`] that also satisfies the [`ServiceHandlerTrait`]
     /// supertrait contract.
     #[allow(clippy::missing_errors_doc)]
-    fn into_handler(
-        self,
-        req: IntoHandlerRequest,
-    ) -> Result<
-        IntoHandlerResponse<
-            impl Handler<Request = Self::Request, Response = Self::Response> + ServiceHandlerTrait,
-        >,
-        HandlerError,
-    >;
+    #[rustfmt::skip]
+    fn into_handler(self, req: IntoHandlerRequest) -> Result<IntoHandlerResponse<impl Handler<Request = Self::Request, Response = Self::Response> + ServiceHandlerTrait>, HandlerError>;
 }

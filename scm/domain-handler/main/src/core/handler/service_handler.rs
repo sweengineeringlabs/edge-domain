@@ -3,7 +3,7 @@
 use async_trait::async_trait;
 use edge_domain_service::Service;
 
-use crate::api::ExecuteRequest;
+use crate::api::ExecutionRequest;
 use crate::api::Handler;
 use crate::api::HandlerError;
 use crate::api::IdRequest;
@@ -11,8 +11,8 @@ use crate::api::IdResponse;
 use crate::api::IntoHandler;
 use crate::api::IntoHandlerRequest;
 use crate::api::IntoHandlerResponse;
-use crate::api::ServiceHandler as ServiceHandlerTrait;
 use crate::api::ServiceBridge;
+use crate::api::ServiceHandler as ServiceHandlerTrait;
 use crate::api::Validator;
 use crate::api::ValidatorRequest;
 
@@ -57,14 +57,19 @@ where
     type Response = S::Response;
 
     fn id(&self, _req: IdRequest) -> Result<IdResponse, HandlerError> {
-        Ok(IdResponse { id: self.id.clone() })
+        Ok(IdResponse {
+            id: self.id.clone(),
+        })
     }
 
     async fn execute(
         &self,
-        req: ExecuteRequest<'_, S::Request>,
+        req: ExecutionRequest<'_, S::Request>,
     ) -> Result<S::Response, HandlerError> {
-        self.inner.execute(req.req).await.map_err(HandlerError::from)
+        self.inner
+            .execute(req.req)
+            .await
+            .map_err(HandlerError::from)
     }
 }
 
@@ -77,16 +82,12 @@ where
     type Request = S::Request;
     type Response = S::Response;
 
-    fn into_handler(
-        self,
-        _req: IntoHandlerRequest,
-    ) -> Result<
-        IntoHandlerResponse<
-            impl Handler<Request = Self::Request, Response = Self::Response> + ServiceHandlerTrait,
-        >,
-        HandlerError,
-    > {
-        let id = self.name().to_string();
+    #[rustfmt::skip]
+    fn into_handler(self, _req: IntoHandlerRequest) -> Result<IntoHandlerResponse<impl Handler<Request = Self::Request, Response = Self::Response> + ServiceHandlerTrait>, HandlerError> {
+        let id = self
+            .name(edge_domain_service::NameRequest)
+            .map_err(HandlerError::from)?
+            .name;
         Ok(IntoHandlerResponse {
             handler: DefaultServiceHandler::new(id, self),
         })
@@ -104,7 +105,14 @@ mod tests {
     impl Service for DefaultServiceHandlerStub {
         type Request = ();
         type Response = ();
-        fn name(&self) -> &str { "stub" }
+        fn name(
+            &self,
+            _req: edge_domain_service::NameRequest,
+        ) -> Result<edge_domain_service::NameResponse, ServiceError> {
+            Ok(edge_domain_service::NameResponse {
+                name: "stub".to_string(),
+            })
+        }
         fn execute(&self, _: ()) -> BoxFuture<'_, Result<(), ServiceError>> {
             Box::pin(async { Ok(()) })
         }

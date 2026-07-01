@@ -1,11 +1,11 @@
-//! [`GetHandlerResponse`] — response for [`HandlerRegistry::get`](crate::api::handler::traits::HandlerRegistry::get).
+//! [`HandlerLookupResponse`] — response for [`HandlerRegistry::get`](crate::api::handler::traits::HandlerRegistry::get).
 
 use std::sync::Arc;
 
 use crate::api::handler::traits::handler::Handler;
 
 /// The handler found for the requested id, if any.
-pub struct GetHandlerResponse<Req, Resp>
+pub struct HandlerLookupResponse<Req, Resp>
 where
     Req: Send + 'static,
     Resp: Send + 'static,

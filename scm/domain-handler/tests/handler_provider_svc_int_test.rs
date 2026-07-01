@@ -1,14 +1,17 @@
 //! Integration tests — `HandlerProvider` trait.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
 
 use async_trait::async_trait;
 use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{
-    Handler, HandlerBootstrap, HandlerContext, HandlerError, HandlerProvider, HandlerRegistry,
+    BootstrapNameRequest, DeregisterHandlerRequest, EmptinessRequest, ExecutionRequest, Handler,
+    HandlerBootstrap, HandlerContext, HandlerError, HandlerProvider, HandlerRegistry, IdRequest,
+    IdResponse, LenRequest, PatternRequest, RegisterHandlerRequest,
 };
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::SecurityContext;
+use edge_domain_security::{SecurityBootstrap, SecurityServices};
 use futures::executor::block_on;
 
 struct Prov;
@@ -18,34 +21,45 @@ impl HandlerProvider for Prov {}
 #[test]
 fn test_echo_handler_id_and_pattern_set_correctly_happy() {
     let h = Prov::echo_handler("my-id", "/route");
-    assert_eq!(h.id(), "my-id");
-    assert_eq!(h.pattern(), "/route");
+    assert_eq!(h.id(IdRequest).unwrap().id, "my-id");
+    assert_eq!(h.pattern(PatternRequest).unwrap().pattern, "/route");
 }
 
 /// @covers: HandlerProvider::echo_handler — echoes request
 #[test]
 fn test_echo_handler_reflects_request_happy() {
     let h = Prov::echo_handler("e", "/");
-    let security = SecurityContext::unauthenticated();
+    let security = SecurityServices::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = HandlerContext { security: &security, commands: &bus, observer: observer.as_ref() };
-    assert_eq!(block_on(h.execute("ping".into(), ctx)).unwrap(), "ping");
+    let ctx = HandlerContext {
+        security: &security,
+        commands: &bus,
+        observer: observer.as_ref(),
+    };
+    assert_eq!(
+        block_on(h.execute(ExecutionRequest {
+            req: "ping".into(),
+            ctx: &ctx
+        }))
+        .unwrap(),
+        "ping"
+    );
 }
 
 /// @covers: HandlerProvider::echo_handler — empty id/pattern edge
 #[test]
 fn test_echo_handler_empty_id_and_pattern_edge() {
     let h = Prov::echo_handler("", "");
-    assert_eq!(h.id(), "");
-    assert_eq!(h.pattern(), "");
+    assert_eq!(h.id(IdRequest).unwrap().id, "");
+    assert_eq!(h.pattern(PatternRequest).unwrap().pattern, "");
 }
 
 /// @covers: HandlerProvider::in_process_registry — creates empty registry
 #[test]
 fn test_in_process_registry_creates_empty_registry_happy() {
     let reg = Prov::in_process_registry::<String, String>();
-    assert!(reg.is_empty());
+    assert!(reg.is_empty(EmptinessRequest).unwrap().empty);
 }
 
 /// @covers: HandlerProvider::in_process_registry — registry is usable
@@ -57,21 +71,23 @@ fn test_in_process_registry_register_and_retrieve_happy() {
         type Request = String;
         type Response = String;
 
-        fn id(&self) -> &str {
-            "ping"
+        fn id(&self, _req: IdRequest) -> Result<IdResponse, HandlerError> {
+            Ok(IdResponse {
+                id: "ping".to_string(),
+            })
         }
         async fn execute(
             &self,
-            _req: String,
-            _ctx: HandlerContext<'_>,
+            _req: ExecutionRequest<'_, String>,
         ) -> Result<String, HandlerError> {
             Ok("pong".into())
         }
     }
 
     let reg = Prov::in_process_registry::<String, String>();
-    reg.register(Arc::new(Ping));
-    assert_eq!(reg.len(), 1);
+    reg.register(RegisterHandlerRequest::new(Arc::new(Ping)))
+        .unwrap();
+    assert_eq!(reg.len(LenRequest).unwrap().count, 1);
 }
 
 /// @covers: HandlerProvider::in_process_registry — empty after deregister
@@ -83,44 +99,52 @@ fn test_in_process_registry_empty_after_deregister_edge() {
         type Request = String;
         type Response = String;
 
-        fn id(&self) -> &str {
-            "tmp"
+        fn id(&self, _req: IdRequest) -> Result<IdResponse, HandlerError> {
+            Ok(IdResponse {
+                id: "tmp".to_string(),
+            })
         }
         async fn execute(
             &self,
-            _req: String,
-            _ctx: HandlerContext<'_>,
+            _req: ExecutionRequest<'_, String>,
         ) -> Result<String, HandlerError> {
             Ok(String::new())
         }
     }
 
     let reg = Prov::in_process_registry::<String, String>();
-    reg.register(Arc::new(Tmp));
-    reg.deregister("tmp");
-    assert!(reg.is_empty());
+    reg.register(RegisterHandlerRequest::new(Arc::new(Tmp)))
+        .unwrap();
+    reg.deregister(DeregisterHandlerRequest {
+        id: "tmp".to_string(),
+    })
+    .unwrap();
+    assert!(reg.is_empty(EmptinessRequest).unwrap().empty);
 }
 
 /// @covers: HandlerProvider::echo_handler — infallible (no error path; demonstrates it never panics)
 #[test]
 fn test_echo_handler_always_constructs_without_error_error() {
     let h = Prov::echo_handler("", "");
-    assert_eq!(h.id(), "");
+    assert_eq!(h.id(IdRequest).unwrap().id, "");
 }
 
 /// @covers: HandlerProvider::in_process_registry — infallible (no error path; empty state is valid)
 #[test]
 fn test_in_process_registry_empty_state_is_not_an_error_error() {
     let reg = Prov::in_process_registry::<String, String>();
-    assert_eq!(reg.len(), 0);
+    assert_eq!(reg.len(LenRequest).unwrap().count, 0);
 }
 
 /// @covers: HandlerProvider::noop_handler_factory — constructs a NoopHandlerFactory
 #[test]
 fn test_noop_handler_factory_constructs_instance_happy() {
-    use edge_domain_handler::{HandlerBootstrap, NoopHandlerFactory};
+    use edge_domain_handler::NoopHandlerFactory;
     let f: NoopHandlerFactory = Prov::noop_handler_factory();
-    assert_eq!(f.bootstrap_name(), "handler");
+    assert_eq!(
+        f.bootstrap_name(BootstrapNameRequest).unwrap().name,
+        "handler"
+    );
 }
 
 /// @covers: HandlerProvider::noop_handler_factory — infallible (no error path; documents absence)
@@ -128,13 +152,16 @@ fn test_noop_handler_factory_constructs_instance_happy() {
 fn test_noop_handler_factory_is_always_infallible_error() {
     use edge_domain_handler::NoopHandlerFactory;
     let f: NoopHandlerFactory = Prov::noop_handler_factory();
-    assert_eq!(f.bootstrap_name(), "handler");
+    assert_eq!(
+        f.bootstrap_name(BootstrapNameRequest).unwrap().name,
+        "handler"
+    );
 }
 
 /// @covers: HandlerProvider::noop_handler_factory — Copy semantics allow multiple uses
 #[test]
 fn test_noop_handler_factory_copy_allows_multiple_uses_edge() {
-    use edge_domain_handler::{HandlerBootstrap, NoopHandlerFactory};
+    use edge_domain_handler::NoopHandlerFactory;
     let f: NoopHandlerFactory = Prov::noop_handler_factory();
     let g = f; // Copy
     let _r1 = NoopHandlerFactory::build(()).unwrap();

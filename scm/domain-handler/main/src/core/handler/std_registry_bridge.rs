@@ -6,21 +6,19 @@ use async_trait::async_trait;
 use edge_domain_service::ListNamesRequest;
 use edge_domain_service::Service;
 use edge_domain_service::ServiceLookupRequest;
-use edge_domain_service::ServiceRegistry as ServiceRegistryTrait;
 
 use crate::api::BridgeRequest;
 use crate::api::BridgeResponse;
-use crate::api::ExecuteRequest;
+use crate::api::ExecutionRequest;
 use crate::api::Handler;
 use crate::api::HandlerError;
-use crate::api::HandlerRegistry;
 use crate::api::IdRequest;
 use crate::api::IdResponse;
 use crate::api::RegisterHandlerRequest;
 use crate::api::RegistryBridge;
 use crate::api::StdRegistryBridge;
 
-struct RegistryBridgeHandler<Req, Resp>
+struct StdRegistryBridgeHandler<Req, Resp>
 where
     Req: Send + 'static,
     Resp: Send + 'static,
@@ -29,7 +27,7 @@ where
     inner: Arc<dyn Service<Request = Req, Response = Resp>>,
 }
 
-impl<Req, Resp> RegistryBridgeHandler<Req, Resp>
+impl<Req, Resp> StdRegistryBridgeHandler<Req, Resp>
 where
     Req: Send + 'static,
     Resp: Send + 'static,
@@ -40,7 +38,7 @@ where
 }
 
 #[async_trait]
-impl<Req, Resp> Handler for RegistryBridgeHandler<Req, Resp>
+impl<Req, Resp> Handler for StdRegistryBridgeHandler<Req, Resp>
 where
     Req: Send + 'static,
     Resp: Send + 'static,
@@ -49,12 +47,17 @@ where
     type Response = Resp;
 
     fn id(&self, _req: IdRequest) -> Result<IdResponse, HandlerError> {
-        Ok(IdResponse { id: self.id.clone() })
+        Ok(IdResponse {
+            id: self.id.clone(),
+        })
     }
 
     #[allow(clippy::missing_errors_doc)]
-    async fn execute(&self, req: ExecuteRequest<'_, Req>) -> Result<Resp, HandlerError> {
-        self.inner.execute(req.req).await.map_err(HandlerError::from)
+    async fn execute(&self, req: ExecutionRequest<'_, Req>) -> Result<Resp, HandlerError> {
+        self.inner
+            .execute(req.req)
+            .await
+            .map_err(HandlerError::from)
     }
 }
 
@@ -72,10 +75,9 @@ impl RegistryBridge for StdRegistryBridge {
         for name in names {
             let lookup = ServiceLookupRequest { name: name.clone() };
             if let Some(svc) = req.src.get(&lookup)?.service {
-                req.dst
-                    .register(RegisterHandlerRequest::new(Arc::new(
-                        RegistryBridgeHandler::new(name, svc),
-                    )))?;
+                req.dst.register(RegisterHandlerRequest::new(Arc::new(
+                    StdRegistryBridgeHandler::new(name, svc),
+                )))?;
             }
         }
         Ok(BridgeResponse { transferred: count })
@@ -92,7 +94,7 @@ mod tests {
     };
 
     use crate::api::{
-        BridgeRequest, GetHandlerRequest, HandlerRegistry, IdRequest, InProcessHandlerRegistry,
+        BridgeRequest, HandlerLookupRequest, HandlerRegistry, IdRequest, InProcessHandlerRegistry,
         LenRequest, RegistryBridge, StdRegistryBridge,
     };
 
@@ -102,11 +104,14 @@ mod tests {
         src.register(&RegisterServiceRequestSvc::new(Arc::new(NoopService)))
             .unwrap();
         let dst = InProcessHandlerRegistry::<(), ()>::default();
-        let result = StdRegistryBridge.bridge(BridgeRequest { src: &src, dst: &dst });
+        let result = StdRegistryBridge.bridge(BridgeRequest {
+            src: &src,
+            dst: &dst,
+        });
         assert_eq!(result.unwrap().transferred, 1);
         assert_eq!(dst.len(LenRequest).unwrap().count, 1);
         let handler = dst
-            .get(GetHandlerRequest {
+            .get(HandlerLookupRequest {
                 id: "noop".to_string(),
             })
             .unwrap()
@@ -119,7 +124,10 @@ mod tests {
     fn test_bridge_empty_registry_returns_zero_error() {
         let src: ServiceRegistryStore<(), ()> = ServiceRegistryStore::default();
         let dst = InProcessHandlerRegistry::<(), ()>::default();
-        let result = StdRegistryBridge.bridge(BridgeRequest { src: &src, dst: &dst });
+        let result = StdRegistryBridge.bridge(BridgeRequest {
+            src: &src,
+            dst: &dst,
+        });
         assert_eq!(result.unwrap().transferred, 0);
         assert_eq!(dst.len(LenRequest).unwrap().count, 0);
     }
@@ -131,10 +139,13 @@ mod tests {
             .unwrap();
         let dst = InProcessHandlerRegistry::<(), ()>::default();
         StdRegistryBridge
-            .bridge(BridgeRequest { src: &src, dst: &dst })
+            .bridge(BridgeRequest {
+                src: &src,
+                dst: &dst,
+            })
             .unwrap();
         let handler = dst
-            .get(GetHandlerRequest {
+            .get(HandlerLookupRequest {
                 id: "noop".to_string(),
             })
             .unwrap()
