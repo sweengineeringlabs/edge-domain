@@ -1,5 +1,6 @@
 pub mod emptiness_request;
 pub mod emptiness_response;
+pub mod noop_service;
 pub mod len_request;
 pub mod len_response;
 pub mod list_names_request;
@@ -18,6 +19,7 @@ pub mod std_service_registry_factory;
 pub use emptiness_request::EmptinessRequest;
 pub use emptiness_response::EmptinessResponse;
 pub use len_request::LenRequest;
+pub use noop_service::NoopService;
 pub use len_response::LenResponse;
 pub use list_names_request::ListNamesRequest;
 pub use list_names_response::ListNamesResponse;

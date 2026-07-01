@@ -38,3 +38,11 @@ fn test_service_execute_idempotent_edge() {
         assert_eq!(result, Ok(()));
     }
 }
+
+/// @covers: Service::name
+#[test]
+fn test_service_name_returns_result_error() {
+    use edge_domain_service::NoopService;
+    let result = NoopService.name(NameRequest);
+    assert_eq!(result.unwrap().name, "noop");
+}
