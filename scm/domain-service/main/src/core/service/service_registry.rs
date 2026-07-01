@@ -34,11 +34,14 @@ where
 
     fn register(
         &self,
-        req: RegisterServiceRequest<Req, Resp>,
+        req: &RegisterServiceRequest<Req, Resp>,
     ) -> Result<RegisterServiceResponse, ServiceError> {
+        let svc = &*req.service;
         let name_req = NameRequest;
-        let name_resp = req.service.name(name_req)?;
-        self.inner.write().insert(name_resp.name, req.service);
+        let name_resp = svc.name(name_req)?;
+
+        let service_arc = Arc::clone(&req.service);
+        self.inner.write().insert(name_resp.name, service_arc);
         Ok(RegisterServiceResponse)
     }
 

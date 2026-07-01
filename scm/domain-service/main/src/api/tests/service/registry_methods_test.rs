@@ -16,7 +16,7 @@ mod tests {
 
         fn register(
             &self,
-            _req: RegisterServiceRequest<(), ()>,
+            _req: &RegisterServiceRequest<(), ()>,
         ) -> Result<crate::api::RegisterServiceResponse, ServiceError> {
             Ok(crate::api::RegisterServiceResponse)
         }
@@ -56,8 +56,8 @@ mod tests {
     fn test_register_service_happy() {
         let reg = TestRegistry;
         let svc = Arc::new(NoopService);
-        let req = RegisterServiceRequest { service: svc };
-        assert_eq!(reg.register(req), Ok(crate::api::RegisterServiceResponse));
+        let req = RegisterServiceRequest::new(svc);
+        assert_eq!(reg.register(&req), Ok(crate::api::RegisterServiceResponse));
     }
 
     /// @covers: ServiceRegistry::register
@@ -65,8 +65,8 @@ mod tests {
     fn test_register_returns_response_error() {
         let reg = TestRegistry;
         let svc = Arc::new(NoopService);
-        let req = RegisterServiceRequest { service: svc };
-        let result = reg.register(req);
+        let req = RegisterServiceRequest::new(svc);
+        let result = reg.register(&req);
         assert_eq!(result, Ok(crate::api::RegisterServiceResponse));
     }
 
@@ -76,8 +76,8 @@ mod tests {
         let reg = TestRegistry;
         for _ in 0..2 {
             let svc = Arc::new(NoopService);
-            let req = RegisterServiceRequest { service: svc };
-            assert_eq!(reg.register(req), Ok(crate::api::RegisterServiceResponse));
+            let req = RegisterServiceRequest::new(svc);
+            assert_eq!(reg.register(&req), Ok(crate::api::RegisterServiceResponse));
         }
     }
 

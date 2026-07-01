@@ -16,7 +16,7 @@ mod tests {
 
         fn register(
             &self,
-            _req: RegisterServiceRequest<(), ()>,
+            _req: &RegisterServiceRequest<(), ()>,
         ) -> Result<crate::api::RegisterServiceResponse, ServiceError> {
             Ok(crate::api::RegisterServiceResponse)
         }
@@ -56,8 +56,8 @@ mod tests {
     fn test_service_registry_trait_register_contract_happy() {
         let reg = TestRegistry;
         let svc = Arc::new(crate::api::NoopService);
-        let req = RegisterServiceRequest { service: svc };
-        let result = reg.register(req);
+        let req = RegisterServiceRequest::new(svc);
+        let result = reg.register(&req);
         assert_eq!(result, Ok(crate::api::RegisterServiceResponse));
     }
 
@@ -66,8 +66,8 @@ mod tests {
     fn test_service_registry_trait_register_contract_edge() {
         let reg = TestRegistry;
         let svc = Arc::new(crate::api::NoopService);
-        let req = RegisterServiceRequest { service: svc };
-        let result = reg.register(req);
+        let req = RegisterServiceRequest::new(svc);
+        let result = reg.register(&req);
         assert_eq!(result, Ok(crate::api::RegisterServiceResponse));
     }
 

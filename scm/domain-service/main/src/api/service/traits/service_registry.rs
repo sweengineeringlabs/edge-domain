@@ -1,7 +1,5 @@
 //! `ServiceRegistry` trait — a named registry of [`Service`] implementations.
 
-use std::sync::Arc;
-
 use crate::api::service::{
     EmptinessRequest, EmptinessResponse, LenRequest, LenResponse, ListNamesRequest,
     ListNamesResponse, RegisterServiceRequest, RegisterServiceResponse, ServiceError,
@@ -21,7 +19,7 @@ pub trait ServiceRegistry: Send + Sync {
     /// Register a service under its reported name.
     fn register(
         &self,
-        req: RegisterServiceRequest<Self::Request, Self::Response>,
+        req: &RegisterServiceRequest<Self::Request, Self::Response>,
     ) -> Result<RegisterServiceResponse, ServiceError>;
 
     /// Remove the service with the given name.
