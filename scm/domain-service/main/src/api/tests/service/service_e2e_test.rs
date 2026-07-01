@@ -4,6 +4,8 @@
 mod tests {
     use crate::api::{NameRequest, NameResponse, Service, ServiceError};
     use futures::executor::block_on;
+    use futures::future::BoxFuture;
+    use std::sync::Arc;
 
     struct TestService;
 
@@ -17,9 +19,7 @@ mod tests {
             })
         }
 
-        fn execute(&self, _req: ()) -> std::pin::Pin<
-            Box<dyn std::future::Future<Output = Result<(), ServiceError>> + '_>,
-        > {
+        fn execute(&self, _req: ()) -> BoxFuture<'_, Result<(), ServiceError>> {
             Box::pin(async move { Ok(()) })
         }
     }
@@ -71,5 +71,13 @@ mod tests {
         for _ in 0..3 {
             assert_eq!(block_on(svc.execute(())), Ok(()));
         }
+    }
+
+    /// @covers: Service
+    #[test]
+    fn test_service_as_dyn_trait_edge() {
+        let svc: Arc<dyn Service<Request = (), Response = ()>> = Arc::new(TestService);
+        let result = svc.name(NameRequest);
+        assert_eq!(result.unwrap().name, "test");
     }
 }
