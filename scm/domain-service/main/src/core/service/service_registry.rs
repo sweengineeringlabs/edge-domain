@@ -6,10 +6,10 @@ use std::sync::Arc;
 use parking_lot::RwLock;
 
 use crate::api::{
-    ServiceRegistry, ServiceRegistryStore, Service,
-    ServiceError, RegisterServiceRequest, RegisterServiceResponse, ServiceRemovalRequest,
-    ServiceRemovalResponse, ServiceLookupRequest, ServiceLookupResponse, ListNamesRequest,
-    ListNamesResponse, LenRequest, LenResponse, EmptinessRequest, EmptinessResponse, NameRequest,
+    EmptinessRequest, EmptinessResponse, LenRequest, LenResponse, ListNamesRequest,
+    ListNamesResponse, NameRequest, RegisterServiceRequest, RegisterServiceResponse,
+    ServiceError, ServiceLookupRequest, ServiceLookupResponse, ServiceRegistry,
+    ServiceRegistryStore, ServiceRemovalRequest, ServiceRemovalResponse,
 };
 
 impl<Req, Resp> Default for ServiceRegistryStore<Req, Resp>
@@ -58,10 +58,7 @@ where
         Ok(ServiceLookupResponse { service })
     }
 
-    fn list_names(
-        &self,
-        _req: ListNamesRequest,
-    ) -> Result<ListNamesResponse, ServiceError> {
+    fn list_names(&self, _req: ListNamesRequest) -> Result<ListNamesResponse, ServiceError> {
         let names = self.inner.read().keys().cloned().collect();
         Ok(ListNamesResponse { names })
     }

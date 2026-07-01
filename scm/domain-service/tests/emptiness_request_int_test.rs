@@ -1,7 +1,7 @@
 //! Tests for [`EmptinessRequest`] — zero-sized marker type.
 
-use std::mem::size_of;
 use edge_domain_service::EmptinessRequest;
+use std::mem::size_of;
 
 /// @covers: EmptinessRequest — constructible
 #[test]

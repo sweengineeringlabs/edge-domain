@@ -2,7 +2,7 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::service::{ServiceError, NameRequest, NameResponse};
+use crate::api::service::{NameRequest, NameResponse, ServiceError};
 
 /// A named domain operation that processes a typed request and produces a typed response.
 ///
@@ -16,7 +16,9 @@ pub trait Service: Send + Sync {
 
     /// Query the stable name identifying this service.
     fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
-        Ok(NameResponse { name: "service".to_string() })
+        Ok(NameResponse {
+            name: "service".to_string(),
+        })
     }
 
     /// Execute the service with the given request.

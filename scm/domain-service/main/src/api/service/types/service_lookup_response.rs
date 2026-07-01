@@ -1,7 +1,7 @@
 //! [`ServiceLookupResponse`] — wrapper for service lookup result.
 
-use std::sync::Arc;
 use crate::api::Service;
+use std::sync::Arc;
 
 pub struct ServiceLookupResponse<Req, Resp>
 where

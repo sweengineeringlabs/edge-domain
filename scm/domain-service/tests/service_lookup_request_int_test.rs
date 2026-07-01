@@ -5,14 +5,18 @@ use edge_domain_service::ServiceLookupRequest;
 /// @covers: ServiceLookupRequest — constructible with name
 #[test]
 fn test_service_lookup_request_new_happy() {
-    let req = ServiceLookupRequest { name: "test".to_string() };
+    let req = ServiceLookupRequest {
+        name: "test".to_string(),
+    };
     assert_eq!(req.name, "test");
 }
 
 /// @covers: ServiceLookupRequest — empty name allowed
 #[test]
 fn test_service_lookup_request_empty_name_happy() {
-    let req = ServiceLookupRequest { name: "".to_string() };
+    let req = ServiceLookupRequest {
+        name: "".to_string(),
+    };
     assert_eq!(req.name, "");
 }
 
@@ -20,6 +24,8 @@ fn test_service_lookup_request_empty_name_happy() {
 #[test]
 fn test_service_lookup_request_long_name_edge() {
     let long_name = "service".repeat(100);
-    let req = ServiceLookupRequest { name: long_name.clone() };
+    let req = ServiceLookupRequest {
+        name: long_name.clone(),
+    };
     assert_eq!(req.name, long_name);
 }

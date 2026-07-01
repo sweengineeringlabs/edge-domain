@@ -11,14 +11,10 @@ mod core;
 mod saf;
 
 pub use api::{
-    NoopService, Service, ServiceError, ServiceRegistry, ServiceRegistryBootstrap,
-    ServiceRegistryStore, StdServiceRegistryFactory,
-    NameRequest, NameResponse,
-    RegisterServiceRequest, RegisterServiceResponse,
-    ServiceRemovalRequest, ServiceRemovalResponse,
-    ServiceLookupRequest, ServiceLookupResponse,
-    ListNamesRequest, ListNamesResponse,
-    LenRequest, LenResponse,
-    EmptinessRequest, EmptinessResponse,
+    EmptinessRequest, EmptinessResponse, LenRequest, LenResponse, ListNamesRequest,
+    ListNamesResponse, NameRequest, NameResponse, NoopService, RegisterServiceRequest,
+    RegisterServiceResponse, Service, ServiceError, ServiceLookupRequest, ServiceLookupResponse,
+    ServiceRegistry, ServiceRegistryStore, ServiceRemovalRequest, ServiceRemovalResponse,
+    StdServiceRegistryFactory,
 };
 pub use saf::{SERVICE_REGISTRY_SVC, SERVICE_SVC};

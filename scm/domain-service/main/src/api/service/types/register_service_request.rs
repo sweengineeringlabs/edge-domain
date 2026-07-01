@@ -1,7 +1,7 @@
 //! [`RegisterServiceRequest`] — service registration request.
 
-use std::sync::Arc;
 use crate::api::Service;
+use std::sync::Arc;
 
 /// Request to register a service in the registry.
 pub struct RegisterServiceRequest<Req, Resp>

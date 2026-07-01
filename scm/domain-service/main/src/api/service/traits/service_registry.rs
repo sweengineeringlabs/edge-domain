@@ -2,11 +2,10 @@
 
 use std::sync::Arc;
 
-use super::service::Service;
 use crate::api::service::{
-    ServiceError, RegisterServiceRequest, RegisterServiceResponse, ServiceRemovalRequest,
-    ServiceRemovalResponse, ServiceLookupRequest, ServiceLookupResponse, ListNamesRequest,
-    ListNamesResponse, LenRequest, LenResponse, EmptinessRequest, EmptinessResponse,
+    EmptinessRequest, EmptinessResponse, LenRequest, LenResponse, ListNamesRequest,
+    ListNamesResponse, RegisterServiceRequest, RegisterServiceResponse, ServiceError,
+    ServiceLookupRequest, ServiceLookupResponse, ServiceRemovalRequest, ServiceRemovalResponse,
 };
 
 /// A registry that maps service names to [`Service`] implementations.
@@ -38,10 +37,7 @@ pub trait ServiceRegistry: Send + Sync {
     ) -> Result<ServiceLookupResponse<Self::Request, Self::Response>, ServiceError>;
 
     /// Return the names of all registered services.
-    fn list_names(
-        &self,
-        req: ListNamesRequest,
-    ) -> Result<ListNamesResponse, ServiceError>;
+    fn list_names(&self, req: ListNamesRequest) -> Result<ListNamesResponse, ServiceError>;
 
     /// Return the number of registered services.
     fn len(&self, req: LenRequest) -> Result<LenResponse, ServiceError>;

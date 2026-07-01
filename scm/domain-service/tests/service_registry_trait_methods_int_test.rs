@@ -1,8 +1,8 @@
 //! Comprehensive tests for ServiceRegistry trait methods.
 
 use edge_domain_service::*;
-use std::sync::Arc;
 use futures::executor::block_on;
+use std::sync::Arc;
 
 /// Helper to create a test service registry
 fn make_registry() -> ServiceRegistry<(), ()> {

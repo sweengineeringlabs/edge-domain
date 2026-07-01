@@ -1,6 +1,6 @@
 //! Comprehensive tests for Service trait methods via NoopService.
 
-use edge_domain_service::{Service, NameRequest, NameResponse, ServiceError};
+use edge_domain_service::{NameRequest, NameResponse, Service, ServiceError};
 use futures::executor::block_on;
 
 /// @covers: Service::name
@@ -35,6 +35,6 @@ fn test_service_execute_idempotent_edge() {
     use edge_domain_service::NoopService;
     for _ in 0..5 {
         let result = block_on(NoopService.execute(()));
-        assert!(result.is_ok());
+        assert_eq!(result, Ok(()));
     }
 }
