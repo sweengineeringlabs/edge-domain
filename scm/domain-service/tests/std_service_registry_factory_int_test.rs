@@ -6,8 +6,9 @@ use futures::executor::block_on;
 /// @covers: StdServiceRegistryFactory
 #[test]
 fn test_std_service_registry_factory_is_copy() {
-    let _factory1 = StdServiceRegistryFactory;
-    let _factory2 = StdServiceRegistryFactory;
+    let factory1 = StdServiceRegistryFactory;
+    let factory2 = StdServiceRegistryFactory;
+    assert_eq!(factory1, factory2);
 }
 
 /// @covers: StdServiceRegistryFactory
@@ -15,13 +16,14 @@ fn test_std_service_registry_factory_is_copy() {
 fn test_std_service_registry_factory_debug_impl() {
     let factory = StdServiceRegistryFactory;
     let debug_str = format!("{:?}", factory);
-    assert!(!debug_str.is_empty());
+    assert_eq!(debug_str, "StdServiceRegistryFactory");
 }
 
 /// @covers: StdServiceRegistryFactory
 #[test]
 fn test_std_service_registry_factory_default_impl() {
-    let _factory = StdServiceRegistryFactory::default();
+    let factory = StdServiceRegistryFactory::default();
+    assert_eq!(factory, StdServiceRegistryFactory);
 }
 
 /// @covers: StdServiceRegistryFactory
@@ -29,7 +31,7 @@ fn test_std_service_registry_factory_default_impl() {
 fn test_std_service_registry_factory_clone_impl() {
     let factory1 = StdServiceRegistryFactory;
     let factory2 = factory1.clone();
-    let _ = (factory1, factory2);
+    assert_eq!(factory1, factory2);
 }
 
 /// @covers: StdServiceRegistryFactory
@@ -59,4 +61,12 @@ fn test_std_service_registry_factory_hash_consistent_happy() {
     set.insert(factory1);
     set.insert(factory2);
     assert_eq!(set.len(), 1);
+}
+
+/// @covers: StdServiceRegistryFactory
+#[test]
+fn test_std_service_registry_factory_produces_valid_registry_edge() {
+    let registry = StdServiceRegistryFactory::new_registry::<String, String>();
+    let req = edge_domain_service::EmptinessRequest;
+    assert!(registry.is_empty(req).unwrap().empty);
 }

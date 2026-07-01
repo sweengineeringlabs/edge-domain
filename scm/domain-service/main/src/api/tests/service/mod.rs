@@ -1,0 +1,1 @@
+//! Service trait contract tests.
