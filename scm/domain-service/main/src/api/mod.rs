@@ -1,11 +1,11 @@
 ﻿mod service;
 pub use service::Service;
-pub use service::ServiceRegistryTrait;
+pub use service::ServiceRegistry;
 pub use service::ServiceRegistryBootstrap;
 
 pub use service::ServiceError;
 pub use service::{
-    NoopService, ServiceRegistry, StdServiceRegistryFactory,
+    NoopService, ServiceRegistryStore, StdServiceRegistryFactory,
     NameRequest, NameResponse,
     RegisterServiceRequest, RegisterServiceResponse,
     ServiceRemovalRequest, ServiceRemovalResponse,

@@ -12,7 +12,7 @@ mod saf;
 
 pub use api::{
     NoopService, Service, ServiceError, ServiceRegistry, ServiceRegistryBootstrap,
-    ServiceRegistryTrait, StdServiceRegistryFactory,
+    ServiceRegistryStore, StdServiceRegistryFactory,
     NameRequest, NameResponse,
     RegisterServiceRequest, RegisterServiceResponse,
     ServiceRemovalRequest, ServiceRemovalResponse,

@@ -6,7 +6,7 @@ use std::sync::Arc;
 use parking_lot::RwLock;
 
 use crate::api::{
-    ServiceRegistryTrait as ServiceRegistry, ServiceRegistry as ServiceRegistryStore, Service,
+    ServiceRegistry, ServiceRegistryStore, Service,
     ServiceError, RegisterServiceRequest, RegisterServiceResponse, ServiceRemovalRequest,
     ServiceRemovalResponse, ServiceLookupRequest, ServiceLookupResponse, ListNamesRequest,
     ListNamesResponse, LenRequest, LenResponse, EmptinessRequest, EmptinessResponse, NameRequest,

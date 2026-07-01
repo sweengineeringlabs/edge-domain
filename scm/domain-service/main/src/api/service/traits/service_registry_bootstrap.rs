@@ -2,20 +2,20 @@
 
 use crate::api::service::types::StdServiceRegistryFactory;
 use crate::api::service::types::NoopService;
-use crate::api::service::types::ServiceRegistry;
+use crate::api::service::types::ServiceRegistryStore;
 
 /// Bootstrap trait for constructing [`ServiceRegistry`] instances.
 ///
 /// Static factory methods only — used for factory setup.
 pub trait ServiceRegistryBootstrap {
     /// Construct a new, empty [`ServiceRegistry`].
-    fn new_registry<Req, Resp>() -> ServiceRegistry<Req, Resp>
+    fn new_registry<Req, Resp>() -> ServiceRegistryStore<Req, Resp>
     where
         Req: Send + 'static,
         Resp: Send + 'static,
         Self: Sized,
     {
-        ServiceRegistry::default()
+        ServiceRegistryStore::default()
     }
 
     /// Construct a [`NoopService`] — a no-operation sentinel service.

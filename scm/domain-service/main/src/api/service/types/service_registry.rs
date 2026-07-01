@@ -11,7 +11,7 @@ use crate::api::service::traits::service::Service;
 ///
 /// Construction and inherent methods live in `core::service::service_registry` — api/ is a
 /// declaration layer only.
-pub struct ServiceRegistry<Req, Resp>
+pub struct ServiceRegistryStore<Req, Resp>
 where
     Req: Send + 'static,
     Resp: Send + 'static,

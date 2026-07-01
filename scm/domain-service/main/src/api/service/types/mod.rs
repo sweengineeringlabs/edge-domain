@@ -18,7 +18,7 @@ pub mod emptiness_response;
 
 pub use std_service_registry_factory::StdServiceRegistryFactory;
 pub use noop_service::NoopService;
-pub use service_registry::ServiceRegistry;
+pub use service_registry::ServiceRegistryStore;
 pub use name_request::NameRequest;
 pub use name_response::NameResponse;
 pub use register_service_request::RegisterServiceRequest;
