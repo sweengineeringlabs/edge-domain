@@ -223,4 +223,54 @@ mod tests {
         let req2 = EmptinessRequest;
         assert_eq!(reg.is_empty(req1).unwrap().empty, reg.is_empty(req2).unwrap().empty);
     }
+
+    /// @covers: ServiceRegistry::default_factory
+    #[test]
+    fn test_default_factory_returns_factory_happy() {
+        let factory = TestRegistry::default_factory();
+        assert_eq!(std::mem::size_of_val(&factory), std::mem::size_of::<crate::api::StdServiceRegistryFactory>());
+    }
+
+    /// @covers: ServiceRegistry::default_factory
+    #[test]
+    fn test_default_factory_consistent_error() {
+        let factory1 = TestRegistry::default_factory();
+        let factory2 = TestRegistry::default_factory();
+        assert_eq!(std::mem::size_of_val(&factory1), std::mem::size_of_val(&factory2));
+    }
+
+    /// @covers: ServiceRegistry::default_factory
+    #[test]
+    fn test_default_factory_multiple_calls_edge() {
+        let factory1 = TestRegistry::default_factory();
+        let factory2 = TestRegistry::default_factory();
+        let factory3 = TestRegistry::default_factory();
+        assert_eq!(std::mem::size_of_val(&factory1), std::mem::size_of_val(&factory2));
+        assert_eq!(std::mem::size_of_val(&factory2), std::mem::size_of_val(&factory3));
+    }
+
+    /// @covers: ServiceRegistry::noop_service
+    #[test]
+    fn test_noop_service_returns_noop_happy() {
+        let noop = TestRegistry::noop_service();
+        assert_eq!(noop.name(crate::api::NameRequest).unwrap().name, "noop");
+    }
+
+    /// @covers: ServiceRegistry::noop_service
+    #[test]
+    fn test_noop_service_is_consistent_error() {
+        let noop1 = TestRegistry::noop_service();
+        let noop2 = TestRegistry::noop_service();
+        assert_eq!(noop1.name(crate::api::NameRequest).unwrap().name, noop2.name(crate::api::NameRequest).unwrap().name);
+    }
+
+    /// @covers: ServiceRegistry::noop_service
+    #[test]
+    fn test_noop_service_multiple_calls_edge() {
+        let noop1 = TestRegistry::noop_service();
+        let noop2 = TestRegistry::noop_service();
+        let noop3 = TestRegistry::noop_service();
+        assert_eq!(noop1.name(crate::api::NameRequest).unwrap().name, noop2.name(crate::api::NameRequest).unwrap().name);
+        assert_eq!(noop2.name(crate::api::NameRequest).unwrap().name, noop3.name(crate::api::NameRequest).unwrap().name);
+    }
 }

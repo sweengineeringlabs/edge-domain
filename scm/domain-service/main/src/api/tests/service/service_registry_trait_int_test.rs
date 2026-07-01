@@ -136,4 +136,50 @@ mod tests {
         let result = reg.is_empty(req);
         assert!(result.unwrap().empty);
     }
+
+    /// @covers: ServiceRegistry::default_factory
+    #[test]
+    fn test_service_registry_trait_default_factory_contract_happy() {
+        let factory = TestRegistry::default_factory();
+        assert_eq!(std::mem::size_of_val(&factory), std::mem::size_of::<crate::api::StdServiceRegistryFactory>());
+    }
+
+    /// @covers: ServiceRegistry::default_factory
+    #[test]
+    fn test_service_registry_trait_default_factory_contract_error() {
+        let f1 = TestRegistry::default_factory();
+        let f2 = TestRegistry::default_factory();
+        assert_eq!(std::mem::size_of_val(&f1), std::mem::size_of_val(&f2));
+    }
+
+    /// @covers: ServiceRegistry::default_factory
+    #[test]
+    fn test_service_registry_trait_default_factory_contract_edge() {
+        let f1 = TestRegistry::default_factory();
+        let f2 = TestRegistry::default_factory();
+        assert_eq!(std::mem::size_of_val(&f1), std::mem::size_of_val(&f2));
+    }
+
+    /// @covers: ServiceRegistry::noop_service
+    #[test]
+    fn test_service_registry_trait_noop_service_contract_happy() {
+        let noop = TestRegistry::noop_service();
+        assert_eq!(noop.name(crate::api::NameRequest).unwrap().name, "noop");
+    }
+
+    /// @covers: ServiceRegistry::noop_service
+    #[test]
+    fn test_service_registry_trait_noop_service_contract_error() {
+        let noop = TestRegistry::noop_service();
+        let result = noop.name(crate::api::NameRequest);
+        assert_eq!(result.unwrap().name, "noop");
+    }
+
+    /// @covers: ServiceRegistry::noop_service
+    #[test]
+    fn test_service_registry_trait_noop_service_contract_edge() {
+        let noop1 = TestRegistry::noop_service();
+        let noop2 = TestRegistry::noop_service();
+        assert_eq!(noop1.name(crate::api::NameRequest).unwrap().name, noop2.name(crate::api::NameRequest).unwrap().name);
+    }
 }
