@@ -2,4 +2,4 @@
 
 mod noop_service;
 mod service_registry;
-mod service_registry_factory;
+mod service_registry_bootstrap;

@@ -5,12 +5,9 @@ use crate::api::service::types::NoopService;
 use crate::api::service::types::ServiceRegistry;
 
 /// Bootstrap trait for constructing [`ServiceRegistry`] instances.
-pub trait ServiceRegistryBootstrap: Send + Sync {
-    /// Identify this bootstrap implementation.
-    fn kind(&self) -> &'static str {
-        "bootstrap"
-    }
-
+///
+/// Static factory methods only — not object-safe; used for static dispatch only.
+pub trait ServiceRegistryBootstrap {
     /// Construct a new, empty [`ServiceRegistry`].
     fn new_registry<Req, Resp>() -> ServiceRegistry<Req, Resp>
     where

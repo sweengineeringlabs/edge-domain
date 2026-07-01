@@ -1,4 +1,3 @@
-//! SAF factory for `ServiceRegistryBootstrap` trait.
+//! SAF factory for `ServiceRegistryBootstrap` trait (crate-private).
 
-pub(crate) use crate::api::ServiceRegistryBootstrap;
 pub const SERVICE_REGISTRY_BOOTSTRAP_SVC: &str = "service_registry_bootstrap";
