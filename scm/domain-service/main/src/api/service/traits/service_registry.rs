@@ -45,12 +45,18 @@ pub trait ServiceRegistry: Send + Sync {
     fn is_empty(&self, req: EmptinessRequest) -> Result<EmptinessResponse, ServiceError>;
 
     /// Create a default empty registry (for factory support).
-    fn default_factory() -> StdServiceRegistryFactory;
+    fn default_factory() -> StdServiceRegistryFactory
+    where
+        Self: Sized;
 
     /// Provide a noop service for testing.
-    fn noop_service() -> NoopService;
+    fn noop_service() -> NoopService
+    where
+        Self: Sized;
 
     /// Construct a fresh, empty in-process registry store bound to this
     /// trait's request/response types.
-    fn new_store() -> ServiceRegistryStore<Self::Request, Self::Response>;
+    fn new_store() -> ServiceRegistryStore<Self::Request, Self::Response>
+    where
+        Self: Sized;
 }

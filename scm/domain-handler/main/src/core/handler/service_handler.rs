@@ -3,13 +3,18 @@
 use async_trait::async_trait;
 use edge_domain_service::Service;
 
+use crate::api::ExecuteRequest;
 use crate::api::Handler;
-use crate::api::HandlerContext;
 use crate::api::HandlerError;
+use crate::api::IdRequest;
+use crate::api::IdResponse;
 use crate::api::IntoHandler;
+use crate::api::IntoHandlerRequest;
+use crate::api::IntoHandlerResponse;
 use crate::api::ServiceHandler as ServiceHandlerTrait;
 use crate::api::ServiceBridge;
 use crate::api::Validator;
+use crate::api::ValidatorRequest;
 
 /// Wraps a [`Service`] impl and exposes it as a [`Handler`].
 ///
@@ -30,7 +35,7 @@ impl<S: Send + Sync> ServiceHandlerTrait for DefaultServiceHandler<S> {}
 impl<S: Send + Sync> ServiceBridge for DefaultServiceHandler<S> {}
 
 impl<S: Send + Sync> Validator for DefaultServiceHandler<S> {
-    fn validate(&self) -> Result<(), HandlerError> {
+    fn validate(&self, _req: ValidatorRequest) -> Result<(), HandlerError> {
         if self.id.is_empty() {
             Err(HandlerError::InvalidRequest(
                 "service name cannot be empty".into(),
@@ -51,16 +56,15 @@ where
     type Request = S::Request;
     type Response = S::Response;
 
-    fn id(&self) -> &str {
-        &self.id
+    fn id(&self, _req: IdRequest) -> Result<IdResponse, HandlerError> {
+        Ok(IdResponse { id: self.id.clone() })
     }
 
     async fn execute(
         &self,
-        req: S::Request,
-        _ctx: HandlerContext<'_>,
+        req: ExecuteRequest<'_, S::Request>,
     ) -> Result<S::Response, HandlerError> {
-        self.inner.execute(req).await.map_err(HandlerError::from)
+        self.inner.execute(req.req).await.map_err(HandlerError::from)
     }
 }
 
@@ -75,10 +79,17 @@ where
 
     fn into_handler(
         self,
-    ) -> impl Handler<Request = Self::Request, Response = Self::Response> + ServiceHandlerTrait
-    {
+        _req: IntoHandlerRequest,
+    ) -> Result<
+        IntoHandlerResponse<
+            impl Handler<Request = Self::Request, Response = Self::Response> + ServiceHandlerTrait,
+        >,
+        HandlerError,
+    > {
         let id = self.name().to_string();
-        DefaultServiceHandler::new(id, self)
+        Ok(IntoHandlerResponse {
+            handler: DefaultServiceHandler::new(id, self),
+        })
     }
 }
 
@@ -108,12 +119,12 @@ mod tests {
     #[test]
     fn test_validate_empty_id_returns_error_error() {
         let h = DefaultServiceHandler::new(String::new(), DefaultServiceHandlerStub);
-        assert!(h.validate().is_err());
+        assert!(h.validate(ValidatorRequest).is_err());
     }
 
     #[test]
     fn test_validate_nonempty_id_returns_ok_edge() {
         let h = DefaultServiceHandler::new("svc".to_string(), DefaultServiceHandlerStub);
-        assert_eq!(h.validate(), Ok(()));
+        assert_eq!(h.validate(ValidatorRequest), Ok(()));
     }
 }

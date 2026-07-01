@@ -12,4 +12,12 @@ pub use in_process_handler_registry::InProcessHandlerRegistry;
 pub use registry_bridge::RegistryBridge;
 pub use service_handler::ServiceHandler;
 pub use traits::{Handler, HandlerBootstrap, HandlerProvider, HandlerRegistry, IntoHandler, ServiceBridge, Validator};
-pub use types::{EchoHandler, HandlerContext, NoopHandlerFactory, StdRegistryBridge};
+pub use types::{
+    BootstrapNameRequest, BootstrapNameResponse, BridgeRequest, BridgeResponse,
+    DeregisterHandlerRequest, DeregisterHandlerResponse, EchoHandler, EmptinessRequest,
+    EmptinessResponse, ExecuteRequest, GetHandlerRequest, GetHandlerResponse, HandlerContext,
+    HealthCheckRequest, HealthCheckResponse, IdRequest, IdResponse, IntoHandlerRequest,
+    IntoHandlerResponse, LenRequest, LenResponse, ListIdsRequest, ListIdsResponse,
+    NoopHandlerFactory, PatternRequest, PatternResponse, RegisterHandlerRequest,
+    RegisterHandlerResponse, StdRegistryBridge, ValidatorRequest,
+};

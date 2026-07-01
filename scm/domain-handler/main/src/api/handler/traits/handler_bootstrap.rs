@@ -1,12 +1,16 @@
 //! [`HandlerBootstrap`] — constructor contract for handler implementations.
 
 use crate::api::handler::errors::HandlerError;
+use crate::api::handler::types::{BootstrapNameRequest, BootstrapNameResponse};
 
 /// Constructor contract for building typed handler implementations from config.
 pub trait HandlerBootstrap {
     /// Returns a stable, non-empty identifier for this bootstrap implementation.
-    fn bootstrap_name(&self) -> &'static str {
-        "handler"
+    fn bootstrap_name(
+        &self,
+        _req: BootstrapNameRequest,
+    ) -> Result<BootstrapNameResponse, HandlerError> {
+        Ok(BootstrapNameResponse { name: "handler" })
     }
 
     /// The configuration type used to construct this handler.
@@ -31,8 +35,11 @@ mod tests {
     struct MyHandler;
 
     impl HandlerBootstrap for MyHandler {
-        fn bootstrap_name(&self) -> &'static str {
-            "my_handler"
+        fn bootstrap_name(
+            &self,
+            _req: BootstrapNameRequest,
+        ) -> Result<BootstrapNameResponse, HandlerError> {
+            Ok(BootstrapNameResponse { name: "my_handler" })
         }
 
         type Config = Cfg;
@@ -68,6 +75,6 @@ mod tests {
     #[test]
     fn test_bootstrap_name_returns_nonempty_string_happy() {
         let h = MyHandler;
-        assert!(!h.bootstrap_name().is_empty());
+        assert!(!h.bootstrap_name(BootstrapNameRequest).unwrap().name.is_empty());
     }
 }

@@ -5,9 +5,13 @@ use std::marker::PhantomData;
 use async_trait::async_trait;
 
 use crate::api::EchoHandler;
+use crate::api::ExecuteRequest;
 use crate::api::Handler;
-use crate::api::HandlerContext;
 use crate::api::HandlerError;
+use crate::api::IdRequest;
+use crate::api::IdResponse;
+use crate::api::PatternRequest;
+use crate::api::PatternResponse;
 
 impl<T> From<(&str, &str)> for EchoHandler<T> {
     fn from((id, pattern): (&str, &str)) -> Self {
@@ -20,16 +24,16 @@ impl<T: Clone + Send + 'static> Handler for EchoHandler<T> {
     type Request = T;
     type Response = T;
 
-    fn id(&self) -> &str {
-        &self.id
+    fn id(&self, _req: IdRequest) -> Result<IdResponse, HandlerError> {
+        Ok(IdResponse { id: self.id.clone() })
     }
 
-    fn pattern(&self) -> &str {
-        &self.pattern
+    fn pattern(&self, _req: PatternRequest) -> Result<PatternResponse, HandlerError> {
+        Ok(PatternResponse { pattern: self.pattern.clone() })
     }
 
-    async fn execute(&self, req: T, _ctx: HandlerContext<'_>) -> Result<T, HandlerError> {
-        Ok(req)
+    async fn execute(&self, req: ExecuteRequest<'_, T>) -> Result<T, HandlerError> {
+        Ok(req.req)
     }
 }
 
