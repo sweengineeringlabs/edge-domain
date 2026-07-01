@@ -3,6 +3,11 @@
 use std::sync::Arc;
 
 use super::service::Service;
+use crate::api::service::{
+    ServiceError, RegisterServiceRequest, RegisterServiceResponse, ServiceRemovalRequest,
+    ServiceRemovalResponse, ServiceLookupRequest, ServiceLookupResponse, ListNamesRequest,
+    ListNamesResponse, LenRequest, LenResponse, EmptinessRequest, EmptinessResponse,
+};
 
 /// A registry that maps service names to [`Service`] implementations.
 ///
@@ -17,26 +22,30 @@ pub trait ServiceRegistry: Send + Sync {
     /// Register a service under its reported name.
     fn register(
         &self,
-        service: Arc<dyn Service<Request = Self::Request, Response = Self::Response>>,
-    );
+        req: RegisterServiceRequest<Self::Request, Self::Response>,
+    ) -> Result<RegisterServiceResponse, ServiceError>;
 
-    /// Remove the service with the given name. Returns `true` if it was present.
-    fn deregister(&self, name: &str) -> bool;
+    /// Remove the service with the given name.
+    fn deregister(
+        &self,
+        req: ServiceRemovalRequest,
+    ) -> Result<ServiceRemovalResponse, ServiceError>;
 
     /// Look up a service by name.
     fn get(
         &self,
-        name: &str,
-    ) -> Option<Arc<dyn Service<Request = Self::Request, Response = Self::Response>>>;
+        req: ServiceLookupRequest,
+    ) -> Result<ServiceLookupResponse<Self::Request, Self::Response>, ServiceError>;
 
     /// Return the names of all registered services.
-    fn list_names(&self) -> Vec<String>;
+    fn list_names(
+        &self,
+        req: ListNamesRequest,
+    ) -> Result<ListNamesResponse, ServiceError>;
 
     /// Return the number of registered services.
-    fn len(&self) -> usize;
+    fn len(&self, req: LenRequest) -> Result<LenResponse, ServiceError>;
 
     /// Return `true` when no services are registered.
-    fn is_empty(&self) -> bool {
-        self.len() == 0
-    }
+    fn is_empty(&self, req: EmptinessRequest) -> Result<EmptinessResponse, ServiceError>;
 }
