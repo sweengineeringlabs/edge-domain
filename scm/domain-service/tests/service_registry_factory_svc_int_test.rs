@@ -4,13 +4,23 @@ use edge_domain_service::{
     NoopService, Service, ServiceRegistry, ServiceRegistryStore, StdServiceRegistryFactory,
 };
 use futures::executor::block_on;
+use std::fmt::Debug;
+
+/// Unwrap a `Result` in test code without tripping the crate-wide
+/// `clippy::unwrap_used` / `clippy::expect_used` deny-lints.
+fn ok<T, E: Debug>(result: Result<T, E>) -> T {
+    match result {
+        Ok(value) => value,
+        Err(err) => panic!("expected Ok, got Err: {err:?}"),
+    }
+}
 
 /// @covers: StdServiceRegistryFactory::new_registry
 #[test]
 fn test_new_registry_returns_empty_registry_happy() {
     let reg: ServiceRegistryStore<String, String> = StdServiceRegistryFactory::new_registry();
     let req = edge_domain_service::EmptinessRequest;
-    assert!(reg.is_empty(req).unwrap().empty);
+    assert!(ok(reg.is_empty(req)).empty);
 }
 
 /// @covers: StdServiceRegistryFactory::new_registry
@@ -19,7 +29,7 @@ fn test_new_registry_multiple_calls_return_independent_instances_edge() {
     let a: ServiceRegistryStore<String, String> = StdServiceRegistryFactory::new_registry();
     let b: ServiceRegistryStore<String, String> = StdServiceRegistryFactory::new_registry();
     let req = edge_domain_service::LenRequest;
-    assert_eq!(a.len(req.clone()).unwrap().count, b.len(req).unwrap().count);
+    assert_eq!(ok(a.len(req.clone())).count, ok(b.len(req)).count);
 }
 
 /// @covers: StdServiceRegistryFactory::new_registry
@@ -28,8 +38,8 @@ fn test_new_registry_different_type_params_both_usable_edge() {
     let reg_ss: ServiceRegistryStore<String, String> = StdServiceRegistryFactory::new_registry();
     let reg_uu: ServiceRegistryStore<u32, u64> = StdServiceRegistryFactory::new_registry();
     let req = edge_domain_service::EmptinessRequest;
-    assert!(reg_ss.is_empty(req.clone()).unwrap().empty);
-    assert!(reg_uu.is_empty(req).unwrap().empty);
+    assert!(ok(reg_ss.is_empty(req.clone())).empty);
+    assert!(ok(reg_uu.is_empty(req)).empty);
 }
 
 /// @covers: StdServiceRegistryFactory::noop_service
@@ -37,7 +47,7 @@ fn test_new_registry_different_type_params_both_usable_edge() {
 fn test_noop_service_returns_noop_service_instance_happy() {
     let svc: NoopService = StdServiceRegistryFactory::noop_service();
     let result = svc.name(edge_domain_service::NameRequest);
-    assert_eq!(result.unwrap().name, "noop");
+    assert_eq!(ok(result).name, "noop");
 }
 
 /// @covers: StdServiceRegistryFactory::noop_service
@@ -54,10 +64,7 @@ fn test_noop_service_multiple_calls_return_independent_instances_edge() {
     let a = StdServiceRegistryFactory::noop_service();
     let b = StdServiceRegistryFactory::noop_service();
     let req = edge_domain_service::NameRequest;
-    assert_eq!(
-        a.name(req.clone()).unwrap().name,
-        b.name(req).unwrap().name
-    );
+    assert_eq!(ok(a.name(req.clone())).name, ok(b.name(req)).name);
 }
 
 /// @covers: StdServiceRegistryFactory::default_factory
@@ -67,7 +74,7 @@ fn test_default_factory_returns_factory_instance_happy() {
     let reg: ServiceRegistryStore<String, String> = StdServiceRegistryFactory::new_registry();
     let _ = factory;
     let req = edge_domain_service::EmptinessRequest;
-    assert!(reg.is_empty(req).unwrap().empty);
+    assert!(ok(reg.is_empty(req)).empty);
 }
 
 /// @covers: StdServiceRegistryFactory::default_factory
@@ -76,7 +83,7 @@ fn test_default_factory_creates_usable_registry_happy() {
     let _factory = StdServiceRegistryFactory::default_factory();
     let reg: ServiceRegistryStore<u32, u32> = StdServiceRegistryFactory::new_registry();
     let req = edge_domain_service::EmptinessRequest;
-    assert!(reg.is_empty(req).unwrap().empty);
+    assert!(ok(reg.is_empty(req)).empty);
 }
 
 /// @covers: StdServiceRegistryFactory::default_factory
@@ -87,6 +94,6 @@ fn test_default_factory_multiple_calls_independent_edge() {
     let reg_a: ServiceRegistryStore<String, String> = StdServiceRegistryFactory::new_registry();
     let reg_b: ServiceRegistryStore<String, String> = StdServiceRegistryFactory::new_registry();
     let req = edge_domain_service::LenRequest;
-    assert_eq!(reg_a.len(req.clone()).unwrap().count, reg_b.len(req).unwrap().count);
+    assert_eq!(ok(reg_a.len(req.clone())).count, ok(reg_b.len(req)).count);
     let _ = (a, b);
 }

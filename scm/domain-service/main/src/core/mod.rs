@@ -1,1 +1,2 @@
 mod service;
+mod tests;

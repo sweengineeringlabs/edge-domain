@@ -68,5 +68,8 @@ fn test_std_service_registry_factory_hash_consistent_happy() {
 fn test_std_service_registry_factory_produces_valid_registry_edge() {
     let registry = StdServiceRegistryFactory::new_registry::<String, String>();
     let req = edge_domain_service::EmptinessRequest;
-    assert!(registry.is_empty(req).unwrap().empty);
+    match registry.is_empty(req) {
+        Ok(response) => assert!(response.empty),
+        Err(err) => panic!("expected Ok, got Err: {err:?}"),
+    }
 }

@@ -3,8 +3,8 @@
 use std::sync::Arc;
 
 use edge_domain_service::{
-    Service, ServiceError, ServiceRegistry, ServiceRegistryStore, NameRequest, NameResponse,
-    RegisterServiceRequest, ServiceLookupRequest, LenRequest, EmptinessRequest,
+    EmptinessRequest, LenRequest, NameRequest, NameResponse, RegisterServiceRequest, Service,
+    ServiceError, ServiceLookupRequest, ServiceRegistry, ServiceRegistryStore,
 };
 use futures::executor::block_on;
 use futures::future::BoxFuture;
@@ -30,15 +30,24 @@ impl Service for Constant {
 fn test_new_creates_empty_registry_happy() {
     let reg: ServiceRegistryStore<i32, i32> = ServiceRegistryStore::default();
     let result = reg.len(LenRequest);
-    assert_eq!(result.unwrap().count, 0);
-    assert!(reg.is_empty(EmptinessRequest).unwrap().empty);
+    match result {
+        Ok(response) => assert_eq!(response.count, 0),
+        Err(err) => panic!("expected Ok, got Err: {err:?}"),
+    }
+    match reg.is_empty(EmptinessRequest) {
+        Ok(response) => assert!(response.empty),
+        Err(err) => panic!("expected Ok, got Err: {err:?}"),
+    }
 }
 
 /// @covers: ServiceRegistryStore::default
 #[test]
 fn test_default_creates_empty_registry_happy() {
     let reg: ServiceRegistryStore<i32, i32> = ServiceRegistryStore::default();
-    assert!(reg.is_empty(EmptinessRequest).unwrap().empty);
+    match reg.is_empty(EmptinessRequest) {
+        Ok(response) => assert!(response.empty),
+        Err(err) => panic!("expected Ok, got Err: {err:?}"),
+    }
 }
 
 /// @covers: ServiceRegistry::register and get
@@ -52,5 +61,18 @@ fn test_register_then_get_retrieves_service_edge() {
         name: "forty-two".to_string(),
     };
     let result = reg.get(&lookup_req);
-    assert!(result.unwrap().service.is_some());
+    let found = match result {
+        Ok(response) => response.service,
+        Err(err) => panic!("expected Ok, got Err: {err:?}"),
+    };
+    match found {
+        Some(found_svc) => {
+            let name_result = found_svc.name(NameRequest);
+            match name_result {
+                Ok(name_resp) => assert_eq!(name_resp.name, "forty-two"),
+                Err(err) => panic!("expected Ok, got Err: {err:?}"),
+            }
+        }
+        None => panic!("expected the registered service to be found by name"),
+    }
 }

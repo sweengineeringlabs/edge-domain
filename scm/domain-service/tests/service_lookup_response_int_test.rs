@@ -19,7 +19,10 @@ fn test_service_lookup_response_some_happy() {
         service: Some(svc.clone()),
     };
     assert!(resp.service.is_some());
-    assert!(Arc::ptr_eq(resp.service.as_ref().unwrap(), &svc));
+    match resp.service.as_ref() {
+        Some(found) => assert!(Arc::ptr_eq(found, &svc)),
+        None => panic!("expected Some, got None"),
+    }
 }
 
 /// @covers: ServiceLookupResponse — differentiates None from Some

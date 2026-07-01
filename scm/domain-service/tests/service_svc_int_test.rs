@@ -1,6 +1,6 @@
 //! SAF facade tests — `Service` trait.
 
-use edge_domain_service::{Service, ServiceError, NameRequest, NameResponse};
+use edge_domain_service::{NameRequest, NameResponse, Service, ServiceError};
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 
@@ -39,14 +39,20 @@ impl Service for AlwaysFails {
 #[test]
 fn test_name_configured_value_returned_happy() {
     let result = Echo("greet".into()).name(NameRequest);
-    assert_eq!(result.unwrap().name, "greet");
+    match result {
+        Ok(response) => assert_eq!(response.name, "greet"),
+        Err(err) => panic!("expected Ok, got Err: {err:?}"),
+    }
 }
 
 /// @covers: Service::name
 #[test]
 fn test_name_default_impl_returns_service_happy() {
     let result = AlwaysFails.name(NameRequest);
-    assert_eq!(result.unwrap().name, "service");
+    match result {
+        Ok(response) => assert_eq!(response.name, "service"),
+        Err(err) => panic!("expected Ok, got Err: {err:?}"),
+    }
 }
 
 /// @covers: Service::name — via dyn dispatch
@@ -54,7 +60,10 @@ fn test_name_default_impl_returns_service_happy() {
 fn test_name_via_dyn_dispatch_returns_name_edge() {
     let svc: &dyn Service<Request = String, Response = String> = &Echo("ping".into());
     let result = svc.name(NameRequest);
-    assert_eq!(result.unwrap().name, "ping");
+    match result {
+        Ok(response) => assert_eq!(response.name, "ping"),
+        Err(err) => panic!("expected Ok, got Err: {err:?}"),
+    }
 }
 
 /// @covers: Service::execute — success path returns value
