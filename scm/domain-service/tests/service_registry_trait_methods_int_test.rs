@@ -1,7 +1,6 @@
 //! Comprehensive tests for ServiceRegistry trait methods.
 
 use edge_domain_service::*;
-use futures::executor::block_on;
 use std::sync::Arc;
 
 /// Helper to create a test service registry
@@ -14,10 +13,8 @@ fn make_registry() -> ServiceRegistryStore<(), ()> {
 #[test]
 fn test_service_registry_register_stores_service_happy() {
     let reg = make_registry();
-    let req = RegisterServiceRequest {
-        service: Arc::new(NoopService),
-    };
-    let result = reg.register(req);
+    let req = RegisterServiceRequest::new(Arc::new(NoopService));
+    let result = reg.register(&req);
     assert_eq!(result, Ok(RegisterServiceResponse));
 }
 
@@ -26,10 +23,8 @@ fn test_service_registry_register_stores_service_happy() {
 fn test_service_registry_register_multiple_happy() {
     let reg = make_registry();
     for _ in 0..3 {
-        let req = RegisterServiceRequest {
-            service: Arc::new(NoopService),
-        };
-        assert_eq!(reg.register(req), Ok(RegisterServiceResponse));
+        let req = RegisterServiceRequest::new(Arc::new(NoopService));
+        assert_eq!(reg.register(&req), Ok(RegisterServiceResponse));
     }
 }
 
@@ -37,14 +32,10 @@ fn test_service_registry_register_multiple_happy() {
 #[test]
 fn test_service_registry_register_replaces_existing_edge() {
     let reg = make_registry();
-    let req1 = RegisterServiceRequest {
-        service: Arc::new(NoopService),
-    };
-    let req2 = RegisterServiceRequest {
-        service: Arc::new(NoopService),
-    };
-    assert_eq!(reg.register(req1), Ok(RegisterServiceResponse));
-    assert_eq!(reg.register(req2), Ok(RegisterServiceResponse));
+    let req1 = RegisterServiceRequest::new(Arc::new(NoopService));
+    let req2 = RegisterServiceRequest::new(Arc::new(NoopService));
+    assert_eq!(reg.register(&req1), Ok(RegisterServiceResponse));
+    assert_eq!(reg.register(&req2), Ok(RegisterServiceResponse));
     let len_result = reg.len(LenRequest);
     assert_eq!(len_result.unwrap().count, 1);
 }
@@ -54,14 +45,12 @@ fn test_service_registry_register_replaces_existing_edge() {
 #[test]
 fn test_service_registry_deregister_present_returns_ok_happy() {
     let reg = make_registry();
-    let req = RegisterServiceRequest {
-        service: Arc::new(NoopService),
-    };
-    let _ = reg.register(req);
+    let req = RegisterServiceRequest::new(Arc::new(NoopService));
+    let _ = reg.register(&req);
     let deregister_req = ServiceRemovalRequest {
         name: "noop".to_string(),
     };
-    let result = reg.deregister(deregister_req);
+    let result = reg.deregister(&deregister_req);
     assert!(result.is_ok());
     assert!(result.unwrap().was_present);
 }
@@ -73,7 +62,7 @@ fn test_service_registry_deregister_missing_returns_false_error() {
     let deregister_req = ServiceRemovalRequest {
         name: "missing".to_string(),
     };
-    let result = reg.deregister(deregister_req);
+    let result = reg.deregister(&deregister_req);
     assert!(result.is_ok());
     assert!(!result.unwrap().was_present);
 }
@@ -82,18 +71,16 @@ fn test_service_registry_deregister_missing_returns_false_error() {
 #[test]
 fn test_service_registry_deregister_idempotent_edge() {
     let reg = make_registry();
-    let req = RegisterServiceRequest {
-        service: Arc::new(NoopService),
-    };
-    let _ = reg.register(req);
+    let req = RegisterServiceRequest::new(Arc::new(NoopService));
+    let _ = reg.register(&req);
     let deregister_req1 = ServiceRemovalRequest {
         name: "noop".to_string(),
     };
     let deregister_req2 = ServiceRemovalRequest {
         name: "noop".to_string(),
     };
-    let result1 = reg.deregister(deregister_req1);
-    let result2 = reg.deregister(deregister_req2);
+    let result1 = reg.deregister(&deregister_req1);
+    let result2 = reg.deregister(&deregister_req2);
     assert!(result1.unwrap().was_present);
     assert!(!result2.unwrap().was_present);
 }
@@ -103,14 +90,12 @@ fn test_service_registry_deregister_idempotent_edge() {
 #[test]
 fn test_service_registry_get_present_returns_some_happy() {
     let reg = make_registry();
-    let req = RegisterServiceRequest {
-        service: Arc::new(NoopService),
-    };
-    let _ = reg.register(req);
+    let req = RegisterServiceRequest::new(Arc::new(NoopService));
+    let _ = reg.register(&req);
     let lookup_req = ServiceLookupRequest {
         name: "noop".to_string(),
     };
-    let result = reg.get(lookup_req);
+    let result = reg.get(&lookup_req);
     assert!(result.is_ok());
     assert!(result.unwrap().service.is_some());
 }
@@ -122,7 +107,7 @@ fn test_service_registry_get_missing_returns_none_error() {
     let lookup_req = ServiceLookupRequest {
         name: "missing".to_string(),
     };
-    let result = reg.get(lookup_req);
+    let result = reg.get(&lookup_req);
     assert!(result.is_ok());
     assert!(result.unwrap().service.is_none());
 }
@@ -132,14 +117,12 @@ fn test_service_registry_get_missing_returns_none_error() {
 fn test_service_registry_get_returns_same_service_edge() {
     let reg = make_registry();
     let service = Arc::new(NoopService);
-    let req = RegisterServiceRequest {
-        service: service.clone(),
-    };
-    let _ = reg.register(req);
+    let req = RegisterServiceRequest::new(service.clone());
+    let _ = reg.register(&req);
     let lookup_req = ServiceLookupRequest {
         name: "noop".to_string(),
     };
-    let result = reg.get(lookup_req);
+    let result = reg.get(&lookup_req);
     assert!(result.is_ok());
     let retrieved = result.unwrap().service;
     assert!(retrieved.is_some());
@@ -160,10 +143,8 @@ fn test_service_registry_list_names_empty_registry_happy() {
 #[test]
 fn test_service_registry_list_names_populated_registry_edge() {
     let reg = make_registry();
-    let req = RegisterServiceRequest {
-        service: Arc::new(NoopService),
-    };
-    let _ = reg.register(req);
+    let req = RegisterServiceRequest::new(Arc::new(NoopService));
+    let _ = reg.register(&req);
     let list_req = ListNamesRequest;
     let result = reg.list_names(list_req);
     assert!(result.is_ok());
@@ -174,10 +155,8 @@ fn test_service_registry_list_names_populated_registry_edge() {
 #[test]
 fn test_service_registry_list_names_includes_registered_error() {
     let reg = make_registry();
-    let req = RegisterServiceRequest {
-        service: Arc::new(NoopService),
-    };
-    let _ = reg.register(req);
+    let req = RegisterServiceRequest::new(Arc::new(NoopService));
+    let _ = reg.register(&req);
     let list_req = ListNamesRequest;
     let result = reg.list_names(list_req);
     assert!(result.is_ok());
@@ -200,10 +179,8 @@ fn test_service_registry_len_empty_registry_happy() {
 #[test]
 fn test_service_registry_len_after_register_edge() {
     let reg = make_registry();
-    let req = RegisterServiceRequest {
-        service: Arc::new(NoopService),
-    };
-    let _ = reg.register(req);
+    let req = RegisterServiceRequest::new(Arc::new(NoopService));
+    let _ = reg.register(&req);
     let len_req = LenRequest;
     let result = reg.len(len_req);
     assert!(result.is_ok());
@@ -214,14 +191,12 @@ fn test_service_registry_len_after_register_edge() {
 #[test]
 fn test_service_registry_len_correct_after_operations_error() {
     let reg = make_registry();
-    let req = RegisterServiceRequest {
-        service: Arc::new(NoopService),
-    };
-    let _ = reg.register(req);
+    let req = RegisterServiceRequest::new(Arc::new(NoopService));
+    let _ = reg.register(&req);
     let deregister_req = ServiceRemovalRequest {
         name: "noop".to_string(),
     };
-    let _ = reg.deregister(deregister_req);
+    let _ = reg.deregister(&deregister_req);
     let len_req = LenRequest;
     let result = reg.len(len_req);
     assert!(result.is_ok());
@@ -243,10 +218,8 @@ fn test_service_registry_is_empty_fresh_registry_happy() {
 #[test]
 fn test_service_registry_is_empty_after_register_edge() {
     let reg = make_registry();
-    let req = RegisterServiceRequest {
-        service: Arc::new(NoopService),
-    };
-    let _ = reg.register(req);
+    let req = RegisterServiceRequest::new(Arc::new(NoopService));
+    let _ = reg.register(&req);
     let emptiness_req = EmptinessRequest;
     let result = reg.is_empty(emptiness_req);
     assert!(result.is_ok());
@@ -257,14 +230,12 @@ fn test_service_registry_is_empty_after_register_edge() {
 #[test]
 fn test_service_registry_is_empty_after_deregister_error() {
     let reg = make_registry();
-    let req = RegisterServiceRequest {
-        service: Arc::new(NoopService),
-    };
-    let _ = reg.register(req);
+    let req = RegisterServiceRequest::new(Arc::new(NoopService));
+    let _ = reg.register(&req);
     let deregister_req = ServiceRemovalRequest {
         name: "noop".to_string(),
     };
-    let _ = reg.deregister(deregister_req);
+    let _ = reg.deregister(&deregister_req);
     let emptiness_req = EmptinessRequest;
     let result = reg.is_empty(emptiness_req);
     assert!(result.is_ok());

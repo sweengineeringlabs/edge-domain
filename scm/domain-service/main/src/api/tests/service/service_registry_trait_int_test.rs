@@ -23,14 +23,14 @@ mod tests {
 
         fn deregister(
             &self,
-            _req: ServiceRemovalRequest,
+            _req: &ServiceRemovalRequest,
         ) -> Result<crate::api::ServiceRemovalResponse, ServiceError> {
             Ok(crate::api::ServiceRemovalResponse { was_present: false })
         }
 
         fn get(
             &self,
-            _req: ServiceLookupRequest,
+            _req: &ServiceLookupRequest,
         ) -> Result<crate::api::ServiceLookupResponse<(), ()>, ServiceError> {
             Ok(crate::api::ServiceLookupResponse { service: None })
         }
@@ -56,6 +56,10 @@ mod tests {
 
         fn noop_service() -> crate::api::NoopService {
             crate::api::NoopService
+        }
+
+        fn new_store() -> crate::api::ServiceRegistryStore<(), ()> {
+            crate::api::ServiceRegistryStore::default()
         }
     }
 
@@ -86,7 +90,7 @@ mod tests {
         let req = ServiceRemovalRequest {
             name: "test".to_string(),
         };
-        let result = reg.deregister(req);
+        let result = reg.deregister(&req);
         assert_eq!(result.unwrap().was_present, false);
     }
 
@@ -97,7 +101,7 @@ mod tests {
         let req = ServiceLookupRequest {
             name: "test".to_string(),
         };
-        let result = reg.get(req);
+        let result = reg.get(&req);
         assert!(result.unwrap().service.is_none());
     }
 

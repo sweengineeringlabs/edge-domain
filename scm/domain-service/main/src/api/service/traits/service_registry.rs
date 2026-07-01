@@ -3,8 +3,8 @@
 use crate::api::service::{
     EmptinessRequest, EmptinessResponse, LenRequest, LenResponse, ListNamesRequest,
     ListNamesResponse, NoopService, RegisterServiceRequest, RegisterServiceResponse, ServiceError,
-    ServiceLookupRequest, ServiceLookupResponse, ServiceRemovalRequest, ServiceRemovalResponse,
-    StdServiceRegistryFactory,
+    ServiceLookupRequest, ServiceLookupResponse, ServiceRegistryStore, ServiceRemovalRequest,
+    ServiceRemovalResponse, StdServiceRegistryFactory,
 };
 
 /// A registry that maps service names to [`Service`] implementations.
@@ -26,13 +26,13 @@ pub trait ServiceRegistry: Send + Sync {
     /// Remove the service with the given name.
     fn deregister(
         &self,
-        req: ServiceRemovalRequest,
+        req: &ServiceRemovalRequest,
     ) -> Result<ServiceRemovalResponse, ServiceError>;
 
     /// Look up a service by name.
     fn get(
         &self,
-        req: ServiceLookupRequest,
+        req: &ServiceLookupRequest,
     ) -> Result<ServiceLookupResponse<Self::Request, Self::Response>, ServiceError>;
 
     /// Return the names of all registered services.
@@ -49,4 +49,8 @@ pub trait ServiceRegistry: Send + Sync {
 
     /// Provide a noop service for testing.
     fn noop_service() -> NoopService;
+
+    /// Construct a fresh, empty in-process registry store bound to this
+    /// trait's request/response types.
+    fn new_store() -> ServiceRegistryStore<Self::Request, Self::Response>;
 }

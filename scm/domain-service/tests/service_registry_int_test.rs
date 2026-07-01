@@ -46,13 +46,11 @@ fn test_default_creates_empty_registry_happy() {
 fn test_register_then_get_retrieves_service_edge() {
     let reg: ServiceRegistryStore<i32, i32> = ServiceRegistryStore::default();
     let svc = Arc::new(Constant("forty-two".into(), 42));
-    let req = RegisterServiceRequest {
-        service: svc.clone(),
-    };
-    let _ = reg.register(req);
+    let req = RegisterServiceRequest::new(svc.clone());
+    let _ = reg.register(&req);
     let lookup_req = ServiceLookupRequest {
         name: "forty-two".to_string(),
     };
-    let result = reg.get(lookup_req);
+    let result = reg.get(&lookup_req);
     assert!(result.unwrap().service.is_some());
 }

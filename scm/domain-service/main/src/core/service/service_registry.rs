@@ -47,7 +47,7 @@ where
 
     fn deregister(
         &self,
-        req: ServiceRemovalRequest,
+        req: &ServiceRemovalRequest,
     ) -> Result<ServiceRemovalResponse, ServiceError> {
         let was_present = self.inner.write().remove(&req.name).is_some();
         Ok(ServiceRemovalResponse { was_present })
@@ -55,7 +55,7 @@ where
 
     fn get(
         &self,
-        req: ServiceLookupRequest,
+        req: &ServiceLookupRequest,
     ) -> Result<ServiceLookupResponse<Req, Resp>, ServiceError> {
         let service = self.inner.read().get(&req.name).cloned();
         Ok(ServiceLookupResponse { service })
@@ -82,5 +82,9 @@ where
 
     fn noop_service() -> NoopService {
         NoopService
+    }
+
+    fn new_store() -> ServiceRegistryStore<Req, Resp> {
+        ServiceRegistryStore::default()
     }
 }

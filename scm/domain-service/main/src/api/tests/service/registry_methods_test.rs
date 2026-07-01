@@ -23,14 +23,14 @@ mod tests {
 
         fn deregister(
             &self,
-            _req: ServiceRemovalRequest,
+            _req: &ServiceRemovalRequest,
         ) -> Result<crate::api::ServiceRemovalResponse, ServiceError> {
             Ok(crate::api::ServiceRemovalResponse { was_present: false })
         }
 
         fn get(
             &self,
-            _req: ServiceLookupRequest,
+            _req: &ServiceLookupRequest,
         ) -> Result<crate::api::ServiceLookupResponse<(), ()>, ServiceError> {
             Ok(crate::api::ServiceLookupResponse { service: None })
         }
@@ -56,6 +56,10 @@ mod tests {
 
         fn noop_service() -> crate::api::NoopService {
             crate::api::NoopService
+        }
+
+        fn new_store() -> crate::api::ServiceRegistryStore<(), ()> {
+            crate::api::ServiceRegistryStore::default()
         }
     }
 
@@ -94,7 +98,7 @@ mod tests {
     fn test_deregister_missing_happy() {
         let reg = TestRegistry;
         let req = ServiceRemovalRequest { name: "x".to_string() };
-        assert!(!reg.deregister(req).unwrap().was_present);
+        assert!(!reg.deregister(&req).unwrap().was_present);
     }
 
     /// @covers: ServiceRegistry::deregister
@@ -102,7 +106,7 @@ mod tests {
     fn test_deregister_not_present_error() {
         let reg = TestRegistry;
         let req = ServiceRemovalRequest { name: "x".to_string() };
-        let result = reg.deregister(req);
+        let result = reg.deregister(&req);
         assert!(!result.unwrap().was_present);
     }
 
@@ -112,7 +116,7 @@ mod tests {
         let reg = TestRegistry;
         let req1 = ServiceRemovalRequest { name: "x".to_string() };
         let req2 = ServiceRemovalRequest { name: "x".to_string() };
-        assert_eq!(reg.deregister(req1).unwrap().was_present, reg.deregister(req2).unwrap().was_present);
+        assert_eq!(reg.deregister(&req1).unwrap().was_present, reg.deregister(&req2).unwrap().was_present);
     }
 
     /// @covers: ServiceRegistry::get
@@ -120,7 +124,7 @@ mod tests {
     fn test_get_returns_option_happy() {
         let reg = TestRegistry;
         let req = ServiceLookupRequest { name: "x".to_string() };
-        let result = reg.get(req);
+        let result = reg.get(&req);
         assert!(result.unwrap().service.is_none());
     }
 
@@ -129,7 +133,7 @@ mod tests {
     fn test_get_none_error() {
         let reg = TestRegistry;
         let req = ServiceLookupRequest { name: "x".to_string() };
-        let result = reg.get(req);
+        let result = reg.get(&req);
         assert!(result.unwrap().service.is_none());
     }
 
@@ -139,8 +143,8 @@ mod tests {
         let reg = TestRegistry;
         let req1 = ServiceLookupRequest { name: "x".to_string() };
         let req2 = ServiceLookupRequest { name: "x".to_string() };
-        let r1 = reg.get(req1);
-        let r2 = reg.get(req2);
+        let r1 = reg.get(&req1);
+        let r2 = reg.get(&req2);
         assert_eq!(r1.unwrap().service.is_some(), r2.unwrap().service.is_some());
     }
 
