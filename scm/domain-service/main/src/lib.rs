@@ -21,4 +21,4 @@ pub use api::{
     LenRequest, LenResponse,
     EmptinessRequest, EmptinessResponse,
 };
-pub use saf::{SERVICE_REGISTRY_BOOTSTRAP_SVC, SERVICE_REGISTRY_SVC, SERVICE_SVC};
+pub use saf::{SERVICE_REGISTRY_SVC, SERVICE_SVC};

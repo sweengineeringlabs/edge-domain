@@ -6,7 +6,7 @@ use crate::api::service::types::ServiceRegistry;
 
 /// Bootstrap trait for constructing [`ServiceRegistry`] instances.
 ///
-/// Static factory methods only — not object-safe; used for static dispatch only.
+/// Static factory methods only — used for factory setup.
 pub trait ServiceRegistryBootstrap {
     /// Construct a new, empty [`ServiceRegistry`].
     fn new_registry<Req, Resp>() -> ServiceRegistry<Req, Resp>
