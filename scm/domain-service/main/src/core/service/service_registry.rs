@@ -7,9 +7,9 @@ use parking_lot::RwLock;
 
 use crate::api::{
     EmptinessRequest, EmptinessResponse, LenRequest, LenResponse, ListNamesRequest,
-    ListNamesResponse, NameRequest, RegisterServiceRequest, RegisterServiceResponse,
+    ListNamesResponse, NameRequest, NoopService, RegisterServiceRequest, RegisterServiceResponse,
     ServiceError, ServiceLookupRequest, ServiceLookupResponse, ServiceRegistry,
-    ServiceRegistryStore, ServiceRemovalRequest, ServiceRemovalResponse,
+    ServiceRegistryStore, ServiceRemovalRequest, ServiceRemovalResponse, StdServiceRegistryFactory,
 };
 
 impl<Req, Resp> Default for ServiceRegistryStore<Req, Resp>
@@ -74,5 +74,13 @@ where
     fn is_empty(&self, _req: EmptinessRequest) -> Result<EmptinessResponse, ServiceError> {
         let empty = self.inner.read().is_empty();
         Ok(EmptinessResponse { empty })
+    }
+
+    fn default_factory() -> StdServiceRegistryFactory {
+        StdServiceRegistryFactory
+    }
+
+    fn noop_service() -> NoopService {
+        NoopService
     }
 }

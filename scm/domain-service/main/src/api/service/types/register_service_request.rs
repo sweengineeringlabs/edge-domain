@@ -7,21 +7,11 @@ use std::sync::Arc;
 ///
 /// Encapsulates a service instance with a private Arc field,
 /// preventing external code from depending on the Arc wrapping pattern.
+/// Construction methods are in core/service/register_service_request.rs.
 pub struct RegisterServiceRequest<Req, Resp>
 where
     Req: Send + 'static,
     Resp: Send + 'static,
 {
     pub(crate) service: Arc<dyn Service<Request = Req, Response = Resp>>,
-}
-
-impl<Req, Resp> RegisterServiceRequest<Req, Resp>
-where
-    Req: Send + 'static,
-    Resp: Send + 'static,
-{
-    /// Create a new registration request.
-    pub fn new(service: Arc<dyn Service<Request = Req, Response = Resp>>) -> Self {
-        Self { service }
-    }
 }

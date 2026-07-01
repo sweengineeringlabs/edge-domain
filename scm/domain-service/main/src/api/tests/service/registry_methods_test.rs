@@ -49,6 +49,14 @@ mod tests {
         fn is_empty(&self, _req: EmptinessRequest) -> Result<crate::api::EmptinessResponse, ServiceError> {
             Ok(crate::api::EmptinessResponse { empty: true })
         }
+
+        fn default_factory() -> crate::api::StdServiceRegistryFactory {
+            crate::api::StdServiceRegistryFactory
+        }
+
+        fn noop_service() -> crate::api::NoopService {
+            crate::api::NoopService
+        }
     }
 
     /// @covers: ServiceRegistry::register

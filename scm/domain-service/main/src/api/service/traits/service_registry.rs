@@ -2,8 +2,9 @@
 
 use crate::api::service::{
     EmptinessRequest, EmptinessResponse, LenRequest, LenResponse, ListNamesRequest,
-    ListNamesResponse, RegisterServiceRequest, RegisterServiceResponse, ServiceError,
+    ListNamesResponse, NoopService, RegisterServiceRequest, RegisterServiceResponse, ServiceError,
     ServiceLookupRequest, ServiceLookupResponse, ServiceRemovalRequest, ServiceRemovalResponse,
+    StdServiceRegistryFactory,
 };
 
 /// A registry that maps service names to [`Service`] implementations.
@@ -42,4 +43,10 @@ pub trait ServiceRegistry: Send + Sync {
 
     /// Return `true` when no services are registered.
     fn is_empty(&self, req: EmptinessRequest) -> Result<EmptinessResponse, ServiceError>;
+
+    /// Create a default empty registry (for factory support).
+    fn default_factory() -> StdServiceRegistryFactory;
+
+    /// Provide a noop service for testing.
+    fn noop_service() -> NoopService;
 }
