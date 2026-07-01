@@ -8,7 +8,9 @@ pub use errors::ServiceError;
 pub use traits::{Service, ServiceRegistry};
 pub use types::{
     EmptinessRequest, EmptinessResponse, LenRequest, LenResponse, ListNamesRequest,
-    ListNamesResponse, NameRequest, NameResponse, NoopService, RegisterServiceRequest,
+    ListNamesResponse, NameRequest, NameResponse, RegisterServiceRequest,
     RegisterServiceResponse, ServiceLookupRequest, ServiceLookupResponse, ServiceRegistryStore,
     ServiceRemovalRequest, ServiceRemovalResponse, StdServiceRegistryFactory,
 };
+
+pub use crate::core::NoopService;

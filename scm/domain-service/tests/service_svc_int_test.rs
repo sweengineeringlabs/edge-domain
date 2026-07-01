@@ -1,6 +1,6 @@
 //! SAF facade tests — `Service` trait.
 
-use edge_domain_service::{Service, ServiceError};
+use edge_domain_service::{Service, ServiceError, NameRequest, NameResponse};
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 
@@ -9,8 +9,10 @@ impl Service for Echo {
     type Request = String;
     type Response = String;
 
-    fn name(&self) -> &str {
-        &self.0
+    fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
+        Ok(NameResponse {
+            name: self.0.clone(),
+        })
     }
     fn execute(&self, req: String) -> BoxFuture<'_, Result<String, ServiceError>> {
         Box::pin(async move { Ok(req) })
@@ -22,28 +24,37 @@ impl Service for AlwaysFails {
     type Request = String;
     type Response = String;
 
+    fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
+        Ok(NameResponse {
+            name: "service".to_string(),
+        })
+    }
+
     fn execute(&self, _req: String) -> BoxFuture<'_, Result<String, ServiceError>> {
         Box::pin(async { Err(ServiceError::RuleViolation("blocked".into())) })
     }
 }
 
-/// @covers: Service::name — configured name returned
+/// @covers: Service::name
 #[test]
 fn test_name_configured_value_returned_happy() {
-    assert_eq!(Echo("greet".into()).name(), "greet");
+    let result = Echo("greet".into()).name(NameRequest);
+    assert_eq!(result.unwrap().name, "greet");
 }
 
-/// @covers: Service::name — default impl returns "service"
+/// @covers: Service::name
 #[test]
-fn test_name_default_impl_returns_service_error() {
-    assert_eq!(AlwaysFails.name(), "service");
+fn test_name_default_impl_returns_service_happy() {
+    let result = AlwaysFails.name(NameRequest);
+    assert_eq!(result.unwrap().name, "service");
 }
 
 /// @covers: Service::name — via dyn dispatch
 #[test]
 fn test_name_via_dyn_dispatch_returns_name_edge() {
     let svc: &dyn Service<Request = String, Response = String> = &Echo("ping".into());
-    assert_eq!(svc.name(), "ping");
+    let result = svc.name(NameRequest);
+    assert_eq!(result.unwrap().name, "ping");
 }
 
 /// @covers: Service::execute — success path returns value

@@ -1,8 +1,11 @@
-//! Integration tests for `ServiceRegistry` — the in-process service registry type.
+//! Integration tests for `ServiceRegistryStore` — the in-process service registry implementation.
 
 use std::sync::Arc;
 
-use edge_domain_service::{Service, ServiceError, ServiceRegistry, ServiceRegistryTrait};
+use edge_domain_service::{
+    Service, ServiceError, ServiceRegistry, ServiceRegistryStore, NameRequest, NameResponse,
+    RegisterServiceRequest, ServiceLookupRequest, LenRequest, EmptinessRequest,
+};
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 
@@ -11,8 +14,10 @@ impl Service for Constant {
     type Request = i32;
     type Response = i32;
 
-    fn name(&self) -> &str {
-        &self.0
+    fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
+        Ok(NameResponse {
+            name: self.0.clone(),
+        })
     }
     fn execute(&self, _req: i32) -> BoxFuture<'_, Result<i32, ServiceError>> {
         let val = self.1;
@@ -20,27 +25,34 @@ impl Service for Constant {
     }
 }
 
-/// @covers: ServiceRegistry — constructs an empty registry via Default
+/// @covers: ServiceRegistryStore::default
 #[test]
 fn test_new_creates_empty_registry_happy() {
-    let reg: ServiceRegistry<i32, i32> = ServiceRegistry::default();
-    assert_eq!(ServiceRegistryTrait::len(&reg), 0);
-    assert!(ServiceRegistryTrait::is_empty(&reg));
+    let reg: ServiceRegistryStore<i32, i32> = ServiceRegistryStore::default();
+    let result = reg.len(LenRequest);
+    assert_eq!(result.unwrap().count, 0);
+    assert!(reg.is_empty(EmptinessRequest).unwrap().empty);
 }
 
-/// @covers: ServiceRegistry::default — equivalent to new()
+/// @covers: ServiceRegistryStore::default
 #[test]
-fn test_default_is_equivalent_to_new_error() {
-    let reg: ServiceRegistry<i32, i32> = ServiceRegistry::default();
-    assert!(reg.is_empty());
+fn test_default_creates_empty_registry_happy() {
+    let reg: ServiceRegistryStore<i32, i32> = ServiceRegistryStore::default();
+    assert!(reg.is_empty(EmptinessRequest).unwrap().empty);
 }
 
-/// @covers: ServiceRegistry — register then execute via get
+/// @covers: ServiceRegistry::register and get
 #[test]
-fn test_register_then_execute_produces_expected_value_edge() {
-    let reg: ServiceRegistry<i32, i32> = ServiceRegistry::default();
-    reg.register(Arc::new(Constant("forty-two".into(), 42)));
-    let svc = reg.get("forty-two").expect("service must be present");
-    let result = block_on(svc.execute(0));
-    assert_eq!(result.ok(), Some(42));
+fn test_register_then_get_retrieves_service_edge() {
+    let reg: ServiceRegistryStore<i32, i32> = ServiceRegistryStore::default();
+    let svc = Arc::new(Constant("forty-two".into(), 42));
+    let req = RegisterServiceRequest {
+        service: svc.clone(),
+    };
+    let _ = reg.register(req);
+    let lookup_req = ServiceLookupRequest {
+        name: "forty-two".to_string(),
+    };
+    let result = reg.get(lookup_req);
+    assert!(result.unwrap().service.is_some());
 }

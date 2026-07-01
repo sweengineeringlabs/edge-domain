@@ -1,8 +1,14 @@
-//! `Service` trait impl for [`NoopService`] — a no-operation service.
+//! `NoopService` — a no-operation service implementation.
 
 use futures::future::BoxFuture;
 
-use crate::api::{NameRequest, NameResponse, NoopService, Service, ServiceError};
+use crate::api::{NameRequest, NameResponse, Service, ServiceError};
+
+/// A no-operation [`Service`] that accepts `()` requests and immediately returns `()`.
+///
+/// Useful as a sentinel or placeholder where a real service implementation is not required.
+#[derive(Debug, Default, Clone, Copy)]
+pub struct NoopService;
 
 impl Service for NoopService {
     type Request = ();

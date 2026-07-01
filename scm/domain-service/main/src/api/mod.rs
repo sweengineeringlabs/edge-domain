@@ -1,4 +1,6 @@
 mod service;
+mod tests;
+
 pub use service::Service;
 pub use service::ServiceRegistry;
 
