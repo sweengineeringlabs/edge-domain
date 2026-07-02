@@ -1,11 +1,15 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use edge_llm_complete::{FinishReason, StreamChunk, StreamDelta};
 
+/// @covers: partial
 #[test]
 fn test_partial_chunk_has_no_finish_reason() {
     let chunk = StreamChunk::partial("c-1", StreamDelta::text("hello"));
     assert!(chunk.finish_reason.is_none());
 }
 
+/// @covers: terminal
 #[test]
 fn test_terminal_chunk_carries_finish_reason() {
     let chunk = StreamChunk::terminal("c-1", StreamDelta::empty(), FinishReason::Stop);

@@ -12,23 +12,3 @@ pub struct StreamChunk {
     /// Present only on the final chunk.
     pub finish_reason: Option<FinishReason>,
 }
-
-impl StreamChunk {
-    /// Construct a mid-stream chunk (no finish reason).
-    pub fn partial(id: impl Into<String>, delta: StreamDelta) -> Self {
-        Self {
-            id: id.into(),
-            delta: Box::new(delta),
-            finish_reason: None,
-        }
-    }
-
-    /// Construct the terminal chunk that carries a finish reason.
-    pub fn terminal(id: impl Into<String>, delta: StreamDelta, reason: FinishReason) -> Self {
-        Self {
-            id: id.into(),
-            delta: Box::new(delta),
-            finish_reason: Some(reason),
-        }
-    }
-}

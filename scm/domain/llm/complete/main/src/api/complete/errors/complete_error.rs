@@ -1,7 +1,5 @@
 //! `CompleteError` — 14-variant error taxonomy for LLM completion operations.
 
-use std::time::Duration;
-
 /// Comprehensive error taxonomy for LLM completion (renamed from `LlmError` in llmcomplete).
 #[derive(Debug, thiserror::Error)]
 pub enum CompleteError {
@@ -73,26 +71,4 @@ pub enum CompleteError {
     /// Underlying I/O error (file, socket, …).
     #[error("io error: {0}")]
     IoError(#[from] std::io::Error),
-}
-
-impl CompleteError {
-    /// Returns `true` if the operation is safe to retry.
-    pub fn is_retryable(&self) -> bool {
-        matches!(
-            self,
-            CompleteError::NetworkError(_)
-                | CompleteError::RateLimited { .. }
-                | CompleteError::Timeout(_)
-        )
-    }
-
-    /// Returns the suggested retry delay, if the error carries one.
-    pub fn retry_after(&self) -> Option<Duration> {
-        match self {
-            CompleteError::RateLimited { retry_after_ms } => {
-                retry_after_ms.map(Duration::from_millis)
-            }
-            _ => None,
-        }
-    }
 }

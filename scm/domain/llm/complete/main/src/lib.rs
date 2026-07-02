@@ -20,18 +20,38 @@ mod spi;
 pub use crate::api::CompletionStream;
 
 pub use saf::{
-    CacheableMessage, CompleteBootstrap, CompleteOps, Completer,
-    CompleterHandler, ContentFlattener, ModelOps, Processor, StreamOps,
-    ToolOps, Validator,
-    CACHEABLE_MESSAGE_SVC, COMPLETER_HANDLER_SVC, COMPLETER_SVC, COMPLETE_FACTORY_SVC,
-    COMPLETE_OPS_SVC, CONTENT_FLATTENER_SVC, MODEL_OPS_SVC, PROCESSOR_SVC, STREAM_OPS_SVC,
-    TOOL_OPS_SVC, VALIDATOR_SVC,
+    CacheableMessage, CompleteBootstrap, CompleteOps, Completer, CompleterHandler,
+    ContentFlattener, ModelOps, Processor, StreamOps, ToolOps, Validator, CACHEABLE_MESSAGE_SVC,
+    COMPLETER_HANDLER_SVC, COMPLETER_SVC, COMPLETE_FACTORY_SVC, COMPLETE_OPS_SVC,
+    CONTENT_FLATTENER_SVC, MODEL_OPS_SVC, PROCESSOR_SVC, STREAM_OPS_SVC, TOOL_OPS_SVC,
+    VALIDATOR_SVC,
+};
+
+// Re-export SAF factory markers
+pub use saf::{
+    CACHEABLE_MESSAGE_SVC_FACTORY, COMPLETER_HANDLER_SVC_FACTORY, COMPLETER_SVC_FACTORY,
+    COMPLETE_BOOTSTRAP_SVC_FACTORY, COMPLETE_OPS_SVC_FACTORY, CONTENT_FLATTENER_SVC_FACTORY,
+    MODEL_OPS_SVC_FACTORY, PROCESSOR_SVC_FACTORY, STREAM_OPS_SVC_FACTORY, TOOL_OPS_SVC_FACTORY,
+    VALIDATOR_SVC_FACTORY,
 };
 
 // Re-export types used by provider and other consumer crates
 pub use crate::api::{
     CacheControl, CompleteError, CompletionRequest, CompletionResponse, ContentPart, EchoCompleter,
-    FinishReason, ImageUrl,
-    Message, MessageContent, ModelInfo, NoopCompleter, Role, StreamChunk, StreamDelta,
-    StdCompleteFactory, TokenUsage, ToolCall, ToolCallDelta, ToolChoice, ToolDefinition,
+    FinishReason, ImageUrl, Message, MessageContent, ModelInfo, NoopCompleter, Role,
+    StdCompleteFactory, StreamChunk, StreamDelta, TokenUsage, ToolCall, ToolCallDelta, ToolChoice,
+    ToolDefinition,
+};
+
+// Re-export Request/Response envelope types used by trait method signatures
+pub use crate::api::{
+    AvailableToolsRequest, AvailableToolsResponse, CacheControlRequest, CacheControlResponse,
+    CompleteBootstrapNameRequest, CompleteBootstrapNameResponse, CompleteRequest,
+    CompleterHealthCheckRequest, CompleterHealthCheckResponse, CompletionCheckRequest,
+    CompletionStreamRequest, CompletionStreamResponse, DeltaApplicationRequest, DeltaMergeRequest,
+    FlattenRequest, FlattenResponse, ListModelsRequest, ListModelsResponse, MarkEphemeralRequest,
+    ModelAvailabilityRequest, ModelAvailabilityResponse, ModelInfoRequest, ModelInfoResponse,
+    ModelSupportRequest, ModelSupportResponse, ProcessingRequest, SupportedModelsRequest,
+    SupportedModelsResponse, ToolChoicePreferenceRequest, ToolChoicePreferenceResponse,
+    ToolExecutionRequest, ToolExecutionResponse, ValidationRequest,
 };

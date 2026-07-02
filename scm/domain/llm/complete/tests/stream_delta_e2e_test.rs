@@ -2,12 +2,14 @@
 
 use edge_llm_complete::StreamDelta;
 
+/// @covers: text
 #[test]
 fn test_stream_delta_text_sets_content_happy() {
     let delta = StreamDelta::text("hello");
     assert_eq!(delta.content, Some("hello".to_string()));
 }
 
+/// @covers: empty
 #[test]
 fn test_stream_delta_empty_has_no_content_error() {
     let delta = StreamDelta::empty();

@@ -14,21 +14,3 @@ pub enum MessageContent {
     /// Multi-modal parts (text, images, …).
     Parts(Vec<ContentPart>),
 }
-
-impl From<String> for MessageContent {
-    fn from(s: String) -> Self {
-        Self::Text(s)
-    }
-}
-
-impl From<&str> for MessageContent {
-    fn from(s: &str) -> Self {
-        Self::Text(s.to_string())
-    }
-}
-
-impl From<Vec<ContentPart>> for MessageContent {
-    fn from(parts: Vec<ContentPart>) -> Self {
-        Self::Parts(parts)
-    }
-}

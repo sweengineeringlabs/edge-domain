@@ -4,9 +4,11 @@ use async_trait::async_trait;
 use futures::stream;
 
 use crate::api::{
-    CompleteError, Completer, CompleterHandler, CompletionRequest, CompletionResponse,
-    CompletionStream, EchoCompleter, FinishReason, MessageContent, ModelInfo, Processor,
-    StreamChunk, StreamDelta, Validator,
+    CompleteError, CompleteRequest, Completer, CompleterHandler, CompletionRequest,
+    CompletionResponse, CompletionStreamRequest, CompletionStreamResponse, EchoCompleter,
+    FinishReason, ListModelsRequest, ListModelsResponse, MessageContent, ModelInfo,
+    ModelInfoRequest, ModelInfoResponse, ProcessingRequest, Processor, StreamChunk, StreamDelta,
+    SupportedModelsRequest, SupportedModelsResponse, ValidationRequest, Validator,
 };
 
 impl EchoCompleter {
@@ -26,35 +28,56 @@ impl EchoCompleter {
 impl Completer for EchoCompleter {
     async fn complete(
         &self,
-        request: &CompletionRequest,
+        req: CompleteRequest<'_>,
     ) -> Result<CompletionResponse, CompleteError> {
-        let content = self.last_user_text(request);
-        Ok(CompletionResponse::text("echo-1", &request.model, content))
+        let content = self.last_user_text(req.request);
+        Ok(CompletionResponse::text(
+            "echo-1",
+            &req.request.model,
+            content,
+        ))
     }
 
     async fn complete_stream(
         &self,
-        request: &CompletionRequest,
-    ) -> Result<CompletionStream, CompleteError> {
-        let content = self.last_user_text(request);
+        req: CompletionStreamRequest<'_>,
+    ) -> Result<CompletionStreamResponse, CompleteError> {
+        let content = self.last_user_text(req.request);
         let chunk = StreamChunk::terminal("echo-1", StreamDelta::text(content), FinishReason::Stop);
-        Ok(Box::pin(stream::once(async move { Ok(chunk) })))
+        Ok(CompletionStreamResponse {
+            stream: Box::pin(stream::once(async move { Ok(chunk) })),
+        })
     }
 
-    fn supported_models(&self) -> Vec<String> {
-        vec!["echo".to_string()]
+    fn supported_models(
+        &self,
+        _req: SupportedModelsRequest,
+    ) -> Result<SupportedModelsResponse, CompleteError> {
+        Ok(SupportedModelsResponse {
+            models: vec!["echo".to_string()],
+        })
     }
 
-    async fn model_info(&self, model: &str) -> Result<ModelInfo, CompleteError> {
-        if model == "echo" {
-            Ok(ModelInfo::new("echo", "Echo Model", "echo", 4096))
+    async fn model_info(
+        &self,
+        req: ModelInfoRequest<'_>,
+    ) -> Result<ModelInfoResponse, CompleteError> {
+        if req.model == "echo" {
+            Ok(ModelInfoResponse {
+                info: Box::new(ModelInfo::new("echo", "Echo Model", "echo", 4096)),
+            })
         } else {
-            Err(CompleteError::ModelNotFound(model.to_string()))
+            Err(CompleteError::ModelNotFound(req.model.to_string()))
         }
     }
 
-    async fn list_models(&self) -> Result<Vec<ModelInfo>, CompleteError> {
-        Ok(vec![ModelInfo::new("echo", "Echo Model", "echo", 4096)])
+    async fn list_models(
+        &self,
+        _req: ListModelsRequest,
+    ) -> Result<ListModelsResponse, CompleteError> {
+        Ok(ListModelsResponse {
+            models: vec![ModelInfo::new("echo", "Echo Model", "echo", 4096)],
+        })
     }
 }
 
@@ -62,21 +85,59 @@ impl Completer for EchoCompleter {
 impl Processor for EchoCompleter {
     async fn process(
         &self,
-        request: &CompletionRequest,
+        req: ProcessingRequest<'_>,
     ) -> Result<CompletionResponse, CompleteError> {
-        self.complete(request).await
+        self.complete(CompleteRequest {
+            request: req.request,
+        })
+        .await
     }
 }
 
 impl CompleterHandler for EchoCompleter {}
 
 impl Validator for EchoCompleter {
-    fn validate(&self, request: &CompletionRequest) -> Result<(), CompleteError> {
-        if request.model.is_empty() {
+    fn validate(&self, req: ValidationRequest<'_>) -> Result<(), CompleteError> {
+        if req.request.model.is_empty() {
             return Err(CompleteError::InvalidRequest(
                 "model cannot be empty".to_string(),
             ));
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use futures::executor::block_on;
+
+    use super::*;
+
+    fn sample_request() -> CompletionRequest {
+        CompletionRequest::new("echo", vec![crate::api::Message::user("hello")])
+    }
+
+    #[test]
+    fn test_complete_echoes_last_user_text() {
+        let completer = EchoCompleter;
+        let request = sample_request();
+        let resp = block_on(completer.complete(CompleteRequest { request: &request }))
+            .expect("complete ok");
+        assert_eq!(resp.content, Some("hello".to_string()));
+    }
+
+    #[test]
+    fn test_model_info_unknown_model_errors() {
+        let completer = EchoCompleter;
+        let result = block_on(completer.model_info(ModelInfoRequest { model: "bogus" }));
+        assert!(matches!(result, Err(CompleteError::ModelNotFound(_))));
+    }
+
+    #[test]
+    fn test_validate_empty_model_errors() {
+        let completer = EchoCompleter;
+        let request = CompletionRequest::new("", vec![]);
+        let result = completer.validate(ValidationRequest { request: &request });
+        assert!(matches!(result, Err(CompleteError::InvalidRequest(_))));
     }
 }

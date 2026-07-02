@@ -5,5 +5,5 @@
 ///
 /// Consumers call `StdCompleteFactory::user_message(...)` etc. to get idiomatic
 /// completion primitives without naming any concrete type from `core/`.
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct StdCompleteFactory;

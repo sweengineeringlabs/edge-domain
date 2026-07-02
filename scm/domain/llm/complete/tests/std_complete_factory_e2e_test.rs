@@ -11,8 +11,8 @@ fn test_std_complete_factory_is_unit_struct_happy() {
 #[test]
 fn test_std_complete_factory_clone_equals_original_error() {
     let a = StdCompleteFactory;
-    let b = StdCompleteFactory;
-    assert_eq!(a, b); // both are zero-size unit structs
+    let b = a;
+    assert_eq!(a, b);
 }
 
 #[test]

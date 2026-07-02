@@ -1,15 +1,15 @@
 //! Scenario coverage for the `CompleteOps` trait.
 
 use edge_llm_complete::{
-    CompleteError, CompleteOps, CompletionRequest, CompletionResponse, FinishReason, Message,
-    TokenUsage,
+    CompleteError, CompleteOps, CompletionCheckRequest, CompletionRequest, CompletionResponse,
+    FinishReason, Message, TokenUsage,
 };
 
 struct StdOps;
 
 impl CompleteOps for StdOps {
-    fn check(&self, req: &CompletionRequest) -> Result<(), CompleteError> {
-        if req.model.is_empty() {
+    fn check(&self, req: CompletionCheckRequest<'_>) -> Result<(), CompleteError> {
+        if req.request.model.is_empty() {
             Err(CompleteError::InvalidRequest("no model".to_string()))
         } else {
             Ok(())
@@ -139,17 +139,25 @@ fn test_create_usage_cache_tokens_zero_edge() {
 #[test]
 fn test_check_valid_request_returns_ok_happy() {
     let req = CompletionRequest::new("gpt-4", vec![]);
-    assert_eq!(StdOps.check(&req), Ok(()));
+    assert!(matches!(
+        StdOps.check(CompletionCheckRequest { request: &req }),
+        Ok(())
+    ));
 }
 
 #[test]
 fn test_check_empty_model_returns_error_error() {
     let req = CompletionRequest::new("", vec![]);
-    assert!(StdOps.check(&req).is_err());
+    assert!(StdOps
+        .check(CompletionCheckRequest { request: &req })
+        .is_err());
 }
 
 #[test]
 fn test_check_long_model_name_is_valid_edge() {
     let req = CompletionRequest::new("a".repeat(200), vec![]);
-    assert_eq!(StdOps.check(&req), Ok(()));
+    assert!(matches!(
+        StdOps.check(CompletionCheckRequest { request: &req }),
+        Ok(())
+    ));
 }

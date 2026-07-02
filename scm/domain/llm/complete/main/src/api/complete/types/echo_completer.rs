@@ -3,5 +3,5 @@
 /// Reference completer that reflects the last user message back as the completion content.
 ///
 /// Deterministic and dependency-free: suitable for unit tests and wiring smoke-tests.
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct EchoCompleter;

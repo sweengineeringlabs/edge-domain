@@ -1,7 +1,6 @@
 //! Scenario coverage for the `model_ops_svc` SAF surface.
 
 use edge_llm_complete::{ModelOps, NoopCompleter, MODEL_OPS_SVC};
-use futures::executor::block_on;
 
 #[test]
 fn test_model_ops_svc_constant_is_expected_value_happy() {

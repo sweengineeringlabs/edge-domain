@@ -1,6 +1,7 @@
 //! Scenario coverage for the `tool_ops_svc` SAF surface.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_llm_complete::{NoopCompleter, ToolCall, ToolOps, TOOL_OPS_SVC};
+use edge_llm_complete::{AvailableToolsRequest, NoopCompleter, ToolOps, TOOL_OPS_SVC};
 
 #[test]
 fn test_tool_ops_svc_constant_is_expected_value_happy() {
@@ -14,5 +15,9 @@ fn test_tool_ops_svc_constant_is_nonempty_error() {
 
 #[test]
 fn test_tool_ops_available_tools_is_empty_for_noop_edge() {
-    assert!(NoopCompleter.available_tools().is_empty());
+    assert!(NoopCompleter
+        .available_tools(AvailableToolsRequest)
+        .unwrap()
+        .tools
+        .is_empty());
 }

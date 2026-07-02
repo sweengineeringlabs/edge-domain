@@ -2,6 +2,7 @@
 
 use edge_llm_complete::CacheControl;
 
+/// @covers: ephemeral
 #[test]
 fn test_cache_control_ephemeral_sets_type_happy() {
     let cc = CacheControl::ephemeral();

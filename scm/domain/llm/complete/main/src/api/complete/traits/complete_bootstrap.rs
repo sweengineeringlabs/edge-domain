@@ -2,10 +2,12 @@
 
 use serde_json::Value;
 
+use crate::api::complete::errors::CompleteError;
 use crate::api::complete::types::{
-    CacheControl, CompletionRequest, ContentPart, EchoCompleter, FinishReason, ImageUrl, Message,
-    MessageContent, ModelInfo, NoopCompleter, Role, StdCompleteFactory, StreamChunk, StreamDelta,
-    TokenUsage, ToolCall, ToolCallDelta, ToolChoice, ToolDefinition,
+    CacheControl, CompleteBootstrapNameRequest, CompleteBootstrapNameResponse, CompletionRequest,
+    ContentPart, EchoCompleter, FinishReason, ImageUrl, Message, MessageContent, ModelInfo,
+    NoopCompleter, Role, StdCompleteFactory, StreamChunk, StreamDelta, TokenUsage, ToolCall,
+    ToolCallDelta, ToolChoice, ToolDefinition,
 };
 
 /// Factory for the standard reference implementations and domain value constructors.
@@ -14,8 +16,13 @@ use crate::api::complete::types::{
 /// default bodies so implementors need not override anything.
 pub trait CompleteBootstrap {
     /// Identifies this bootstrap implementation.
-    fn bootstrap_name(&self) -> &'static str {
-        "complete"
+    fn bootstrap_name(
+        &self,
+        _req: CompleteBootstrapNameRequest,
+    ) -> Result<CompleteBootstrapNameResponse, CompleteError> {
+        Ok(CompleteBootstrapNameResponse {
+            name: "complete".to_string(),
+        })
     }
 
     /// Return a [`NoopCompleter`] that always returns [`CompleteError::ProviderNotFound`](crate::api::complete::errors::CompleteError::ProviderNotFound).

@@ -10,7 +10,7 @@ description = "LLM Complete domain primitive: HTTP-level completion port contrac
 keywords    = ["llm", "completion", "streaming", "domain", "sea"]
 categories  = ["development-tools"]
 
-[package.metadata.struct-engine]
+[package.metadata.arch]
 application_type = "lib"
 service_type     = "complete"
 

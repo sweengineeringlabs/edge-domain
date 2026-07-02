@@ -1,5 +1,8 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use edge_llm_complete::{CompletionResponse, FinishReason};
 
+/// @covers: text
 #[test]
 fn test_text_constructor_sets_content_and_stop() {
     let resp = CompletionResponse::text("r-1", "gpt-4", "hello");

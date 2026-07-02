@@ -19,3 +19,10 @@ fn test_image_url_detail_defaults_to_none_edge() {
     let img = ImageUrl::new("https://x.com/b.png");
     assert!(img.detail.is_none());
 }
+
+/// @covers: with_detail
+#[test]
+fn test_image_url_with_detail_sets_detail_happy() {
+    let img = ImageUrl::with_detail("https://x.com/c.png", "high");
+    assert_eq!(img.detail, Some("high".to_string()));
+}

@@ -1,7 +1,8 @@
 //! Scenario coverage for the `validator_svc` SAF surface.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_complete::{
-    CompleteError, CompletionRequest, EchoCompleter, Validator, VALIDATOR_SVC,
+    CompleteError, CompletionRequest, EchoCompleter, ValidationRequest, Validator, VALIDATOR_SVC,
 };
 
 #[test]
@@ -17,6 +18,8 @@ fn test_validator_svc_constant_is_nonempty_error() {
 #[test]
 fn test_validator_rejects_empty_model_edge() {
     let req = CompletionRequest::new("", vec![]);
-    let err = EchoCompleter.validate(&req).unwrap_err();
+    let err = EchoCompleter
+        .validate(ValidationRequest { request: &req })
+        .unwrap_err();
     assert!(matches!(err, CompleteError::InvalidRequest(_)));
 }
