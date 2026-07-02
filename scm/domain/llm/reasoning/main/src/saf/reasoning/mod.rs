@@ -1,10 +1,7 @@
-﻿mod reasoning_bootstrap_svc;
+mod bootstrap;
 mod reasoning_svc;
+mod reasoning_svc_factory;
 
-pub use reasoning_bootstrap_svc::{
-    ReasoningBootstrap,
-    REASONING_FACTORY_SVC,
-};
-pub use reasoning_svc::{
-    Reasoning, REASONING_SVC,
-};
+pub use bootstrap::{ReasoningBootstrap, REASONING_BOOTSTRAP_SVC_FACTORY, REASONING_FACTORY_SVC};
+pub use reasoning_svc::{Reasoning, REASONING_SVC};
+pub use reasoning_svc_factory::REASONING_SVC_FACTORY;

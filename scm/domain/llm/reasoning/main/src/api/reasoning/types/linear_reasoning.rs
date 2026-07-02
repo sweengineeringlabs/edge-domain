@@ -11,15 +11,3 @@ use crate::api::reasoning::types::ReasoningPattern;
 pub struct LinearReasoning {
     pub(crate) pattern: ReasoningPattern,
 }
-
-impl LinearReasoning {
-    /// Construct a reasoner bound to the given pattern.
-    pub fn new(pattern: ReasoningPattern) -> Self {
-        Self { pattern }
-    }
-
-    /// Pattern this reasoner executes.
-    pub fn pattern(&self) -> ReasoningPattern {
-        self.pattern
-    }
-}

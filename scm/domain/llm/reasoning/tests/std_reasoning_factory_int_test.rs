@@ -1,7 +1,9 @@
 //! Tests for the `StdReasoningFactory` concrete `ReasoningBootstrap` implementation.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_llm_reasoning::{Reasoning, ReasoningBootstrap, ReasoningPattern, StdReasoningFactory};
+use edge_llm_reasoning::{
+    PatternSupportRequest, Reasoning, ReasoningBootstrap, ReasoningPattern, StdReasoningFactory,
+};
 
 /// @covers: StdReasoningFactory — std_factory returns the factory instance
 #[test]
@@ -20,5 +22,10 @@ fn test_std_reasoning_factory_is_zero_sized() {
 #[test]
 fn test_std_reasoning_factory_builds_reasoner() {
     let r = StdReasoningFactory::reasoning(ReasoningPattern::ChainOfThought);
-    assert!(r.supports_pattern(ReasoningPattern::ChainOfThought));
+    let resp = r
+        .supports_pattern(PatternSupportRequest {
+            pattern: ReasoningPattern::ChainOfThought,
+        })
+        .expect("supports_pattern should succeed");
+    assert!(resp.supported);
 }

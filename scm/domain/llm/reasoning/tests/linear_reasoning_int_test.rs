@@ -1,7 +1,7 @@
 //! Tests for the `LinearReasoning` concrete implementation.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_llm_reasoning::{LinearReasoning, Reasoning, ReasoningPattern};
+use edge_llm_reasoning::{LinearReasoning, ReasonRequest, Reasoning, ReasoningPattern};
 use futures::executor::block_on;
 
 /// @covers: LinearReasoning::new — reports the configured pattern
@@ -15,9 +15,12 @@ fn test_linear_reasoning_reports_pattern() {
 #[test]
 fn test_linear_reasoning_completes_process() {
     let r = LinearReasoning::new(ReasoningPattern::ChainOfThought);
-    let process = block_on(r.reason("solve x", ReasoningPattern::ChainOfThought))
-        .expect("reasoning should succeed");
-    assert!(process.is_complete);
+    let resp = block_on(r.reason(ReasonRequest {
+        problem: "solve x",
+        pattern: ReasoningPattern::ChainOfThought,
+    }))
+    .expect("reasoning should succeed");
+    assert!(resp.process.is_complete);
 }
 
 /// @covers: LinearReasoning — clone preserves the pattern
