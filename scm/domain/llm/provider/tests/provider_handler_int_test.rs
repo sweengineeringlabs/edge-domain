@@ -2,9 +2,9 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
-use edge_domain_handler::{Handler, HandlerContext};
+use edge_domain_handler::{ExecutionRequest, Handler, HandlerContext, IdRequest, PatternRequest};
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::SecurityContext;
+use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
 use edge_llm_provider::{ExecutionConfig, ExecutionMode, StdProviderFactory};
 use futures::executor::block_on;
 
@@ -16,11 +16,22 @@ fn make_config() -> ExecutionConfig {
 #[test]
 fn test_handler_execute_runs_core_happy() {
     let h = StdProviderFactory::default_provider_handler(make_config());
-    let security = SecurityContext::unauthenticated();
+    let security: SecurityContext = SecurityServices::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
-    let out = block_on(Handler::execute(&h, "ship it".to_string(), ctx)).expect("handler ok");
+    let ctx = HandlerContext {
+        security: &security,
+        commands: &commands,
+        observer: observer.as_ref(),
+    };
+    let out = block_on(Handler::execute(
+        &h,
+        ExecutionRequest {
+            req: "ship it".to_string(),
+            ctx: &ctx,
+        },
+    ))
+    .expect("handler ok");
     assert!(out.reasoning.contains("ship it"));
 }
 
@@ -28,12 +39,20 @@ fn test_handler_execute_runs_core_happy() {
 #[test]
 fn test_handler_id_is_stable_edge() {
     let h = StdProviderFactory::default_provider_handler(make_config());
-    assert_eq!(Handler::id(&h), "provider.execute_step");
+    assert_eq!(
+        Handler::id(&h, IdRequest).expect("id ok").id,
+        "provider.execute_step"
+    );
 }
 
 /// @covers: provider_handler — pattern is stable
 #[test]
 fn test_handler_pattern_is_stable_edge() {
     let h = StdProviderFactory::default_provider_handler(make_config());
-    assert_eq!(Handler::pattern(&h), "provider/execute_step");
+    assert_eq!(
+        Handler::pattern(&h, PatternRequest)
+            .expect("pattern ok")
+            .pattern,
+        "provider/execute_step"
+    );
 }

@@ -6,7 +6,5 @@
 
 pub(crate) mod provider;
 
-pub(crate) use provider::DefaultProviderHandler;
-
 // SPI extension anchor — satisfies the spi_dir_not_empty structural rule.
 const _: () = ();

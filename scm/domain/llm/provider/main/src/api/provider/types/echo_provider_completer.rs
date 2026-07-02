@@ -4,5 +4,5 @@
 /// `EchoExecutionModel`.
 ///
 /// Returned by [`ProviderBootstrap::provider_completer`](crate::api::ProviderBootstrap).
-#[derive(Debug, Clone, Copy, Default)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct EchoProviderCompleter;

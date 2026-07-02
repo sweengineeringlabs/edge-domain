@@ -2,9 +2,9 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
-use edge_domain_handler::{Handler, HandlerContext};
+use edge_domain_handler::{ExecutionRequest, Handler, HandlerContext, IdRequest};
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::SecurityContext;
+use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
 use edge_llm_provider::{EchoExecutionModel, ExecutionConfig, ExecutionMode, StdProviderFactory};
 use futures::executor::block_on;
 use std::sync::Arc;
@@ -20,13 +20,18 @@ fn config(tokens: u32) -> ExecutionConfig {
 fn test_provider_handler_custom_model_happy_executes_step() {
     let model = Arc::new(EchoExecutionModel::new(config(4096)));
     let h = StdProviderFactory::provider_handler(model);
-    let security = SecurityContext::unauthenticated();
+    let security: SecurityContext = SecurityServices::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
-    let result = block_on(h.execute(
-        "step input".to_string(),
-        HandlerContext::new(&security, &bus, observer.as_ref()),
-    ))
+    let ctx = HandlerContext {
+        security: &security,
+        commands: &bus,
+        observer: observer.as_ref(),
+    };
+    let result = block_on(h.execute(ExecutionRequest {
+        req: "step input".to_string(),
+        ctx: &ctx,
+    }))
     .expect("ok");
     assert!(!result.reasoning.is_empty());
 }
@@ -36,13 +41,18 @@ fn test_provider_handler_custom_model_happy_executes_step() {
 fn test_provider_handler_zero_token_budget_error_returns_err() {
     let model = Arc::new(EchoExecutionModel::new(config(0)));
     let h = StdProviderFactory::provider_handler(model);
-    let security = SecurityContext::unauthenticated();
+    let security: SecurityContext = SecurityServices::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
-    assert!(block_on(h.execute(
-        "step".to_string(),
-        HandlerContext::new(&security, &bus, observer.as_ref())
-    ))
+    let ctx = HandlerContext {
+        security: &security,
+        commands: &bus,
+        observer: observer.as_ref(),
+    };
+    assert!(block_on(h.execute(ExecutionRequest {
+        req: "step".to_string(),
+        ctx: &ctx,
+    }))
     .is_err());
 }
 
@@ -51,7 +61,7 @@ fn test_provider_handler_zero_token_budget_error_returns_err() {
 fn test_provider_handler_edge_dispatch_id_is_stable() {
     let model = Arc::new(EchoExecutionModel::new(config(4096)));
     let h = StdProviderFactory::provider_handler(model);
-    assert_eq!(h.id(), "provider.execute_step");
+    assert_eq!(h.id(IdRequest).expect("id ok").id, "provider.execute_step");
 }
 
 // ── StdProviderFactory::default_provider_handler ─────────────────────────────
@@ -60,13 +70,18 @@ fn test_provider_handler_edge_dispatch_id_is_stable() {
 #[test]
 fn test_default_provider_handler_happy_returns_non_empty_reasoning() {
     let h = StdProviderFactory::default_provider_handler(config(4096));
-    let security = SecurityContext::unauthenticated();
+    let security: SecurityContext = SecurityServices::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
-    let result = block_on(h.execute(
-        "echo this".to_string(),
-        HandlerContext::new(&security, &bus, observer.as_ref()),
-    ))
+    let ctx = HandlerContext {
+        security: &security,
+        commands: &bus,
+        observer: observer.as_ref(),
+    };
+    let result = block_on(h.execute(ExecutionRequest {
+        req: "echo this".to_string(),
+        ctx: &ctx,
+    }))
     .expect("ok");
     assert!(!result.reasoning.is_empty());
 }
@@ -75,13 +90,18 @@ fn test_default_provider_handler_happy_returns_non_empty_reasoning() {
 #[test]
 fn test_default_provider_handler_zero_budget_error_propagates() {
     let h = StdProviderFactory::default_provider_handler(config(0));
-    let security = SecurityContext::unauthenticated();
+    let security: SecurityContext = SecurityServices::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
-    assert!(block_on(h.execute(
-        "echo".to_string(),
-        HandlerContext::new(&security, &bus, observer.as_ref())
-    ))
+    let ctx = HandlerContext {
+        security: &security,
+        commands: &bus,
+        observer: observer.as_ref(),
+    };
+    assert!(block_on(h.execute(ExecutionRequest {
+        req: "echo".to_string(),
+        ctx: &ctx,
+    }))
     .is_err());
 }
 
@@ -91,5 +111,8 @@ fn test_default_provider_handler_edge_id_matches_provider_handler() {
     let default_h = StdProviderFactory::default_provider_handler(config(4096));
     let custom_h =
         StdProviderFactory::provider_handler(Arc::new(EchoExecutionModel::new(config(4096))));
-    assert_eq!(default_h.id(), custom_h.id());
+    assert_eq!(
+        default_h.id(IdRequest).expect("id ok").id,
+        custom_h.id(IdRequest).expect("id ok").id
+    );
 }

@@ -1,9 +1,9 @@
-//! [`OAuthTokenSourceFactory`] — plugin-provided OAuth token source initialization.
+//! [`OauthTokenSourceResolver`] — plugin-provided OAuth token source initialization.
 
-use std::path::Path;
-use std::sync::Arc;
+use crate::api::provider::errors::OauthTokenSourceError;
+use crate::api::provider::types::{TokenSourceFileRequest, TokenSourceInitResponse};
 
-/// Factory for initializing provider-specific OAuth token sources.
+/// Resolver for initializing provider-specific OAuth token sources.
 ///
 /// Implemented by each LLM provider plugin to handle provider-specific token source
 /// initialization (e.g., Claude vs. OpenAI, Anthropic vs. Google). From ADR-015 Tier 2a
@@ -12,7 +12,7 @@ use std::sync::Arc;
 /// Plugins instantiate their own token source types (e.g., `ClaudeTokenSource`) and return
 /// them as trait objects. The framework handles credential resolution; the plugin handles
 /// token source initialization from resolved credentials.
-pub trait OAuthTokenSourceFactory: Send + Sync {
+pub trait OauthTokenSourceResolver: Send + Sync {
     /// Initialize an OAuth token source from a credential file path.
     ///
     /// Called by provider factories after credential source resolution (from framework).
@@ -20,7 +20,10 @@ pub trait OAuthTokenSourceFactory: Send + Sync {
     ///
     /// # Errors
     ///
-    /// Returns `Err` if the credential file is inaccessible, malformed, or cannot
-    /// produce a valid token source.
-    fn create_from_file(&self, path: &Path) -> Result<Arc<dyn std::any::Any>, String>;
+    /// Returns [`OauthTokenSourceError`] if the credential file is inaccessible, malformed, or
+    /// cannot produce a valid token source.
+    fn create_from_file(
+        &self,
+        req: TokenSourceFileRequest<'_>,
+    ) -> Result<TokenSourceInitResponse, OauthTokenSourceError>;
 }

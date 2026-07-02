@@ -6,7 +6,8 @@ use edge_llm_provider::EchoProviderCompleter;
 /// @covers: EchoProviderCompleter — type is constructible as a unit struct
 #[test]
 fn test_echo_provider_completer_constructs_happy() {
-    let _c = EchoProviderCompleter;
+    let c = EchoProviderCompleter;
+    assert_eq!(c, EchoProviderCompleter);
 }
 
 /// @covers: EchoProviderCompleter — debug representation is non-empty
@@ -21,5 +22,8 @@ fn test_echo_provider_completer_debug_non_empty_error() {
 fn test_echo_provider_completer_copy_edge() {
     let a = EchoProviderCompleter;
     let b = a;
-    let _both = (a, b);
+    assert_eq!(
+        a, b,
+        "Copy of a unit struct must remain equal to its source"
+    );
 }

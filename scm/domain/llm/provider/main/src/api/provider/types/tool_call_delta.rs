@@ -15,15 +15,3 @@ pub struct ToolCallDelta {
     /// Partial arguments (JSON string fragment)
     pub arguments: Option<String>,
 }
-
-impl ToolCallDelta {
-    /// Create a new tool call delta
-    pub fn new(index: usize) -> Self {
-        Self {
-            index,
-            id: None,
-            name: None,
-            arguments: None,
-        }
-    }
-}

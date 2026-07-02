@@ -16,30 +16,3 @@ pub struct CompletionInput {
     /// Execution configuration (token cap, timeout, mode).
     pub config: ExecutionConfig,
 }
-
-impl CompletionInput {
-    /// Construct a simple single-turn input with no tools and no system prompt.
-    pub fn simple(prompt: impl Into<String>, config: ExecutionConfig) -> Self {
-        Self {
-            messages: vec![CompletionMessage::user(prompt)],
-            tools: vec![],
-            system: None,
-            config,
-        }
-    }
-
-    /// Construct a multi-turn input.
-    pub fn new(
-        messages: Vec<CompletionMessage>,
-        tools: Vec<ToolDefinition>,
-        system: Option<String>,
-        config: ExecutionConfig,
-    ) -> Self {
-        Self {
-            messages,
-            tools,
-            system,
-            config,
-        }
-    }
-}

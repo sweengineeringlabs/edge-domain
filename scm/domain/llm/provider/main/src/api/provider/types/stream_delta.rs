@@ -17,25 +17,3 @@ pub enum StreamDelta {
     /// Empty delta
     Empty,
 }
-
-impl StreamDelta {
-    /// Create a text delta
-    pub fn text(content: String) -> Self {
-        Self::Text(content)
-    }
-
-    /// Create a tool call delta
-    pub fn tool_calls(calls: Vec<ToolCallDelta>) -> Self {
-        Self::ToolCalls(calls)
-    }
-
-    /// Create an empty delta
-    pub fn empty() -> Self {
-        Self::Empty
-    }
-
-    /// Check if delta carries no content
-    pub fn is_empty(&self) -> bool {
-        matches!(self, Self::Empty)
-    }
-}

@@ -3,14 +3,16 @@
 
 use async_trait::async_trait;
 use edge_llm_complete::{
-    CompleteError, Completer, CompletionRequest, CompletionResponse, CompletionStream, ContentPart,
-    FinishReason, MessageContent, ModelInfo, Role, StreamChunk, StreamDelta, TokenUsage,
+    CompleteError, CompleteRequest, Completer, CompletionRequest, CompletionResponse,
+    CompletionStreamRequest, CompletionStreamResponse, ContentPart, FinishReason, ListModelsRequest,
+    ListModelsResponse, MessageContent, ModelInfoRequest, ModelInfoResponse, Role, StreamChunk,
+    StreamDelta, SupportedModelsRequest, SupportedModelsResponse, TokenUsage,
 };
 use futures::stream;
 
 use crate::api::{
     EchoExecutionModel, EchoProviderCompleter, ExecutionConfig, ExecutionError, ExecutionMode,
-    ExecutionModel,
+    ExecutionModel, StepExecutionRequest,
 };
 
 impl EchoProviderCompleter {
@@ -108,8 +110,9 @@ impl EchoProviderCompleter {
 impl Completer for EchoProviderCompleter {
     async fn complete(
         &self,
-        request: &CompletionRequest,
+        req: CompleteRequest<'_>,
     ) -> Result<CompletionResponse, CompleteError> {
+        let request = req.request;
         let model = Self::build_model();
         let goal = Self::extract_goal(request);
         let context = Self::extract_context(request);
@@ -120,9 +123,15 @@ impl Completer for EchoProviderCompleter {
             .unwrap_or_default();
 
         let result = model
-            .execute_step("default", &goal, &context, tools)
+            .execute_step(StepExecutionRequest {
+                agent_id: "default",
+                goal: &goal,
+                context: &context,
+                available_tools: tools,
+            })
             .await
-            .map_err(Self::map_error)?;
+            .map_err(Self::map_error)?
+            .result;
 
         let usage = result
             .tokens_used
@@ -141,30 +150,41 @@ impl Completer for EchoProviderCompleter {
 
     async fn complete_stream(
         &self,
-        request: &CompletionRequest,
-    ) -> Result<CompletionStream, CompleteError> {
-        let response = self.complete(request).await?;
+        req: CompletionStreamRequest<'_>,
+    ) -> Result<CompletionStreamResponse, CompleteError> {
+        let response = self.complete(CompleteRequest { request: req.request }).await?;
         let text = response.content.unwrap_or_default();
         let chunk = StreamChunk::terminal(
             "provider-stream-1",
             StreamDelta::text(text),
             FinishReason::Stop,
         );
-        Ok(Box::pin(stream::once(async move {
-            Ok::<StreamChunk, CompleteError>(chunk)
-        })))
+        Ok(CompletionStreamResponse {
+            stream: Box::pin(stream::once(async move {
+                Ok::<StreamChunk, CompleteError>(chunk)
+            })),
+        })
     }
 
-    fn supported_models(&self) -> Vec<String> {
-        vec![]
+    fn supported_models(
+        &self,
+        _req: SupportedModelsRequest,
+    ) -> Result<SupportedModelsResponse, CompleteError> {
+        Ok(SupportedModelsResponse { models: vec![] })
     }
 
-    async fn model_info(&self, model: &str) -> Result<ModelInfo, CompleteError> {
-        Err(CompleteError::ModelNotFound(model.to_string()))
+    async fn model_info(
+        &self,
+        req: ModelInfoRequest<'_>,
+    ) -> Result<ModelInfoResponse, CompleteError> {
+        Err(CompleteError::ModelNotFound(req.model.to_string()))
     }
 
-    async fn list_models(&self) -> Result<Vec<ModelInfo>, CompleteError> {
-        Ok(vec![])
+    async fn list_models(
+        &self,
+        _req: ListModelsRequest,
+    ) -> Result<ListModelsResponse, CompleteError> {
+        Ok(ListModelsResponse { models: vec![] })
     }
 }
 
@@ -173,6 +193,7 @@ mod tests {
     use super::*;
     use edge_llm_complete::{CompletionRequest, Message};
     use futures::executor::block_on;
+    use futures::StreamExt;
 
     fn req(text: &str) -> CompletionRequest {
         CompletionRequest::new("echo", vec![Message::user(text)])
@@ -180,8 +201,9 @@ mod tests {
 
     #[test]
     fn test_complete_happy_returns_response() {
-        let result = block_on(EchoProviderCompleter.complete(&req("ping")));
-        assert_eq!(result.is_ok(), true);
+        let request = req("ping");
+        let result = block_on(EchoProviderCompleter.complete(CompleteRequest { request: &request }));
+        assert!(result.is_ok());
         let resp = result.expect("should succeed");
         assert!(resp.content.is_some());
         assert_eq!(resp.model, "echo");
@@ -190,32 +212,46 @@ mod tests {
     #[test]
     fn test_complete_empty_messages_returns_response_error() {
         let empty_req = CompletionRequest::new("echo", vec![]);
-        let result = block_on(EchoProviderCompleter.complete(&empty_req));
-        assert_eq!(result.is_ok(), true);
+        let result = block_on(EchoProviderCompleter.complete(CompleteRequest {
+            request: &empty_req,
+        }))
+        .expect("should succeed");
+        assert_eq!(result.finish_reason, FinishReason::Stop);
     }
 
     #[test]
     fn test_complete_stream_happy_yields_chunk_edge() {
-        let stream = block_on(EchoProviderCompleter.complete_stream(&req("stream test")));
-        assert_eq!(stream.is_ok(), true);
+        let request = req("stream test");
+        let response = block_on(
+            EchoProviderCompleter.complete_stream(CompletionStreamRequest { request: &request }),
+        )
+        .expect("should succeed");
+        let mut stream = response.stream;
+        let chunk = block_on(stream.next())
+            .expect("one chunk")
+            .expect("ok chunk");
+        assert_eq!(chunk.finish_reason, Some(FinishReason::Stop));
     }
 
     #[test]
     fn test_supported_models_returns_empty_happy() {
-        assert!(EchoProviderCompleter.supported_models().is_empty());
+        let result = EchoProviderCompleter
+            .supported_models(SupportedModelsRequest)
+            .expect("should succeed");
+        assert!(result.models.is_empty());
     }
 
     #[test]
     fn test_model_info_returns_not_found_error() {
-        let result = block_on(EchoProviderCompleter.model_info("gpt-4"));
+        let result = block_on(EchoProviderCompleter.model_info(ModelInfoRequest { model: "gpt-4" }));
         assert!(result.is_err());
         assert!(matches!(result, Err(CompleteError::ModelNotFound(_))));
     }
 
     #[test]
     fn test_list_models_returns_empty_happy() {
-        let result = block_on(EchoProviderCompleter.list_models());
-        let models = result.expect("should succeed");
-        assert!(models.is_empty());
+        let result = block_on(EchoProviderCompleter.list_models(ListModelsRequest));
+        let response = result.expect("should succeed");
+        assert!(response.models.is_empty());
     }
 }

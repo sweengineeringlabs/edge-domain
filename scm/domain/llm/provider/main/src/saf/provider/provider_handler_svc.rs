@@ -3,7 +3,7 @@ use std::sync::Arc;
 use edge_domain_handler::Handler;
 
 use crate::api::{EchoExecutionModel, ExecutionConfig, ExecutionModel, ExecutionStepResult};
-use crate::spi::DefaultProviderHandler;
+use crate::core::provider::DefaultProviderHandler;
 
 impl crate::api::StdProviderFactory {
     /// Construct a dispatchable provider handler backed by the given execution model.

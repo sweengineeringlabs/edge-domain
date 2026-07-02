@@ -15,12 +15,25 @@ mod saf;
 mod spi;
 
 pub use api::{
-    BufferedStreamHandler, CompletionInput, CompletionMessage, EchoExecutionModel, EchoProviderCompleter,
-    ExecutionConfig, ExecutionError, ExecutionMode, ExecutionStepResult,
-    FinishReason, MessageRole, ModelFamily, ModelInfo, ProviderConfig, ProviderCore,
-    StdProviderFactory, StreamChunk, StreamDelta, TokenUsage, TokenizerAccuracy, ToolCallDelta, ToolDefinition,
+    AccumulateRequest, BufferedStreamHandler, CompleterRequest, CompleterResponse, CompletionInput,
+    CompletionMessage, EchoExecutionModel, EchoProviderCompleter, ExecutionConfig,
+    ExecutionConfigLookupRequest, ExecutionConfigResponse, ExecutionError, ExecutionMode,
+    ExecutionModeLookupRequest, ExecutionModeResponse, ExecutionReadinessRequest,
+    ExecutionStepResult, FinishReason, HealthCheckRequest, JsonValue, LastFinishReasonRequest,
+    LastFinishReasonResponse, LastTokenUsageRequest, LastTokenUsageResponse, MessageRole,
+    ModelFamily, ModelFamilyRequest, ModelFamilyResponse, ModelInfo, ModelInfoLookupRequest,
+    ModelInfoResponse, NextChunkRequest, NextChunkResponse, OauthTokenSourceError,
+    PendingToolCallRequest, PendingToolCallResponse, ProviderBootstrapNameRequest,
+    ProviderBootstrapNameResponse, ProviderConfig, ProviderConfigLookupRequest,
+    ProviderConfigResponse, ProviderNameRequest, ProviderNameResponse, StdProvider,
+    StdProviderFactory, StepExecutionRequest, StepExecutionResponse, StreamChunk, StreamDelta,
+    TokenSourceFileRequest, TokenSourceInitResponse, TokenUsage, TokenizerAccuracy,
+    TokenizerAccuracyRequest, TokenizerAccuracyResponse, ToolCallDelta, ToolDefinition,
 };
 pub use saf::{
-    ExecutionModel, Provider, ProviderBootstrap, StreamHandler, EXECUTION_MODEL_SVC,
-    PROVIDER_BOOTSTRAP_SVC, PROVIDER_COMPLETER_SVC, PROVIDER_SVC, STREAM_HANDLER_SVC,
+    ExecutionModel, OauthTokenSourceResolver, Provider, ProviderBootstrap, StreamHandler,
+    EXECUTION_MODEL_SVC, EXECUTION_MODEL_SVC_FACTORY, OAUTH_TOKEN_SOURCE_RESOLVER_SVC,
+    OAUTH_TOKEN_SOURCE_RESOLVER_SVC_FACTORY, PROVIDER_BOOTSTRAP_SVC,
+    PROVIDER_BOOTSTRAP_SVC_FACTORY, PROVIDER_COMPLETER_SVC, PROVIDER_SVC, PROVIDER_SVC_FACTORY,
+    STREAM_HANDLER_SVC, STREAM_HANDLER_SVC_FACTORY,
 };

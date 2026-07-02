@@ -10,7 +10,7 @@ description = "LLM Provider domain primitive: execution backend abstraction for 
 keywords    = ["llm", "provider", "execution", "backend", "sea"]
 categories  = ["development-tools"]
 
-[package.metadata.struct-engine]
+[package.metadata.arch]
 application_type = "lib"
 service_type     = "provider"
 

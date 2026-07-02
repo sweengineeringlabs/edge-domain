@@ -10,29 +10,3 @@ pub struct CompletionMessage {
     /// Text content of the message.
     pub content: String,
 }
-
-impl CompletionMessage {
-    /// Construct a user-role message.
-    pub fn user(content: impl Into<String>) -> Self {
-        Self {
-            role: MessageRole::User,
-            content: content.into(),
-        }
-    }
-
-    /// Construct an assistant-role message.
-    pub fn assistant(content: impl Into<String>) -> Self {
-        Self {
-            role: MessageRole::Assistant,
-            content: content.into(),
-        }
-    }
-
-    /// Construct a tool-result message.
-    pub fn tool(content: impl Into<String>) -> Self {
-        Self {
-            role: MessageRole::Tool,
-            content: content.into(),
-        }
-    }
-}

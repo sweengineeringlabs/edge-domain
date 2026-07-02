@@ -4,12 +4,13 @@ use std::sync::Arc;
 
 use edge_domain_observer::ObserverContext;
 use edge_llm_complete::Completer;
-use serde_json::Value;
 
+use crate::api::provider::errors::ExecutionError;
 use crate::api::provider::traits::Provider;
 use crate::api::provider::types::{
     BufferedStreamHandler, CompletionInput, CompletionMessage, EchoExecutionModel,
-    EchoProviderCompleter, ExecutionConfig, MessageRole, ModelInfo, ProviderConfig,
+    EchoProviderCompleter, ExecutionConfig, JsonValue, MessageRole, ModelInfo,
+    ProviderBootstrapNameRequest, ProviderBootstrapNameResponse, ProviderConfig, StdProvider,
     StdProviderFactory, ToolDefinition,
 };
 
@@ -18,8 +19,13 @@ use crate::api::provider::types::{
 /// Implement on any unit struct to gain the standard constructors.
 pub trait ProviderBootstrap {
     /// Identifies this bootstrap implementation.
-    fn bootstrap_name(&self) -> &'static str {
-        "provider"
+    fn bootstrap_name(
+        &self,
+        _req: ProviderBootstrapNameRequest,
+    ) -> Result<ProviderBootstrapNameResponse, ExecutionError> {
+        Ok(ProviderBootstrapNameResponse {
+            name: "provider".to_string(),
+        })
     }
 
     /// Return the standard provider-factory instance.
@@ -33,12 +39,28 @@ pub trait ProviderBootstrap {
     /// Construct a [`Provider`] from config, model metadata, a completer delegate, and an observer.
     fn provider(
         config: ProviderConfig,
-        model: ModelInfo,
+        model: Box<ModelInfo>,
         completer: Arc<dyn Completer>,
         observer: Arc<dyn ObserverContext>,
     ) -> Arc<dyn Provider>
     where
         Self: Sized;
+
+    /// Construct the concrete [`StdProvider`] reference implementation directly.
+    // `Box<ModelInfo>` (not owned `ModelInfo`) is required here to satisfy this crate's
+    // field_type_purity structural rule for api/ trait signatures, not an oversight.
+    #[allow(clippy::boxed_local)]
+    fn std_provider(
+        config: ProviderConfig,
+        model: Box<ModelInfo>,
+        completer: Arc<dyn Completer>,
+        observer: Arc<dyn ObserverContext>,
+    ) -> StdProvider
+    where
+        Self: Sized,
+    {
+        StdProvider::new(config, *model, completer, observer)
+    }
 
     /// Construct the reference [`EchoExecutionModel`] from execution config.
     fn execution_model(config: ExecutionConfig) -> EchoExecutionModel
@@ -71,7 +93,7 @@ pub trait ProviderBootstrap {
     fn tool(
         name: impl Into<String>,
         description: impl Into<String>,
-        schema: Value,
+        schema: impl Into<JsonValue>,
     ) -> ToolDefinition
     where
         Self: Sized,

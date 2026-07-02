@@ -12,10 +12,3 @@ use crate::api::provider::types::ExecutionConfig;
 pub struct EchoExecutionModel {
     pub(crate) config: ExecutionConfig,
 }
-
-impl EchoExecutionModel {
-    /// Construct an execution model bound to the given config.
-    pub fn new(config: ExecutionConfig) -> Self {
-        Self { config }
-    }
-}

@@ -1,7 +1,7 @@
 //! Tests for `ToolDefinition`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_llm_provider::ToolDefinition;
+use edge_llm_provider::{JsonValue, ToolDefinition};
 use serde_json::json;
 
 /// @covers: ToolDefinition::new — stores all fields
@@ -11,7 +11,7 @@ fn test_tool_definition_new_happy() {
     let tool = ToolDefinition::new("search", "Search the web", schema.clone());
     assert_eq!(tool.name, "search");
     assert_eq!(tool.description, "Search the web");
-    assert_eq!(tool.input_schema, schema);
+    assert_eq!(tool.input_schema, JsonValue::from(schema));
 }
 
 /// @covers: ToolDefinition — serializes and deserializes correctly
@@ -28,5 +28,5 @@ fn test_tool_definition_serde_roundtrip_edge() {
 #[test]
 fn test_tool_definition_empty_schema_edge() {
     let tool = ToolDefinition::new("noop", "Does nothing", json!({}));
-    assert!(tool.input_schema.is_object());
+    assert!(matches!(tool.input_schema, JsonValue::Object(_)));
 }
