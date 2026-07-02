@@ -1,9 +1,10 @@
 //! `PromptBootstrap` — constructor contract for the default prompt primitives.
 
+use crate::api::prompt::errors::PromptError;
 use crate::api::prompt::types::{
-    CatalogTemplateProvider, HeuristicTokenCounter, MapContextManager, PromptCacheBuilder,
-    PromptMetadata, PromptMetadataBuilder, PromptTemplateBuilder, StaticPrompt, StdPromptFactory,
-    VariableBuilder,
+    CatalogTemplateProvider, HeuristicTokenCounter, MapContextManager, PromptBootstrapNameRequest,
+    PromptBootstrapNameResponse, PromptCache, PromptCacheBuilder, PromptMetadata,
+    PromptMetadataBuilder, PromptTemplateBuilder, StaticPrompt, StdPromptFactory, VariableBuilder,
 };
 
 /// Constructor namespace for the standard prompt reference implementations.
@@ -11,8 +12,11 @@ use crate::api::prompt::types::{
 /// Implement on any unit struct to gain the standard constructors.
 pub trait PromptBootstrap {
     /// Identifies this bootstrap implementation.
-    fn bootstrap_name(&self) -> &'static str {
-        "prompt"
+    fn bootstrap_name(
+        &self,
+        _req: PromptBootstrapNameRequest,
+    ) -> Result<PromptBootstrapNameResponse, PromptError> {
+        Ok(PromptBootstrapNameResponse { name: "prompt" })
     }
 
     /// Return the standard prompt-factory instance.
@@ -45,6 +49,14 @@ pub trait PromptBootstrap {
         Self: Sized,
     {
         PromptCacheBuilder::new()
+    }
+
+    /// Construct a [`PromptCache`] entry directly, without the builder.
+    fn prompt_cache(key: String, rendered: String, token_count: usize) -> PromptCache
+    where
+        Self: Sized,
+    {
+        PromptCache::new(key, rendered, token_count)
     }
 
     /// Construct the reference [`StaticPrompt`] from a template body and metadata.

@@ -2,12 +2,13 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_prompt::{
-    Prompt, PromptMetadata, RenderContext, StaticPrompt, Variable, VariableType,
+    Prompt, PromptMetadata, PromptMetadataRequest, PromptVariableKindRequest, RenderContext,
+    RenderRequest, StaticPrompt, Variable, VariableKind,
 };
 use futures::executor::block_on;
 
 fn build(template: &str) -> StaticPrompt {
-    let var = Variable::new("name".to_string(), VariableType::String);
+    let var = Variable::new("name".to_string(), VariableKind::String);
     let metadata = PromptMetadata::new(
         "greet".to_string(),
         "Greeting".to_string(),
@@ -22,7 +23,9 @@ fn build(template: &str) -> StaticPrompt {
 fn test_static_prompt_renders_substitution() {
     let ctx = RenderContext::new().with_variable("name".to_string(), serde_json::json!("Ada"));
     assert_eq!(
-        block_on(build("Hi {{name}}").render(&ctx)).expect("render"),
+        block_on(build("Hi {{name}}").render(RenderRequest { context: &ctx }))
+            .expect("render")
+            .rendered,
         "Hi Ada"
     );
 }
@@ -30,11 +33,24 @@ fn test_static_prompt_renders_substitution() {
 /// @covers: StaticPrompt — clone preserves metadata identity
 #[test]
 fn test_static_prompt_clone_preserves_id() {
-    assert_eq!(build("x").clone().metadata().id, "greet");
+    assert_eq!(
+        build("x")
+            .clone()
+            .metadata(PromptMetadataRequest)
+            .expect("metadata")
+            .id,
+        "greet"
+    );
 }
 
 /// @covers: StaticPrompt — reports declared variable type
 #[test]
-fn test_static_prompt_variable_type() {
-    assert_eq!(build("x").variable_type("name"), Some(VariableType::String));
+fn test_static_prompt_variable_kind() {
+    assert_eq!(
+        build("x")
+            .variable_kind(PromptVariableKindRequest { name: "name" })
+            .expect("variable_kind")
+            .kind,
+        Some(VariableKind::String)
+    );
 }

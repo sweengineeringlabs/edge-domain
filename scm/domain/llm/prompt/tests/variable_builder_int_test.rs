@@ -1,17 +1,17 @@
 //! Tests for the `VariableBuilder` type.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_llm_prompt::{PromptBootstrap, StdPromptFactory, VariableType};
+use edge_llm_prompt::{PromptBootstrap, StdPromptFactory, VariableKind};
 
 /// @covers: VariableBuilder — builds a named, typed variable
 #[test]
 fn test_variable_builder_builds_named_typed() {
     let v = StdPromptFactory::variable_builder()
         .name("topic".to_string())
-        .var_type(VariableType::Number)
+        .var_type(VariableKind::Number)
         .build();
     assert_eq!(v.name, "topic");
-    assert_eq!(v.var_type, VariableType::Number);
+    assert_eq!(v.var_type, VariableKind::Number);
 }
 
 /// @covers: VariableBuilder — default value flips required off
@@ -21,7 +21,7 @@ fn test_variable_builder_default_value_optional() {
         .default_value(serde_json::json!("x"))
         .build();
     assert!(!v.required);
-    assert!(v.default.unwrap());
+    assert_eq!(v.default, Some(serde_json::json!("x").into()));
 }
 
 /// @covers: VariableBuilder — description carried through

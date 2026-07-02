@@ -12,20 +12,3 @@ use crate::api::prompt::types::Variable;
 pub struct MapContextManager {
     pub(crate) variables: BTreeMap<String, Variable>,
 }
-
-impl MapContextManager {
-    /// Construct an empty context manager.
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    /// Number of registered variables.
-    pub fn len(&self) -> usize {
-        self.variables.len()
-    }
-
-    /// Whether no variables are registered.
-    pub fn is_empty(&self) -> bool {
-        self.variables.is_empty()
-    }
-}

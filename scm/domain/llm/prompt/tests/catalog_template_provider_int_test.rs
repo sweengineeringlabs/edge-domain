@@ -1,7 +1,9 @@
 //! Tests for the `CatalogTemplateProvider` reference registry.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_llm_prompt::{CatalogTemplateProvider, PromptTemplate, TemplateProvider};
+use edge_llm_prompt::{
+    CatalogTemplateProvider, PromptTemplate, TemplateLookupRequest, TemplateProvider,
+};
 
 fn template(id: &str, category: &str) -> PromptTemplate {
     PromptTemplate::new(id.to_string(), id.to_string(), category.to_string())
@@ -23,7 +25,14 @@ fn test_catalog_template_provider_with_templates_seeds_registry() {
         template("b", "general"),
     ]);
     assert_eq!(p.len(), 2);
-    assert!(p.get_template("a").unwrap());
+    assert_eq!(
+        p.get_template(TemplateLookupRequest { id: "a" })
+            .expect("get ok")
+            .template
+            .unwrap()
+            .id,
+        "a"
+    );
 }
 
 /// @covers: CatalogTemplateProvider::insert — adds and replaces by id
@@ -33,5 +42,12 @@ fn test_catalog_template_provider_insert_replaces_same_id() {
     p.insert(template("a", "code"));
     p.insert(template("a", "general"));
     assert_eq!(p.len(), 1);
-    assert_eq!(p.get_template("a").expect("present").category, "general");
+    assert_eq!(
+        p.get_template(TemplateLookupRequest { id: "a" })
+            .expect("get ok")
+            .template
+            .expect("present")
+            .category,
+        "general"
+    );
 }

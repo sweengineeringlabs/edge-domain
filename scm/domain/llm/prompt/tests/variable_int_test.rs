@@ -1,12 +1,12 @@
 //! Tests for the `Variable` value type.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_llm_prompt::{Variable, VariableType};
+use edge_llm_prompt::{Variable, VariableKind};
 
 /// @covers: Variable::new — creates a required variable with no default
 #[test]
 fn test_variable_new_is_required() {
-    let v = Variable::new("a".to_string(), VariableType::String);
+    let v = Variable::new("a".to_string(), VariableKind::String);
     assert!(v.required);
     assert!(v.default.is_none());
 }
@@ -16,7 +16,7 @@ fn test_variable_new_is_required() {
 fn test_variable_with_default_is_satisfied() {
     let v = Variable::with_default(
         "a".to_string(),
-        VariableType::String,
+        VariableKind::String,
         serde_json::json!("x"),
     );
     assert!(!v.required);
@@ -28,16 +28,16 @@ fn test_variable_with_default_is_satisfied() {
 fn test_variable_get_value_prefers_current() {
     let mut v = Variable::with_default(
         "a".to_string(),
-        VariableType::String,
+        VariableKind::String,
         serde_json::json!("d"),
     );
     v.set_value(serde_json::json!("c"));
-    assert_eq!(v.get_value(), Some(&serde_json::json!("c")));
+    assert_eq!(v.get_value(), Some(&serde_json::json!("c").into()));
 }
 
 /// @covers: Variable::is_satisfied — unset required variable is unsatisfied
 #[test]
 fn test_variable_required_unset_unsatisfied() {
-    let v = Variable::new("a".to_string(), VariableType::String);
+    let v = Variable::new("a".to_string(), VariableKind::String);
     assert!(!v.is_satisfied());
 }

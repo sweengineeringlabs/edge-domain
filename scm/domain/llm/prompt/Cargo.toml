@@ -10,7 +10,7 @@ description = "LLM Prompt domain primitive: template rendering and context manag
 keywords    = ["llm", "prompt", "template", "context", "sea"]
 categories  = ["development-tools"]
 
-[package.metadata.struct-engine]
+[package.metadata.arch]
 application_type = "lib"
 service_type     = "prompt"
 

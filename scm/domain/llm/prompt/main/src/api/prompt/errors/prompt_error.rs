@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 /// Errors that can occur during prompt management and rendering
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum PromptError {
     /// Template syntax is invalid
     #[serde(rename = "invalid_syntax")]
@@ -59,52 +59,4 @@ pub enum PromptError {
     /// Unknown/unclassified error
     #[serde(rename = "unknown")]
     Unknown(String),
-}
-
-impl PromptError {
-    /// Check if this error is recoverable (can retry)
-    pub fn is_recoverable(&self) -> bool {
-        matches!(
-            self,
-            PromptError::CacheError(_) | PromptError::RenderFailed(_)
-        )
-    }
-
-    /// Get human-readable error message
-    pub fn message(&self) -> String {
-        match self {
-            PromptError::InvalidSyntax { message } => {
-                format!("Invalid template syntax: {}", message)
-            }
-            PromptError::MissingVariable { variable_name } => {
-                format!("Missing required variable: {}", variable_name)
-            }
-            PromptError::TypeMismatch {
-                variable_name,
-                expected,
-                actual,
-            } => {
-                format!(
-                    "Type mismatch for '{}': expected {}, got {}",
-                    variable_name, expected, actual
-                )
-            }
-            PromptError::InvalidValue {
-                variable_name,
-                reason,
-            } => {
-                format!("Invalid value for '{}': {}", variable_name, reason)
-            }
-            PromptError::IncompleteContext { missing_variables } => {
-                format!(
-                    "Incomplete context: missing {}",
-                    missing_variables.join(", ")
-                )
-            }
-            PromptError::RenderFailed(msg) => format!("Rendering failed: {}", msg),
-            PromptError::CacheError(msg) => format!("Cache error: {}", msg),
-            PromptError::TokenizationError(msg) => format!("Tokenization error: {}", msg),
-            PromptError::Unknown(msg) => format!("Unknown error: {}", msg),
-        }
-    }
 }

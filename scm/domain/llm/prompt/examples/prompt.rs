@@ -1,13 +1,15 @@
 //! Basic `edge-llm-prompt` usage example.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_prompt::{
-    Prompt, PromptBootstrap, RenderContext, StdPromptFactory, Variable, VariableType,
+    Prompt, PromptBootstrap, PromptMetadataRequest, PromptVariableKindRequest, RenderContext,
+    RenderRequest, StdPromptFactory, Variable, VariableKind,
 };
 
 fn main() {
     let variable = StdPromptFactory::variable_builder()
         .name("name".to_string())
-        .var_type(VariableType::String)
+        .var_type(VariableKind::String)
         .build();
 
     let metadata = StdPromptFactory::prompt_metadata_builder()
@@ -18,18 +20,30 @@ fn main() {
         .build();
 
     let prompt = StdPromptFactory::prompt("Hello {{name}}".to_string(), metadata);
-    println!("template id: {}", prompt.metadata().id);
-    println!("name is: {:?}", prompt.variable_type("name"));
+    println!(
+        "template id: {}",
+        prompt
+            .metadata(PromptMetadataRequest)
+            .expect("metadata ok")
+            .id
+    );
+    println!(
+        "name is: {:?}",
+        prompt
+            .variable_kind(PromptVariableKindRequest { name: "name" })
+            .expect("variable_kind ok")
+            .kind
+    );
 
     let context = RenderContext::new().with_variable("name".to_string(), serde_json::json!("Ada"));
-    match futures::executor::block_on(prompt.render(&context)) {
-        Ok(rendered) => println!("rendered: {}", rendered),
+    match futures::executor::block_on(prompt.render(RenderRequest { context: &context })) {
+        Ok(response) => println!("rendered: {}", response.rendered),
         Err(error) => println!("render failed: {}", error.message()),
     }
 
     // A registered variable round-trips through the value vocabulary.
     let _typed: Variable = StdPromptFactory::variable_builder()
         .name("topic".to_string())
-        .var_type(VariableType::String)
+        .var_type(VariableKind::String)
         .build();
 }

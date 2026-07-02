@@ -2,14 +2,14 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
-use edge_domain_handler::{Handler, HandlerContext};
+use edge_domain_handler::{ExecutionRequest, Handler, HandlerContext, IdRequest, PatternRequest};
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::SecurityContext;
-use edge_llm_prompt::{PromptMetadata, RenderContext, StdPromptFactory, Variable, VariableType};
+use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+use edge_llm_prompt::{PromptMetadata, RenderContext, StdPromptFactory, Variable, VariableKind};
 use futures::executor::block_on;
 
 fn make_handler() -> impl Handler<Request = RenderContext, Response = String> {
-    let var = Variable::new("name".to_string(), VariableType::String);
+    let var = Variable::new("name".to_string(), VariableKind::String);
     let metadata = PromptMetadata::new(
         "greet".to_string(),
         "Greeting".to_string(),
@@ -23,12 +23,23 @@ fn make_handler() -> impl Handler<Request = RenderContext, Response = String> {
 #[test]
 fn test_handler_execute_renders_template_happy() {
     let h = make_handler();
-    let security = SecurityContext::unauthenticated();
+    let security: SecurityContext = SecurityServices::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
-    let hctx = HandlerContext::new(&security, &commands, observer.as_ref());
+    let hctx = HandlerContext {
+        security: &security,
+        commands: &commands,
+        observer: observer.as_ref(),
+    };
     let context = RenderContext::new().with_variable("name".to_string(), serde_json::json!("Ada"));
-    let out = block_on(Handler::execute(&h, context, hctx)).expect("handler ok");
+    let out = block_on(Handler::execute(
+        &h,
+        ExecutionRequest {
+            req: context,
+            ctx: &hctx,
+        },
+    ))
+    .expect("handler ok");
     assert_eq!(out, "Hello Ada");
 }
 
@@ -36,36 +47,66 @@ fn test_handler_execute_renders_template_happy() {
 #[test]
 fn test_handler_id_is_stable_edge() {
     let h = make_handler();
-    assert_eq!(Handler::id(&h), "prompt.render");
+    assert_eq!(
+        Handler::id(&h, IdRequest).expect("id ok").id,
+        "prompt.render"
+    );
 }
 
 /// @covers: prompt_handler — pattern is stable
 #[test]
 fn test_handler_pattern_is_stable_edge() {
     let h = make_handler();
-    assert_eq!(Handler::pattern(&h), "prompt/render");
+    assert_eq!(
+        Handler::pattern(&h, PatternRequest)
+            .expect("pattern ok")
+            .pattern,
+        "prompt/render"
+    );
 }
 
 /// @covers: prompt_handler — a missing required variable surfaces an error through the pipeline
 #[test]
 fn test_handler_execute_missing_variable_errors_error() {
     let h = make_handler();
-    let security = SecurityContext::unauthenticated();
+    let security: SecurityContext = SecurityServices::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
-    let hctx = HandlerContext::new(&security, &commands, observer.as_ref());
-    assert!(block_on(Handler::execute(&h, RenderContext::new(), hctx)).is_err());
+    let hctx = HandlerContext {
+        security: &security,
+        commands: &commands,
+        observer: observer.as_ref(),
+    };
+    assert!(block_on(Handler::execute(
+        &h,
+        ExecutionRequest {
+            req: RenderContext::new(),
+            ctx: &hctx,
+        }
+    ))
+    .is_err());
 }
 
 /// @covers: prompt_handler — handler constructed from factory works end-to-end
 #[test]
 fn test_factory_handler_renders_through_handler_happy() {
     let h = make_handler();
-    let security = SecurityContext::unauthenticated();
+    let security: SecurityContext = SecurityServices::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
-    let hctx = HandlerContext::new(&security, &commands, observer.as_ref());
+    let hctx = HandlerContext {
+        security: &security,
+        commands: &commands,
+        observer: observer.as_ref(),
+    };
     let context = RenderContext::new().with_variable("name".to_string(), serde_json::json!("Ada"));
-    let out = block_on(Handler::execute(&h, context, hctx)).expect("ok");
+    let out = block_on(Handler::execute(
+        &h,
+        ExecutionRequest {
+            req: context,
+            ctx: &hctx,
+        },
+    ))
+    .expect("ok");
     assert_eq!(out, "Hello Ada");
 }

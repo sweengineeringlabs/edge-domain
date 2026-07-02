@@ -7,7 +7,7 @@ use edge_llm_prompt::RenderContext;
 #[test]
 fn test_render_context_with_variable() {
     let ctx = RenderContext::new().with_variable("a".to_string(), serde_json::json!(1));
-    assert_eq!(ctx.get_variable("a"), Some(&serde_json::json!(1)));
+    assert_eq!(ctx.get_variable("a"), Some(&serde_json::json!(1).into()));
 }
 
 /// @covers: RenderContext::with_metadata — stores and retrieves metadata

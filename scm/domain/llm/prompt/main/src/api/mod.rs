@@ -1,9 +1,19 @@
 mod prompt;
 
 pub use prompt::{
-    CatalogTemplateProvider, ContextManager, HeuristicTokenCounter, MapContextManager, Prompt,
-    PromptBootstrap, PromptCache, PromptError, PromptMetadata,
-    PromptTemplate, PromptTemplateBuilder, RenderContext, StaticPrompt,
-    StdPromptFactory, TemplateProvider, TokenCounter, Variable, VariableType,
-    PromptCacheBuilder, PromptMetadataBuilder, VariableBuilder,
+    CacheBuildRequest, CacheBuildResponse, ClearVariablesRequest, CompletenessRequest,
+    CompletenessResponse, ContextBuildRequest, ContextBuildResponse, CountTokensRequest,
+    CountTokensResponse, EstimateTokensRequest, EstimateTokensResponse, ExactnessRequest,
+    ExactnessResponse, ListByCategoryRequest, ListByCategoryResponse, ListTemplatesRequest,
+    ListTemplatesResponse, PromptBootstrapNameRequest, PromptBootstrapNameResponse,
+    PromptMetadataRequest, PromptMetadataResponse, PromptVariableKindRequest,
+    PromptVariableKindResponse, RegisterVariableRequest, RenderRequest, RenderResponse,
+    TemplateLookupRequest, TemplateLookupResponse, TemplateValidationRequest, TokenizerNameRequest,
+    TokenizerNameResponse, VariableLookupRequest, VariableLookupResponse,
+};
+pub use prompt::{
+    CatalogTemplateProvider, ContextManager, HeuristicTokenCounter, JsonValue, MapContextManager,
+    Prompt, PromptBootstrap, PromptCache, PromptCacheBuilder, PromptError, PromptMetadata,
+    PromptMetadataBuilder, PromptTemplate, PromptTemplateBuilder, RenderContext, StaticPrompt,
+    StdPromptFactory, TemplateProvider, TokenCounter, Variable, VariableBuilder, VariableKind,
 };
