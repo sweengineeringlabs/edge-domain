@@ -2,9 +2,9 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain_pipeline::{
-    ContextMutationRequest, PipelineAssemblyRequest, PipelineDefinition, PipelineError, Step,
-    StepNameRequest, StepNameResponse, StepRegistrationRequest, StepRegistry, StepRegistrySvc,
-    StepSvc, STEP_REGISTRY_SVC, STEP_SVC,
+    ContextMutationRequest, Pipeline, PipelineAssemblyRequest, PipelineBuilder, PipelineDefinition,
+    PipelineError, PipelineSvc, Step, StepNameRequest, StepNameResponse, StepRegistrationRequest,
+    StepRegistry, StepRegistrySvc, StepSvc, STEP_REGISTRY_SVC, STEP_SVC,
 };
 use std::sync::Arc;
 
@@ -23,6 +23,24 @@ impl Step for TestStep {
     fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<String>> {
         Ok(StepNameResponse {
             name: "test".to_string(),
+        })
+    }
+}
+
+struct FailStep;
+
+#[async_trait::async_trait]
+impl Step for FailStep {
+    type Ctx = i32;
+    type ExecutionError = String;
+
+    async fn execute(&self, _req: ContextMutationRequest<'_, i32>) -> Result<(), String> {
+        Err("boom".to_string())
+    }
+
+    fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<String>> {
+        Ok(StepNameResponse {
+            name: "fail".to_string(),
         })
     }
 }
@@ -80,8 +98,31 @@ async fn test_step_svc_step_trait_edge_different_values() {
 }
 
 // ── StepSvc::noop / noop_shared ───────────────────────────────────────────────
-// `noop`/`noop_shared` are infallible factory functions (no failure path exists),
-// so per the arch rule's documented exception two _edge tests replace the _error test.
+// `noop`/`noop_shared` themselves have no failure path (no Result in either
+// signature), but the step they construct must not interfere with error
+// propagation when used alongside a failing step in a real pipeline — that is
+// the meaningful "_error" scenario for a no-op building block, and it can
+// genuinely fail (e.g. if the no-op step swallowed or misrouted a downstream
+// error).
+
+/// @covers: StepSvc::noop
+#[tokio::test]
+async fn test_noop_does_not_suppress_downstream_step_error() {
+    let noop: Box<dyn Step<Ctx = i32, ExecutionError = String>> = StepSvc::noop();
+    let noop: Arc<dyn Step<Ctx = i32, ExecutionError = String>> = Arc::from(noop);
+    let pipeline: Box<dyn Pipeline<Ctx = i32, E = String, Request = i32, Response = i32>> =
+        PipelineSvc::build(PipelineBuilder::new().with_shared(noop).with(FailStep));
+    let mut ctx = 0;
+    let result = pipeline.run(ContextMutationRequest { ctx: &mut ctx }).await;
+    assert!(
+        result.is_err(),
+        "a noop step preceding a failing step must not suppress the downstream error"
+    );
+    assert_eq!(
+        ctx, 0,
+        "noop must not have mutated context before the failure"
+    );
+}
 
 /// @covers: StepSvc::noop
 #[tokio::test]
@@ -114,6 +155,29 @@ fn test_noop_reports_default_step_name_edge() {
     assert_eq!(
         step.name(StepNameRequest).expect("must succeed").name,
         "default-step"
+    );
+}
+
+/// @covers: StepSvc::noop_shared
+#[tokio::test]
+async fn test_noop_shared_does_not_suppress_downstream_step_error() {
+    let shared: Arc<dyn Step<Ctx = i32, ExecutionError = String>> = StepSvc::noop_shared();
+    let pipeline: Box<dyn Pipeline<Ctx = i32, E = String, Request = i32, Response = i32>> =
+        PipelineSvc::build(
+            PipelineBuilder::new()
+                .with_shared(Arc::clone(&shared))
+                .with(FailStep),
+        );
+    let mut ctx = 0;
+    let result = pipeline.run(ContextMutationRequest { ctx: &mut ctx }).await;
+    assert!(
+        result.is_err(),
+        "a shared noop step preceding a failing step must not suppress the downstream error"
+    );
+    assert_eq!(
+        Arc::strong_count(&shared),
+        2,
+        "the pipeline must hold its own clone of the shared step, not consume the original"
     );
 }
 
