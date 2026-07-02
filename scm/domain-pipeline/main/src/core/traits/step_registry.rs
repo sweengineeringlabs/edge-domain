@@ -1,17 +1,19 @@
 //! [`DefaultStepRegistry<Ctx, E>`] — [`InMemoryRegistry`]-backed implementation of [`StepRegistry`].
 
 use std::fmt;
-use std::sync::Arc;
 
 use edge_domain_registry::{InMemoryRegistry, Registry};
 
-use crate::api::{Pipeline, PipelineDefinition, PipelineError, Step, StepRegistry};
+use crate::api::{
+    PipelineAssemblyRequest, PipelineAssemblyResponse, PipelineError, StepRegistrationRequest,
+    StepRegistry,
+};
 use crate::core::pipeline::DefaultPipeline;
 
 /// Step registry backed by [`InMemoryRegistry`] from `domain-registry`.
 /// Resolves step names to shared instances at pipeline assembly time.
 pub(crate) struct DefaultStepRegistry<Ctx, E> {
-    inner: InMemoryRegistry<dyn Step<Ctx, E>>,
+    inner: InMemoryRegistry<dyn crate::api::Step<Ctx, E>>,
 }
 
 impl<Ctx, E> DefaultStepRegistry<Ctx, E>
@@ -34,14 +36,16 @@ where
     type Ctx = Ctx;
     type E = E;
 
-    fn register(&mut self, name: &str, step: Arc<dyn Step<Ctx, E>>) {
-        self.inner.register(name, step);
+    fn register(&mut self, req: StepRegistrationRequest<Ctx, E>) -> Result<(), PipelineError<E>> {
+        self.inner.register(&req.name, req.step);
+        Ok(())
     }
 
     fn build_pipeline(
         &self,
-        definition: &PipelineDefinition,
-    ) -> Result<Box<dyn Pipeline<Ctx, E>>, PipelineError<E>> {
+        req: PipelineAssemblyRequest,
+    ) -> Result<PipelineAssemblyResponse<Ctx, E>, PipelineError<E>> {
+        let definition = req.definition;
         let mut steps = Vec::with_capacity(definition.steps.len());
         for name in &definition.steps {
             match self.inner.get(name.as_str()) {
@@ -49,7 +53,12 @@ where
                 None => return Err(PipelineError::UnknownStep(name.clone())),
             }
         }
-        Ok(Box::new(DefaultPipeline::with_config(steps, definition.config.clone())))
+        Ok(PipelineAssemblyResponse {
+            pipeline: Box::new(DefaultPipeline::with_config(
+                steps,
+                definition.config.clone(),
+            )),
+        })
     }
 }
 
@@ -57,6 +66,7 @@ where
 mod tests {
     use super::*;
     use crate::test_steps::default_step::DefaultStep;
+    use std::sync::Arc;
 
     /// @covers: new
     #[test]
@@ -69,11 +79,21 @@ mod tests {
     #[test]
     fn test_register_happy_adds_step() {
         let mut reg: DefaultStepRegistry<i32, String> = DefaultStepRegistry::new();
-        reg.register("default", Arc::new(DefaultStep));
+        reg.register(StepRegistrationRequest {
+            name: "default".to_string(),
+            step: Arc::new(DefaultStep),
+        })
+        .expect("register must succeed");
         let found = reg.inner.get("default");
-        assert!(found.is_some(), "step must be stored under the registered name");
+        assert!(
+            found.is_some(),
+            "step must be stored under the registered name"
+        );
         assert_eq!(
-            found.map(|s| s.name().to_owned()),
+            found.map(|s| s
+                .name(crate::api::StepNameRequest)
+                .expect("name must succeed")
+                .name),
             Some("default-step".to_owned()),
             "retrieved step must report the expected name"
         );
@@ -83,8 +103,16 @@ mod tests {
     #[test]
     fn test_register_error_duplicate_overwrites() {
         let mut reg: DefaultStepRegistry<i32, String> = DefaultStepRegistry::new();
-        reg.register("default", Arc::new(DefaultStep));
-        reg.register("default", Arc::new(DefaultStep));
+        reg.register(StepRegistrationRequest {
+            name: "default".to_string(),
+            step: Arc::new(DefaultStep),
+        })
+        .expect("register must succeed");
+        reg.register(StepRegistrationRequest {
+            name: "default".to_string(),
+            step: Arc::new(DefaultStep),
+        })
+        .expect("register must succeed");
         assert_eq!(reg.inner.len(), 1);
     }
 }

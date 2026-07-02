@@ -1,10 +1,12 @@
 //! @covers StepRegistry trait — happy/error/edge scenarios for register and build_pipeline.
 //! Also covers the domain-registry backing store integration (InMemoryRegistry<dyn Step<Ctx>>).
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
 
 use edge_domain_pipeline::{
-    PipelineDefinition, PipelineError, Step, StepRegistrySvc,
+    ContextMutationRequest, PipelineAssemblyRequest, PipelineDefinition, PipelineError, Step,
+    StepNameRequest, StepNameResponse, StepRegistrationRequest, StepRegistrySvc,
 };
 use edge_domain_registry::{Registry, RegistryBootstrap, StdRegistryFactory};
 
@@ -12,21 +14,29 @@ struct IncrementStep;
 
 #[async_trait::async_trait]
 impl<E: Send + 'static> Step<i32, E> for IncrementStep {
-    async fn execute(&self, ctx: &mut i32) -> Result<(), E> {
-        *ctx += 1;
+    async fn execute(&self, req: ContextMutationRequest<'_, i32>) -> Result<(), E> {
+        *req.ctx += 1;
         Ok(())
     }
-    fn name(&self) -> &str { "increment" }
+    fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<E>> {
+        Ok(StepNameResponse {
+            name: "increment".to_string(),
+        })
+    }
 }
 
 struct FailStep;
 
 #[async_trait::async_trait]
 impl Step<i32, String> for FailStep {
-    async fn execute(&self, _ctx: &mut i32) -> Result<(), String> {
+    async fn execute(&self, _req: ContextMutationRequest<'_, i32>) -> Result<(), String> {
         Err("intentional".to_string())
     }
-    fn name(&self) -> &str { "fail" }
+    fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<String>> {
+        Ok(StepNameResponse {
+            name: "fail".to_string(),
+        })
+    }
 }
 
 // ── register ─────────────────────────────────────────────────────────────────
@@ -35,11 +45,27 @@ impl Step<i32, String> for FailStep {
 #[tokio::test]
 async fn test_register_happy_step_is_available_for_build() {
     let mut registry = StepRegistrySvc::create::<i32, String>();
-    registry.register("increment", Arc::new(IncrementStep));
-    let def = PipelineDefinition { steps: vec!["increment".to_owned()], ..Default::default() };
-    let pipeline = registry.build_pipeline(&def).expect("registered step must build");
+    registry
+        .register(StepRegistrationRequest {
+            name: "increment".to_string(),
+            step: Arc::new(IncrementStep),
+        })
+        .expect("must succeed");
+    let def = PipelineDefinition {
+        steps: vec!["increment".to_owned()],
+        ..Default::default()
+    };
+    let pipeline = registry
+        .build_pipeline(PipelineAssemblyRequest {
+            definition: Box::new(def),
+        })
+        .expect("registered step must build")
+        .pipeline;
     let mut ctx = 0i32;
-    pipeline.run(&mut ctx).await.expect("pipeline must execute");
+    pipeline
+        .run(ContextMutationRequest { ctx: &mut ctx })
+        .await
+        .expect("pipeline must execute");
     assert_eq!(ctx, 1);
 }
 
@@ -47,8 +73,13 @@ async fn test_register_happy_step_is_available_for_build() {
 #[test]
 fn test_register_error_unregistered_name_causes_unknown_step() {
     let registry = StepRegistrySvc::create::<i32, String>();
-    let def = PipelineDefinition { steps: vec!["missing".to_owned()], ..Default::default() };
-    match registry.build_pipeline(&def) {
+    let def = PipelineDefinition {
+        steps: vec!["missing".to_owned()],
+        ..Default::default()
+    };
+    match registry.build_pipeline(PipelineAssemblyRequest {
+        definition: Box::new(def),
+    }) {
         Err(PipelineError::UnknownStep(name)) => assert_eq!(name, "missing"),
         Err(e) => panic!("expected UnknownStep, got error: {:?}", e),
         Ok(_) => panic!("expected UnknownStep, got Ok"),
@@ -59,12 +90,33 @@ fn test_register_error_unregistered_name_causes_unknown_step() {
 #[tokio::test]
 async fn test_register_edge_duplicate_name_overwrites() {
     let mut registry = StepRegistrySvc::create::<i32, String>();
-    registry.register("step", Arc::new(IncrementStep));
-    registry.register("step", Arc::new(IncrementStep));
-    let def = PipelineDefinition { steps: vec!["step".to_owned()], ..Default::default() };
-    let pipeline = registry.build_pipeline(&def).expect("overwritten step must still build");
+    registry
+        .register(StepRegistrationRequest {
+            name: "step".to_string(),
+            step: Arc::new(IncrementStep),
+        })
+        .expect("must succeed");
+    registry
+        .register(StepRegistrationRequest {
+            name: "step".to_string(),
+            step: Arc::new(IncrementStep),
+        })
+        .expect("must succeed");
+    let def = PipelineDefinition {
+        steps: vec!["step".to_owned()],
+        ..Default::default()
+    };
+    let pipeline = registry
+        .build_pipeline(PipelineAssemblyRequest {
+            definition: Box::new(def),
+        })
+        .expect("overwritten step must still build")
+        .pipeline;
     let mut ctx = 0i32;
-    pipeline.run(&mut ctx).await.expect("pipeline must execute");
+    pipeline
+        .run(ContextMutationRequest { ctx: &mut ctx })
+        .await
+        .expect("pipeline must execute");
     assert_eq!(ctx, 1);
 }
 
@@ -74,14 +126,27 @@ async fn test_register_edge_duplicate_name_overwrites() {
 #[tokio::test]
 async fn test_build_pipeline_happy_executes_steps_in_order() {
     let mut registry = StepRegistrySvc::create::<i32, String>();
-    registry.register("inc", Arc::new(IncrementStep));
+    registry
+        .register(StepRegistrationRequest {
+            name: "inc".to_string(),
+            step: Arc::new(IncrementStep),
+        })
+        .expect("must succeed");
     let def = PipelineDefinition {
         steps: vec!["inc".to_owned(), "inc".to_owned(), "inc".to_owned()],
         ..Default::default()
     };
-    let pipeline = registry.build_pipeline(&def).expect("should build");
+    let pipeline = registry
+        .build_pipeline(PipelineAssemblyRequest {
+            definition: Box::new(def),
+        })
+        .expect("should build")
+        .pipeline;
     let mut ctx = 0i32;
-    pipeline.run(&mut ctx).await.expect("should succeed");
+    pipeline
+        .run(ContextMutationRequest { ctx: &mut ctx })
+        .await
+        .expect("should succeed");
     assert_eq!(ctx, 3);
 }
 
@@ -89,12 +154,19 @@ async fn test_build_pipeline_happy_executes_steps_in_order() {
 #[test]
 fn test_build_pipeline_error_unknown_step_name_first_miss_returned() {
     let mut registry = StepRegistrySvc::create::<i32, String>();
-    registry.register("known", Arc::new(IncrementStep));
+    registry
+        .register(StepRegistrationRequest {
+            name: "known".to_string(),
+            step: Arc::new(IncrementStep),
+        })
+        .expect("must succeed");
     let def = PipelineDefinition {
         steps: vec!["known".to_owned(), "unknown".to_owned()],
         ..Default::default()
     };
-    match registry.build_pipeline(&def) {
+    match registry.build_pipeline(PipelineAssemblyRequest {
+        definition: Box::new(def),
+    }) {
         Err(PipelineError::UnknownStep(name)) => assert_eq!(name, "unknown"),
         Err(e) => panic!("expected UnknownStep, got error: {:?}", e),
         Ok(_) => panic!("expected UnknownStep, got Ok"),
@@ -106,9 +178,17 @@ fn test_build_pipeline_error_unknown_step_name_first_miss_returned() {
 async fn test_build_pipeline_edge_empty_steps_succeeds_immediately() {
     let registry = StepRegistrySvc::create::<i32, String>();
     let def = PipelineDefinition::default();
-    let pipeline = registry.build_pipeline(&def).expect("empty pipeline is valid");
+    let pipeline = registry
+        .build_pipeline(PipelineAssemblyRequest {
+            definition: Box::new(def),
+        })
+        .expect("empty pipeline is valid")
+        .pipeline;
     let mut ctx = 0i32;
-    pipeline.run(&mut ctx).await.expect("empty pipeline succeeds");
+    pipeline
+        .run(ContextMutationRequest { ctx: &mut ctx })
+        .await
+        .expect("empty pipeline succeeds");
     assert_eq!(ctx, 0);
 }
 
@@ -117,14 +197,27 @@ async fn test_build_pipeline_edge_empty_steps_succeeds_immediately() {
 async fn test_build_pipeline_happy_reuses_shared_step_instance() {
     let step: Arc<dyn Step<i32, String>> = Arc::new(IncrementStep);
     let mut registry = StepRegistrySvc::create::<i32, String>();
-    registry.register("inc", Arc::clone(&step));
+    registry
+        .register(StepRegistrationRequest {
+            name: "inc".to_string(),
+            step: Arc::clone(&step),
+        })
+        .expect("must succeed");
     let def = PipelineDefinition {
         steps: vec!["inc".to_owned(), "inc".to_owned()],
         ..Default::default()
     };
-    let pipeline = registry.build_pipeline(&def).expect("should build");
+    let pipeline = registry
+        .build_pipeline(PipelineAssemblyRequest {
+            definition: Box::new(def),
+        })
+        .expect("should build")
+        .pipeline;
     let mut ctx = 0i32;
-    pipeline.run(&mut ctx).await.expect("should succeed");
+    pipeline
+        .run(ContextMutationRequest { ctx: &mut ctx })
+        .await
+        .expect("should succeed");
     assert_eq!(ctx, 2);
 }
 
@@ -132,15 +225,30 @@ async fn test_build_pipeline_happy_reuses_shared_step_instance() {
 #[tokio::test]
 async fn test_build_pipeline_error_step_failure_propagates() {
     let mut registry = StepRegistrySvc::create::<i32, String>();
-    registry.register("inc", Arc::new(IncrementStep));
-    registry.register("fail", Arc::new(FailStep));
+    registry
+        .register(StepRegistrationRequest {
+            name: "inc".to_string(),
+            step: Arc::new(IncrementStep),
+        })
+        .expect("must succeed");
+    registry
+        .register(StepRegistrationRequest {
+            name: "fail".to_string(),
+            step: Arc::new(FailStep),
+        })
+        .expect("must succeed");
     let def = PipelineDefinition {
         steps: vec!["inc".to_owned(), "fail".to_owned(), "inc".to_owned()],
         ..Default::default()
     };
-    let pipeline = registry.build_pipeline(&def).expect("should build");
+    let pipeline = registry
+        .build_pipeline(PipelineAssemblyRequest {
+            definition: Box::new(def),
+        })
+        .expect("should build")
+        .pipeline;
     let mut ctx = 0i32;
-    let result = pipeline.run(&mut ctx).await;
+    let result = pipeline.run(ContextMutationRequest { ctx: &mut ctx }).await;
     assert!(result.is_err());
     assert_eq!(ctx, 1);
 }
@@ -153,7 +261,8 @@ fn test_backing_registry_happy_stores_step_by_name() {
     let reg = StdRegistryFactory::in_memory::<dyn Step<i32, String>>();
     reg.register("increment", Arc::new(IncrementStep));
     assert_eq!(
-        reg.get("increment").map(|s| s.name().to_owned()),
+        reg.get("increment")
+            .map(|s| s.name(StepNameRequest).expect("must succeed").name),
         Some("increment".to_owned()),
         "registered step must be retrievable by name with correct identity"
     );
@@ -163,7 +272,10 @@ fn test_backing_registry_happy_stores_step_by_name() {
 #[test]
 fn test_backing_registry_error_absent_name_returns_none() {
     let reg = StdRegistryFactory::in_memory::<dyn Step<i32, String>>();
-    assert!(reg.get("absent").is_none(), "unregistered name must return None");
+    assert!(
+        reg.get("absent").is_none(),
+        "unregistered name must return None"
+    );
     assert!(reg.is_empty(), "factory-created registry must start empty");
 }
 
@@ -173,9 +285,14 @@ fn test_backing_registry_edge_duplicate_register_overwrites() {
     let reg = StdRegistryFactory::in_memory::<dyn Step<i32, String>>();
     reg.register("step", Arc::new(IncrementStep));
     reg.register("step", Arc::new(FailStep));
-    assert_eq!(reg.len(), 1, "duplicate registrations must not increase count");
     assert_eq!(
-        reg.get("step").map(|s| s.name().to_owned()),
+        reg.len(),
+        1,
+        "duplicate registrations must not increase count"
+    );
+    assert_eq!(
+        reg.get("step")
+            .map(|s| s.name(StepNameRequest).expect("must succeed").name),
         Some("fail".to_owned()),
         "last registered step must win"
     );

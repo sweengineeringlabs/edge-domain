@@ -1,6 +1,7 @@
 //! Integration tests for the [`PipelineError`] type.
 //!
 //! @covers PipelineError
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::fmt;
 use std::fmt::Display;
@@ -21,7 +22,9 @@ fn test_error_step_failed_formats_with_message() {
 /// @covers: general
 #[test]
 fn test_error_step_timeout_formats_readable() {
-    let err: PipelineError<String> = PipelineError::StepTimeout { step_name: "x".to_string() };
+    let err: PipelineError<String> = PipelineError::StepTimeout {
+        step_name: "x".to_string(),
+    };
     let msg = format!("{}", err);
     assert!(!msg.is_empty());
 }
@@ -61,10 +64,11 @@ impl std::error::Error for AnyError {}
 /// @covers: general
 #[test]
 fn test_error_is_std_error() {
-    let err: Box<dyn std::error::Error> = Box::new(PipelineError::<AnyError>::StepFailed(StepError {
-        step_name: "test".to_string(),
-        cause: AnyError("test".to_string()),
-    }));
+    let err: Box<dyn std::error::Error> =
+        Box::new(PipelineError::<AnyError>::StepFailed(StepError {
+            step_name: "test".to_string(),
+            cause: AnyError("test".to_string()),
+        }));
     assert!(!err.to_string().is_empty());
 }
 
@@ -86,7 +90,9 @@ fn test_error_step_failed_preserves_step_name() {
 
 #[test]
 fn test_error_timeout_preserves_step_name() {
-    let err: PipelineError<String> = PipelineError::StepTimeout { step_name: "slow-step".to_string() };
+    let err: PipelineError<String> = PipelineError::StepTimeout {
+        step_name: "slow-step".to_string(),
+    };
     match err {
         PipelineError::StepTimeout { step_name } => assert_eq!(step_name, "slow-step"),
         _ => panic!("expected StepTimeout"),

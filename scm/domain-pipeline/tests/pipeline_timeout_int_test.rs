@@ -1,22 +1,26 @@
 //! Integration tests for `timeout_per_step` / `StepTimeout` — ADR-048 Phase 1.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::time::Duration;
 
 use edge_domain_pipeline::{
-    PipelineBuilder, PipelineError, PipelineSvc, Step,
+    ContextMutationRequest, PipelineBuilder, PipelineError, PipelineSvc, Step, StepNameRequest,
+    StepNameResponse,
 };
 
 struct FastStep;
 
 #[async_trait::async_trait]
 impl<E: Send + 'static> Step<i32, E> for FastStep {
-    async fn execute(&self, ctx: &mut i32) -> Result<(), E> {
-        *ctx += 1;
+    async fn execute(&self, req: ContextMutationRequest<'_, i32>) -> Result<(), E> {
+        *req.ctx += 1;
         Ok(())
     }
 
-    fn name(&self) -> &str {
-        "fast"
+    fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<E>> {
+        Ok(StepNameResponse {
+            name: "fast".to_string(),
+        })
     }
 }
 
@@ -26,14 +30,16 @@ struct SlowStep {
 
 #[async_trait::async_trait]
 impl<E: Send + 'static> Step<i32, E> for SlowStep {
-    async fn execute(&self, ctx: &mut i32) -> Result<(), E> {
+    async fn execute(&self, req: ContextMutationRequest<'_, i32>) -> Result<(), E> {
         tokio::time::sleep(Duration::from_millis(self.delay_ms)).await;
-        *ctx += 1;
+        *req.ctx += 1;
         Ok(())
     }
 
-    fn name(&self) -> &str {
-        "slow"
+    fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<E>> {
+        Ok(StepNameResponse {
+            name: "slow".to_string(),
+        })
     }
 }
 
@@ -47,7 +53,10 @@ async fn test_timeout_happy_step_within_limit_succeeds() {
             .with_timeout(Duration::from_secs(5)),
     );
     let mut ctx = 0i32;
-    assert!(pipeline.run(&mut ctx).await.is_ok());
+    assert!(pipeline
+        .run(ContextMutationRequest { ctx: &mut ctx })
+        .await
+        .is_ok());
     assert_eq!(ctx, 1);
 }
 
@@ -59,7 +68,7 @@ async fn test_timeout_error_step_exceeds_limit_produces_step_timeout() {
             .with_timeout(Duration::from_millis(50)),
     );
     let mut ctx = 0i32;
-    match pipeline.run(&mut ctx).await {
+    match pipeline.run(ContextMutationRequest { ctx: &mut ctx }).await {
         Err(PipelineError::StepTimeout { .. }) => {}
         other => panic!("expected StepTimeout, got {:?}", other),
     }
@@ -67,12 +76,13 @@ async fn test_timeout_error_step_exceeds_limit_produces_step_timeout() {
 
 #[tokio::test]
 async fn test_timeout_edge_no_timeout_set_ignores_slow_step() {
-    let pipeline: Box<dyn edge_domain_pipeline::Pipeline<i32, String>> = PipelineSvc::build(
-        PipelineBuilder::new()
-            .with(SlowStep { delay_ms: 50 }),
-    );
+    let pipeline: Box<dyn edge_domain_pipeline::Pipeline<i32, String>> =
+        PipelineSvc::build(PipelineBuilder::new().with(SlowStep { delay_ms: 50 }));
     let mut ctx = 0i32;
-    assert!(pipeline.run(&mut ctx).await.is_ok());
+    assert!(pipeline
+        .run(ContextMutationRequest { ctx: &mut ctx })
+        .await
+        .is_ok());
     assert_eq!(ctx, 1);
 }
 
@@ -88,7 +98,7 @@ async fn test_timeout_abort_on_error_true_stops_on_timeout() {
             .with_timeout(Duration::from_millis(50)),
     );
     let mut ctx = 0i32;
-    let result = pipeline.run(&mut ctx).await;
+    let result = pipeline.run(ContextMutationRequest { ctx: &mut ctx }).await;
     assert!(matches!(result, Err(PipelineError::StepTimeout { .. })));
     assert_eq!(ctx, 0, "fast step must not run after timeout abort");
 }
@@ -103,8 +113,11 @@ async fn test_timeout_abort_on_error_false_continues_after_timeout() {
             .with_timeout(Duration::from_millis(50)),
     );
     let mut ctx = 0i32;
-    let result = pipeline.run(&mut ctx).await;
-    assert!(result.is_ok(), "abort_on_error=false must continue past timeout");
+    let result = pipeline.run(ContextMutationRequest { ctx: &mut ctx }).await;
+    assert!(
+        result.is_ok(),
+        "abort_on_error=false must continue past timeout"
+    );
     assert_eq!(ctx, 1, "fast step must run after timed-out slow step");
 }
 
@@ -118,6 +131,9 @@ async fn test_timeout_edge_all_steps_fast_none_timeout() {
             .with_timeout(Duration::from_secs(5)),
     );
     let mut ctx = 0i32;
-    assert!(pipeline.run(&mut ctx).await.is_ok());
+    assert!(pipeline
+        .run(ContextMutationRequest { ctx: &mut ctx })
+        .await
+        .is_ok());
     assert_eq!(ctx, 3);
 }

@@ -1,4 +1,5 @@
 //! @covers PipelineConfig ConfigSection implementation and TOML deserialization.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::time::Duration;
 
@@ -17,7 +18,10 @@ fn test_section_name_happy_returns_pipeline() {
 #[test]
 fn test_section_name_error_does_not_clash_with_other_domain_sections() {
     let name = PipelineConfig::section_name();
-    assert_ne!(name, "validator", "pipeline section must not shadow validator");
+    assert_ne!(
+        name, "validator",
+        "pipeline section must not shadow validator"
+    );
     assert_ne!(name, "policy", "pipeline section must not shadow policy");
     assert_ne!(name, "command", "pipeline section must not shadow command");
 }
@@ -79,5 +83,8 @@ fn test_pipeline_config_toml_edge_large_timeout_ms() {
 fn test_pipeline_config_toml_error_wrong_type_for_timeout() {
     let src = r#"timeout_per_step_ms = "not-a-number""#;
     let result: Result<PipelineConfig, _> = toml::from_str(src);
-    assert!(result.is_err(), "string value for timeout_per_step_ms must be rejected");
+    assert!(
+        result.is_err(),
+        "string value for timeout_per_step_ms must be rejected"
+    );
 }

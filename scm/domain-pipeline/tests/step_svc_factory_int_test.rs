@@ -1,5 +1,6 @@
 //! Integration tests — `step_svc_factory` constants.
 //! @covers STEP_SVC, STEP_SVC_FACTORY
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain_pipeline::{STEP_SVC, STEP_SVC_FACTORY};
 

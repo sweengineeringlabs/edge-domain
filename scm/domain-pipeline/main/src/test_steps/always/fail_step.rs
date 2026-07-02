@@ -1,6 +1,6 @@
 //! Test double: step that always fails.
 
-use crate::api::Step;
+use crate::api::{ContextMutationRequest, Step, StepNameRequest, StepNameResponse};
 
 /// A step that always fails with a configurable error of type `E`.
 ///
@@ -20,13 +20,20 @@ impl<E: Clone + Send + Sync + std::fmt::Debug + 'static> AlwaysFailStep<E> {
 const STEP_NAME: &str = "always-fail";
 
 #[async_trait::async_trait]
-impl<Ctx: Send, E: Clone + Send + Sync + std::fmt::Debug + 'static> Step<Ctx, E> for AlwaysFailStep<E> {
-    async fn execute(&self, _ctx: &mut Ctx) -> Result<(), E> {
+impl<Ctx: Send, E: Clone + Send + Sync + std::fmt::Debug + 'static> Step<Ctx, E>
+    for AlwaysFailStep<E>
+{
+    async fn execute(&self, _req: ContextMutationRequest<'_, Ctx>) -> Result<(), E> {
         Err(self.error.clone())
     }
 
-    fn name(&self) -> &str {
-        STEP_NAME
+    fn name(
+        &self,
+        _req: StepNameRequest,
+    ) -> Result<StepNameResponse, crate::api::PipelineError<E>> {
+        Ok(StepNameResponse {
+            name: STEP_NAME.to_string(),
+        })
     }
 }
 
@@ -38,7 +45,7 @@ mod tests {
     async fn test_execute_error_returns_failure() {
         let step = AlwaysFailStep::new("test error".to_string());
         let mut ctx: i32 = 0;
-        let result = step.execute(&mut ctx).await;
+        let result = step.execute(ContextMutationRequest { ctx: &mut ctx }).await;
         assert!(result.is_err());
     }
 
@@ -46,7 +53,7 @@ mod tests {
     async fn test_execute_error_preserves_error_value() {
         let step = AlwaysFailStep::new("custom failure".to_string());
         let mut ctx: i32 = 0;
-        match step.execute(&mut ctx).await {
+        match step.execute(ContextMutationRequest { ctx: &mut ctx }).await {
             Err(msg) => assert_eq!(msg, "custom failure"),
             _ => panic!("expected Err"),
         }
@@ -56,14 +63,20 @@ mod tests {
     async fn test_new_happy_creates_instance() {
         let step = AlwaysFailStep::new("error".to_string());
         let mut ctx = ();
-        assert!(step.execute(&mut ctx).await.is_err());
+        assert!(step
+            .execute(ContextMutationRequest { ctx: &mut ctx })
+            .await
+            .is_err());
     }
 
     #[test]
     fn test_name_happy_returns_always_fail() {
         let step = AlwaysFailStep::new("test".to_string());
         let step_ref: &dyn crate::api::Step<i32, String> = &step;
-        assert_eq!(step_ref.name(), "always-fail");
+        assert_eq!(
+            step_ref.name(StepNameRequest).expect("must succeed").name,
+            "always-fail"
+        );
     }
 
     #[tokio::test]
@@ -71,11 +84,17 @@ mod tests {
         let step1 = AlwaysFailStep::new("error1".to_string());
         let step2 = AlwaysFailStep::new("error2".to_string());
         let mut ctx = 0;
-        match step1.execute(&mut ctx).await {
+        match step1
+            .execute(ContextMutationRequest { ctx: &mut ctx })
+            .await
+        {
             Err(msg) => assert_eq!(msg, "error1"),
             _ => panic!("expected Err"),
         }
-        match step2.execute(&mut ctx).await {
+        match step2
+            .execute(ContextMutationRequest { ctx: &mut ctx })
+            .await
+        {
             Err(msg) => assert_eq!(msg, "error2"),
             _ => panic!("expected Err"),
         }

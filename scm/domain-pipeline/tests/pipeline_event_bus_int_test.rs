@@ -5,7 +5,10 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use edge_domain_event::{EventBus, InProcessEventBus};
-use edge_domain_pipeline::{PipelineBuilder, PipelineSvc, Step};
+use edge_domain_pipeline::{
+    ContextMutationRequest, PipelineBuilder, PipelineError, PipelineSvc, Step, StepNameRequest,
+    StepNameResponse,
+};
 
 // ── shared test steps ─────────────────────────────────────────────────────────
 
@@ -13,12 +16,14 @@ struct OkStep;
 
 #[async_trait::async_trait]
 impl<E: Send + 'static> Step<i32, E> for OkStep {
-    async fn execute(&self, _ctx: &mut i32) -> Result<(), E> {
+    async fn execute(&self, _req: ContextMutationRequest<'_, i32>) -> Result<(), E> {
         Ok(())
     }
 
-    fn name(&self) -> &str {
-        "ok-step"
+    fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<E>> {
+        Ok(StepNameResponse {
+            name: "ok-step".to_string(),
+        })
     }
 }
 
@@ -26,12 +31,14 @@ struct ErrStep;
 
 #[async_trait::async_trait]
 impl Step<i32, String> for ErrStep {
-    async fn execute(&self, _ctx: &mut i32) -> Result<(), String> {
+    async fn execute(&self, _req: ContextMutationRequest<'_, i32>) -> Result<(), String> {
         Err("injected".to_string())
     }
 
-    fn name(&self) -> &str {
-        "err-step"
+    fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<String>> {
+        Ok(StepNameResponse {
+            name: "err-step".to_string(),
+        })
     }
 }
 
@@ -49,7 +56,11 @@ async fn test_pipeline_emits_step_started_and_completed_on_success_happy() {
             .emit_lifecycle_events(true)
             .with_event_bus(Arc::clone(&bus)),
     );
-    pipeline.run(&mut 0_i32).await.unwrap();
+    let mut ctx = 0_i32;
+    pipeline
+        .run(ContextMutationRequest { ctx: &mut ctx })
+        .await
+        .unwrap();
 
     let started = rx.recv().await.expect("StepStarted event");
     assert_eq!(started.event_type(), "pipeline.step_started");
@@ -74,7 +85,8 @@ async fn test_pipeline_emits_step_failed_when_step_errors_error() {
             .emit_lifecycle_events(true)
             .with_event_bus(Arc::clone(&bus)),
     );
-    let _ = pipeline.run(&mut 0_i32).await;
+    let mut ctx = 0_i32;
+    let _ = pipeline.run(ContextMutationRequest { ctx: &mut ctx }).await;
 
     let started = rx.recv().await.expect("StepStarted event");
     assert_eq!(started.event_type(), "pipeline.step_started");
@@ -111,8 +123,16 @@ fn test_with_event_bus_overwrites_previous_bus_error() {
     let builder = PipelineBuilder::<i32, String>::new()
         .with_event_bus(Arc::clone(&bus1))
         .with_event_bus(Arc::clone(&bus2));
-    assert_eq!(Arc::strong_count(&bus1), count1_before, "first bus must be released");
-    assert_eq!(Arc::strong_count(&bus2), count2_before + 1, "second bus must be retained");
+    assert_eq!(
+        Arc::strong_count(&bus1),
+        count1_before,
+        "first bus must be released"
+    );
+    assert_eq!(
+        Arc::strong_count(&bus2),
+        count2_before + 1,
+        "second bus must be retained"
+    );
     assert!(builder.event_bus.is_some());
 }
 
@@ -137,7 +157,11 @@ async fn test_pipeline_emits_no_events_when_flag_disabled_edge() {
             .emit_lifecycle_events(false)
             .with_event_bus(Arc::clone(&bus)),
     );
-    pipeline.run(&mut 0_i32).await.unwrap();
+    let mut ctx = 0_i32;
+    pipeline
+        .run(ContextMutationRequest { ctx: &mut ctx })
+        .await
+        .unwrap();
 
     // Bus must stay silent — timeout proves no event was published.
     let result = tokio::time::timeout(Duration::from_millis(50), rx.recv()).await;

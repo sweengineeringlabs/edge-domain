@@ -1,6 +1,7 @@
 //! Integration tests for the [`StepError`] type (Display and Error trait impls).
 //!
 //! @covers StepError
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::fmt;
 
@@ -25,16 +26,28 @@ fn test_display_happy_formats_step_name_and_cause() {
         cause: "missing header".to_string(),
     };
     let msg = err.to_string();
-    assert!(msg.contains("extract-token"), "Display must include the step name");
-    assert!(msg.contains("missing header"), "Display must include the cause");
+    assert!(
+        msg.contains("extract-token"),
+        "Display must include the step name"
+    );
+    assert!(
+        msg.contains("missing header"),
+        "Display must include the cause"
+    );
 }
 
 /// @covers: Display
 #[test]
 fn test_display_error_empty_step_name() {
-    let err = StepError { step_name: String::new(), cause: "cause".to_string() };
+    let err = StepError {
+        step_name: String::new(),
+        cause: "cause".to_string(),
+    };
     let msg = err.to_string();
-    assert!(msg.contains("cause"), "cause must appear in Display even when step name is empty");
+    assert!(
+        msg.contains("cause"),
+        "cause must appear in Display even when step name is empty"
+    );
 }
 
 /// @covers: Display
@@ -87,6 +100,9 @@ fn test_source_edge_empty_cause_message() {
         cause: SimpleError(String::new()),
     };
     let source = std::error::Error::source(&err);
-    assert!(source.is_some(), "source must be Some even when cause message is empty");
+    assert!(
+        source.is_some(),
+        "source must be Some even when cause message is empty"
+    );
     assert_eq!(source.unwrap().to_string(), "");
 }

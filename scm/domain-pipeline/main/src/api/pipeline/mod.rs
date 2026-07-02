@@ -1,4 +1,4 @@
-//! Pipeline module — orchestration of sequential step execution.
+//! Pipeline theme — orchestration of sequential step execution.
 
 #[allow(clippy::module_inception)]
 mod pipeline;

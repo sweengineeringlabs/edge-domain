@@ -1,59 +1,86 @@
 //! Comprehensive scenario coverage for Pipeline trait.
 //! Tests: happy path, error path, edge cases
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_pipeline::{Pipeline, PipelineBuilder, PipelineConfig, PipelineError, PipelineSvc, Step};
+use edge_domain_pipeline::{
+    ContextMutationRequest, Pipeline, PipelineBuilder, PipelineConfig, PipelineConfigLookupRequest,
+    PipelineEmptinessRequest, PipelineError, PipelineSvc, Step, StepCountRequest, StepNameRequest,
+    StepNameResponse,
+};
 use std::sync::Arc;
 
 struct CountingStep;
 
 #[async_trait::async_trait]
 impl<E: Send + 'static> Step<usize, E> for CountingStep {
-    async fn execute(&self, ctx: &mut usize) -> Result<(), E> {
-        *ctx += 1;
+    async fn execute(&self, req: ContextMutationRequest<'_, usize>) -> Result<(), E> {
+        *req.ctx += 1;
         Ok(())
     }
-    fn name(&self) -> &str { "counter" }
+    fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<E>> {
+        Ok(StepNameResponse {
+            name: "counter".to_string(),
+        })
+    }
 }
 
 struct FailAtStep(usize);
 
 #[async_trait::async_trait]
 impl Step<usize, String> for FailAtStep {
-    async fn execute(&self, ctx: &mut usize) -> Result<(), String> {
-        *ctx += 1;
-        if *ctx == self.0 {
+    async fn execute(&self, req: ContextMutationRequest<'_, usize>) -> Result<(), String> {
+        *req.ctx += 1;
+        if *req.ctx == self.0 {
             Err(format!("failed at {}", self.0))
         } else {
             Ok(())
         }
     }
-    fn name(&self) -> &str { "fail-at" }
+    fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<String>> {
+        Ok(StepNameResponse {
+            name: "fail-at".to_string(),
+        })
+    }
 }
 
 // Happy path: execute all steps
 /// @covers: execute
 #[tokio::test]
 async fn test_pipeline_execute_empty_happy() {
-    let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(PipelineBuilder::<usize, String>::new());
+    let pipeline: Box<dyn Pipeline<usize, String>> =
+        PipelineSvc::build(PipelineBuilder::<usize, String>::new());
     let mut ctx = 0;
-    assert!(pipeline.run(&mut ctx).await.is_ok());
+    assert!(pipeline
+        .run(ContextMutationRequest { ctx: &mut ctx })
+        .await
+        .is_ok());
 }
 
 #[tokio::test]
 async fn test_pipeline_execute_single_step_happy() {
-    let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(PipelineBuilder::new().with(CountingStep));
+    let pipeline: Box<dyn Pipeline<usize, String>> =
+        PipelineSvc::build(PipelineBuilder::new().with(CountingStep));
     let mut ctx = 0;
-    assert!(pipeline.run(&mut ctx).await.is_ok());
+    assert!(pipeline
+        .run(ContextMutationRequest { ctx: &mut ctx })
+        .await
+        .is_ok());
     assert_eq!(ctx, 1);
 }
 
 #[tokio::test]
 async fn test_pipeline_execute_multiple_steps_happy() {
     let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(
-        PipelineBuilder::new().with(CountingStep).with(CountingStep).with(CountingStep),
+        PipelineBuilder::new()
+            .with(CountingStep)
+            .with(CountingStep)
+            .with(CountingStep),
     );
     let mut ctx = 0;
-    assert!(pipeline.run(&mut ctx).await.is_ok());
+    assert!(pipeline
+        .run(ContextMutationRequest { ctx: &mut ctx })
+        .await
+        .is_ok());
     assert_eq!(ctx, 3);
 }
 
@@ -65,9 +92,13 @@ async fn test_pipeline_execute_first_step_error() {
         Arc::new(CountingStep),
         Arc::new(CountingStep),
     ];
-    let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default(), event_bus: None });
+    let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(PipelineBuilder {
+        steps,
+        config: PipelineConfig::default(),
+        event_bus: None,
+    });
     let mut ctx = 0;
-    let result = pipeline.run(&mut ctx).await;
+    let result = pipeline.run(ContextMutationRequest { ctx: &mut ctx }).await;
     assert!(result.is_err());
     assert_eq!(ctx, 1);
 }
@@ -79,9 +110,13 @@ async fn test_pipeline_execute_middle_step_error() {
         Arc::new(FailAtStep(2)),
         Arc::new(CountingStep),
     ];
-    let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default(), event_bus: None });
+    let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(PipelineBuilder {
+        steps,
+        config: PipelineConfig::default(),
+        event_bus: None,
+    });
     let mut ctx = 0;
-    let result = pipeline.run(&mut ctx).await;
+    let result = pipeline.run(ContextMutationRequest { ctx: &mut ctx }).await;
     assert!(result.is_err());
     assert_eq!(ctx, 2);
 }
@@ -93,9 +128,13 @@ async fn test_pipeline_execute_last_step_error() {
         Arc::new(CountingStep),
         Arc::new(FailAtStep(3)),
     ];
-    let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default(), event_bus: None });
+    let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(PipelineBuilder {
+        steps,
+        config: PipelineConfig::default(),
+        event_bus: None,
+    });
     let mut ctx = 0;
-    let result = pipeline.run(&mut ctx).await;
+    let result = pipeline.run(ContextMutationRequest { ctx: &mut ctx }).await;
     assert!(result.is_err());
     assert_eq!(ctx, 3);
 }
@@ -104,37 +143,66 @@ async fn test_pipeline_execute_last_step_error() {
 /// @covers: step_count
 #[tokio::test]
 async fn test_pipeline_step_count_zero_happy() {
-    let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(PipelineBuilder::<usize, String>::new());
-    assert_eq!(pipeline.step_count(), 0);
+    let pipeline: Box<dyn Pipeline<usize, String>> =
+        PipelineSvc::build(PipelineBuilder::<usize, String>::new());
+    assert_eq!(
+        pipeline
+            .step_count(StepCountRequest)
+            .expect("must succeed")
+            .count,
+        0
+    );
 }
 
 #[tokio::test]
 async fn test_pipeline_step_count_many_happy() {
     let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(
         PipelineBuilder::new()
-            .with(CountingStep).with(CountingStep).with(CountingStep)
-            .with(CountingStep).with(CountingStep),
+            .with(CountingStep)
+            .with(CountingStep)
+            .with(CountingStep)
+            .with(CountingStep)
+            .with(CountingStep),
     );
-    assert_eq!(pipeline.step_count(), 5);
+    assert_eq!(
+        pipeline
+            .step_count(StepCountRequest)
+            .expect("must succeed")
+            .count,
+        5
+    );
 }
 
 #[tokio::test]
 async fn test_pipeline_is_empty_true_happy() {
-    let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(PipelineBuilder::<usize, String>::new());
-    assert!(pipeline.is_empty());
+    let pipeline: Box<dyn Pipeline<usize, String>> =
+        PipelineSvc::build(PipelineBuilder::<usize, String>::new());
+    assert!(
+        pipeline
+            .is_empty(PipelineEmptinessRequest)
+            .expect("must succeed")
+            .empty
+    );
 }
 
 #[tokio::test]
 async fn test_pipeline_is_empty_false_happy() {
-    let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(PipelineBuilder::new().with(CountingStep));
-    assert!(!pipeline.is_empty());
+    let pipeline: Box<dyn Pipeline<usize, String>> =
+        PipelineSvc::build(PipelineBuilder::new().with(CountingStep));
+    assert!(
+        !pipeline
+            .is_empty(PipelineEmptinessRequest)
+            .expect("must succeed")
+            .empty
+    );
 }
 
 #[tokio::test]
 async fn test_pipeline_execute_error_message_error() {
-    let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(PipelineBuilder::new().with(FailAtStep(1)));
+    let pipeline: Box<dyn Pipeline<usize, String>> =
+        PipelineSvc::build(PipelineBuilder::new().with(FailAtStep(1)));
     let mut ctx = 0;
-    match pipeline.run(&mut ctx).await {
+    match pipeline.run(ContextMutationRequest { ctx: &mut ctx }).await {
         Err(PipelineError::StepFailed(e)) => assert!(e.cause.contains("failed")),
         _ => panic!("expected StepFailed"),
     }
@@ -142,86 +210,171 @@ async fn test_pipeline_execute_error_message_error() {
 
 #[tokio::test]
 async fn test_pipeline_dyn_dispatch_happy_edge() {
-    let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(PipelineBuilder::new().with(CountingStep));
+    let pipeline: Box<dyn Pipeline<usize, String>> =
+        PipelineSvc::build(PipelineBuilder::new().with(CountingStep));
     let mut ctx = 0usize;
-    assert!(pipeline.run(&mut ctx).await.is_ok());
+    assert!(pipeline
+        .run(ContextMutationRequest { ctx: &mut ctx })
+        .await
+        .is_ok());
     assert_eq!(ctx, 1);
 }
 
 #[tokio::test]
 async fn test_pipeline_dyn_dispatch_error_happy() {
-    let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(PipelineBuilder::new().with(FailAtStep(1)));
+    let pipeline: Box<dyn Pipeline<usize, String>> =
+        PipelineSvc::build(PipelineBuilder::new().with(FailAtStep(1)));
     let mut ctx = 0usize;
-    assert!(pipeline.run(&mut ctx).await.is_err());
+    assert!(pipeline
+        .run(ContextMutationRequest { ctx: &mut ctx })
+        .await
+        .is_err());
 }
 
 // Scenario coverage for step_count
 /// @covers: step_count
 #[test]
 fn test_step_count_empty_happy_edge() {
-    let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(PipelineBuilder::<usize, String>::new());
-    assert_eq!(pipeline.step_count(), 0);
+    let pipeline: Box<dyn Pipeline<usize, String>> =
+        PipelineSvc::build(PipelineBuilder::<usize, String>::new());
+    assert_eq!(
+        pipeline
+            .step_count(StepCountRequest)
+            .expect("must succeed")
+            .count,
+        0
+    );
 }
 
 #[test]
 fn test_step_count_single_happy_edge() {
-    let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(PipelineBuilder::new().with(CountingStep));
-    assert_eq!(pipeline.step_count(), 1);
+    let pipeline: Box<dyn Pipeline<usize, String>> =
+        PipelineSvc::build(PipelineBuilder::new().with(CountingStep));
+    assert_eq!(
+        pipeline
+            .step_count(StepCountRequest)
+            .expect("must succeed")
+            .count,
+        1
+    );
 }
 
 #[test]
 fn test_step_count_multiple_happy_edge() {
     let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(
-        PipelineBuilder::new().with(CountingStep).with(CountingStep).with(CountingStep),
+        PipelineBuilder::new()
+            .with(CountingStep)
+            .with(CountingStep)
+            .with(CountingStep),
     );
-    assert_eq!(pipeline.step_count(), 3);
+    assert_eq!(
+        pipeline
+            .step_count(StepCountRequest)
+            .expect("must succeed")
+            .count,
+        3
+    );
 }
 
 #[test]
 fn test_step_count_max_edge() {
-    let steps: Vec<Arc<dyn Step<usize, String>>> = (0..100).map(|_| Arc::new(CountingStep) as Arc<dyn Step<usize, String>>).collect();
-    let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default(), event_bus: None });
-    assert_eq!(pipeline.step_count(), 100);
+    let steps: Vec<Arc<dyn Step<usize, String>>> = (0..100)
+        .map(|_| Arc::new(CountingStep) as Arc<dyn Step<usize, String>>)
+        .collect();
+    let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(PipelineBuilder {
+        steps,
+        config: PipelineConfig::default(),
+        event_bus: None,
+    });
+    assert_eq!(
+        pipeline
+            .step_count(StepCountRequest)
+            .expect("must succeed")
+            .count,
+        100
+    );
 }
 
 // Scenario coverage for is_empty
 /// @covers: is_empty
 #[test]
 fn test_is_empty_empty_happy_edge() {
-    let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(PipelineBuilder::<usize, String>::new());
-    assert!(pipeline.is_empty());
+    let pipeline: Box<dyn Pipeline<usize, String>> =
+        PipelineSvc::build(PipelineBuilder::<usize, String>::new());
+    assert!(
+        pipeline
+            .is_empty(PipelineEmptinessRequest)
+            .expect("must succeed")
+            .empty
+    );
 }
 
 #[test]
 fn test_is_empty_single_happy_edge() {
-    let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(PipelineBuilder::new().with(CountingStep));
-    assert!(!pipeline.is_empty());
+    let pipeline: Box<dyn Pipeline<usize, String>> =
+        PipelineSvc::build(PipelineBuilder::new().with(CountingStep));
+    assert!(
+        !pipeline
+            .is_empty(PipelineEmptinessRequest)
+            .expect("must succeed")
+            .empty
+    );
 }
 
 #[test]
 fn test_is_empty_multiple_happy_edge() {
-    let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(
-        PipelineBuilder::new().with(CountingStep).with(CountingStep),
+    let pipeline: Box<dyn Pipeline<usize, String>> =
+        PipelineSvc::build(PipelineBuilder::new().with(CountingStep).with(CountingStep));
+    assert!(
+        !pipeline
+            .is_empty(PipelineEmptinessRequest)
+            .expect("must succeed")
+            .empty
     );
-    assert!(!pipeline.is_empty());
 }
 
 #[test]
 fn test_is_empty_one_edge() {
-    let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(PipelineBuilder::new().with(CountingStep));
-    assert!(!pipeline.is_empty());
+    let pipeline: Box<dyn Pipeline<usize, String>> =
+        PipelineSvc::build(PipelineBuilder::new().with(CountingStep));
+    assert!(
+        !pipeline
+            .is_empty(PipelineEmptinessRequest)
+            .expect("must succeed")
+            .empty
+    );
 }
 
 // Error case for step_count with stress-tested max
 #[test]
 fn test_step_count_stress_edge() {
-    let steps: Vec<Arc<dyn Step<usize, String>>> = (0..1000).map(|_| Arc::new(CountingStep) as Arc<dyn Step<usize, String>>).collect();
-    let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(PipelineBuilder { steps, config: PipelineConfig::default(), event_bus: None });
-    assert_eq!(pipeline.step_count(), 1000);
+    let steps: Vec<Arc<dyn Step<usize, String>>> = (0..1000)
+        .map(|_| Arc::new(CountingStep) as Arc<dyn Step<usize, String>>)
+        .collect();
+    let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(PipelineBuilder {
+        steps,
+        config: PipelineConfig::default(),
+        event_bus: None,
+    });
+    assert_eq!(
+        pipeline
+            .step_count(StepCountRequest)
+            .expect("must succeed")
+            .count,
+        1000
+    );
 }
 
 #[test]
 fn test_pipeline_config_constraint_error() {
-    let pipeline: Box<dyn Pipeline<usize, String>> = PipelineSvc::build(PipelineBuilder::<usize, String>::new());
-    assert_eq!(pipeline.config().timeout_per_step, None);
+    let pipeline: Box<dyn Pipeline<usize, String>> =
+        PipelineSvc::build(PipelineBuilder::<usize, String>::new());
+    assert_eq!(
+        pipeline
+            .config(PipelineConfigLookupRequest)
+            .expect("must succeed")
+            .config
+            .timeout_per_step,
+        None
+    );
 }

@@ -1,6 +1,8 @@
 //! [`DefaultValidator`] — primary implementation of the [`Validator`] contract.
 
-use crate::api::{PipelineConfig, PipelineError, Validator};
+use crate::api::{
+    ConfigValidationRequest, EnablementRequest, EnablementResponse, PipelineError, Validator,
+};
 
 /// Validates pipeline configuration before execution.
 pub(crate) struct DefaultValidator {
@@ -22,11 +24,11 @@ impl Default for DefaultValidator {
 
 #[async_trait::async_trait]
 impl Validator for DefaultValidator {
-    async fn validate(&self, config: &PipelineConfig) -> Result<(), PipelineError<String>> {
+    async fn validate(&self, req: ConfigValidationRequest) -> Result<(), PipelineError<String>> {
         if !self.enabled {
             return Ok(());
         }
-        if config.abort_on_error {
+        if req.config.abort_on_error {
             Ok(())
         } else {
             Err(PipelineError::ConfigError(
@@ -35,34 +37,55 @@ impl Validator for DefaultValidator {
         }
     }
 
-    fn is_enabled(&self) -> bool {
-        self.enabled
+    fn is_enabled(
+        &self,
+        _req: EnablementRequest,
+    ) -> Result<EnablementResponse, PipelineError<String>> {
+        Ok(EnablementResponse {
+            enabled: self.enabled,
+        })
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::api::PipelineConfig;
 
     /// @covers: new
     #[test]
     fn test_new_happy_enabled() {
         let validator = DefaultValidator::new(true);
-        assert!(validator.is_enabled());
+        assert!(
+            validator
+                .is_enabled(EnablementRequest)
+                .expect("must succeed")
+                .enabled
+        );
     }
 
     /// @covers: new
     #[test]
     fn test_new_happy_disabled() {
         let validator = DefaultValidator::new(false);
-        assert!(!validator.is_enabled());
+        assert!(
+            !validator
+                .is_enabled(EnablementRequest)
+                .expect("must succeed")
+                .enabled
+        );
     }
 
     /// @covers: new
     #[test]
     fn test_new_edge_default_is_enabled() {
         let validator = DefaultValidator::default();
-        assert!(validator.is_enabled());
+        assert!(
+            validator
+                .is_enabled(EnablementRequest)
+                .expect("must succeed")
+                .enabled
+        );
     }
 
     /// @covers: validate
@@ -70,7 +93,10 @@ mod tests {
     async fn test_validate_happy_valid_config() {
         let validator = DefaultValidator::new(true);
         let config = PipelineConfig::default();
-        assert!(validator.validate(&config).await.is_ok());
+        assert!(validator
+            .validate(ConfigValidationRequest { config })
+            .await
+            .is_ok());
     }
 
     /// @covers: validate
@@ -82,7 +108,10 @@ mod tests {
             emit_lifecycle_events: false,
             abort_on_error: false,
         };
-        assert!(validator.validate(&config).await.is_err());
+        assert!(validator
+            .validate(ConfigValidationRequest { config })
+            .await
+            .is_err());
     }
 
     /// @covers: validate
@@ -94,27 +123,45 @@ mod tests {
             emit_lifecycle_events: false,
             abort_on_error: false,
         };
-        assert!(validator.validate(&config).await.is_ok());
+        assert!(validator
+            .validate(ConfigValidationRequest { config })
+            .await
+            .is_ok());
     }
 
     /// @covers: is_enabled
     #[test]
     fn test_is_enabled_happy_true() {
         let validator = DefaultValidator::new(true);
-        assert!(validator.is_enabled());
+        assert!(
+            validator
+                .is_enabled(EnablementRequest)
+                .expect("must succeed")
+                .enabled
+        );
     }
 
     /// @covers: is_enabled
     #[test]
     fn test_is_enabled_error_false() {
         let validator = DefaultValidator::new(false);
-        assert!(!validator.is_enabled());
+        assert!(
+            !validator
+                .is_enabled(EnablementRequest)
+                .expect("must succeed")
+                .enabled
+        );
     }
 
     /// @covers: is_enabled
     #[test]
     fn test_is_enabled_edge_default() {
         let validator = DefaultValidator::default();
-        assert!(validator.is_enabled());
+        assert!(
+            validator
+                .is_enabled(EnablementRequest)
+                .expect("must succeed")
+                .enabled
+        );
     }
 }

@@ -1,4 +1,5 @@
 //! @covers PipelineDefinition — ConfigSection impl and TOML deserialization.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::time::Duration;
 
@@ -41,7 +42,10 @@ fn test_pipeline_definition_toml_happy_all_fields() {
     "#;
     let def: PipelineDefinition = toml::from_str(src).expect("valid TOML");
     assert!(def.config.abort_on_error);
-    assert_eq!(def.config.timeout_per_step, Some(Duration::from_millis(3000)));
+    assert_eq!(
+        def.config.timeout_per_step,
+        Some(Duration::from_millis(3000))
+    );
     assert!(def.config.emit_lifecycle_events);
     assert_eq!(def.steps, vec!["step-a", "step-b", "step-c"]);
 }

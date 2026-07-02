@@ -1,6 +1,6 @@
 //! Test double: step that always succeeds.
 
-use crate::api::Step;
+use crate::api::{ContextMutationRequest, Step, StepNameRequest, StepNameResponse};
 
 /// A step that always succeeds, optionally mutating context.
 ///
@@ -23,12 +23,17 @@ const STEP_NAME: &str = "always-pass";
 
 #[async_trait::async_trait]
 impl<Ctx: Send, E: Send + 'static> Step<Ctx, E> for AlwaysPassStep {
-    async fn execute(&self, _ctx: &mut Ctx) -> Result<(), E> {
+    async fn execute(&self, _req: ContextMutationRequest<'_, Ctx>) -> Result<(), E> {
         Ok(())
     }
 
-    fn name(&self) -> &str {
-        STEP_NAME
+    fn name(
+        &self,
+        _req: StepNameRequest,
+    ) -> Result<StepNameResponse, crate::api::PipelineError<E>> {
+        Ok(StepNameResponse {
+            name: STEP_NAME.to_string(),
+        })
     }
 }
 
@@ -47,7 +52,10 @@ mod tests {
         let step = AlwaysPassStep::new();
         let step_ref: &dyn Step<i32, String> = &step;
         let mut ctx: i32 = 0;
-        assert!(step_ref.execute(&mut ctx).await.is_ok());
+        assert!(step_ref
+            .execute(ContextMutationRequest { ctx: &mut ctx })
+            .await
+            .is_ok());
         assert_eq!(ctx, 0);
     }
 
@@ -56,26 +64,38 @@ mod tests {
         let step_int = AlwaysPassStep::new();
         let step_int_ref: &dyn Step<i32, String> = &step_int;
         let mut ctx_int: i32 = 42;
-        assert!(step_int_ref.execute(&mut ctx_int).await.is_ok());
+        assert!(step_int_ref
+            .execute(ContextMutationRequest { ctx: &mut ctx_int })
+            .await
+            .is_ok());
 
         let step_str = AlwaysPassStep::new();
         let step_str_ref: &dyn Step<String, String> = &step_str;
         let mut ctx_str = "hello".to_string();
-        assert!(step_str_ref.execute(&mut ctx_str).await.is_ok());
+        assert!(step_str_ref
+            .execute(ContextMutationRequest { ctx: &mut ctx_str })
+            .await
+            .is_ok());
     }
 
     #[test]
     fn test_new_happy_creates_instance() {
         let step = AlwaysPassStep::new();
         let step_ref: &dyn crate::api::Step<i32, String> = &step;
-        assert_eq!(step_ref.name(), "always-pass");
+        assert_eq!(
+            step_ref.name(StepNameRequest).expect("must succeed").name,
+            "always-pass"
+        );
     }
 
     #[test]
     fn test_name_happy_returns_always_pass() {
         let step = AlwaysPassStep::new();
         let step_ref: &dyn crate::api::Step<i32, String> = &step;
-        assert_eq!(step_ref.name(), "always-pass");
+        assert_eq!(
+            step_ref.name(StepNameRequest).expect("must succeed").name,
+            "always-pass"
+        );
     }
 
     #[tokio::test]
@@ -86,8 +106,16 @@ mod tests {
         let step_default_ref: &dyn Step<i32, String> = &step_default;
         let mut ctx_new = 0i32;
         let mut ctx_default = 0i32;
-        assert!(step_new_ref.execute(&mut ctx_new).await.is_ok());
-        assert!(step_default_ref.execute(&mut ctx_default).await.is_ok());
+        assert!(step_new_ref
+            .execute(ContextMutationRequest { ctx: &mut ctx_new })
+            .await
+            .is_ok());
+        assert!(step_default_ref
+            .execute(ContextMutationRequest {
+                ctx: &mut ctx_default
+            })
+            .await
+            .is_ok());
         assert_eq!(ctx_new, ctx_default);
     }
 }

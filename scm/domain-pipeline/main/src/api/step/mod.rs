@@ -1,4 +1,4 @@
-//! Step trait contract and implementations.
+//! Step theme — a single composable operation in a pipeline.
 
 #[allow(clippy::module_inception)]
 mod step;

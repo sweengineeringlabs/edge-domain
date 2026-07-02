@@ -9,5 +9,13 @@ mod validator;
 
 pub use error::{PipelineError, StepError};
 pub use pipeline::Pipeline;
-pub use traits::{Step, StepRegistry, Validator};
-pub use types::{PipelineBuilder, PipelineConfig, PipelineDefinition};
+pub use step::Step;
+pub use traits::{StepRegistry, Validator};
+pub use types::{
+    BuilderValidationRequest, ConfigValidationRequest, ContextMutationRequest, EnablementRequest,
+    EnablementResponse, PipelineAssemblyRequest, PipelineAssemblyResponse, PipelineBuilder,
+    PipelineConfig, PipelineConfigLookupRequest, PipelineConfigResponse, PipelineDefinition,
+    PipelineEmptinessRequest, PipelineEmptinessResponse, StepCountRequest, StepCountResponse,
+    StepFailureRequest, StepFailureResponse, StepNameRequest, StepNameResponse,
+    StepRegistrationRequest,
+};
