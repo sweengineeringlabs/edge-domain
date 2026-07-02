@@ -2,10 +2,14 @@
 //!
 //! Each file re-exports the trait from api/ and exposes its service-identity constant.
 
+pub mod parallel_executor_svc_factory;
 pub mod pipeline_svc_factory;
 mod step;
 pub mod validator_svc_factory;
 
+pub use parallel_executor_svc_factory::{
+    ParallelStepSvc, PARALLEL_STEP_SVC, PARALLEL_STEP_SVC_FACTORY,
+};
 pub use pipeline_svc_factory::{PipelineSvc, PIPELINE_SVC, PIPELINE_SVC_FACTORY};
 pub use step::{
     StepRegistrySvc, StepSvc, STEP_REGISTRY_SVC, STEP_REGISTRY_SVC_FACTORY, STEP_SVC,

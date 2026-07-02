@@ -20,7 +20,7 @@ path = "main/src/lib.rs"
 async-trait.workspace             = true
 futures.workspace                 = true
 thiserror.workspace               = true
-tokio.workspace                   = true
+tokio                              = { workspace = true, features = ["rt"] }
 serde.workspace                   = true
 swe-edge-configbuilder.workspace  = true
 edge-domain-registry.workspace    = true
