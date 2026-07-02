@@ -1,7 +1,8 @@
 //! No-op [`AgentRegistry`] implementation for testing the contract.
 
 use crate::api::NoopAgentRegistry;
-use crate::api::{Agent, AgentError, AgentMetadata, AgentRegistry};
+use crate::api::{Agent, AgentError, AgentRegistry};
+use crate::api::{AgentMetadataLookupRequest, AgentMetadataLookupResponse};
 use edge_domain_registry::Registry;
 use std::sync::Arc;
 
@@ -39,8 +40,11 @@ impl Registry for NoopAgentRegistry {
 }
 
 impl AgentRegistry for NoopAgentRegistry {
-    fn metadata(&self, id: &str) -> Result<AgentMetadata, AgentError> {
-        Err(AgentError::NotFound(id.to_string()))
+    fn metadata(
+        &self,
+        req: AgentMetadataLookupRequest<'_>,
+    ) -> Result<AgentMetadataLookupResponse, AgentError> {
+        Err(AgentError::NotFound(req.id.to_string()))
     }
 }
 
@@ -60,7 +64,7 @@ mod tests {
 
     #[test]
     fn test_noop_agent_registry_error_metadata_returns_not_found() {
-        let result = NoopAgentRegistry.metadata("any");
+        let result = NoopAgentRegistry.metadata(AgentMetadataLookupRequest { id: "any" });
         assert!(matches!(result, Err(AgentError::NotFound(_))));
     }
 

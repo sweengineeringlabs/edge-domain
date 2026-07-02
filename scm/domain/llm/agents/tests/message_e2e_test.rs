@@ -107,7 +107,7 @@ fn test_message_with_cache_control() {
     msg.cache_control = Some(CacheControl {
         cache_type: "ephemeral".to_string(),
     });
-    assert!(msg.cache_control.unwrap());
+    assert!(msg.cache_control.is_some());
     assert_eq!(msg.cache_control.as_ref().unwrap().cache_type, "ephemeral");
 }
 

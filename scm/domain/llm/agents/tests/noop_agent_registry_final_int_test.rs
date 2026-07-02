@@ -2,7 +2,7 @@
 //! Tests for the no-op `AgentRegistry` constructed via `saf::noop_agent_registry`.
 
 use edge_domain_registry::Registry;
-use edge_llm_agent::{AgentRegistry, NoopAgentRegistry};
+use edge_llm_agent::{AgentMetadataLookupRequest, AgentRegistry, NoopAgentRegistry};
 
 #[test]
 fn test_noop_agent_registry_is_empty() {
@@ -16,5 +16,7 @@ fn test_noop_agent_registry_get_returns_none() {
 
 #[test]
 fn test_noop_agent_registry_metadata_reports_missing() {
-    assert!(NoopAgentRegistry.metadata("missing").is_err());
+    assert!(NoopAgentRegistry
+        .metadata(AgentMetadataLookupRequest { id: "missing" })
+        .is_err());
 }

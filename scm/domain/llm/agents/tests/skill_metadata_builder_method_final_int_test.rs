@@ -36,6 +36,12 @@ fn test_skill_metadata_builder_method_with_schemas() {
         .output_schema(r#"{"type": "string"}"#)
         .build();
 
-    assert!(metadata.input_schema.unwrap());
-    assert!(metadata.output_schema.unwrap());
+    assert_eq!(
+        metadata.input_schema,
+        Some(r#"{"type": "object"}"#.to_string())
+    );
+    assert_eq!(
+        metadata.output_schema,
+        Some(r#"{"type": "string"}"#.to_string())
+    );
 }

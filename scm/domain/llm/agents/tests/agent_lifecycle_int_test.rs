@@ -14,7 +14,14 @@ fn test_agent_lifecycle_trait_agent_state_enum_exists() {
     let completed = AgentState::Completed;
 
     // Verify all variants are constructible and distinct
-    assert!(!idle.is_active() || !running.is_active() || !paused.is_active() || !thinking.is_active() || !completed.is_terminal(), "at least one variant exists");
+    assert!(
+        !idle.is_active()
+            || !running.is_active()
+            || !paused.is_active()
+            || !thinking.is_active()
+            || !completed.is_terminal(),
+        "at least one variant exists"
+    );
 }
 
 #[test]

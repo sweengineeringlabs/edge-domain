@@ -3,9 +3,16 @@
 
 use async_trait::async_trait;
 use edge_domain_command::CommandBusBootstrap;
-use edge_domain_handler::{Handler, HandlerContext, HandlerError};
+use edge_domain_handler::{
+    ExecutionRequest, Handler, HandlerContext, HandlerError, IdRequest, IdResponse,
+};
 use edge_domain_observer::StdObserveFactory;
-use edge_llm_agent::{Parameter, Skill, SkillMetadata};
+use edge_domain_security::{SecurityBootstrap, SecurityServices};
+use edge_llm_agent::{
+    AgentError, Parameter, Skill, SkillDescriptionRequest, SkillDescriptionResponse, SkillMetadata,
+    SkillMetadataLookupRequest, SkillMetadataLookupResponse, SkillNameRequest, SkillNameResponse,
+    SkillParametersRequest, SkillParametersResponse,
+};
 
 struct TestSkill {
     should_fail: bool,
@@ -17,46 +24,65 @@ impl Handler for TestSkill {
     type Request = String;
     type Response = String;
 
-    fn id(&self) -> &str {
-        "test_skill"
+    fn id(&self, _req: IdRequest) -> Result<IdResponse, HandlerError> {
+        Ok(IdResponse {
+            id: "test_skill".to_string(),
+        })
     }
 
-    async fn execute(&self, req: String, _ctx: HandlerContext<'_>) -> Result<String, HandlerError> {
+    async fn execute(&self, req: ExecutionRequest<'_, String>) -> Result<String, HandlerError> {
         if self.should_fail {
             Err(HandlerError::ExecutionFailed("deliberate".to_string()))
         } else {
-            Ok(format!("processed: {}", req))
+            Ok(format!("processed: {}", req.req))
         }
     }
 }
 
 impl Skill for TestSkill {
-    fn name(&self) -> &str {
-        self.custom_name
+    fn name(&self, _req: SkillNameRequest) -> Result<SkillNameResponse, AgentError> {
+        Ok(SkillNameResponse {
+            name: self.custom_name.to_string(),
+        })
     }
 
-    fn description(&self) -> &str {
-        "A test skill"
+    fn description(
+        &self,
+        _req: SkillDescriptionRequest,
+    ) -> Result<SkillDescriptionResponse, AgentError> {
+        Ok(SkillDescriptionResponse {
+            description: "A test skill".to_string(),
+        })
     }
 
-    fn parameters(&self) -> Vec<Parameter> {
-        vec![Parameter {
-            name: "input".to_string(),
-            description: "Test input".to_string(),
-            param_type: "string".to_string(),
-            required: true,
-        }]
+    fn parameters(
+        &self,
+        _req: SkillParametersRequest,
+    ) -> Result<SkillParametersResponse, AgentError> {
+        Ok(SkillParametersResponse {
+            parameters: vec![Parameter {
+                name: "input".to_string(),
+                description: "Test input".to_string(),
+                param_type: "string".to_string(),
+                required: true,
+            }],
+        })
     }
 
-    fn metadata(&self) -> SkillMetadata {
-        SkillMetadata {
-            name: self.name().to_string(),
-            description: self.description().to_string(),
-            input_schema: Some("{}".to_string()),
-            output_schema: Some("{}".to_string()),
-            async_execution: true,
-            long_running: false,
-        }
+    fn metadata(
+        &self,
+        _req: SkillMetadataLookupRequest,
+    ) -> Result<SkillMetadataLookupResponse, AgentError> {
+        Ok(SkillMetadataLookupResponse {
+            metadata: Box::new(SkillMetadata {
+                name: self.name(SkillNameRequest)?.name,
+                description: self.description(SkillDescriptionRequest)?.description,
+                input_schema: Some("{}".to_string()),
+                output_schema: Some("{}".to_string()),
+                async_execution: true,
+                long_running: false,
+            }),
+        })
     }
 }
 
@@ -67,7 +93,7 @@ fn test_svc_skill_happy_trait_can_be_implemented() {
         should_fail: false,
         custom_name: "test",
     };
-    assert_eq!(skill.name(), "test");
+    assert_eq!(skill.name(SkillNameRequest).unwrap().name, "test");
 }
 
 /// @covers: Skill trait re-export — name method
@@ -77,7 +103,7 @@ fn test_svc_skill_happy_name_returns_configured_value() {
         should_fail: false,
         custom_name: "code_review",
     };
-    assert_eq!(skill.name(), "code_review");
+    assert_eq!(skill.name(SkillNameRequest).unwrap().name, "code_review");
 }
 
 /// @covers: Skill trait re-export — description method
@@ -87,7 +113,13 @@ fn test_svc_skill_happy_description_returns_configured_value() {
         should_fail: false,
         custom_name: "test",
     };
-    assert_eq!(skill.description(), "A test skill");
+    assert_eq!(
+        skill
+            .description(SkillDescriptionRequest)
+            .unwrap()
+            .description,
+        "A test skill"
+    );
 }
 
 /// @covers: Skill trait re-export — parameters with values
@@ -97,7 +129,7 @@ fn test_svc_skill_happy_parameters_returns_list() {
         should_fail: false,
         custom_name: "test",
     };
-    let params = skill.parameters();
+    let params = skill.parameters(SkillParametersRequest).unwrap().parameters;
     assert_eq!(params.len(), 1);
     assert_eq!(params[0].name, "input");
     assert!(params[0].required);
@@ -115,24 +147,33 @@ fn test_svc_skill_edge_parameters_can_be_empty() {
 
         async fn execute(
             &self,
-            _req: String,
-            _ctx: HandlerContext<'_>,
+            _req: ExecutionRequest<'_, String>,
         ) -> Result<String, HandlerError> {
             Ok("ok".to_string())
         }
     }
 
     impl Skill for MinimalSkill {
-        fn name(&self) -> &str {
-            "minimal"
+        fn name(&self, _req: SkillNameRequest) -> Result<SkillNameResponse, AgentError> {
+            Ok(SkillNameResponse {
+                name: "minimal".to_string(),
+            })
         }
 
-        fn description(&self) -> &str {
-            "Minimal"
+        fn description(
+            &self,
+            _req: SkillDescriptionRequest,
+        ) -> Result<SkillDescriptionResponse, AgentError> {
+            Ok(SkillDescriptionResponse {
+                description: "Minimal".to_string(),
+            })
         }
     }
 
-    let params = MinimalSkill.parameters();
+    let params = MinimalSkill
+        .parameters(SkillParametersRequest)
+        .unwrap()
+        .parameters;
     assert_eq!(params.len(), 0);
 }
 
@@ -143,7 +184,7 @@ fn test_svc_skill_happy_metadata_returns_skill_metadata() {
         should_fail: false,
         custom_name: "test",
     };
-    let meta = skill.metadata();
+    let meta = skill.metadata(SkillMetadataLookupRequest).unwrap().metadata;
     assert_eq!(meta.name, "test");
     assert_eq!(meta.description, "A test skill");
 }
@@ -155,9 +196,9 @@ fn test_svc_skill_happy_metadata_has_optional_schemas() {
         should_fail: false,
         custom_name: "test",
     };
-    let meta = skill.metadata();
-    assert!(meta.input_schema.unwrap());
-    assert!(meta.output_schema.unwrap());
+    let meta = skill.metadata(SkillMetadataLookupRequest).unwrap().metadata;
+    assert!(meta.input_schema.is_some());
+    assert!(meta.output_schema.is_some());
     assert_eq!(meta.input_schema.unwrap(), "{}");
 }
 
@@ -173,24 +214,33 @@ fn test_svc_skill_edge_metadata_default_no_schemas() {
 
         async fn execute(
             &self,
-            _req: String,
-            _ctx: HandlerContext<'_>,
+            _req: ExecutionRequest<'_, String>,
         ) -> Result<String, HandlerError> {
             Ok("ok".to_string())
         }
     }
 
     impl Skill for MinimalSkill {
-        fn name(&self) -> &str {
-            "minimal"
+        fn name(&self, _req: SkillNameRequest) -> Result<SkillNameResponse, AgentError> {
+            Ok(SkillNameResponse {
+                name: "minimal".to_string(),
+            })
         }
 
-        fn description(&self) -> &str {
-            "Minimal skill"
+        fn description(
+            &self,
+            _req: SkillDescriptionRequest,
+        ) -> Result<SkillDescriptionResponse, AgentError> {
+            Ok(SkillDescriptionResponse {
+                description: "Minimal skill".to_string(),
+            })
         }
     }
 
-    let meta = MinimalSkill.metadata();
+    let meta = MinimalSkill
+        .metadata(SkillMetadataLookupRequest)
+        .unwrap()
+        .metadata;
     assert_eq!(meta.name, "minimal");
     assert!(meta.async_execution);
     assert_eq!(meta.input_schema, None);
@@ -204,12 +254,18 @@ fn test_svc_skill_happy_execute_processes_request() {
         should_fail: false,
         custom_name: "test",
     };
-    let security = edge_domain_security::SecurityContext::unauthenticated();
+    let security = SecurityServices::unauthenticated();
     let bus = edge_domain_command::StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = HandlerContext::new(&security, &bus, observer.as_ref());
-    let result = futures::executor::block_on(skill.execute("input".to_string(), ctx));
-    assert_eq!(result, Ok(()));
+    let ctx = HandlerContext {
+        security: &security,
+        commands: &bus,
+        observer: observer.as_ref(),
+    };
+    let result = futures::executor::block_on(skill.execute(ExecutionRequest {
+        req: "input".to_string(),
+        ctx: &ctx,
+    }));
     assert_eq!(result.unwrap(), "processed: input");
 }
 
@@ -220,11 +276,18 @@ fn test_svc_skill_error_execute_failure_propagates() {
         should_fail: true,
         custom_name: "test",
     };
-    let security = edge_domain_security::SecurityContext::unauthenticated();
+    let security = SecurityServices::unauthenticated();
     let bus = edge_domain_command::StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = HandlerContext::new(&security, &bus, observer.as_ref());
-    let result = futures::executor::block_on(skill.execute("input".to_string(), ctx));
+    let ctx = HandlerContext {
+        security: &security,
+        commands: &bus,
+        observer: observer.as_ref(),
+    };
+    let result = futures::executor::block_on(skill.execute(ExecutionRequest {
+        req: "input".to_string(),
+        ctx: &ctx,
+    }));
     assert!(result.is_err());
 }
 
@@ -235,5 +298,5 @@ fn test_svc_skill_happy_implements_handler_contract() {
         should_fail: false,
         custom_name: "test",
     };
-    assert_eq!(skill.id(), "test_skill");
+    assert_eq!(skill.id(IdRequest).unwrap().id, "test_skill");
 }

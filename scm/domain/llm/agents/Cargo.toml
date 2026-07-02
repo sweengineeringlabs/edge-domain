@@ -10,7 +10,7 @@ description = "LLM Agent domain primitive: lifecycle state machine, messaging, t
 keywords    = ["domain", "agent", "skill", "orchestration", "sea"]
 categories  = ["development-tools"]
 
-[package.metadata.struct-engine]
+[package.metadata.arch]
 application_type = "lib"
 service_type     = "agent"
 

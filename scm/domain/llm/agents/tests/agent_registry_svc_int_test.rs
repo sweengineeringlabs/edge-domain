@@ -2,12 +2,15 @@
 //! Integration tests for AGENT_REGISTRY_SVC constant and AgentRegistry trait re-export.
 
 use async_trait::async_trait;
-use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
-use edge_domain_handler::HandlerContext;
 use edge_domain_observer::StdObserveFactory;
 use edge_domain_registry::Registry;
-use edge_domain_security::SecurityContext;
-use edge_llm_agent::{Agent, AgentError, AgentMetadata, AgentRegistry, Skill};
+use edge_llm_agent::{
+    Agent, AgentDescriptionRequest, AgentDescriptionResponse, AgentError, AgentIdRequest,
+    AgentIdResponse, AgentMetadata, AgentMetadataLookupRequest, AgentMetadataLookupResponse,
+    AgentNameRequest, AgentNameResponse, AgentProviderRequest, AgentProviderResponse,
+    AgentRegistry, AgentSkillsRequest, AgentSkillsResponse, SkillExecutionRequest,
+    SkillExecutionResponse,
+};
 use edge_llm_provider::{
     EchoProviderCompleter, ModelInfo, Provider, ProviderBootstrap, ProviderConfig,
     StdProviderFactory,
@@ -17,7 +20,7 @@ use std::sync::{Arc, Mutex};
 fn noop_provider() -> Arc<dyn Provider> {
     StdProviderFactory::provider(
         ProviderConfig::new("noop".to_string(), 0.0, 0),
-        ModelInfo::default(),
+        Box::<ModelInfo>::default(),
         Arc::new(EchoProviderCompleter),
         StdObserveFactory::noop_arc_observe_context(),
     )
@@ -29,33 +32,44 @@ struct TestAgent {
 
 #[async_trait]
 impl Agent for TestAgent {
-    fn id(&self) -> &str {
-        &self.id
+    fn id(&self, _req: AgentIdRequest) -> Result<AgentIdResponse, AgentError> {
+        Ok(AgentIdResponse {
+            id: self.id.clone(),
+        })
     }
 
-    fn name(&self) -> &str {
-        "Test Agent"
+    fn name(&self, _req: AgentNameRequest) -> Result<AgentNameResponse, AgentError> {
+        Ok(AgentNameResponse {
+            name: "Test Agent".to_string(),
+        })
     }
 
-    fn description(&self) -> &str {
-        "Test agent for registry testing"
+    fn description(
+        &self,
+        _req: AgentDescriptionRequest,
+    ) -> Result<AgentDescriptionResponse, AgentError> {
+        Ok(AgentDescriptionResponse {
+            description: "Test agent for registry testing".to_string(),
+        })
     }
 
     async fn execute_skill(
         &self,
-        _skill_name: &str,
-        _input: String,
-        _ctx: HandlerContext<'_>,
-    ) -> Result<String, AgentError> {
-        Ok("result".to_string())
+        _req: SkillExecutionRequest<'_>,
+    ) -> Result<SkillExecutionResponse, AgentError> {
+        Ok(SkillExecutionResponse {
+            output: "result".to_string(),
+        })
     }
 
-    fn skills(&self) -> Vec<Arc<dyn Skill<Request = String, Response = String>>> {
-        vec![]
+    fn skills(&self, _req: AgentSkillsRequest) -> Result<AgentSkillsResponse, AgentError> {
+        Ok(AgentSkillsResponse { skills: vec![] })
     }
 
-    fn provider(&self) -> Arc<dyn Provider> {
-        noop_provider()
+    fn provider(&self, _req: AgentProviderRequest) -> Result<AgentProviderResponse, AgentError> {
+        Ok(AgentProviderResponse {
+            provider: noop_provider(),
+        })
     }
 }
 
@@ -121,13 +135,18 @@ impl Registry for TestAgentRegistry {
 }
 
 impl AgentRegistry for TestAgentRegistry {
-    fn metadata(&self, id: &str) -> Result<AgentMetadata, AgentError> {
+    fn metadata(
+        &self,
+        req: AgentMetadataLookupRequest<'_>,
+    ) -> Result<AgentMetadataLookupResponse, AgentError> {
         self.agents
             .lock()
             .unwrap()
-            .get(id)
-            .map(|(_, meta)| meta.clone())
-            .ok_or_else(|| AgentError::NotFound(id.to_string()))
+            .get(req.id)
+            .map(|(_, meta)| AgentMetadataLookupResponse {
+                metadata: Box::new(meta.clone()),
+            })
+            .ok_or_else(|| AgentError::NotFound(req.id.to_string()))
     }
 }
 
@@ -171,7 +190,7 @@ fn test_svc_agent_registry_happy_trait_can_be_implemented() {
     registry.register("test", agent);
     let retrieved = registry.get("test");
     let a = retrieved.unwrap();
-    assert_eq!(a.id(), "test");
+    assert_eq!(a.id(AgentIdRequest).unwrap().id, "test");
 }
 
 /// @covers: AgentRegistry trait re-export — inherits Registry::register
@@ -184,7 +203,7 @@ fn test_svc_agent_registry_happy_register_stores_agent() {
     registry.register("agent1", agent);
     let retrieved = registry.get("agent1");
     let a = retrieved.unwrap();
-    assert_eq!(a.id(), "agent1");
+    assert_eq!(a.id(AgentIdRequest).unwrap().id, "agent1");
 }
 
 /// @covers: AgentRegistry trait re-export — inherits Registry::get
@@ -221,8 +240,8 @@ fn test_svc_agent_registry_happy_metadata_returns_agent_info() {
         id: "test_agent".to_string(),
     });
     registry.register("test_agent", agent);
-    let metadata = registry.metadata("test_agent");
-    let meta = metadata.unwrap();
+    let metadata = registry.metadata(AgentMetadataLookupRequest { id: "test_agent" });
+    let meta = metadata.unwrap().metadata;
     assert_eq!(meta.id, "test_agent");
 }
 
@@ -230,7 +249,7 @@ fn test_svc_agent_registry_happy_metadata_returns_agent_info() {
 #[test]
 fn test_svc_agent_registry_error_metadata_agent_not_found() {
     let registry = TestAgentRegistry::new();
-    let result = registry.metadata("nonexistent");
+    let result = registry.metadata(AgentMetadataLookupRequest { id: "nonexistent" });
     assert!(result.is_err());
     match result {
         Err(AgentError::NotFound(id)) => assert_eq!(id, "nonexistent"),

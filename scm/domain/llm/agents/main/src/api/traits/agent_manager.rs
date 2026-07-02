@@ -1,13 +1,11 @@
 //! AgentManager trait — service for loading and accessing agents.
 
-use std::sync::Arc;
-
-use edge_domain_handler::Handler;
-use edge_llm_provider::Provider;
-
-use super::agent::Agent;
-use super::skill::Skill;
-use crate::api::types::{AgentMetadataBuilder, SkillMetadataBuilder};
+use crate::api::types::{
+    AgentCreationRequest, AgentCreationResponse, AgentHandlerRequest, AgentHandlerResponse,
+    AgentLoadRequest, AgentLoadResponse, AgentLookupRequest, AgentLookupResponse,
+    AgentMetadataBuilderRequest, AgentMetadataBuilderResponse, ListAgentIdsRequest,
+    ListAgentIdsResponse, SkillMetadataBuilderRequest, SkillMetadataBuilderResponse,
+};
 use crate::api::AgentError;
 
 /// AgentManager is the service that loads and provides access to agents.
@@ -16,34 +14,43 @@ use crate::api::AgentError;
 #[async_trait::async_trait]
 pub trait AgentManager: Send + Sync {
     /// Load an agent from a specification (e.g., path to YAML file).
-    async fn load_agent(&self, spec: &str) -> Result<Arc<dyn Agent>, AgentError>;
+    async fn load_agent(&self, req: AgentLoadRequest<'_>) -> Result<AgentLoadResponse, AgentError>;
 
     /// Get a loaded agent by ID.
-    fn agent(&self, id: &str) -> Result<Arc<dyn Agent>, AgentError>;
+    fn agent(&self, req: AgentLookupRequest<'_>) -> Result<AgentLookupResponse, AgentError>;
 
     /// List all loaded agent IDs.
-    fn list_agent_ids(&self) -> Result<Vec<String>, AgentError>;
+    fn list_agent_ids(&self, req: ListAgentIdsRequest) -> Result<ListAgentIdsResponse, AgentError>;
 
     /// Return a dispatchable handler that routes requests to the named skill.
-    fn agent_handler(&self, skill: &str) -> Box<dyn Handler<Request = String, Response = String>>;
+    fn agent_handler(
+        &self,
+        req: AgentHandlerRequest<'_>,
+    ) -> Result<AgentHandlerResponse, AgentError>;
 
-    /// Construct a concrete [`Agent`] backed by the given provider and skill registry.
+    /// Construct a concrete [`Agent`](crate::api::traits::Agent) backed by the given provider and skill registry.
     fn default_agent(
         &self,
-        id: &str,
-        name: &str,
-        description: &str,
-        provider: Arc<dyn Provider>,
-        skills: Vec<Arc<dyn Skill<Request = String, Response = String>>>,
-    ) -> Arc<dyn Agent>;
+        req: AgentCreationRequest<'_>,
+    ) -> Result<AgentCreationResponse, AgentError>;
 
     /// Create a builder for constructing AgentMetadata.
-    fn agent_metadata_builder(&self) -> AgentMetadataBuilder {
-        AgentMetadataBuilder::new()
+    fn agent_metadata_builder(
+        &self,
+        _req: AgentMetadataBuilderRequest,
+    ) -> Result<AgentMetadataBuilderResponse, AgentError> {
+        Ok(AgentMetadataBuilderResponse {
+            builder: Box::new(crate::api::types::AgentMetadataBuilder::new()),
+        })
     }
 
     /// Create a builder for constructing SkillMetadata.
-    fn skill_metadata_builder(&self) -> SkillMetadataBuilder {
-        SkillMetadataBuilder::new()
+    fn skill_metadata_builder(
+        &self,
+        _req: SkillMetadataBuilderRequest,
+    ) -> Result<SkillMetadataBuilderResponse, AgentError> {
+        Ok(SkillMetadataBuilderResponse {
+            builder: Box::new(crate::api::types::SkillMetadataBuilder::new()),
+        })
     }
 }

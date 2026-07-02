@@ -2,8 +2,8 @@
 //! SAF tests for the `SchemaValidator` trait and `SCHEMA_VALIDATOR_SVC` constant.
 
 use edge_llm_agent::{
-    CacheControl, NoopSchemaValidator, SchemaValidator, ToolCall, ValidationError,
-    SCHEMA_VALIDATOR_SVC,
+    CacheControl, NoopSchemaValidator, SchemaCacheControlRequest, SchemaValidationRequest,
+    SchemaValidator, ToolCall, ToolCallValidationRequest, ValidationError, SCHEMA_VALIDATOR_SVC,
 };
 use serde_json::json;
 
@@ -11,8 +11,8 @@ use serde_json::json;
 struct NamedSchemaValidator;
 
 impl SchemaValidator for NamedSchemaValidator {
-    fn validate(&self, input: &serde_json::Value) -> Result<(), ValidationError> {
-        match input.get("name").and_then(|v| v.as_str()) {
+    fn validate(&self, req: SchemaValidationRequest<'_>) -> Result<(), ValidationError> {
+        match req.input.get("name").and_then(|v| v.as_str()) {
             Some(_) => Ok(()),
             None => Err(ValidationError::new(
                 "name".to_string(),
@@ -34,22 +34,28 @@ fn test_schema_validator_svc_constant_value() {
 /// @covers: validate
 #[test]
 fn test_validate_accepts_valid_object_happy() {
-    assert_eq!(NamedSchemaValidator
-        .validate(&json!({"name": "ok"})),
-        Ok(()));
+    let input = json!({"name": "ok"});
+    assert!(matches!(
+        NamedSchemaValidator.validate(SchemaValidationRequest { input: &input }),
+        Ok(())
+    ));
 }
 
 /// @covers: validate
 #[test]
 fn test_validate_rejects_missing_field_error() {
-    let result = NamedSchemaValidator.validate(&json!({"other": 1}));
+    let input = json!({"other": 1});
+    let result = NamedSchemaValidator.validate(SchemaValidationRequest { input: &input });
     assert!(result.is_err());
 }
 
 /// @covers: validate
 #[test]
 fn test_validate_rejects_non_object_edge() {
-    assert!(NoopSchemaValidator.validate(&json!(42)).is_err());
+    let input = json!(42);
+    assert!(NoopSchemaValidator
+        .validate(SchemaValidationRequest { input: &input })
+        .is_err());
 }
 
 // --- validate_tool_call ---
@@ -62,7 +68,10 @@ fn test_validate_tool_call_valid_arguments_happy() {
         name: "search".to_string(),
         arguments: r#"{"name":"rust"}"#.to_string(),
     };
-    assert_eq!(NamedSchemaValidator.validate_tool_call(&call), Ok(()));
+    assert!(matches!(
+        NamedSchemaValidator.validate_tool_call(ToolCallValidationRequest { call: &call }),
+        Ok(())
+    ));
 }
 
 /// @covers: validate_tool_call
@@ -73,7 +82,9 @@ fn test_validate_tool_call_malformed_json_error() {
         name: "search".to_string(),
         arguments: "not json".to_string(),
     };
-    assert!(NamedSchemaValidator.validate_tool_call(&call).is_err());
+    assert!(NamedSchemaValidator
+        .validate_tool_call(ToolCallValidationRequest { call: &call })
+        .is_err());
 }
 
 /// @covers: validate_tool_call
@@ -84,7 +95,9 @@ fn test_validate_tool_call_schema_violation_edge() {
         name: "search".to_string(),
         arguments: r#"{"missing":"name"}"#.to_string(),
     };
-    assert!(NamedSchemaValidator.validate_tool_call(&call).is_err());
+    assert!(NamedSchemaValidator
+        .validate_tool_call(ToolCallValidationRequest { call: &call })
+        .is_err());
 }
 
 // --- cache_control ---
@@ -92,7 +105,10 @@ fn test_validate_tool_call_schema_violation_edge() {
 /// @covers: cache_control
 #[test]
 fn test_cache_control_defaults_ephemeral_happy() {
-    let cc: CacheControl = NamedSchemaValidator.cache_control();
+    let cc: CacheControl = *NamedSchemaValidator
+        .cache_control(SchemaCacheControlRequest)
+        .unwrap()
+        .cache;
     assert!(cc.is_ephemeral());
 }
 
@@ -100,11 +116,22 @@ fn test_cache_control_defaults_ephemeral_happy() {
 #[test]
 fn test_cache_control_noop_default_error() {
     // The no-op validator inherits the same default cache-control hint.
-    assert!(NoopSchemaValidator.cache_control().is_ephemeral());
+    assert!(NoopSchemaValidator
+        .cache_control(SchemaCacheControlRequest)
+        .unwrap()
+        .cache
+        .is_ephemeral());
 }
 
 /// @covers: cache_control
 #[test]
 fn test_cache_control_type_is_ephemeral_edge() {
-    assert_eq!(NamedSchemaValidator.cache_control().cache_type, "ephemeral");
+    assert_eq!(
+        NamedSchemaValidator
+            .cache_control(SchemaCacheControlRequest)
+            .unwrap()
+            .cache
+            .cache_type,
+        "ephemeral"
+    );
 }

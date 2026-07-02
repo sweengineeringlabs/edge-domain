@@ -1,7 +1,6 @@
 //! Metadata about an agent — used for discovery and UI display.
 
 use super::skill_metadata::SkillMetadata;
-use crate::api::types::AgentMetadataBuilder;
 
 /// Metadata about an agent — used for discovery and UI display.
 #[derive(Debug, Clone)]
@@ -18,11 +17,4 @@ pub struct AgentMetadata {
     pub skills: Vec<SkillMetadata>,
     /// Reasoning patterns the agent supports (e.g. "react", "cot", "plan-execute").
     pub patterns: Vec<String>, // e.g., ["react", "cot", "plan-execute"]
-}
-
-impl AgentMetadata {
-    /// Create a new AgentMetadataBuilder for constructing AgentMetadata.
-    pub fn builder() -> AgentMetadataBuilder {
-        AgentMetadataBuilder::new()
-    }
 }

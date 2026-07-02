@@ -1,12 +1,14 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Integration tests — `AgentRegistry` trait.
 
-use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
-use edge_domain_handler::HandlerContext;
 use edge_domain_observer::StdObserveFactory;
 use edge_domain_registry::Registry;
-use edge_domain_security::SecurityContext;
-use edge_llm_agent::{Agent, AgentError, AgentMetadata, AgentRegistry, Skill};
+use edge_llm_agent::{
+    Agent, AgentDescriptionRequest, AgentDescriptionResponse, AgentError, AgentIdRequest,
+    AgentIdResponse, AgentMetadata, AgentMetadataLookupRequest, AgentNameRequest,
+    AgentNameResponse, AgentProviderRequest, AgentProviderResponse, AgentRegistry,
+    AgentSkillsRequest, AgentSkillsResponse, SkillExecutionRequest, SkillExecutionResponse,
+};
 use edge_llm_provider::{
     EchoProviderCompleter, ModelInfo, Provider, ProviderBootstrap, ProviderConfig,
     StdProviderFactory,
@@ -16,7 +18,7 @@ use std::sync::Arc;
 fn noop_provider() -> Arc<dyn Provider> {
     StdProviderFactory::provider(
         ProviderConfig::new("noop".to_string(), 0.0, 0),
-        ModelInfo::default(),
+        Box::<ModelInfo>::default(),
         Arc::new(EchoProviderCompleter),
         StdObserveFactory::noop_arc_observe_context(),
     )
@@ -26,33 +28,44 @@ struct DummyAgent;
 
 #[async_trait::async_trait]
 impl Agent for DummyAgent {
-    fn id(&self) -> &str {
-        "test"
+    fn id(&self, _req: AgentIdRequest) -> Result<AgentIdResponse, AgentError> {
+        Ok(AgentIdResponse {
+            id: "test".to_string(),
+        })
     }
 
-    fn name(&self) -> &str {
-        "Test"
+    fn name(&self, _req: AgentNameRequest) -> Result<AgentNameResponse, AgentError> {
+        Ok(AgentNameResponse {
+            name: "Test".to_string(),
+        })
     }
 
-    fn description(&self) -> &str {
-        "Test agent"
+    fn description(
+        &self,
+        _req: AgentDescriptionRequest,
+    ) -> Result<AgentDescriptionResponse, AgentError> {
+        Ok(AgentDescriptionResponse {
+            description: "Test agent".to_string(),
+        })
     }
 
     async fn execute_skill(
         &self,
-        _skill_name: &str,
-        _input: String,
-        _ctx: HandlerContext<'_>,
-    ) -> Result<String, AgentError> {
-        Ok("ok".to_string())
+        _req: SkillExecutionRequest<'_>,
+    ) -> Result<SkillExecutionResponse, AgentError> {
+        Ok(SkillExecutionResponse {
+            output: "ok".to_string(),
+        })
     }
 
-    fn skills(&self) -> Vec<Arc<dyn Skill<Request = String, Response = String>>> {
-        vec![]
+    fn skills(&self, _req: AgentSkillsRequest) -> Result<AgentSkillsResponse, AgentError> {
+        Ok(AgentSkillsResponse { skills: vec![] })
     }
 
-    fn provider(&self) -> Arc<dyn Provider> {
-        noop_provider()
+    fn provider(&self, _req: AgentProviderRequest) -> Result<AgentProviderResponse, AgentError> {
+        Ok(AgentProviderResponse {
+            provider: noop_provider(),
+        })
     }
 }
 
@@ -103,15 +116,21 @@ impl Registry for TestRegistry {
 }
 
 impl AgentRegistry for TestRegistry {
-    fn metadata(&self, id: &str) -> Result<AgentMetadata, AgentError> {
+    fn metadata(
+        &self,
+        req: AgentMetadataLookupRequest<'_>,
+    ) -> Result<edge_llm_agent::AgentMetadataLookupResponse, AgentError> {
+        let id = req.id;
         if self.has_agent && id == "found" {
-            Ok(AgentMetadata {
-                id: id.to_string(),
-                name: "Found Agent".to_string(),
-                description: "Agent found in registry".to_string(),
-                version: "1.0.0".to_string(),
-                skills: vec![],
-                patterns: vec!["react".to_string()],
+            Ok(edge_llm_agent::AgentMetadataLookupResponse {
+                metadata: Box::new(AgentMetadata {
+                    id: id.to_string(),
+                    name: "Found Agent".to_string(),
+                    description: "Agent found in registry".to_string(),
+                    version: "1.0.0".to_string(),
+                    skills: vec![],
+                    patterns: vec!["react".to_string()],
+                }),
             })
         } else {
             Err(AgentError::NotFound(id.to_string()))
@@ -123,8 +142,8 @@ impl AgentRegistry for TestRegistry {
 #[test]
 fn test_trait_agent_registry_happy_metadata_existing_agent_returns_ok() {
     let registry = TestRegistry { has_agent: true };
-    let result = registry.metadata("found");
-    let meta = result.unwrap();
+    let result = registry.metadata(AgentMetadataLookupRequest { id: "found" });
+    let meta = result.unwrap().metadata;
     assert_eq!(meta.id, "found");
     assert_eq!(meta.name, "Found Agent");
 }
@@ -133,7 +152,7 @@ fn test_trait_agent_registry_happy_metadata_existing_agent_returns_ok() {
 #[test]
 fn test_trait_agent_registry_error_metadata_missing_agent_returns_not_found() {
     let registry = TestRegistry { has_agent: true };
-    let result = registry.metadata("missing");
+    let result = registry.metadata(AgentMetadataLookupRequest { id: "missing" });
     assert!(result.is_err());
     assert!(matches!(result, Err(AgentError::NotFound(_))));
 }
@@ -144,7 +163,7 @@ fn test_trait_agent_registry_happy_get_existing_returns_some() {
     let registry = TestRegistry { has_agent: true };
     let result = registry.get("found");
     let agent = result.unwrap();
-    assert_eq!(agent.id(), "test");
+    assert_eq!(agent.id(AgentIdRequest).unwrap().id, "test");
 }
 
 /// @covers: Registry::get (inherited) — missing
@@ -205,9 +224,12 @@ fn test_trait_agent_registry_happy_is_empty_when_has_items_returns_false() {
 fn test_trait_agent_registry_happy_all_methods_together() {
     let registry = TestRegistry { has_agent: true };
     assert!(!registry.is_empty());
-    let meta = registry.metadata("found").unwrap();
+    let meta = registry
+        .metadata(AgentMetadataLookupRequest { id: "found" })
+        .unwrap()
+        .metadata;
     assert_eq!(meta.id, "found");
     let agent = registry.get("found").unwrap();
-    assert_eq!(agent.id(), "test");
+    assert_eq!(agent.id(AgentIdRequest).unwrap().id, "test");
     assert_eq!(registry.list_ids().len(), 1);
 }

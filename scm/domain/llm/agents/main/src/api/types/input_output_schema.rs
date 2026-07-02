@@ -10,14 +10,3 @@ pub struct InputOutputSchema {
     /// Example values conforming to the schema.
     pub examples: Vec<Value>,
 }
-
-impl InputOutputSchema {
-    /// Creates a new schema with the given definition and description.
-    pub fn new(schema: Value, description: String) -> Self {
-        Self {
-            schema,
-            description,
-            examples: Vec::new(),
-        }
-    }
-}
