@@ -11,13 +11,16 @@ use edge_domain_pipeline::{
 struct FastStep;
 
 #[async_trait::async_trait]
-impl<E: Send + 'static> Step<i32, E> for FastStep {
-    async fn execute(&self, req: ContextMutationRequest<'_, i32>) -> Result<(), E> {
+impl Step for FastStep {
+    type Ctx = i32;
+    type ExecutionError = String;
+
+    async fn execute(&self, req: ContextMutationRequest<'_, i32>) -> Result<(), String> {
         *req.ctx += 1;
         Ok(())
     }
 
-    fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<E>> {
+    fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<String>> {
         Ok(StepNameResponse {
             name: "fast".to_string(),
         })
@@ -29,14 +32,17 @@ struct SlowStep {
 }
 
 #[async_trait::async_trait]
-impl<E: Send + 'static> Step<i32, E> for SlowStep {
-    async fn execute(&self, req: ContextMutationRequest<'_, i32>) -> Result<(), E> {
+impl Step for SlowStep {
+    type Ctx = i32;
+    type ExecutionError = String;
+
+    async fn execute(&self, req: ContextMutationRequest<'_, i32>) -> Result<(), String> {
         tokio::time::sleep(Duration::from_millis(self.delay_ms)).await;
         *req.ctx += 1;
         Ok(())
     }
 
-    fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<E>> {
+    fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<String>> {
         Ok(StepNameResponse {
             name: "slow".to_string(),
         })
@@ -47,7 +53,9 @@ impl<E: Send + 'static> Step<i32, E> for SlowStep {
 
 #[tokio::test]
 async fn test_timeout_happy_step_within_limit_succeeds() {
-    let pipeline: Box<dyn edge_domain_pipeline::Pipeline<i32, String>> = PipelineSvc::build(
+    let pipeline: Box<
+        dyn edge_domain_pipeline::Pipeline<Ctx = i32, E = String, Request = i32, Response = i32>,
+    > = PipelineSvc::build(
         PipelineBuilder::new()
             .with(FastStep)
             .with_timeout(Duration::from_secs(5)),
@@ -62,7 +70,9 @@ async fn test_timeout_happy_step_within_limit_succeeds() {
 
 #[tokio::test]
 async fn test_timeout_error_step_exceeds_limit_produces_step_timeout() {
-    let pipeline: Box<dyn edge_domain_pipeline::Pipeline<i32, String>> = PipelineSvc::build(
+    let pipeline: Box<
+        dyn edge_domain_pipeline::Pipeline<Ctx = i32, E = String, Request = i32, Response = i32>,
+    > = PipelineSvc::build(
         PipelineBuilder::new()
             .with(SlowStep { delay_ms: 200 })
             .with_timeout(Duration::from_millis(50)),
@@ -76,8 +86,9 @@ async fn test_timeout_error_step_exceeds_limit_produces_step_timeout() {
 
 #[tokio::test]
 async fn test_timeout_edge_no_timeout_set_ignores_slow_step() {
-    let pipeline: Box<dyn edge_domain_pipeline::Pipeline<i32, String>> =
-        PipelineSvc::build(PipelineBuilder::new().with(SlowStep { delay_ms: 50 }));
+    let pipeline: Box<
+        dyn edge_domain_pipeline::Pipeline<Ctx = i32, E = String, Request = i32, Response = i32>,
+    > = PipelineSvc::build(PipelineBuilder::new().with(SlowStep { delay_ms: 50 }));
     let mut ctx = 0i32;
     assert!(pipeline
         .run(ContextMutationRequest { ctx: &mut ctx })
@@ -90,7 +101,9 @@ async fn test_timeout_edge_no_timeout_set_ignores_slow_step() {
 
 #[tokio::test]
 async fn test_timeout_abort_on_error_true_stops_on_timeout() {
-    let pipeline: Box<dyn edge_domain_pipeline::Pipeline<i32, String>> = PipelineSvc::build(
+    let pipeline: Box<
+        dyn edge_domain_pipeline::Pipeline<Ctx = i32, E = String, Request = i32, Response = i32>,
+    > = PipelineSvc::build(
         PipelineBuilder::new()
             .abort_on_error(true)
             .with(SlowStep { delay_ms: 200 })
@@ -105,7 +118,9 @@ async fn test_timeout_abort_on_error_true_stops_on_timeout() {
 
 #[tokio::test]
 async fn test_timeout_abort_on_error_false_continues_after_timeout() {
-    let pipeline: Box<dyn edge_domain_pipeline::Pipeline<i32, String>> = PipelineSvc::build(
+    let pipeline: Box<
+        dyn edge_domain_pipeline::Pipeline<Ctx = i32, E = String, Request = i32, Response = i32>,
+    > = PipelineSvc::build(
         PipelineBuilder::new()
             .abort_on_error(false)
             .with(SlowStep { delay_ms: 200 })
@@ -123,7 +138,9 @@ async fn test_timeout_abort_on_error_false_continues_after_timeout() {
 
 #[tokio::test]
 async fn test_timeout_edge_all_steps_fast_none_timeout() {
-    let pipeline: Box<dyn edge_domain_pipeline::Pipeline<i32, String>> = PipelineSvc::build(
+    let pipeline: Box<
+        dyn edge_domain_pipeline::Pipeline<Ctx = i32, E = String, Request = i32, Response = i32>,
+    > = PipelineSvc::build(
         PipelineBuilder::new()
             .with(FastStep)
             .with(FastStep)

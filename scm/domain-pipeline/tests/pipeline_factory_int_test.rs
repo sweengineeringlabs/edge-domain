@@ -9,15 +9,19 @@ use std::sync::Arc;
 struct TestPassStep;
 
 #[async_trait::async_trait]
-impl<Ctx: Send, E: Send + 'static> Step<Ctx, E> for TestPassStep {
-    async fn execute(&self, _req: ContextMutationRequest<'_, Ctx>) -> Result<(), E> {
+impl Step for TestPassStep {
+    type Ctx = i32;
+    type ExecutionError = String;
+
+    async fn execute(&self, _req: ContextMutationRequest<'_, i32>) -> Result<(), String> {
         Ok(())
     }
 }
 
 #[tokio::test]
 async fn test_pipeline_factory_create_happy_returns_pipeline() {
-    let steps: Vec<Arc<dyn Step<i32, String>>> = vec![Arc::new(TestPassStep)];
+    let steps: Vec<Arc<dyn Step<Ctx = i32, ExecutionError = String>>> =
+        vec![Arc::new(TestPassStep)];
     let pipeline = PipelineSvc::build(PipelineBuilder {
         steps,
         config: PipelineConfig::default(),
@@ -32,7 +36,8 @@ async fn test_pipeline_factory_create_happy_returns_pipeline() {
 
 #[tokio::test]
 async fn test_pipeline_factory_create_with_config_happy_uses_config() {
-    let steps: Vec<Arc<dyn Step<i32, String>>> = vec![Arc::new(TestPassStep)];
+    let steps: Vec<Arc<dyn Step<Ctx = i32, ExecutionError = String>>> =
+        vec![Arc::new(TestPassStep)];
     let config = PipelineConfig::default();
     let pipeline = PipelineSvc::build(PipelineBuilder {
         steps,

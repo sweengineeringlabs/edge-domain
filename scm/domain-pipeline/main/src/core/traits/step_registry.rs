@@ -4,16 +4,16 @@ use std::fmt;
 
 use edge_domain_registry::{InMemoryRegistry, Registry};
 
+use super::DefaultPipeline;
 use crate::api::{
     PipelineAssemblyRequest, PipelineAssemblyResponse, PipelineError, StepRegistrationRequest,
     StepRegistry,
 };
-use crate::core::pipeline::DefaultPipeline;
 
 /// Step registry backed by [`InMemoryRegistry`] from `domain-registry`.
 /// Resolves step names to shared instances at pipeline assembly time.
 pub(crate) struct DefaultStepRegistry<Ctx, E> {
-    inner: InMemoryRegistry<dyn crate::api::Step<Ctx, E>>,
+    inner: InMemoryRegistry<dyn crate::api::Step<Ctx = Ctx, ExecutionError = E>>,
 }
 
 impl<Ctx, E> DefaultStepRegistry<Ctx, E>
@@ -81,7 +81,7 @@ mod tests {
         let mut reg: DefaultStepRegistry<i32, String> = DefaultStepRegistry::new();
         reg.register(StepRegistrationRequest {
             name: "default".to_string(),
-            step: Arc::new(DefaultStep),
+            step: Arc::new(DefaultStep::<i32, String>::new()),
         })
         .expect("register must succeed");
         let found = reg.inner.get("default");
@@ -105,12 +105,12 @@ mod tests {
         let mut reg: DefaultStepRegistry<i32, String> = DefaultStepRegistry::new();
         reg.register(StepRegistrationRequest {
             name: "default".to_string(),
-            step: Arc::new(DefaultStep),
+            step: Arc::new(DefaultStep::<i32, String>::new()),
         })
         .expect("register must succeed");
         reg.register(StepRegistrationRequest {
             name: "default".to_string(),
-            step: Arc::new(DefaultStep),
+            step: Arc::new(DefaultStep::<i32, String>::new()),
         })
         .expect("register must succeed");
         assert_eq!(reg.inner.len(), 1);

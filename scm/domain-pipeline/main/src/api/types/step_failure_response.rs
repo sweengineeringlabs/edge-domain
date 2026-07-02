@@ -1,6 +1,6 @@
 //! [`StepFailureResponse`] — wraps the assembled step-annotated error.
 
-use crate::api::error::StepError;
+use crate::api::StepError;
 
 /// Response carrying the assembled [`StepError`].
 pub struct StepFailureResponse<E> {

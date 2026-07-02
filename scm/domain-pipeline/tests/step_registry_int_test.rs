@@ -13,12 +13,15 @@ use edge_domain_registry::{Registry, RegistryBootstrap, StdRegistryFactory};
 struct IncrementStep;
 
 #[async_trait::async_trait]
-impl<E: Send + 'static> Step<i32, E> for IncrementStep {
-    async fn execute(&self, req: ContextMutationRequest<'_, i32>) -> Result<(), E> {
+impl Step for IncrementStep {
+    type Ctx = i32;
+    type ExecutionError = String;
+
+    async fn execute(&self, req: ContextMutationRequest<'_, i32>) -> Result<(), String> {
         *req.ctx += 1;
         Ok(())
     }
-    fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<E>> {
+    fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<String>> {
         Ok(StepNameResponse {
             name: "increment".to_string(),
         })
@@ -28,7 +31,10 @@ impl<E: Send + 'static> Step<i32, E> for IncrementStep {
 struct FailStep;
 
 #[async_trait::async_trait]
-impl Step<i32, String> for FailStep {
+impl Step for FailStep {
+    type Ctx = i32;
+    type ExecutionError = String;
+
     async fn execute(&self, _req: ContextMutationRequest<'_, i32>) -> Result<(), String> {
         Err("intentional".to_string())
     }
@@ -195,7 +201,7 @@ async fn test_build_pipeline_edge_empty_steps_succeeds_immediately() {
 /// @covers: build_pipeline
 #[tokio::test]
 async fn test_build_pipeline_happy_reuses_shared_step_instance() {
-    let step: Arc<dyn Step<i32, String>> = Arc::new(IncrementStep);
+    let step: Arc<dyn Step<Ctx = i32, ExecutionError = String>> = Arc::new(IncrementStep);
     let mut registry = StepRegistrySvc::create::<i32, String>();
     registry
         .register(StepRegistrationRequest {
@@ -258,7 +264,7 @@ async fn test_build_pipeline_error_step_failure_propagates() {
 /// @covers: StdRegistryFactory::in_memory
 #[test]
 fn test_backing_registry_happy_stores_step_by_name() {
-    let reg = StdRegistryFactory::in_memory::<dyn Step<i32, String>>();
+    let reg = StdRegistryFactory::in_memory::<dyn Step<Ctx = i32, ExecutionError = String>>();
     reg.register("increment", Arc::new(IncrementStep));
     assert_eq!(
         reg.get("increment")
@@ -271,7 +277,7 @@ fn test_backing_registry_happy_stores_step_by_name() {
 /// @covers: StdRegistryFactory::in_memory
 #[test]
 fn test_backing_registry_error_absent_name_returns_none() {
-    let reg = StdRegistryFactory::in_memory::<dyn Step<i32, String>>();
+    let reg = StdRegistryFactory::in_memory::<dyn Step<Ctx = i32, ExecutionError = String>>();
     assert!(
         reg.get("absent").is_none(),
         "unregistered name must return None"
@@ -282,7 +288,7 @@ fn test_backing_registry_error_absent_name_returns_none() {
 /// @covers: StdRegistryFactory::in_memory
 #[test]
 fn test_backing_registry_edge_duplicate_register_overwrites() {
-    let reg = StdRegistryFactory::in_memory::<dyn Step<i32, String>>();
+    let reg = StdRegistryFactory::in_memory::<dyn Step<Ctx = i32, ExecutionError = String>>();
     reg.register("step", Arc::new(IncrementStep));
     reg.register("step", Arc::new(FailStep));
     assert_eq!(

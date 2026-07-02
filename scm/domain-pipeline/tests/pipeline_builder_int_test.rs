@@ -12,8 +12,11 @@ use edge_domain_pipeline::{
 struct IncrementStep;
 
 #[async_trait::async_trait]
-impl<E: Send + 'static> Step<i32, E> for IncrementStep {
-    async fn execute(&self, req: ContextMutationRequest<'_, i32>) -> Result<(), E> {
+impl Step for IncrementStep {
+    type Ctx = i32;
+    type ExecutionError = String;
+
+    async fn execute(&self, req: ContextMutationRequest<'_, i32>) -> Result<(), String> {
         *req.ctx += 1;
         Ok(())
     }
@@ -21,7 +24,7 @@ impl<E: Send + 'static> Step<i32, E> for IncrementStep {
     fn name(
         &self,
         _req: StepNameRequest,
-    ) -> Result<StepNameResponse, edge_domain_pipeline::PipelineError<E>> {
+    ) -> Result<StepNameResponse, edge_domain_pipeline::PipelineError<String>> {
         Ok(StepNameResponse {
             name: "increment".to_string(),
         })
@@ -31,7 +34,10 @@ impl<E: Send + 'static> Step<i32, E> for IncrementStep {
 struct FailStep;
 
 #[async_trait::async_trait]
-impl Step<i32, String> for FailStep {
+impl Step for FailStep {
+    type Ctx = i32;
+    type ExecutionError = String;
+
     async fn execute(&self, _req: ContextMutationRequest<'_, i32>) -> Result<(), String> {
         Err("intentional failure".to_string())
     }
@@ -162,7 +168,8 @@ async fn test_pipeline_build_edge_config_carried_through() {
 
 #[tokio::test]
 async fn test_pipeline_with_shared_happy_reuses_step() {
-    let step: Arc<dyn edge_domain_pipeline::Step<i32, String>> = Arc::new(IncrementStep);
+    let step: Arc<dyn edge_domain_pipeline::Step<Ctx = i32, ExecutionError = String>> =
+        Arc::new(IncrementStep);
     let pipeline = PipelineSvc::build(
         PipelineBuilder::<i32, String>::new()
             .with_shared(step.clone())
@@ -178,7 +185,8 @@ async fn test_pipeline_with_shared_happy_reuses_step() {
 
 #[tokio::test]
 async fn test_pipeline_with_shared_error_fail_step_aborts() {
-    let step: Arc<dyn edge_domain_pipeline::Step<i32, String>> = Arc::new(FailStep);
+    let step: Arc<dyn edge_domain_pipeline::Step<Ctx = i32, ExecutionError = String>> =
+        Arc::new(FailStep);
     let pipeline = PipelineSvc::build(PipelineBuilder::<i32, String>::new().with_shared(step));
     let mut ctx = 0i32;
     assert!(pipeline
@@ -189,7 +197,8 @@ async fn test_pipeline_with_shared_error_fail_step_aborts() {
 
 #[tokio::test]
 async fn test_pipeline_with_shared_edge_mix_owned_and_shared() {
-    let shared: Arc<dyn edge_domain_pipeline::Step<i32, String>> = Arc::new(IncrementStep);
+    let shared: Arc<dyn edge_domain_pipeline::Step<Ctx = i32, ExecutionError = String>> =
+        Arc::new(IncrementStep);
     let pipeline = PipelineSvc::build(
         PipelineBuilder::<i32, String>::new()
             .with(IncrementStep)

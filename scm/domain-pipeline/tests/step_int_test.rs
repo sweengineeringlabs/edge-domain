@@ -13,13 +13,16 @@ struct CountingStep {
 }
 
 #[async_trait::async_trait]
-impl<E: Send + 'static> Step<i32, E> for CountingStep {
-    async fn execute(&self, req: ContextMutationRequest<'_, i32>) -> Result<(), E> {
+impl Step for CountingStep {
+    type Ctx = i32;
+    type ExecutionError = String;
+
+    async fn execute(&self, req: ContextMutationRequest<'_, i32>) -> Result<(), String> {
         *req.ctx += 1;
         Ok(())
     }
 
-    fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<E>> {
+    fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<String>> {
         Ok(StepNameResponse {
             name: self.name.clone(),
         })
@@ -32,7 +35,7 @@ async fn trait_step_executes_and_mutates_context() {
     let step = CountingStep {
         name: "increment".to_string(),
     };
-    let step_dyn: &dyn Step<i32, String> = &step;
+    let step_dyn: &dyn Step<Ctx = i32, ExecutionError = String> = &step;
     let mut ctx = 5;
     assert!(step_dyn
         .execute(ContextMutationRequest { ctx: &mut ctx })
@@ -47,7 +50,7 @@ async fn trait_step_name_is_accessible() {
     let step = CountingStep {
         name: "my-step".to_string(),
     };
-    let step_ref: &dyn Step<i32, String> = &step;
+    let step_ref: &dyn Step<Ctx = i32, ExecutionError = String> = &step;
     assert_eq!(
         step_ref.name(StepNameRequest).expect("must succeed").name,
         "my-step"
@@ -60,7 +63,10 @@ async fn trait_step_error_halts_mutation() {
     struct FailingStep;
 
     #[async_trait::async_trait]
-    impl Step<String, String> for FailingStep {
+    impl Step for FailingStep {
+        type Ctx = String;
+        type ExecutionError = String;
+
         async fn execute(&self, _req: ContextMutationRequest<'_, String>) -> Result<(), String> {
             Err("forced failure".to_string())
         }
@@ -82,10 +88,10 @@ async fn trait_step_error_halts_mutation() {
 /// @covers: general
 #[tokio::test]
 async fn trait_step_dyn_dispatch_works() {
-    let step1: Box<dyn Step<i32, String>> = Box::new(CountingStep {
+    let step1: Box<dyn Step<Ctx = i32, ExecutionError = String>> = Box::new(CountingStep {
         name: "step1".to_string(),
     });
-    let step2: Box<dyn Step<i32, String>> = Box::new(CountingStep {
+    let step2: Box<dyn Step<Ctx = i32, ExecutionError = String>> = Box::new(CountingStep {
         name: "step2".to_string(),
     });
 

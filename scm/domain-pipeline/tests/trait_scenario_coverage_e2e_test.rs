@@ -22,12 +22,15 @@ use std::time::Duration;
 struct TestPassStep;
 
 #[async_trait::async_trait]
-impl<Ctx: Send, E: Send + 'static> Step<Ctx, E> for TestPassStep {
-    async fn execute(&self, _req: ContextMutationRequest<'_, Ctx>) -> Result<(), E> {
+impl Step for TestPassStep {
+    type Ctx = i32;
+    type ExecutionError = String;
+
+    async fn execute(&self, _req: ContextMutationRequest<'_, i32>) -> Result<(), String> {
         Ok(())
     }
 
-    fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<E>> {
+    fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<String>> {
         Ok(StepNameResponse {
             name: "test-pass".to_string(),
         })
@@ -35,7 +38,7 @@ impl<Ctx: Send, E: Send + 'static> Step<Ctx, E> for TestPassStep {
 }
 
 struct TestPipeline {
-    steps: Vec<Arc<dyn Step<i32, String>>>,
+    steps: Vec<Arc<dyn Step<Ctx = i32, ExecutionError = String>>>,
     config: PipelineConfig,
 }
 
@@ -53,7 +56,10 @@ impl Service for TestPipeline {
 }
 
 #[async_trait::async_trait]
-impl Pipeline<i32, String> for TestPipeline {
+impl Pipeline for TestPipeline {
+    type Ctx = i32;
+    type E = String;
+
     async fn run(&self, req: ContextMutationRequest<'_, i32>) -> Result<(), PipelineError<String>> {
         let ctx = req.ctx;
         for step in &self.steps {
@@ -151,8 +157,8 @@ fn test_step_count_with_steps_happy() {
 
 #[test]
 fn test_step_count_many_steps_edge() {
-    let steps: Vec<Arc<dyn Step<i32, String>>> = (0..100)
-        .map(|_| Arc::new(TestPassStep) as Arc<dyn Step<i32, String>>)
+    let steps: Vec<Arc<dyn Step<Ctx = i32, ExecutionError = String>>> = (0..100)
+        .map(|_| Arc::new(TestPassStep) as Arc<dyn Step<Ctx = i32, ExecutionError = String>>)
         .collect();
     let pipeline = TestPipeline {
         steps,

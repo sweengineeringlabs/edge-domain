@@ -15,12 +15,15 @@ use edge_domain_pipeline::{
 struct OkStep;
 
 #[async_trait::async_trait]
-impl<E: Send + 'static> Step<i32, E> for OkStep {
-    async fn execute(&self, _req: ContextMutationRequest<'_, i32>) -> Result<(), E> {
+impl Step for OkStep {
+    type Ctx = i32;
+    type ExecutionError = String;
+
+    async fn execute(&self, _req: ContextMutationRequest<'_, i32>) -> Result<(), String> {
         Ok(())
     }
 
-    fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<E>> {
+    fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<String>> {
         Ok(StepNameResponse {
             name: "ok-step".to_string(),
         })
@@ -30,7 +33,10 @@ impl<E: Send + 'static> Step<i32, E> for OkStep {
 struct ErrStep;
 
 #[async_trait::async_trait]
-impl Step<i32, String> for ErrStep {
+impl Step for ErrStep {
+    type Ctx = i32;
+    type ExecutionError = String;
+
     async fn execute(&self, _req: ContextMutationRequest<'_, i32>) -> Result<(), String> {
         Err("injected".to_string())
     }

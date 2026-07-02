@@ -13,7 +13,10 @@ use edge_domain_pipeline::{
 struct ErrorWithContext(String);
 
 #[async_trait::async_trait]
-impl Step<String, String> for ErrorWithContext {
+impl Step for ErrorWithContext {
+    type Ctx = String;
+    type ExecutionError = String;
+
     async fn execute(&self, req: ContextMutationRequest<'_, String>) -> Result<(), String> {
         req.ctx.push_str(&self.0);
         Err("step error".to_string())
@@ -59,7 +62,7 @@ fn test_error_config_error_happy_edge() {
 /// @covers: general
 #[tokio::test]
 async fn test_error_propagation_stops_pipeline_happy() {
-    let steps: Vec<Arc<dyn Step<String, String>>> =
+    let steps: Vec<Arc<dyn Step<Ctx = String, ExecutionError = String>>> =
         vec![Arc::new(ErrorWithContext("partial".to_string()))];
     let pipeline = PipelineSvc::build(PipelineBuilder {
         steps,
@@ -75,7 +78,7 @@ async fn test_error_propagation_stops_pipeline_happy() {
 /// @covers: general
 #[tokio::test]
 async fn test_error_context_mutation_before_error_happy() {
-    let steps: Vec<Arc<dyn Step<String, String>>> =
+    let steps: Vec<Arc<dyn Step<Ctx = String, ExecutionError = String>>> =
         vec![Arc::new(ErrorWithContext("before".to_string()))];
     let pipeline = PipelineSvc::build(PipelineBuilder {
         steps,
@@ -219,7 +222,7 @@ fn test_error_variants_distinct_edge() {
 // pipeline error wraps step cause correctly
 #[tokio::test]
 async fn test_pipeline_run_wraps_step_error_with_step_name() {
-    let steps: Vec<Arc<dyn Step<String, String>>> =
+    let steps: Vec<Arc<dyn Step<Ctx = String, ExecutionError = String>>> =
         vec![Arc::new(ErrorWithContext("x".to_string()))];
     let pipeline = PipelineSvc::build(PipelineBuilder {
         steps,

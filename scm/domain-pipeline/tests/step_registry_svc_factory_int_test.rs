@@ -12,11 +12,14 @@ use edge_domain_pipeline::{
 struct PassStep;
 
 #[async_trait::async_trait]
-impl<Ctx: Send, E: Send + 'static> Step<Ctx, E> for PassStep {
-    async fn execute(&self, _req: ContextMutationRequest<'_, Ctx>) -> Result<(), E> {
+impl Step for PassStep {
+    type Ctx = ();
+    type ExecutionError = String;
+
+    async fn execute(&self, _req: ContextMutationRequest<'_, ()>) -> Result<(), String> {
         Ok(())
     }
-    fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<E>> {
+    fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<String>> {
         Ok(StepNameResponse {
             name: "pass".to_string(),
         })

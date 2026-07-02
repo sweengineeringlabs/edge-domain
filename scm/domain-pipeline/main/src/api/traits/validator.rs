@@ -1,9 +1,9 @@
 //! [`Validator`] — validates pipeline configuration and execution constraints.
 
-use crate::api::types::{
+use crate::api::{
     BuilderValidationRequest, ConfigValidationRequest, EnablementRequest, EnablementResponse,
+    PipelineError,
 };
-use crate::api::PipelineError;
 
 /// Validates pipeline configuration and execution constraints.
 #[async_trait::async_trait]

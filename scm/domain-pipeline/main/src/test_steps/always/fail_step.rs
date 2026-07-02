@@ -1,28 +1,53 @@
 //! Test double: step that always fails.
 
+use std::marker::PhantomData;
+
 use crate::api::{ContextMutationRequest, Step, StepNameRequest, StepNameResponse};
 
 /// A step that always fails with a configurable error of type `E`.
 ///
 /// Used to test error handling and pipeline abort behavior.
-#[derive(Clone, Debug)]
-pub(crate) struct AlwaysFailStep<E> {
+pub(crate) struct AlwaysFailStep<Ctx, E> {
     error: E,
+    _phantom: PhantomData<fn(Ctx)>,
 }
 
-impl<E: Clone + Send + Sync + std::fmt::Debug + 'static> AlwaysFailStep<E> {
+impl<Ctx, E: Clone + Send + Sync + std::fmt::Debug + 'static> AlwaysFailStep<Ctx, E> {
     /// Create a step that always fails with the given error.
     pub(crate) fn new(error: E) -> Self {
-        Self { error }
+        Self {
+            error,
+            _phantom: PhantomData,
+        }
+    }
+}
+
+impl<Ctx, E: Clone> Clone for AlwaysFailStep<Ctx, E> {
+    fn clone(&self) -> Self {
+        Self {
+            error: self.error.clone(),
+            _phantom: PhantomData,
+        }
+    }
+}
+
+impl<Ctx, E: std::fmt::Debug> std::fmt::Debug for AlwaysFailStep<Ctx, E> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("AlwaysFailStep")
+            .field("error", &self.error)
+            .finish()
     }
 }
 
 const STEP_NAME: &str = "always-fail";
 
 #[async_trait::async_trait]
-impl<Ctx: Send, E: Clone + Send + Sync + std::fmt::Debug + 'static> Step<Ctx, E>
-    for AlwaysFailStep<E>
+impl<Ctx: Send, E: Clone + Send + Sync + std::fmt::Debug + 'static> Step
+    for AlwaysFailStep<Ctx, E>
 {
+    type Ctx = Ctx;
+    type ExecutionError = E;
+
     async fn execute(&self, _req: ContextMutationRequest<'_, Ctx>) -> Result<(), E> {
         Err(self.error.clone())
     }
@@ -71,8 +96,8 @@ mod tests {
 
     #[test]
     fn test_name_happy_returns_always_fail() {
-        let step = AlwaysFailStep::new("test".to_string());
-        let step_ref: &dyn crate::api::Step<i32, String> = &step;
+        let step: AlwaysFailStep<i32, String> = AlwaysFailStep::new("test".to_string());
+        let step_ref: &dyn crate::api::Step<Ctx = i32, ExecutionError = String> = &step;
         assert_eq!(
             step_ref.name(StepNameRequest).expect("must succeed").name,
             "always-fail"
@@ -102,7 +127,7 @@ mod tests {
 
     #[test]
     fn test_new_happy_stores_error() {
-        let step = AlwaysFailStep::new("test error".to_string());
+        let step: AlwaysFailStep<i32, String> = AlwaysFailStep::new("test error".to_string());
         assert_eq!(step.error, "test error");
     }
 }

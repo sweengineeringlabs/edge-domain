@@ -9,13 +9,16 @@ use edge_domain_pipeline::{
 struct IncrementStep;
 
 #[async_trait::async_trait]
-impl<E: Send + 'static> Step<Vec<i32>, E> for IncrementStep {
-    async fn execute(&self, req: ContextMutationRequest<'_, Vec<i32>>) -> Result<(), E> {
+impl Step for IncrementStep {
+    type Ctx = Vec<i32>;
+    type ExecutionError = String;
+
+    async fn execute(&self, req: ContextMutationRequest<'_, Vec<i32>>) -> Result<(), String> {
         req.ctx.push(req.ctx.len() as i32);
         Ok(())
     }
 
-    fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<E>> {
+    fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<String>> {
         Ok(StepNameResponse {
             name: "increment".to_string(),
         })
@@ -25,7 +28,10 @@ impl<E: Send + 'static> Step<Vec<i32>, E> for IncrementStep {
 struct FailStep;
 
 #[async_trait::async_trait]
-impl Step<Vec<i32>, String> for FailStep {
+impl Step for FailStep {
+    type Ctx = Vec<i32>;
+    type ExecutionError = String;
+
     async fn execute(&self, _req: ContextMutationRequest<'_, Vec<i32>>) -> Result<(), String> {
         Err("fail".to_string())
     }
@@ -41,7 +47,14 @@ impl Step<Vec<i32>, String> for FailStep {
 
 #[tokio::test]
 async fn test_abort_on_error_happy_stops_at_first_failure() {
-    let pipeline: Box<dyn edge_domain_pipeline::Pipeline<Vec<i32>, String>> = PipelineSvc::build(
+    let pipeline: Box<
+        dyn edge_domain_pipeline::Pipeline<
+            Ctx = Vec<i32>,
+            E = String,
+            Request = Vec<i32>,
+            Response = Vec<i32>,
+        >,
+    > = PipelineSvc::build(
         PipelineBuilder::new()
             .with(IncrementStep)
             .with(FailStep)
@@ -55,8 +68,14 @@ async fn test_abort_on_error_happy_stops_at_first_failure() {
 
 #[tokio::test]
 async fn test_abort_on_error_happy_propagates_error() {
-    let pipeline: Box<dyn edge_domain_pipeline::Pipeline<Vec<i32>, String>> =
-        PipelineSvc::build(PipelineBuilder::new().with(FailStep));
+    let pipeline: Box<
+        dyn edge_domain_pipeline::Pipeline<
+            Ctx = Vec<i32>,
+            E = String,
+            Request = Vec<i32>,
+            Response = Vec<i32>,
+        >,
+    > = PipelineSvc::build(PipelineBuilder::new().with(FailStep));
     let mut ctx: Vec<i32> = vec![];
     match pipeline.run(ContextMutationRequest { ctx: &mut ctx }).await {
         Err(PipelineError::StepFailed(e)) => assert_eq!(e.cause, "fail"),
@@ -66,7 +85,14 @@ async fn test_abort_on_error_happy_propagates_error() {
 
 #[tokio::test]
 async fn test_abort_on_error_edge_succeeds_with_no_errors() {
-    let pipeline: Box<dyn edge_domain_pipeline::Pipeline<Vec<i32>, String>> = PipelineSvc::build(
+    let pipeline: Box<
+        dyn edge_domain_pipeline::Pipeline<
+            Ctx = Vec<i32>,
+            E = String,
+            Request = Vec<i32>,
+            Response = Vec<i32>,
+        >,
+    > = PipelineSvc::build(
         PipelineBuilder::new()
             .with(IncrementStep)
             .with(IncrementStep),
@@ -83,7 +109,14 @@ async fn test_abort_on_error_edge_succeeds_with_no_errors() {
 
 #[tokio::test]
 async fn test_abort_on_error_false_happy_continues_past_failure() {
-    let pipeline: Box<dyn edge_domain_pipeline::Pipeline<Vec<i32>, String>> = PipelineSvc::build(
+    let pipeline: Box<
+        dyn edge_domain_pipeline::Pipeline<
+            Ctx = Vec<i32>,
+            E = String,
+            Request = Vec<i32>,
+            Response = Vec<i32>,
+        >,
+    > = PipelineSvc::build(
         PipelineBuilder::new()
             .abort_on_error(false)
             .with(IncrementStep)
@@ -101,7 +134,14 @@ async fn test_abort_on_error_false_happy_continues_past_failure() {
 
 #[tokio::test]
 async fn test_abort_on_error_false_error_all_steps_run_despite_failures() {
-    let pipeline: Box<dyn edge_domain_pipeline::Pipeline<Vec<i32>, String>> = PipelineSvc::build(
+    let pipeline: Box<
+        dyn edge_domain_pipeline::Pipeline<
+            Ctx = Vec<i32>,
+            E = String,
+            Request = Vec<i32>,
+            Response = Vec<i32>,
+        >,
+    > = PipelineSvc::build(
         PipelineBuilder::new()
             .abort_on_error(false)
             .with(FailStep)
@@ -123,8 +163,14 @@ async fn test_abort_on_error_false_error_all_steps_run_despite_failures() {
 
 #[tokio::test]
 async fn test_abort_on_error_false_edge_no_steps_returns_ok() {
-    let pipeline: Box<dyn edge_domain_pipeline::Pipeline<Vec<i32>, String>> =
-        PipelineSvc::build(PipelineBuilder::<Vec<i32>, String>::new().abort_on_error(false));
+    let pipeline: Box<
+        dyn edge_domain_pipeline::Pipeline<
+            Ctx = Vec<i32>,
+            E = String,
+            Request = Vec<i32>,
+            Response = Vec<i32>,
+        >,
+    > = PipelineSvc::build(PipelineBuilder::<Vec<i32>, String>::new().abort_on_error(false));
     let mut ctx: Vec<i32> = vec![];
     assert!(pipeline
         .run(ContextMutationRequest { ctx: &mut ctx })
@@ -137,7 +183,7 @@ async fn test_abort_on_error_false_edge_no_steps_returns_ok() {
 #[tokio::test]
 async fn test_abort_on_error_via_config_happy_stops_on_error() {
     use std::sync::Arc;
-    let steps: Vec<Arc<dyn Step<Vec<i32>, String>>> = vec![
+    let steps: Vec<Arc<dyn Step<Ctx = Vec<i32>, ExecutionError = String>>> = vec![
         Arc::new(IncrementStep),
         Arc::new(FailStep),
         Arc::new(IncrementStep),
@@ -162,7 +208,7 @@ async fn test_abort_on_error_via_config_happy_stops_on_error() {
 #[tokio::test]
 async fn test_abort_on_error_via_config_error_continues_when_false() {
     use std::sync::Arc;
-    let steps: Vec<Arc<dyn Step<Vec<i32>, String>>> = vec![
+    let steps: Vec<Arc<dyn Step<Ctx = Vec<i32>, ExecutionError = String>>> = vec![
         Arc::new(IncrementStep),
         Arc::new(FailStep),
         Arc::new(IncrementStep),
@@ -187,7 +233,7 @@ async fn test_abort_on_error_via_config_error_continues_when_false() {
 #[tokio::test]
 async fn test_abort_on_error_via_config_edge_all_pass() {
     use std::sync::Arc;
-    let steps: Vec<Arc<dyn Step<Vec<i32>, String>>> =
+    let steps: Vec<Arc<dyn Step<Ctx = Vec<i32>, ExecutionError = String>>> =
         vec![Arc::new(IncrementStep), Arc::new(IncrementStep)];
     let config = PipelineConfig::default();
     let pipeline = PipelineSvc::build(PipelineBuilder {

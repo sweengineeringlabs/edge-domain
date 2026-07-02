@@ -10,7 +10,10 @@ use std::time::Duration;
 struct IncrementStep(i32);
 
 #[async_trait::async_trait]
-impl Step<i32, String> for IncrementStep {
+impl Step for IncrementStep {
+    type Ctx = i32;
+    type ExecutionError = String;
+
     async fn execute(&self, req: ContextMutationRequest<'_, i32>) -> Result<(), String> {
         *req.ctx += self.0;
         println!("Incremented by {} → {}", self.0, *req.ctx);
@@ -26,7 +29,10 @@ impl Step<i32, String> for IncrementStep {
 struct MultiplyStep(i32);
 
 #[async_trait::async_trait]
-impl Step<i32, String> for MultiplyStep {
+impl Step for MultiplyStep {
+    type Ctx = i32;
+    type ExecutionError = String;
+
     async fn execute(&self, req: ContextMutationRequest<'_, i32>) -> Result<(), String> {
         *req.ctx *= self.0;
         println!("Multiplied by {} → {}", self.0, *req.ctx);
@@ -44,7 +50,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== Basic Pipeline Example ===\n");
 
     // Build a pipeline: 5 → +3 → *2 → 16
-    let steps: Vec<Arc<dyn Step<i32, String>>> =
+    let steps: Vec<Arc<dyn Step<Ctx = i32, ExecutionError = String>>> =
         vec![Arc::new(IncrementStep(3)), Arc::new(MultiplyStep(2))];
     let config = PipelineConfig {
         timeout_per_step: Some(Duration::from_secs(10)),

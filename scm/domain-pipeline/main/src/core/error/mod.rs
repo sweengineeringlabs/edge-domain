@@ -1,4 +1,4 @@
-//! stdlib trait implementations for api/ error types.
+//! `Display`/`Error` trait implementations for the shared api/error/ types.
 
-pub(crate) mod pipeline_error;
-pub(crate) mod step_error;
+mod pipeline_error;
+mod step_error;

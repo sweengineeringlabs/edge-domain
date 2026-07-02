@@ -1,6 +1,6 @@
 //! [`BuilderValidationRequest`] — request wrapping a pipeline builder to validate.
 
-use super::PipelineBuilder;
+use crate::api::PipelineBuilder;
 
 /// Request to validate the configuration embedded in a [`PipelineBuilder`].
 pub struct BuilderValidationRequest<'a, Ctx, E> {

@@ -1,6 +1,6 @@
 //! [`PipelineDefinition`] — TOML manifest declaring step composition and execution config.
 
-use crate::api::types::PipelineConfig;
+use crate::api::PipelineConfig;
 
 /// TOML manifest for a pipeline: execution configuration plus an ordered list of step names.
 ///

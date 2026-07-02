@@ -4,20 +4,23 @@
 use edge_domain_pipeline::{
     ContextMutationRequest, PipelineAssemblyRequest, PipelineDefinition, PipelineError, Step,
     StepNameRequest, StepNameResponse, StepRegistrationRequest, StepRegistry, StepRegistrySvc,
-    STEP_REGISTRY_SVC, STEP_SVC,
+    StepSvc, STEP_REGISTRY_SVC, STEP_SVC,
 };
 use std::sync::Arc;
 
 struct TestStep(i32);
 
 #[async_trait::async_trait]
-impl<E: Send + 'static> Step<i32, E> for TestStep {
-    async fn execute(&self, req: ContextMutationRequest<'_, i32>) -> Result<(), E> {
+impl Step for TestStep {
+    type Ctx = i32;
+    type ExecutionError = String;
+
+    async fn execute(&self, req: ContextMutationRequest<'_, i32>) -> Result<(), String> {
         *req.ctx += self.0;
         Ok(())
     }
 
-    fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<E>> {
+    fn name(&self, _req: StepNameRequest) -> Result<StepNameResponse, PipelineError<String>> {
         Ok(StepNameResponse {
             name: "test".to_string(),
         })
@@ -35,7 +38,7 @@ fn test_step_svc_constant() {
 /// @covers: general
 #[tokio::test]
 async fn test_step_svc_step_trait_happy_execute() {
-    let step: Arc<dyn Step<i32, String>> = Arc::new(TestStep(5));
+    let step: Arc<dyn Step<Ctx = i32, ExecutionError = String>> = Arc::new(TestStep(5));
     let mut ctx = 10;
     assert!(step
         .execute(ContextMutationRequest { ctx: &mut ctx })
@@ -47,7 +50,7 @@ async fn test_step_svc_step_trait_happy_execute() {
 /// @covers: general
 #[test]
 fn test_step_svc_step_trait_happy_name() {
-    let step: Box<dyn Step<i32, String>> = Box::new(TestStep(0));
+    let step: Box<dyn Step<Ctx = i32, ExecutionError = String>> = Box::new(TestStep(0));
     assert_eq!(
         step.name(StepNameRequest).expect("must succeed").name,
         "test"
@@ -57,8 +60,8 @@ fn test_step_svc_step_trait_happy_name() {
 /// @covers: general
 #[tokio::test]
 async fn test_step_svc_step_trait_edge_different_values() {
-    let step1: Arc<dyn Step<i32, String>> = Arc::new(TestStep(10));
-    let step2: Arc<dyn Step<i32, String>> = Arc::new(TestStep(-5));
+    let step1: Arc<dyn Step<Ctx = i32, ExecutionError = String>> = Arc::new(TestStep(10));
+    let step2: Arc<dyn Step<Ctx = i32, ExecutionError = String>> = Arc::new(TestStep(-5));
 
     let mut ctx1 = 0;
     let mut ctx2 = 0;
@@ -74,6 +77,79 @@ async fn test_step_svc_step_trait_edge_different_values() {
         .await
         .is_ok());
     assert_eq!(ctx2, -5);
+}
+
+// ── StepSvc::noop / noop_shared ───────────────────────────────────────────────
+// `noop`/`noop_shared` are infallible factory functions (no failure path exists),
+// so per the arch rule's documented exception two _edge tests replace the _error test.
+
+/// @covers: StepSvc::noop
+#[tokio::test]
+async fn test_noop_leaves_context_unchanged_happy() {
+    let step: Box<dyn Step<Ctx = i32, ExecutionError = String>> = StepSvc::noop();
+    let mut ctx = 42;
+    assert!(step
+        .execute(ContextMutationRequest { ctx: &mut ctx })
+        .await
+        .is_ok());
+    assert_eq!(ctx, 42, "noop must not mutate the context");
+}
+
+/// @covers: StepSvc::noop
+#[tokio::test]
+async fn test_noop_different_ctx_type_edge() {
+    let step: Box<dyn Step<Ctx = String, ExecutionError = String>> = StepSvc::noop();
+    let mut ctx = "unchanged".to_string();
+    assert!(step
+        .execute(ContextMutationRequest { ctx: &mut ctx })
+        .await
+        .is_ok());
+    assert_eq!(ctx, "unchanged", "noop must be context-type agnostic");
+}
+
+/// @covers: StepSvc::noop
+#[test]
+fn test_noop_reports_default_step_name_edge() {
+    let step: Box<dyn Step<Ctx = i32, ExecutionError = String>> = StepSvc::noop();
+    assert_eq!(
+        step.name(StepNameRequest).expect("must succeed").name,
+        "default-step"
+    );
+}
+
+/// @covers: StepSvc::noop_shared
+#[tokio::test]
+async fn test_noop_shared_leaves_context_unchanged_happy() {
+    let step: Arc<dyn Step<Ctx = i32, ExecutionError = String>> = StepSvc::noop_shared();
+    let mut ctx = 7;
+    assert!(step
+        .execute(ContextMutationRequest { ctx: &mut ctx })
+        .await
+        .is_ok());
+    assert_eq!(ctx, 7, "noop_shared must not mutate the context");
+}
+
+/// @covers: StepSvc::noop_shared
+#[test]
+fn test_noop_shared_clone_increments_strong_count_edge() {
+    let step: Arc<dyn Step<Ctx = i32, ExecutionError = String>> = StepSvc::noop_shared();
+    let before = Arc::strong_count(&step);
+    let cloned = Arc::clone(&step);
+    assert_eq!(
+        Arc::strong_count(&cloned),
+        before + 1,
+        "noop_shared must return a genuinely shareable Arc"
+    );
+}
+
+/// @covers: StepSvc::noop_shared
+#[test]
+fn test_noop_shared_reports_default_step_name_edge() {
+    let step: Arc<dyn Step<Ctx = i32, ExecutionError = String>> = StepSvc::noop_shared();
+    assert_eq!(
+        step.name(StepNameRequest).expect("must succeed").name,
+        "default-step"
+    );
 }
 
 // ── StepRegistry service facade ───────────────────────────────────────────────

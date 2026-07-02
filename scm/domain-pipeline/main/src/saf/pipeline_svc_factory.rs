@@ -7,7 +7,7 @@ use std::time::Duration;
 use edge_domain_event::EventBus;
 
 use crate::api::{Pipeline, PipelineBuilder, PipelineConfig, Step};
-use crate::core::pipeline::DefaultPipeline;
+use crate::core::traits::DefaultPipeline;
 
 /// Identifies the pipeline `Service` implementation at runtime.
 pub const PIPELINE_SVC: &str = "pipeline";
@@ -17,8 +17,9 @@ pub const PIPELINE_SVC_FACTORY: &str = "pipeline_svc_factory";
 
 /// Construction handle for [`Pipeline`](crate::api::Pipeline) instances.
 ///
-/// Consumers declare a dependency on `Box<dyn Pipeline<Ctx, E>>` (exclusive ownership)
-/// or `Arc<dyn Pipeline<Ctx, E>>` (shared ownership). The concrete implementation
+/// Consumers declare a dependency on `Box<dyn Pipeline<Ctx = Ctx, E = E, ..>>` (exclusive
+/// ownership) or `Arc<dyn Pipeline<Ctx = Ctx, E = E, ..>>` (shared ownership). The concrete
+/// implementation
 /// (`DefaultPipeline`) is never exposed.
 ///
 /// # Examples
@@ -39,7 +40,9 @@ pub struct PipelineSvc;
 
 impl PipelineSvc {
     /// Build a pipeline with exclusive ownership.
-    pub fn build<Ctx, E>(builder: PipelineBuilder<Ctx, E>) -> Box<dyn Pipeline<Ctx, E>>
+    pub fn build<Ctx, E>(
+        builder: PipelineBuilder<Ctx, E>,
+    ) -> Box<dyn Pipeline<Ctx = Ctx, E = E, Request = Ctx, Response = Ctx>>
     where
         Ctx: Send + 'static,
         E: fmt::Display + fmt::Debug + Send + 'static,
@@ -53,7 +56,9 @@ impl PipelineSvc {
     }
 
     /// Build a pipeline with shared ownership.
-    pub fn build_shared<Ctx, E>(builder: PipelineBuilder<Ctx, E>) -> Arc<dyn Pipeline<Ctx, E>>
+    pub fn build_shared<Ctx, E>(
+        builder: PipelineBuilder<Ctx, E>,
+    ) -> Arc<dyn Pipeline<Ctx = Ctx, E = E, Request = Ctx, Response = Ctx>>
     where
         Ctx: Send + 'static,
         E: fmt::Display + fmt::Debug + Send + 'static,
@@ -82,13 +87,13 @@ where
     }
 
     /// Append a step to the execution sequence.
-    pub fn with<S: Step<Ctx, E> + 'static>(mut self, step: S) -> Self {
+    pub fn with<S: Step<Ctx = Ctx, ExecutionError = E> + 'static>(mut self, step: S) -> Self {
         self.steps.push(Arc::new(step));
         self
     }
 
     /// Append a shared step (useful when the same step is reused across pipelines).
-    pub fn with_shared(mut self, step: Arc<dyn Step<Ctx, E>>) -> Self {
+    pub fn with_shared(mut self, step: Arc<dyn Step<Ctx = Ctx, ExecutionError = E>>) -> Self {
         self.steps.push(step);
         self
     }

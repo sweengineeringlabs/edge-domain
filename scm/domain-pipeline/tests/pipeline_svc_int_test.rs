@@ -10,8 +10,11 @@ use std::time::Duration;
 struct PassStep;
 
 #[async_trait::async_trait]
-impl<E: Send + 'static> Step<(), E> for PassStep {
-    async fn execute(&self, _req: ContextMutationRequest<'_, ()>) -> Result<(), E> {
+impl Step for PassStep {
+    type Ctx = ();
+    type ExecutionError = String;
+
+    async fn execute(&self, _req: ContextMutationRequest<'_, ()>) -> Result<(), String> {
         Ok(())
     }
 }

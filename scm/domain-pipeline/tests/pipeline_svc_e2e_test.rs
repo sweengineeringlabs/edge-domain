@@ -11,15 +11,18 @@ use std::sync::Arc;
 struct PassStep;
 
 #[async_trait::async_trait]
-impl<Ctx: Send, E: Send + 'static> Step<Ctx, E> for PassStep {
-    async fn execute(&self, _req: ContextMutationRequest<'_, Ctx>) -> Result<(), E> {
+impl Step for PassStep {
+    type Ctx = i32;
+    type ExecutionError = String;
+
+    async fn execute(&self, _req: ContextMutationRequest<'_, i32>) -> Result<(), String> {
         Ok(())
     }
 }
 
 #[test]
 fn test_create_pipeline_happy_returns_pipeline() {
-    let steps: Vec<Arc<dyn Step<i32, String>>> = vec![Arc::new(PassStep)];
+    let steps: Vec<Arc<dyn Step<Ctx = i32, ExecutionError = String>>> = vec![Arc::new(PassStep)];
     let pipeline = PipelineSvc::build(PipelineBuilder {
         steps,
         config: PipelineConfig::default(),
@@ -36,7 +39,7 @@ fn test_create_pipeline_happy_returns_pipeline() {
 
 #[test]
 fn test_create_pipeline_happy_empty_steps() {
-    let steps: Vec<Arc<dyn Step<i32, String>>> = vec![];
+    let steps: Vec<Arc<dyn Step<Ctx = i32, ExecutionError = String>>> = vec![];
     let pipeline = PipelineSvc::build(PipelineBuilder {
         steps,
         config: PipelineConfig::default(),
@@ -91,7 +94,8 @@ fn test_create_pipeline_with_config_happy_default_config() {
 
 #[tokio::test]
 async fn test_create_pipeline_happy_executes() {
-    let steps: Vec<Arc<dyn Step<i32, String>>> = vec![Arc::new(PassStep), Arc::new(PassStep)];
+    let steps: Vec<Arc<dyn Step<Ctx = i32, ExecutionError = String>>> =
+        vec![Arc::new(PassStep), Arc::new(PassStep)];
     let pipeline = PipelineSvc::build(PipelineBuilder {
         steps,
         config: PipelineConfig::default(),
@@ -106,7 +110,7 @@ async fn test_create_pipeline_happy_executes() {
 
 #[tokio::test]
 async fn test_create_pipeline_with_config_happy_executes() {
-    let steps: Vec<Arc<dyn Step<i32, String>>> = vec![Arc::new(PassStep)];
+    let steps: Vec<Arc<dyn Step<Ctx = i32, ExecutionError = String>>> = vec![Arc::new(PassStep)];
     let pipeline = PipelineSvc::build(PipelineBuilder {
         steps,
         config: PipelineConfig::default(),

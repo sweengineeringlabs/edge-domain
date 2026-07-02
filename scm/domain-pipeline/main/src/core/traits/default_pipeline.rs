@@ -19,13 +19,16 @@ use crate::api::{
 /// Executes a sequence of steps in order, passing context through each.
 #[derive(Clone)]
 pub(crate) struct DefaultPipeline<Ctx, E> {
-    steps: Vec<Arc<dyn Step<Ctx, E>>>,
+    steps: Vec<Arc<dyn Step<Ctx = Ctx, ExecutionError = E>>>,
     config: PipelineConfig,
     event_bus: Option<Arc<dyn EventBus>>,
 }
 
 impl<Ctx: Send + 'static, E: fmt::Display + fmt::Debug + Send + 'static> DefaultPipeline<Ctx, E> {
-    pub(crate) fn with_config(steps: Vec<Arc<dyn Step<Ctx, E>>>, config: PipelineConfig) -> Self {
+    pub(crate) fn with_config(
+        steps: Vec<Arc<dyn Step<Ctx = Ctx, ExecutionError = E>>>,
+        config: PipelineConfig,
+    ) -> Self {
         Self {
             steps,
             config,
@@ -75,9 +78,12 @@ impl<Ctx: Send + 'static, E: fmt::Display + fmt::Debug + Send + 'static> Service
 }
 
 #[async_trait::async_trait]
-impl<Ctx: Send + 'static, E: fmt::Display + fmt::Debug + Send + 'static> Pipeline<Ctx, E>
+impl<Ctx: Send + 'static, E: fmt::Display + fmt::Debug + Send + 'static> Pipeline
     for DefaultPipeline<Ctx, E>
 {
+    type Ctx = Ctx;
+    type E = E;
+
     async fn run(&self, req: ContextMutationRequest<'_, Ctx>) -> Result<(), PipelineError<E>> {
         let ctx = req.ctx;
         for step in &self.steps {

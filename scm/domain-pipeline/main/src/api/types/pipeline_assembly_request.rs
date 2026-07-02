@@ -1,6 +1,6 @@
 //! [`PipelineAssemblyRequest`] — request to assemble a pipeline from a definition.
 
-use super::PipelineDefinition;
+use crate::api::PipelineDefinition;
 
 /// Request to assemble a pipeline by resolving each step name in `definition.steps`.
 pub struct PipelineAssemblyRequest {

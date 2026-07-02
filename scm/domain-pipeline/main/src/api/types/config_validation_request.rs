@@ -1,6 +1,6 @@
 //! [`ConfigValidationRequest`] — request wrapping a pipeline configuration to validate.
 
-use super::PipelineConfig;
+use crate::api::PipelineConfig;
 
 /// Request to validate a pipeline configuration.
 pub struct ConfigValidationRequest {

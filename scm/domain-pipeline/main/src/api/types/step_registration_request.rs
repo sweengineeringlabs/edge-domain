@@ -11,5 +11,5 @@ pub struct StepRegistrationRequest<Ctx, E> {
     /// Name the step is registered under.
     pub name: String,
     /// The shared step instance.
-    pub step: Arc<dyn Step<Ctx, E>>,
+    pub step: Arc<dyn Step<Ctx = Ctx, ExecutionError = E>>,
 }

@@ -1,10 +1,9 @@
 //! [`StepRegistry`] — maps step names to shared step instances for TOML-driven assembly.
 
-use crate::api::types::{
-    PipelineAssemblyRequest, PipelineAssemblyResponse, StepFailureRequest, StepFailureResponse,
-    StepRegistrationRequest,
+use crate::api::{
+    PipelineAssemblyRequest, PipelineAssemblyResponse, PipelineError, StepFailureRequest,
+    StepFailureResponse, StepRegistrationRequest,
 };
-use crate::api::PipelineError;
 
 /// Maps step names to shared step instances for a given context and error type.
 ///

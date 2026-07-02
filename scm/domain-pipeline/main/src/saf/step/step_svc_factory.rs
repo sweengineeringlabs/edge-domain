@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use crate::api::Step;
-use crate::core::step::DefaultStep;
+use crate::core::traits::DefaultStep;
 
 /// Identifies the step `Service` implementation at runtime.
 pub const STEP_SVC: &str = "step";
@@ -13,9 +13,9 @@ pub const STEP_SVC_FACTORY: &str = "step_svc_factory";
 
 /// Construction handle for [`Step`](crate::api::Step) instances.
 ///
-/// Consumers declare a dependency on `Box<dyn Step<Ctx, E>>` (exclusive ownership) or
-/// `Arc<dyn Step<Ctx, E>>` (shared ownership). The concrete implementation
-/// (`DefaultStep`) is never exposed.
+/// Consumers declare a dependency on `Box<dyn Step<Ctx = Ctx, ExecutionError = E>>` (exclusive
+/// ownership) or `Arc<dyn Step<Ctx = Ctx, ExecutionError = E>>` (shared ownership). The concrete
+/// implementation (`DefaultStep`) is never exposed.
 pub struct StepSvc;
 
 impl StepSvc {
@@ -24,20 +24,20 @@ impl StepSvc {
     ///
     /// Useful as a placeholder when a pipeline position needs a step but no work is
     /// required.
-    pub fn noop<Ctx, E>() -> Box<dyn Step<Ctx, E>>
+    pub fn noop<Ctx, E>() -> Box<dyn Step<Ctx = Ctx, ExecutionError = E>>
     where
         Ctx: Send + 'static,
         E: Send + 'static,
     {
-        Box::new(DefaultStep)
+        Box::new(DefaultStep::new())
     }
 
     /// Build a no-op step with shared ownership.
-    pub fn noop_shared<Ctx, E>() -> Arc<dyn Step<Ctx, E>>
+    pub fn noop_shared<Ctx, E>() -> Arc<dyn Step<Ctx = Ctx, ExecutionError = E>>
     where
         Ctx: Send + 'static,
         E: Send + 'static,
     {
-        Arc::new(DefaultStep)
+        Arc::new(DefaultStep::new())
     }
 }
