@@ -72,7 +72,7 @@ edge-domain-service     = { path = "../domain-service", optional = true }
 edge-domain-repository  = { path = "../domain-repository", optional = true }
 edge-domain-handler     = { path = "../domain-handler", optional = true }
 edge-domain-event       = { path = "../domain-event", optional = true }
-edge-domain-pipeline    = { git = "https://github.com/sweengineeringlabs/edge-pipeline.git", tag = "v0.1.0", optional = true }
+edge-domain-pipeline    = { git = "https://github.com/sweengineeringlabs/edge-pipeline.git", tag = "v0.1.1", optional = true }
 edge-domain-projection  = { path = "../domain-projection", optional = true }
 edge-domain-saga        = { path = "../domain-saga", optional = true }
 edge-domain-registry    = { path = "../domain-registry", optional = true }
