@@ -1,6 +1,7 @@
 //! Reasoning implementations.
 
 mod default_reasoning_handler;
+mod default_reasoning_step;
 mod linear_reasoning;
 mod pattern;
 mod reasoning_chain;
@@ -14,3 +15,4 @@ mod step;
 mod thinking;
 
 pub(crate) use default_reasoning_handler::DefaultReasoningHandler;
+pub(crate) use default_reasoning_step::DefaultReasoningStep;

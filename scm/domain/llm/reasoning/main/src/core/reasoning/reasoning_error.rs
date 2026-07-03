@@ -1,5 +1,7 @@
 //! Behaviour for [`ReasoningError`].
 
+use std::fmt;
+
 use crate::api::ReasoningError;
 
 impl ReasoningError {
@@ -52,6 +54,14 @@ impl ReasoningError {
     }
 }
 
+impl fmt::Display for ReasoningError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.message())
+    }
+}
+
+impl std::error::Error for ReasoningError {}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -83,5 +93,20 @@ mod tests {
     #[test]
     fn test_labeled_formats_with_colon_separator() {
         assert_eq!(ReasoningError::labeled("Label", "detail"), "Label: detail");
+    }
+
+    /// @covers: fmt
+    #[test]
+    fn test_display_matches_message_happy() {
+        let err = ReasoningError::Timeout { timeout_secs: 5 };
+        assert_eq!(err.to_string(), err.message());
+    }
+
+    /// @covers: fmt
+    #[test]
+    fn test_reasoning_error_usable_as_std_error_trait_object_edge() {
+        let err = ReasoningError::InvalidState("bad".to_string());
+        let as_error: &dyn std::error::Error = &err;
+        assert_eq!(as_error.to_string(), err.message());
     }
 }

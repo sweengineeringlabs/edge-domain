@@ -1,6 +1,11 @@
 //! `Reasoning` impl for `LinearReasoning`.
 
+use std::sync::Arc;
+
 use async_trait::async_trait;
+use edge_domain_pipeline::{
+    ContextMutationRequest, PipelineBuilder, PipelineConfig, PipelineError, PipelineSvc, Step,
+};
 
 use crate::api::Reasoning;
 use crate::api::ReasoningError;
@@ -11,6 +16,7 @@ use crate::api::{
     StepEvaluationResponse, StepResult, SupportedPatternsRequest, SupportedPatternsResponse,
     ThinkingProcess,
 };
+use crate::core::reasoning::DefaultReasoningStep;
 
 impl LinearReasoning {
     /// Construct a reasoner bound to the given pattern.
@@ -42,17 +48,26 @@ impl Reasoning for LinearReasoning {
         }
         let mut process =
             ThinkingProcess::new(format!("proc-{}", req.pattern.as_str()), req.problem.into());
-        let count = req.pattern.expected_step_count();
-        for index in 0..count {
-            let step = ReasoningStep::new(
-                index as usize,
-                format!("step {index} reasoning about: {}", req.problem),
-                "analysis".to_string(),
-            )
-            .with_confidence(0.9)
-            .with_tokens(1);
-            process.add_step(step);
-        }
+
+        let reasoner: Arc<dyn Reasoning> = Arc::new(self.clone());
+        let step: Arc<dyn Step<Ctx = ThinkingProcess, ExecutionError = ReasoningError>> =
+            Arc::new(DefaultReasoningStep { reasoner });
+        let steps = vec![step; req.pattern.expected_step_count() as usize];
+
+        let pipeline = PipelineSvc::build(PipelineBuilder {
+            steps,
+            config: PipelineConfig::default(),
+            event_bus: None,
+        });
+
+        pipeline
+            .run(ContextMutationRequest { ctx: &mut process })
+            .await
+            .map_err(|e| match e {
+                PipelineError::StepFailed(step_err) => step_err.cause,
+                other => ReasoningError::Unknown(other.to_string()),
+            })?;
+
         Ok(ReasonResponse {
             process: Box::new(process.complete(format!("conclusion for: {}", req.problem))),
         })
@@ -202,5 +217,31 @@ mod tests {
     #[test]
     fn test_pattern_returns_configured_pattern() {
         assert_eq!(reasoner().pattern(), ReasoningPattern::ChainOfThought);
+    }
+
+    /// @covers: reason
+    #[test]
+    fn test_reason_step_count_matches_non_default_pattern_happy() {
+        let response = block_on(LinearReasoning::new(ReasoningPattern::FewShot).reason(
+            ReasonRequest {
+                problem: "solve x",
+                pattern: ReasoningPattern::FewShot,
+            },
+        ))
+        .expect("reasoning should succeed");
+        assert_eq!(response.process.step_count(), 2);
+    }
+
+    /// @covers: reason
+    #[test]
+    fn test_reason_step_indices_are_sequential_edge() {
+        let response = block_on(reasoner().reason(ReasonRequest {
+            problem: "solve x",
+            pattern: ReasoningPattern::ChainOfThought,
+        }))
+        .expect("reasoning should succeed");
+        for (i, s) in response.process.steps.iter().enumerate() {
+            assert_eq!(s.index, i);
+        }
     }
 }

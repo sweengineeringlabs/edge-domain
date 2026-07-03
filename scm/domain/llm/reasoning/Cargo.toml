@@ -23,6 +23,7 @@ async-trait.workspace = true
 serde.workspace = true
 edge-domain-handler.workspace  = true
 edge-domain-observer.workspace  = true
+edge-domain-pipeline.workspace  = true
 
 [dev-dependencies]
 serde_json.workspace = true
