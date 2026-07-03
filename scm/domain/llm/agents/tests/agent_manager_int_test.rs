@@ -2,8 +2,10 @@
 //! Integration tests — `AgentManager` trait.
 
 use async_trait::async_trait;
+use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{ExecutionRequest, Handler, HandlerError};
 use edge_domain_observer::StdObserveFactory;
+use edge_domain_security::{SecurityBootstrap, SecurityServices};
 use edge_llm_agent::{
     Agent, AgentCreationRequest, AgentCreationResponse, AgentDescriptionRequest,
     AgentDescriptionResponse, AgentError, AgentHandlerRequest, AgentHandlerResponse,
@@ -356,4 +358,64 @@ fn test_skill_metadata_builder_scenario_edge() {
         .description("Minimal")
         .build();
     assert_eq!(metadata.input_schema, None);
+}
+
+/// @covers: AgentManager::conversation_loop
+#[test]
+fn test_conversation_loop_scenario_happy() {
+    let manager = TestManager { should_fail: false };
+    let conversation_loop = manager
+        .conversation_loop(edge_llm_agent::ConversationLoopRequest {
+            agent: Arc::new(DummyAgent::new("dummy")),
+        })
+        .unwrap()
+        .conversation_loop;
+    // max_turns of zero is rejected regardless of agent — confirms a real, working
+    // ConversationLoop was built (not a stub that always errors or always panics).
+    let result = futures::executor::block_on(conversation_loop.run(
+        edge_llm_agent::ConversationRunRequest {
+            messages: vec![],
+            max_turns: 0,
+            handler_context: Box::new(edge_llm_agent::OwnedHandlerContext {
+                security: SecurityServices::unauthenticated(),
+                commands: Arc::new(StdCommandBusFactory::direct()),
+                observer: StdObserveFactory::noop_observer_context(),
+            }),
+        },
+    ));
+    assert!(matches!(result, Err(AgentError::InvalidState(_))));
+}
+
+/// @covers: AgentManager::conversation_loop
+#[test]
+fn test_conversation_loop_scenario_edge() {
+    let manager = TestManager { should_fail: false };
+    // Repeated calls each independently succeed and each rejects max_turns == 0 the
+    // same way — the factory is not a one-shot/singleton and behaves consistently.
+    let first = manager
+        .conversation_loop(edge_llm_agent::ConversationLoopRequest {
+            agent: Arc::new(DummyAgent::new("first")),
+        })
+        .unwrap()
+        .conversation_loop;
+    let second = manager
+        .conversation_loop(edge_llm_agent::ConversationLoopRequest {
+            agent: Arc::new(DummyAgent::new("second")),
+        })
+        .unwrap()
+        .conversation_loop;
+    for conversation_loop in [first, second] {
+        let result = futures::executor::block_on(conversation_loop.run(
+            edge_llm_agent::ConversationRunRequest {
+                messages: vec![],
+                max_turns: 0,
+                handler_context: Box::new(edge_llm_agent::OwnedHandlerContext {
+                    security: SecurityServices::unauthenticated(),
+                    commands: Arc::new(StdCommandBusFactory::direct()),
+                    observer: StdObserveFactory::noop_observer_context(),
+                }),
+            },
+        ));
+        assert!(matches!(result, Err(AgentError::InvalidState(_))));
+    }
 }

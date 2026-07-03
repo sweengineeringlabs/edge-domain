@@ -3,8 +3,9 @@
 use crate::api::types::{
     AgentCreationRequest, AgentCreationResponse, AgentHandlerRequest, AgentHandlerResponse,
     AgentLoadRequest, AgentLoadResponse, AgentLookupRequest, AgentLookupResponse,
-    AgentMetadataBuilderRequest, AgentMetadataBuilderResponse, ListAgentIdsRequest,
-    ListAgentIdsResponse, SkillMetadataBuilderRequest, SkillMetadataBuilderResponse,
+    AgentMetadataBuilderRequest, AgentMetadataBuilderResponse, ConversationLoopRequest,
+    ConversationLoopResponse, ListAgentIdsRequest, ListAgentIdsResponse,
+    SkillMetadataBuilderRequest, SkillMetadataBuilderResponse,
 };
 use crate::api::AgentError;
 
@@ -51,6 +52,19 @@ pub trait AgentManager: Send + Sync {
     ) -> Result<SkillMetadataBuilderResponse, AgentError> {
         Ok(SkillMetadataBuilderResponse {
             builder: Box::new(crate::api::types::SkillMetadataBuilder::new()),
+        })
+    }
+
+    /// Build a [`ConversationLoop`](crate::api::traits::ConversationLoop) that drives
+    /// `req.agent` through a bounded multi-turn conversation.
+    fn conversation_loop(
+        &self,
+        req: ConversationLoopRequest,
+    ) -> Result<ConversationLoopResponse, AgentError> {
+        Ok(ConversationLoopResponse {
+            conversation_loop: Box::new(crate::api::types::BoundedConversationLoop {
+                agent: req.agent,
+            }),
         })
     }
 }

@@ -27,10 +27,13 @@ edge-domain-handler  = { workspace = true }
 edge-domain-observer  = { workspace = true }
 edge-domain-registry = { workspace = true }
 edge-domain-security = { workspace = true }
+edge-domain-pipeline = { workspace = true }
+edge-llm-complete = { workspace = true }
 edge-llm-provider = { workspace = true }
 
 [dev-dependencies]
 futures.workspace = true
+tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread"] }
 
 [lints.rust]
 unsafe_code = "deny"

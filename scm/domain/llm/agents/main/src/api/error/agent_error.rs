@@ -24,4 +24,11 @@ pub enum AgentError {
     /// The agent is not in a valid state for the requested operation.
     #[error("Agent is not in a valid state for this operation: {0}")]
     InvalidState(String),
+
+    /// A conversation loop reached `max_turns` without a terminal finish reason.
+    #[error("turn limit exceeded: {max_turns} turns without a terminal finish reason")]
+    TurnLimitExceeded {
+        /// The configured turn limit that was reached.
+        max_turns: u32,
+    },
 }
