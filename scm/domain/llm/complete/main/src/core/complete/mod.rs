@@ -1,3 +1,4 @@
+mod bounded_tool_call_loop;
 mod cache_control;
 mod complete_error;
 mod completion;
@@ -12,3 +13,5 @@ mod std_complete_factory;
 mod stream;
 mod token_usage;
 mod tool;
+mod tool_call_batch;
+mod tool_call_step;

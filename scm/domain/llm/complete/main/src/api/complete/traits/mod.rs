@@ -10,7 +10,9 @@ pub mod content_flattener;
 pub mod model_ops;
 pub mod processor;
 pub mod stream_ops;
+pub mod tool_call_loop;
 pub mod tool_ops;
+pub mod tool_result_batch;
 pub mod validator;
 
 pub use cacheable_message::CacheableMessage;
@@ -23,5 +25,7 @@ pub use content_flattener::ContentFlattener;
 pub use model_ops::ModelOps;
 pub use processor::Processor;
 pub use stream_ops::StreamOps;
+pub use tool_call_loop::ToolCallLoop;
 pub use tool_ops::ToolOps;
+pub use tool_result_batch::ToolResultBatch;
 pub use validator::Validator;

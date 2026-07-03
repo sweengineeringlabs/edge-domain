@@ -1,13 +1,16 @@
 //! `CompleteBootstrap` — constructor contract for the default complete primitives.
 
+use std::sync::Arc;
+
 use serde_json::Value;
 
 use crate::api::complete::errors::CompleteError;
+use crate::api::complete::traits::{Completer, ToolCallLoop, ToolOps};
 use crate::api::complete::types::{
-    CacheControl, CompleteBootstrapNameRequest, CompleteBootstrapNameResponse, CompletionRequest,
-    ContentPart, EchoCompleter, FinishReason, ImageUrl, Message, MessageContent, ModelInfo,
-    NoopCompleter, Role, StdCompleteFactory, StreamChunk, StreamDelta, TokenUsage, ToolCall,
-    ToolCallDelta, ToolChoice, ToolDefinition,
+    BoundedToolCallLoop, CacheControl, CompleteBootstrapNameRequest, CompleteBootstrapNameResponse,
+    CompletionRequest, ContentPart, EchoCompleter, FinishReason, ImageUrl, Message, MessageContent,
+    ModelInfo, NoopCompleter, Role, StdCompleteFactory, StreamChunk, StreamDelta, TokenUsage,
+    ToolCall, ToolCallDelta, ToolChoice, ToolDefinition,
 };
 
 /// Factory for the standard reference implementations and domain value constructors.
@@ -187,6 +190,20 @@ pub trait CompleteBootstrap {
         Self: Sized,
     {
         ToolChoice::Auto
+    }
+
+    /// Build a [`ToolCallLoop`] backed by the given [`Completer`] and [`ToolOps`].
+    fn tool_call_loop(
+        completer: Arc<dyn Completer>,
+        tool_ops: Arc<dyn ToolOps>,
+    ) -> Box<dyn ToolCallLoop>
+    where
+        Self: Sized,
+    {
+        Box::new(BoundedToolCallLoop {
+            completer,
+            tool_ops,
+        })
     }
 
     /// Return the standard factory implementation.

@@ -1,5 +1,6 @@
 //! Complete domain value types.
 
+pub mod bounded_tool_call_loop;
 pub mod cache_control;
 pub mod completion_request;
 pub mod completion_response;
@@ -49,12 +50,16 @@ pub mod model_support_response;
 pub mod processing_request;
 pub mod supported_models_request;
 pub mod supported_models_response;
+pub mod tool_call_loop_request;
+pub mod tool_call_loop_response;
 pub mod tool_choice_preference_request;
 pub mod tool_choice_preference_response;
 pub mod tool_execution_request;
 pub mod tool_execution_response;
+pub mod tool_record_request;
 pub mod validation_request;
 
+pub use bounded_tool_call_loop::BoundedToolCallLoop;
 pub use cache_control::CacheControl;
 pub use completion_request::CompletionRequest;
 pub use completion_response::CompletionResponse;
@@ -104,8 +109,11 @@ pub use model_support_response::ModelSupportResponse;
 pub use processing_request::ProcessingRequest;
 pub use supported_models_request::SupportedModelsRequest;
 pub use supported_models_response::SupportedModelsResponse;
+pub use tool_call_loop_request::ToolCallLoopRequest;
+pub use tool_call_loop_response::ToolCallLoopResponse;
 pub use tool_choice_preference_request::ToolChoicePreferenceRequest;
 pub use tool_choice_preference_response::ToolChoicePreferenceResponse;
 pub use tool_execution_request::ToolExecutionRequest;
 pub use tool_execution_response::ToolExecutionResponse;
+pub use tool_record_request::ToolRecordRequest;
 pub use validation_request::ValidationRequest;

@@ -8,13 +8,15 @@ pub use complete::{
     FlattenRequest, FlattenResponse, ListModelsRequest, ListModelsResponse, MarkEphemeralRequest,
     ModelAvailabilityRequest, ModelAvailabilityResponse, ModelInfoRequest, ModelInfoResponse,
     ModelSupportRequest, ModelSupportResponse, ProcessingRequest, SupportedModelsRequest,
-    SupportedModelsResponse, ToolChoicePreferenceRequest, ToolChoicePreferenceResponse,
-    ToolExecutionRequest, ToolExecutionResponse, ValidationRequest,
+    SupportedModelsResponse, ToolCallLoopRequest, ToolCallLoopResponse,
+    ToolChoicePreferenceRequest, ToolChoicePreferenceResponse, ToolExecutionRequest,
+    ToolExecutionResponse, ToolRecordRequest, ValidationRequest,
 };
 pub use complete::{
-    CacheControl, CacheableMessage, CompleteBootstrap, CompleteError, CompleteOps, Completer,
-    CompleterHandler, CompletionRequest, CompletionResponse, CompletionStream, ContentFlattener,
-    ContentPart, EchoCompleter, FinishReason, ImageUrl, Message, MessageContent, ModelInfo,
-    ModelOps, NoopCompleter, Processor, Role, StdCompleteFactory, StreamChunk, StreamDelta,
-    StreamOps, TokenUsage, ToolCall, ToolCallDelta, ToolChoice, ToolDefinition, ToolOps, Validator,
+    BoundedToolCallLoop, CacheControl, CacheableMessage, CompleteBootstrap, CompleteError,
+    CompleteOps, Completer, CompleterHandler, CompletionRequest, CompletionResponse,
+    CompletionStream, ContentFlattener, ContentPart, EchoCompleter, FinishReason, ImageUrl,
+    Message, MessageContent, ModelInfo, ModelOps, NoopCompleter, Processor, Role,
+    StdCompleteFactory, StreamChunk, StreamDelta, StreamOps, TokenUsage, ToolCall, ToolCallDelta,
+    ToolCallLoop, ToolChoice, ToolDefinition, ToolOps, ToolResultBatch, Validator,
 };
