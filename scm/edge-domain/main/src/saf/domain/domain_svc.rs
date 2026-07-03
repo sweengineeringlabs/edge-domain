@@ -69,9 +69,9 @@ use crate::api::Saga;
 use crate::api::SagaStore;
 
 #[cfg(feature = "service")]
-use crate::api::ServiceRegistryTrait;
+use crate::api::ServiceRegistry;
 #[cfg(feature = "service")]
-use edge_domain_service::ServiceRegistryBootstrap;
+use edge_domain_service::StdServiceRegistryFactory;
 
 #[cfg(feature = "snapshot")]
 use crate::api::Snapshot;
@@ -101,7 +101,9 @@ impl Domain {
     where
         T: Clone + Send + 'static,
     {
-        Arc::new(EchoHandler::new(id, pattern))
+        let id = id.into();
+        let pattern = pattern.into();
+        Arc::new(EchoHandler::from((id.as_str(), pattern.as_str())))
     }
 
     /// Construct a fresh empty handler registry.
@@ -113,9 +115,10 @@ impl Domain {
     ///
     /// ```rust,no_run
     /// use edge_domain::Domain;
+    /// use edge_domain_handler::EmptinessRequest;
     ///
     /// let registry = Domain::new_handler_registry::<String, String>();
-    /// assert!(registry.is_empty());
+    /// assert!(registry.is_empty(EmptinessRequest).unwrap().empty);
     /// ```
     #[cfg(feature = "handler")]
     pub fn new_handler_registry<Req, Resp>(
@@ -124,7 +127,7 @@ impl Domain {
         Req: Send + 'static,
         Resp: Send + 'static,
     {
-        Arc::new(InProcessHandlerRegistry::new())
+        Arc::new(InProcessHandlerRegistry::default())
     }
 
     /// Construct a paired `(T, U)` from a shared backend `Arc<B>`.
@@ -146,12 +149,12 @@ impl Domain {
     /// Construct a fresh empty [`ServiceRegistry`].
     #[cfg(feature = "service")]
     pub fn new_service_registry<Request, Response>(
-    ) -> Arc<dyn ServiceRegistryTrait<Request = Request, Response = Response>>
+    ) -> Arc<dyn ServiceRegistry<Request = Request, Response = Response>>
     where
         Request: Send + 'static,
         Response: Send + 'static,
     {
-        let r = <() as ServiceRegistryBootstrap>::new_registry::<Request, Response>();
+        let r = StdServiceRegistryFactory::new_registry::<Request, Response>();
         Arc::new(r)
     }
 

@@ -13,8 +13,12 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use edge_domain::{Domain, Handler, HandlerContext, HandlerError};
+use edge_domain_handler::{
+    DeregisterHandlerRequest, EmptinessRequest, ExecutionRequest, HandlerLookupRequest, IdRequest,
+    IdResponse, ListIdsRequest, RegisterHandlerRequest,
+};
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::SecurityContext;
+use edge_domain_security::{SecurityBootstrap, SecurityServices};
 
 struct GreetHandler;
 
@@ -23,51 +27,82 @@ impl Handler for GreetHandler {
     type Request = String;
     type Response = String;
 
-    fn id(&self) -> &str {
-        "greet"
-    }
-    fn pattern(&self) -> &str {
-        "direct"
+    fn id(&self, _req: IdRequest) -> Result<IdResponse, HandlerError> {
+        Ok(IdResponse {
+            id: "greet".to_string(),
+        })
     }
 
-    async fn execute(&self, req: String, _ctx: HandlerContext<'_>) -> Result<String, HandlerError> {
-        if req.is_empty() {
+    async fn execute(&self, req: ExecutionRequest<'_, String>) -> Result<String, HandlerError> {
+        if req.req.is_empty() {
             return Err(HandlerError::InvalidRequest(
                 "name must not be empty".into(),
             ));
         }
-        Ok(format!("Hello, {req}!"))
+        Ok(format!("Hello, {}!", req.req))
     }
 }
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let registry = Domain::new_handler_registry::<String, String>();
-    assert!(registry.is_empty());
+    assert!(registry.is_empty(EmptinessRequest)?.empty);
 
-    registry.register(Arc::new(GreetHandler));
-    println!("registered:   {:?}", registry.list_ids());
+    registry.register(RegisterHandlerRequest::new(Arc::new(GreetHandler)))?;
+    println!("registered:   {:?}", registry.list_ids(ListIdsRequest)?.ids);
 
-    let handler = registry.get("greet").expect("handler must be present");
-    let security = SecurityContext::unauthenticated();
+    let handler = registry
+        .get(HandlerLookupRequest {
+            id: "greet".to_string(),
+        })?
+        .handler
+        .expect("handler must be present");
+    let security = SecurityServices::unauthenticated();
     let bus = Domain::direct_command_bus();
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = HandlerContext::new(&security, bus.as_ref(), observer.as_ref());
+    let ctx = HandlerContext {
+        security: &security,
+        commands: bus.as_ref(),
+        observer: observer.as_ref(),
+    };
 
-    let resp = handler.execute("world".into(), ctx).await?;
+    let resp = handler
+        .execute(ExecutionRequest {
+            req: "world".into(),
+            ctx: &ctx,
+        })
+        .await?;
     println!("execute       → {resp}");
 
-    let err = handler.execute("".into(), ctx).await.unwrap_err();
+    let err = handler
+        .execute(ExecutionRequest {
+            req: "".into(),
+            ctx: &ctx,
+        })
+        .await
+        .unwrap_err();
     println!("empty name    → {err}");
 
-    let healthy = handler.health_check().await;
+    let healthy = handler
+        .health_check(edge_domain_handler::HealthCheckRequest)
+        .await?
+        .healthy;
     println!("health_check  → {healthy}");
     assert!(healthy);
 
-    let removed = registry.deregister("greet");
+    let removed = registry
+        .deregister(DeregisterHandlerRequest {
+            id: "greet".to_string(),
+        })?
+        .was_present;
     assert!(removed);
-    assert!(registry.get("greet").is_none());
-    println!("after remove: {:?}", registry.list_ids());
+    assert!(registry
+        .get(HandlerLookupRequest {
+            id: "greet".to_string()
+        })?
+        .handler
+        .is_none());
+    println!("after remove: {:?}", registry.list_ids(ListIdsRequest)?.ids);
 
     Ok(())
 }

@@ -2,8 +2,16 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain::*;
+use edge_domain_handler::{
+    EmptinessRequest as HandlerEmptinessRequest, ExecutionRequest, LenRequest as HandlerLenRequest,
+    ListIdsRequest,
+};
 use edge_domain_observer::{ObserverContext, StdObserveFactory};
-use edge_domain_security::SecurityContext;
+use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+use edge_domain_service::{
+    EmptinessRequest as ServiceEmptinessRequest, LenRequest as ServiceLenRequest,
+    ServiceLookupRequest,
+};
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 use std::sync::Arc;
@@ -13,7 +21,11 @@ fn test_ctx<'a>(
     bus: &'a Arc<dyn CommandBus>,
     observer: &'a dyn ObserverContext,
 ) -> HandlerContext<'a> {
-    HandlerContext::new(security, bus.as_ref(), observer)
+    HandlerContext {
+        security,
+        commands: bus.as_ref(),
+        observer,
+    }
 }
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -149,13 +161,17 @@ impl EventStore for ErrStore {
 fn test_echo_handler_string_roundtrip_happy() {
     block_on(async {
         let h = Domain::echo_handler::<String>("id", "/");
-        let security = SecurityContext::unauthenticated();
+        let security = SecurityServices::unauthenticated();
         let bus = Domain::direct_command_bus();
         let observer = StdObserveFactory::noop_observer_context();
+        let ctx = test_ctx(&security, &bus, observer.as_ref());
         assert_eq!(
-            h.execute("ping".into(), test_ctx(&security, &bus, observer.as_ref()))
-                .await
-                .unwrap(),
+            h.execute(ExecutionRequest {
+                req: "ping".to_string(),
+                ctx: &ctx
+            })
+            .await
+            .unwrap(),
             "ping"
         );
     });
@@ -166,16 +182,21 @@ fn test_echo_handler_always_returns_ok_not_error() {
     block_on(async {
         // echo_handler execution is infallible — documents no error path
         let h = Domain::echo_handler::<String>("id", "/");
-        let security = SecurityContext::unauthenticated();
+        let security = SecurityServices::unauthenticated();
         let bus = Domain::direct_command_bus();
         let observer = StdObserveFactory::noop_observer_context();
+        let ctx = test_ctx(&security, &bus, observer.as_ref());
         let result = h
-            .execute(
-                "anything".into(),
-                test_ctx(&security, &bus, observer.as_ref())
-            )
+            .execute(ExecutionRequest {
+                req: "anything".to_string(),
+                ctx: &ctx,
+            })
             .await;
-        assert_eq!(result, Ok("anything".to_string()), "echo handler should return the input unchanged");
+        assert_eq!(
+            result,
+            Ok("anything".to_string()),
+            "echo handler should return the input unchanged"
+        );
     });
 }
 
@@ -183,13 +204,17 @@ fn test_echo_handler_always_returns_ok_not_error() {
 fn test_echo_handler_empty_string_preserved_edge() {
     block_on(async {
         let h = Domain::echo_handler::<String>("id", "/");
-        let security = SecurityContext::unauthenticated();
+        let security = SecurityServices::unauthenticated();
         let bus = Domain::direct_command_bus();
         let observer = StdObserveFactory::noop_observer_context();
+        let ctx = test_ctx(&security, &bus, observer.as_ref());
         assert_eq!(
-            h.execute(String::new(), test_ctx(&security, &bus, observer.as_ref()))
-                .await
-                .unwrap(),
+            h.execute(ExecutionRequest {
+                req: String::new(),
+                ctx: &ctx
+            })
+            .await
+            .unwrap(),
             ""
         );
     });
@@ -200,21 +225,27 @@ fn test_echo_handler_empty_string_preserved_edge() {
 #[test]
 fn test_new_handler_registry_starts_empty_happy() {
     let reg = Domain::new_handler_registry::<String, String>();
-    assert!(reg.is_empty());
-    assert_eq!(reg.len(), 0);
+    assert!(reg.is_empty(HandlerEmptinessRequest).unwrap().empty);
+    assert_eq!(reg.len(HandlerLenRequest).unwrap().count, 0);
 }
 
 #[test]
 fn test_new_handler_registry_get_unknown_id_returns_none_not_error() {
     // get on empty registry must return None, not panic or error
     let reg = Domain::new_handler_registry::<String, String>();
-    assert!(reg.get("unknown").is_none());
+    assert!(reg
+        .get(edge_domain_handler::HandlerLookupRequest {
+            id: "unknown".to_string()
+        })
+        .unwrap()
+        .handler
+        .is_none());
 }
 
 #[test]
 fn test_new_handler_registry_list_ids_empty_before_registration_edge() {
     let reg = Domain::new_handler_registry::<u8, u8>();
-    assert!(reg.list_ids().is_empty());
+    assert!(reg.list_ids(ListIdsRequest).unwrap().ids.is_empty());
 }
 
 // ─── paired ──────────────────────────────────────────────────────────────────
@@ -251,19 +282,25 @@ fn test_paired_returns_two_distinct_values_edge() {
 #[test]
 fn test_new_service_registry_starts_empty_happy() {
     let reg = Domain::new_service_registry::<String, String>();
-    assert!(reg.is_empty());
+    assert!(reg.is_empty(ServiceEmptinessRequest).unwrap().empty);
 }
 
 #[test]
 fn test_new_service_registry_get_unknown_returns_none_not_error() {
     let reg = Domain::new_service_registry::<String, String>();
-    assert!(reg.get("unknown").is_none());
+    assert!(reg
+        .get(&ServiceLookupRequest {
+            name: "unknown".to_string()
+        })
+        .unwrap()
+        .service
+        .is_none());
 }
 
 #[test]
 fn test_new_service_registry_len_is_zero_edge() {
     let reg = Domain::new_service_registry::<u8, u8>();
-    assert_eq!(reg.len(), 0);
+    assert_eq!(reg.len(ServiceLenRequest).unwrap().count, 0);
 }
 
 // ─── new_in_memory_repository ────────────────────────────────────────────────
@@ -332,7 +369,10 @@ fn test_new_in_memory_queryable_repository_find_one_by_none_on_empty_edge() {
 fn test_direct_command_bus_dispatches_successful_command_happy() {
     block_on(async {
         let bus = Domain::direct_command_bus();
-        assert_eq!(bus.dispatch(Box::new(OkCommand)).await, Ok(()), "should dispatch successfully");
+        assert!(
+            bus.dispatch(Box::new(OkCommand)).await.is_ok(),
+            "should dispatch successfully"
+        );
     });
 }
 
@@ -359,7 +399,10 @@ fn test_direct_command_bus_error_message_preserved_edge() {
 fn test_noop_event_publisher_publish_returns_ok_happy() {
     block_on(async {
         let pub_ = Domain::noop_event_publisher();
-        assert_eq!(pub_.publish(&AnyEvent).await, Ok(()), "noop publisher should always succeed");
+        assert!(
+            pub_.publish(&AnyEvent).await.is_ok(),
+            "noop publisher should always succeed"
+        );
     });
 }
 
@@ -368,7 +411,10 @@ fn test_noop_event_publisher_never_errors_not_error() {
     block_on(async {
         // documents infallibility: returns Ok regardless of event
         let pub_ = Domain::noop_event_publisher();
-        assert_eq!(pub_.publish(&AnyEvent).await, Ok(()), "noop publisher is infallible");
+        assert!(
+            pub_.publish(&AnyEvent).await.is_ok(),
+            "noop publisher is infallible"
+        );
     });
 }
 
@@ -378,7 +424,11 @@ fn test_noop_event_publisher_accepts_repeated_publish_edge() {
         let pub_ = Domain::noop_event_publisher();
         for i in 0..3 {
             let result = pub_.publish(&AnyEvent).await;
-            assert_eq!(result, Ok(()), "noop publisher should succeed on iteration {}", i);
+            assert!(
+                result.is_ok(),
+                "noop publisher should succeed on iteration {}",
+                i
+            );
         }
     });
 }
@@ -499,7 +549,10 @@ fn test_direct_query_bus_dispatches_empty_result_edge() {
 fn test_in_process_event_bus_publish_returns_ok_happy() {
     block_on(async {
         let bus = Domain::in_process_event_bus(EventBusConfig::default());
-        assert_eq!(bus.publish(Arc::new(AnyEvent)).await, Ok(()), "event bus should publish successfully");
+        assert!(
+            bus.publish(Arc::new(AnyEvent)).await.is_ok(),
+            "event bus should publish successfully"
+        );
     });
 }
 
@@ -508,14 +561,20 @@ fn test_in_process_event_bus_publish_no_subscriber_not_error() {
     block_on(async {
         // fire-and-forget: publish without subscribers must succeed
         let bus = Domain::in_process_event_bus(EventBusConfig::default());
-        assert_eq!(bus.publish(Arc::new(AnyEvent)).await, Ok(()), "publish without subscribers should succeed");
+        assert!(
+            bus.publish(Arc::new(AnyEvent)).await.is_ok(),
+            "publish without subscribers should succeed"
+        );
     });
 }
 
 #[test]
 fn test_in_process_event_bus_default_config_creates_valid_bus_edge() {
     let bus = Domain::in_process_event_bus(EventBusConfig::default());
-    assert!(!Arc::as_ptr(&bus).is_null(), "bus should be successfully constructed");
+    assert!(
+        !Arc::as_ptr(&bus).is_null(),
+        "bus should be successfully constructed"
+    );
 }
 
 // ─── noop_event_bus ──────────────────────────────────────────────────────────
@@ -524,7 +583,10 @@ fn test_in_process_event_bus_default_config_creates_valid_bus_edge() {
 fn test_noop_event_bus_publish_returns_ok_happy() {
     block_on(async {
         let bus = Domain::noop_event_bus();
-        assert_eq!(bus.publish(Arc::new(AnyEvent)).await, Ok(()), "noop bus should always succeed");
+        assert!(
+            bus.publish(Arc::new(AnyEvent)).await.is_ok(),
+            "noop bus should always succeed"
+        );
     });
 }
 
@@ -533,7 +595,10 @@ fn test_noop_event_bus_publish_never_errors_not_error() {
     block_on(async {
         // noop bus is infallible — documents no error path
         let bus = Domain::noop_event_bus();
-        assert_eq!(bus.publish(Arc::new(AnyEvent)).await, Ok(()), "noop bus is infallible");
+        assert!(
+            bus.publish(Arc::new(AnyEvent)).await.is_ok(),
+            "noop bus is infallible"
+        );
     });
 }
 
@@ -551,7 +616,11 @@ fn test_noop_event_bus_subscribe_source_is_closed_edge() {
 
 #[test]
 fn test_validate_config_valid_config_returns_ok_happy() {
-    assert_eq!(Domain::validate_config(&AlwaysValid), Ok(()), "valid config should pass validation");
+    assert_eq!(
+        Domain::validate_config(&AlwaysValid),
+        Ok(()),
+        "valid config should pass validation"
+    );
 }
 
 #[test]

@@ -3,14 +3,14 @@ use edge_domain::HandlerError;
 
 #[test]
 fn test_handler_error_internal_wraps_as_execution_failed() {
-    let e = HandlerError::internal("db unavailable");
+    let e = HandlerError::ExecutionFailed("db unavailable".to_string());
     assert!(matches!(e, HandlerError::ExecutionFailed(_)));
     assert!(e.to_string().contains("db unavailable"));
 }
 
 #[test]
 fn test_handler_error_invalid_wraps_as_invalid_request() {
-    let e = HandlerError::invalid("bad uuid");
+    let e = HandlerError::InvalidRequest("bad uuid".to_string());
     assert!(matches!(e, HandlerError::InvalidRequest(_)));
 }
 

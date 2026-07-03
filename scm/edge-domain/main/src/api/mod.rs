@@ -13,6 +13,8 @@ pub use spi::DomainSpi;
 // ── command ───────────────────────────────────────────────────────────────────
 #[cfg(feature = "command")]
 pub use edge_domain_command::CommandBus;
+#[cfg(feature = "command")]
+pub use edge_domain_command::DirectCommandBus;
 
 // ── event ─────────────────────────────────────────────────────────────────────
 #[cfg(feature = "event")]
@@ -82,7 +84,7 @@ pub use edge_domain_saga::SagaStore;
 #[cfg(feature = "service")]
 pub use edge_domain_service::Service;
 #[cfg(feature = "service")]
-pub use edge_domain_service::ServiceRegistryTrait;
+pub use edge_domain_service::ServiceRegistry;
 
 // ── snapshot ──────────────────────────────────────────────────────────────────
 #[cfg(feature = "snapshot")]

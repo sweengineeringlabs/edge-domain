@@ -5,8 +5,9 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use edge_domain::{Domain, Handler, HandlerContext, HandlerError};
+use edge_domain_handler::{ExecutionRequest, HealthCheckRequest, IdRequest, IdResponse};
 use edge_domain_observer::{ObserverContext, StdObserveFactory};
-use edge_domain_security::SecurityContext;
+use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
 
 struct Counter {
     id: String,
@@ -17,15 +18,14 @@ struct Counter {
 impl Handler for Counter {
     type Request = u32;
     type Response = u32;
-    fn id(&self) -> &str {
-        &self.id
+    fn id(&self, _req: IdRequest) -> Result<IdResponse, HandlerError> {
+        Ok(IdResponse {
+            id: self.id.clone(),
+        })
     }
-    fn pattern(&self) -> &str {
-        "counter"
-    }
-    async fn execute(&self, req: u32, _ctx: HandlerContext<'_>) -> Result<u32, HandlerError> {
+    async fn execute(&self, req: ExecutionRequest<'_, u32>) -> Result<u32, HandlerError> {
         self.calls.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
-        Ok(req * 2)
+        Ok(req.req * 2)
     }
 }
 
@@ -34,17 +34,19 @@ struct SickHandler;
 impl Handler for SickHandler {
     type Request = u32;
     type Response = u32;
-    fn id(&self) -> &str {
-        "sick"
+    fn id(&self, _req: IdRequest) -> Result<IdResponse, HandlerError> {
+        Ok(IdResponse {
+            id: "sick".to_string(),
+        })
     }
-    fn pattern(&self) -> &str {
-        "sick"
-    }
-    async fn execute(&self, _: u32, _ctx: HandlerContext<'_>) -> Result<u32, HandlerError> {
+    async fn execute(&self, _req: ExecutionRequest<'_, u32>) -> Result<u32, HandlerError> {
         Err(HandlerError::Unhealthy)
     }
-    async fn health_check(&self) -> bool {
-        false
+    async fn health_check(
+        &self,
+        _req: HealthCheckRequest,
+    ) -> Result<edge_domain_handler::HealthCheckResponse, HandlerError> {
+        Ok(edge_domain_handler::HealthCheckResponse { healthy: false })
     }
 }
 
@@ -53,7 +55,11 @@ fn make_ctx<'a>(
     bus: &'a Arc<dyn edge_domain::CommandBus>,
     observer: &'a dyn ObserverContext,
 ) -> HandlerContext<'a> {
-    HandlerContext::new(security, bus.as_ref(), observer)
+    HandlerContext {
+        security,
+        commands: bus.as_ref(),
+        observer,
+    }
 }
 
 /// @covers: Handler::execute
@@ -63,11 +69,12 @@ async fn test_handler_trait_execute_returns_transformed_value() {
         id: "ctr".into(),
         calls: Default::default(),
     };
-    let security = SecurityContext::unauthenticated();
+    let security = SecurityServices::unauthenticated();
     let bus = Domain::direct_command_bus();
     let observer = StdObserveFactory::noop_observer_context();
+    let ctx = make_ctx(&security, &bus, observer.as_ref());
     let result = h
-        .execute(21, make_ctx(&security, &bus, observer.as_ref()))
+        .execute(ExecutionRequest { req: 21, ctx: &ctx })
         .await
         .unwrap();
     assert_eq!(result, 42);
@@ -80,12 +87,12 @@ async fn test_handler_trait_health_check_defaults_to_true() {
         id: "ctr".into(),
         calls: Default::default(),
     };
-    assert!(h.health_check().await);
+    assert!(h.health_check(HealthCheckRequest).await.unwrap().healthy);
 }
 
 /// @covers: Handler::health_check — override to false
 #[tokio::test]
 async fn test_handler_trait_health_check_override_returns_false() {
     let h: Arc<dyn Handler<Request = u32, Response = u32>> = Arc::new(SickHandler);
-    assert!(!h.health_check().await);
+    assert!(!h.health_check(HealthCheckRequest).await.unwrap().healthy);
 }

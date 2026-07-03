@@ -1,9 +1,14 @@
 //! Integration tests for `HandlerRegistry`.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
 
 use async_trait::async_trait;
 use edge_domain::{Domain, Handler, HandlerContext, HandlerError, HandlerRegistry};
+use edge_domain_handler::{
+    DeregisterHandlerRequest, EmptinessRequest, ExecutionRequest, HandlerLookupRequest, IdRequest,
+    IdResponse, LenRequest, ListIdsRequest, RegisterHandlerRequest,
+};
 
 struct EchoHandler {
     id: String,
@@ -13,14 +18,13 @@ struct EchoHandler {
 impl Handler for EchoHandler {
     type Request = String;
     type Response = String;
-    fn id(&self) -> &str {
-        &self.id
+    fn id(&self, _req: IdRequest) -> Result<IdResponse, HandlerError> {
+        Ok(IdResponse {
+            id: self.id.clone(),
+        })
     }
-    fn pattern(&self) -> &str {
-        "echo"
-    }
-    async fn execute(&self, req: String, _ctx: HandlerContext<'_>) -> Result<String, HandlerError> {
-        Ok(req)
+    async fn execute(&self, req: ExecutionRequest<'_, String>) -> Result<String, HandlerError> {
+        Ok(req.req)
     }
 }
 
@@ -36,41 +40,72 @@ fn registry() -> Arc<dyn HandlerRegistry<Request = String, Response = String>> {
 #[test]
 fn test_new_registry_is_empty() {
     let reg = registry();
-    assert!(reg.is_empty());
-    assert_eq!(reg.len(), 0);
+    assert!(reg.is_empty(EmptinessRequest).unwrap().empty);
+    assert_eq!(reg.len(LenRequest).unwrap().count, 0);
 }
 
 /// @covers: HandlerRegistry::register
 #[test]
 fn test_register_makes_handler_retrievable() {
     let reg = registry();
-    reg.register(echo("svc"));
-    assert_eq!(reg.get("svc").is_some(), true, "registered handler must be retrievable");
+    reg.register(RegisterHandlerRequest::new(echo("svc")))
+        .unwrap();
+    assert_eq!(
+        reg.get(HandlerLookupRequest {
+            id: "svc".to_string()
+        })
+        .unwrap()
+        .handler
+        .is_some(),
+        true,
+        "registered handler must be retrievable"
+    );
 }
 
 /// @covers: HandlerRegistry::deregister
 #[test]
 fn test_deregister_removes_handler_and_returns_true() {
     let reg = registry();
-    reg.register(echo("svc"));
-    assert!(reg.deregister("svc"));
-    assert!(reg.get("svc").is_none());
+    reg.register(RegisterHandlerRequest::new(echo("svc")))
+        .unwrap();
+    assert!(
+        reg.deregister(DeregisterHandlerRequest {
+            id: "svc".to_string()
+        })
+        .unwrap()
+        .was_present
+    );
+    assert!(reg
+        .get(HandlerLookupRequest {
+            id: "svc".to_string()
+        })
+        .unwrap()
+        .handler
+        .is_none());
 }
 
 /// @covers: HandlerRegistry::deregister — missing id returns false
 #[test]
 fn test_deregister_missing_handler_returns_false() {
     let reg = registry();
-    assert!(!reg.deregister("ghost"));
+    assert!(
+        !reg.deregister(DeregisterHandlerRequest {
+            id: "ghost".to_string()
+        })
+        .unwrap()
+        .was_present
+    );
 }
 
 /// @covers: HandlerRegistry::list_ids
 #[test]
 fn test_list_ids_returns_all_registered_ids() {
     let reg = registry();
-    reg.register(echo("a"));
-    reg.register(echo("b"));
-    let mut ids = reg.list_ids();
+    reg.register(RegisterHandlerRequest::new(echo("a")))
+        .unwrap();
+    reg.register(RegisterHandlerRequest::new(echo("b")))
+        .unwrap();
+    let mut ids = reg.list_ids(ListIdsRequest).unwrap().ids;
     ids.sort();
     assert_eq!(ids, vec!["a", "b"]);
 }
@@ -79,18 +114,22 @@ fn test_list_ids_returns_all_registered_ids() {
 #[test]
 fn test_len_reflects_registration_count() {
     let reg = registry();
-    assert_eq!(reg.len(), 0);
-    reg.register(echo("a"));
-    assert_eq!(reg.len(), 1);
-    reg.register(echo("b"));
-    assert_eq!(reg.len(), 2);
+    assert_eq!(reg.len(LenRequest).unwrap().count, 0);
+    reg.register(RegisterHandlerRequest::new(echo("a")))
+        .unwrap();
+    assert_eq!(reg.len(LenRequest).unwrap().count, 1);
+    reg.register(RegisterHandlerRequest::new(echo("b")))
+        .unwrap();
+    assert_eq!(reg.len(LenRequest).unwrap().count, 2);
 }
 
 /// @covers: HandlerRegistry — registering same id replaces entry
 #[test]
 fn test_register_same_id_replaces_existing() {
     let reg = registry();
-    reg.register(echo("svc"));
-    reg.register(echo("svc"));
-    assert_eq!(reg.len(), 1);
+    reg.register(RegisterHandlerRequest::new(echo("svc")))
+        .unwrap();
+    reg.register(RegisterHandlerRequest::new(echo("svc")))
+        .unwrap();
+    assert_eq!(reg.len(LenRequest).unwrap().count, 1);
 }

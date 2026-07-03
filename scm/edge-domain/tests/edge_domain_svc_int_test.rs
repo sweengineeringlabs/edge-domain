@@ -5,22 +5,28 @@ use edge_domain::{
     Command, CommandBus, CommandError, Domain, QueryBus, QueryError, QueryableRepository,
     Repository,
 };
+use edge_domain_handler::{
+    EmptinessRequest as HandlerEmptinessRequest, LenRequest as HandlerLenRequest,
+};
+use edge_domain_service::{
+    EmptinessRequest as ServiceEmptinessRequest, LenRequest as ServiceLenRequest,
+};
 use std::sync::Arc;
 
 /// @covers: new_handler_registry
 #[test]
 fn test_factory_fn_new_handler_registry_returns_empty_arc_registry() {
     let reg = Domain::new_handler_registry::<String, String>();
-    assert!(reg.is_empty());
-    assert_eq!(reg.len(), 0);
+    assert!(reg.is_empty(HandlerEmptinessRequest).unwrap().empty);
+    assert_eq!(reg.len(HandlerLenRequest).unwrap().count, 0);
 }
 
 /// @covers: new_service_registry
 #[test]
 fn test_factory_fn_new_service_registry_returns_empty_arc_registry() {
     let reg = Domain::new_service_registry::<String, String>();
-    assert!(reg.is_empty());
-    assert_eq!(reg.len(), 0);
+    assert!(reg.is_empty(ServiceEmptinessRequest).unwrap().empty);
+    assert_eq!(reg.len(ServiceLenRequest).unwrap().count, 0);
 }
 
 /// @covers: new_in_memory_repository

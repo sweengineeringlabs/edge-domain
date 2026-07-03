@@ -6,8 +6,9 @@ use edge_domain::Handler;
 use edge_domain::HandlerBootstrap;
 use edge_domain::HandlerContext;
 use edge_domain::HandlerError;
+use edge_domain_handler::{ExecutionRequest, HandlerBuildResponse, IdRequest, IdResponse};
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::SecurityContext;
+use edge_domain_security::{SecurityBootstrap, SecurityServices};
 
 struct Cfg {
     label: String,
@@ -19,8 +20,10 @@ struct LabelHandler {
 
 impl HandlerBootstrap for LabelHandler {
     type Config = Cfg;
-    fn build(cfg: Cfg) -> Result<Self, HandlerError> {
-        Ok(LabelHandler { label: cfg.label })
+    fn build(cfg: Cfg) -> Result<HandlerBuildResponse<Self>, HandlerError> {
+        Ok(HandlerBuildResponse {
+            handler: LabelHandler { label: cfg.label },
+        })
     }
 }
 
@@ -28,13 +31,12 @@ impl HandlerBootstrap for LabelHandler {
 impl Handler for LabelHandler {
     type Request = ();
     type Response = String;
-    fn id(&self) -> &str {
-        &self.label
+    fn id(&self, _req: IdRequest) -> Result<IdResponse, HandlerError> {
+        Ok(IdResponse {
+            id: self.label.clone(),
+        })
     }
-    fn pattern(&self) -> &str {
-        "*"
-    }
-    async fn execute(&self, _: (), _ctx: HandlerContext<'_>) -> Result<String, HandlerError> {
+    async fn execute(&self, _req: ExecutionRequest<'_, ()>) -> Result<String, HandlerError> {
         Ok(self.label.clone())
     }
 }
@@ -44,8 +46,9 @@ fn test_handler_factory_svc_facade_build_constructs_handler() {
     let h = LabelHandler::build(Cfg {
         label: "greet".into(),
     })
-    .unwrap();
-    assert_eq!(h.id(), "greet");
+    .unwrap()
+    .handler;
+    assert_eq!(h.id(IdRequest).unwrap().id, "greet");
 }
 
 #[tokio::test]
@@ -53,10 +56,20 @@ async fn test_handler_factory_svc_facade_built_handler_executes() {
     let h = LabelHandler::build(Cfg {
         label: "echo".into(),
     })
-    .unwrap();
-    let security = SecurityContext::unauthenticated();
+    .unwrap()
+    .handler;
+    let security = SecurityServices::unauthenticated();
     let bus = edge_domain::Domain::direct_command_bus();
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = HandlerContext::new(&security, bus.as_ref(), observer.as_ref());
-    assert_eq!(h.execute((), ctx).await.unwrap(), "echo");
+    let ctx = HandlerContext {
+        security: &security,
+        commands: bus.as_ref(),
+        observer: observer.as_ref(),
+    };
+    assert_eq!(
+        h.execute(ExecutionRequest { req: (), ctx: &ctx })
+            .await
+            .unwrap(),
+        "echo"
+    );
 }

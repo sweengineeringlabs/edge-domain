@@ -13,7 +13,7 @@ fn test_noop_domain_extension_satisfies_domain_extension_contract() {
 #[test]
 fn test_health_noop_extension_returns_ok_happy() {
     let result = NoopDomainExtension.health();
-    assert_eq!(result, Ok(()));
+    assert!(result.is_ok());
 }
 
 /// @covers: DomainExtension::health — custom implementation can return Err
@@ -36,6 +36,6 @@ fn test_health_failing_extension_returns_err_error() {
 fn test_health_called_twice_is_idempotent_edge() {
     let first_result = NoopDomainExtension.health();
     let second_result = NoopDomainExtension.health();
-    assert_eq!(first_result, Ok(()));
-    assert_eq!(second_result, Ok(()));
+    assert!(first_result.is_ok());
+    assert!(second_result.is_ok());
 }

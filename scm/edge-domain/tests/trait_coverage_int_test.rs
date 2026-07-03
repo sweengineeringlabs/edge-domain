@@ -5,6 +5,15 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain::*;
+use edge_domain_handler::{
+    DeregisterHandlerRequest, EmptinessRequest as HandlerEmptinessRequest, ExecutionRequest,
+    HandlerBuildResponse, HandlerLookupRequest, IdRequest, LenRequest as HandlerLenRequest,
+    ListIdsRequest, PatternRequest, RegisterHandlerRequest,
+};
+use edge_domain_service::{
+    EmptinessRequest as ServiceEmptinessRequest, LenRequest as ServiceLenRequest, ListNamesRequest,
+    NameRequest, RegisterServiceRequest, ServiceError, ServiceLookupRequest, ServiceRemovalRequest,
+};
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 use std::sync::Arc;
@@ -93,8 +102,10 @@ struct OkSvc;
 impl Service for OkSvc {
     type Request = String;
     type Response = String;
-    fn name(&self) -> &str {
-        "ok-svc"
+    fn name(&self, _req: NameRequest) -> Result<edge_domain_service::NameResponse, ServiceError> {
+        Ok(edge_domain_service::NameResponse {
+            name: "ok-svc".to_string(),
+        })
     }
     fn execute(&self, req: String) -> BoxFuture<'_, Result<String, ServiceError>> {
         Box::pin(async move { Ok(req) })
@@ -105,8 +116,10 @@ struct ErrSvc;
 impl Service for ErrSvc {
     type Request = String;
     type Response = String;
-    fn name(&self) -> &str {
-        "err-svc"
+    fn name(&self, _req: NameRequest) -> Result<edge_domain_service::NameResponse, ServiceError> {
+        Ok(edge_domain_service::NameResponse {
+            name: "err-svc".to_string(),
+        })
     }
     fn execute(&self, _: String) -> BoxFuture<'_, Result<String, ServiceError>> {
         Box::pin(async { Err(ServiceError::RuleViolation("blocked".into())) })
@@ -135,8 +148,10 @@ struct GoodCfgHandler {
 }
 impl HandlerBootstrap for GoodCfgHandler {
     type Config = GoodCfg;
-    fn build(_: GoodCfg) -> Result<Self, HandlerError> {
-        Ok(GoodCfgHandler { _marker: () })
+    fn build(_: GoodCfg) -> Result<HandlerBuildResponse<Self>, HandlerError> {
+        Ok(HandlerBuildResponse {
+            handler: GoodCfgHandler { _marker: () },
+        })
     }
 }
 #[derive(Debug)]
@@ -145,8 +160,8 @@ struct BadCfgHandler {
 }
 impl HandlerBootstrap for BadCfgHandler {
     type Config = BadCfg;
-    fn build(_: BadCfg) -> Result<Self, HandlerError> {
-        Err(HandlerError::internal("bad config"))
+    fn build(_: BadCfg) -> Result<HandlerBuildResponse<Self>, HandlerError> {
+        Err(HandlerError::ExecutionFailed("bad config".to_string()))
     }
 }
 
@@ -192,7 +207,7 @@ fn test_name_command_returns_defined_value_happy() {
 fn test_name_query_consistent_across_calls_not_error() {
     // name() must never error — returns same value each call
     let q = OkQry("x".into());
-    assert_eq!(q.name(), "ok", "query name should be stable and known");
+    assert_eq!(q.name(), "ok-qry", "query name should be stable and known");
 }
 
 #[test]
@@ -201,14 +216,19 @@ fn test_name_service_can_be_empty_string_edge() {
     impl Service for EmptySvc {
         type Request = ();
         type Response = ();
-        fn name(&self) -> &str {
-            ""
+        fn name(
+            &self,
+            _req: NameRequest,
+        ) -> Result<edge_domain_service::NameResponse, ServiceError> {
+            Ok(edge_domain_service::NameResponse {
+                name: String::new(),
+            })
         }
         fn execute(&self, _: ()) -> BoxFuture<'_, Result<(), ServiceError>> {
             Box::pin(async { Ok(()) })
         }
     }
-    assert_eq!(EmptySvc.name(), "");
+    assert_eq!(EmptySvc.name(NameRequest).unwrap().name, "");
 }
 
 // ─── execute ─────────────────────────────────────────────────────────────────
@@ -217,7 +237,10 @@ fn test_name_service_can_be_empty_string_edge() {
 #[test]
 fn test_execute_command_returns_ok_happy() {
     block_on(async {
-        assert_eq!(OkCmd.execute().await, Ok(()), "command should execute successfully");
+        assert!(
+            OkCmd.execute().await.is_ok(),
+            "command should execute successfully"
+        );
     });
 }
 
@@ -243,7 +266,10 @@ fn test_execute_query_with_empty_response_edge() {
 fn test_dispatch_command_returns_ok_happy() {
     block_on(async {
         let bus = Domain::direct_command_bus();
-        assert_eq!(bus.dispatch(Box::new(OkCmd)).await, Ok(()), "dispatch should succeed");
+        assert!(
+            bus.dispatch(Box::new(OkCmd)).await.is_ok(),
+            "dispatch should succeed"
+        );
     });
 }
 
@@ -341,7 +367,7 @@ fn test_id_aggregate_reflects_applied_event_happy() {
 #[test]
 fn test_id_handler_matches_constructor_arg_not_error() {
     let h = make_test_handler();
-    assert_eq!(h.id(), "test");
+    assert_eq!(h.id(IdRequest).unwrap().id, "test");
 }
 
 #[test]
@@ -366,7 +392,11 @@ fn test_event_type_stable_across_calls_not_error() {
     let e = TestEvent {
         aggregate_id: "x".into(),
     };
-    assert_eq!(e.event_type(), "test", "event type should be stable and known");
+    assert_eq!(
+        e.event_type(),
+        "test.event",
+        "event type should be stable and known"
+    );
 }
 
 #[test]
@@ -393,7 +423,11 @@ fn test_aggregate_id_consistent_across_calls_not_error() {
     let e = TestEvent {
         aggregate_id: "x".into(),
     };
-    assert_eq!(e.aggregate_id(), "x", "aggregate id should be stable and known");
+    assert_eq!(
+        e.aggregate_id(),
+        "x",
+        "aggregate id should be stable and known"
+    );
 }
 
 #[test]
@@ -429,7 +463,10 @@ fn test_occurred_at_unix_epoch_is_valid_timestamp_edge() {
         aggregate_id: "x".into(),
     };
     let dur = e.occurred_at().duration_since(SystemTime::UNIX_EPOCH);
-    assert!(dur.is_ok(), "timestamp should be valid and after unix epoch");
+    assert!(
+        dur.is_ok(),
+        "timestamp should be valid and after unix epoch"
+    );
 }
 
 // ─── publish ─────────────────────────────────────────────────────────────────
@@ -442,7 +479,10 @@ fn test_publish_to_noop_bus_returns_ok_happy() {
         let e: Arc<dyn DomainEvent> = Arc::new(TestEvent {
             aggregate_id: "x".into(),
         });
-        assert_eq!(bus.publish(e).await, Ok(()), "noop bus should always succeed");
+        assert!(
+            bus.publish(e).await.is_ok(),
+            "noop bus should always succeed"
+        );
     });
 }
 
@@ -453,7 +493,10 @@ fn test_publish_to_noop_publisher_never_errors_not_error() {
         let e = TestEvent {
             aggregate_id: "x".into(),
         };
-        assert_eq!(pub_.publish(&e).await, Ok(()), "noop publisher is infallible");
+        assert!(
+            pub_.publish(&e).await.is_ok(),
+            "noop publisher is infallible"
+        );
     });
 }
 
@@ -466,7 +509,11 @@ fn test_publish_multiple_events_sequentially_edge() {
                 aggregate_id: i.to_string(),
             });
             let result = bus.publish(e).await;
-            assert_eq!(result, Ok(()), "noop bus publish should always succeed for iteration {}", i);
+            assert!(
+                result.is_ok(),
+                "noop bus publish should always succeed for iteration {}",
+                i
+            );
         }
     });
 }
@@ -569,12 +616,16 @@ fn test_append_any_version_never_conflicts_edge() {
                 .append(
                     "agg-1",
                     vec![TestEvent {
-                        aggregate_id: "agg-1".into()
+                        aggregate_id: "agg-1".into(),
                     }],
                     ExpectedVersion::Any,
                 )
                 .await;
-            assert_eq!(result, Ok(()), "append with Any version should succeed iteration {}", i);
+            assert!(
+                result.is_ok(),
+                "append with Any version should succeed iteration {}",
+                i
+            );
         }
     });
 }
@@ -731,19 +782,23 @@ fn test_recv_next_event_type_preserved_edge() {
 #[test]
 fn test_pattern_handler_matches_constructor_arg_happy() {
     let h = make_test_handler();
-    assert_eq!(h.pattern(), "/test");
+    assert_eq!(h.pattern(PatternRequest).unwrap().pattern, "/test");
 }
 
 #[test]
 fn test_pattern_stable_across_calls_not_error() {
     let h = make_test_handler();
-    assert_eq!(h.pattern(), "test", "handler pattern should be stable and known");
+    assert_eq!(
+        h.pattern(PatternRequest).unwrap().pattern,
+        "/test",
+        "handler pattern should be stable and known"
+    );
 }
 
 #[test]
 fn test_pattern_can_be_root_path_edge() {
     let h = Domain::echo_handler::<String>("root", "/");
-    assert_eq!(h.pattern(), "/");
+    assert_eq!(h.pattern(PatternRequest).unwrap().pattern, "/");
 }
 
 // ─── build ───────────────────────────────────────────────────────────────────
@@ -752,7 +807,7 @@ fn test_pattern_can_be_root_path_edge() {
 #[test]
 fn test_build_valid_config_returns_ok_happy() {
     let result = GoodCfgHandler::build(GoodCfg);
-    assert_eq!(result, Ok(GoodCfgHandler), "valid config should build successfully");
+    assert!(result.is_ok(), "valid config should build successfully");
 }
 
 #[test]
@@ -772,23 +827,27 @@ fn test_build_error_message_describes_failure_edge() {
 #[test]
 fn test_register_handler_then_registry_not_empty_happy() {
     let reg = Domain::new_handler_registry::<String, String>();
-    reg.register(make_test_handler());
-    assert!(!reg.is_empty());
+    reg.register(RegisterHandlerRequest::new(make_test_handler()))
+        .unwrap();
+    assert!(!reg.is_empty(HandlerEmptinessRequest).unwrap().empty);
 }
 
 #[test]
 fn test_register_same_id_twice_overwrites_not_error() {
     let reg = Domain::new_handler_registry::<String, String>();
-    reg.register(make_test_handler());
-    reg.register(make_test_handler());
-    assert_eq!(reg.len(), 1); // not 2 — overwrites
+    reg.register(RegisterHandlerRequest::new(make_test_handler()))
+        .unwrap();
+    reg.register(RegisterHandlerRequest::new(make_test_handler()))
+        .unwrap();
+    assert_eq!(reg.len(HandlerLenRequest).unwrap().count, 1); // not 2 — overwrites
 }
 
 #[test]
 fn test_register_service_increments_len_edge() {
     let reg = Domain::new_service_registry::<String, String>();
-    reg.register(Arc::new(OkSvc));
-    assert_eq!(reg.len(), 1);
+    reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
+        .unwrap();
+    assert_eq!(reg.len(ServiceLenRequest).unwrap().count, 1);
 }
 
 // ─── deregister ──────────────────────────────────────────────────────────────
@@ -797,22 +856,39 @@ fn test_register_service_increments_len_edge() {
 #[test]
 fn test_deregister_registered_handler_returns_true_happy() {
     let reg = Domain::new_handler_registry::<String, String>();
-    reg.register(make_test_handler());
-    assert!(reg.deregister("test"));
+    reg.register(RegisterHandlerRequest::new(make_test_handler()))
+        .unwrap();
+    assert!(
+        reg.deregister(DeregisterHandlerRequest {
+            id: "test".to_string()
+        })
+        .unwrap()
+        .was_present
+    );
 }
 
 #[test]
 fn test_deregister_absent_handler_returns_false_error() {
     let reg = Domain::new_handler_registry::<String, String>();
-    assert!(!reg.deregister("ghost"));
+    assert!(
+        !reg.deregister(DeregisterHandlerRequest {
+            id: "ghost".to_string()
+        })
+        .unwrap()
+        .was_present
+    );
 }
 
 #[test]
 fn test_deregister_leaves_registry_empty_edge() {
     let reg = Domain::new_service_registry::<String, String>();
-    reg.register(Arc::new(OkSvc));
-    reg.deregister("ok-svc");
-    assert!(reg.is_empty());
+    reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
+        .unwrap();
+    reg.deregister(&ServiceRemovalRequest {
+        name: "ok-svc".to_string(),
+    })
+    .unwrap();
+    assert!(reg.is_empty(ServiceEmptinessRequest).unwrap().empty);
 }
 
 // ─── get ─────────────────────────────────────────────────────────────────────
@@ -822,24 +898,50 @@ fn test_deregister_leaves_registry_empty_edge() {
 fn test_get_registered_handler_returns_some_happy() {
     let reg = Domain::new_handler_registry::<String, String>();
     let h = make_test_handler();
-    reg.register(h.clone());
-    let result = reg.get("test");
+    reg.register(RegisterHandlerRequest::new(h.clone()))
+        .unwrap();
+    let result = reg
+        .get(HandlerLookupRequest {
+            id: "test".to_string(),
+        })
+        .unwrap()
+        .handler;
     assert!(result.is_some(), "registered handler should be retrievable");
-    assert_eq!(result.unwrap().pattern(), "test", "retrieved handler should match registered handler");
+    assert_eq!(
+        result.unwrap().pattern(PatternRequest).unwrap().pattern,
+        "/test",
+        "retrieved handler should match registered handler"
+    );
 }
 
 #[test]
 fn test_get_nonexistent_key_returns_none_not_error() {
     let reg = Domain::new_handler_registry::<String, String>();
-    assert!(reg.get("ghost").is_none());
+    assert!(reg
+        .get(HandlerLookupRequest {
+            id: "ghost".to_string()
+        })
+        .unwrap()
+        .handler
+        .is_none());
 }
 
 #[test]
 fn test_get_after_deregister_returns_none_edge() {
     let reg = Domain::new_service_registry::<String, String>();
-    reg.register(Arc::new(OkSvc));
-    reg.deregister("ok-svc");
-    assert!(reg.get("ok-svc").is_none());
+    reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
+        .unwrap();
+    reg.deregister(&ServiceRemovalRequest {
+        name: "ok-svc".to_string(),
+    })
+    .unwrap();
+    assert!(reg
+        .get(&ServiceLookupRequest {
+            name: "ok-svc".to_string()
+        })
+        .unwrap()
+        .service
+        .is_none());
 }
 
 // ─── list_ids ────────────────────────────────────────────────────────────────
@@ -848,22 +950,32 @@ fn test_get_after_deregister_returns_none_edge() {
 #[test]
 fn test_list_ids_contains_registered_id_happy() {
     let reg = Domain::new_handler_registry::<String, String>();
-    reg.register(make_test_handler());
-    assert!(reg.list_ids().contains(&"test".to_string()));
+    reg.register(RegisterHandlerRequest::new(make_test_handler()))
+        .unwrap();
+    assert!(reg
+        .list_ids(ListIdsRequest)
+        .unwrap()
+        .ids
+        .contains(&"test".to_string()));
 }
 
 #[test]
 fn test_list_ids_empty_before_registration_not_error() {
     let reg = Domain::new_handler_registry::<String, String>();
-    assert!(reg.list_ids().is_empty());
+    assert!(reg.list_ids(ListIdsRequest).unwrap().ids.is_empty());
 }
 
 #[test]
 fn test_list_ids_len_matches_registry_len_edge() {
     let reg = Domain::new_handler_registry::<String, String>();
-    reg.register(Domain::echo_handler("a", "/a"));
-    reg.register(Domain::echo_handler("b", "/b"));
-    assert_eq!(reg.list_ids().len(), reg.len());
+    reg.register(RegisterHandlerRequest::new(Domain::echo_handler("a", "/a")))
+        .unwrap();
+    reg.register(RegisterHandlerRequest::new(Domain::echo_handler("b", "/b")))
+        .unwrap();
+    assert_eq!(
+        reg.list_ids(ListIdsRequest).unwrap().ids.len(),
+        reg.len(HandlerLenRequest).unwrap().count
+    );
 }
 
 // ─── len ─────────────────────────────────────────────────────────────────────
@@ -872,25 +984,32 @@ fn test_list_ids_len_matches_registry_len_edge() {
 #[test]
 fn test_len_increments_after_register_happy() {
     let reg = Domain::new_handler_registry::<String, String>();
-    assert_eq!(reg.len(), 0);
-    reg.register(make_test_handler());
-    assert_eq!(reg.len(), 1);
+    assert_eq!(reg.len(HandlerLenRequest).unwrap().count, 0);
+    reg.register(RegisterHandlerRequest::new(make_test_handler()))
+        .unwrap();
+    assert_eq!(reg.len(HandlerLenRequest).unwrap().count, 1);
 }
 
 #[test]
 fn test_len_decrements_after_deregister_not_error() {
     let reg = Domain::new_handler_registry::<String, String>();
-    reg.register(make_test_handler());
-    reg.deregister("test");
-    assert_eq!(reg.len(), 0);
+    reg.register(RegisterHandlerRequest::new(make_test_handler()))
+        .unwrap();
+    reg.deregister(DeregisterHandlerRequest {
+        id: "test".to_string(),
+    })
+    .unwrap();
+    assert_eq!(reg.len(HandlerLenRequest).unwrap().count, 0);
 }
 
 #[test]
 fn test_len_service_registry_matches_registered_count_edge() {
     let reg = Domain::new_service_registry::<String, String>();
-    reg.register(Arc::new(OkSvc));
-    reg.register(Arc::new(ErrSvc));
-    assert_eq!(reg.len(), 2);
+    reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
+        .unwrap();
+    reg.register(&RegisterServiceRequest::new(Arc::new(ErrSvc)))
+        .unwrap();
+    assert_eq!(reg.len(ServiceLenRequest).unwrap().count, 2);
 }
 
 // ─── is_empty ────────────────────────────────────────────────────────────────
@@ -899,22 +1018,27 @@ fn test_len_service_registry_matches_registered_count_edge() {
 #[test]
 fn test_is_empty_true_on_new_registry_happy() {
     let reg = Domain::new_handler_registry::<String, String>();
-    assert!(reg.is_empty());
+    assert!(reg.is_empty(HandlerEmptinessRequest).unwrap().empty);
 }
 
 #[test]
 fn test_is_empty_false_after_registration_not_error() {
     let reg = Domain::new_handler_registry::<String, String>();
-    reg.register(make_test_handler());
-    assert!(!reg.is_empty());
+    reg.register(RegisterHandlerRequest::new(make_test_handler()))
+        .unwrap();
+    assert!(!reg.is_empty(HandlerEmptinessRequest).unwrap().empty);
 }
 
 #[test]
 fn test_is_empty_true_after_deregister_all_edge() {
     let reg = Domain::new_service_registry::<String, String>();
-    reg.register(Arc::new(OkSvc));
-    reg.deregister("ok-svc");
-    assert!(reg.is_empty());
+    reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
+        .unwrap();
+    reg.deregister(&ServiceRemovalRequest {
+        name: "ok-svc".to_string(),
+    })
+    .unwrap();
+    assert!(reg.is_empty(ServiceEmptinessRequest).unwrap().empty);
 }
 
 // ─── find_by ─────────────────────────────────────────────────────────────────
@@ -1264,20 +1388,30 @@ fn test_matches_empty_string_input_edge() {
 #[test]
 fn test_list_names_contains_registered_service_name_happy() {
     let reg = Domain::new_service_registry::<String, String>();
-    reg.register(Arc::new(OkSvc));
-    assert!(reg.list_names().contains(&"ok-svc".to_string()));
+    reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
+        .unwrap();
+    assert!(reg
+        .list_names(ListNamesRequest)
+        .unwrap()
+        .names
+        .contains(&"ok-svc".to_string()));
 }
 
 #[test]
 fn test_list_names_empty_before_registration_not_error() {
     let reg = Domain::new_service_registry::<String, String>();
-    assert!(reg.list_names().is_empty());
+    assert!(reg.list_names(ListNamesRequest).unwrap().names.is_empty());
 }
 
 #[test]
 fn test_list_names_len_matches_registry_len_edge() {
     let reg = Domain::new_service_registry::<String, String>();
-    reg.register(Arc::new(OkSvc));
-    reg.register(Arc::new(ErrSvc));
-    assert_eq!(reg.list_names().len(), reg.len());
+    reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
+        .unwrap();
+    reg.register(&RegisterServiceRequest::new(Arc::new(ErrSvc)))
+        .unwrap();
+    assert_eq!(
+        reg.list_names(ListNamesRequest).unwrap().names.len(),
+        reg.len(ServiceLenRequest).unwrap().count
+    );
 }

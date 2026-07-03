@@ -2,6 +2,10 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain::{Domain, Service, ServiceError, ServiceRegistry};
+use edge_domain_service::{
+    EmptinessRequest, LenRequest, NameRequest, NameResponse, RegisterServiceRequest,
+    ServiceLookupRequest, ServiceRegistryStore, ServiceRemovalRequest,
+};
 use futures::future::BoxFuture;
 use std::sync::Arc;
 
@@ -10,8 +14,10 @@ struct EchoService;
 impl Service for EchoService {
     type Request = String;
     type Response = String;
-    fn name(&self) -> &str {
-        "echo"
+    fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
+        Ok(NameResponse {
+            name: "echo".to_string(),
+        })
     }
     fn execute(&self, req: String) -> BoxFuture<'_, Result<String, ServiceError>> {
         Box::pin(async move { Ok(req) })
@@ -23,8 +29,10 @@ struct FailingService;
 impl Service for FailingService {
     type Request = String;
     type Response = String;
-    fn name(&self) -> &str {
-        "failing"
+    fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
+        Ok(NameResponse {
+            name: "failing".to_string(),
+        })
     }
     fn execute(&self, _req: String) -> BoxFuture<'_, Result<String, ServiceError>> {
         Box::pin(async { Err(ServiceError::RuleViolation("always fails".into())) })
@@ -34,34 +42,61 @@ impl Service for FailingService {
 /// @covers: ServiceRegistry::register, ServiceRegistry::get
 #[test]
 fn test_service_registry_struct_register_and_get_retrieves_service() {
-    let reg: ServiceRegistry<String, String> = ServiceRegistry::new();
-    reg.register(Arc::new(EchoService));
-    assert!(reg.get("echo").is_some());
+    let reg: ServiceRegistryStore<String, String> = ServiceRegistryStore::default();
+    reg.register(&RegisterServiceRequest::new(Arc::new(EchoService)))
+        .unwrap();
+    assert!(reg
+        .get(&ServiceLookupRequest {
+            name: "echo".to_string()
+        })
+        .unwrap()
+        .service
+        .is_some());
 }
 
 /// @covers: ServiceRegistry::get
 #[test]
 fn test_service_registry_struct_get_returns_none_for_missing_name() {
-    let reg: ServiceRegistry<String, String> = ServiceRegistry::new();
-    assert!(reg.get("missing").is_none());
+    let reg: ServiceRegistryStore<String, String> = ServiceRegistryStore::default();
+    assert!(reg
+        .get(&ServiceLookupRequest {
+            name: "missing".to_string()
+        })
+        .unwrap()
+        .service
+        .is_none());
 }
 
 /// @covers: ServiceRegistry::deregister
 #[test]
 fn test_service_registry_struct_deregister_removes_service() {
-    let reg: ServiceRegistry<String, String> = ServiceRegistry::new();
-    reg.register(Arc::new(EchoService));
-    assert!(reg.deregister("echo"));
-    assert!(reg.get("echo").is_none());
+    let reg: ServiceRegistryStore<String, String> = ServiceRegistryStore::default();
+    reg.register(&RegisterServiceRequest::new(Arc::new(EchoService)))
+        .unwrap();
+    assert!(
+        reg.deregister(&ServiceRemovalRequest {
+            name: "echo".to_string()
+        })
+        .unwrap()
+        .was_present
+    );
+    assert!(reg
+        .get(&ServiceLookupRequest {
+            name: "echo".to_string()
+        })
+        .unwrap()
+        .service
+        .is_none());
 }
 
 /// @covers: ServiceRegistry::len, ServiceRegistry::is_empty
 #[test]
 fn test_service_registry_struct_len_reflects_registration_count() {
-    let reg: ServiceRegistry<String, String> = ServiceRegistry::new();
-    assert!(reg.is_empty());
-    reg.register(Arc::new(EchoService));
-    assert_eq!(reg.len(), 1);
+    let reg: ServiceRegistryStore<String, String> = ServiceRegistryStore::default();
+    assert!(reg.is_empty(EmptinessRequest).unwrap().empty);
+    reg.register(&RegisterServiceRequest::new(Arc::new(EchoService)))
+        .unwrap();
+    assert_eq!(reg.len(LenRequest).unwrap().count, 1);
 }
 
 /// @covers: Service::execute
@@ -83,5 +118,5 @@ async fn test_service_trait_execute_propagates_error() {
 #[test]
 fn test_factory_fn_new_service_registry_returns_empty_arc_registry() {
     let reg = Domain::new_service_registry::<String, String>();
-    assert!(reg.is_empty());
+    assert!(reg.is_empty(EmptinessRequest).unwrap().empty);
 }

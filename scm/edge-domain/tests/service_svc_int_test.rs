@@ -2,14 +2,16 @@
 //! SAF facade smoke test — Service trait is exported from the crate root.
 
 use edge_domain::Service;
-use edge_domain::ServiceError;
+use edge_domain_service::{NameRequest, NameResponse, ServiceError};
 
 struct Echo;
 impl Service for Echo {
     type Request = String;
     type Response = String;
-    fn name(&self) -> &str {
-        "echo"
+    fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
+        Ok(NameResponse {
+            name: "echo".to_string(),
+        })
     }
     fn execute(
         &self,
@@ -26,5 +28,5 @@ async fn test_service_svc_facade_execute_returns_input() {
 
 #[test]
 fn test_service_svc_facade_name_is_stable() {
-    assert_eq!(Echo.name(), "echo");
+    assert_eq!(Echo.name(NameRequest).unwrap().name, "echo");
 }

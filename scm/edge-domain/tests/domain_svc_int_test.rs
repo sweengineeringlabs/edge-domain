@@ -4,9 +4,12 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain::*;
-use edge_domain_handler::HandlerContext;
+use edge_domain_handler::{
+    EmptinessRequest as HandlerEmptinessRequest, ExecutionRequest, HandlerContext,
+};
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::SecurityContext;
+use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+use edge_domain_service::EmptinessRequest as ServiceEmptinessRequest;
 use std::sync::Arc;
 
 /// @covers: echo_handler
@@ -20,25 +23,37 @@ fn test_echo_handler() {
 #[tokio::test]
 async fn test_echo_handler_returns_input_as_output() {
     let h = Domain::echo_handler::<String>("echo", "/echo");
-    let security = SecurityContext::unauthenticated();
+    let security = SecurityServices::unauthenticated();
     let bus = Domain::direct_command_bus();
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = HandlerContext::new(&security, bus.as_ref(), observer.as_ref());
-    assert_eq!(h.execute("ping".into(), ctx).await.unwrap(), "ping");
+    let ctx = HandlerContext {
+        security: &security,
+        commands: bus.as_ref(),
+        observer: observer.as_ref(),
+    };
+    assert_eq!(
+        h.execute(ExecutionRequest {
+            req: "ping".to_string(),
+            ctx: &ctx
+        })
+        .await
+        .unwrap(),
+        "ping"
+    );
 }
 
 /// @covers: new_handler_registry
 #[test]
 fn test_new_handler_registry_returns_empty_registry() {
     let reg = Domain::new_handler_registry::<String, String>();
-    assert!(reg.is_empty());
+    assert!(reg.is_empty(HandlerEmptinessRequest).unwrap().empty);
 }
 
 /// @covers: new_service_registry
 #[test]
 fn test_new_service_registry_returns_empty_registry() {
     let reg = Domain::new_service_registry::<String, String>();
-    assert!(reg.is_empty());
+    assert!(reg.is_empty(ServiceEmptinessRequest).unwrap().empty);
 }
 
 /// @covers: new_in_memory_repository
@@ -168,7 +183,7 @@ fn test_in_process_event_bus_factory_returns_working_bus() {
     use futures::executor::block_on;
     let bus = Domain::in_process_event_bus(EventBusConfig::default());
     block_on(async move {
-        assert_eq!(bus.publish(Arc::new(AnyEvent)).await, Ok(()));
+        assert!(bus.publish(Arc::new(AnyEvent)).await.is_ok());
     });
 }
 
@@ -178,7 +193,7 @@ fn test_noop_event_bus_factory_returns_working_bus() {
     use futures::executor::block_on;
     let bus = Domain::noop_event_bus();
     block_on(async move {
-        assert_eq!(bus.publish(Arc::new(AnyEvent)).await, Ok(()));
+        assert!(bus.publish(Arc::new(AnyEvent)).await.is_ok());
     });
 }
 

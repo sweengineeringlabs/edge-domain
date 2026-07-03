@@ -4,8 +4,9 @@
 use std::sync::Arc;
 
 use edge_domain::{Domain, HandlerContext, HandlerError, Repository};
+use edge_domain_handler::{EmptinessRequest, ExecutionRequest, LenRequest};
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::SecurityContext;
+use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
 
 struct WriteHandler {
     repo: Arc<dyn Repository<Entity = String, Id = String>>,
@@ -69,11 +70,20 @@ fn test_paired_accepts_heterogeneous_handler_types() {
 #[tokio::test]
 async fn test_domain_echo_handler_returns_input_unchanged() {
     let h = Domain::echo_handler::<String>("e", "/e");
-    let security = SecurityContext::unauthenticated();
+    let security = SecurityServices::unauthenticated();
     let bus = Domain::direct_command_bus();
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = HandlerContext::new(&security, bus.as_ref(), observer.as_ref());
-    let result = h.execute("hello".to_string(), ctx).await;
+    let ctx = HandlerContext {
+        security: &security,
+        commands: bus.as_ref(),
+        observer: observer.as_ref(),
+    };
+    let result = h
+        .execute(ExecutionRequest {
+            req: "hello".to_string(),
+            ctx: &ctx,
+        })
+        .await;
     assert_eq!(result.unwrap(), "hello");
 }
 
@@ -81,13 +91,13 @@ async fn test_domain_echo_handler_returns_input_unchanged() {
 #[test]
 fn test_domain_new_handler_registry_is_empty() {
     let reg = Domain::new_handler_registry::<String, String>();
-    assert!(reg.is_empty());
-    assert_eq!(reg.len(), 0);
+    assert!(reg.is_empty(EmptinessRequest).unwrap().empty);
+    assert_eq!(reg.len(LenRequest).unwrap().count, 0);
 }
 
 /// @covers: HandlerError::internal
 #[test]
 fn test_handler_error_internal_helper() {
-    let e = HandlerError::internal("db timeout");
+    let e = HandlerError::ExecutionFailed("db timeout".to_string());
     assert!(matches!(e, HandlerError::ExecutionFailed(_)));
 }

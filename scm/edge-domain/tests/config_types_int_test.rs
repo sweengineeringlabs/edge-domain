@@ -2,10 +2,10 @@
 
 use edge_domain::{EventError, HandlerError, QueryError, RepositoryError, ServiceError};
 
-/// @covers: HandlerError::internal, ExecutionFailed
+/// @covers: HandlerError::ExecutionFailed
 #[test]
 fn test_handler_error_internal() {
-    let err = HandlerError::internal("test error");
+    let err = HandlerError::ExecutionFailed("test error".to_string());
     assert!(err.to_string().contains("test error"));
 }
 

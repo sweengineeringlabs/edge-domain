@@ -106,7 +106,9 @@ pub use edge_domain_snapshot::SnapshotStoreBootstrap;
 
 // ── service (sub-crate when feature enabled) ──────────────────────────────────
 #[cfg(feature = "service")]
-pub use edge_domain_service::ServiceRegistryBootstrap;
+pub use edge_domain_service::ServiceError;
+#[cfg(feature = "service")]
+pub use edge_domain_service::StdServiceRegistryFactory;
 
 // ── repository (sub-crate when feature enabled) ───────────────────────────────
 #[cfg(feature = "repository")]
@@ -133,25 +135,35 @@ pub use edge_domain_event::ExpectedVersion;
 
 // ── pipeline (sub-crate when feature enabled) ────────────────────────────────
 #[cfg(feature = "pipeline")]
+pub use edge_domain_pipeline::ContextMutationRequest;
+#[cfg(feature = "pipeline")]
 pub use edge_domain_pipeline::Pipeline;
 #[cfg(feature = "pipeline")]
 pub use edge_domain_pipeline::PipelineBuilder;
 #[cfg(feature = "pipeline")]
 pub use edge_domain_pipeline::PipelineConfig;
 #[cfg(feature = "pipeline")]
+pub use edge_domain_pipeline::PipelineEmptinessRequest;
+#[cfg(feature = "pipeline")]
 pub use edge_domain_pipeline::PipelineError;
+#[cfg(feature = "pipeline")]
+pub use edge_domain_pipeline::PipelineSvc;
 #[cfg(feature = "pipeline")]
 pub use edge_domain_pipeline::Step;
 #[cfg(feature = "pipeline")]
+pub use edge_domain_pipeline::StepCountRequest;
+#[cfg(feature = "pipeline")]
+pub use edge_domain_pipeline::StepNameRequest;
+#[cfg(feature = "pipeline")]
+pub use edge_domain_pipeline::StepNameResponse;
+#[cfg(feature = "pipeline")]
+pub use edge_domain_pipeline::StepRegistry as PipelineStepRegistry;
+#[cfg(feature = "pipeline")]
+pub use edge_domain_pipeline::StepRegistrySvc as PipelineStepRegistrySvc;
+#[cfg(feature = "pipeline")]
 pub use edge_domain_pipeline::Validator as PipelineValidator;
 #[cfg(feature = "pipeline")]
-pub use edge_domain_pipeline::build_pipeline;
-#[cfg(feature = "pipeline")]
-pub use edge_domain_pipeline::create_pipeline;
-#[cfg(feature = "pipeline")]
-pub use edge_domain_pipeline::create_pipeline_with_config;
-#[cfg(feature = "pipeline")]
-pub use edge_domain_pipeline::create_validator as create_pipeline_validator;
+pub use edge_domain_pipeline::ValidatorSvc as PipelineValidatorSvc;
 
 // ── projection (sub-crate when feature enabled) ───────────────────────────────
 #[cfg(feature = "projection")]
@@ -176,11 +188,11 @@ pub use edge_domain_registry::RegistryError;
 
 // ── lifecycle (opt-in; NOT in default features) ───────────────────────────────
 #[cfg(feature = "lifecycle")]
-pub use edge_domain_lifecycle::LifecycleError;
-#[cfg(feature = "lifecycle")]
 pub use edge_domain_lifecycle::Lifecycle;
 #[cfg(feature = "lifecycle")]
 pub use edge_domain_lifecycle::LifecycleBootstrap;
+#[cfg(feature = "lifecycle")]
+pub use edge_domain_lifecycle::LifecycleError;
 #[cfg(feature = "lifecycle")]
 pub use edge_domain_lifecycle::ManagedLifecycle;
 #[cfg(feature = "lifecycle")]
