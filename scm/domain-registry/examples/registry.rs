@@ -2,21 +2,43 @@
 
 use std::sync::Arc;
 
-use edge_domain_registry::{Registry, RegistryBootstrap, StdRegistryFactory};
+use edge_domain_registry::{
+    DeregisterRequest, ListIdsRequest, RegisterRequest, Registry, RegistryBootstrap,
+    RegistryError, RegistryLookupRequest, StdRegistryFactory, TryRegisterRequest,
+};
 
-fn main() {
+fn main() -> Result<(), RegistryError> {
     let registry = StdRegistryFactory::in_memory::<str>();
-    registry.register("greeting", Arc::from("hello"));
-    registry.register("farewell", Arc::from("goodbye"));
+    registry.register(RegisterRequest {
+        id: "greeting".to_string(),
+        entry: Arc::from("hello"),
+    })?;
+    registry.register(RegisterRequest {
+        id: "farewell".to_string(),
+        entry: Arc::from("goodbye"),
+    })?;
 
-    if let Some(v) = registry.get("greeting") {
+    if let Some(v) = registry
+        .get(RegistryLookupRequest {
+            id: "greeting".to_string(),
+        })?
+        .entry
+    {
         println!("greeting = {}", &*v);
     }
-    println!("ids = {:?}", registry.list_ids());
+    println!("ids = {:?}", registry.list_ids(ListIdsRequest)?.ids);
 
     // strict registration rejects a duplicate id
-    match registry.try_register("greeting", Arc::from("hi")) {
-        Ok(()) => println!("registered"),
+    match registry.try_register(TryRegisterRequest {
+        id: "greeting".to_string(),
+        entry: Arc::from("hi"),
+    }) {
+        Ok(_) => println!("registered"),
         Err(e) => println!("rejected: {e}"),
     }
+
+    registry.deregister(DeregisterRequest {
+        id: "farewell".to_string(),
+    })?;
+    Ok(())
 }

@@ -1,12 +1,18 @@
 //! `RegistryBootstrap` — constructor contract for registry implementations.
 
-use crate::api::registry::types::{InMemoryRegistry, StdRegistryFactory};
+use crate::api::registry::errors::RegistryError;
+use crate::api::registry::types::{
+    BootstrapNameRequest, BootstrapNameResponse, InMemoryRegistry, StdRegistryFactory,
+};
 
 /// Bootstrap trait for the standard `Registry` implementation.
 pub trait RegistryBootstrap {
     /// Identifies this bootstrap implementation.
-    fn bootstrap_name(&self) -> &'static str {
-        "registry"
+    fn bootstrap_name(
+        &self,
+        _req: BootstrapNameRequest,
+    ) -> Result<BootstrapNameResponse, RegistryError> {
+        Ok(BootstrapNameResponse { name: "registry" })
     }
 
     /// Construct an empty in-memory registry of shared `V` entries.

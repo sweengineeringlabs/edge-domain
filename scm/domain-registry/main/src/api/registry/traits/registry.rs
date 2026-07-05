@@ -1,8 +1,11 @@
 //! `Registry` — id-keyed resolution registry of shared entries.
 
-use std::sync::Arc;
-
 use crate::api::registry::errors::RegistryError;
+use crate::api::registry::types::{
+    DeregisterRequest, DeregisterResponse, EmptinessRequest, EmptinessResponse, LenRequest,
+    LenResponse, ListIdsRequest, ListIdsResponse, RegisterRequest, RegisterResponse,
+    RegistryLookupRequest, RegistryLookupResponse, TryRegisterRequest, TryRegisterResponse,
+};
 
 /// An id-keyed registry of shared entries.
 ///
@@ -15,28 +18,39 @@ pub trait Registry: Send + Sync {
     /// The (possibly unsized) entry type stored in this registry.
     type Value: ?Sized + Send + Sync;
 
-    /// Register `entry` under `id`, replacing any existing entry.
-    fn register(&self, id: &str, entry: Arc<Self::Value>);
+    /// Register the request's entry under its id, replacing any existing entry.
+    fn register(
+        &self,
+        req: RegisterRequest<Self::Value>,
+    ) -> Result<RegisterResponse, RegistryError>;
 
-    /// Register `entry` under `id`, returning [`RegistryError::DuplicateId`]
-    /// when an entry is already registered under `id` (the existing entry is
-    /// left untouched).
-    fn try_register(&self, id: &str, entry: Arc<Self::Value>) -> Result<(), RegistryError>;
+    /// Register the request's entry under its id, returning
+    /// [`RegistryError::DuplicateId`] when an entry is already registered
+    /// under that id (the existing entry is left untouched).
+    fn try_register(
+        &self,
+        req: TryRegisterRequest<Self::Value>,
+    ) -> Result<TryRegisterResponse, RegistryError>;
 
-    /// Remove the entry registered under `id`. Returns `true` if one existed.
-    fn deregister(&self, id: &str) -> bool;
+    /// Remove the entry registered under the requested id.
+    fn deregister(&self, req: DeregisterRequest) -> Result<DeregisterResponse, RegistryError>;
 
-    /// Resolve the entry registered under `id`.
-    fn get(&self, id: &str) -> Option<Arc<Self::Value>>;
+    /// Resolve the entry registered under the requested id.
+    fn get(
+        &self,
+        req: RegistryLookupRequest,
+    ) -> Result<RegistryLookupResponse<Self::Value>, RegistryError>;
 
     /// Return all registered ids.
-    fn list_ids(&self) -> Vec<String>;
+    fn list_ids(&self, req: ListIdsRequest) -> Result<ListIdsResponse, RegistryError>;
 
     /// Return the number of registered entries.
-    fn len(&self) -> usize;
+    fn len(&self, req: LenRequest) -> Result<LenResponse, RegistryError>;
 
     /// Return `true` if no entries are registered.
-    fn is_empty(&self) -> bool {
-        self.len() == 0
+    fn is_empty(&self, _req: EmptinessRequest) -> Result<EmptinessResponse, RegistryError> {
+        Ok(EmptinessResponse {
+            empty: self.len(LenRequest)?.count == 0,
+        })
     }
 }

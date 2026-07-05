@@ -15,13 +15,16 @@ fn test_bootstrap_name_returns_nonempty_string_happy() {
 
 /// @covers: RegistryBootstrap::bootstrap_name
 #[test]
-fn test_bootstrap_name_returns_expected_value_error() {
+fn test_bootstrap_name_is_idempotent_error() {
     let f = StdRegistryFactory;
+    let name1 = f.bootstrap_name(BootstrapNameRequest).unwrap().name;
+    let name2 = f.bootstrap_name(BootstrapNameRequest).unwrap().name;
     assert_eq!(
-        f.bootstrap_name(BootstrapNameRequest).unwrap().name,
-        "registry",
-        "bootstrap_name must return the expected static value"
+        name1,
+        name2,
+        "bootstrap_name must return the same value on repeated calls"
     );
+    assert_eq!(name1, "registry", "bootstrap_name must return expected identifier");
 }
 
 /// @covers: RegistryBootstrap::bootstrap_name
