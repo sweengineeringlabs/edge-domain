@@ -66,7 +66,7 @@ edge-domain-service     = { path = "domain-service" }
 edge-domain-repository  = { path = "domain-repository" }
 edge-domain-handler     = { path = "domain-handler" }
 edge-domain-event       = { path = "domain-event" }
-edge-domain-pipeline    = { git = "https://github.com/sweengineeringlabs/edge-pipeline.git", tag = "v0.1.1" }
+edge-pipeline           = { git = "https://github.com/sweengineeringlabs/edge-pipeline.git", tag = "v0.2.0" }
 edge-domain-projection  = { path = "domain-projection" }
 edge-domain-saga        = { path = "domain-saga" }
 edge-domain-security    = { path = "domain-security" }

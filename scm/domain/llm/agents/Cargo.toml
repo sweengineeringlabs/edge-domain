@@ -27,7 +27,7 @@ edge-domain-handler  = { workspace = true }
 edge-domain-observer  = { workspace = true }
 edge-domain-registry = { workspace = true }
 edge-domain-security = { workspace = true }
-edge-domain-pipeline = { workspace = true }
+edge-pipeline = { workspace = true }
 edge-llm-complete = { workspace = true }
 edge-llm-provider = { workspace = true }
 
