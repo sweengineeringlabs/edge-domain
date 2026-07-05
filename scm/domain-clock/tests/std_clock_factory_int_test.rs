@@ -1,3 +1,5 @@
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use edge_domain_clock::{ClockBootstrap, StdClockFactory};
 use std::time::{Duration, SystemTime};
 
@@ -22,10 +24,10 @@ fn test_std_factory_std_factory_returns_instance_happy() {
 
 #[test]
 fn test_std_factory_fixed_at_epoch_returns_zero_time_error() {
-    use edge_domain_clock::Clock;
+    use edge_domain_clock::{Clock, NowRequest};
     let at = SystemTime::UNIX_EPOCH;
     let c = StdClockFactory::fixed(at);
-    assert_eq!(c.now(), SystemTime::UNIX_EPOCH);
+    assert_eq!(c.now(NowRequest).unwrap().instant, SystemTime::UNIX_EPOCH);
 }
 
 #[test]

@@ -3,11 +3,16 @@
 use std::time::SystemTime;
 
 use crate::api::Clock;
+use crate::api::ClockError;
+use crate::api::NowRequest;
+use crate::api::NowResponse;
 use crate::api::SystemClock;
 
 impl Clock for SystemClock {
-    fn now(&self) -> SystemTime {
-        SystemTime::now()
+    fn now(&self, _req: NowRequest) -> Result<NowResponse, ClockError> {
+        Ok(NowResponse {
+            instant: SystemTime::now(),
+        })
     }
 }
 
@@ -17,6 +22,6 @@ mod tests {
 
     #[test]
     fn test_now_advances_from_epoch() {
-        assert!(SystemClock.now() > SystemTime::UNIX_EPOCH);
+        assert!(SystemClock.now(NowRequest).unwrap().instant > SystemTime::UNIX_EPOCH);
     }
 }

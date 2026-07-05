@@ -3,21 +3,21 @@
 
 use std::time::SystemTime;
 
-use edge_domain_clock::{Clock, SystemClock};
+use edge_domain_clock::{Clock, NowRequest, SystemClock};
 
 /// @covers: SystemClock (Clock::now)
 #[test]
 fn test_now_system_clock_returns_recent_time_happy() {
     let before = SystemTime::now();
-    let t = SystemClock.now();
+    let t = SystemClock.now(NowRequest).unwrap().instant;
     assert!(t >= before);
 }
 
 /// @covers: SystemClock (Clock::now monotonicity within a single thread)
 #[test]
 fn test_now_system_clock_successive_calls_do_not_panic_error() {
-    let _t1 = SystemClock.now();
-    let _t2 = SystemClock.now();
+    let _t1 = SystemClock.now(NowRequest);
+    let _t2 = SystemClock.now(NowRequest);
     assert!(true);
 }
 
