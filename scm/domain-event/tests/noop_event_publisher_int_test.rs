@@ -1,6 +1,9 @@
 //! Integration tests for `NoopEventPublisher`.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_event::{DomainEvent, EventBootstrap, EventPublisher, NoopEventPublisher};
+use edge_domain_event::{
+    DomainEvent, EventBootstrap, EventPublisher, EventPublisherPublishRequest, NoopEventPublisher,
+};
 
 struct Events;
 impl EventBootstrap for Events {}
@@ -11,7 +14,9 @@ impl DomainEvent for SomeEvt {}
 /// @covers: NoopEventPublisher::publish — always returns Ok
 #[test]
 fn test_noop_event_publisher_publish_returns_ok_happy() {
-    let result = futures::executor::block_on(NoopEventPublisher.publish(&SomeEvt));
+    let result = futures::executor::block_on(
+        NoopEventPublisher.publish(EventPublisherPublishRequest { event: &SomeEvt }),
+    );
     assert_eq!(result, Ok(()));
 }
 
@@ -19,7 +24,12 @@ fn test_noop_event_publisher_publish_returns_ok_happy() {
 #[test]
 fn test_noop_event_publisher_publish_repeated_never_errors_error() {
     for _ in 0..5 {
-        assert_eq!(futures::executor::block_on(NoopEventPublisher.publish(&SomeEvt)), Ok(()));
+        assert_eq!(
+            futures::executor::block_on(
+                NoopEventPublisher.publish(EventPublisherPublishRequest { event: &SomeEvt })
+            ),
+            Ok(())
+        );
     }
 }
 
@@ -28,5 +38,8 @@ fn test_noop_event_publisher_publish_repeated_never_errors_error() {
 fn test_noop_event_publisher_dyn_dispatch_ok_edge() {
     let pub_ = Events::noop_publisher();
     let evt: &dyn DomainEvent = &SomeEvt;
-    assert_eq!(futures::executor::block_on(pub_.publish(evt)), Ok(()));
+    assert_eq!(
+        futures::executor::block_on(pub_.publish(EventPublisherPublishRequest { event: evt })),
+        Ok(())
+    );
 }

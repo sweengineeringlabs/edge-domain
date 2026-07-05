@@ -1,15 +1,20 @@
 //! Integration tests for `EventEnvelope`.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::time::SystemTime;
-use edge_domain_event::{DomainEvent, EventEnvelope};
+use edge_domain_event::{DomainEvent, EventAggregateIdRequest, EventEnvelope, EventTypeRequest};
 
 #[derive(Clone)]
 struct OrderCreated {
     id: String,
 }
 impl DomainEvent for OrderCreated {
-    fn event_type(&self) -> &str { "order.created" }
-    fn aggregate_id(&self) -> &str { &self.id }
+    fn event_type(&self, _req: EventTypeRequest) -> Result<edge_domain_event::EventTypeResponse<'_>, edge_domain_event::EventError> {
+        Ok(edge_domain_event::EventTypeResponse { event_type: "order.created" })
+    }
+    fn aggregate_id(&self, _req: EventAggregateIdRequest) -> Result<edge_domain_event::EventAggregateIdResponse<'_>, edge_domain_event::EventError> {
+        Ok(edge_domain_event::EventAggregateIdResponse { aggregate_id: &self.id })
+    }
 }
 
 /// @covers: EventEnvelope — fields are accessible after construction

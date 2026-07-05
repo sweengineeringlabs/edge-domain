@@ -1,14 +1,20 @@
 //! Integration tests for `EventReceiver`.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
-use edge_domain_event::{DomainEvent, EventError, EventBootstrap, EventBus, EventBusConfig};
+use edge_domain_event::{
+    DomainEvent, EventBootstrap, EventBus, EventBusConfig, EventBusPublishRequest,
+    EventBusSubscribeRequest, EventError, EventTypeRequest,
+};
 
 struct Events;
 impl EventBootstrap for Events {}
 
 struct PingEvt;
 impl DomainEvent for PingEvt {
-    fn event_type(&self) -> &str { "ping" }
+    fn event_type(&self, _req: EventTypeRequest) -> Result<edge_domain_event::EventTypeResponse<'_>, EventError> {
+        Ok(edge_domain_event::EventTypeResponse { event_type: "ping" })
+    }
 }
 
 /// @covers: EventReceiver::recv — receives event published to bus
@@ -20,10 +26,10 @@ fn test_event_receiver_recv_returns_published_event_happy() {
         .expect("rt");
     rt.block_on(async {
         let bus = Events::in_process_bus(EventBusConfig { capacity: 4 });
-        let mut rx = bus.subscribe();
-        bus.publish(Arc::new(PingEvt)).await.expect("publish");
+        let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
+        bus.publish(EventBusPublishRequest { event: Arc::new(PingEvt) }).await.expect("publish");
         let event = rx.recv().await.expect("recv");
-        assert_eq!(event.event_type(), "ping");
+        assert_eq!(event.event_type(EventTypeRequest).unwrap().event_type, "ping");
     });
 }
 
@@ -37,7 +43,7 @@ fn test_event_receiver_recv_on_closed_bus_returns_unavailable_error() {
         .expect("rt");
     rt.block_on(async {
         let bus = InProcessEventBus::new(4);
-        let mut rx = bus.subscribe();
+        let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         drop(bus);
         let result = rx.recv().await;
         assert!(matches!(result, Err(EventError::Unavailable(_))));
@@ -47,9 +53,8 @@ fn test_event_receiver_recv_on_closed_bus_returns_unavailable_error() {
 /// @covers: EventReceiver::recv — noop bus receiver returns Unavailable immediately
 #[test]
 fn test_event_receiver_recv_noop_bus_returns_unavailable_edge() {
-    use edge_domain_event::EventBus;
     use edge_domain_event::NoopEventBus;
-    let mut rx = NoopEventBus.subscribe();
+    let mut rx = NoopEventBus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
     let result = futures::executor::block_on(rx.recv());
     assert!(matches!(result, Err(EventError::Unavailable(_))));
 }

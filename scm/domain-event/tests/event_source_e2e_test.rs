@@ -1,6 +1,7 @@
 //! SAF facade tests — `EventSource` trait via `ClosedEventSource`.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_event::{EventError, EventBootstrap, EventSource};
+use edge_domain_event::{EventBootstrap, EventError, EventSource, EventSourceRecvNextRequest};
 
 struct Events;
 impl EventBootstrap for Events {}
@@ -9,7 +10,7 @@ impl EventBootstrap for Events {}
 #[test]
 fn test_recv_next_closed_source_returns_unavailable_happy() {
     let mut src = Events::closed_source();
-    let result = futures::executor::block_on(src.recv_next());
+    let result = futures::executor::block_on(src.recv_next(EventSourceRecvNextRequest));
     assert!(matches!(result, Err(EventError::Unavailable(_))));
 }
 
@@ -17,7 +18,7 @@ fn test_recv_next_closed_source_returns_unavailable_happy() {
 #[test]
 fn test_recv_next_unavailable_message_is_descriptive_error() {
     let mut src = Events::closed_source();
-    let err = match futures::executor::block_on(src.recv_next()) {
+    let err = match futures::executor::block_on(src.recv_next(EventSourceRecvNextRequest)) {
         Err(e) => e,
         Ok(_) => panic!("expected Err from closed source"),
     };
@@ -31,7 +32,7 @@ fn test_recv_next_repeated_calls_all_unavailable_edge() {
     let mut src = Events::closed_source();
     for _ in 0..3 {
         assert!(matches!(
-            futures::executor::block_on(src.recv_next()),
+            futures::executor::block_on(src.recv_next(EventSourceRecvNextRequest)),
             Err(EventError::Unavailable(_))
         ));
     }

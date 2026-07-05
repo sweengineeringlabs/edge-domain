@@ -14,18 +14,3 @@ use crate::api::event::types::EventEnvelope;
 pub struct InMemoryEventStore<E: DomainEvent + Clone + Send + Sync + 'static> {
     pub(crate) streams: RwLock<HashMap<String, Vec<EventEnvelope<E>>>>,
 }
-
-impl<E: DomainEvent + Clone + Send + Sync + 'static> InMemoryEventStore<E> {
-    /// Create an empty store.
-    pub fn new() -> Self {
-        Self {
-            streams: RwLock::new(HashMap::new()),
-        }
-    }
-}
-
-impl<E: DomainEvent + Clone + Send + Sync + 'static> Default for InMemoryEventStore<E> {
-    fn default() -> Self {
-        Self::new()
-    }
-}

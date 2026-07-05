@@ -1,15 +1,16 @@
 //! [`EventSource`] impl for [`ClosedEventSource`] — immediately returns `Unavailable`.
 
-use std::sync::Arc;
-
 use futures::future::BoxFuture;
 
 use crate::api::EventError;
-use crate::api::{DomainEvent, EventSource};
+use crate::api::{EventSource, EventSourceRecvNextRequest, EventSourceRecvNextResponse};
 use crate::api::ClosedEventSource;
 
 impl EventSource for ClosedEventSource {
-    fn recv_next(&mut self) -> BoxFuture<'_, Result<Arc<dyn DomainEvent>, EventError>> {
+    fn recv_next(
+        &mut self,
+        _req: EventSourceRecvNextRequest,
+    ) -> BoxFuture<'_, Result<EventSourceRecvNextResponse, EventError>> {
         Box::pin(async { Err(EventError::Unavailable("event bus closed".into())) })
     }
 }
@@ -24,7 +25,7 @@ mod tests {
     #[test]
     fn test_recv_next_closed_source_returns_unavailable_happy() {
         let mut src = ClosedEventSource;
-        let result = futures::executor::block_on(src.recv_next());
+        let result = futures::executor::block_on(src.recv_next(EventSourceRecvNextRequest));
         assert!(matches!(result, Err(EventError::Unavailable(_))));
     }
 
@@ -32,7 +33,7 @@ mod tests {
     #[test]
     fn test_recv_next_unavailable_message_contains_closed_error() {
         let mut src = ClosedEventSource;
-        let err = match futures::executor::block_on(src.recv_next()) {
+        let err = match futures::executor::block_on(src.recv_next(EventSourceRecvNextRequest)) {
             Err(e) => e,
             Ok(_) => panic!("expected Err"),
         };
@@ -46,7 +47,7 @@ mod tests {
         let _ = ClosedEventSourceFixture;
         let mut src = ClosedEventSource;
         for _ in 0..3 {
-            let result = futures::executor::block_on(src.recv_next());
+            let result = futures::executor::block_on(src.recv_next(EventSourceRecvNextRequest));
             assert!(matches!(result, Err(EventError::Unavailable(_))));
         }
     }

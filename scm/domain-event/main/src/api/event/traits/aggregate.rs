@@ -1,6 +1,11 @@
 //! `Aggregate` trait — event-sourced aggregate root contract.
 
+use crate::api::event::errors::EventError;
 use crate::api::event::traits::DomainEvent;
+use crate::api::event::types::{
+    AggregateApplyRequest, AggregateApplyResponse, AggregateIdentityRequest,
+    AggregateIdentityResponse,
+};
 
 /// An event-sourced aggregate root.
 ///
@@ -11,10 +16,15 @@ pub trait Aggregate: Default + Send + Sync + 'static {
     type Event: DomainEvent + Send + Sync + Clone + 'static;
 
     /// Fold one event into the aggregate state.
-    fn apply(&mut self, _event: &Self::Event) {}
+    fn apply(
+        &mut self,
+        _req: AggregateApplyRequest<'_, Self::Event>,
+    ) -> Result<AggregateApplyResponse, EventError> {
+        Ok(AggregateApplyResponse)
+    }
 
     /// Return the stable aggregate identity string.
-    fn id(&self) -> &str {
-        ""
+    fn id(&self, _req: AggregateIdentityRequest) -> Result<AggregateIdentityResponse<'_>, EventError> {
+        Ok(AggregateIdentityResponse { id: "" })
     }
 }

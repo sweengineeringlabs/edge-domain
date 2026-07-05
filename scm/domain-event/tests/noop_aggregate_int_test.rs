@@ -1,28 +1,29 @@
 //! Integration tests for `NoopAggregate`.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_event::{Aggregate, NoopAggregate, NoopDomainEvent};
+use edge_domain_event::{Aggregate, AggregateApplyRequest, AggregateIdentityRequest, NoopAggregate, NoopDomainEvent};
 
 /// @covers: NoopAggregate::id — returns empty string before any apply
 #[test]
 fn test_id_noop_aggregate_before_apply_returns_empty_happy() {
     let agg = NoopAggregate;
-    assert_eq!(agg.id(), "");
+    assert_eq!(agg.id(AggregateIdentityRequest).unwrap().id, "");
 }
 
 /// @covers: NoopAggregate::apply — is a no-op; id stays empty after apply
 #[test]
 fn test_apply_noop_aggregate_after_apply_id_unchanged_happy() {
     let mut agg = NoopAggregate;
-    agg.apply(&NoopDomainEvent);
-    assert_eq!(agg.id(), "");
+    agg.apply(AggregateApplyRequest { event: &NoopDomainEvent }).unwrap();
+    assert_eq!(agg.id(AggregateIdentityRequest).unwrap().id, "");
 }
 
 /// @covers: NoopAggregate — Default constructs without panic
 #[test]
 fn test_default_noop_aggregate_constructs_edge() {
-    let _agg = NoopAggregate::default();
+    let _agg = NoopAggregate;
     // Verify default constructs a valid aggregate
-    assert_eq!(_agg.id(), "");
+    assert_eq!(_agg.id(AggregateIdentityRequest).unwrap().id, "");
 }
 
 /// @covers: NoopAggregate::apply — repeated apply calls don't panic
@@ -30,9 +31,9 @@ fn test_default_noop_aggregate_constructs_edge() {
 fn test_apply_noop_aggregate_repeated_calls_do_not_panic_edge() {
     let mut agg = NoopAggregate;
     for _ in 0..5 {
-        agg.apply(&NoopDomainEvent);
+        agg.apply(AggregateApplyRequest { event: &NoopDomainEvent }).unwrap();
     }
-    assert_eq!(agg.id(), "");
+    assert_eq!(agg.id(AggregateIdentityRequest).unwrap().id, "");
 }
 
 /// @covers: NoopAggregate — satisfies Aggregate trait bounds (Send + Sync)

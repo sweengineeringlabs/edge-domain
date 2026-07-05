@@ -11,17 +11,3 @@ use crate::api::event::traits::DomainEvent;
 pub struct InProcessEventBus {
     pub(crate) sender: tokio::sync::broadcast::Sender<Arc<dyn DomainEvent>>,
 }
-
-impl InProcessEventBus {
-    /// Create a new bus with the given channel `capacity`.
-    pub fn new(capacity: usize) -> Self {
-        let (sender, _) = tokio::sync::broadcast::channel(capacity);
-        Self { sender }
-    }
-}
-
-impl Default for InProcessEventBus {
-    fn default() -> Self {
-        Self::new(1024)
-    }
-}

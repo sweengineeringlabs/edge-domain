@@ -1,8 +1,10 @@
 //! Integration tests for `StdEventFactory`.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain_event::{
-    Aggregate, DomainEvent, EventBus, EventBusConfig, EventBootstrap, EventPublisher, EventSource,
-    EventStore, EventStoreError, ExpectedVersion, NoopDomainEvent, StdEventFactory,
+    EventBus, EventBusConfig, EventBootstrap, EventBusPublishRequest, EventPublisher,
+    EventPublisherPublishRequest, EventSource, EventSourceRecvNextRequest, EventStore,
+    EventStoreAppendRequest, EventStoreError, ExpectedVersion, NoopDomainEvent, StdEventFactory,
 };
 
 /// @covers: StdEventFactory — noop_bus returns a zero-sized type
@@ -30,24 +32,30 @@ fn test_closed_source_std_event_factory_is_zero_sized_happy() {
 #[test]
 fn test_in_memory_store_std_event_factory_append_returns_sequence_happy() {
     let store = StdEventFactory::in_memory_store::<NoopDomainEvent>();
-    let seq = futures::executor::block_on(
-        store.append("agg-1", vec![NoopDomainEvent], ExpectedVersion::Any),
-    )
+    let resp = futures::executor::block_on(store.append(EventStoreAppendRequest {
+        aggregate_id: "agg-1",
+        events: vec![NoopDomainEvent],
+        expected: ExpectedVersion::Any,
+    }))
     .expect("append");
-    assert_eq!(seq, 1);
+    assert_eq!(resp.sequence, 1);
 }
 
 /// @covers: StdEventFactory — in_memory_store NoStream conflict
 #[test]
 fn test_in_memory_store_std_event_factory_no_stream_conflict_error() {
     let store = StdEventFactory::in_memory_store::<NoopDomainEvent>();
-    futures::executor::block_on(
-        store.append("agg-2", vec![NoopDomainEvent], ExpectedVersion::NoStream),
-    )
+    futures::executor::block_on(store.append(EventStoreAppendRequest {
+        aggregate_id: "agg-2",
+        events: vec![NoopDomainEvent],
+        expected: ExpectedVersion::NoStream,
+    }))
     .expect("first");
-    let err = futures::executor::block_on(
-        store.append("agg-2", vec![NoopDomainEvent], ExpectedVersion::NoStream),
-    )
+    let err = futures::executor::block_on(store.append(EventStoreAppendRequest {
+        aggregate_id: "agg-2",
+        events: vec![NoopDomainEvent],
+        expected: ExpectedVersion::NoStream,
+    }))
     .unwrap_err();
     assert!(matches!(err, EventStoreError::Conflict { .. }));
 }
@@ -65,7 +73,9 @@ fn test_in_process_bus_std_event_factory_large_capacity_edge() {
 fn test_noop_bus_publish_returns_ok_error() {
     use std::sync::Arc;
     let bus = StdEventFactory::noop_bus();
-    let result = futures::executor::block_on(bus.publish(Arc::new(NoopDomainEvent)));
+    let result = futures::executor::block_on(
+        bus.publish(EventBusPublishRequest { event: Arc::new(NoopDomainEvent) }),
+    );
     assert_eq!(result, Ok(()));
 }
 
@@ -73,7 +83,9 @@ fn test_noop_bus_publish_returns_ok_error() {
 #[test]
 fn test_noop_publisher_publish_returns_ok_error() {
     let pub_ = StdEventFactory::noop_publisher();
-    let result = futures::executor::block_on(pub_.publish(&NoopDomainEvent));
+    let result = futures::executor::block_on(
+        pub_.publish(EventPublisherPublishRequest { event: &NoopDomainEvent }),
+    );
     assert_eq!(result, Ok(()));
 }
 
@@ -82,6 +94,6 @@ fn test_noop_publisher_publish_returns_ok_error() {
 fn test_closed_source_recv_next_returns_unavailable_edge() {
     use edge_domain_event::EventError;
     let mut src = StdEventFactory::closed_source();
-    let result = futures::executor::block_on(src.recv_next());
+    let result = futures::executor::block_on(src.recv_next(EventSourceRecvNextRequest));
     assert!(matches!(result, Err(EventError::Unavailable(_))));
 }

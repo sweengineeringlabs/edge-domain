@@ -5,10 +5,12 @@
 //! (e.g. `struct Events; impl EventBootstrap for Events {}`) and call the
 //! associated functions directly.
 
+use crate::api::event::errors::EventError;
 use crate::api::event::traits::DomainEvent;
 use crate::api::event::types::{
-    ClosedEventSource, EventBusConfig, InMemoryEventStore, InProcessEventBus, NoopAggregate,
-    NoopDomainEvent, NoopEventBus, NoopEventPublisher, StdEventFactory,
+    BootstrapNameRequest, BootstrapNameResponse, ClosedEventSource, EventBusConfig,
+    InMemoryEventStore, InProcessEventBus, NoopAggregate, NoopDomainEvent, NoopEventBus,
+    NoopEventPublisher, StdEventFactory,
 };
 
 /// Bootstrap namespace for the standard event infrastructure implementations.
@@ -17,8 +19,8 @@ use crate::api::event::types::{
 /// so the structural auditor can resolve the dependency chain.
 pub trait EventBootstrap {
     /// Identifies this bootstrap implementation.
-    fn bootstrap_name(&self) -> &'static str {
-        "event"
+    fn bootstrap_name(&self, _req: BootstrapNameRequest) -> Result<BootstrapNameResponse, EventError> {
+        Ok(BootstrapNameResponse { name: "event" })
     }
 
     /// Construct a real in-process broadcast bus with the given config.

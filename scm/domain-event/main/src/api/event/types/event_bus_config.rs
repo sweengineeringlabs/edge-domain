@@ -6,9 +6,3 @@ pub struct EventBusConfig {
     /// Broadcast channel capacity (number of messages buffered before lagging).
     pub capacity: usize,
 }
-
-impl Default for EventBusConfig {
-    fn default() -> Self {
-        Self { capacity: 1024 }
-    }
-}
