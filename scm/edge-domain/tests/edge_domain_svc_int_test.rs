@@ -90,22 +90,39 @@ async fn test_factory_fn_direct_command_bus_dispatches_command_inline() {
 /// @covers: noop_event_publisher
 #[tokio::test]
 async fn test_factory_fn_noop_event_publisher_silently_discards_events() {
-    use edge_domain::DomainEvent;
+    use edge_domain::{
+        DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventError,
+        EventOccurredAtRequest, EventOccurredAtResponse, EventPublisherPublishRequest,
+        EventTypeRequest, EventTypeResponse,
+    };
     use std::time::SystemTime;
     struct AnyEvent;
     impl DomainEvent for AnyEvent {
-        fn event_type(&self) -> &str {
-            "any"
+        fn event_type(&self, _req: EventTypeRequest) -> Result<EventTypeResponse<'_>, EventError> {
+            Ok(EventTypeResponse { event_type: "any" })
         }
-        fn aggregate_id(&self) -> &str {
-            "id-1"
+        fn aggregate_id(
+            &self,
+            _req: EventAggregateIdRequest,
+        ) -> Result<EventAggregateIdResponse<'_>, EventError> {
+            Ok(EventAggregateIdResponse {
+                aggregate_id: "id-1",
+            })
         }
-        fn occurred_at(&self) -> SystemTime {
-            SystemTime::now()
+        fn occurred_at(
+            &self,
+            _req: EventOccurredAtRequest,
+        ) -> Result<EventOccurredAtResponse, EventError> {
+            Ok(EventOccurredAtResponse {
+                occurred_at: SystemTime::now(),
+            })
         }
     }
     let publisher = Domain::noop_event_publisher();
-    assert!(publisher.publish(&AnyEvent).await.is_ok());
+    assert!(publisher
+        .publish(EventPublisherPublishRequest { event: &AnyEvent })
+        .await
+        .is_ok());
 }
 
 /// @covers: direct_query_bus

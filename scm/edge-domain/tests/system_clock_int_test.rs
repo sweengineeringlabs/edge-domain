@@ -4,12 +4,13 @@
 use std::time::SystemTime;
 
 use edge_domain::{Clock, SystemClock};
+use edge_domain_clock::NowRequest;
 
 /// @covers: SystemClock (Clock::now)
 #[test]
 fn test_now_system_clock_returns_time_within_current_window_happy() {
     let before = SystemTime::now();
-    let t = SystemClock.now();
+    let t = SystemClock.now(NowRequest).unwrap().instant;
     let after = SystemTime::now();
     assert!(t >= before);
     assert!(t <= after);
@@ -18,8 +19,8 @@ fn test_now_system_clock_returns_time_within_current_window_happy() {
 /// @covers: SystemClock (Clock::now monotonicity)
 #[test]
 fn test_now_system_clock_successive_calls_do_not_go_backwards_error() {
-    let t1 = SystemClock.now();
-    let t2 = SystemClock.now();
+    let t1 = SystemClock.now(NowRequest).unwrap().instant;
+    let t2 = SystemClock.now(NowRequest).unwrap().instant;
     assert!(t2 >= t1);
 }
 

@@ -2,8 +2,9 @@
 #![allow(clippy::unwrap_used)]
 
 use edge_domain::{
-    ClosedEventSource, DomainEvent, EventBootstrap, EventBusConfig, InProcessEventBus,
-    NoopEventBus, NoopEventPublisher,
+    ClosedEventSource, DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse,
+    EventBootstrap, EventBusConfig, EventError, EventOccurredAtRequest, EventOccurredAtResponse,
+    EventTypeRequest, EventTypeResponse, InProcessEventBus, NoopEventBus, NoopEventPublisher,
 };
 
 struct TestEvents;
@@ -12,14 +13,26 @@ impl EventBootstrap for TestEvents {}
 #[derive(Clone)]
 struct AnyEvent;
 impl DomainEvent for AnyEvent {
-    fn event_type(&self) -> &str {
-        "test.any"
+    fn event_type(&self, _req: EventTypeRequest) -> Result<EventTypeResponse<'_>, EventError> {
+        Ok(EventTypeResponse {
+            event_type: "test.any",
+        })
     }
-    fn aggregate_id(&self) -> &str {
-        "agg-1"
+    fn aggregate_id(
+        &self,
+        _req: EventAggregateIdRequest,
+    ) -> Result<EventAggregateIdResponse<'_>, EventError> {
+        Ok(EventAggregateIdResponse {
+            aggregate_id: "agg-1",
+        })
     }
-    fn occurred_at(&self) -> std::time::SystemTime {
-        std::time::SystemTime::now()
+    fn occurred_at(
+        &self,
+        _req: EventOccurredAtRequest,
+    ) -> Result<EventOccurredAtResponse, EventError> {
+        Ok(EventOccurredAtResponse {
+            occurred_at: std::time::SystemTime::now(),
+        })
     }
 }
 

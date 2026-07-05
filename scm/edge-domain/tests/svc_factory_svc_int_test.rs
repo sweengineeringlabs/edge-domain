@@ -33,14 +33,24 @@ fn test_ctx<'a>(
 #[derive(Clone)]
 struct AnyEvent;
 impl DomainEvent for AnyEvent {
-    fn event_type(&self) -> &str {
-        "test.any"
+    fn event_type(&self, _req: EventTypeRequest) -> Result<EventTypeResponse<'_>, EventError> {
+        Ok(EventTypeResponse {
+            event_type: "test.any",
+        })
     }
-    fn aggregate_id(&self) -> &str {
-        "id"
+    fn aggregate_id(
+        &self,
+        _req: EventAggregateIdRequest,
+    ) -> Result<EventAggregateIdResponse<'_>, EventError> {
+        Ok(EventAggregateIdResponse { aggregate_id: "id" })
     }
-    fn occurred_at(&self) -> std::time::SystemTime {
-        std::time::SystemTime::UNIX_EPOCH
+    fn occurred_at(
+        &self,
+        _req: EventOccurredAtRequest,
+    ) -> Result<EventOccurredAtResponse, EventError> {
+        Ok(EventOccurredAtResponse {
+            occurred_at: std::time::SystemTime::UNIX_EPOCH,
+        })
     }
 }
 
@@ -50,11 +60,20 @@ struct AnyAgg {
 }
 impl Aggregate for AnyAgg {
     type Event = AnyEvent;
-    fn apply(&mut self, e: &AnyEvent) {
-        self.id = e.aggregate_id().into();
+    fn apply(
+        &mut self,
+        req: AggregateApplyRequest<'_, AnyEvent>,
+    ) -> Result<AggregateApplyResponse, EventError> {
+        self.id = req
+            .event
+            .aggregate_id(EventAggregateIdRequest)
+            .unwrap()
+            .aggregate_id
+            .into();
+        Ok(AggregateApplyResponse)
     }
-    fn id(&self) -> &str {
-        &self.id
+    fn id(&self, _req: AggregateIdentityRequest) -> Result<AggregateIdentityResponse<'_>, EventError> {
+        Ok(AggregateIdentityResponse { id: &self.id })
     }
 }
 
@@ -103,14 +122,20 @@ impl Query for ErrQuery {
 
 struct AlwaysValid;
 impl Validator for AlwaysValid {
-    fn validate(&self) -> Result<(), ValidatorError> {
-        Ok(())
+    fn validate(
+        &self,
+        _req: edge_domain_validator::ValidationRequest,
+    ) -> Result<edge_domain_validator::ValidationResponse, ValidatorError> {
+        Ok(edge_domain_validator::ValidationResponse)
     }
 }
 
 struct AlwaysInvalid;
 impl Validator for AlwaysInvalid {
-    fn validate(&self) -> Result<(), ValidatorError> {
+    fn validate(
+        &self,
+        _req: edge_domain_validator::ValidationRequest,
+    ) -> Result<edge_domain_validator::ValidationResponse, ValidatorError> {
         Err(ValidatorError::Invalid("invalid config".into()))
     }
 }
@@ -134,23 +159,20 @@ impl EventStore for ErrStore {
     type Event = AnyEvent;
     fn append(
         &self,
-        _: &str,
-        _: Vec<AnyEvent>,
-        _: ExpectedVersion,
-    ) -> BoxFuture<'_, Result<u64, EventStoreError>> {
+        _req: EventStoreAppendRequest<'_, AnyEvent>,
+    ) -> BoxFuture<'_, Result<EventStoreAppendResponse, EventStoreError>> {
         Box::pin(async { Err(EventStoreError::Unavailable("test".into())) })
     }
     fn load(
         &self,
-        _: &str,
-    ) -> BoxFuture<'_, Result<Vec<EventEnvelope<AnyEvent>>, EventStoreError>> {
+        _req: EventStoreLoadRequest<'_>,
+    ) -> BoxFuture<'_, Result<EventStoreLoadResponse<AnyEvent>, EventStoreError>> {
         Box::pin(async { Err(EventStoreError::Unavailable("test".into())) })
     }
     fn load_from(
         &self,
-        _: &str,
-        _: u64,
-    ) -> BoxFuture<'_, Result<Vec<EventEnvelope<AnyEvent>>, EventStoreError>> {
+        _req: EventStoreLoadFromRequest<'_>,
+    ) -> BoxFuture<'_, Result<EventStoreLoadFromResponse<AnyEvent>, EventStoreError>> {
         Box::pin(async { Err(EventStoreError::Unavailable("test".into())) })
     }
 }
@@ -400,7 +422,9 @@ fn test_noop_event_publisher_publish_returns_ok_happy() {
     block_on(async {
         let pub_ = Domain::noop_event_publisher();
         assert!(
-            pub_.publish(&AnyEvent).await.is_ok(),
+            pub_.publish(EventPublisherPublishRequest { event: &AnyEvent })
+                .await
+                .is_ok(),
             "noop publisher should always succeed"
         );
     });
@@ -412,7 +436,9 @@ fn test_noop_event_publisher_never_errors_not_error() {
         // documents infallibility: returns Ok regardless of event
         let pub_ = Domain::noop_event_publisher();
         assert!(
-            pub_.publish(&AnyEvent).await.is_ok(),
+            pub_.publish(EventPublisherPublishRequest { event: &AnyEvent })
+                .await
+                .is_ok(),
             "noop publisher is infallible"
         );
     });
@@ -423,7 +449,9 @@ fn test_noop_event_publisher_accepts_repeated_publish_edge() {
     block_on(async {
         let pub_ = Domain::noop_event_publisher();
         for i in 0..3 {
-            let result = pub_.publish(&AnyEvent).await;
+            let result = pub_
+                .publish(EventPublisherPublishRequest { event: &AnyEvent })
+                .await;
             assert!(
                 result.is_ok(),
                 "noop publisher should succeed on iteration {}",
@@ -440,10 +468,20 @@ fn test_new_in_memory_event_store_append_then_load_happy() {
     block_on(async {
         let store = Domain::new_in_memory_event_store::<AnyEvent>();
         store
-            .append("agg-1", vec![AnyEvent], ExpectedVersion::Any)
+            .append(EventStoreAppendRequest {
+                aggregate_id: "agg-1",
+                events: vec![AnyEvent],
+                expected: ExpectedVersion::Any,
+            })
             .await
             .unwrap();
-        let events = store.load("agg-1").await.unwrap();
+        let events = store
+            .load(EventStoreLoadRequest {
+                aggregate_id: "agg-1",
+            })
+            .await
+            .unwrap()
+            .events;
         assert_eq!(events.len(), 1);
     });
 }
@@ -453,12 +491,20 @@ fn test_new_in_memory_event_store_version_conflict_returns_error() {
     block_on(async {
         let store = Domain::new_in_memory_event_store::<AnyEvent>();
         store
-            .append("agg-1", vec![AnyEvent], ExpectedVersion::NoStream)
+            .append(EventStoreAppendRequest {
+                aggregate_id: "agg-1",
+                events: vec![AnyEvent],
+                expected: ExpectedVersion::NoStream,
+            })
             .await
             .unwrap();
         // second append with NoStream must fail: stream already exists
         let result = store
-            .append("agg-1", vec![AnyEvent], ExpectedVersion::NoStream)
+            .append(EventStoreAppendRequest {
+                aggregate_id: "agg-1",
+                events: vec![AnyEvent],
+                expected: ExpectedVersion::NoStream,
+            })
             .await;
         assert!(result.is_err());
     });
@@ -468,7 +514,13 @@ fn test_new_in_memory_event_store_version_conflict_returns_error() {
 fn test_new_in_memory_event_store_load_nonexistent_stream_returns_empty_edge() {
     block_on(async {
         let store = Domain::new_in_memory_event_store::<AnyEvent>();
-        let events = store.load("no-such-stream").await.unwrap();
+        let events = store
+            .load(EventStoreLoadRequest {
+                aggregate_id: "no-such-stream",
+            })
+            .await
+            .unwrap()
+            .events;
         assert!(events.is_empty());
     });
 }
@@ -480,7 +532,11 @@ fn test_reconstitute_with_events_returns_aggregate_happy() {
     block_on(async {
         let store = Domain::new_in_memory_event_store::<AnyEvent>();
         store
-            .append("agg-1", vec![AnyEvent], ExpectedVersion::Any)
+            .append(EventStoreAppendRequest {
+                aggregate_id: "agg-1",
+                events: vec![AnyEvent],
+                expected: ExpectedVersion::Any,
+            })
             .await
             .unwrap();
         let result = Domain::reconstitute::<AnyAgg>(&*store, "agg-1")
@@ -550,7 +606,11 @@ fn test_in_process_event_bus_publish_returns_ok_happy() {
     block_on(async {
         let bus = Domain::in_process_event_bus(EventBusConfig::default());
         assert!(
-            bus.publish(Arc::new(AnyEvent)).await.is_ok(),
+            bus.publish(EventBusPublishRequest {
+                event: Arc::new(AnyEvent)
+            })
+            .await
+            .is_ok(),
             "event bus should publish successfully"
         );
     });
@@ -562,7 +622,11 @@ fn test_in_process_event_bus_publish_no_subscriber_not_error() {
         // fire-and-forget: publish without subscribers must succeed
         let bus = Domain::in_process_event_bus(EventBusConfig::default());
         assert!(
-            bus.publish(Arc::new(AnyEvent)).await.is_ok(),
+            bus.publish(EventBusPublishRequest {
+                event: Arc::new(AnyEvent)
+            })
+            .await
+            .is_ok(),
             "publish without subscribers should succeed"
         );
     });
@@ -584,7 +648,11 @@ fn test_noop_event_bus_publish_returns_ok_happy() {
     block_on(async {
         let bus = Domain::noop_event_bus();
         assert!(
-            bus.publish(Arc::new(AnyEvent)).await.is_ok(),
+            bus.publish(EventBusPublishRequest {
+                event: Arc::new(AnyEvent)
+            })
+            .await
+            .is_ok(),
             "noop bus should always succeed"
         );
     });
@@ -596,7 +664,11 @@ fn test_noop_event_bus_publish_never_errors_not_error() {
         // noop bus is infallible — documents no error path
         let bus = Domain::noop_event_bus();
         assert!(
-            bus.publish(Arc::new(AnyEvent)).await.is_ok(),
+            bus.publish(EventBusPublishRequest {
+                event: Arc::new(AnyEvent)
+            })
+            .await
+            .is_ok(),
             "noop bus is infallible"
         );
     });
@@ -607,7 +679,7 @@ fn test_noop_event_bus_subscribe_source_is_closed_edge() {
     block_on(async {
         // noop bus subscribe returns a ClosedEventSource — first recv is Err
         let bus = Domain::noop_event_bus();
-        let mut rx = bus.subscribe();
+        let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         assert!(rx.recv().await.is_err());
     });
 }

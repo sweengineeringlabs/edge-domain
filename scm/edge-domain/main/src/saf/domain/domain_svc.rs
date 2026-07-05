@@ -15,6 +15,8 @@ use edge_domain_command::DirectCommandBus;
 #[cfg(feature = "event")]
 use crate::api::Aggregate;
 #[cfg(feature = "event")]
+use crate::api::AggregateApplyRequest;
+#[cfg(feature = "event")]
 use crate::api::DomainEvent;
 #[cfg(feature = "event")]
 use crate::api::EventBus;
@@ -26,6 +28,8 @@ use crate::api::EventPublisher;
 use crate::api::EventStore;
 #[cfg(feature = "event")]
 use crate::api::EventStoreError;
+#[cfg(feature = "event")]
+use crate::api::EventStoreLoadRequest;
 #[cfg(feature = "event")]
 use crate::api::InMemoryEventStore;
 #[cfg(feature = "event")]
@@ -288,13 +292,18 @@ impl Domain {
     where
         A: Aggregate,
     {
-        let envelopes = store.load(aggregate_id).await?;
+        let envelopes = store
+            .load(EventStoreLoadRequest { aggregate_id })
+            .await?
+            .events;
         if envelopes.is_empty() {
             return Ok(None);
         }
         let mut aggregate = A::default();
         for envelope in &envelopes {
-            aggregate.apply(&envelope.event);
+            let _ = aggregate.apply(AggregateApplyRequest {
+                event: &envelope.event,
+            });
         }
         Ok(Some(aggregate))
     }
@@ -325,6 +334,9 @@ impl Domain {
     /// Validate a configuration value using its [`Validator`](crate::api::Validator) impl.
     #[cfg(feature = "validator")]
     pub fn validate_config<V: crate::api::Validator>(config: &V) -> Result<(), String> {
-        config.validate().map_err(|e| e.to_string())
+        config
+            .validate(edge_domain_validator::ValidationRequest)
+            .map(|_| ())
+            .map_err(|e| e.to_string())
     }
 }

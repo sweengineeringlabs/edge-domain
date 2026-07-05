@@ -1,7 +1,8 @@
 //! Umbrella-level integration tests that exercise `edge-domain-entity` as a
 //! dependency — verifying the sub-crate contract is accessible end-to-end.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_entity::Entity;
+use edge_domain_entity::{Entity, EntityError, IdRequest, IdResponse};
 
 struct Invoice {
     id: u64,
@@ -9,8 +10,8 @@ struct Invoice {
 
 impl Entity for Invoice {
     type Id = u64;
-    fn id(&self) -> &u64 {
-        &self.id
+    fn id(&self, _req: IdRequest) -> Result<IdResponse<'_, u64>, EntityError> {
+        Ok(IdResponse { id: &self.id })
     }
 }
 
@@ -18,7 +19,7 @@ impl Entity for Invoice {
 #[test]
 fn test_entity_sub_crate_accessible_as_umbrella_dep_happy() {
     let inv = Invoice { id: 99 };
-    assert_eq!(*inv.id(), 99u64);
+    assert_eq!(*inv.id(IdRequest).unwrap().id, 99u64);
 }
 
 /// @covers: edge-domain-entity::Entity — two entities with different IDs are not equal (identity semantics)
@@ -26,5 +27,5 @@ fn test_entity_sub_crate_accessible_as_umbrella_dep_happy() {
 fn test_entity_sub_crate_different_ids_are_distinct_error() {
     let a = Invoice { id: 1 };
     let b = Invoice { id: 2 };
-    assert_ne!(a.id(), b.id());
+    assert_ne!(a.id(IdRequest).unwrap().id, b.id(IdRequest).unwrap().id);
 }

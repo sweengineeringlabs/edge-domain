@@ -3,7 +3,11 @@
 
 use std::time::SystemTime;
 
-use edge_domain::{Domain, DomainEvent, ExpectedVersion};
+use edge_domain::{
+    Domain, DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse,
+    EventStoreAppendRequest, EventStoreLoadRequest, EventTypeRequest, EventTypeResponse,
+    EventOccurredAtRequest, EventOccurredAtResponse, EventError, ExpectedVersion,
+};
 
 #[derive(Clone)]
 struct Incremented {
@@ -11,14 +15,26 @@ struct Incremented {
 }
 
 impl DomainEvent for Incremented {
-    fn event_type(&self) -> &str {
-        "counter.incremented"
+    fn event_type(&self, _req: EventTypeRequest) -> Result<EventTypeResponse<'_>, EventError> {
+        Ok(EventTypeResponse {
+            event_type: "counter.incremented",
+        })
     }
-    fn aggregate_id(&self) -> &str {
-        &self.id
+    fn aggregate_id(
+        &self,
+        _req: EventAggregateIdRequest,
+    ) -> Result<EventAggregateIdResponse<'_>, EventError> {
+        Ok(EventAggregateIdResponse {
+            aggregate_id: &self.id,
+        })
     }
-    fn occurred_at(&self) -> SystemTime {
-        SystemTime::now()
+    fn occurred_at(
+        &self,
+        _req: EventOccurredAtRequest,
+    ) -> Result<EventOccurredAtResponse, EventError> {
+        Ok(EventOccurredAtResponse {
+            occurred_at: SystemTime::now(),
+        })
     }
 }
 
@@ -27,14 +43,18 @@ impl DomainEvent for Incremented {
 async fn test_in_memory_event_store_append_and_load_roundtrip() {
     let store = Domain::new_in_memory_event_store::<Incremented>();
     store
-        .append(
-            "c1",
-            vec![Incremented { id: "c1".into() }],
-            ExpectedVersion::NoStream,
-        )
+        .append(EventStoreAppendRequest {
+            aggregate_id: "c1",
+            events: vec![Incremented { id: "c1".into() }],
+            expected: ExpectedVersion::NoStream,
+        })
         .await
         .unwrap();
-    let events = store.load("c1").await.unwrap();
+    let events = store
+        .load(EventStoreLoadRequest { aggregate_id: "c1" })
+        .await
+        .unwrap()
+        .events;
     assert_eq!(events.len(), 1);
     assert_eq!(events[0].aggregate_id, "c1");
 }
@@ -43,5 +63,12 @@ async fn test_in_memory_event_store_append_and_load_roundtrip() {
 #[tokio::test]
 async fn test_in_memory_event_store_load_returns_empty_for_unknown_id() {
     let store = Domain::new_in_memory_event_store::<Incremented>();
-    assert!(store.load("unknown").await.unwrap().is_empty());
+    assert!(store
+        .load(EventStoreLoadRequest {
+            aggregate_id: "unknown"
+        })
+        .await
+        .unwrap()
+        .events
+        .is_empty());
 }

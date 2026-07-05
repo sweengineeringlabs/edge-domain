@@ -4,7 +4,11 @@
 
 use std::time::SystemTime;
 
-use edge_domain::{DomainEvent, Projection};
+use edge_domain::{
+    DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventError,
+    EventOccurredAtRequest, EventOccurredAtResponse, EventTypeRequest, EventTypeResponse,
+    Projection,
+};
 
 #[derive(Clone)]
 struct AccountCredited {
@@ -13,14 +17,26 @@ struct AccountCredited {
 }
 
 impl DomainEvent for AccountCredited {
-    fn event_type(&self) -> &str {
-        "account.credited"
+    fn event_type(&self, _req: EventTypeRequest) -> Result<EventTypeResponse<'_>, EventError> {
+        Ok(EventTypeResponse {
+            event_type: "account.credited",
+        })
     }
-    fn aggregate_id(&self) -> &str {
-        &self.id
+    fn aggregate_id(
+        &self,
+        _req: EventAggregateIdRequest,
+    ) -> Result<EventAggregateIdResponse<'_>, EventError> {
+        Ok(EventAggregateIdResponse {
+            aggregate_id: &self.id,
+        })
     }
-    fn occurred_at(&self) -> SystemTime {
-        SystemTime::now()
+    fn occurred_at(
+        &self,
+        _req: EventOccurredAtRequest,
+    ) -> Result<EventOccurredAtResponse, EventError> {
+        Ok(EventOccurredAtResponse {
+            occurred_at: SystemTime::now(),
+        })
     }
 }
 

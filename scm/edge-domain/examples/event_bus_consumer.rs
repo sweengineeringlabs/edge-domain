@@ -10,7 +10,11 @@
 //!
 //! SEA constraint: all imports come from the edge_domain SAF surface.
 
-use edge_domain::{Domain, EventBusConfig};
+use edge_domain::{
+    Domain, EventAggregateIdRequest, EventAggregateIdResponse, EventBusConfig,
+    EventBusPublishRequest, EventError, EventOccurredAtRequest, EventOccurredAtResponse,
+    EventTypeRequest, EventTypeResponse,
+};
 use std::sync::Arc;
 
 #[derive(Clone)]
@@ -21,16 +25,28 @@ struct OrderEvent {
 }
 
 impl edge_domain::DomainEvent for OrderEvent {
-    fn event_type(&self) -> &str {
-        "order.status_changed"
+    fn event_type(&self, _req: EventTypeRequest) -> Result<EventTypeResponse<'_>, EventError> {
+        Ok(EventTypeResponse {
+            event_type: "order.status_changed",
+        })
     }
 
-    fn aggregate_id(&self) -> &str {
-        &self.order_id
+    fn aggregate_id(
+        &self,
+        _req: EventAggregateIdRequest,
+    ) -> Result<EventAggregateIdResponse<'_>, EventError> {
+        Ok(EventAggregateIdResponse {
+            aggregate_id: &self.order_id,
+        })
     }
 
-    fn occurred_at(&self) -> std::time::SystemTime {
-        std::time::SystemTime::now()
+    fn occurred_at(
+        &self,
+        _req: EventOccurredAtRequest,
+    ) -> Result<EventOccurredAtResponse, EventError> {
+        Ok(EventOccurredAtResponse {
+            occurred_at: std::time::SystemTime::now(),
+        })
     }
 }
 
@@ -51,7 +67,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             order_id: format!("order-{i}"),
             status: "processing".to_string(),
         });
-        event_bus.publish(event).await?;
+        event_bus
+            .publish(EventBusPublishRequest { event })
+            .await?;
         println!("   ✓ Event {i} published");
     }
     println!();
@@ -87,7 +105,7 @@ impl OrderService {
             order_id: order_id.to_string(),
             status: status.to_string(),
         });
-        self.bus.publish(event).await?;
+        self.bus.publish(EventBusPublishRequest { event }).await?;
         println!("   Service published: {order_id} → {status}");
         Ok(())
     }

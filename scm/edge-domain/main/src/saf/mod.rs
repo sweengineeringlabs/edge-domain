@@ -135,35 +135,35 @@ pub use edge_domain_event::ExpectedVersion;
 
 // ── pipeline (sub-crate when feature enabled) ────────────────────────────────
 #[cfg(feature = "pipeline")]
-pub use edge_domain_pipeline::ContextMutationRequest;
+pub use edge_pipeline::ContextMutationRequest;
 #[cfg(feature = "pipeline")]
-pub use edge_domain_pipeline::Pipeline;
+pub use edge_pipeline::Pipeline;
 #[cfg(feature = "pipeline")]
-pub use edge_domain_pipeline::PipelineBuilder;
+pub use edge_pipeline::PipelineBuilder;
 #[cfg(feature = "pipeline")]
-pub use edge_domain_pipeline::PipelineConfig;
+pub use edge_pipeline::PipelineConfig;
 #[cfg(feature = "pipeline")]
-pub use edge_domain_pipeline::PipelineEmptinessRequest;
+pub use edge_pipeline::PipelineEmptinessRequest;
 #[cfg(feature = "pipeline")]
-pub use edge_domain_pipeline::PipelineError;
+pub use edge_pipeline::PipelineError;
 #[cfg(feature = "pipeline")]
-pub use edge_domain_pipeline::PipelineSvc;
+pub use edge_pipeline::PipelineSvc;
 #[cfg(feature = "pipeline")]
-pub use edge_domain_pipeline::Step;
+pub use edge_pipeline::Step;
 #[cfg(feature = "pipeline")]
-pub use edge_domain_pipeline::StepCountRequest;
+pub use edge_pipeline::StepCountRequest;
 #[cfg(feature = "pipeline")]
-pub use edge_domain_pipeline::StepNameRequest;
+pub use edge_pipeline::StepNameRequest;
 #[cfg(feature = "pipeline")]
-pub use edge_domain_pipeline::StepNameResponse;
+pub use edge_pipeline::StepNameResponse;
 #[cfg(feature = "pipeline")]
-pub use edge_domain_pipeline::StepRegistry as PipelineStepRegistry;
+pub use edge_pipeline::StepRegistry as PipelineStepRegistry;
 #[cfg(feature = "pipeline")]
-pub use edge_domain_pipeline::StepRegistrySvc as PipelineStepRegistrySvc;
+pub use edge_pipeline::StepRegistrySvc as PipelineStepRegistrySvc;
 #[cfg(feature = "pipeline")]
-pub use edge_domain_pipeline::Validator as PipelineValidator;
+pub use edge_pipeline::Validator as PipelineValidator;
 #[cfg(feature = "pipeline")]
-pub use edge_domain_pipeline::ValidatorSvc as PipelineValidatorSvc;
+pub use edge_pipeline::ValidatorSvc as PipelineValidatorSvc;
 
 // ── projection (sub-crate when feature enabled) ───────────────────────────────
 #[cfg(feature = "projection")]

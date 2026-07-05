@@ -6,7 +6,13 @@
 
 use std::time::SystemTime;
 
-use edge_domain::{Aggregate, Domain, DomainEvent, EventStoreError, ExpectedVersion};
+use edge_domain::{
+    Aggregate, AggregateApplyRequest, AggregateApplyResponse, AggregateIdentityRequest,
+    AggregateIdentityResponse, Domain, DomainEvent, EventAggregateIdRequest,
+    EventAggregateIdResponse, EventError, EventOccurredAtRequest, EventOccurredAtResponse,
+    EventStoreAppendRequest, EventStoreError, EventStoreLoadFromRequest, EventStoreLoadRequest,
+    EventTypeRequest, EventTypeResponse, ExpectedVersion,
+};
 
 // ── test fixtures ─────────────────────────────────────────────────────────────
 
@@ -16,14 +22,26 @@ struct CounterIncremented {
 }
 
 impl DomainEvent for CounterIncremented {
-    fn event_type(&self) -> &str {
-        "counter.incremented"
+    fn event_type(&self, _req: EventTypeRequest) -> Result<EventTypeResponse<'_>, EventError> {
+        Ok(EventTypeResponse {
+            event_type: "counter.incremented",
+        })
     }
-    fn aggregate_id(&self) -> &str {
-        &self.counter_id
+    fn aggregate_id(
+        &self,
+        _req: EventAggregateIdRequest,
+    ) -> Result<EventAggregateIdResponse<'_>, EventError> {
+        Ok(EventAggregateIdResponse {
+            aggregate_id: &self.counter_id,
+        })
     }
-    fn occurred_at(&self) -> SystemTime {
-        SystemTime::UNIX_EPOCH
+    fn occurred_at(
+        &self,
+        _req: EventOccurredAtRequest,
+    ) -> Result<EventOccurredAtResponse, EventError> {
+        Ok(EventOccurredAtResponse {
+            occurred_at: SystemTime::UNIX_EPOCH,
+        })
     }
 }
 
@@ -36,13 +54,17 @@ struct Counter {
 impl Aggregate for Counter {
     type Event = CounterIncremented;
 
-    fn apply(&mut self, event: &CounterIncremented) {
-        self.id = event.counter_id.clone();
+    fn apply(
+        &mut self,
+        req: AggregateApplyRequest<'_, CounterIncremented>,
+    ) -> Result<AggregateApplyResponse, EventError> {
+        self.id = req.event.counter_id.clone();
         self.value += 1;
+        Ok(AggregateApplyResponse)
     }
 
-    fn id(&self) -> &str {
-        &self.id
+    fn id(&self, _req: AggregateIdentityRequest) -> Result<AggregateIdentityResponse<'_>, EventError> {
+        Ok(AggregateIdentityResponse { id: &self.id })
     }
 }
 
@@ -59,15 +81,16 @@ fn test_new_in_memory_event_store_is_constructible() {
 async fn test_append_returns_new_stream_version() {
     let store = Domain::new_in_memory_event_store::<CounterIncremented>();
     let ver = store
-        .append(
-            "c1",
-            vec![CounterIncremented {
+        .append(EventStoreAppendRequest {
+            aggregate_id: "c1",
+            events: vec![CounterIncremented {
                 counter_id: "c1".into(),
             }],
-            ExpectedVersion::NoStream,
-        )
+            expected: ExpectedVersion::NoStream,
+        })
         .await
-        .expect("append must succeed");
+        .expect("append must succeed")
+        .sequence;
     assert_eq!(ver, 1);
 }
 
@@ -75,8 +98,13 @@ async fn test_append_returns_new_stream_version() {
 #[tokio::test]
 async fn test_load_returns_empty_for_unknown_aggregate() {
     let store = Domain::new_in_memory_event_store::<CounterIncremented>();
-    let events = store.load("unknown").await.expect("load must succeed");
-    assert!(events.is_empty());
+    let events = store
+        .load(EventStoreLoadRequest {
+            aggregate_id: "unknown",
+        })
+        .await
+        .expect("load must succeed");
+    assert!(events.events.is_empty());
 }
 
 /// @covers: EventStore::append + load — events are stored and returned in order.
@@ -84,9 +112,9 @@ async fn test_load_returns_empty_for_unknown_aggregate() {
 async fn test_append_and_load_round_trip() {
     let store = Domain::new_in_memory_event_store::<CounterIncremented>();
     store
-        .append(
-            "c1",
-            vec![
+        .append(EventStoreAppendRequest {
+            aggregate_id: "c1",
+            events: vec![
                 CounterIncremented {
                     counter_id: "c1".into(),
                 },
@@ -94,12 +122,16 @@ async fn test_append_and_load_round_trip() {
                     counter_id: "c1".into(),
                 },
             ],
-            ExpectedVersion::NoStream,
-        )
+            expected: ExpectedVersion::NoStream,
+        })
         .await
         .expect("append");
 
-    let events = store.load("c1").await.expect("load");
+    let events = store
+        .load(EventStoreLoadRequest { aggregate_id: "c1" })
+        .await
+        .expect("load")
+        .events;
     assert_eq!(events.len(), 2);
     assert_eq!(events[0].sequence, 1);
     assert_eq!(events[1].sequence, 2);
@@ -110,9 +142,9 @@ async fn test_append_and_load_round_trip() {
 async fn test_load_from_returns_subset_from_sequence() {
     let store = Domain::new_in_memory_event_store::<CounterIncremented>();
     store
-        .append(
-            "c1",
-            vec![
+        .append(EventStoreAppendRequest {
+            aggregate_id: "c1",
+            events: vec![
                 CounterIncremented {
                     counter_id: "c1".into(),
                 },
@@ -123,12 +155,19 @@ async fn test_load_from_returns_subset_from_sequence() {
                     counter_id: "c1".into(),
                 },
             ],
-            ExpectedVersion::Any,
-        )
+            expected: ExpectedVersion::Any,
+        })
         .await
         .expect("append");
 
-    let events = store.load_from("c1", 2).await.expect("load_from");
+    let events = store
+        .load_from(EventStoreLoadFromRequest {
+            aggregate_id: "c1",
+            from_sequence: 2,
+        })
+        .await
+        .expect("load_from")
+        .events;
     assert_eq!(events.len(), 2);
     assert_eq!(events[0].sequence, 2);
 }
@@ -140,24 +179,24 @@ async fn test_load_from_returns_subset_from_sequence() {
 async fn test_append_no_stream_conflicts_when_stream_exists() {
     let store = Domain::new_in_memory_event_store::<CounterIncremented>();
     store
-        .append(
-            "c1",
-            vec![CounterIncremented {
+        .append(EventStoreAppendRequest {
+            aggregate_id: "c1",
+            events: vec![CounterIncremented {
                 counter_id: "c1".into(),
             }],
-            ExpectedVersion::NoStream,
-        )
+            expected: ExpectedVersion::NoStream,
+        })
         .await
         .expect("first append");
 
     let err = store
-        .append(
-            "c1",
-            vec![CounterIncremented {
+        .append(EventStoreAppendRequest {
+            aggregate_id: "c1",
+            events: vec![CounterIncremented {
                 counter_id: "c1".into(),
             }],
-            ExpectedVersion::NoStream,
-        )
+            expected: ExpectedVersion::NoStream,
+        })
         .await
         .expect_err("second append must conflict");
 
@@ -169,24 +208,24 @@ async fn test_append_no_stream_conflicts_when_stream_exists() {
 async fn test_append_exact_version_conflicts_on_mismatch() {
     let store = Domain::new_in_memory_event_store::<CounterIncremented>();
     store
-        .append(
-            "c1",
-            vec![CounterIncremented {
+        .append(EventStoreAppendRequest {
+            aggregate_id: "c1",
+            events: vec![CounterIncremented {
                 counter_id: "c1".into(),
             }],
-            ExpectedVersion::Any,
-        )
+            expected: ExpectedVersion::Any,
+        })
         .await
         .expect("first append");
 
     let err = store
-        .append(
-            "c1",
-            vec![CounterIncremented {
+        .append(EventStoreAppendRequest {
+            aggregate_id: "c1",
+            events: vec![CounterIncremented {
                 counter_id: "c1".into(),
             }],
-            ExpectedVersion::Exact(0),
-        )
+            expected: ExpectedVersion::Exact(0),
+        })
         .await
         .expect_err("version mismatch must conflict");
 
@@ -206,17 +245,21 @@ async fn test_append_any_version_never_conflicts() {
     let store = Domain::new_in_memory_event_store::<CounterIncremented>();
     for _ in 0..3 {
         store
-            .append(
-                "c1",
-                vec![CounterIncremented {
+            .append(EventStoreAppendRequest {
+                aggregate_id: "c1",
+                events: vec![CounterIncremented {
                     counter_id: "c1".into(),
                 }],
-                ExpectedVersion::Any,
-            )
+                expected: ExpectedVersion::Any,
+            })
             .await
             .expect("Any must never conflict");
     }
-    let events = store.load("c1").await.expect("load");
+    let events = store
+        .load(EventStoreLoadRequest { aggregate_id: "c1" })
+        .await
+        .expect("load")
+        .events;
     assert_eq!(events.len(), 3);
 }
 
@@ -237,9 +280,9 @@ async fn test_reconstitute_returns_none_for_unknown_aggregate() {
 async fn test_reconstitute_rebuilds_aggregate_from_events() {
     let store = Domain::new_in_memory_event_store::<CounterIncremented>();
     store
-        .append(
-            "c1",
-            vec![
+        .append(EventStoreAppendRequest {
+            aggregate_id: "c1",
+            events: vec![
                 CounterIncremented {
                     counter_id: "c1".into(),
                 },
@@ -250,8 +293,8 @@ async fn test_reconstitute_rebuilds_aggregate_from_events() {
                     counter_id: "c1".into(),
                 },
             ],
-            ExpectedVersion::NoStream,
-        )
+            expected: ExpectedVersion::NoStream,
+        })
         .await
         .expect("append");
 
@@ -261,7 +304,10 @@ async fn test_reconstitute_rebuilds_aggregate_from_events() {
         .expect("must exist");
 
     assert_eq!(counter.value, 3);
-    assert_eq!(counter.id(), "c1");
+    assert_eq!(
+        counter.id(AggregateIdentityRequest).unwrap().id,
+        "c1"
+    );
 }
 
 /// @covers: reconstitute — idempotent across multiple calls.
@@ -269,13 +315,13 @@ async fn test_reconstitute_rebuilds_aggregate_from_events() {
 async fn test_reconstitute_is_idempotent() {
     let store = Domain::new_in_memory_event_store::<CounterIncremented>();
     store
-        .append(
-            "c1",
-            vec![CounterIncremented {
+        .append(EventStoreAppendRequest {
+            aggregate_id: "c1",
+            events: vec![CounterIncremented {
                 counter_id: "c1".into(),
             }],
-            ExpectedVersion::NoStream,
-        )
+            expected: ExpectedVersion::NoStream,
+        })
         .await
         .expect("append");
 

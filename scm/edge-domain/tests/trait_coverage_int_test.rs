@@ -6,9 +6,9 @@
 
 use edge_domain::*;
 use edge_domain_handler::{
-    DeregisterHandlerRequest, EmptinessRequest as HandlerEmptinessRequest, ExecutionRequest,
-    HandlerBuildResponse, HandlerLookupRequest, IdRequest, LenRequest as HandlerLenRequest,
-    ListIdsRequest, PatternRequest, RegisterHandlerRequest,
+    DeregisterHandlerRequest, EmptinessRequest as HandlerEmptinessRequest, HandlerBuildResponse,
+    HandlerLookupRequest, IdRequest, LenRequest as HandlerLenRequest, ListIdsRequest,
+    PatternRequest, RegisterHandlerRequest,
 };
 use edge_domain_service::{
     EmptinessRequest as ServiceEmptinessRequest, LenRequest as ServiceLenRequest, ListNamesRequest,
@@ -27,14 +27,26 @@ struct TestEvent {
 }
 
 impl DomainEvent for TestEvent {
-    fn event_type(&self) -> &str {
-        "test.event"
+    fn event_type(&self, _req: EventTypeRequest) -> Result<EventTypeResponse<'_>, EventError> {
+        Ok(EventTypeResponse {
+            event_type: "test.event",
+        })
     }
-    fn aggregate_id(&self) -> &str {
-        &self.aggregate_id
+    fn aggregate_id(
+        &self,
+        _req: EventAggregateIdRequest,
+    ) -> Result<EventAggregateIdResponse<'_>, EventError> {
+        Ok(EventAggregateIdResponse {
+            aggregate_id: &self.aggregate_id,
+        })
     }
-    fn occurred_at(&self) -> SystemTime {
-        SystemTime::UNIX_EPOCH
+    fn occurred_at(
+        &self,
+        _req: EventOccurredAtRequest,
+    ) -> Result<EventOccurredAtResponse, EventError> {
+        Ok(EventOccurredAtResponse {
+            occurred_at: SystemTime::UNIX_EPOCH,
+        })
     }
 }
 
@@ -46,12 +58,16 @@ struct TestAggregate {
 
 impl Aggregate for TestAggregate {
     type Event = TestEvent;
-    fn apply(&mut self, e: &TestEvent) {
-        self.id = e.aggregate_id.clone();
+    fn apply(
+        &mut self,
+        req: AggregateApplyRequest<'_, TestEvent>,
+    ) -> Result<AggregateApplyResponse, EventError> {
+        self.id = req.event.aggregate_id.clone();
         self.count += 1;
+        Ok(AggregateApplyResponse)
     }
-    fn id(&self) -> &str {
-        &self.id
+    fn id(&self, _req: AggregateIdentityRequest) -> Result<AggregateIdentityResponse<'_>, EventError> {
+        Ok(AggregateIdentityResponse { id: &self.id })
     }
 }
 
@@ -170,23 +186,20 @@ impl EventStore for ErrEventStore {
     type Event = TestEvent;
     fn append(
         &self,
-        _: &str,
-        _: Vec<TestEvent>,
-        _: ExpectedVersion,
-    ) -> BoxFuture<'_, Result<u64, EventStoreError>> {
+        _req: EventStoreAppendRequest<'_, TestEvent>,
+    ) -> BoxFuture<'_, Result<EventStoreAppendResponse, EventStoreError>> {
         Box::pin(async { Err(EventStoreError::Unavailable("down".into())) })
     }
     fn load(
         &self,
-        _: &str,
-    ) -> BoxFuture<'_, Result<Vec<EventEnvelope<TestEvent>>, EventStoreError>> {
+        _req: EventStoreLoadRequest<'_>,
+    ) -> BoxFuture<'_, Result<EventStoreLoadResponse<TestEvent>, EventStoreError>> {
         Box::pin(async { Err(EventStoreError::Unavailable("down".into())) })
     }
     fn load_from(
         &self,
-        _: &str,
-        _: u64,
-    ) -> BoxFuture<'_, Result<Vec<EventEnvelope<TestEvent>>, EventStoreError>> {
+        _req: EventStoreLoadFromRequest<'_>,
+    ) -> BoxFuture<'_, Result<EventStoreLoadFromResponse<TestEvent>, EventStoreError>> {
         Box::pin(async { Err(EventStoreError::Unavailable("down".into())) })
     }
 }
@@ -307,10 +320,13 @@ fn test_dispatch_query_propagates_error_error() {
 #[test]
 fn test_apply_event_updates_aggregate_state_happy() {
     let mut agg = TestAggregate::default();
-    agg.apply(&TestEvent {
-        aggregate_id: "a1".into(),
-    });
-    assert_eq!(agg.id(), "a1");
+    agg.apply(AggregateApplyRequest {
+        event: &TestEvent {
+            aggregate_id: "a1".into(),
+        },
+    })
+    .unwrap();
+    assert_eq!(agg.id(AggregateIdentityRequest).unwrap().id, "a1");
     assert_eq!(agg.count, 1);
 }
 
@@ -322,33 +338,51 @@ fn test_apply_no_op_on_default_impl_not_error() {
     #[derive(Clone)]
     struct NoOpEvent;
     impl DomainEvent for NoOpEvent {
-        fn event_type(&self) -> &str {
-            "noop"
+        fn event_type(&self, _req: EventTypeRequest) -> Result<EventTypeResponse<'_>, EventError> {
+            Ok(EventTypeResponse { event_type: "noop" })
         }
-        fn aggregate_id(&self) -> &str {
-            ""
+        fn aggregate_id(
+            &self,
+            _req: EventAggregateIdRequest,
+        ) -> Result<EventAggregateIdResponse<'_>, EventError> {
+            Ok(EventAggregateIdResponse { aggregate_id: "" })
         }
-        fn occurred_at(&self) -> SystemTime {
-            SystemTime::UNIX_EPOCH
+        fn occurred_at(
+            &self,
+            _req: EventOccurredAtRequest,
+        ) -> Result<EventOccurredAtResponse, EventError> {
+            Ok(EventOccurredAtResponse {
+                occurred_at: SystemTime::UNIX_EPOCH,
+            })
         }
     }
     impl Aggregate for NoOpAgg {
         type Event = NoOpEvent;
     }
     let mut agg = NoOpAgg;
-    agg.apply(&NoOpEvent); // should not panic
-    assert_eq!(agg.id(), "", "default impl should not modify state");
+    agg.apply(AggregateApplyRequest { event: &NoOpEvent }).unwrap(); // should not panic
+    assert_eq!(
+        agg.id(AggregateIdentityRequest).unwrap().id,
+        "",
+        "default impl should not modify state"
+    );
 }
 
 #[test]
 fn test_apply_called_twice_increments_count_edge() {
     let mut agg = TestAggregate::default();
-    agg.apply(&TestEvent {
-        aggregate_id: "a".into(),
-    });
-    agg.apply(&TestEvent {
-        aggregate_id: "a".into(),
-    });
+    agg.apply(AggregateApplyRequest {
+        event: &TestEvent {
+            aggregate_id: "a".into(),
+        },
+    })
+    .unwrap();
+    agg.apply(AggregateApplyRequest {
+        event: &TestEvent {
+            aggregate_id: "a".into(),
+        },
+    })
+    .unwrap();
     assert_eq!(agg.count, 2);
 }
 
@@ -358,10 +392,13 @@ fn test_apply_called_twice_increments_count_edge() {
 #[test]
 fn test_id_aggregate_reflects_applied_event_happy() {
     let mut agg = TestAggregate::default();
-    agg.apply(&TestEvent {
-        aggregate_id: "agg-42".into(),
-    });
-    assert_eq!(agg.id(), "agg-42");
+    agg.apply(AggregateApplyRequest {
+        event: &TestEvent {
+            aggregate_id: "agg-42".into(),
+        },
+    })
+    .unwrap();
+    assert_eq!(agg.id(AggregateIdentityRequest).unwrap().id, "agg-42");
 }
 
 #[test]
@@ -373,7 +410,7 @@ fn test_id_handler_matches_constructor_arg_not_error() {
 #[test]
 fn test_id_aggregate_default_is_empty_edge() {
     let agg = TestAggregate::default();
-    assert_eq!(agg.id(), "");
+    assert_eq!(agg.id(AggregateIdentityRequest).unwrap().id, "");
 }
 
 // ─── event_type ──────────────────────────────────────────────────────────────
@@ -384,7 +421,10 @@ fn test_event_type_returns_defined_value_happy() {
     let e = TestEvent {
         aggregate_id: "x".into(),
     };
-    assert_eq!(e.event_type(), "test.event");
+    assert_eq!(
+        e.event_type(EventTypeRequest).unwrap().event_type,
+        "test.event"
+    );
 }
 
 #[test]
@@ -393,7 +433,7 @@ fn test_event_type_stable_across_calls_not_error() {
         aggregate_id: "x".into(),
     };
     assert_eq!(
-        e.event_type(),
+        e.event_type(EventTypeRequest).unwrap().event_type,
         "test.event",
         "event type should be stable and known"
     );
@@ -404,7 +444,13 @@ fn test_event_type_default_impl_returns_event_edge() {
     // Default DomainEvent::event_type returns "event" — documents default behavior
     struct DefaultEvent;
     impl DomainEvent for DefaultEvent {}
-    assert_eq!(DefaultEvent.event_type(), "event");
+    assert_eq!(
+        DefaultEvent
+            .event_type(EventTypeRequest)
+            .unwrap()
+            .event_type,
+        "event"
+    );
 }
 
 // ─── aggregate_id ────────────────────────────────────────────────────────────
@@ -415,7 +461,10 @@ fn test_aggregate_id_returns_set_value_happy() {
     let e = TestEvent {
         aggregate_id: "order-1".into(),
     };
-    assert_eq!(e.aggregate_id(), "order-1");
+    assert_eq!(
+        e.aggregate_id(EventAggregateIdRequest).unwrap().aggregate_id,
+        "order-1"
+    );
 }
 
 #[test]
@@ -424,7 +473,7 @@ fn test_aggregate_id_consistent_across_calls_not_error() {
         aggregate_id: "x".into(),
     };
     assert_eq!(
-        e.aggregate_id(),
+        e.aggregate_id(EventAggregateIdRequest).unwrap().aggregate_id,
         "x",
         "aggregate id should be stable and known"
     );
@@ -435,7 +484,10 @@ fn test_aggregate_id_can_be_empty_string_edge() {
     let e = TestEvent {
         aggregate_id: String::new(),
     };
-    assert_eq!(e.aggregate_id(), "");
+    assert_eq!(
+        e.aggregate_id(EventAggregateIdRequest).unwrap().aggregate_id,
+        ""
+    );
 }
 
 // ─── occurred_at ─────────────────────────────────────────────────────────────
@@ -446,7 +498,10 @@ fn test_occurred_at_returns_expected_time_happy() {
     let e = TestEvent {
         aggregate_id: "x".into(),
     };
-    assert_eq!(e.occurred_at(), SystemTime::UNIX_EPOCH);
+    assert_eq!(
+        e.occurred_at(EventOccurredAtRequest).unwrap().occurred_at,
+        SystemTime::UNIX_EPOCH
+    );
 }
 
 #[test]
@@ -454,7 +509,13 @@ fn test_occurred_at_is_after_unix_epoch_not_error() {
     // Default occurred_at is SystemTime::now() — must be >= UNIX_EPOCH
     struct NowEvent;
     impl DomainEvent for NowEvent {}
-    assert!(NowEvent.occurred_at() >= SystemTime::UNIX_EPOCH);
+    assert!(
+        NowEvent
+            .occurred_at(EventOccurredAtRequest)
+            .unwrap()
+            .occurred_at
+            >= SystemTime::UNIX_EPOCH
+    );
 }
 
 #[test]
@@ -462,7 +523,11 @@ fn test_occurred_at_unix_epoch_is_valid_timestamp_edge() {
     let e = TestEvent {
         aggregate_id: "x".into(),
     };
-    let dur = e.occurred_at().duration_since(SystemTime::UNIX_EPOCH);
+    let dur = e
+        .occurred_at(EventOccurredAtRequest)
+        .unwrap()
+        .occurred_at
+        .duration_since(SystemTime::UNIX_EPOCH);
     assert!(
         dur.is_ok(),
         "timestamp should be valid and after unix epoch"
@@ -480,7 +545,9 @@ fn test_publish_to_noop_bus_returns_ok_happy() {
             aggregate_id: "x".into(),
         });
         assert!(
-            bus.publish(e).await.is_ok(),
+            bus.publish(EventBusPublishRequest { event: e })
+                .await
+                .is_ok(),
             "noop bus should always succeed"
         );
     });
@@ -494,7 +561,9 @@ fn test_publish_to_noop_publisher_never_errors_not_error() {
             aggregate_id: "x".into(),
         };
         assert!(
-            pub_.publish(&e).await.is_ok(),
+            pub_.publish(EventPublisherPublishRequest { event: &e })
+                .await
+                .is_ok(),
             "noop publisher is infallible"
         );
     });
@@ -508,7 +577,7 @@ fn test_publish_multiple_events_sequentially_edge() {
             let e: Arc<dyn DomainEvent> = Arc::new(TestEvent {
                 aggregate_id: i.to_string(),
             });
-            let result = bus.publish(e).await;
+            let result = bus.publish(EventBusPublishRequest { event: e }).await;
             assert!(
                 result.is_ok(),
                 "noop bus publish should always succeed for iteration {}",
@@ -525,7 +594,7 @@ fn test_publish_multiple_events_sequentially_edge() {
 fn test_subscribe_noop_bus_yields_receiver_happy() {
     block_on(async {
         let bus = Domain::noop_event_bus();
-        let mut rx = bus.subscribe();
+        let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         // noop bus's receiver immediately signals unavailable
         assert!(rx.recv().await.is_err());
     });
@@ -535,11 +604,13 @@ fn test_subscribe_noop_bus_yields_receiver_happy() {
 fn test_subscribe_active_bus_receives_published_event_not_error() {
     block_on(async {
         let bus = Domain::in_process_event_bus(EventBusConfig::default());
-        let mut rx = bus.subscribe();
+        let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         let e: Arc<dyn DomainEvent> = Arc::new(TestEvent {
             aggregate_id: "e1".into(),
         });
-        bus.publish(e).await.unwrap();
+        bus.publish(EventBusPublishRequest { event: e })
+            .await
+            .unwrap();
         assert!(rx.recv().await.is_ok());
     });
 }
@@ -548,12 +619,14 @@ fn test_subscribe_active_bus_receives_published_event_not_error() {
 fn test_subscribe_multiple_receivers_each_get_event_edge() {
     block_on(async {
         let bus = Domain::in_process_event_bus(EventBusConfig::default());
-        let mut rx1 = bus.subscribe();
-        let mut rx2 = bus.subscribe();
+        let mut rx1 = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
+        let mut rx2 = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         let e: Arc<dyn DomainEvent> = Arc::new(TestEvent {
             aggregate_id: "e2".into(),
         });
-        bus.publish(e).await.unwrap();
+        bus.publish(EventBusPublishRequest { event: e })
+            .await
+            .unwrap();
         assert!(rx1.recv().await.is_ok());
         assert!(rx2.recv().await.is_ok());
     });
@@ -567,15 +640,16 @@ fn test_append_returns_version_after_first_event_happy() {
     block_on(async {
         let store = Domain::new_in_memory_event_store::<TestEvent>();
         let ver = store
-            .append(
-                "agg-1",
-                vec![TestEvent {
+            .append(EventStoreAppendRequest {
+                aggregate_id: "agg-1",
+                events: vec![TestEvent {
                     aggregate_id: "agg-1".into(),
                 }],
-                ExpectedVersion::NoStream,
-            )
+                expected: ExpectedVersion::NoStream,
+            })
             .await
-            .unwrap();
+            .unwrap()
+            .sequence;
         assert_eq!(ver, 1);
     });
 }
@@ -585,23 +659,23 @@ fn test_append_nostream_on_existing_stream_returns_error() {
     block_on(async {
         let store = Domain::new_in_memory_event_store::<TestEvent>();
         store
-            .append(
-                "agg-1",
-                vec![TestEvent {
+            .append(EventStoreAppendRequest {
+                aggregate_id: "agg-1",
+                events: vec![TestEvent {
                     aggregate_id: "agg-1".into(),
                 }],
-                ExpectedVersion::NoStream,
-            )
+                expected: ExpectedVersion::NoStream,
+            })
             .await
             .unwrap();
         let result = store
-            .append(
-                "agg-1",
-                vec![TestEvent {
+            .append(EventStoreAppendRequest {
+                aggregate_id: "agg-1",
+                events: vec![TestEvent {
                     aggregate_id: "agg-1".into(),
                 }],
-                ExpectedVersion::NoStream,
-            )
+                expected: ExpectedVersion::NoStream,
+            })
             .await;
         assert!(result.is_err());
     });
@@ -613,13 +687,13 @@ fn test_append_any_version_never_conflicts_edge() {
         let store = Domain::new_in_memory_event_store::<TestEvent>();
         for i in 0..3 {
             let result = store
-                .append(
-                    "agg-1",
-                    vec![TestEvent {
+                .append(EventStoreAppendRequest {
+                    aggregate_id: "agg-1",
+                    events: vec![TestEvent {
                         aggregate_id: "agg-1".into(),
                     }],
-                    ExpectedVersion::Any,
-                )
+                    expected: ExpectedVersion::Any,
+                })
                 .await;
             assert!(
                 result.is_ok(),
@@ -638,9 +712,9 @@ fn test_load_after_append_returns_events_happy() {
     block_on(async {
         let store = Domain::new_in_memory_event_store::<TestEvent>();
         store
-            .append(
-                "a1",
-                vec![
+            .append(EventStoreAppendRequest {
+                aggregate_id: "a1",
+                events: vec![
                     TestEvent {
                         aggregate_id: "a1".into(),
                     },
@@ -648,11 +722,15 @@ fn test_load_after_append_returns_events_happy() {
                         aggregate_id: "a1".into(),
                     },
                 ],
-                ExpectedVersion::Any,
-            )
+                expected: ExpectedVersion::Any,
+            })
             .await
             .unwrap();
-        let events = store.load("a1").await.unwrap();
+        let events = store
+            .load(EventStoreLoadRequest { aggregate_id: "a1" })
+            .await
+            .unwrap()
+            .events;
         assert_eq!(events.len(), 2);
     });
 }
@@ -661,7 +739,13 @@ fn test_load_after_append_returns_events_happy() {
 fn test_load_nonexistent_stream_returns_empty_not_error() {
     block_on(async {
         let store = Domain::new_in_memory_event_store::<TestEvent>();
-        let events = store.load("ghost").await.unwrap();
+        let events = store
+            .load(EventStoreLoadRequest {
+                aggregate_id: "ghost",
+            })
+            .await
+            .unwrap()
+            .events;
         assert!(events.is_empty());
     });
 }
@@ -671,16 +755,20 @@ fn test_load_events_have_correct_sequence_edge() {
     block_on(async {
         let store = Domain::new_in_memory_event_store::<TestEvent>();
         store
-            .append(
-                "a1",
-                vec![TestEvent {
+            .append(EventStoreAppendRequest {
+                aggregate_id: "a1",
+                events: vec![TestEvent {
                     aggregate_id: "a1".into(),
                 }],
-                ExpectedVersion::Any,
-            )
+                expected: ExpectedVersion::Any,
+            })
             .await
             .unwrap();
-        let events = store.load("a1").await.unwrap();
+        let events = store
+            .load(EventStoreLoadRequest { aggregate_id: "a1" })
+            .await
+            .unwrap()
+            .events;
         assert_eq!(events[0].sequence, 1);
     });
 }
@@ -694,17 +782,24 @@ fn test_load_from_returns_subset_from_sequence_happy() {
         let store = Domain::new_in_memory_event_store::<TestEvent>();
         for _ in 0..3u32 {
             store
-                .append(
-                    "a1",
-                    vec![TestEvent {
+                .append(EventStoreAppendRequest {
+                    aggregate_id: "a1",
+                    events: vec![TestEvent {
                         aggregate_id: "a1".into(),
                     }],
-                    ExpectedVersion::Any,
-                )
+                    expected: ExpectedVersion::Any,
+                })
                 .await
                 .unwrap();
         }
-        let events = store.load_from("a1", 2).await.unwrap();
+        let events = store
+            .load_from(EventStoreLoadFromRequest {
+                aggregate_id: "a1",
+                from_sequence: 2,
+            })
+            .await
+            .unwrap()
+            .events;
         assert_eq!(events.len(), 2); // sequences 2 and 3
     });
 }
@@ -714,16 +809,23 @@ fn test_load_from_beyond_end_returns_empty_not_error() {
     block_on(async {
         let store = Domain::new_in_memory_event_store::<TestEvent>();
         store
-            .append(
-                "a1",
-                vec![TestEvent {
+            .append(EventStoreAppendRequest {
+                aggregate_id: "a1",
+                events: vec![TestEvent {
                     aggregate_id: "a1".into(),
                 }],
-                ExpectedVersion::Any,
-            )
+                expected: ExpectedVersion::Any,
+            })
             .await
             .unwrap();
-        let events = store.load_from("a1", 999).await.unwrap();
+        let events = store
+            .load_from(EventStoreLoadFromRequest {
+                aggregate_id: "a1",
+                from_sequence: 999,
+            })
+            .await
+            .unwrap()
+            .events;
         assert!(events.is_empty());
     });
 }
@@ -731,7 +833,12 @@ fn test_load_from_beyond_end_returns_empty_not_error() {
 #[test]
 fn test_load_from_unavailable_store_propagates_error_edge() {
     block_on(async {
-        let result = ErrEventStore.load_from("a1", 0).await;
+        let result = ErrEventStore
+            .load_from(EventStoreLoadFromRequest {
+                aggregate_id: "a1",
+                from_sequence: 0,
+            })
+            .await;
         assert!(result.is_err());
     });
 }
@@ -743,11 +850,13 @@ fn test_load_from_unavailable_store_propagates_error_edge() {
 fn test_recv_next_active_bus_returns_event_happy() {
     block_on(async {
         let bus = Domain::in_process_event_bus(EventBusConfig::default());
-        let mut rx = bus.subscribe();
+        let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         let e: Arc<dyn DomainEvent> = Arc::new(TestEvent {
             aggregate_id: "r1".into(),
         });
-        bus.publish(e).await.unwrap();
+        bus.publish(EventBusPublishRequest { event: e })
+            .await
+            .unwrap();
         assert!(rx.recv().await.is_ok());
     });
 }
@@ -757,7 +866,7 @@ fn test_recv_next_closed_source_returns_unavailable_error() {
     block_on(async {
         // noop bus subscribe returns a ClosedEventSource
         let bus = Domain::noop_event_bus();
-        let mut rx = bus.subscribe();
+        let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         assert!(matches!(rx.recv().await, Err(EventError::Unavailable(_))));
     });
 }
@@ -766,13 +875,18 @@ fn test_recv_next_closed_source_returns_unavailable_error() {
 fn test_recv_next_event_type_preserved_edge() {
     block_on(async {
         let bus = Domain::in_process_event_bus(EventBusConfig::default());
-        let mut rx = bus.subscribe();
+        let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         let e: Arc<dyn DomainEvent> = Arc::new(TestEvent {
             aggregate_id: "r2".into(),
         });
-        bus.publish(e).await.unwrap();
+        bus.publish(EventBusPublishRequest { event: e })
+            .await
+            .unwrap();
         let received = rx.recv().await.unwrap();
-        assert_eq!(received.event_type(), "test.event");
+        assert_eq!(
+            received.event_type(EventTypeRequest).unwrap().event_type,
+            "test.event"
+        );
     });
 }
 

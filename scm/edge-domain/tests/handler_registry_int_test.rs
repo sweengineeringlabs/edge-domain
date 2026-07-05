@@ -4,7 +4,7 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain::{Domain, Handler, HandlerContext, HandlerError, HandlerRegistry};
+use edge_domain::{Domain, Handler, HandlerError, HandlerRegistry};
 use edge_domain_handler::{
     DeregisterHandlerRequest, EmptinessRequest, ExecutionRequest, HandlerLookupRequest, IdRequest,
     IdResponse, LenRequest, ListIdsRequest, RegisterHandlerRequest,
@@ -50,14 +50,13 @@ fn test_register_makes_handler_retrievable() {
     let reg = registry();
     reg.register(RegisterHandlerRequest::new(echo("svc")))
         .unwrap();
-    assert_eq!(
+    assert!(
         reg.get(HandlerLookupRequest {
             id: "svc".to_string()
         })
         .unwrap()
         .handler
         .is_some(),
-        true,
         "registered handler must be retrievable"
     );
 }

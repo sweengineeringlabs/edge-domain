@@ -6,7 +6,7 @@ use std::sync::Arc;
 use edge_domain::{Domain, HandlerContext, HandlerError, Repository};
 use edge_domain_handler::{EmptinessRequest, ExecutionRequest, LenRequest};
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+use edge_domain_security::{SecurityBootstrap, SecurityServices};
 
 struct WriteHandler {
     repo: Arc<dyn Repository<Entity = String, Id = String>>,

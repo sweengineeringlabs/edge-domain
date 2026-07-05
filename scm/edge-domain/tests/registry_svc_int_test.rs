@@ -3,7 +3,10 @@
 // @allow: no_mocks_in_integration — InMemoryRegistry is a reference implementation in the public API, not a mock.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_registry::{InMemoryRegistry, Registry, RegistryBootstrap};
+use edge_domain_registry::{
+    DeregisterRequest, InMemoryRegistry, ListIdsRequest, RegisterRequest, Registry,
+    RegistryBootstrap, RegistryLookupRequest,
+};
 use std::sync::Arc;
 
 struct TestFactory;
@@ -13,44 +16,103 @@ impl RegistryBootstrap for TestFactory {}
 #[test]
 fn test_in_memory_registry_register_and_get_happy() {
     let registry: InMemoryRegistry<i32> = TestFactory::in_memory();
-    registry.register("key1", Arc::new(42));
-    assert_eq!(registry.get("key1").map(|v| *v), Some(42));
+    registry
+        .register(RegisterRequest {
+            id: "key1".to_string(),
+            entry: Arc::new(42),
+        })
+        .unwrap();
+    let entry = registry
+        .get(RegistryLookupRequest {
+            id: "key1".to_string(),
+        })
+        .unwrap()
+        .entry;
+    assert_eq!(entry.map(|v| *v), Some(42));
 }
 
 /// @covers: Registry::get (nonexistent key)
 #[test]
 fn test_in_memory_registry_get_nonexistent_key_returns_none_happy() {
     let registry: InMemoryRegistry<i32> = TestFactory::in_memory();
-    assert_eq!(registry.get("missing"), None);
+    let entry = registry
+        .get(RegistryLookupRequest {
+            id: "missing".to_string(),
+        })
+        .unwrap()
+        .entry;
+    assert_eq!(entry, None);
 }
 
 /// @covers: Registry::register (duplicate key)
 #[test]
 fn test_in_memory_registry_register_duplicate_key_overwrites_happy() {
     let registry: InMemoryRegistry<i32> = TestFactory::in_memory();
-    registry.register("key1", Arc::new(42));
-    registry.register("key1", Arc::new(100));
-    assert_eq!(registry.get("key1").map(|v| *v), Some(100));
+    registry
+        .register(RegisterRequest {
+            id: "key1".to_string(),
+            entry: Arc::new(42),
+        })
+        .unwrap();
+    registry
+        .register(RegisterRequest {
+            id: "key1".to_string(),
+            entry: Arc::new(100),
+        })
+        .unwrap();
+    let entry = registry
+        .get(RegistryLookupRequest {
+            id: "key1".to_string(),
+        })
+        .unwrap()
+        .entry;
+    assert_eq!(entry.map(|v| *v), Some(100));
 }
 
 /// @covers: Registry::deregister
 #[test]
 fn test_in_memory_registry_deregister_removes_entry_happy() {
     let registry: InMemoryRegistry<i32> = TestFactory::in_memory();
-    registry.register("key1", Arc::new(42));
-    let removed = registry.deregister("key1");
+    registry
+        .register(RegisterRequest {
+            id: "key1".to_string(),
+            entry: Arc::new(42),
+        })
+        .unwrap();
+    let removed = registry
+        .deregister(DeregisterRequest {
+            id: "key1".to_string(),
+        })
+        .unwrap()
+        .was_present;
     assert!(removed);
-    assert_eq!(registry.get("key1"), None);
+    let entry = registry
+        .get(RegistryLookupRequest {
+            id: "key1".to_string(),
+        })
+        .unwrap()
+        .entry;
+    assert_eq!(entry, None);
 }
 
 /// @covers: Registry::list_ids
 #[test]
 fn test_in_memory_registry_list_ids_returns_all_registered_keys_happy() {
     let registry: InMemoryRegistry<i32> = TestFactory::in_memory();
-    registry.register("key1", Arc::new(42));
-    registry.register("key2", Arc::new(100));
+    registry
+        .register(RegisterRequest {
+            id: "key1".to_string(),
+            entry: Arc::new(42),
+        })
+        .unwrap();
+    registry
+        .register(RegisterRequest {
+            id: "key2".to_string(),
+            entry: Arc::new(100),
+        })
+        .unwrap();
 
-    let keys = registry.list_ids();
+    let keys = registry.list_ids(ListIdsRequest).unwrap().ids;
     assert_eq!(keys.len(), 2);
     assert!(keys.contains(&"key1".to_string()));
     assert!(keys.contains(&"key2".to_string()));
@@ -60,7 +122,7 @@ fn test_in_memory_registry_list_ids_returns_all_registered_keys_happy() {
 #[test]
 fn test_in_memory_registry_new_creates_empty_registry_happy() {
     let registry: InMemoryRegistry<String> = TestFactory::in_memory();
-    let keys = registry.list_ids();
+    let keys = registry.list_ids(ListIdsRequest).unwrap().ids;
     assert!(keys.is_empty());
 }
 
@@ -69,10 +131,15 @@ fn test_in_memory_registry_new_creates_empty_registry_happy() {
 fn test_in_memory_registry_register_multiple_items_happy() {
     let registry: InMemoryRegistry<String> = TestFactory::in_memory();
     for i in 0..10 {
-        registry.register(&format!("key{}", i), Arc::new(format!("value_{}", i)));
+        registry
+            .register(RegisterRequest {
+                id: format!("key{}", i),
+                entry: Arc::new(format!("value_{}", i)),
+            })
+            .unwrap();
     }
 
-    let keys = registry.list_ids();
+    let keys = registry.list_ids(ListIdsRequest).unwrap().ids;
     assert_eq!(keys.len(), 10);
 }
 
@@ -80,15 +147,31 @@ fn test_in_memory_registry_register_multiple_items_happy() {
 #[test]
 fn test_registry_factory_creates_registry_happy() {
     let registry: InMemoryRegistry<i32> = TestFactory::in_memory();
-    registry.register("key1", Arc::new(42));
-    assert_eq!(registry.get("key1").map(|v| *v), Some(42));
+    registry
+        .register(RegisterRequest {
+            id: "key1".to_string(),
+            entry: Arc::new(42),
+        })
+        .unwrap();
+    let entry = registry
+        .get(RegistryLookupRequest {
+            id: "key1".to_string(),
+        })
+        .unwrap()
+        .entry;
+    assert_eq!(entry.map(|v| *v), Some(42));
 }
 
 /// @covers: Registry::deregister (nonexistent key)
 #[test]
 fn test_in_memory_registry_deregister_nonexistent_key_returns_false_edge() {
     let registry: InMemoryRegistry<i32> = TestFactory::in_memory();
-    let removed = registry.deregister("missing");
+    let removed = registry
+        .deregister(DeregisterRequest {
+            id: "missing".to_string(),
+        })
+        .unwrap()
+        .was_present;
     assert!(!removed);
 }
 
@@ -96,6 +179,6 @@ fn test_in_memory_registry_deregister_nonexistent_key_returns_false_edge() {
 #[test]
 fn test_in_memory_registry_list_ids_empty_returns_no_items_edge() {
     let registry: InMemoryRegistry<String> = TestFactory::in_memory();
-    let keys = registry.list_ids();
+    let keys = registry.list_ids(ListIdsRequest).unwrap().ids;
     assert!(keys.is_empty());
 }

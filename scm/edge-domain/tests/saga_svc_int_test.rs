@@ -5,7 +5,10 @@
 //! `_error` scenarios exercise a real rollback, not a contrived assertion.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{Command, DomainEvent, Saga};
+use edge_domain::{
+    Command, DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventError,
+    EventTypeRequest, EventTypeResponse, Saga,
+};
 
 /// Events the saga reacts to.
 #[derive(Clone)]
@@ -16,19 +19,26 @@ enum OrderEvent {
 }
 
 impl DomainEvent for OrderEvent {
-    fn event_type(&self) -> &str {
-        match self {
-            OrderEvent::Placed { .. } => "order.placed",
-            OrderEvent::Confirmed { .. } => "order.confirmed",
-            OrderEvent::PaymentFailed { .. } => "order.payment_failed",
-        }
+    fn event_type(&self, _req: EventTypeRequest) -> Result<EventTypeResponse<'_>, EventError> {
+        Ok(EventTypeResponse {
+            event_type: match self {
+                OrderEvent::Placed { .. } => "order.placed",
+                OrderEvent::Confirmed { .. } => "order.confirmed",
+                OrderEvent::PaymentFailed { .. } => "order.payment_failed",
+            },
+        })
     }
-    fn aggregate_id(&self) -> &str {
-        match self {
-            OrderEvent::Placed { order_id }
-            | OrderEvent::Confirmed { order_id }
-            | OrderEvent::PaymentFailed { order_id } => order_id,
-        }
+    fn aggregate_id(
+        &self,
+        _req: EventAggregateIdRequest,
+    ) -> Result<EventAggregateIdResponse<'_>, EventError> {
+        Ok(EventAggregateIdResponse {
+            aggregate_id: match self {
+                OrderEvent::Placed { order_id }
+                | OrderEvent::Confirmed { order_id }
+                | OrderEvent::PaymentFailed { order_id } => order_id,
+            },
+        })
     }
 }
 

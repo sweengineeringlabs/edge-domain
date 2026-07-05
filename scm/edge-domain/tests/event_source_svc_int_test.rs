@@ -3,12 +3,13 @@
 
 use edge_domain::Domain;
 use edge_domain::EventBus;
+use edge_domain::EventBusSubscribeRequest;
 use edge_domain::EventReceiver;
 
 #[tokio::test]
 async fn test_event_source_svc_facade_noop_receiver_returns_unavailable() {
     let bus = Domain::noop_event_bus();
-    let mut rx: EventReceiver = bus.subscribe();
+    let mut rx: EventReceiver = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
     let result = rx.recv().await;
     assert!(result.is_err());
 }

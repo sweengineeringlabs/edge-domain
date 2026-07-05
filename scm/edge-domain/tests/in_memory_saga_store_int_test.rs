@@ -1,15 +1,23 @@
 //! Integration tests for the in-memory saga store implementation.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{Command, Domain, DomainEvent, Saga, SagaError, SagaStore};
+use edge_domain::{
+    Command, Domain, DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventError,
+    Saga, SagaError, SagaStore,
+};
 
 #[derive(Clone)]
 struct Pulse {
     id: String,
 }
 impl DomainEvent for Pulse {
-    fn aggregate_id(&self) -> &str {
-        &self.id
+    fn aggregate_id(
+        &self,
+        _req: EventAggregateIdRequest,
+    ) -> Result<EventAggregateIdResponse<'_>, EventError> {
+        Ok(EventAggregateIdResponse {
+            aggregate_id: &self.id,
+        })
     }
 }
 

@@ -8,7 +8,7 @@ use edge_domain_handler::{
     EmptinessRequest as HandlerEmptinessRequest, ExecutionRequest, HandlerContext,
 };
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+use edge_domain_security::{SecurityBootstrap, SecurityServices};
 use edge_domain_service::EmptinessRequest as ServiceEmptinessRequest;
 use std::sync::Arc;
 
@@ -115,8 +115,11 @@ fn test_validate_config_returns_ok_for_valid_input() {
     use edge_domain::{Validator, ValidatorError};
     struct AlwaysValid;
     impl Validator for AlwaysValid {
-        fn validate(&self) -> Result<(), ValidatorError> {
-            Ok(())
+        fn validate(
+            &self,
+            _req: edge_domain_validator::ValidationRequest,
+        ) -> Result<edge_domain_validator::ValidationResponse, ValidatorError> {
+            Ok(edge_domain_validator::ValidationResponse)
         }
     }
     assert_eq!(Domain::validate_config(&AlwaysValid), Ok(()));
@@ -128,7 +131,10 @@ fn test_validate_config_returns_err_for_invalid_input() {
     use edge_domain::{Validator, ValidatorError};
     struct AlwaysInvalid;
     impl Validator for AlwaysInvalid {
-        fn validate(&self) -> Result<(), ValidatorError> {
+        fn validate(
+            &self,
+            _req: edge_domain_validator::ValidationRequest,
+        ) -> Result<edge_domain_validator::ValidationResponse, ValidatorError> {
             Err(ValidatorError::Invalid("bad".into()))
         }
     }
@@ -159,14 +165,24 @@ fn test_direct_query_bus_returns_arc_query_bus() {
 #[derive(Clone)]
 struct AnyEvent;
 impl edge_domain::DomainEvent for AnyEvent {
-    fn event_type(&self) -> &str {
-        "test.any"
+    fn event_type(&self, _req: EventTypeRequest) -> Result<EventTypeResponse<'_>, EventError> {
+        Ok(EventTypeResponse {
+            event_type: "test.any",
+        })
     }
-    fn aggregate_id(&self) -> &str {
-        "id"
+    fn aggregate_id(
+        &self,
+        _req: EventAggregateIdRequest,
+    ) -> Result<EventAggregateIdResponse<'_>, EventError> {
+        Ok(EventAggregateIdResponse { aggregate_id: "id" })
     }
-    fn occurred_at(&self) -> std::time::SystemTime {
-        std::time::SystemTime::now()
+    fn occurred_at(
+        &self,
+        _req: EventOccurredAtRequest,
+    ) -> Result<EventOccurredAtResponse, EventError> {
+        Ok(EventOccurredAtResponse {
+            occurred_at: std::time::SystemTime::now(),
+        })
     }
 }
 
@@ -183,7 +199,12 @@ fn test_in_process_event_bus_factory_returns_working_bus() {
     use futures::executor::block_on;
     let bus = Domain::in_process_event_bus(EventBusConfig::default());
     block_on(async move {
-        assert!(bus.publish(Arc::new(AnyEvent)).await.is_ok());
+        assert!(bus
+            .publish(EventBusPublishRequest {
+                event: Arc::new(AnyEvent)
+            })
+            .await
+            .is_ok());
     });
 }
 
@@ -193,7 +214,12 @@ fn test_noop_event_bus_factory_returns_working_bus() {
     use futures::executor::block_on;
     let bus = Domain::noop_event_bus();
     block_on(async move {
-        assert!(bus.publish(Arc::new(AnyEvent)).await.is_ok());
+        assert!(bus
+            .publish(EventBusPublishRequest {
+                event: Arc::new(AnyEvent)
+            })
+            .await
+            .is_ok());
     });
 }
 
@@ -210,11 +236,23 @@ fn test_reconstitute_returns_none_for_unknown_id() {
     }
     impl edge_domain::Aggregate for AnyAgg {
         type Event = AnyEvent;
-        fn apply(&mut self, e: &AnyEvent) {
-            self.id = e.aggregate_id().into();
+        fn apply(
+            &mut self,
+            req: AggregateApplyRequest<'_, AnyEvent>,
+        ) -> Result<AggregateApplyResponse, EventError> {
+            self.id = req
+                .event
+                .aggregate_id(EventAggregateIdRequest)
+                .unwrap()
+                .aggregate_id
+                .into();
+            Ok(AggregateApplyResponse)
         }
-        fn id(&self) -> &str {
-            &self.id
+        fn id(
+            &self,
+            _req: AggregateIdentityRequest,
+        ) -> Result<AggregateIdentityResponse<'_>, EventError> {
+            Ok(AggregateIdentityResponse { id: &self.id })
         }
     }
     let store: Arc<dyn edge_domain::EventStore<Event = AnyEvent>> =
@@ -234,11 +272,23 @@ async fn test_reconstitute_returns_none_for_empty_store() {
     }
     impl edge_domain::Aggregate for AnyAgg {
         type Event = AnyEvent;
-        fn apply(&mut self, e: &AnyEvent) {
-            self.id = e.aggregate_id().into();
+        fn apply(
+            &mut self,
+            req: AggregateApplyRequest<'_, AnyEvent>,
+        ) -> Result<AggregateApplyResponse, EventError> {
+            self.id = req
+                .event
+                .aggregate_id(EventAggregateIdRequest)
+                .unwrap()
+                .aggregate_id
+                .into();
+            Ok(AggregateApplyResponse)
         }
-        fn id(&self) -> &str {
-            &self.id
+        fn id(
+            &self,
+            _req: AggregateIdentityRequest,
+        ) -> Result<AggregateIdentityResponse<'_>, EventError> {
+            Ok(AggregateIdentityResponse { id: &self.id })
         }
     }
     let store = Domain::new_in_memory_event_store::<AnyEvent>();
