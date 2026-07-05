@@ -254,4 +254,116 @@ mod tests {
         let response = result.expect("should succeed");
         assert!(response.models.is_empty());
     }
+
+    /// @covers: map_error
+    #[test]
+    fn test_map_error_model_not_found_maps_directly_happy() {
+        let mapped = EchoProviderCompleter::map_error(ExecutionError::ModelNotFound(
+            "gpt-9".to_string(),
+        ));
+        assert!(matches!(mapped, CompleteError::ModelNotFound(m) if m == "gpt-9"));
+    }
+
+    /// @covers: map_error
+    #[test]
+    fn test_map_error_context_window_exceeded_swaps_field_names_edge() {
+        // ExecutionError uses {max_tokens, requested}; CompleteError uses {used, max} —
+        // verify the fields land in the correct (swapped-name) slots, not just that
+        // some ContextLengthExceeded value comes out.
+        let mapped = EchoProviderCompleter::map_error(ExecutionError::ContextWindowExceeded {
+            max_tokens: 100,
+            requested: 150,
+        });
+        assert!(matches!(
+            mapped,
+            CompleteError::ContextLengthExceeded { used: 150, max: 100 }
+        ));
+    }
+
+    /// @covers: map_error
+    #[test]
+    fn test_map_error_quota_exceeded_maps_to_rate_limited_error() {
+        let mapped = EchoProviderCompleter::map_error(ExecutionError::QuotaExceeded {
+            reset_at_ms: Some(5000),
+        });
+        assert!(matches!(
+            mapped,
+            CompleteError::RateLimited { retry_after_ms: Some(5000) }
+        ));
+    }
+
+    /// @covers: build_model
+    #[test]
+    fn test_build_model_constructs_async_execution_model_happy() {
+        let model = EchoProviderCompleter::build_model();
+        let response = block_on(model.execute_step(StepExecutionRequest {
+            agent_id: "default",
+            goal: "test goal",
+            context: "",
+            available_tools: vec![],
+        }))
+        .expect("execute_step should succeed");
+        assert!(
+            response.result.reasoning.contains("test goal"),
+            "expected the goal to be echoed back into the reasoning, got: {}",
+            response.result.reasoning
+        );
+    }
+
+    /// @covers: build_model
+    #[test]
+    fn test_build_model_different_goals_produce_different_reasoning_edge() {
+        let model = EchoProviderCompleter::build_model();
+        let a = block_on(model.execute_step(StepExecutionRequest {
+            agent_id: "default",
+            goal: "goal A",
+            context: "",
+            available_tools: vec![],
+        }))
+        .expect("execute_step should succeed");
+        let b = block_on(model.execute_step(StepExecutionRequest {
+            agent_id: "default",
+            goal: "goal B",
+            context: "",
+            available_tools: vec![],
+        }))
+        .expect("execute_step should succeed");
+        assert_ne!(a.result.reasoning, b.result.reasoning);
+    }
+
+    /// @covers: extract_goal
+    #[test]
+    fn test_extract_goal_returns_last_user_message_happy() {
+        let request = CompletionRequest::new(
+            "echo",
+            vec![Message::user("first"), Message::user("second")],
+        );
+        assert_eq!(EchoProviderCompleter::extract_goal(&request), "second");
+    }
+
+    /// @covers: extract_goal
+    #[test]
+    fn test_extract_goal_no_user_message_returns_empty_edge() {
+        let request = CompletionRequest::new("echo", vec![Message::system("sys prompt")]);
+        assert_eq!(EchoProviderCompleter::extract_goal(&request), "");
+    }
+
+    /// @covers: extract_context
+    #[test]
+    fn test_extract_context_joins_all_messages_with_role_prefix_happy() {
+        let request = CompletionRequest::new(
+            "echo",
+            vec![Message::system("be nice"), Message::user("hello")],
+        );
+        let context = EchoProviderCompleter::extract_context(&request);
+        assert!(context.contains("system: be nice"));
+        assert!(context.contains("user: hello"));
+    }
+
+    /// @covers: extract_context
+    #[test]
+    fn test_extract_context_empty_messages_returns_empty_string_edge() {
+        let request = CompletionRequest::new("echo", vec![]);
+        assert_eq!(EchoProviderCompleter::extract_context(&request), "");
+    }
 }

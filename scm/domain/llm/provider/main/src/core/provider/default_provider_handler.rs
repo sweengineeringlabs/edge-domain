@@ -7,6 +7,7 @@ use async_trait::async_trait;
 use edge_domain_handler::{
     ExecutionRequest, Handler, HandlerError, IdRequest, IdResponse, PatternRequest, PatternResponse,
 };
+use edge_domain_observer::{SpanFinishRequest, SpanStartRequest, TracerRequest};
 
 use crate::api::{ExecutionModel, ExecutionStepResult, StepExecutionRequest};
 
@@ -43,8 +44,15 @@ impl Handler for DefaultProviderHandler {
         let span = req
             .ctx
             .observer
-            .tracer()
-            .start_span("provider", "execute_step");
+            .tracer(TracerRequest)
+            .map_err(|e| HandlerError::ExecutionFailed(e.to_string()))?
+            .tracer
+            .start_span(SpanStartRequest {
+                handler_id: "provider".to_string(),
+                operation: "execute_step".to_string(),
+            })
+            .map_err(|e| HandlerError::ExecutionFailed(e.to_string()))?
+            .span;
         let result = self
             .model
             .execute_step(StepExecutionRequest {
@@ -56,7 +64,8 @@ impl Handler for DefaultProviderHandler {
             .await
             .map(|resp| *resp.result)
             .map_err(|e| HandlerError::ExecutionFailed(e.message()));
-        span.finish();
+        span.finish(SpanFinishRequest)
+            .map_err(|e| HandlerError::ExecutionFailed(e.to_string()))?;
         result
     }
 }

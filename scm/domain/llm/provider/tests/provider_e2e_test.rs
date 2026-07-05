@@ -4,7 +4,7 @@
 use std::sync::Arc;
 
 use edge_domain_observer::StdObserveFactory;
-use edge_llm_complete::NoopCompleter;
+use edge_llm_complete::{ListModelsRequest, NoopCompleter, SupportedModelsRequest};
 use edge_llm_provider::{
     CompleterRequest, FinishReason, HealthCheckRequest, LastFinishReasonRequest,
     LastTokenUsageRequest, ModelFamily, ModelFamilyRequest, ModelInfo, ModelInfoLookupRequest,
@@ -324,10 +324,9 @@ fn test_completer_returns_usable_delegate_happy() {
         .completer(CompleterRequest)
         .unwrap()
         .completer;
-    let result = block_on(c.list_models()).unwrap();
-    assert_eq!(
-        result,
-        vec![],
+    let result = block_on(c.list_models(ListModelsRequest)).unwrap();
+    assert!(
+        result.models.is_empty(),
         "completer list_models should succeed with empty list"
     );
 }
@@ -339,7 +338,11 @@ fn test_completer_noop_has_no_supported_models_error() {
         .completer(CompleterRequest)
         .unwrap()
         .completer;
-    assert!(c.supported_models().is_empty());
+    assert!(c
+        .supported_models(SupportedModelsRequest)
+        .unwrap()
+        .models
+        .is_empty());
 }
 
 /// @covers: Provider::completer — same Arc returned on repeated calls

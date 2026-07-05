@@ -4,7 +4,7 @@
 use std::sync::Arc;
 
 use edge_domain_observer::StdObserveFactory;
-use edge_llm_complete::{Completer, CompletionRequest, Message, NoopCompleter};
+use edge_llm_complete::{CompleteRequest, Completer, CompletionRequest, Message, NoopCompleter};
 use edge_llm_provider::{
     AccumulateRequest, CompletionMessage, EchoProviderCompleter, ExecutionConfig, ExecutionMode,
     ExecutionModeLookupRequest, ExecutionModel, ExecutionReadinessRequest, HealthCheckRequest,
@@ -323,7 +323,8 @@ fn test_provider_completer_returns_instance_happy() {
 fn test_provider_completer_implements_completer_error() {
     let c = StdProviderFactory::provider_completer();
     let req = CompletionRequest::new("echo", vec![Message::user("hi")]);
-    let result = block_on(c.complete(&req)).expect("complete should succeed");
+    let result =
+        block_on(c.complete(CompleteRequest { request: &req })).expect("complete should succeed");
     assert!(result.content.is_some());
 }
 
