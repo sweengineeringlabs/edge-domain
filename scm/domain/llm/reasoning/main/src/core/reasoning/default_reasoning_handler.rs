@@ -7,6 +7,7 @@ use async_trait::async_trait;
 use edge_domain_handler::{
     ExecutionRequest, Handler, HandlerError, IdRequest, IdResponse, PatternRequest, PatternResponse,
 };
+use edge_domain_observer::{SpanFinishRequest, SpanStartRequest, TracerRequest};
 
 use crate::api::{LinearReasoning, ReasonRequest, Reasoning, ReasoningPattern, ThinkingProcess};
 
@@ -42,7 +43,18 @@ impl Handler for DefaultReasoningHandler {
         &self,
         req: ExecutionRequest<'_, String>,
     ) -> Result<ThinkingProcess, HandlerError> {
-        let span = req.ctx.observer.tracer().start_span("reasoning", "reason");
+        let span = req
+            .ctx
+            .observer
+            .tracer(TracerRequest)
+            .map_err(|e| HandlerError::ExecutionFailed(e.to_string()))?
+            .tracer
+            .start_span(SpanStartRequest {
+                handler_id: "reasoning".to_string(),
+                operation: "reason".to_string(),
+            })
+            .map_err(|e| HandlerError::ExecutionFailed(e.to_string()))?
+            .span;
         let result = self
             .reasoner
             .reason(ReasonRequest {
@@ -52,7 +64,8 @@ impl Handler for DefaultReasoningHandler {
             .await
             .map(|resp| *resp.process)
             .map_err(|e| HandlerError::ExecutionFailed(e.message()));
-        span.finish();
+        span.finish(SpanFinishRequest)
+            .map_err(|e| HandlerError::ExecutionFailed(e.to_string()))?;
         result
     }
 }
