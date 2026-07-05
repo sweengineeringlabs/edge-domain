@@ -1,10 +1,28 @@
 # ADR-044: Observability↔LLM Integration — two injection seams
 
-**Status:** Proposed  
+**Status:** Implemented (except L4 — see Amendment below)  
 **Date:** 2026-06-19  
+**Amended:** 2026-07-04 — both injection seams landed; only L4 (`DefaultAgentHandler` stub) remains open  
 **Governing ADR:** [ADR-006](ADR-006-observability-domain-primitive.md) — Observability Domain Primitive  
 **Relates to:** [ADR-033](https://github.com/sweengineeringlabs/edge/blob/main/docs/3-architecture/adr/ADR-033-llm-provider-domain-primitive.md) — LLM Provider Domain Primitive, [ADR-043](ADR-043-llm-complete-domain-primitive.md) — LLM Complete Domain Primitive  
-**GitHub Issues:** TBD — ObserverContext trait in edge-domain-observer, TBD — HandlerContext observe seam, TBD — ProviderFactory observe seam
+**GitHub Issues:** TBD — ObserverContext trait in edge-domain-observer, TBD — HandlerContext observe seam, TBD — ProviderFactory observe seam (still unfiled as of the 2026-07-04 amendment)
+
+---
+
+## Amendment (2026-07-04): both seams are implemented
+
+A fresh audit found the "As-found baseline" and "Implementation order" sections below describe a **pre-implementation** state that no longer matches the code. Current reality:
+
+- **`HandlerContext` is a `pub struct`, not an enum** (`domain-handler/main/src/api/handler/types/handler_context.rs`), with `security`, `commands`, and `observer: &'a dyn ObserverContext` all present as fields — Seam 1 is done.
+- **`ProviderBootstrap::provider()` already returns `Arc<dyn Provider>`** and takes `observer: Arc<dyn ObserverContext>` (`domain/llm/provider/main/src/api/provider/traits/provider_bootstrap.rs`) — Seam 2 is done.
+- **`DefaultAgentHandler::execute` calls `req.ctx.observer.tracer().start_span(...)` and `req.ctx.observer.metrics()`** (`domain/llm/agents/main/src/core/types/default_agent.rs`) — no `_ctx` prefix, instrumentation is live.
+- **`SkillExecutionRequest` carries `ctx: HandlerContext<'a>`, and `DefaultAgent::execute_skill` forwards it** rather than reconstructing `SecurityContext::unauthenticated()` (`domain/llm/agents/main/src/api/types/skill_execution_request.rs`, `domain/llm/agents/main/src/core/noop/default_agent.rs`) — the security-context-dropping bug this ADR called out is fixed.
+
+So steps 1–5 of the "Implementation order" section are all done. The only item from this ADR that's still open is **L4** — `DefaultAgentHandler::execute` still returns a `format!("{}:{}", self.skill, input)` stub rather than real skill resolution; that was already explicitly scoped as deferred, so it isn't a new gap. The three `TBD` GitHub issue placeholders in the header were never filed — worth doing now that the work is retroactively known to be complete, if only for the historical record.
+
+The sections below are preserved as the original design record; treat them as describing the *pre-2026-07-04* state, not current reality.
+
+---
 
 ---
 
@@ -234,6 +252,8 @@ The `Provider` impl stores `Arc<dyn ObserverContext>` and uses it inside `execut
 ---
 
 ## Known limitations (deferred)
+
+> **2026-07-04:** L1–L3 and L5 below were written when this ADR was still "Proposed." L5 is now **resolved** (see Amendment above). L1–L3 remain open as stated. L4 remains open and is the only item still tracked as originally deferred.
 
 **L1 — `ObserverContext` has no context propagation.** W3C traceparent and baggage threading are assembler concerns, not domain concerns. The domain creates spans; the OTel subscriber propagates them. If distributed trace correlation across service boundaries is required, it must be injected via a separate `PropagationContext` — not layered onto `ObserverContext`. Tracked: TBD.
 
