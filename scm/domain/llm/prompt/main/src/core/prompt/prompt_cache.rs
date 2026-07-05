@@ -101,4 +101,20 @@ mod tests {
         let c = PromptCache::new("k".into(), "r".into(), 3);
         assert!(c.elapsed_secs() < 5);
     }
+
+    /// @covers: now_secs
+    #[test]
+    fn test_now_secs_returns_nonzero_unix_time_happy() {
+        // Any Unix timestamp for "now" in this codebase's operating era is well past
+        // the epoch — this would only be near-zero if the system clock were broken.
+        assert!(PromptCache::now_secs() > 1_700_000_000);
+    }
+
+    /// @covers: now_secs
+    #[test]
+    fn test_now_secs_is_monotonic_non_decreasing_edge() {
+        let first = PromptCache::now_secs();
+        let second = PromptCache::now_secs();
+        assert!(second >= first);
+    }
 }

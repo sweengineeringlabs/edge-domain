@@ -7,6 +7,7 @@ use async_trait::async_trait;
 use edge_domain_handler::{
     ExecutionRequest, Handler, HandlerError, IdRequest, IdResponse, PatternRequest, PatternResponse,
 };
+use edge_domain_observer::{SpanFinishRequest, SpanStartRequest, TracerRequest};
 
 use crate::api::{Prompt, RenderContext, RenderRequest};
 
@@ -40,14 +41,26 @@ impl Handler for DefaultPromptHandler {
         &self,
         req: ExecutionRequest<'_, RenderContext>,
     ) -> Result<String, HandlerError> {
-        let span = req.ctx.observer.tracer().start_span("prompt", "render");
+        let span = req
+            .ctx
+            .observer
+            .tracer(TracerRequest)
+            .map_err(|e| HandlerError::ExecutionFailed(e.to_string()))?
+            .tracer
+            .start_span(SpanStartRequest {
+                handler_id: "prompt".to_string(),
+                operation: "render".to_string(),
+            })
+            .map_err(|e| HandlerError::ExecutionFailed(e.to_string()))?
+            .span;
         let result = self
             .prompt
             .render(RenderRequest { context: &req.req })
             .await
             .map(|resp| resp.rendered)
             .map_err(|e| HandlerError::ExecutionFailed(e.message()));
-        span.finish();
+        span.finish(SpanFinishRequest)
+            .map_err(|e| HandlerError::ExecutionFailed(e.to_string()))?;
         result
     }
 }
