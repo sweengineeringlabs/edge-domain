@@ -10,7 +10,7 @@ description = "edge-domain — Lifecycle port contract: state-machine abstractio
 keywords    = ["domain", "lifecycle", "state-machine", "sea", "swe"]
 categories  = ["development-tools"]
 
-[package.metadata.struct-engine]
+[package.metadata.arch]
 application_type = "lib"
 service_type     = "lifecycle"
 

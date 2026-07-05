@@ -10,7 +10,7 @@ description = "edge-domain — Snapshot port contract: point-in-time aggregate s
 keywords    = ["domain", "snapshot", "event-sourcing", "sea", "swe"]
 categories  = ["development-tools"]
 
-[package.metadata.struct-engine]
+[package.metadata.arch]
 application_type = "lib"
 service_type     = "snapshot"
 

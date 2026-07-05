@@ -10,7 +10,7 @@ description = "edge-domain — Repository port contract: data access with InMemo
 keywords    = ["domain", "repository", "data-access", "sea", "swe"]
 categories  = ["development-tools"]
 
-[package.metadata.struct-engine]
+[package.metadata.arch]
 application_type = "lib"
 service_type     = "repository"
 

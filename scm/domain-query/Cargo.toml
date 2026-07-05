@@ -10,7 +10,7 @@ description = "edge-domain — Query port contract: CQRS read-side with QueryBus
 keywords    = ["domain", "query", "cqrs", "sea", "swe"]
 categories  = ["development-tools"]
 
-[package.metadata.struct-engine]
+[package.metadata.arch]
 application_type = "lib"
 service_type     = "query"
 
