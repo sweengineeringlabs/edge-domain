@@ -42,8 +42,8 @@ mod tests {
     struct InMemorySagaStoreTestSagaSignal;
 
     impl DomainEvent for InMemorySagaStoreTestSagaSignal {
-        fn aggregate_id(&self) -> &str {
-            "saga-test"
+        fn aggregate_id(&self, _req: edge_domain_event::EventAggregateIdRequest) -> Result<edge_domain_event::EventAggregateIdResponse<'_>, edge_domain_event::EventError> {
+            Ok(edge_domain_event::EventAggregateIdResponse { aggregate_id: "saga-test" })
         }
     }
 

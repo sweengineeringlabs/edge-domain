@@ -1,6 +1,7 @@
 //! SAF tests — `Saga` trait.
 // @allow: no_mocks_in_integration
 
+use edge_domain_event::{EventAggregateIdRequest, EventAggregateIdResponse, EventError};
 use edge_domain_saga::{Command, CommandError, DomainEvent, Saga, SagaBootstrap, SagaStore};
 use futures::future::BoxFuture;
 
@@ -8,8 +9,8 @@ use futures::future::BoxFuture;
 struct StepEvt;
 
 impl DomainEvent for StepEvt {
-    fn aggregate_id(&self) -> &str {
-        "order-1"
+    fn aggregate_id(&self, _req: EventAggregateIdRequest) -> Result<EventAggregateIdResponse<'_>, EventError> {
+        Ok(EventAggregateIdResponse { aggregate_id: "order-1" })
     }
 }
 

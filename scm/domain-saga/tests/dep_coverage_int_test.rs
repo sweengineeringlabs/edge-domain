@@ -1,8 +1,9 @@
 //! Integration coverage for `edge-domain-event` and `edge-domain-command` dependencies.
 // @allow: no_mocks_in_integration
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain_command::{Command, CommandError};
-use edge_domain_event::DomainEvent;
+use edge_domain_event::{DomainEvent, EventAggregateIdRequest, EventTypeRequest};
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 
@@ -19,8 +20,8 @@ impl Command for DepCmd {
 #[test]
 fn test_domain_event_default_impls_are_callable_happy() {
     let e = DepEvt;
-    assert_eq!(e.event_type(), "event");
-    assert_eq!(e.aggregate_id(), "");
+    assert_eq!(e.event_type(EventTypeRequest).unwrap().event_type, "event");
+    assert_eq!(e.aggregate_id(EventAggregateIdRequest).unwrap().aggregate_id, "");
 }
 
 #[test]

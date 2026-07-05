@@ -1,6 +1,8 @@
 //! SAF tests — `SagaBootstrap` trait.
 // @allow: no_mocks_in_integration
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
+use edge_domain_event::{EventAggregateIdRequest, EventAggregateIdResponse, EventError};
 use edge_domain_saga::{Command, CommandError, DomainEvent, NoopSaga, NoopSagaCommand, NoopSagaEvent, Saga, SagaBootstrap, SagaStore, StdSagaFactory};
 use futures::future::BoxFuture;
 
@@ -8,8 +10,8 @@ use futures::future::BoxFuture;
 struct FactEvt;
 
 impl DomainEvent for FactEvt {
-    fn aggregate_id(&self) -> &str {
-        "fact-test"
+    fn aggregate_id(&self, _req: EventAggregateIdRequest) -> Result<EventAggregateIdResponse<'_>, EventError> {
+        Ok(EventAggregateIdResponse { aggregate_id: "fact-test" })
     }
 }
 
@@ -96,15 +98,16 @@ fn test_noop_default_and_factory_produce_equivalent_state_edge() {
 fn test_noop_event_creates_event_with_empty_aggregate_id_happy() {
     use edge_domain_saga::DomainEvent;
     let evt: NoopSagaEvent = Factories::noop_event();
-    assert_eq!(evt.aggregate_id(), "");
+    assert_eq!(evt.aggregate_id(EventAggregateIdRequest).unwrap().aggregate_id, "");
 }
 
 /// @covers: noop_event
 #[test]
 fn test_noop_event_event_type_returns_default_error() {
     use edge_domain_saga::DomainEvent;
+    use edge_domain_event::EventTypeRequest;
     let evt: NoopSagaEvent = Factories::noop_event();
-    assert_eq!(evt.event_type(), "event");
+    assert_eq!(evt.event_type(EventTypeRequest).unwrap().event_type, "event");
 }
 
 /// @covers: noop_event
@@ -113,7 +116,7 @@ fn test_noop_event_can_be_cloned_edge() {
     let evt: NoopSagaEvent = Factories::noop_event();
     let cloned = evt.clone();
     use edge_domain_saga::DomainEvent;
-    assert_eq!(cloned.aggregate_id(), "");
+    assert_eq!(cloned.aggregate_id(EventAggregateIdRequest).unwrap().aggregate_id, "");
 }
 
 /// @covers: noop_command

@@ -1,6 +1,7 @@
 //! Integration tests for `InMemorySagaStore`.
 // @allow: no_mocks_in_integration
 
+use edge_domain_event::{EventAggregateIdRequest, EventAggregateIdResponse, EventError};
 use edge_domain_saga::{Command, CommandError, DomainEvent, InMemorySagaStore, Saga, SagaStore};
 use futures::future::BoxFuture;
 
@@ -8,8 +9,8 @@ use futures::future::BoxFuture;
 struct RegEvt2;
 
 impl DomainEvent for RegEvt2 {
-    fn aggregate_id(&self) -> &str {
-        "reg2"
+    fn aggregate_id(&self, _req: EventAggregateIdRequest) -> Result<EventAggregateIdResponse<'_>, EventError> {
+        Ok(EventAggregateIdResponse { aggregate_id: "reg2" })
     }
 }
 
