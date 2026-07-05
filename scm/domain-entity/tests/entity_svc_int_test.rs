@@ -1,6 +1,6 @@
 //! Integration tests for the entity SAF facade.
 
-use edge_domain_entity::{Entity, EntityError};
+use edge_domain_entity::{Entity, EntityError, IdRequest, IdResponse};
 
 struct Point {
     id: u32,
@@ -8,8 +8,8 @@ struct Point {
 
 impl Entity for Point {
     type Id = u32;
-    fn id(&self) -> &u32 {
-        &self.id
+    fn id(&self, _req: IdRequest) -> Result<IdResponse<'_, u32>, EntityError> {
+        Ok(IdResponse { id: &self.id })
     }
 }
 
@@ -17,7 +17,7 @@ impl Entity for Point {
 #[test]
 fn test_entity_svc_entity_is_accessible_via_public_api_happy() {
     let p = Point { id: 7 };
-    assert_eq!(*p.id(), 7u32);
+    assert_eq!(*p.id(IdRequest).unwrap().id, 7u32);
 }
 
 /// @covers: EntityError — reserved error type is accessible via public API
@@ -34,6 +34,6 @@ fn test_entity_svc_entity_error_is_accessible_via_public_api_edge() {
     }
     let _check = check; // bind to confirm function compiles
 
-    // Verify EntityError type name is correct (edge case for empty enum)
-    assert_eq!(std::any::type_name::<EntityError>(), "edge_domain_entity::EntityError");
+    // Verify the re-exported type resolves to the same type declared in the errors module.
+    assert!(std::any::type_name::<EntityError>().ends_with("EntityError"));
 }

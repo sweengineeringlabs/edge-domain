@@ -3,6 +3,7 @@
 use std::hash::Hash;
 
 use crate::api::entity::errors::EntityError;
+use crate::api::entity::types::{IdRequest, IdResponse, ValidationRequest, ValidationResponse};
 
 /// A domain object with stable identity.
 ///
@@ -16,13 +17,15 @@ use crate::api::entity::errors::EntityError;
 /// # Examples
 ///
 /// ```rust
-/// use edge_domain_entity::Entity;
+/// use edge_domain_entity::{Entity, IdRequest};
 ///
 /// struct LineItem { id: u64, quantity: u32 }
 ///
 /// impl Entity for LineItem {
 ///     type Id = u64;
-///     fn id(&self) -> &u64 { &self.id }
+///     fn id(&self, _req: IdRequest) -> Result<edge_domain_entity::IdResponse<'_, u64>, edge_domain_entity::EntityError> {
+///         Ok(edge_domain_entity::IdResponse { id: &self.id })
+///     }
 /// }
 /// ```
 pub trait Entity: Send + Sync {
@@ -30,12 +33,12 @@ pub trait Entity: Send + Sync {
     type Id: Eq + Hash + Clone + Send + Sync;
 
     /// Return the entity's stable identifier.
-    fn id(&self) -> &Self::Id;
+    fn id(&self, req: IdRequest) -> Result<IdResponse<'_, Self::Id>, EntityError>;
 
     /// Validate this entity's invariants.
     ///
-    /// Returns `Ok(())` by default. Override to enforce domain rules.
-    fn validate(&self) -> Result<(), EntityError> {
-        Ok(())
+    /// Returns `Ok(ValidationResponse)` by default. Override to enforce domain rules.
+    fn validate(&self, _req: ValidationRequest) -> Result<ValidationResponse, EntityError> {
+        Ok(ValidationResponse)
     }
 }

@@ -1,5 +1,7 @@
 //! SAF — entity service facade.
 
-mod entity_svc;
+mod entity;
 
-pub use entity_svc::Entity;
+pub use entity::Entity;
+pub use entity::ENTITY_SVC;
+pub use entity::ENTITY_SVC_FACTORY;

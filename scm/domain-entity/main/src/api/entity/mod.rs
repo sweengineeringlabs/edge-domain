@@ -1,4 +1,9 @@
 pub mod errors;
 pub mod traits;
+pub mod types;
 pub use errors::EntityError;
 pub use traits::Entity;
+pub use types::IdRequest;
+pub use types::IdResponse;
+pub use types::ValidationRequest;
+pub use types::ValidationResponse;
