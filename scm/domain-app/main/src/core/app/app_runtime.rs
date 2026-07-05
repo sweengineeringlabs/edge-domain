@@ -4,18 +4,22 @@ use futures::future::BoxFuture;
 
 use crate::api::AppError;
 use crate::api::AppRuntime;
-use crate::api::Bootstrap;
+use crate::api::ApplicationBuildRequest;
+use crate::api::ApplicationRunRequest;
+use crate::api::RuntimeBootRequest;
+use crate::api::RuntimeBootResponse;
 
 pub(crate) struct DefaultAppRuntime;
 
 impl AppRuntime for DefaultAppRuntime {
     fn boot<'a>(
         &'a self,
-        bootstrap: &'a dyn Bootstrap,
-    ) -> BoxFuture<'a, Result<(), AppError>> {
+        req: RuntimeBootRequest<'a>,
+    ) -> BoxFuture<'a, Result<RuntimeBootResponse, AppError>> {
         Box::pin(async move {
-            let app = bootstrap.build()?;
-            app.run().await
+            let app = req.bootstrap.build(ApplicationBuildRequest)?.application;
+            app.run(ApplicationRunRequest).await?;
+            Ok(RuntimeBootResponse)
         })
     }
 }
@@ -25,22 +29,40 @@ mod tests {
     use futures::executor::block_on;
 
     use super::*;
-    use crate::api::{AppRuntime, NoopAppBootstrap};
+    use crate::api::{AppRuntime, NameRequest, NoopAppBootstrap};
 
     #[test]
     fn test_boot_ok_bootstrap_completes_happy() {
-        assert_eq!(block_on(DefaultAppRuntime.boot(&NoopAppBootstrap)), Ok(()));
+        assert_eq!(
+            block_on(DefaultAppRuntime.boot(RuntimeBootRequest {
+                bootstrap: &NoopAppBootstrap
+            })),
+            Ok(RuntimeBootResponse)
+        );
     }
 
     #[test]
     fn test_boot_called_twice_both_complete_error() {
         let r = DefaultAppRuntime;
-        assert_eq!(block_on(r.boot(&NoopAppBootstrap)), Ok(()));
-        assert_eq!(block_on(r.boot(&NoopAppBootstrap)), Ok(()));
+        assert_eq!(
+            block_on(r.boot(RuntimeBootRequest {
+                bootstrap: &NoopAppBootstrap
+            })),
+            Ok(RuntimeBootResponse)
+        );
+        assert_eq!(
+            block_on(r.boot(RuntimeBootRequest {
+                bootstrap: &NoopAppBootstrap
+            })),
+            Ok(RuntimeBootResponse)
+        );
     }
 
     #[test]
     fn test_name_returns_app_runtime_edge() {
-        assert_eq!(DefaultAppRuntime.name(), "app_runtime");
+        assert_eq!(
+            DefaultAppRuntime.name(NameRequest).unwrap().name,
+            "app_runtime"
+        );
     }
 }

@@ -1,12 +1,15 @@
 //! Integration tests — `NoopAppRuntime` type.
 
-use edge_domain_app::{AppError, AppRuntime, Application, Bootstrap, NoopAppBootstrap, NoopAppRuntime};
+use edge_domain_app::{
+    AppError, AppRuntime, ApplicationBuildRequest, ApplicationBuildResponse, Bootstrap,
+    NoopAppBootstrap, NoopAppRuntime, RuntimeBootRequest, RuntimeBootResponse,
+};
 use futures::executor::block_on;
 
 struct FailBootstrap;
 
 impl Bootstrap for FailBootstrap {
-    fn build(&self) -> Result<Box<dyn Application>, AppError> {
+    fn build(&self, _req: ApplicationBuildRequest) -> Result<ApplicationBuildResponse, AppError> {
         Err(AppError::BootFailed("forced".into()))
     }
 }
@@ -15,14 +18,24 @@ impl Bootstrap for FailBootstrap {
 #[test]
 fn test_noop_app_runtime_boot_always_ok_happy() {
     let r = NoopAppRuntime;
-    assert_eq!(block_on(r.boot(&NoopAppBootstrap)), Ok(()));
+    assert_eq!(
+        block_on(r.boot(RuntimeBootRequest {
+            bootstrap: &NoopAppBootstrap
+        })),
+        Ok(RuntimeBootResponse)
+    );
 }
 
 /// @covers: NoopAppRuntime — boot ignores bootstrap failures
 #[test]
 fn test_noop_app_runtime_ignores_bootstrap_failure_error() {
     let r = NoopAppRuntime;
-    assert_eq!(block_on(r.boot(&FailBootstrap)), Ok(()));
+    assert_eq!(
+        block_on(r.boot(RuntimeBootRequest {
+            bootstrap: &FailBootstrap
+        })),
+        Ok(RuntimeBootResponse)
+    );
 }
 
 /// @covers: NoopAppRuntime — is Copy; two copies both work

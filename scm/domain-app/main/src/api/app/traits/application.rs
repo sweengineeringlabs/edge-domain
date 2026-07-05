@@ -4,6 +4,7 @@ use futures::future::BoxFuture;
 
 use crate::api::AppError;
 use crate::api::NoopApplication;
+use crate::api::app::types::{ApplicationRunRequest, ApplicationRunResponse, NameRequest, NameResponse};
 
 /// The top-level lifecycle contract for an edge application.
 ///
@@ -11,14 +12,17 @@ use crate::api::NoopApplication;
 /// until shutdown is signalled.
 pub trait Application: Send + Sync {
     /// Stable identifier for this application.
-    fn name(&self) -> &str {
-        "application"
+    fn name(&self, _req: NameRequest) -> Result<NameResponse, AppError> {
+        Ok(NameResponse { name: "application" })
     }
 
     /// Boot the application.
     ///
     /// Resolves when the application terminates or encounters a fatal error.
-    fn run(&self) -> BoxFuture<'_, Result<(), AppError>>;
+    fn run(
+        &self,
+        req: ApplicationRunRequest,
+    ) -> BoxFuture<'_, Result<ApplicationRunResponse, AppError>>;
 
     /// Return a no-operation application for testing or default wiring.
     fn noop() -> NoopApplication

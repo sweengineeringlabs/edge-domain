@@ -1,7 +1,8 @@
 //! [`AppServiceProvider`] — composition-root contract for wiring service dependencies into a [`Bootstrap`].
 
-use crate::api::Bootstrap;
 use crate::api::NoopAppSvcFactory;
+use crate::api::app::types::{NameRequest, NameResponse, ProviderBuildRequest, ProviderBuildResponse};
+use crate::api::AppError;
 
 /// Port contract for the composition root that wires the service graph and produces a [`Bootstrap`].
 ///
@@ -15,12 +16,14 @@ use crate::api::NoopAppSvcFactory;
 /// ```
 pub trait AppServiceProvider: Send + Sync {
     /// Stable identifier for this provider.
-    fn name(&self) -> &str {
-        "app_service_provider"
+    fn name(&self, _req: NameRequest) -> Result<NameResponse, AppError> {
+        Ok(NameResponse {
+            name: "app_service_provider",
+        })
     }
 
-    /// Build a configured [`Bootstrap`] from the wired service graph.
-    fn build(&self) -> Box<dyn Bootstrap>;
+    /// Build a configured [`Bootstrap`](crate::api::Bootstrap) from the wired service graph.
+    fn build(&self, req: ProviderBuildRequest) -> Result<ProviderBuildResponse, AppError>;
 
     /// Return the no-operation provider for tests and structural scaffolding.
     fn noop() -> NoopAppSvcFactory

@@ -1,13 +1,16 @@
 //! Integration tests — `AppRuntime` trait.
 
-use edge_domain_app::{AppError, AppRuntime, Application, Bootstrap, NoopAppBootstrap, NoopAppRuntime};
+use edge_domain_app::{
+    AppError, AppRuntime, ApplicationBuildRequest, ApplicationBuildResponse, ApplicationRunRequest,
+    Bootstrap, NoopAppBootstrap, NoopAppRuntime, RuntimeBootRequest, RuntimeBootResponse,
+};
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 
 struct FailBootstrap;
 
 impl Bootstrap for FailBootstrap {
-    fn build(&self) -> Result<Box<dyn Application>, AppError> {
+    fn build(&self, _req: ApplicationBuildRequest) -> Result<ApplicationBuildResponse, AppError> {
         Err(AppError::BootFailed("forced failure".into()))
     }
 }
@@ -16,8 +19,10 @@ impl Bootstrap for FailBootstrap {
 #[test]
 fn test_boot_noop_bootstrap_completes_ok_happy() {
     let runtime = NoopAppRuntime;
-    let result = block_on(runtime.boot(&NoopAppBootstrap));
-    assert_eq!(result, Ok(()));
+    let result = block_on(runtime.boot(RuntimeBootRequest {
+        bootstrap: &NoopAppBootstrap,
+    }));
+    assert_eq!(result, Ok(RuntimeBootResponse));
 }
 
 /// @covers: AppRuntime::boot — boot propagates bootstrap build failure
@@ -27,16 +32,19 @@ fn test_boot_propagates_bootstrap_failure_error() {
     impl AppRuntime for DirectRuntime {
         fn boot<'a>(
             &'a self,
-            bootstrap: &'a dyn Bootstrap,
-        ) -> BoxFuture<'a, Result<(), AppError>> {
+            req: RuntimeBootRequest<'a>,
+        ) -> BoxFuture<'a, Result<RuntimeBootResponse, AppError>> {
             Box::pin(async move {
-                let app = bootstrap.build()?;
-                app.run().await
+                let app = req.bootstrap.build(ApplicationBuildRequest)?.application;
+                app.run(ApplicationRunRequest).await?;
+                Ok(RuntimeBootResponse)
             })
         }
     }
     let runtime = DirectRuntime;
-    let result = block_on(runtime.boot(&FailBootstrap));
+    let result = block_on(runtime.boot(RuntimeBootRequest {
+        bootstrap: &FailBootstrap,
+    }));
     assert_eq!(result, Err(AppError::BootFailed("forced failure".into())));
 }
 
@@ -44,10 +52,14 @@ fn test_boot_propagates_bootstrap_failure_error() {
 #[test]
 fn test_boot_idempotent_second_call_succeeds_edge() {
     let runtime = NoopAppRuntime;
-    let r1 = block_on(runtime.boot(&NoopAppBootstrap));
-    let r2 = block_on(runtime.boot(&NoopAppBootstrap));
-    assert_eq!(r1, Ok(()));
-    assert_eq!(r2, Ok(()));
+    let r1 = block_on(runtime.boot(RuntimeBootRequest {
+        bootstrap: &NoopAppBootstrap,
+    }));
+    let r2 = block_on(runtime.boot(RuntimeBootRequest {
+        bootstrap: &NoopAppBootstrap,
+    }));
+    assert_eq!(r1, Ok(RuntimeBootResponse));
+    assert_eq!(r2, Ok(RuntimeBootResponse));
 }
 
 /// @covers: AppRuntime::noop — factory method returns NoopAppRuntime
