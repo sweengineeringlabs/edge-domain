@@ -1,15 +1,15 @@
-use edge_domain_validator::{StdValidatorFactory, ValidatorBootstrap, Validator};
+use edge_domain_validator::{StdValidatorFactory, ValidationRequest, ValidationResponse, Validator, ValidatorBootstrap};
 
 #[test]
 fn test_std_factory_always_valid_accepts_any_input_happy() {
     let v = StdValidatorFactory::always_valid();
-    assert_eq!(v.validate(), Ok(()));
+    assert_eq!(v.validate(ValidationRequest), Ok(ValidationResponse));
 }
 
 #[test]
 fn test_std_factory_always_valid_never_errors_happy() {
     let v = StdValidatorFactory::always_valid();
-    assert_eq!(v.validate(), Ok(()));
+    assert_eq!(v.validate(ValidationRequest), Ok(ValidationResponse));
 }
 
 #[test]

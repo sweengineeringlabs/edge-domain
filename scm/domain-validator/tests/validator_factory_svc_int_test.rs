@@ -1,6 +1,6 @@
 //! SAF facade tests — `ValidatorBootstrap` constructors.
 
-use edge_domain_validator::{Validator, ValidatorBootstrap};
+use edge_domain_validator::{ValidationRequest, ValidationResponse, Validator, ValidatorBootstrap};
 
 struct TestValidators;
 impl ValidatorBootstrap for TestValidators {}
@@ -9,14 +9,14 @@ impl ValidatorBootstrap for TestValidators {}
 #[test]
 fn test_always_valid_returns_passing_validator_happy() {
     let v = TestValidators::always_valid();
-    assert_eq!(v.validate(), Ok(()));
+    assert_eq!(v.validate(ValidationRequest), Ok(ValidationResponse));
 }
 
 /// @covers: ValidatorBootstrap::always_valid — never rejects
 #[test]
 fn test_always_valid_never_rejects_error() {
     let v = TestValidators::always_valid();
-    assert_eq!(v.validate(), Ok(()));
+    assert_eq!(v.validate(ValidationRequest), Ok(ValidationResponse));
 }
 
 /// @covers: ValidatorBootstrap::always_valid — zero-sized marker

@@ -1,15 +1,15 @@
 //! Basic `Validator` usage example.
 
-use edge_domain_validator::{AlwaysValid, Validator, ValidatorError};
+use edge_domain_validator::{AlwaysValid, ValidationRequest, ValidationResponse, Validator, ValidatorError};
 
 struct Config {
     value: u32,
 }
 
 impl Validator for Config {
-    fn validate(&self) -> Result<(), ValidatorError> {
+    fn validate(&self, _req: ValidationRequest) -> Result<ValidationResponse, ValidatorError> {
         if self.value > 0 {
-            Ok(())
+            Ok(ValidationResponse)
         } else {
             Err(ValidatorError::Invalid("value must be positive".into()))
         }
@@ -17,7 +17,7 @@ impl Validator for Config {
 }
 
 fn main() {
-    println!("{:?}", Config { value: 1 }.validate());
-    println!("{:?}", Config { value: 0 }.validate());
-    println!("{:?}", AlwaysValid.validate());
+    println!("{:?}", Config { value: 1 }.validate(ValidationRequest));
+    println!("{:?}", Config { value: 0 }.validate(ValidationRequest));
+    println!("{:?}", AlwaysValid.validate(ValidationRequest));
 }

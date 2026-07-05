@@ -1,6 +1,7 @@
 //! Configuration validation contract.
 
 use crate::api::validator::errors::ValidatorError;
+use crate::api::validator::types::{ValidationRequest, ValidationResponse};
 
 /// Configuration validation contract.
 ///
@@ -12,5 +13,5 @@ pub trait Validator {
     ///
     /// Returns [`ValidatorError::Invalid`] with a human-readable description when
     /// the configuration contains an invalid combination of fields.
-    fn validate(&self) -> Result<(), ValidatorError>;
+    fn validate(&self, req: ValidationRequest) -> Result<ValidationResponse, ValidatorError>;
 }
