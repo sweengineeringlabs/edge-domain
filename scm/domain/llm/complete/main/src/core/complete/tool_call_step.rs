@@ -10,7 +10,7 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain_pipeline::{ContextMutationRequest, Step};
+use edge_pipeline::{ContextMutationRequest, Step};
 
 use crate::api::{
     CompleteError, Message, ToolCall, ToolExecutionRequest, ToolOps, ToolRecordRequest,

@@ -3,7 +3,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use async_trait::async_trait;
-use edge_domain_pipeline::{
+use edge_pipeline::{
     ContextMutationRequest, ParallelBranchFailure, ParallelConfig, ParallelStepBuilder,
     ParallelStepError, ParallelStepSvc, Step,
 };

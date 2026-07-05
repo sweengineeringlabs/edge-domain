@@ -7,7 +7,7 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain_pipeline::{
+use edge_pipeline::{
     ContextMutationRequest, ParallelBranchFailure, ParallelConfig, ParallelStepBuilder,
     ParallelStepError, ParallelStepSvc, Step,
 };
@@ -116,7 +116,7 @@ impl BoundedToolCallLoop {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use edge_domain_pipeline::StepError;
+    use edge_pipeline::StepError;
 
     /// @covers: map_parallel_error
     #[test]
