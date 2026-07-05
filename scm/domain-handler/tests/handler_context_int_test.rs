@@ -1,8 +1,11 @@
 //! Integration tests — `HandlerContext` type.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::HandlerContext;
-use edge_domain_observer::StdObserveFactory;
+use edge_domain_observer::{
+    SpanFinishRequest, SpanStartRequest, StdObserveFactory, TracerRequest,
+};
 use edge_domain_security::{SecurityBootstrap, SecurityServices};
 
 /// @covers: HandlerContext — constructs with unauthenticated security and direct bus
@@ -66,7 +69,18 @@ fn test_observer_returns_bound_observe_context_happy() {
         commands: &bus,
         observer: observer.as_ref(),
     };
-    ctx.observer.tracer().start_span("h", "op").finish();
+    ctx.observer
+        .tracer(TracerRequest)
+        .unwrap()
+        .tracer
+        .start_span(SpanStartRequest {
+            handler_id: "h".to_string(),
+            operation: "op".to_string(),
+        })
+        .unwrap()
+        .span
+        .finish(SpanFinishRequest)
+        .unwrap();
     assert!(std::ptr::eq(ctx.security, &security));
 }
 
@@ -83,9 +97,17 @@ fn test_observer_tracer_usable_after_construction_happy() {
     };
     for i in 0..3 {
         ctx.observer
-            .tracer()
-            .start_span(&format!("span_{i}"), "op")
-            .finish();
+            .tracer(TracerRequest)
+            .unwrap()
+            .tracer
+            .start_span(SpanStartRequest {
+                handler_id: format!("span_{i}"),
+                operation: "op".to_string(),
+            })
+            .unwrap()
+            .span
+            .finish(SpanFinishRequest)
+            .unwrap();
     }
     assert!(std::ptr::eq(ctx.security, &security));
 }
@@ -101,7 +123,18 @@ fn test_observer_empty_span_ids_no_panic_error() {
         commands: &bus,
         observer: observer.as_ref(),
     };
-    ctx.observer.tracer().start_span("", "").finish();
+    ctx.observer
+        .tracer(TracerRequest)
+        .unwrap()
+        .tracer
+        .start_span(SpanStartRequest {
+            handler_id: "".to_string(),
+            operation: "".to_string(),
+        })
+        .unwrap()
+        .span
+        .finish(SpanFinishRequest)
+        .unwrap();
     assert!(std::ptr::eq(ctx.security, &security));
 }
 
@@ -117,7 +150,29 @@ fn test_handler_context_with_observer_is_copy_edge() {
         observer: observer.as_ref(),
     };
     let ctx2 = ctx;
-    ctx.observer.tracer().start_span("ctx1", "op").finish();
-    ctx2.observer.tracer().start_span("ctx2", "op").finish();
+    ctx.observer
+        .tracer(TracerRequest)
+        .unwrap()
+        .tracer
+        .start_span(SpanStartRequest {
+            handler_id: "ctx1".to_string(),
+            operation: "op".to_string(),
+        })
+        .unwrap()
+        .span
+        .finish(SpanFinishRequest)
+        .unwrap();
+    ctx2.observer
+        .tracer(TracerRequest)
+        .unwrap()
+        .tracer
+        .start_span(SpanStartRequest {
+            handler_id: "ctx2".to_string(),
+            operation: "op".to_string(),
+        })
+        .unwrap()
+        .span
+        .finish(SpanFinishRequest)
+        .unwrap();
     assert!(std::ptr::eq(ctx.security, &security));
 }

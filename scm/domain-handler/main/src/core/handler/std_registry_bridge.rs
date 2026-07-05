@@ -88,15 +88,37 @@ impl RegistryBridge for StdRegistryBridge {
 mod tests {
     use std::sync::Arc;
 
+    use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+    use edge_domain_observer::StdObserveFactory;
+    use edge_domain_security::{SecurityBootstrap, SecurityServices};
     use edge_domain_service::{
         NoopService, RegisterServiceRequest as RegisterServiceRequestSvc,
         ServiceRegistry as ServiceRegistryTraitSvc, ServiceRegistryStore,
     };
+    use futures::executor::block_on;
 
+    use super::StdRegistryBridgeHandler;
     use crate::api::{
-        BridgeRequest, HandlerLookupRequest, HandlerRegistry, IdRequest, InProcessHandlerRegistry,
-        LenRequest, RegistryBridge, StdRegistryBridge,
+        BridgeRequest, ExecutionRequest, Handler, HandlerContext, HandlerLookupRequest,
+        HandlerRegistry, IdRequest, InProcessHandlerRegistry, LenRequest, RegistryBridge,
+        StdRegistryBridge,
     };
+
+    #[test]
+    fn test_new_wraps_inner_service_and_preserves_id_happy() {
+        let handler = StdRegistryBridgeHandler::new("svc-1".to_string(), Arc::new(NoopService));
+        assert_eq!(handler.id(IdRequest).unwrap().id, "svc-1");
+
+        let security = SecurityServices::unauthenticated();
+        let bus = StdCommandBusFactory::direct();
+        let observer = StdObserveFactory::noop_observer_context();
+        let ctx = HandlerContext {
+            security: &security,
+            commands: &bus,
+            observer: observer.as_ref(),
+        };
+        assert!(block_on(handler.execute(ExecutionRequest { req: (), ctx: &ctx })).is_ok());
+    }
 
     #[test]
     fn test_bridge_populates_handler_registry_happy() {
