@@ -1,6 +1,7 @@
 //! Integration tests for `InMemoryProjection`.
 // @allow: no_mocks_in_integration
 
+use edge_domain_event::{EventAggregateIdRequest, EventAggregateIdResponse, EventError};
 use edge_domain_projection::{DomainEvent, InMemoryProjection, Projection};
 
 #[derive(Clone)]
@@ -9,8 +10,8 @@ struct ItemEvt {
 }
 
 impl DomainEvent for ItemEvt {
-    fn aggregate_id(&self) -> &str {
-        "cart"
+    fn aggregate_id(&self, _req: EventAggregateIdRequest) -> Result<EventAggregateIdResponse<'_>, EventError> {
+        Ok(EventAggregateIdResponse { aggregate_id: "cart" })
     }
 }
 

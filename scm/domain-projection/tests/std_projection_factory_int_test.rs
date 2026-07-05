@@ -1,11 +1,12 @@
+use edge_domain_event::{EventAggregateIdRequest, EventAggregateIdResponse, EventError};
 use edge_domain_projection::{DomainEvent, ProjectionError, ProjectionBootstrap, StdProjectionFactory, Projection};
 
 #[derive(Clone)]
 struct TickEvt;
 
 impl DomainEvent for TickEvt {
-    fn aggregate_id(&self) -> &str {
-        "counter-1"
+    fn aggregate_id(&self, _req: EventAggregateIdRequest) -> Result<EventAggregateIdResponse<'_>, EventError> {
+        Ok(EventAggregateIdResponse { aggregate_id: "counter-1" })
     }
 }
 

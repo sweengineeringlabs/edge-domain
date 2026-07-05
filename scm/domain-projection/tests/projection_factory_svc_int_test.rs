@@ -1,6 +1,7 @@
 //! SAF tests — `ProjectionBootstrap` trait.
 // @allow: no_mocks_in_integration
 
+use edge_domain_event::{EventAggregateIdRequest, EventAggregateIdResponse, EventError};
 use edge_domain_projection::{DomainEvent, Projection, ProjectionError, ProjectionBootstrap};
 
 #[derive(Clone)]
@@ -9,8 +10,8 @@ struct ScoreEvt {
 }
 
 impl DomainEvent for ScoreEvt {
-    fn aggregate_id(&self) -> &str {
-        "game-1"
+    fn aggregate_id(&self, _req: EventAggregateIdRequest) -> Result<EventAggregateIdResponse<'_>, EventError> {
+        Ok(EventAggregateIdResponse { aggregate_id: "game-1" })
     }
 }
 

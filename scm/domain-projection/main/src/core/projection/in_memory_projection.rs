@@ -32,11 +32,11 @@ mod tests {
     }
 
     impl DomainEvent for InMemoryProjectionTestEvt {
-        fn aggregate_id(&self) -> &str {
-            "test"
+        fn aggregate_id(&self, _req: edge_domain_event::EventAggregateIdRequest) -> Result<edge_domain_event::EventAggregateIdResponse<'_>, edge_domain_event::EventError> {
+            Ok(edge_domain_event::EventAggregateIdResponse { aggregate_id: "test" })
         }
-        fn occurred_at(&self) -> SystemTime {
-            SystemTime::UNIX_EPOCH
+        fn occurred_at(&self, _req: edge_domain_event::EventOccurredAtRequest) -> Result<edge_domain_event::EventOccurredAtResponse, edge_domain_event::EventError> {
+            Ok(edge_domain_event::EventOccurredAtResponse { occurred_at: SystemTime::UNIX_EPOCH })
         }
     }
 
