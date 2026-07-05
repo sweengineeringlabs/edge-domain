@@ -1,9 +1,12 @@
 //! `ObserveBootstrap` — assembles the observability triplet.
 
 use crate::api::observe::errors::ObserveError;
-use crate::api::observe::types::StdObserveFactory;
-
-use super::{HandlerTracer, LogDrain, MetricRegistry};
+use crate::api::observe::types::{
+    BootstrapNameRequest, BootstrapNameResponse, HandlerTracerBuildRequest,
+    HandlerTracerBuildResponse, LogDrainBuildRequest, LogDrainBuildResponse,
+    MetricRegistryBuildRequest, MetricRegistryBuildResponse, StdObserveFactory, ValidationRequest,
+    ValidationResponse,
+};
 
 /// Constructs the three observability primitives as a unit.
 ///
@@ -11,8 +14,11 @@ use super::{HandlerTracer, LogDrain, MetricRegistry};
 /// The noop `StdObserveFactory` is suitable for local dev and unit tests.
 pub trait ObserveBootstrap: Send + Sync {
     /// Identifies this bootstrap implementation.
-    fn bootstrap_name(&self) -> &'static str {
-        "observe"
+    fn bootstrap_name(
+        &self,
+        _req: BootstrapNameRequest,
+    ) -> Result<BootstrapNameResponse, ObserveError> {
+        Ok(BootstrapNameResponse { name: "observe" })
     }
 
     /// Return the standard (noop) observe factory instance.
@@ -27,16 +33,25 @@ pub trait ObserveBootstrap: Send + Sync {
     ///
     /// Returns [`ObserveError`] when the backend is unavailable or not yet
     /// initialised. Always returns `Ok(())` for noop implementations.
-    fn validate(&self) -> Result<(), ObserveError> {
-        Ok(())
+    fn validate(&self, _req: ValidationRequest) -> Result<ValidationResponse, ObserveError> {
+        Ok(ValidationResponse)
     }
 
-    /// Build a [`HandlerTracer`].
-    fn build_handler_tracer(&self) -> Box<dyn HandlerTracer>;
+    /// Build a [`HandlerTracer`](super::HandlerTracer).
+    fn build_handler_tracer(
+        &self,
+        req: HandlerTracerBuildRequest,
+    ) -> Result<HandlerTracerBuildResponse, ObserveError>;
 
-    /// Build a [`MetricRegistry`].
-    fn build_metric_registry(&self) -> Box<dyn MetricRegistry>;
+    /// Build a [`MetricRegistry`](super::MetricRegistry).
+    fn build_metric_registry(
+        &self,
+        req: MetricRegistryBuildRequest,
+    ) -> Result<MetricRegistryBuildResponse, ObserveError>;
 
-    /// Build a [`LogDrain`].
-    fn build_log_drain(&self) -> Box<dyn LogDrain>;
+    /// Build a [`LogDrain`](super::LogDrain).
+    fn build_log_drain(
+        &self,
+        req: LogDrainBuildRequest,
+    ) -> Result<LogDrainBuildResponse, ObserveError>;
 }

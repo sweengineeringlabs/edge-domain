@@ -1,0 +1,5 @@
+//! [`DrainRequest`] — zero-sized marker for querying the active `LogDrain`.
+
+/// Request for the active [`LogDrain`](crate::api::LogDrain).
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub struct DrainRequest;

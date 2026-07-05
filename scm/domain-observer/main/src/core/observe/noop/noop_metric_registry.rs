@@ -2,9 +2,16 @@ use super::noop_counter::NoopCounter;
 use super::noop_gauge::NoopGauge;
 use super::noop_histogram::NoopHistogram;
 use crate::api::Counter;
+use crate::api::CounterLookupRequest;
+use crate::api::CounterLookupResponse;
 use crate::api::Gauge;
+use crate::api::GaugeLookupRequest;
+use crate::api::GaugeLookupResponse;
 use crate::api::Histogram;
+use crate::api::HistogramLookupRequest;
+use crate::api::HistogramLookupResponse;
 use crate::api::MetricRegistry;
+use crate::api::ObserveError;
 
 pub(crate) struct NoopMetricRegistry;
 
@@ -15,25 +22,39 @@ impl NoopMetricRegistry {
 }
 
 impl MetricRegistry for NoopMetricRegistry {
-    fn counter(&self, name: &str) -> Box<dyn Counter> {
-        let _ = name;
-        Box::new(NoopCounter)
+    fn counter(&self, req: CounterLookupRequest) -> Result<CounterLookupResponse, ObserveError> {
+        let _ = req;
+        Ok(CounterLookupResponse {
+            counter: Box::new(NoopCounter) as Box<dyn Counter>,
+        })
     }
 
-    fn histogram(&self, name: &str) -> Box<dyn Histogram> {
-        let _ = name;
-        Box::new(NoopHistogram)
+    fn histogram(
+        &self,
+        req: HistogramLookupRequest,
+    ) -> Result<HistogramLookupResponse, ObserveError> {
+        let _ = req;
+        Ok(HistogramLookupResponse {
+            histogram: Box::new(NoopHistogram) as Box<dyn Histogram>,
+        })
     }
 
-    fn gauge(&self, name: &str) -> Box<dyn Gauge> {
-        let _ = name;
-        Box::new(NoopGauge)
+    fn gauge(&self, req: GaugeLookupRequest) -> Result<GaugeLookupResponse, ObserveError> {
+        let _ = req;
+        Ok(GaugeLookupResponse {
+            gauge: Box::new(NoopGauge) as Box<dyn Gauge>,
+        })
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::api::{GaugeSetRequest, HistogramRecordRequest, IncrementRequest};
+
+    fn name(name: &str) -> String {
+        name.to_string()
+    }
 
     #[test]
     fn test_new_creates_noop_metric_registry_happy() {
@@ -44,16 +65,32 @@ mod tests {
     #[test]
     fn test_counter_returns_usable_counter_error() {
         let r = NoopMetricRegistry::new();
-        r.counter("errs").increment(u64::MAX);
+        r.counter(CounterLookupRequest { name: name("errs") })
+            .unwrap()
+            .counter
+            .increment(IncrementRequest { delta: u64::MAX })
+            .unwrap();
         assert_eq!(std::mem::size_of_val(&r), 0);
     }
 
     #[test]
     fn test_all_three_primitives_constructible_edge() {
         let r = NoopMetricRegistry::new();
-        r.counter("c").increment(1);
-        r.histogram("h").record(1.0);
-        r.gauge("g").set(1.0);
+        r.counter(CounterLookupRequest { name: name("c") })
+            .unwrap()
+            .counter
+            .increment(IncrementRequest { delta: 1 })
+            .unwrap();
+        r.histogram(HistogramLookupRequest { name: name("h") })
+            .unwrap()
+            .histogram
+            .record(HistogramRecordRequest { value: 1.0 })
+            .unwrap();
+        r.gauge(GaugeLookupRequest { name: name("g") })
+            .unwrap()
+            .gauge
+            .set(GaugeSetRequest { value: 1.0 })
+            .unwrap();
         assert_eq!(std::mem::size_of_val(&r), 0);
     }
 }
