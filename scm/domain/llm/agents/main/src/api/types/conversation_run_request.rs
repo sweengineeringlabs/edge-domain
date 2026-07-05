@@ -3,7 +3,7 @@ use crate::api::types::{Message, OwnedHandlerContext};
 /// Request for [`ConversationLoop::run`](crate::api::traits::ConversationLoop::run).
 ///
 /// `handler_context` is owned (not a borrowed `HandlerContext<'a>`) because the loop's
-/// per-turn [`Step`](edge_domain_pipeline::Step) bridge is constructed once and shared
+/// per-turn [`Step`](edge_pipeline::Step) bridge is constructed once and shared
 /// across all configured turns via `Arc` — it cannot hold a non-`'static` borrow. A fresh
 /// `HandlerContext` is built from it at each `execute_skill` call.
 pub struct ConversationRunRequest {

@@ -3,6 +3,9 @@
 use edge_domain_handler::{
     ExecutionRequest, Handler, HandlerError, IdRequest, IdResponse, PatternRequest, PatternResponse,
 };
+use edge_domain_observer::{
+    CounterLookupRequest, IncrementRequest, SpanFinishRequest, SpanStartRequest,
+};
 
 /// Stable handler id under which this handler registers for dispatch.
 const AGENT_HANDLER_ID: &str = "agent.execute_skill";
@@ -36,14 +39,33 @@ impl Handler for DefaultAgentHandler {
                 "agent skill input must not be empty".to_string(),
             ));
         }
-        let span = req.ctx.observer.tracer().start_span("agent", &self.skill);
+        let span = req
+            .ctx
+            .observer
+            .tracer(edge_domain_observer::TracerRequest)
+            .map_err(|e| HandlerError::ExecutionFailed(e.to_string()))?
+            .tracer
+            .start_span(SpanStartRequest {
+                handler_id: "agent".to_string(),
+                operation: self.skill.clone(),
+            })
+            .map_err(|e| HandlerError::ExecutionFailed(e.to_string()))?
+            .span;
         req.ctx
             .observer
-            .metrics()
-            .counter("agent.dispatch")
-            .increment(1);
+            .metrics(edge_domain_observer::MetricsRequest)
+            .map_err(|e| HandlerError::ExecutionFailed(e.to_string()))?
+            .metrics
+            .counter(CounterLookupRequest {
+                name: "agent.dispatch".to_string(),
+            })
+            .map_err(|e| HandlerError::ExecutionFailed(e.to_string()))?
+            .counter
+            .increment(IncrementRequest { delta: 1 })
+            .map_err(|e| HandlerError::ExecutionFailed(e.to_string()))?;
         let result = Ok(format!("{}:{}", self.skill, req.req));
-        span.finish();
+        span.finish(SpanFinishRequest)
+            .map_err(|e| HandlerError::ExecutionFailed(e.to_string()))?;
         result
     }
 }

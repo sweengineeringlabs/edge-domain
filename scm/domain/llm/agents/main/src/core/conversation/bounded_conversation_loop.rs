@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain_pipeline::{
+use edge_pipeline::{
     ContextMutationRequest, PipelineBuilder, PipelineConfig, PipelineError, PipelineSvc, Step,
 };
 
@@ -69,7 +69,7 @@ impl BoundedConversationLoop {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use edge_domain_pipeline::StepError;
+    use edge_pipeline::StepError;
 
     /// @covers: map_pipeline_error
     #[test]

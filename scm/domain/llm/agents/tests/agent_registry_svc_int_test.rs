@@ -3,7 +3,11 @@
 
 use async_trait::async_trait;
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_registry::Registry;
+use edge_domain_registry::{
+    DeregisterRequest, DeregisterResponse, EmptinessRequest, LenRequest, LenResponse,
+    ListIdsRequest, ListIdsResponse, RegisterRequest, RegisterResponse, Registry, RegistryError,
+    RegistryLookupRequest, RegistryLookupResponse, TryRegisterRequest, TryRegisterResponse,
+};
 use edge_llm_agent::{
     Agent, AgentDescriptionRequest, AgentDescriptionResponse, AgentError, AgentIdRequest,
     AgentIdResponse, AgentMetadata, AgentMetadataLookupRequest, AgentMetadataLookupResponse,
@@ -90,47 +94,55 @@ impl TestAgentRegistry {
 impl Registry for TestAgentRegistry {
     type Value = dyn Agent;
 
-    fn register(&self, id: &str, value: Arc<Self::Value>) {
-        self.agents
-            .lock()
-            .unwrap()
-            .insert(id.to_string(), (value, create_dummy_metadata(id)));
+    fn register(&self, req: RegisterRequest<Self::Value>) -> Result<RegisterResponse, RegistryError> {
+        self.agents.lock().unwrap().insert(
+            req.id.clone(),
+            (req.entry, create_dummy_metadata(&req.id)),
+        );
+        Ok(RegisterResponse)
     }
 
     fn try_register(
         &self,
-        id: &str,
-        value: Arc<Self::Value>,
-    ) -> Result<(), edge_domain_registry::RegistryError> {
+        req: TryRegisterRequest<Self::Value>,
+    ) -> Result<TryRegisterResponse, RegistryError> {
         let mut agents = self.agents.lock().unwrap();
-        if agents.contains_key(id) {
-            Err(edge_domain_registry::RegistryError::DuplicateId(
-                id.to_string(),
-            ))
+        if agents.contains_key(&req.id) {
+            Err(RegistryError::DuplicateId(req.id))
         } else {
-            agents.insert(id.to_string(), (value, create_dummy_metadata(id)));
-            Ok(())
+            let meta = create_dummy_metadata(&req.id);
+            agents.insert(req.id, (req.entry, meta));
+            Ok(TryRegisterResponse)
         }
     }
 
-    fn deregister(&self, id: &str) -> bool {
-        self.agents.lock().unwrap().remove(id).is_some()
+    fn deregister(&self, req: DeregisterRequest) -> Result<DeregisterResponse, RegistryError> {
+        let was_present = self.agents.lock().unwrap().remove(&req.id).is_some();
+        Ok(DeregisterResponse { was_present })
     }
 
-    fn get(&self, id: &str) -> Option<Arc<Self::Value>> {
-        self.agents
+    fn get(
+        &self,
+        req: RegistryLookupRequest,
+    ) -> Result<RegistryLookupResponse<Self::Value>, RegistryError> {
+        let entry = self
+            .agents
             .lock()
             .unwrap()
-            .get(id)
-            .map(|(agent, _)| agent.clone())
+            .get(&req.id)
+            .map(|(agent, _)| agent.clone());
+        Ok(RegistryLookupResponse { entry })
     }
 
-    fn list_ids(&self) -> Vec<String> {
-        self.agents.lock().unwrap().keys().cloned().collect()
+    fn list_ids(&self, _req: ListIdsRequest) -> Result<ListIdsResponse, RegistryError> {
+        let ids = self.agents.lock().unwrap().keys().cloned().collect();
+        Ok(ListIdsResponse { ids })
     }
 
-    fn len(&self) -> usize {
-        self.agents.lock().unwrap().len()
+    fn len(&self, _req: LenRequest) -> Result<LenResponse, RegistryError> {
+        Ok(LenResponse {
+            count: self.agents.lock().unwrap().len(),
+        })
     }
 }
 
@@ -187,9 +199,16 @@ fn test_svc_agent_registry_happy_trait_can_be_implemented() {
     let agent = Arc::new(TestAgent {
         id: "test".to_string(),
     });
-    registry.register("test", agent);
-    let retrieved = registry.get("test");
-    let a = retrieved.unwrap();
+    registry
+        .register(RegisterRequest {
+            id: "test".to_string(),
+            entry: agent,
+        })
+        .unwrap();
+    let retrieved = registry.get(RegistryLookupRequest {
+        id: "test".to_string(),
+    });
+    let a = retrieved.unwrap().entry.unwrap();
     assert_eq!(a.id(AgentIdRequest).unwrap().id, "test");
 }
 
@@ -200,9 +219,16 @@ fn test_svc_agent_registry_happy_register_stores_agent() {
     let agent = Arc::new(TestAgent {
         id: "agent1".to_string(),
     });
-    registry.register("agent1", agent);
-    let retrieved = registry.get("agent1");
-    let a = retrieved.unwrap();
+    registry
+        .register(RegisterRequest {
+            id: "agent1".to_string(),
+            entry: agent,
+        })
+        .unwrap();
+    let retrieved = registry.get(RegistryLookupRequest {
+        id: "agent1".to_string(),
+    });
+    let a = retrieved.unwrap().entry.unwrap();
     assert_eq!(a.id(AgentIdRequest).unwrap().id, "agent1");
 }
 
@@ -210,8 +236,10 @@ fn test_svc_agent_registry_happy_register_stores_agent() {
 #[test]
 fn test_svc_agent_registry_error_get_nonexistent_agent() {
     let registry = TestAgentRegistry::new();
-    let result = registry.get("nonexistent");
-    assert!(result.is_none());
+    let result = registry.get(RegistryLookupRequest {
+        id: "nonexistent".to_string(),
+    });
+    assert!(result.unwrap().entry.is_none());
 }
 
 /// @covers: AgentRegistry trait re-export — inherits Registry::list_ids
@@ -224,9 +252,19 @@ fn test_svc_agent_registry_happy_list_ids_returns_all_agents() {
     let agent2 = Arc::new(TestAgent {
         id: "agent2".to_string(),
     });
-    registry.register("agent1", agent1);
-    registry.register("agent2", agent2);
-    let ids = registry.list_ids();
+    registry
+        .register(RegisterRequest {
+            id: "agent1".to_string(),
+            entry: agent1,
+        })
+        .unwrap();
+    registry
+        .register(RegisterRequest {
+            id: "agent2".to_string(),
+            entry: agent2,
+        })
+        .unwrap();
+    let ids = registry.list_ids(ListIdsRequest).unwrap().ids;
     assert_eq!(ids.len(), 2);
     assert!(ids.contains(&"agent1".to_string()));
     assert!(ids.contains(&"agent2".to_string()));
@@ -239,7 +277,12 @@ fn test_svc_agent_registry_happy_metadata_returns_agent_info() {
     let agent = Arc::new(TestAgent {
         id: "test_agent".to_string(),
     });
-    registry.register("test_agent", agent);
+    registry
+        .register(RegisterRequest {
+            id: "test_agent".to_string(),
+            entry: agent,
+        })
+        .unwrap();
     let metadata = registry.metadata(AgentMetadataLookupRequest { id: "test_agent" });
     let meta = metadata.unwrap().metadata;
     assert_eq!(meta.id, "test_agent");
@@ -261,5 +304,5 @@ fn test_svc_agent_registry_error_metadata_agent_not_found() {
 #[test]
 fn test_svc_agent_registry_edge_is_empty_returns_true() {
     let registry = TestAgentRegistry::new();
-    assert!(registry.is_empty());
+    assert!(registry.is_empty(EmptinessRequest).unwrap().empty);
 }

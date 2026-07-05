@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use edge_domain_handler::HandlerContext;
-use edge_domain_pipeline::{ContextMutationRequest, Step};
+use edge_pipeline::{ContextMutationRequest, Step};
 use edge_llm_complete::{CompleteRequest, CompletionRequest, FinishReason};
 use edge_llm_provider::{CompleterRequest, ModelInfoLookupRequest};
 
@@ -274,6 +274,100 @@ mod tests {
     // the terminated-is-noop edge case is tested inline above, since it's the one path
     // not exercised by any e2e scenario (a completed conversation's unused pipeline
     // slack turns must stay silent, not re-invoke the provider).
+
+    /// @covers: to_complete_message
+    #[test]
+    fn test_to_complete_message_maps_all_fields_happy() {
+        let msg = Message {
+            role: Role::Assistant,
+            content: MessageContent::Text("hi there".to_string()),
+            name: Some("assistant-1".to_string()),
+            tool_call_id: Some("call-9".to_string()),
+            tool_calls: vec![ToolCall {
+                id: "call-1".to_string(),
+                name: "get_weather".to_string(),
+                arguments: "{}".to_string(),
+            }],
+            cache_control: Some(CacheControl {
+                cache_type: "ephemeral".to_string(),
+            }),
+        };
+        let converted = DefaultConversationTurnStep::to_complete_message(&msg);
+        assert_eq!(converted.role, edge_llm_complete::Role::Assistant);
+        assert_eq!(
+            converted.content,
+            edge_llm_complete::MessageContent::Text("hi there".to_string())
+        );
+        assert_eq!(converted.name, Some("assistant-1".to_string()));
+        assert_eq!(converted.tool_call_id, Some("call-9".to_string()));
+        assert_eq!(converted.tool_calls.len(), 1);
+        assert_eq!(converted.tool_calls[0].name, "get_weather");
+        assert_eq!(
+            converted.cache_control.map(|cc| cc.cache_type),
+            Some("ephemeral".to_string())
+        );
+    }
+
+    /// @covers: to_complete_message
+    #[test]
+    fn test_to_complete_message_no_optional_fields_edge() {
+        let msg = Message {
+            role: Role::User,
+            content: MessageContent::Text("hi".to_string()),
+            name: None,
+            tool_call_id: None,
+            tool_calls: vec![],
+            cache_control: None,
+        };
+        let converted = DefaultConversationTurnStep::to_complete_message(&msg);
+        assert_eq!(converted.name, None);
+        assert_eq!(converted.tool_call_id, None);
+        assert!(converted.tool_calls.is_empty());
+        assert_eq!(converted.cache_control, None);
+    }
+
+    /// @covers: to_complete_part
+    #[test]
+    fn test_to_complete_part_text_happy() {
+        let part = ContentPart::Text {
+            text: "hello".to_string(),
+        };
+        let converted = DefaultConversationTurnStep::to_complete_part(&part);
+        assert!(matches!(converted, edge_llm_complete::ContentPart::Text { text } if text == "hello"));
+    }
+
+    /// @covers: to_complete_part
+    #[test]
+    fn test_to_complete_part_image_url_happy() {
+        let part = ContentPart::ImageUrl {
+            image_url: "https://example.com/x.png".to_string(),
+        };
+        let converted = DefaultConversationTurnStep::to_complete_part(&part);
+        match converted {
+            edge_llm_complete::ContentPart::ImageUrl { image_url } => {
+                assert_eq!(image_url.url, "https://example.com/x.png");
+                assert_eq!(image_url.detail, None);
+            }
+            other => panic!("expected ImageUrl, got {other:?}"),
+        }
+    }
+
+    /// @covers: to_complete_part
+    #[test]
+    fn test_to_complete_part_image_base64_edge() {
+        let part = ContentPart::ImageBase64 {
+            data: "base64data".to_string(),
+            media_type: "image/png".to_string(),
+        };
+        let converted = DefaultConversationTurnStep::to_complete_part(&part);
+        match converted {
+            edge_llm_complete::ContentPart::ImageBase64 { data, media_type } => {
+                assert_eq!(data, "base64data");
+                assert_eq!(media_type, "image/png");
+            }
+            other => panic!("expected ImageBase64, got {other:?}"),
+        }
+    }
 
     /// @covers: to_complete_role
     #[test]

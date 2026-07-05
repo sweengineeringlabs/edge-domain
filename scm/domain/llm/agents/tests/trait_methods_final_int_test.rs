@@ -10,7 +10,11 @@ use edge_domain_handler::{
     ExecutionRequest, Handler, HandlerContext, HandlerError, IdRequest, IdResponse,
 };
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_registry::Registry;
+use edge_domain_registry::{
+    DeregisterRequest, DeregisterResponse, EmptinessRequest, LenRequest, LenResponse,
+    ListIdsRequest, ListIdsResponse, RegisterRequest, RegisterResponse, Registry, RegistryError,
+    RegistryLookupRequest, RegistryLookupResponse, TryRegisterRequest, TryRegisterResponse,
+};
 use edge_domain_security::{SecurityBootstrap, SecurityServices};
 use edge_llm_agent::{
     Agent, AgentCreationRequest, AgentDescriptionRequest, AgentError, AgentHandlerRequest,
@@ -437,30 +441,40 @@ impl TestAgentRegistry {
 impl Registry for TestAgentRegistry {
     type Value = dyn Agent;
 
-    fn register(&self, _id: &str, _entry: Arc<Self::Value>) {}
+    fn register(&self, _req: RegisterRequest<Self::Value>) -> Result<RegisterResponse, RegistryError> {
+        Ok(RegisterResponse)
+    }
 
     fn try_register(
         &self,
-        _id: &str,
-        _entry: Arc<Self::Value>,
-    ) -> Result<(), edge_domain_registry::RegistryError> {
-        Ok(())
+        _req: TryRegisterRequest<Self::Value>,
+    ) -> Result<TryRegisterResponse, RegistryError> {
+        Ok(TryRegisterResponse)
     }
 
-    fn deregister(&self, _id: &str) -> bool {
-        true
+    fn deregister(&self, _req: DeregisterRequest) -> Result<DeregisterResponse, RegistryError> {
+        Ok(DeregisterResponse { was_present: true })
     }
 
-    fn get(&self, id: &str) -> Option<Arc<Self::Value>> {
-        self.agents.get(id).cloned()
+    fn get(
+        &self,
+        req: RegistryLookupRequest,
+    ) -> Result<RegistryLookupResponse<Self::Value>, RegistryError> {
+        Ok(RegistryLookupResponse {
+            entry: self.agents.get(&req.id).cloned(),
+        })
     }
 
-    fn list_ids(&self) -> Vec<String> {
-        self.agents.keys().cloned().collect()
+    fn list_ids(&self, _req: ListIdsRequest) -> Result<ListIdsResponse, RegistryError> {
+        Ok(ListIdsResponse {
+            ids: self.agents.keys().cloned().collect(),
+        })
     }
 
-    fn len(&self) -> usize {
-        self.agents.len()
+    fn len(&self, _req: LenRequest) -> Result<LenResponse, RegistryError> {
+        Ok(LenResponse {
+            count: self.agents.len(),
+        })
     }
 }
 
@@ -981,7 +995,12 @@ fn test_metadata_registry_edge() {
 #[test]
 fn test_registry_get_happy() {
     let registry = TestAgentRegistry::new();
-    let agent = registry.get("test_agent");
+    let agent = registry
+        .get(RegistryLookupRequest {
+            id: "test_agent".to_string(),
+        })
+        .unwrap()
+        .entry;
     assert!(agent.is_some());
     assert_eq!(
         agent.unwrap().id(AgentIdRequest).unwrap().id,
@@ -993,7 +1012,12 @@ fn test_registry_get_happy() {
 #[test]
 fn test_registry_get_error() {
     let registry = TestAgentRegistry::new();
-    let agent = registry.get("missing");
+    let agent = registry
+        .get(RegistryLookupRequest {
+            id: "missing".to_string(),
+        })
+        .unwrap()
+        .entry;
     assert!(agent.is_none());
 }
 
@@ -1001,7 +1025,12 @@ fn test_registry_get_error() {
 #[test]
 fn test_registry_get_edge() {
     let registry = TestAgentRegistry::empty();
-    let agent = registry.get("any");
+    let agent = registry
+        .get(RegistryLookupRequest {
+            id: "any".to_string(),
+        })
+        .unwrap()
+        .entry;
     assert!(agent.is_none());
 }
 
@@ -1009,7 +1038,7 @@ fn test_registry_get_edge() {
 #[test]
 fn test_registry_list_ids_happy() {
     let registry = TestAgentRegistry::new();
-    let ids = registry.list_ids();
+    let ids = registry.list_ids(ListIdsRequest).unwrap().ids;
     assert_eq!(ids.len(), 2);
     assert!(ids.contains(&"test_agent".to_string()));
 }
@@ -1018,7 +1047,7 @@ fn test_registry_list_ids_happy() {
 #[test]
 fn test_registry_list_ids_error() {
     let registry = TestAgentRegistry::empty();
-    let ids = registry.list_ids();
+    let ids = registry.list_ids(ListIdsRequest).unwrap().ids;
     assert_eq!(ids.len(), 0);
 }
 
@@ -1026,7 +1055,7 @@ fn test_registry_list_ids_error() {
 #[test]
 fn test_registry_list_ids_edge() {
     let registry = TestAgentRegistry::new();
-    let ids = registry.list_ids();
+    let ids = registry.list_ids(ListIdsRequest).unwrap().ids;
     assert!(ids.iter().all(|id| !id.is_empty()));
 }
 
@@ -1034,42 +1063,45 @@ fn test_registry_list_ids_edge() {
 #[test]
 fn test_registry_len_happy() {
     let registry = TestAgentRegistry::new();
-    assert_eq!(registry.len(), 2);
+    assert_eq!(registry.len(LenRequest).unwrap().count, 2);
 }
 
 /// @covers: Registry::len (inherited by AgentRegistry)
 #[test]
 fn test_registry_len_error() {
     let registry = TestAgentRegistry::empty();
-    assert_eq!(registry.len(), 0);
+    assert_eq!(registry.len(LenRequest).unwrap().count, 0);
 }
 
 /// @covers: Registry::len (inherited by AgentRegistry)
 #[test]
 fn test_registry_len_edge() {
     let registry = TestAgentRegistry::new();
-    assert!(registry.len() > 0);
+    assert!(registry.len(LenRequest).unwrap().count > 0);
 }
 
 /// @covers: Registry::is_empty (inherited by AgentRegistry)
 #[test]
 fn test_registry_is_empty_happy() {
     let registry = TestAgentRegistry::empty();
-    assert!(registry.is_empty());
+    assert!(registry.is_empty(EmptinessRequest).unwrap().empty);
 }
 
 /// @covers: Registry::is_empty (inherited by AgentRegistry)
 #[test]
 fn test_registry_is_empty_error() {
     let registry = TestAgentRegistry::new();
-    assert!(!registry.is_empty());
+    assert!(!registry.is_empty(EmptinessRequest).unwrap().empty);
 }
 
 /// @covers: Registry::is_empty (inherited by AgentRegistry)
 #[test]
 fn test_registry_is_empty_edge() {
     let registry = TestAgentRegistry::new();
-    assert_eq!(registry.is_empty(), registry.len() == 0);
+    assert_eq!(
+        registry.is_empty(EmptinessRequest).unwrap().empty,
+        registry.len(LenRequest).unwrap().count == 0
+    );
 }
 
 /// @covers: Agent::skill happy path
