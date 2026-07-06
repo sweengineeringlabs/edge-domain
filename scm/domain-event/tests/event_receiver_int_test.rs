@@ -3,12 +3,9 @@
 
 use std::sync::Arc;
 use edge_domain_event::{
-    DomainEvent, EventBootstrap, EventBus, EventBusConfig, EventBusPublishRequest,
-    EventBusSubscribeRequest, EventError, EventTypeRequest,
+    DomainEvent, EventBus, EventBusPublishRequest, EventBusSubscribeRequest, EventError,
+    EventTypeRequest, InProcessEventBus,
 };
-
-struct Events;
-impl EventBootstrap for Events {}
 
 struct PingEvt;
 impl DomainEvent for PingEvt {
@@ -25,7 +22,7 @@ fn test_event_receiver_recv_returns_published_event_happy() {
         .build()
         .expect("rt");
     rt.block_on(async {
-        let bus = Events::in_process_bus(EventBusConfig { capacity: 4 });
+        let bus = InProcessEventBus::new(4);
         let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         bus.publish(EventBusPublishRequest { event: Arc::new(PingEvt) }).await.expect("publish");
         let event = rx.recv().await.expect("recv");

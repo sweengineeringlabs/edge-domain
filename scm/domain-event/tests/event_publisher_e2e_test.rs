@@ -2,11 +2,8 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain_event::{
-    DomainEvent, EventBootstrap, EventPublisher, EventPublisherPublishRequest, NoopEventPublisher,
+    DomainEvent, EventPublisher, EventPublisherPublishRequest, NoopEventPublisher,
 };
-
-struct Events;
-impl EventBootstrap for Events {}
 
 struct Evt;
 impl DomainEvent for Evt {}
@@ -23,7 +20,7 @@ fn test_publish_noop_publisher_returns_ok_happy() {
 /// @covers: NoopEventPublisher — constructed via EventFactory
 #[test]
 fn test_noop_publisher_via_factory_returns_ok_happy() {
-    let pub_ = Events::noop_publisher();
+    let pub_ = NoopEventPublisher;
     let result = futures::executor::block_on(
         pub_.publish(EventPublisherPublishRequest { event: &Evt }),
     );

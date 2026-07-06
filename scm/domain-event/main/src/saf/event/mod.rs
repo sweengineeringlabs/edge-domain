@@ -1,7 +1,5 @@
 mod aggregate;
 mod domain;
-mod event_bootstrap_svc;
-mod event_bootstrap_svc_factory;
 mod event_bus_svc;
 mod event_bus_svc_factory;
 mod event_publisher_svc;
@@ -13,8 +11,6 @@ mod event_store_svc_factory;
 
 pub use aggregate::{Aggregate, AGGREGATE_SVC, AGGREGATE_SVC_FACTORY};
 pub use domain::{DomainEvent, DOMAIN_EVENT_SVC, DOMAIN_EVENT_SVC_FACTORY};
-pub use event_bootstrap_svc::{EventBootstrap, EVENT_FACTORY_SVC};
-pub use event_bootstrap_svc_factory::EVENT_BOOTSTRAP_SVC_FACTORY;
 pub use event_bus_svc::{EventBus, EVENT_BUS_SVC};
 pub use event_bus_svc_factory::EVENT_BUS_SVC_FACTORY;
 pub use event_publisher_svc::{EventPublisher, EVENT_PUBLISHER_SVC};

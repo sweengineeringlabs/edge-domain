@@ -1,14 +1,12 @@
 //! Integration tests for `InMemoryEventStore`.
+// @allow: no_mocks_in_integration
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain_event::{
-    DomainEvent, EventAggregateIdRequest, EventBootstrap, EventStore, EventStoreAppendRequest,
-    EventStoreError, EventStoreLoadFromRequest, EventStoreLoadRequest, EventTypeRequest,
-    ExpectedVersion,
+    DomainEvent, EventAggregateIdRequest, EventStore, EventStoreAppendRequest, EventStoreError,
+    EventStoreLoadFromRequest, EventStoreLoadRequest, EventTypeRequest, ExpectedVersion,
+    InMemoryEventStore,
 };
-
-struct Events;
-impl EventBootstrap for Events {}
 
 #[derive(Clone)]
 struct ItemEvt(String);
@@ -24,7 +22,7 @@ impl DomainEvent for ItemEvt {
 /// @covers: InMemoryEventStore::new — creates empty store (via factory)
 #[test]
 fn test_in_memory_event_store_new_creates_empty_store_happy() {
-    let store = Events::in_memory_store::<ItemEvt>();
+    let store = InMemoryEventStore::<ItemEvt>::new();
     let events = futures::executor::block_on(
         store.load(EventStoreLoadRequest { aggregate_id: "any" }),
     )
@@ -36,7 +34,7 @@ fn test_in_memory_event_store_new_creates_empty_store_happy() {
 /// @covers: InMemoryEventStore::default — default store is usable
 #[test]
 fn test_in_memory_event_store_default_same_as_new_error() {
-    let store = Events::in_memory_store::<ItemEvt>();
+    let store = InMemoryEventStore::<ItemEvt>::new();
     let result = futures::executor::block_on(store.append(EventStoreAppendRequest {
         aggregate_id: "x",
         events: vec![ItemEvt("x".into())],
@@ -49,7 +47,7 @@ fn test_in_memory_event_store_default_same_as_new_error() {
 /// @covers: InMemoryEventStore — multiple aggregates are independent
 #[test]
 fn test_in_memory_event_store_multiple_aggregates_independent_edge() {
-    let store = Events::in_memory_store::<ItemEvt>();
+    let store = InMemoryEventStore::<ItemEvt>::new();
     futures::executor::block_on(store.append(EventStoreAppendRequest {
         aggregate_id: "agg-a",
         events: vec![ItemEvt("agg-a".into())],
@@ -81,7 +79,7 @@ fn test_in_memory_event_store_multiple_aggregates_independent_edge() {
 /// @covers: InMemoryEventStore::append — Conflict error has correct fields
 #[test]
 fn test_in_memory_event_store_conflict_error_fields_correct_happy() {
-    let store = Events::in_memory_store::<ItemEvt>();
+    let store = InMemoryEventStore::<ItemEvt>::new();
     futures::executor::block_on(store.append(EventStoreAppendRequest {
         aggregate_id: "x",
         events: vec![ItemEvt("x".into())],
@@ -106,7 +104,7 @@ fn test_in_memory_event_store_conflict_error_fields_correct_happy() {
 /// @covers: InMemoryEventStore::load_from — returns empty for future sequence
 #[test]
 fn test_in_memory_event_store_load_from_future_seq_returns_empty_error() {
-    let store = Events::in_memory_store::<ItemEvt>();
+    let store = InMemoryEventStore::<ItemEvt>::new();
     futures::executor::block_on(store.append(EventStoreAppendRequest {
         aggregate_id: "x",
         events: vec![ItemEvt("x".into())],
@@ -124,7 +122,7 @@ fn test_in_memory_event_store_load_from_future_seq_returns_empty_error() {
 /// @covers: InMemoryEventStore::load_from — returns events at exact sequence boundary
 #[test]
 fn test_in_memory_event_store_load_from_exact_boundary_edge() {
-    let store = Events::in_memory_store::<ItemEvt>();
+    let store = InMemoryEventStore::<ItemEvt>::new();
     futures::executor::block_on(store.append(EventStoreAppendRequest {
         aggregate_id: "x",
         events: vec![ItemEvt("x".into()), ItemEvt("x".into()), ItemEvt("x".into())],

@@ -3,12 +3,9 @@
 
 use std::sync::Arc;
 use edge_domain_event::{
-    DomainEvent, EventBootstrap, EventBus, EventBusPublishRequest, EventBusSubscribeRequest,
-    EventError, NoopEventBus,
+    DomainEvent, EventBus, EventBusPublishRequest, EventBusSubscribeRequest, EventError,
+    NoopEventBus,
 };
-
-struct Events;
-impl EventBootstrap for Events {}
 
 struct SignalEvt;
 impl DomainEvent for SignalEvt {}
@@ -36,7 +33,7 @@ fn test_noop_event_bus_publish_repeated_never_errors_error() {
 /// @covers: NoopEventBus::subscribe — subscribe returns immediately-closed receiver
 #[test]
 fn test_noop_event_bus_subscribe_returns_closed_receiver_edge() {
-    let mut rx = Events::noop_bus().subscribe(EventBusSubscribeRequest).unwrap().receiver;
+    let mut rx = NoopEventBus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
     let result = futures::executor::block_on(rx.recv());
     assert!(matches!(result, Err(EventError::Unavailable(_))));
 }

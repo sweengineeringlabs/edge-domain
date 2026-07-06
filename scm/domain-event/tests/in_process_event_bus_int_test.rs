@@ -3,12 +3,9 @@
 
 use std::sync::Arc;
 use edge_domain_event::{
-    DomainEvent, EventBootstrap, EventBus, EventBusConfig, EventBusPublishRequest,
-    EventBusSubscribeRequest, EventError, EventTypeRequest, InProcessEventBus,
+    DomainEvent, EventBus, EventBusPublishRequest, EventBusSubscribeRequest, EventError,
+    EventTypeRequest, InProcessEventBus,
 };
-
-struct Events;
-impl EventBootstrap for Events {}
 
 struct SigEvt;
 impl DomainEvent for SigEvt {
@@ -45,7 +42,7 @@ fn test_in_process_event_bus_subscriber_receives_event_happy() {
         .build()
         .expect("rt");
     rt.block_on(async {
-        let bus = Events::in_process_bus(EventBusConfig { capacity: 8 });
+        let bus = InProcessEventBus::new(8);
         let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         bus.publish(EventBusPublishRequest { event: Arc::new(SigEvt) }).await.expect("publish");
         let event = rx.recv().await.expect("recv");

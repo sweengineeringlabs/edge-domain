@@ -4,11 +4,8 @@
 use std::sync::Arc;
 use edge_domain_event::{
     DomainEvent, EventBus, EventBusPublishRequest, EventBusSubscribeRequest, EventError,
-    EventBootstrap, EventTypeRequest, NoopEventBus,
+    EventTypeRequest, InProcessEventBus, NoopEventBus,
 };
-
-struct Events;
-impl EventBootstrap for Events {}
 
 struct Evt;
 impl DomainEvent for Evt {
@@ -42,7 +39,7 @@ fn test_in_process_bus_publish_with_subscriber_happy() {
         .build()
         .expect("tokio rt");
     rt.block_on(async {
-        let bus = Events::in_process_bus(edge_domain_event::EventBusConfig { capacity: 8 });
+        let bus = InProcessEventBus::new(8);
         let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         bus.publish(EventBusPublishRequest { event: Arc::new(Evt) }).await.expect("publish");
         let e = rx.recv().await.expect("recv");
@@ -58,7 +55,7 @@ fn test_in_process_bus_publish_no_subscribers_returns_ok_edge() {
         .build()
         .expect("tokio rt");
     rt.block_on(async {
-        let bus = Events::in_process_bus(edge_domain_event::EventBusConfig::default());
+        let bus = InProcessEventBus::new(edge_domain_event::EventBusConfig::default().capacity);
         assert!(bus.publish(EventBusPublishRequest { event: Arc::new(Evt) }).await.is_ok());
     });
 }

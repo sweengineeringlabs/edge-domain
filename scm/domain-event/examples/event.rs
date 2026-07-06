@@ -1,10 +1,7 @@
 //! Basic `DomainEvent` usage example.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_event::{DomainEvent, EventAggregateIdRequest, EventBootstrap, EventTypeRequest};
-
-struct Events;
-impl EventBootstrap for Events {}
+use edge_domain_event::{DomainEvent, EventAggregateIdRequest, EventTypeRequest, NoopEventBus};
 
 struct OrderCreated {
     order_id: String,
@@ -20,7 +17,7 @@ impl DomainEvent for OrderCreated {
 }
 
 fn main() {
-    let _bus = Events::noop_bus();
+    let _bus = NoopEventBus;
     let evt = OrderCreated { order_id: "order-1".into() };
     let event_type = evt.event_type(EventTypeRequest).unwrap().event_type;
     let aggregate_id = evt.aggregate_id(EventAggregateIdRequest).unwrap().aggregate_id;

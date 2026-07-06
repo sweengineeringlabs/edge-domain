@@ -2,11 +2,8 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain_event::{
-    DomainEvent, EventBootstrap, EventPublisher, EventPublisherPublishRequest, NoopEventPublisher,
+    DomainEvent, EventPublisher, EventPublisherPublishRequest, NoopEventPublisher,
 };
-
-struct Events;
-impl EventBootstrap for Events {}
 
 struct SomeEvt;
 impl DomainEvent for SomeEvt {}
@@ -36,7 +33,7 @@ fn test_noop_event_publisher_publish_repeated_never_errors_error() {
 /// @covers: NoopEventPublisher::publish — via factory, dyn dispatch works
 #[test]
 fn test_noop_event_publisher_dyn_dispatch_ok_edge() {
-    let pub_ = Events::noop_publisher();
+    let pub_ = NoopEventPublisher;
     let evt: &dyn DomainEvent = &SomeEvt;
     assert_eq!(
         futures::executor::block_on(pub_.publish(EventPublisherPublishRequest { event: evt })),

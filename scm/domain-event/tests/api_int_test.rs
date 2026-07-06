@@ -1,4 +1,5 @@
 //! Layer-level coverage for `api/event/types/*.rs` request/response types.
+// @allow: no_mocks_in_integration
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
@@ -6,19 +7,15 @@ use std::time::SystemTime;
 
 use edge_domain_event::{
     Aggregate, AggregateApplyRequest, AggregateApplyResponse, AggregateIdentityRequest,
-    AggregateIdentityResponse, BootstrapNameRequest, BootstrapNameResponse, DomainEvent,
-    EventAggregateIdRequest, EventAggregateIdResponse, EventBootstrap, EventBus,
-    EventBusPublishRequest, EventBusSubscribeRequest, EventBusSubscribeResponse, EventError,
-    EventOccurredAtRequest, EventOccurredAtResponse, EventPublisher,
-    EventPublisherPublishRequest, EventSource, EventSourceRecvNextRequest,
+    AggregateIdentityResponse, ClosedEventSource, DomainEvent, EventAggregateIdRequest,
+    EventAggregateIdResponse, EventBus, EventBusPublishRequest, EventBusSubscribeRequest,
+    EventBusSubscribeResponse, EventError, EventOccurredAtRequest, EventOccurredAtResponse,
+    EventPublisher, EventPublisherPublishRequest, EventSource, EventSourceRecvNextRequest,
     EventSourceRecvNextResponse, EventStore, EventStoreAppendRequest, EventStoreAppendResponse,
     EventStoreLoadFromRequest, EventStoreLoadFromResponse, EventStoreLoadRequest,
-    EventStoreLoadResponse, EventTypeRequest, EventTypeResponse, ExpectedVersion, NoopAggregate,
-    NoopDomainEvent, StdEventFactory,
+    EventStoreLoadResponse, EventTypeRequest, EventTypeResponse, ExpectedVersion,
+    InMemoryEventStore, InProcessEventBus, NoopAggregate, NoopDomainEvent,
 };
-
-struct Events;
-impl EventBootstrap for Events {}
 
 /// @covers: AggregateApplyRequest
 #[test]
@@ -77,35 +74,6 @@ fn test_aggregate_identity_response_exposes_id_field_happy() {
 fn test_aggregate_identity_response_empty_id_edge() {
     let resp = AggregateIdentityResponse { id: "" };
     assert!(resp.id.is_empty());
-}
-
-/// @covers: BootstrapNameRequest
-#[test]
-fn test_bootstrap_name_request_is_zero_sized_happy() {
-    assert_eq!(std::mem::size_of::<BootstrapNameRequest>(), 0);
-}
-
-/// @covers: BootstrapNameRequest
-#[test]
-fn test_bootstrap_name_request_used_by_bootstrap_name_edge() {
-    let f = StdEventFactory;
-    let resp = f.bootstrap_name(BootstrapNameRequest).unwrap();
-    assert!(!resp.name.is_empty());
-}
-
-/// @covers: BootstrapNameResponse
-#[test]
-fn test_bootstrap_name_response_exposes_name_field_happy() {
-    let resp = BootstrapNameResponse { name: "custom" };
-    assert_eq!(resp.name, "custom");
-}
-
-/// @covers: BootstrapNameResponse
-#[test]
-fn test_bootstrap_name_response_default_value_error() {
-    let f = StdEventFactory;
-    let resp = f.bootstrap_name(BootstrapNameRequest).unwrap();
-    assert_eq!(resp.name, "event");
 }
 
 /// @covers: EventAggregateIdRequest
@@ -183,7 +151,7 @@ fn test_event_bus_subscribe_response_exposes_receiver_happy() {
 /// @covers: EventBusSubscribeResponse
 #[test]
 fn test_event_bus_subscribe_response_from_in_process_bus_edge() {
-    let bus = Events::in_process_bus(edge_domain_event::EventBusConfig { capacity: 4 });
+    let bus = InProcessEventBus::new(4);
     let resp: EventBusSubscribeResponse = bus.subscribe(EventBusSubscribeRequest).unwrap();
     // Just verify the receiver is constructed and usable (non-panicking drop).
     drop(resp.receiver);
@@ -248,7 +216,7 @@ fn test_event_source_recv_next_request_is_zero_sized_happy() {
 /// @covers: EventSourceRecvNextRequest
 #[test]
 fn test_event_source_recv_next_request_used_by_closed_source_edge() {
-    let mut src = Events::closed_source();
+    let mut src = ClosedEventSource;
     let result = futures::executor::block_on(src.recv_next(EventSourceRecvNextRequest));
     assert!(matches!(result, Err(EventError::Unavailable(_))));
 }
@@ -269,7 +237,7 @@ fn test_event_store_append_request_constructed_with_fields_happy() {
 /// @covers: EventStoreAppendRequest
 #[test]
 fn test_event_store_append_request_used_by_in_memory_store_edge() {
-    let store = Events::in_memory_store::<NoopDomainEvent>();
+    let store = InMemoryEventStore::<NoopDomainEvent>::new();
     let resp = futures::executor::block_on(store.append(EventStoreAppendRequest {
         aggregate_id: "agg-api-test",
         events: vec![NoopDomainEvent],
@@ -304,7 +272,7 @@ fn test_event_store_load_from_request_constructed_with_fields_happy() {
 /// @covers: EventStoreLoadFromRequest
 #[test]
 fn test_event_store_load_from_request_used_by_in_memory_store_edge() {
-    let store = Events::in_memory_store::<NoopDomainEvent>();
+    let store = InMemoryEventStore::<NoopDomainEvent>::new();
     let events = futures::executor::block_on(
         store.load_from(EventStoreLoadFromRequest { aggregate_id: "missing", from_sequence: 1 }),
     )
@@ -323,7 +291,7 @@ fn test_event_store_load_request_constructed_with_field_happy() {
 /// @covers: EventStoreLoadRequest
 #[test]
 fn test_event_store_load_request_used_by_in_memory_store_edge() {
-    let store = Events::in_memory_store::<NoopDomainEvent>();
+    let store = InMemoryEventStore::<NoopDomainEvent>::new();
     let events =
         futures::executor::block_on(store.load(EventStoreLoadRequest { aggregate_id: "missing" }))
             .expect("load")
@@ -375,7 +343,7 @@ fn test_event_source_recv_next_response_holds_event_happy() {
 #[test]
 fn test_event_source_recv_next_response_used_by_closed_source_error() {
     use edge_domain_event::EventSourceRecvNextRequest as Req;
-    let mut src = Events::closed_source();
+    let mut src = ClosedEventSource;
     let result = futures::executor::block_on(src.recv_next(Req));
     assert!(matches!(result, Err(EventError::Unavailable(_))));
 }
@@ -390,7 +358,7 @@ fn test_event_store_load_response_holds_events_happy() {
 /// @covers: EventStoreLoadResponse
 #[test]
 fn test_event_store_load_response_used_by_in_memory_store_edge() {
-    let store = Events::in_memory_store::<NoopDomainEvent>();
+    let store = InMemoryEventStore::<NoopDomainEvent>::new();
     let resp = futures::executor::block_on(
         store.load(EventStoreLoadRequest { aggregate_id: "none" }),
     )
@@ -409,7 +377,7 @@ fn test_event_store_load_from_response_holds_events_happy() {
 /// @covers: EventStoreLoadFromResponse
 #[test]
 fn test_event_store_load_from_response_used_by_in_memory_store_edge() {
-    let store = Events::in_memory_store::<NoopDomainEvent>();
+    let store = InMemoryEventStore::<NoopDomainEvent>::new();
     let resp = futures::executor::block_on(store.load_from(EventStoreLoadFromRequest {
         aggregate_id: "none",
         from_sequence: 0,

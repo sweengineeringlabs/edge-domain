@@ -10,10 +10,10 @@ mod closed_event_source;
 mod ins;
 
 pub use errors::{EventError, EventStoreError};
-pub use traits::{Aggregate, DomainEvent, EventBus, EventBootstrap, EventPublisher, EventSource, EventStore};
+pub use traits::{Aggregate, DomainEvent, EventBus, EventPublisher, EventSource, EventStore};
 pub use types::{
     AggregateApplyRequest, AggregateApplyResponse, AggregateIdentityRequest,
-    AggregateIdentityResponse, BootstrapNameRequest, BootstrapNameResponse, ClosedEventSource,
+    AggregateIdentityResponse, ClosedEventSource,
     EventAggregateIdRequest, EventAggregateIdResponse, EventBusConfig, EventBusPublishRequest,
     EventBusSubscribeRequest, EventBusSubscribeResponse, EventEnvelope, EventOccurredAtRequest,
     EventOccurredAtResponse, EventPublisherPublishRequest, EventReceiver,
@@ -21,5 +21,5 @@ pub use types::{
     EventStoreAppendResponse, EventStoreLoadFromRequest, EventStoreLoadFromResponse,
     EventStoreLoadRequest, EventStoreLoadResponse, EventTypeRequest, EventTypeResponse,
     ExpectedVersion, InMemoryEventStore, InProcessEventBus, NoopAggregate, NoopDomainEvent,
-    NoopEventBus, NoopEventPublisher, StdEventFactory,
+    NoopEventBus, NoopEventPublisher,
 };
