@@ -12,7 +12,7 @@ use crate::api::IntoHandler;
 use crate::api::IntoHandlerRequest;
 use crate::api::IntoHandlerResponse;
 use crate::api::ServiceBridge;
-use crate::api::ServiceHandler as ServiceHandlerTrait;
+use crate::api::ServiceHandler;
 use crate::api::Validator;
 use crate::api::ValidatorRequest;
 
@@ -31,7 +31,7 @@ impl<S> DefaultServiceHandler<S> {
     }
 }
 
-impl<S: Send + Sync> ServiceHandlerTrait for DefaultServiceHandler<S> {}
+impl<S: Send + Sync> ServiceHandler for DefaultServiceHandler<S> {}
 impl<S: Send + Sync> ServiceBridge for DefaultServiceHandler<S> {}
 
 impl<S: Send + Sync> Validator for DefaultServiceHandler<S> {
@@ -83,7 +83,7 @@ where
     type Response = S::Response;
 
     #[rustfmt::skip]
-    fn into_handler(self, _req: IntoHandlerRequest) -> Result<IntoHandlerResponse<impl Handler<Request = Self::Request, Response = Self::Response> + ServiceHandlerTrait>, HandlerError> {
+    fn into_handler(self, _req: IntoHandlerRequest) -> Result<IntoHandlerResponse<impl Handler<Request = Self::Request, Response = Self::Response> + ServiceHandler>, HandlerError> {
         let id = self
             .name(edge_domain_service::NameRequest)
             .map_err(HandlerError::from)?

@@ -1,8 +1,8 @@
 //! [`IntoHandler`] — converts a [`Service`](edge_domain_service::Service) into a dispatch-pipeline [`Handler`].
 
 use crate::api::handler::errors::HandlerError;
-use crate::api::handler::service_handler::ServiceHandler as ServiceHandlerTrait;
 use crate::api::handler::traits::handler::Handler;
+use crate::api::handler::traits::service_handler::ServiceHandler as ServiceHandlerTrait;
 use crate::api::handler::types::{IntoHandlerRequest, IntoHandlerResponse};
 
 /// Extension trait: convert a domain [`Service`](edge_domain_service::Service) into a
