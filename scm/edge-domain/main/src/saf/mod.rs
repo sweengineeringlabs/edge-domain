@@ -171,9 +171,21 @@ pub use edge_domain_projection::TryDrainResponse;
 
 // ── saga (sub-crate when feature enabled) ─────────────────────────────────────
 #[cfg(feature = "saga")]
-pub use edge_domain_saga::SagaBootstrap;
-#[cfg(feature = "saga")]
 pub use edge_domain_saga::SagaError;
+#[cfg(feature = "saga")]
+pub use edge_domain_saga::SagaGetRequest;
+#[cfg(feature = "saga")]
+pub use edge_domain_saga::SagaGetResponse;
+#[cfg(feature = "saga")]
+pub use edge_domain_saga::SagaHandleRequest;
+#[cfg(feature = "saga")]
+pub use edge_domain_saga::SagaHandleResponse;
+#[cfg(feature = "saga")]
+pub use edge_domain_saga::SagaIsCompleteRequest;
+#[cfg(feature = "saga")]
+pub use edge_domain_saga::SagaIsCompleteResponse;
+#[cfg(feature = "saga")]
+pub use edge_domain_saga::SagaRegisterRequest;
 
 // ── registry (opt-in; NOT in default features) ────────────────────────────────
 #[cfg(feature = "registry")]

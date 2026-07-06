@@ -4,7 +4,8 @@
 
 use edge_domain::{
     Command, Domain, DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventError,
-    Saga, SagaError, SagaStore,
+    Saga, SagaError, SagaGetRequest, SagaHandleRequest, SagaHandleResponse, SagaIsCompleteRequest,
+    SagaIsCompleteResponse, SagaRegisterRequest, SagaStore,
 };
 
 #[derive(Clone)]
@@ -38,12 +39,22 @@ impl Saga for CounterSaga {
     type SagaId = String;
     type Event = Tick;
     type Command = Advance;
-    fn handle(&mut self, _event: &Self::Event) -> Vec<Self::Command> {
+    fn handle(
+        &mut self,
+        _req: SagaHandleRequest<'_, Self::Event>,
+    ) -> Result<SagaHandleResponse<Self::Command>, SagaError> {
         self.ticks += 1;
-        vec![Advance]
+        Ok(SagaHandleResponse {
+            commands: vec![Advance],
+        })
     }
-    fn is_complete(&self) -> bool {
-        self.ticks >= 3
+    fn is_complete(
+        &self,
+        _req: SagaIsCompleteRequest,
+    ) -> Result<SagaIsCompleteResponse, SagaError> {
+        Ok(SagaIsCompleteResponse {
+            complete: self.ticks >= 3,
+        })
     }
 }
 
@@ -55,17 +66,22 @@ fn store() -> Box<dyn SagaStore<SagaInstance = CounterSaga>> {
 #[test]
 fn test_new_in_memory_saga_store_register_and_get_round_trip_happy() {
     let mut s = store();
-    s.register("s1".to_string(), CounterSaga::default())
-        .unwrap();
-    assert!(s.get(&"s1".to_string()).is_ok());
+    s.register(SagaRegisterRequest {
+        id: "s1".to_string(),
+        saga: CounterSaga::default(),
+    })
+    .unwrap();
+    let id = "s1".to_string();
+    assert!(s.get(SagaGetRequest { id: &id }).is_ok());
 }
 
 /// @covers: new_in_memory_saga_store
 #[test]
 fn test_new_in_memory_saga_store_lookup_on_empty_returns_not_found_error() {
     let s = store();
+    let id = "absent".to_string();
     assert_eq!(
-        s.get(&"absent".to_string()).unwrap_err(),
+        s.get(SagaGetRequest { id: &id }).unwrap_err(),
         SagaError::NotFound("absent".to_string())
     );
 }
@@ -74,7 +90,8 @@ fn test_new_in_memory_saga_store_lookup_on_empty_returns_not_found_error() {
 #[test]
 fn test_new_in_memory_saga_store_starts_empty_edge() {
     let s = store();
-    assert!(s.get(&"anything".to_string()).is_err());
+    let id = "anything".to_string();
+    assert!(s.get(SagaGetRequest { id: &id }).is_err());
 }
 
 /// @covers: SagaStore::register
@@ -82,7 +99,10 @@ fn test_new_in_memory_saga_store_starts_empty_edge() {
 fn test_register_new_id_returns_ok_happy() {
     let mut s = store();
     assert!(s
-        .register("order-1".to_string(), CounterSaga::default())
+        .register(SagaRegisterRequest {
+            id: "order-1".to_string(),
+            saga: CounterSaga::default()
+        })
         .is_ok());
 }
 
@@ -90,11 +110,17 @@ fn test_register_new_id_returns_ok_happy() {
 #[test]
 fn test_register_duplicate_id_returns_already_registered_error() {
     let mut s = store();
-    s.register("order-1".to_string(), CounterSaga::default())
-        .unwrap();
+    s.register(SagaRegisterRequest {
+        id: "order-1".to_string(),
+        saga: CounterSaga::default(),
+    })
+    .unwrap();
     assert_eq!(
-        s.register("order-1".to_string(), CounterSaga::default())
-            .unwrap_err(),
+        s.register(SagaRegisterRequest {
+            id: "order-1".to_string(),
+            saga: CounterSaga::default()
+        })
+        .unwrap_err(),
         SagaError::AlreadyRegistered("order-1".to_string())
     );
 }
@@ -103,28 +129,43 @@ fn test_register_duplicate_id_returns_already_registered_error() {
 #[test]
 fn test_register_distinct_ids_are_independent_edge() {
     let mut s = store();
-    s.register("a".to_string(), CounterSaga::default()).unwrap();
-    s.register("b".to_string(), CounterSaga::default()).unwrap();
-    assert!(s.get(&"a".to_string()).is_ok());
-    assert!(s.get(&"b".to_string()).is_ok());
+    s.register(SagaRegisterRequest {
+        id: "a".to_string(),
+        saga: CounterSaga::default(),
+    })
+    .unwrap();
+    s.register(SagaRegisterRequest {
+        id: "b".to_string(),
+        saga: CounterSaga::default(),
+    })
+    .unwrap();
+    let a = "a".to_string();
+    let b = "b".to_string();
+    assert!(s.get(SagaGetRequest { id: &a }).is_ok());
+    assert!(s.get(SagaGetRequest { id: &b }).is_ok());
 }
 
 /// @covers: SagaStore::get
 #[test]
 fn test_get_registered_id_returns_saga_happy() {
     let mut s = store();
-    s.register("s1".to_string(), CounterSaga::default())
-        .unwrap();
-    let saga = s.get(&"s1".to_string()).unwrap();
-    assert!(!saga.is_complete());
+    s.register(SagaRegisterRequest {
+        id: "s1".to_string(),
+        saga: CounterSaga::default(),
+    })
+    .unwrap();
+    let id = "s1".to_string();
+    let saga = s.get(SagaGetRequest { id: &id }).unwrap().saga;
+    assert!(!saga.is_complete(SagaIsCompleteRequest).unwrap().complete);
 }
 
 /// @covers: SagaStore::get
 #[test]
 fn test_get_unknown_id_returns_not_found_error() {
     let s = store();
+    let id = "ghost".to_string();
     assert_eq!(
-        s.get(&"ghost".to_string()).unwrap_err(),
+        s.get(SagaGetRequest { id: &id }).unwrap_err(),
         SagaError::NotFound("ghost".to_string())
     );
 }
@@ -133,7 +174,11 @@ fn test_get_unknown_id_returns_not_found_error() {
 #[test]
 fn test_get_after_registering_other_id_still_not_found_edge() {
     let mut s = store();
-    s.register("present".to_string(), CounterSaga::default())
-        .unwrap();
-    assert!(s.get(&"missing".to_string()).is_err());
+    s.register(SagaRegisterRequest {
+        id: "present".to_string(),
+        saga: CounterSaga::default(),
+    })
+    .unwrap();
+    let id = "missing".to_string();
+    assert!(s.get(SagaGetRequest { id: &id }).is_err());
 }
