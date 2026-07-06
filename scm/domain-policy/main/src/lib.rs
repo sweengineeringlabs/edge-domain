@@ -13,7 +13,17 @@ mod api;
 mod core;
 mod saf;
 
+pub use api::BootstrapNameRequest;
+pub use api::BootstrapNameResponse;
 pub use api::CompositePolicy;
-pub use api::PolicyViolation;
+pub use api::PolicyEvaluateRequest;
+pub use api::PolicyNameRequest;
+pub use api::PolicyNameResponse;
+pub use api::PolicyError;
+pub use api::StdPolicyFactory;
 pub use saf::Policy;
 pub use saf::PolicyBootstrap;
+pub use saf::POLICY_BOOTSTRAP_SVC;
+pub use saf::POLICY_BOOTSTRAP_SVC_FACTORY;
+pub use saf::POLICY_SVC;
+pub use saf::POLICY_SVC_FACTORY;

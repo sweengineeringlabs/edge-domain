@@ -1,4 +1,4 @@
-//! `PolicyViolation` — describes why a [`Policy`](crate::api::policy::traits::Policy) was violated.
+//! `PolicyError` — describes why a [`Policy`](crate::api::policy::traits::Policy) was violated.
 
 use thiserror::Error;
 
@@ -8,28 +8,18 @@ use thiserror::Error;
 /// # Examples
 ///
 /// ```rust
-/// use edge_domain_policy::PolicyViolation;
+/// use edge_domain_policy::PolicyError;
 ///
-/// let v = PolicyViolation::new("spending-limit", "transfer of 500 exceeds daily limit of 200");
+/// let v = PolicyError::new("spending-limit", "transfer of 500 exceeds daily limit of 200");
 /// assert_eq!(v.policy, "spending-limit");
 /// assert!(v.reason.contains("500"));
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
 #[error("policy '{policy}' violated: {reason}")]
-pub struct PolicyViolation {
+pub struct PolicyError {
     /// The [`Policy::name`](crate::api::policy::traits::Policy::name) of the rule that failed.
     pub policy: &'static str,
 
     /// Human-readable explanation of why the rule was not satisfied.
     pub reason: String,
-}
-
-impl PolicyViolation {
-    /// Construct a `PolicyViolation` with the given policy name and reason.
-    pub fn new(policy: &'static str, reason: impl Into<String>) -> Self {
-        Self {
-            policy,
-            reason: reason.into(),
-        }
-    }
 }

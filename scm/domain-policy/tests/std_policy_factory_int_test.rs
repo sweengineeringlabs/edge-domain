@@ -1,9 +1,17 @@
-use edge_domain_policy::{CompositePolicy, Policy, PolicyBootstrap, PolicyViolation, StdPolicyFactory};
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+use edge_domain_policy::{
+    CompositePolicy, Policy, PolicyEvaluateRequest, PolicyNameRequest, PolicyNameResponse,
+    PolicyBootstrap, PolicyError, StdPolicyFactory,
+};
+
+fn eval(input: &String) -> PolicyEvaluateRequest<'_, String> {
+    PolicyEvaluateRequest { input }
+}
 
 #[test]
 fn test_std_factory_composite_creates_empty_policy_happy() {
     let p: CompositePolicy<String> = StdPolicyFactory::composite();
-    assert_eq!(p.evaluate(&"input".to_string()), Ok(()));
+    assert_eq!(p.evaluate(eval(&"input".to_string())), Ok(()));
 }
 
 #[test]
@@ -16,7 +24,7 @@ fn test_std_factory_std_factory_returns_instance_happy() {
 #[test]
 fn test_std_factory_composite_empty_evaluates_ok_happy() {
     let p: CompositePolicy<String> = StdPolicyFactory::composite();
-    assert_eq!(p.evaluate(&"input".to_string()), Ok(()));
+    assert_eq!(p.evaluate(eval(&"input".to_string())), Ok(()));
 }
 
 #[test]
@@ -24,13 +32,15 @@ fn test_std_factory_composite_with_failing_policy_returns_error() {
     struct AlwaysFail;
     impl Policy for AlwaysFail {
         type Input = String;
-        fn name(&self) -> &'static str { "always-fail" }
-        fn evaluate(&self, _: &String) -> Result<(), PolicyViolation> {
-            Err(PolicyViolation::new("always-fail", "always fails"))
+        fn name(&self, _req: PolicyNameRequest) -> Result<PolicyNameResponse, PolicyError> {
+            Ok(PolicyNameResponse { name: "always-fail" })
+        }
+        fn evaluate(&self, _req: PolicyEvaluateRequest<'_, String>) -> Result<(), PolicyError> {
+            Err(PolicyError::new("always-fail", "always fails"))
         }
     }
     let p = StdPolicyFactory::composite().with(Box::new(AlwaysFail));
-    assert!(p.evaluate(&"input".to_string()).is_err());
+    assert!(p.evaluate(eval(&"input".to_string())).is_err());
 }
 
 #[test]

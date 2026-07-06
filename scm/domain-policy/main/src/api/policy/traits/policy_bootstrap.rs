@@ -1,12 +1,18 @@
 //! [`PolicyBootstrap`] — constructor contract for policy infrastructure types.
 
-use crate::api::policy::types::{CompositePolicy, StdPolicyFactory};
+use crate::api::policy::errors::PolicyError;
+use crate::api::policy::types::{
+    BootstrapNameRequest, BootstrapNameResponse, CompositePolicy, StdPolicyFactory,
+};
 
 /// Bootstrap trait for the standard policy composition types.
 pub trait PolicyBootstrap {
     /// Identifies this bootstrap implementation.
-    fn bootstrap_name(&self) -> &'static str {
-        "policy"
+    fn bootstrap_name(
+        &self,
+        _req: BootstrapNameRequest,
+    ) -> Result<BootstrapNameResponse, PolicyError> {
+        Ok(BootstrapNameResponse { name: "policy" })
     }
 
     /// Construct an empty `CompositePolicy` with AND-composition semantics.
