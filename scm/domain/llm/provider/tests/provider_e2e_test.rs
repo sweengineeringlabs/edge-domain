@@ -4,10 +4,12 @@
 use std::sync::Arc;
 
 use edge_domain_observer::StdObserveFactory;
-use edge_llm_complete::NoopCompleter;
+use edge_llm_complete::{ListModelsRequest, NoopCompleter, SupportedModelsRequest};
 use edge_llm_provider::{
-    FinishReason, ModelFamily, ModelInfo, Provider, ProviderBootstrap, ProviderConfig,
-    StdProviderFactory, TokenizerAccuracy,
+    CompleterRequest, FinishReason, HealthCheckRequest, LastFinishReasonRequest,
+    LastTokenUsageRequest, ModelFamily, ModelFamilyRequest, ModelInfo, ModelInfoLookupRequest,
+    Provider, ProviderBootstrap, ProviderConfig, ProviderConfigLookupRequest, ProviderNameRequest,
+    StdProviderFactory, TokenizerAccuracy, TokenizerAccuracyRequest,
 };
 use futures::executor::block_on;
 
@@ -21,7 +23,7 @@ fn provider(model: &str) -> Arc<dyn Provider> {
     );
     StdProviderFactory::provider(
         config,
-        info,
+        Box::new(info),
         Arc::new(NoopCompleter),
         StdObserveFactory::noop_arc_observe_context(),
     )
@@ -32,19 +34,25 @@ fn provider(model: &str) -> Arc<dyn Provider> {
 /// @covers: Provider::name
 #[test]
 fn test_name_returns_configured_model_happy() {
-    assert_eq!(provider("claude").name(), "claude");
+    assert_eq!(
+        provider("claude").name(ProviderNameRequest).unwrap().name,
+        "claude"
+    );
 }
 
 /// @covers: Provider::name — unusual but valid identifiers are preserved
 #[test]
 fn test_name_preserves_non_ascii_identifier_error() {
-    assert_eq!(provider("modèle").name(), "modèle");
+    assert_eq!(
+        provider("modèle").name(ProviderNameRequest).unwrap().name,
+        "modèle"
+    );
 }
 
 /// @covers: Provider::name — empty model still reports an empty name
 #[test]
 fn test_name_empty_model_returns_empty_edge() {
-    assert_eq!(provider("").name(), "");
+    assert_eq!(provider("").name(ProviderNameRequest).unwrap().name, "");
 }
 
 // --- provider_config ---
@@ -52,20 +60,38 @@ fn test_name_empty_model_returns_empty_edge() {
 /// @covers: Provider::provider_config
 #[test]
 fn test_provider_config_roundtrips_model_happy() {
-    assert_eq!(provider("claude").provider_config().model, "claude");
+    assert_eq!(
+        provider("claude")
+            .provider_config(ProviderConfigLookupRequest)
+            .unwrap()
+            .config
+            .model,
+        "claude"
+    );
 }
 
 /// @covers: Provider::provider_config — temperature is carried through
 #[test]
 fn test_provider_config_carries_temperature_error() {
-    assert_eq!(provider("claude").provider_config().temperature, 0.7);
+    assert_eq!(
+        provider("claude")
+            .provider_config(ProviderConfigLookupRequest)
+            .unwrap()
+            .config
+            .temperature,
+        0.7
+    );
 }
 
 /// @covers: Provider::provider_config — context window is carried through
 #[test]
 fn test_provider_config_carries_context_window_edge() {
     assert_eq!(
-        provider("claude").provider_config().max_context_tokens,
+        provider("claude")
+            .provider_config(ProviderConfigLookupRequest)
+            .unwrap()
+            .config
+            .max_context_tokens,
         8192
     );
 }
@@ -75,19 +101,39 @@ fn test_provider_config_carries_context_window_edge() {
 /// @covers: Provider::model_info
 #[test]
 fn test_model_info_reports_id_happy() {
-    assert_eq!(provider("claude").model_info().id, "claude");
+    assert_eq!(
+        provider("claude")
+            .model_info(ModelInfoLookupRequest)
+            .unwrap()
+            .info
+            .id,
+        "claude"
+    );
 }
 
 /// @covers: Provider::model_info — context window matches construction
 #[test]
 fn test_model_info_reports_context_window_error() {
-    assert_eq!(provider("claude").model_info().context_window, 8192);
+    assert_eq!(
+        provider("claude")
+            .model_info(ModelInfoLookupRequest)
+            .unwrap()
+            .info
+            .context_window,
+        8192
+    );
 }
 
 /// @covers: Provider::model_info — vision defaults off
 #[test]
 fn test_model_info_vision_defaults_off_edge() {
-    assert!(!provider("claude").model_info().supports_vision);
+    assert!(
+        !provider("claude")
+            .model_info(ModelInfoLookupRequest)
+            .unwrap()
+            .info
+            .supports_vision
+    );
 }
 
 // --- model_family ---
@@ -95,20 +141,36 @@ fn test_model_info_vision_defaults_off_edge() {
 /// @covers: Provider::model_family
 #[test]
 fn test_model_family_reports_anthropic_happy() {
-    assert_eq!(provider("claude").model_family(), ModelFamily::Anthropic);
+    assert_eq!(
+        provider("claude")
+            .model_family(ModelFamilyRequest)
+            .unwrap()
+            .family,
+        ModelFamily::Anthropic
+    );
 }
 
 /// @covers: Provider::model_family — distinct from other families
 #[test]
 fn test_model_family_not_openai_error() {
-    assert_ne!(provider("claude").model_family(), ModelFamily::OpenAI);
+    assert_ne!(
+        provider("claude")
+            .model_family(ModelFamilyRequest)
+            .unwrap()
+            .family,
+        ModelFamily::OpenAI
+    );
 }
 
 /// @covers: Provider::model_family — stable across calls
 #[test]
 fn test_model_family_stable_across_calls_edge() {
     let p = provider("claude");
-    assert_eq!(p.model_family(), ModelFamily::Anthropic, "model family should be stable and known");
+    assert_eq!(
+        p.model_family(ModelFamilyRequest).unwrap().family,
+        ModelFamily::Anthropic,
+        "model family should be stable and known"
+    );
 }
 
 // --- tokenizer_accuracy ---
@@ -117,7 +179,10 @@ fn test_model_family_stable_across_calls_edge() {
 #[test]
 fn test_tokenizer_accuracy_reports_approximate_happy() {
     assert_eq!(
-        provider("claude").tokenizer_accuracy(),
+        provider("claude")
+            .tokenizer_accuracy(TokenizerAccuracyRequest)
+            .unwrap()
+            .accuracy,
         TokenizerAccuracy::Approximate
     );
 }
@@ -126,7 +191,10 @@ fn test_tokenizer_accuracy_reports_approximate_happy() {
 #[test]
 fn test_tokenizer_accuracy_not_exact_error() {
     assert_ne!(
-        provider("claude").tokenizer_accuracy(),
+        provider("claude")
+            .tokenizer_accuracy(TokenizerAccuracyRequest)
+            .unwrap()
+            .accuracy,
         TokenizerAccuracy::Exact
     );
 }
@@ -135,7 +203,13 @@ fn test_tokenizer_accuracy_not_exact_error() {
 #[test]
 fn test_tokenizer_accuracy_stable_edge() {
     let p = provider("claude");
-    assert_eq!(p.tokenizer_accuracy(), TokenizerAccuracy::Approximate, "tokenizer accuracy should be stable and known");
+    assert_eq!(
+        p.tokenizer_accuracy(TokenizerAccuracyRequest)
+            .unwrap()
+            .accuracy,
+        TokenizerAccuracy::Approximate,
+        "tokenizer accuracy should be stable and known"
+    );
 }
 
 // --- last_token_usage ---
@@ -143,19 +217,37 @@ fn test_tokenizer_accuracy_stable_edge() {
 /// @covers: Provider::last_token_usage
 #[test]
 fn test_last_token_usage_starts_at_zero_happy() {
-    assert_eq!(provider("claude").last_token_usage().total_tokens, 0);
+    assert_eq!(
+        provider("claude")
+            .last_token_usage(LastTokenUsageRequest)
+            .unwrap()
+            .usage
+            .total_tokens,
+        0
+    );
 }
 
 /// @covers: Provider::last_token_usage — no cache reads initially
 #[test]
 fn test_last_token_usage_no_cache_reads_error() {
-    assert!(!provider("claude").last_token_usage().cache_hit());
+    assert!(!provider("claude")
+        .last_token_usage(LastTokenUsageRequest)
+        .unwrap()
+        .usage
+        .cache_hit());
 }
 
 /// @covers: Provider::last_token_usage — prompt tokens zero initially
 #[test]
 fn test_last_token_usage_prompt_zero_edge() {
-    assert_eq!(provider("claude").last_token_usage().prompt_tokens, 0);
+    assert_eq!(
+        provider("claude")
+            .last_token_usage(LastTokenUsageRequest)
+            .unwrap()
+            .usage
+            .prompt_tokens,
+        0
+    );
 }
 
 // --- last_finish_reason ---
@@ -163,20 +255,38 @@ fn test_last_token_usage_prompt_zero_edge() {
 /// @covers: Provider::last_finish_reason
 #[test]
 fn test_last_finish_reason_defaults_stop_happy() {
-    assert_eq!(provider("claude").last_finish_reason(), FinishReason::Stop);
+    assert_eq!(
+        provider("claude")
+            .last_finish_reason(LastFinishReasonRequest)
+            .unwrap()
+            .reason,
+        FinishReason::Stop
+    );
 }
 
 /// @covers: Provider::last_finish_reason — not an error finish initially
 #[test]
 fn test_last_finish_reason_not_error_error() {
-    assert_ne!(provider("claude").last_finish_reason(), FinishReason::Error);
+    assert_ne!(
+        provider("claude")
+            .last_finish_reason(LastFinishReasonRequest)
+            .unwrap()
+            .reason,
+        FinishReason::Error
+    );
 }
 
 /// @covers: Provider::last_finish_reason — stable across calls
 #[test]
 fn test_last_finish_reason_stable_edge() {
     let p = provider("claude");
-    assert_eq!(p.last_finish_reason(), FinishReason::Stop, "finish reason should be stable and default to Stop");
+    assert_eq!(
+        p.last_finish_reason(LastFinishReasonRequest)
+            .unwrap()
+            .reason,
+        FinishReason::Stop,
+        "finish reason should be stable and default to Stop"
+    );
 }
 
 // --- health_check ---
@@ -184,19 +294,25 @@ fn test_last_finish_reason_stable_edge() {
 /// @covers: Provider::health_check — healthy when a model is configured
 #[test]
 fn test_health_check_ok_with_model_happy() {
-    assert_eq!(provider("claude").health_check(), Ok(()), "provider with model should be healthy");
+    assert!(
+        matches!(provider("claude").health_check(HealthCheckRequest), Ok(())),
+        "provider with model should be healthy"
+    );
 }
 
 /// @covers: Provider::health_check — errors when model is empty
 #[test]
 fn test_health_check_errs_without_model_error() {
-    assert!(provider("").health_check().is_err());
+    assert!(provider("").health_check(HealthCheckRequest).is_err());
 }
 
 /// @covers: Provider::health_check — whitespace model is still non-empty
 #[test]
 fn test_health_check_whitespace_model_ok_edge() {
-    assert_eq!(provider(" ").health_check(), Ok(()), "provider with whitespace model should be healthy");
+    assert!(
+        matches!(provider(" ").health_check(HealthCheckRequest), Ok(())),
+        "provider with whitespace model should be healthy"
+    );
 }
 
 // --- completer ---
@@ -204,23 +320,36 @@ fn test_health_check_whitespace_model_ok_edge() {
 /// @covers: Provider::completer — returns a usable completer delegate
 #[test]
 fn test_completer_returns_usable_delegate_happy() {
-    let c = provider("claude").completer();
-    let result = block_on(c.list_models());
-    assert_eq!(result, Ok(vec![]), "completer list_models should succeed with empty list");
+    let c = provider("claude")
+        .completer(CompleterRequest)
+        .unwrap()
+        .completer;
+    let result = block_on(c.list_models(ListModelsRequest)).unwrap();
+    assert!(
+        result.models.is_empty(),
+        "completer list_models should succeed with empty list"
+    );
 }
 
 /// @covers: Provider::completer — noop delegate has no supported models
 #[test]
 fn test_completer_noop_has_no_supported_models_error() {
-    let c = provider("claude").completer();
-    assert!(c.supported_models().is_empty());
+    let c = provider("claude")
+        .completer(CompleterRequest)
+        .unwrap()
+        .completer;
+    assert!(c
+        .supported_models(SupportedModelsRequest)
+        .unwrap()
+        .models
+        .is_empty());
 }
 
 /// @covers: Provider::completer — same Arc returned on repeated calls
 #[test]
 fn test_completer_stable_arc_across_calls_edge() {
     let p = provider("claude");
-    let a = p.completer();
-    let b = p.completer();
+    let a = p.completer(CompleterRequest).unwrap().completer;
+    let b = p.completer(CompleterRequest).unwrap().completer;
     assert!(Arc::ptr_eq(&a, &b));
 }

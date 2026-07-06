@@ -10,7 +10,7 @@ description = "LLM Prompt domain primitive: template rendering and context manag
 keywords    = ["llm", "prompt", "template", "context", "sea"]
 categories  = ["development-tools"]
 
-[package.metadata.struct-engine]
+[package.metadata.arch]
 application_type = "lib"
 service_type     = "prompt"
 
@@ -27,7 +27,7 @@ edge-domain-observer.workspace = true
 
 [dev-dependencies]
 futures.workspace = true
-edge-domain-security.workspace = true
+edge-security-runtime.workspace = true
 edge-domain-command.workspace = true
 
 [lints.rust]

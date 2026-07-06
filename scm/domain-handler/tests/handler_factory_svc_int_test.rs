@@ -1,6 +1,10 @@
 //! Integration tests — `HandlerBootstrap` trait.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_handler::{HandlerBootstrap, HandlerError};
+use edge_domain_handler::{
+    BootstrapNameRequest, BootstrapNameResponse, HandlerBootstrap, HandlerBuildResponse,
+    HandlerError,
+};
 
 struct Cfg {
     name: String,
@@ -13,15 +17,22 @@ struct NamedHandler {
 }
 
 impl HandlerBootstrap for NamedHandler {
-    fn bootstrap_name(&self) -> &'static str {
-        "named_handler"
+    fn bootstrap_name(
+        &self,
+        _req: BootstrapNameRequest,
+    ) -> Result<BootstrapNameResponse, HandlerError> {
+        Ok(BootstrapNameResponse {
+            name: "named_handler",
+        })
     }
 
     type Config = Cfg;
 
-    fn build(cfg: Cfg) -> Result<Self, HandlerError> {
+    fn build(cfg: Cfg) -> Result<HandlerBuildResponse<Self>, HandlerError> {
         if cfg.valid {
-            Ok(NamedHandler { name: cfg.name })
+            Ok(HandlerBuildResponse {
+                handler: NamedHandler { name: cfg.name },
+            })
         } else {
             Err(HandlerError::InvalidRequest("config invalid".into()))
         }
@@ -36,7 +47,7 @@ fn test_build_valid_config_returns_handler_happy() {
         valid: true,
     });
     assert!(h.is_ok());
-    assert_eq!(h.unwrap().name, "worker");
+    assert_eq!(h.unwrap().handler.name, "worker");
 }
 
 /// @covers: HandlerBootstrap::build — invalid config
@@ -58,5 +69,5 @@ fn test_build_empty_name_valid_flag_returns_ok_edge() {
         valid: true,
     });
     assert!(h.is_ok());
-    assert!(h.unwrap().name.is_empty());
+    assert!(h.unwrap().handler.name.is_empty());
 }

@@ -10,7 +10,7 @@ description = "edge-domain — Validator port contract: structural field/configu
 keywords    = ["domain", "validator", "validation", "sea", "swe"]
 categories  = ["development-tools"]
 
-[package.metadata.struct-engine]
+[package.metadata.arch]
 application_type = "lib"
 service_type     = "validator"
 

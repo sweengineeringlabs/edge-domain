@@ -3,13 +3,16 @@
 use async_trait::async_trait;
 
 use crate::api::complete::errors::CompleteError;
-use crate::api::complete::types::ModelInfo;
+use crate::api::complete::types::{ModelInfo, ModelInfoRequest, ModelInfoResponse};
 
 /// Model metadata factory and async resolver.
 #[async_trait]
 pub trait ModelOps: Send + Sync {
     /// Resolve metadata for a single model by id.
-    async fn find_model(&self, name: &str) -> Result<ModelInfo, CompleteError>;
+    async fn find_model(
+        &self,
+        req: ModelInfoRequest<'_>,
+    ) -> Result<ModelInfoResponse, CompleteError>;
 
     /// Construct a [`ModelInfo`] with all capability flags set to false.
     fn create_model_info(

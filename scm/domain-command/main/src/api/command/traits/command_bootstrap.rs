@@ -1,6 +1,7 @@
 //! `CommandBootstrap` — constructor contract for [`Command`] implementations.
 
-use crate::api::command::types::NoopCommand;
+use crate::api::command::types::{BootstrapNameRequest, BootstrapNameResponse, NoopCommand};
+use crate::api::command::CommandError;
 
 /// Bootstrap trait for standard [`Command`](super::command::Command) implementations.
 ///
@@ -9,12 +10,18 @@ use crate::api::command::types::NoopCommand;
 /// produces [`CommandBus`](super::command_bus::CommandBus) implementations.
 pub trait CommandBootstrap {
     /// Identifies this bootstrap implementation.
-    fn bootstrap_name(&self) -> &'static str {
-        "command"
+    fn bootstrap_name(
+        &self,
+        _req: BootstrapNameRequest,
+    ) -> Result<BootstrapNameResponse, CommandError> {
+        Ok(BootstrapNameResponse { name: "command" })
     }
 
     /// Construct a [`NoopCommand`] — a structural placeholder that always succeeds.
-    fn noop() -> NoopCommand where Self: Sized {
+    fn noop() -> NoopCommand
+    where
+        Self: Sized,
+    {
         NoopCommand
     }
 }

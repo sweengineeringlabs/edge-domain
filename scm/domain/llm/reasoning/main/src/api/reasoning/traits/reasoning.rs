@@ -4,7 +4,11 @@ use async_trait::async_trait;
 
 use crate::api::reasoning::errors::ReasoningError;
 use crate::api::reasoning::types::{
-    PatternMetadata, ReasoningChain, ReasoningPattern, ReasoningStep, StepResult, ThinkingProcess,
+    ChainBuildRequest, ChainBuildResponse, NextStepRequest, NextStepResponse,
+    PatternMetadataLookupRequest, PatternMetadataLookupResponse, PatternSupportRequest,
+    PatternSupportResponse, ProblemValidationRequest, ReasonRequest, ReasonResponse,
+    StepEvaluationRequest, StepEvaluationResponse, SupportedPatternsRequest,
+    SupportedPatternsResponse,
 };
 
 /// Orchestrates reasoning processes for a given pattern.
@@ -13,37 +17,50 @@ use crate::api::reasoning::types::{
 /// contract and inject a concrete reasoner (chain-of-thought, tree-of-thought, …).
 #[async_trait]
 pub trait Reasoning: Send + Sync {
-    /// Execute reasoning for `problem` using the requested `pattern`.
+    /// Execute reasoning for the requested problem and pattern.
     ///
     /// Returns [`ReasoningError`] when the pattern is unsupported or a step fails.
-    async fn reason(
-        &self,
-        problem: &str,
-        pattern: ReasoningPattern,
-    ) -> Result<ThinkingProcess, ReasoningError>;
+    async fn reason(&self, req: ReasonRequest<'_>) -> Result<ReasonResponse, ReasoningError>;
 
     /// Patterns this reasoner can execute.
-    fn supported_patterns(&self) -> Vec<ReasoningPattern>;
+    fn supported_patterns(
+        &self,
+        req: SupportedPatternsRequest,
+    ) -> Result<SupportedPatternsResponse, ReasoningError>;
 
-    /// Whether `pattern` is supported.
-    fn supports_pattern(&self, pattern: ReasoningPattern) -> bool {
-        self.supported_patterns().contains(&pattern)
+    /// Whether the requested pattern is supported.
+    fn supports_pattern(
+        &self,
+        req: PatternSupportRequest,
+    ) -> Result<PatternSupportResponse, ReasoningError> {
+        let supported = self
+            .supported_patterns(SupportedPatternsRequest)?
+            .patterns
+            .contains(&req.pattern);
+        Ok(PatternSupportResponse { supported })
     }
 
-    /// Configuration metadata for `pattern`, if supported.
-    fn pattern_metadata(&self, pattern: ReasoningPattern) -> Option<PatternMetadata>;
+    /// Configuration metadata for the requested pattern, if supported.
+    fn pattern_metadata(
+        &self,
+        req: PatternMetadataLookupRequest,
+    ) -> Result<PatternMetadataLookupResponse, ReasoningError>;
 
     /// Validate a reasoning problem before execution.
     ///
     /// Returns [`ReasoningError::InvalidState`] when the problem is unusable.
-    fn validate_problem(&self, problem: &str) -> Result<(), ReasoningError>;
+    fn validate_problem(&self, req: ProblemValidationRequest<'_>) -> Result<(), ReasoningError>;
 
-    /// Produce the next reasoning step for an in-progress `process`.
-    fn next_step(&self, process: &ThinkingProcess) -> ReasoningStep;
+    /// Produce the next reasoning step for an in-progress process.
+    fn next_step(&self, req: NextStepRequest<'_>) -> Result<NextStepResponse, ReasoningError>;
 
-    /// Evaluate a completed reasoning `step`.
-    fn evaluate_step(&self, step: &ReasoningStep) -> StepResult;
+    /// Evaluate a completed reasoning step.
+    fn evaluate_step(
+        &self,
+        req: StepEvaluationRequest<'_>,
+    ) -> Result<StepEvaluationResponse, ReasoningError>;
 
-    /// Assemble an ordered set of `processes` into a reasoning chain.
-    fn build_chain(&self, chain_id: &str, processes: Vec<ThinkingProcess>) -> ReasoningChain;
+    /// Assemble an ordered set of processes into a reasoning chain.
+    fn build_chain(&self, req: ChainBuildRequest<'_>)
+        -> Result<ChainBuildResponse, ReasoningError>;
 }

@@ -1,5 +1,7 @@
 pub mod always_valid;
-pub mod std_validator_factory;
+pub mod validation_request;
+pub mod validation_response;
 
 pub use always_valid::AlwaysValid;
-pub use std_validator_factory::StdValidatorFactory;
+pub use validation_request::ValidationRequest;
+pub use validation_response::ValidationResponse;

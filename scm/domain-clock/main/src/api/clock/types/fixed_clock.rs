@@ -6,10 +6,3 @@ use std::time::SystemTime;
 pub struct FixedClock {
     pub(crate) instant: SystemTime,
 }
-
-impl FixedClock {
-    /// Construct a clock frozen at `instant`.
-    pub fn new(instant: SystemTime) -> Self {
-        Self { instant }
-    }
-}

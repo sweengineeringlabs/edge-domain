@@ -10,11 +10,11 @@ mod api;
 mod core;
 mod saf;
 
-pub use api::NoopService;
-pub use api::Service;
-pub use api::ServiceError;
-pub use api::ServiceRegistry;
-pub use api::ServiceRegistryBootstrap;
-pub use api::ServiceRegistryTrait;
-pub use api::StdServiceRegistryFactory;
-pub use saf::{SERVICE_REGISTRY_FACTORY_SVC, SERVICE_REGISTRY_SVC, SERVICE_SVC};
+pub use api::{
+    EmptinessRequest, EmptinessResponse, LenRequest, LenResponse, ListNamesRequest,
+    ListNamesResponse, NameRequest, NameResponse, NoopService, RegisterServiceRequest,
+    RegisterServiceResponse, Service, ServiceError, ServiceLookupRequest, ServiceLookupResponse,
+    ServiceRegistry, ServiceRegistryStore, ServiceRemovalRequest, ServiceRemovalResponse,
+    StdServiceRegistryFactory,
+};
+pub use saf::{SERVICE_REGISTRY_SVC, SERVICE_SVC};

@@ -10,7 +10,7 @@ description = "edge-domain — Clock port contract: injectable time source with 
 keywords    = ["domain", "clock", "time", "sea", "swe"]
 categories  = ["development-tools"]
 
-[package.metadata.struct-engine]
+[package.metadata.arch]
 application_type = "lib"
 service_type     = "clock"
 

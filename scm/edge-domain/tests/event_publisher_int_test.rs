@@ -1,7 +1,11 @@
 //! Integration tests for `DomainEvent` and `EventPublisher`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{DomainEvent, EventError, EventPublisher};
+use edge_domain::{
+    DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventError,
+    EventOccurredAtRequest, EventOccurredAtResponse, EventPublisher, EventPublisherPublishRequest,
+    EventTypeRequest, EventTypeResponse,
+};
 use futures::future::BoxFuture;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
@@ -13,14 +17,26 @@ struct OrderCreated {
 }
 
 impl DomainEvent for OrderCreated {
-    fn event_type(&self) -> &str {
-        "order.created"
+    fn event_type(&self, _req: EventTypeRequest) -> Result<EventTypeResponse<'_>, EventError> {
+        Ok(EventTypeResponse {
+            event_type: "order.created",
+        })
     }
-    fn aggregate_id(&self) -> &str {
-        &self.order_id
+    fn aggregate_id(
+        &self,
+        _req: EventAggregateIdRequest,
+    ) -> Result<EventAggregateIdResponse<'_>, EventError> {
+        Ok(EventAggregateIdResponse {
+            aggregate_id: &self.order_id,
+        })
     }
-    fn occurred_at(&self) -> SystemTime {
-        self.occurred_at
+    fn occurred_at(
+        &self,
+        _req: EventOccurredAtRequest,
+    ) -> Result<EventOccurredAtResponse, EventError> {
+        Ok(EventOccurredAtResponse {
+            occurred_at: self.occurred_at,
+        })
     }
 }
 
@@ -29,7 +45,10 @@ struct CountingPublisher {
 }
 
 impl EventPublisher for CountingPublisher {
-    fn publish(&self, _event: &dyn DomainEvent) -> BoxFuture<'_, Result<(), EventError>> {
+    fn publish(
+        &self,
+        _req: EventPublisherPublishRequest<'_>,
+    ) -> BoxFuture<'_, Result<(), EventError>> {
         self.count.fetch_add(1, Ordering::SeqCst);
         Box::pin(async { Ok(()) })
     }
@@ -38,7 +57,10 @@ impl EventPublisher for CountingPublisher {
 struct FailingPublisher;
 
 impl EventPublisher for FailingPublisher {
-    fn publish(&self, _event: &dyn DomainEvent) -> BoxFuture<'_, Result<(), EventError>> {
+    fn publish(
+        &self,
+        _req: EventPublisherPublishRequest<'_>,
+    ) -> BoxFuture<'_, Result<(), EventError>> {
         Box::pin(async { Err(EventError::Unavailable("bus down".into())) })
     }
 }
@@ -50,9 +72,17 @@ fn test_domain_event_trait_returns_correct_fields() {
         order_id: "ord-1".into(),
         occurred_at: SystemTime::now(),
     };
-    assert_eq!(evt.event_type(), "order.created");
-    assert_eq!(evt.aggregate_id(), "ord-1");
-    let _ = evt.occurred_at();
+    assert_eq!(
+        evt.event_type(EventTypeRequest).unwrap().event_type,
+        "order.created"
+    );
+    assert_eq!(
+        evt.aggregate_id(EventAggregateIdRequest)
+            .unwrap()
+            .aggregate_id,
+        "ord-1"
+    );
+    let _ = evt.occurred_at(EventOccurredAtRequest).unwrap();
 }
 
 /// @covers: EventPublisher::publish
@@ -66,7 +96,10 @@ async fn test_event_publisher_trait_publish_increments_count_on_success() {
         order_id: "ord-1".into(),
         occurred_at: SystemTime::now(),
     };
-    publisher.publish(&evt).await.unwrap();
+    publisher
+        .publish(EventPublisherPublishRequest { event: &evt })
+        .await
+        .unwrap();
     assert_eq!(count.load(Ordering::SeqCst), 1);
 }
 
@@ -78,5 +111,8 @@ async fn test_event_publisher_trait_publish_propagates_error_on_failure() {
         order_id: "ord-1".into(),
         occurred_at: SystemTime::now(),
     };
-    assert!(publisher.publish(&evt).await.is_err());
+    assert!(publisher
+        .publish(EventPublisherPublishRequest { event: &evt })
+        .await
+        .is_err());
 }

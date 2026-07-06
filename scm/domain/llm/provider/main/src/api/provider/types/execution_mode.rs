@@ -13,15 +13,3 @@ pub enum ExecutionMode {
     /// Streaming (yields partial results incrementally)
     Streaming,
 }
-
-impl ExecutionMode {
-    /// Check if this mode supports streaming
-    pub fn is_streaming(&self) -> bool {
-        matches!(self, ExecutionMode::Streaming)
-    }
-
-    /// Check if this mode is asynchronous
-    pub fn is_async(&self) -> bool {
-        !matches!(self, ExecutionMode::LongRunning)
-    }
-}

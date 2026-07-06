@@ -1,6 +1,7 @@
 mod repository;
 
 pub use repository::{
-    QueryableRepository, Repository, RepositoryBootstrap, Spec, QUERYABLE_REPOSITORY_SVC,
-    REPOSITORY_FACTORY_SVC, REPOSITORY_SVC, SPEC_SVC,
+    QueryableRepository, Repository, Spec, QUERYABLE_REPOSITORY_SVC,
+    QUERYABLE_REPOSITORY_SVC_FACTORY, REPOSITORY_SVC, REPOSITORY_SVC_FACTORY, SPEC_SVC,
+    SPEC_SVC_FACTORY,
 };

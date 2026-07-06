@@ -6,13 +6,23 @@
 
 use async_trait::async_trait;
 use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
-use edge_domain_handler::{Handler, HandlerContext, HandlerError};
+use edge_domain_handler::{
+    ExecutionRequest, Handler, HandlerContext, HandlerError, IdRequest, IdResponse,
+};
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_registry::Registry;
-use edge_domain_security::SecurityContext;
+use edge_domain_registry::{
+    DeregisterRequest, DeregisterResponse, EmptinessRequest, LenRequest, LenResponse,
+    ListIdsRequest, ListIdsResponse, RegisterRequest, RegisterResponse, Registry, RegistryError,
+    RegistryLookupRequest, RegistryLookupResponse, TryRegisterRequest, TryRegisterResponse,
+};
+use edge_security_runtime::SecurityContext;
 use edge_llm_agent::{
-    Agent, AgentError, AgentManager, AgentMetadata, AgentRegistry, NoopAgentManager, Parameter,
-    Skill, SkillMetadata,
+    Agent, AgentCreationRequest, AgentDescriptionRequest, AgentError, AgentHandlerRequest,
+    AgentIdRequest, AgentLoadRequest, AgentLookupRequest, AgentManager, AgentMetadata,
+    AgentMetadataLookupRequest, AgentNameRequest, AgentProviderRequest, AgentRegistry,
+    AgentSkillsRequest, ListAgentIdsRequest, NoopAgentManager, Parameter, Skill,
+    SkillDescriptionRequest, SkillExecutionRequest, SkillLookupRequest, SkillMetadata,
+    SkillMetadataLookupRequest, SkillNameRequest, SkillParametersRequest,
 };
 use edge_llm_provider::{
     EchoProviderCompleter, ModelInfo, Provider, ProviderBootstrap, ProviderConfig,
@@ -23,7 +33,7 @@ use std::sync::Arc;
 fn noop_provider() -> Arc<dyn Provider> {
     StdProviderFactory::provider(
         ProviderConfig::new("noop".to_string(), 0.0, 0),
-        ModelInfo::default(),
+        Box::<ModelInfo>::default(),
         Arc::new(EchoProviderCompleter),
         StdObserveFactory::noop_arc_observe_context(),
     )
@@ -38,33 +48,55 @@ struct SuccessAgent;
 
 #[async_trait]
 impl Agent for SuccessAgent {
-    fn id(&self) -> &str {
-        "success_agent"
+    fn id(&self, _req: AgentIdRequest) -> Result<edge_llm_agent::AgentIdResponse, AgentError> {
+        Ok(edge_llm_agent::AgentIdResponse {
+            id: "success_agent".to_string(),
+        })
     }
 
-    fn name(&self) -> &str {
-        "Success Agent"
+    fn name(
+        &self,
+        _req: AgentNameRequest,
+    ) -> Result<edge_llm_agent::AgentNameResponse, AgentError> {
+        Ok(edge_llm_agent::AgentNameResponse {
+            name: "Success Agent".to_string(),
+        })
     }
 
-    fn description(&self) -> &str {
-        "Test agent that succeeds"
+    fn description(
+        &self,
+        _req: AgentDescriptionRequest,
+    ) -> Result<edge_llm_agent::AgentDescriptionResponse, AgentError> {
+        Ok(edge_llm_agent::AgentDescriptionResponse {
+            description: "Test agent that succeeds".to_string(),
+        })
     }
 
     async fn execute_skill(
         &self,
-        skill_name: &str,
-        input: String,
-        _ctx: HandlerContext<'_>,
-    ) -> Result<String, AgentError> {
-        Ok(format!("{}:{}", skill_name, input))
+        req: SkillExecutionRequest<'_>,
+    ) -> Result<edge_llm_agent::SkillExecutionResponse, AgentError> {
+        Ok(edge_llm_agent::SkillExecutionResponse {
+            output: format!("{}:{}", req.skill_name, req.input),
+        })
     }
 
-    fn skills(&self) -> Vec<Arc<dyn Skill<Request = String, Response = String>>> {
-        vec![Arc::new(TestSkill) as Arc<dyn Skill<Request = String, Response = String>>]
+    fn skills(
+        &self,
+        _req: AgentSkillsRequest,
+    ) -> Result<edge_llm_agent::AgentSkillsResponse, AgentError> {
+        Ok(edge_llm_agent::AgentSkillsResponse {
+            skills: vec![Arc::new(TestSkill) as Arc<dyn Skill<Request = String, Response = String>>],
+        })
     }
 
-    fn provider(&self) -> Arc<dyn Provider> {
-        noop_provider()
+    fn provider(
+        &self,
+        _req: AgentProviderRequest,
+    ) -> Result<edge_llm_agent::AgentProviderResponse, AgentError> {
+        Ok(edge_llm_agent::AgentProviderResponse {
+            provider: noop_provider(),
+        })
     }
 }
 
@@ -73,35 +105,53 @@ struct FailingAgent;
 
 #[async_trait]
 impl Agent for FailingAgent {
-    fn id(&self) -> &str {
-        "failing_agent"
+    fn id(&self, _req: AgentIdRequest) -> Result<edge_llm_agent::AgentIdResponse, AgentError> {
+        Ok(edge_llm_agent::AgentIdResponse {
+            id: "failing_agent".to_string(),
+        })
     }
 
-    fn name(&self) -> &str {
-        "Failing Agent"
+    fn name(
+        &self,
+        _req: AgentNameRequest,
+    ) -> Result<edge_llm_agent::AgentNameResponse, AgentError> {
+        Ok(edge_llm_agent::AgentNameResponse {
+            name: "Failing Agent".to_string(),
+        })
     }
 
-    fn description(&self) -> &str {
-        "Test agent that fails"
+    fn description(
+        &self,
+        _req: AgentDescriptionRequest,
+    ) -> Result<edge_llm_agent::AgentDescriptionResponse, AgentError> {
+        Ok(edge_llm_agent::AgentDescriptionResponse {
+            description: "Test agent that fails".to_string(),
+        })
     }
 
     async fn execute_skill(
         &self,
-        _skill_name: &str,
-        _input: String,
-        _ctx: HandlerContext<'_>,
-    ) -> Result<String, AgentError> {
+        _req: SkillExecutionRequest<'_>,
+    ) -> Result<edge_llm_agent::SkillExecutionResponse, AgentError> {
         Err(AgentError::ExecutionFailed(
             "intentional failure".to_string(),
         ))
     }
 
-    fn skills(&self) -> Vec<Arc<dyn Skill<Request = String, Response = String>>> {
-        vec![]
+    fn skills(
+        &self,
+        _req: AgentSkillsRequest,
+    ) -> Result<edge_llm_agent::AgentSkillsResponse, AgentError> {
+        Ok(edge_llm_agent::AgentSkillsResponse { skills: vec![] })
     }
 
-    fn provider(&self) -> Arc<dyn Provider> {
-        noop_provider()
+    fn provider(
+        &self,
+        _req: AgentProviderRequest,
+    ) -> Result<edge_llm_agent::AgentProviderResponse, AgentError> {
+        Ok(edge_llm_agent::AgentProviderResponse {
+            provider: noop_provider(),
+        })
     }
 }
 
@@ -110,33 +160,51 @@ struct EmptyAgent;
 
 #[async_trait]
 impl Agent for EmptyAgent {
-    fn id(&self) -> &str {
-        ""
+    fn id(&self, _req: AgentIdRequest) -> Result<edge_llm_agent::AgentIdResponse, AgentError> {
+        Ok(edge_llm_agent::AgentIdResponse { id: String::new() })
     }
 
-    fn name(&self) -> &str {
-        ""
+    fn name(
+        &self,
+        _req: AgentNameRequest,
+    ) -> Result<edge_llm_agent::AgentNameResponse, AgentError> {
+        Ok(edge_llm_agent::AgentNameResponse {
+            name: String::new(),
+        })
     }
 
-    fn description(&self) -> &str {
-        ""
+    fn description(
+        &self,
+        _req: AgentDescriptionRequest,
+    ) -> Result<edge_llm_agent::AgentDescriptionResponse, AgentError> {
+        Ok(edge_llm_agent::AgentDescriptionResponse {
+            description: String::new(),
+        })
     }
 
     async fn execute_skill(
         &self,
-        _skill_name: &str,
-        _input: String,
-        _ctx: HandlerContext<'_>,
-    ) -> Result<String, AgentError> {
-        Ok("".to_string())
+        _req: SkillExecutionRequest<'_>,
+    ) -> Result<edge_llm_agent::SkillExecutionResponse, AgentError> {
+        Ok(edge_llm_agent::SkillExecutionResponse {
+            output: String::new(),
+        })
     }
 
-    fn skills(&self) -> Vec<Arc<dyn Skill<Request = String, Response = String>>> {
-        vec![]
+    fn skills(
+        &self,
+        _req: AgentSkillsRequest,
+    ) -> Result<edge_llm_agent::AgentSkillsResponse, AgentError> {
+        Ok(edge_llm_agent::AgentSkillsResponse { skills: vec![] })
     }
 
-    fn provider(&self) -> Arc<dyn Provider> {
-        noop_provider()
+    fn provider(
+        &self,
+        _req: AgentProviderRequest,
+    ) -> Result<edge_llm_agent::AgentProviderResponse, AgentError> {
+        Ok(edge_llm_agent::AgentProviderResponse {
+            provider: noop_provider(),
+        })
     }
 }
 
@@ -148,50 +216,72 @@ impl Handler for TestSkill {
     type Request = String;
     type Response = String;
 
-    fn id(&self) -> &str {
-        "test_skill"
+    fn id(&self, _req: IdRequest) -> Result<IdResponse, HandlerError> {
+        Ok(IdResponse {
+            id: "test_skill".to_string(),
+        })
     }
 
-    async fn execute(&self, req: String, _ctx: HandlerContext<'_>) -> Result<String, HandlerError> {
-        Ok(format!("skill_response:{}", req))
+    async fn execute(&self, req: ExecutionRequest<'_, String>) -> Result<String, HandlerError> {
+        Ok(format!("skill_response:{}", req.req))
     }
 }
 
 impl Skill for TestSkill {
-    fn name(&self) -> &str {
-        "test_skill_name"
+    fn name(
+        &self,
+        _req: SkillNameRequest,
+    ) -> Result<edge_llm_agent::SkillNameResponse, AgentError> {
+        Ok(edge_llm_agent::SkillNameResponse {
+            name: "test_skill_name".to_string(),
+        })
     }
 
-    fn description(&self) -> &str {
-        "Test skill for integration tests"
+    fn description(
+        &self,
+        _req: SkillDescriptionRequest,
+    ) -> Result<edge_llm_agent::SkillDescriptionResponse, AgentError> {
+        Ok(edge_llm_agent::SkillDescriptionResponse {
+            description: "Test skill for integration tests".to_string(),
+        })
     }
 
-    fn parameters(&self) -> Vec<Parameter> {
-        vec![
-            Parameter {
-                name: "input".to_string(),
-                description: "Input parameter".to_string(),
-                param_type: "string".to_string(),
-                required: true,
-            },
-            Parameter {
-                name: "optional".to_string(),
-                description: "Optional parameter".to_string(),
-                param_type: "number".to_string(),
-                required: false,
-            },
-        ]
+    fn parameters(
+        &self,
+        _req: SkillParametersRequest,
+    ) -> Result<edge_llm_agent::SkillParametersResponse, AgentError> {
+        Ok(edge_llm_agent::SkillParametersResponse {
+            parameters: vec![
+                Parameter {
+                    name: "input".to_string(),
+                    description: "Input parameter".to_string(),
+                    param_type: "string".to_string(),
+                    required: true,
+                },
+                Parameter {
+                    name: "optional".to_string(),
+                    description: "Optional parameter".to_string(),
+                    param_type: "number".to_string(),
+                    required: false,
+                },
+            ],
+        })
     }
 
-    fn metadata(&self) -> SkillMetadata {
-        SkillMetadata {
-            name: self.name().to_string(),
-            description: self.description().to_string(),
-            input_schema: Some(r#"{"type":"string"}"#.to_string()),
-            output_schema: Some(r#"{"type":"string"}"#.to_string()),
-            async_execution: true,
-            long_running: false,
-        }
+    fn metadata(
+        &self,
+        _req: SkillMetadataLookupRequest,
+    ) -> Result<edge_llm_agent::SkillMetadataLookupResponse, AgentError> {
+        Ok(edge_llm_agent::SkillMetadataLookupResponse {
+            metadata: Box::new(SkillMetadata {
+                name: self.name(SkillNameRequest)?.name,
+                description: self.description(SkillDescriptionRequest)?.description,
+                input_schema: Some(r#"{"type":"string"}"#.to_string()),
+                output_schema: Some(r#"{"type":"string"}"#.to_string()),
+                async_execution: true,
+                long_running: false,
+            }),
+        })
     }
 }
 
@@ -203,26 +293,34 @@ impl Handler for MinimalSkill {
     type Request = String;
     type Response = String;
 
-    fn id(&self) -> &str {
-        "minimal"
+    fn id(&self, _req: IdRequest) -> Result<IdResponse, HandlerError> {
+        Ok(IdResponse {
+            id: "minimal".to_string(),
+        })
     }
 
-    async fn execute(
-        &self,
-        _req: String,
-        _ctx: HandlerContext<'_>,
-    ) -> Result<String, HandlerError> {
+    async fn execute(&self, _req: ExecutionRequest<'_, String>) -> Result<String, HandlerError> {
         Err(HandlerError::ExecutionFailed("minimal error".to_string()))
     }
 }
 
 impl Skill for MinimalSkill {
-    fn name(&self) -> &str {
-        "minimal"
+    fn name(
+        &self,
+        _req: SkillNameRequest,
+    ) -> Result<edge_llm_agent::SkillNameResponse, AgentError> {
+        Ok(edge_llm_agent::SkillNameResponse {
+            name: "minimal".to_string(),
+        })
     }
 
-    fn description(&self) -> &str {
-        ""
+    fn description(
+        &self,
+        _req: SkillDescriptionRequest,
+    ) -> Result<edge_llm_agent::SkillDescriptionResponse, AgentError> {
+        Ok(edge_llm_agent::SkillDescriptionResponse {
+            description: String::new(),
+        })
     }
 }
 
@@ -258,7 +356,11 @@ impl TestAgentManager {
 
 #[async_trait]
 impl AgentManager for TestAgentManager {
-    async fn load_agent(&self, spec: &str) -> Result<Arc<dyn Agent>, AgentError> {
+    async fn load_agent(
+        &self,
+        req: AgentLoadRequest<'_>,
+    ) -> Result<edge_llm_agent::AgentLoadResponse, AgentError> {
+        let spec = req.spec;
         if self.fail_load {
             return Err(AgentError::InvalidSpec(format!("Failed to load: {}", spec)));
         }
@@ -266,36 +368,46 @@ impl AgentManager for TestAgentManager {
             return Err(AgentError::InvalidSpec("Empty spec".to_string()));
         }
         if spec == "success.yaml" {
-            Ok(Arc::new(SuccessAgent))
+            Ok(edge_llm_agent::AgentLoadResponse {
+                agent: Arc::new(SuccessAgent),
+            })
         } else {
             Err(AgentError::InvalidSpec(format!("Unknown spec: {}", spec)))
         }
     }
 
-    fn agent(&self, id: &str) -> Result<Arc<dyn Agent>, AgentError> {
+    fn agent(
+        &self,
+        req: AgentLookupRequest<'_>,
+    ) -> Result<edge_llm_agent::AgentLookupResponse, AgentError> {
         self.agents
-            .get(id)
+            .get(req.id)
             .cloned()
-            .ok_or_else(|| AgentError::NotFound(id.to_string()))
+            .map(|agent| edge_llm_agent::AgentLookupResponse { agent })
+            .ok_or_else(|| AgentError::NotFound(req.id.to_string()))
     }
 
-    fn list_agent_ids(&self) -> Result<Vec<String>, AgentError> {
-        Ok(self.agents.keys().cloned().collect())
+    fn list_agent_ids(
+        &self,
+        _req: ListAgentIdsRequest,
+    ) -> Result<edge_llm_agent::ListAgentIdsResponse, AgentError> {
+        Ok(edge_llm_agent::ListAgentIdsResponse {
+            ids: self.agents.keys().cloned().collect(),
+        })
     }
 
-    fn agent_handler(&self, skill: &str) -> Box<dyn Handler<Request = String, Response = String>> {
-        NoopAgentManager.agent_handler(skill)
+    fn agent_handler(
+        &self,
+        req: AgentHandlerRequest<'_>,
+    ) -> Result<edge_llm_agent::AgentHandlerResponse, AgentError> {
+        NoopAgentManager.agent_handler(req)
     }
 
     fn default_agent(
         &self,
-        id: &str,
-        name: &str,
-        description: &str,
-        provider: Arc<dyn Provider>,
-        skills: Vec<Arc<dyn Skill<Request = String, Response = String>>>,
-    ) -> Arc<dyn Agent> {
-        NoopAgentManager.default_agent(id, name, description, provider, skills)
+        req: AgentCreationRequest<'_>,
+    ) -> Result<edge_llm_agent::AgentCreationResponse, AgentError> {
+        NoopAgentManager.default_agent(req)
     }
 }
 
@@ -329,46 +441,61 @@ impl TestAgentRegistry {
 impl Registry for TestAgentRegistry {
     type Value = dyn Agent;
 
-    fn register(&self, _id: &str, _entry: Arc<Self::Value>) {}
+    fn register(&self, _req: RegisterRequest<Self::Value>) -> Result<RegisterResponse, RegistryError> {
+        Ok(RegisterResponse)
+    }
 
     fn try_register(
         &self,
-        _id: &str,
-        _entry: Arc<Self::Value>,
-    ) -> Result<(), edge_domain_registry::RegistryError> {
-        Ok(())
+        _req: TryRegisterRequest<Self::Value>,
+    ) -> Result<TryRegisterResponse, RegistryError> {
+        Ok(TryRegisterResponse)
     }
 
-    fn deregister(&self, _id: &str) -> bool {
-        true
+    fn deregister(&self, _req: DeregisterRequest) -> Result<DeregisterResponse, RegistryError> {
+        Ok(DeregisterResponse { was_present: true })
     }
 
-    fn get(&self, id: &str) -> Option<Arc<Self::Value>> {
-        self.agents.get(id).cloned()
+    fn get(
+        &self,
+        req: RegistryLookupRequest,
+    ) -> Result<RegistryLookupResponse<Self::Value>, RegistryError> {
+        Ok(RegistryLookupResponse {
+            entry: self.agents.get(&req.id).cloned(),
+        })
     }
 
-    fn list_ids(&self) -> Vec<String> {
-        self.agents.keys().cloned().collect()
+    fn list_ids(&self, _req: ListIdsRequest) -> Result<ListIdsResponse, RegistryError> {
+        Ok(ListIdsResponse {
+            ids: self.agents.keys().cloned().collect(),
+        })
     }
 
-    fn len(&self) -> usize {
-        self.agents.len()
+    fn len(&self, _req: LenRequest) -> Result<LenResponse, RegistryError> {
+        Ok(LenResponse {
+            count: self.agents.len(),
+        })
     }
 }
 
 impl AgentRegistry for TestAgentRegistry {
-    fn metadata(&self, id: &str) -> Result<AgentMetadata, AgentError> {
-        if let Some(agent) = self.agents.get(id) {
-            Ok(AgentMetadata {
-                id: id.to_string(),
-                name: agent.name().to_string(),
-                description: agent.description().to_string(),
-                version: "1.0.0".to_string(),
-                skills: vec![],
-                patterns: vec!["test".to_string()],
+    fn metadata(
+        &self,
+        req: AgentMetadataLookupRequest<'_>,
+    ) -> Result<edge_llm_agent::AgentMetadataLookupResponse, AgentError> {
+        if let Some(agent) = self.agents.get(req.id) {
+            Ok(edge_llm_agent::AgentMetadataLookupResponse {
+                metadata: Box::new(AgentMetadata {
+                    id: req.id.to_string(),
+                    name: agent.name(AgentNameRequest)?.name,
+                    description: agent.description(AgentDescriptionRequest)?.description,
+                    version: "1.0.0".to_string(),
+                    skills: vec![],
+                    patterns: vec!["test".to_string()],
+                }),
             })
         } else {
-            Err(AgentError::NotFound(id.to_string()))
+            Err(AgentError::NotFound(req.id.to_string()))
         }
     }
 }
@@ -380,14 +507,14 @@ impl AgentRegistry for TestAgentRegistry {
 /// @covers: Agent::id
 #[test]
 fn test_id_agent_happy() {
-    assert_eq!(SuccessAgent.id(), "success_agent");
+    assert_eq!(SuccessAgent.id(AgentIdRequest).unwrap().id, "success_agent");
 }
 
 /// @covers: Agent::id
 #[test]
 fn test_id_agent_error() {
     let agent = EmptyAgent;
-    assert_eq!(agent.id(), "");
+    assert_eq!(agent.id(AgentIdRequest).unwrap().id, "");
 }
 
 /// @covers: Agent::id
@@ -395,7 +522,10 @@ fn test_id_agent_error() {
 fn test_id_agent_edge() {
     let agent1 = SuccessAgent;
     let agent2 = FailingAgent;
-    assert_ne!(agent1.id(), agent2.id());
+    assert_ne!(
+        agent1.id(AgentIdRequest).unwrap().id,
+        agent2.id(AgentIdRequest).unwrap().id
+    );
 }
 
 // ============================================================================
@@ -405,19 +535,22 @@ fn test_id_agent_edge() {
 /// @covers: Agent::name
 #[test]
 fn test_name_agent_happy() {
-    assert_eq!(SuccessAgent.name(), "Success Agent");
+    assert_eq!(
+        SuccessAgent.name(AgentNameRequest).unwrap().name,
+        "Success Agent"
+    );
 }
 
 /// @covers: Agent::name
 #[test]
 fn test_name_agent_error() {
-    assert_eq!(EmptyAgent.name(), "");
+    assert_eq!(EmptyAgent.name(AgentNameRequest).unwrap().name, "");
 }
 
 /// @covers: Agent::name
 #[test]
 fn test_name_agent_edge() {
-    let name = SuccessAgent.name();
+    let name = SuccessAgent.name(AgentNameRequest).unwrap().name;
     assert!(!name.is_empty());
     assert!(name.contains("Agent"));
 }
@@ -429,21 +562,36 @@ fn test_name_agent_edge() {
 /// @covers: Agent::description
 #[test]
 fn test_description_agent_happy() {
-    let desc = SuccessAgent.description();
+    let desc = SuccessAgent
+        .description(AgentDescriptionRequest)
+        .unwrap()
+        .description;
     assert_eq!(desc, "Test agent that succeeds");
 }
 
 /// @covers: Agent::description
 #[test]
 fn test_description_agent_error() {
-    assert_eq!(EmptyAgent.description(), "");
+    assert_eq!(
+        EmptyAgent
+            .description(AgentDescriptionRequest)
+            .unwrap()
+            .description,
+        ""
+    );
 }
 
 /// @covers: Agent::description
 #[test]
 fn test_description_agent_edge() {
-    let success_desc = SuccessAgent.description();
-    let failing_desc = FailingAgent.description();
+    let success_desc = SuccessAgent
+        .description(AgentDescriptionRequest)
+        .unwrap()
+        .description;
+    let failing_desc = FailingAgent
+        .description(AgentDescriptionRequest)
+        .unwrap()
+        .description;
     assert_ne!(success_desc, failing_desc);
 }
 
@@ -454,39 +602,39 @@ fn test_description_agent_edge() {
 /// @covers: Agent::execute_skill
 #[test]
 fn test_execute_skill_agent_happy() {
-    use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
-    use edge_domain_handler::HandlerContext;
-    use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::SecurityContext;
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
-    let result = futures::executor::block_on(SuccessAgent.execute_skill(
-        "code_review",
-        "input.rs".to_string(),
+    let ctx = HandlerContext {
+        security: &security,
+        commands: &commands,
+        observer: observer.as_ref(),
+    };
+    let result = futures::executor::block_on(SuccessAgent.execute_skill(SkillExecutionRequest {
+        skill_name: "code_review",
+        input: "input.rs".to_string(),
         ctx,
-    ));
-    assert_eq!(result, Ok(()));
-    assert_eq!(result.unwrap(), "code_review:input.rs");
+    }));
+    assert!(result.is_ok());
+    assert_eq!(result.unwrap().output, "code_review:input.rs");
 }
 
 /// @covers: Agent::execute_skill
 #[test]
 fn test_execute_skill_agent_error() {
-    use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
-    use edge_domain_handler::HandlerContext;
-    use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::SecurityContext;
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
-    let result = futures::executor::block_on(FailingAgent.execute_skill(
-        "any_skill",
-        "input".to_string(),
+    let ctx = HandlerContext {
+        security: &security,
+        commands: &commands,
+        observer: observer.as_ref(),
+    };
+    let result = futures::executor::block_on(FailingAgent.execute_skill(SkillExecutionRequest {
+        skill_name: "any_skill",
+        input: "input".to_string(),
         ctx,
-    ));
+    }));
     assert!(result.is_err());
     match result {
         Err(AgentError::ExecutionFailed(msg)) => {
@@ -499,17 +647,21 @@ fn test_execute_skill_agent_error() {
 /// @covers: Agent::execute_skill
 #[test]
 fn test_execute_skill_agent_edge() {
-    use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
-    use edge_domain_handler::HandlerContext;
-    use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::SecurityContext;
     let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
-    let result = futures::executor::block_on(SuccessAgent.execute_skill("", "".to_string(), ctx));
-    assert_eq!(result, Ok(()));
-    assert_eq!(result.unwrap(), ":");
+    let ctx = HandlerContext {
+        security: &security,
+        commands: &commands,
+        observer: observer.as_ref(),
+    };
+    let result = futures::executor::block_on(SuccessAgent.execute_skill(SkillExecutionRequest {
+        skill_name: "",
+        input: "".to_string(),
+        ctx,
+    }));
+    assert!(result.is_ok());
+    assert_eq!(result.unwrap().output, ":");
 }
 
 // ============================================================================
@@ -519,21 +671,21 @@ fn test_execute_skill_agent_edge() {
 /// @covers: Agent::skills
 #[test]
 fn test_skills_agent_happy() {
-    let skills = SuccessAgent.skills();
+    let skills = SuccessAgent.skills(AgentSkillsRequest).unwrap().skills;
     assert_eq!(skills.len(), 1);
 }
 
 /// @covers: Agent::skills
 #[test]
 fn test_skills_agent_error() {
-    let skills = FailingAgent.skills();
+    let skills = FailingAgent.skills(AgentSkillsRequest).unwrap().skills;
     assert_eq!(skills.len(), 0);
 }
 
 /// @covers: Agent::skills
 #[test]
 fn test_skills_agent_edge() {
-    let skills = EmptyAgent.skills();
+    let skills = EmptyAgent.skills(AgentSkillsRequest).unwrap().skills;
     assert!(skills.is_empty());
 }
 
@@ -544,19 +696,22 @@ fn test_skills_agent_edge() {
 /// @covers: Skill::name
 #[test]
 fn test_name_skill_happy() {
-    assert_eq!(TestSkill.name(), "test_skill_name");
+    assert_eq!(
+        TestSkill.name(SkillNameRequest).unwrap().name,
+        "test_skill_name"
+    );
 }
 
 /// @covers: Skill::name
 #[test]
 fn test_name_skill_error() {
-    assert_eq!(MinimalSkill.name(), "minimal");
+    assert_eq!(MinimalSkill.name(SkillNameRequest).unwrap().name, "minimal");
 }
 
 /// @covers: Skill::name
 #[test]
 fn test_name_skill_edge() {
-    let name = TestSkill.name();
+    let name = TestSkill.name(SkillNameRequest).unwrap().name;
     assert!(!name.is_empty());
 }
 
@@ -567,19 +722,34 @@ fn test_name_skill_edge() {
 /// @covers: Skill::description
 #[test]
 fn test_description_skill_happy() {
-    assert_eq!(TestSkill.description(), "Test skill for integration tests");
+    assert_eq!(
+        TestSkill
+            .description(SkillDescriptionRequest)
+            .unwrap()
+            .description,
+        "Test skill for integration tests"
+    );
 }
 
 /// @covers: Skill::description
 #[test]
 fn test_description_skill_error() {
-    assert_eq!(MinimalSkill.description(), "");
+    assert_eq!(
+        MinimalSkill
+            .description(SkillDescriptionRequest)
+            .unwrap()
+            .description,
+        ""
+    );
 }
 
 /// @covers: Skill::description
 #[test]
 fn test_description_skill_edge() {
-    let desc = TestSkill.description();
+    let desc = TestSkill
+        .description(SkillDescriptionRequest)
+        .unwrap()
+        .description;
     assert!(!desc.is_empty());
 }
 
@@ -590,7 +760,10 @@ fn test_description_skill_edge() {
 /// @covers: Skill::parameters
 #[test]
 fn test_parameters_skill_happy() {
-    let params = TestSkill.parameters();
+    let params = TestSkill
+        .parameters(SkillParametersRequest)
+        .unwrap()
+        .parameters;
     assert_eq!(params.len(), 2);
     assert_eq!(params[0].name, "input");
     assert!(params[0].required);
@@ -601,14 +774,20 @@ fn test_parameters_skill_happy() {
 /// @covers: Skill::parameters
 #[test]
 fn test_parameters_skill_error() {
-    let params = MinimalSkill.parameters();
+    let params = MinimalSkill
+        .parameters(SkillParametersRequest)
+        .unwrap()
+        .parameters;
     assert_eq!(params.len(), 0);
 }
 
 /// @covers: Skill::parameters
 #[test]
 fn test_parameters_skill_edge() {
-    let params = TestSkill.parameters();
+    let params = TestSkill
+        .parameters(SkillParametersRequest)
+        .unwrap()
+        .parameters;
     assert!(params.iter().all(|p| !p.name.is_empty()));
     assert!(params.iter().all(|p| !p.param_type.is_empty()));
 }
@@ -620,11 +799,14 @@ fn test_parameters_skill_edge() {
 /// @covers: Skill::metadata
 #[test]
 fn test_metadata_skill_happy() {
-    let meta = TestSkill.metadata();
+    let meta = TestSkill
+        .metadata(SkillMetadataLookupRequest)
+        .unwrap()
+        .metadata;
     assert_eq!(meta.name, "test_skill_name");
     assert_eq!(meta.description, "Test skill for integration tests");
-    assert!(meta.input_schema.unwrap());
-    assert!(meta.output_schema.unwrap());
+    assert!(meta.input_schema.is_some());
+    assert!(meta.output_schema.is_some());
     assert!(meta.async_execution);
     assert!(!meta.long_running);
 }
@@ -632,7 +814,10 @@ fn test_metadata_skill_happy() {
 /// @covers: Skill::metadata
 #[test]
 fn test_metadata_skill_error() {
-    let meta = MinimalSkill.metadata();
+    let meta = MinimalSkill
+        .metadata(SkillMetadataLookupRequest)
+        .unwrap()
+        .metadata;
     assert_eq!(meta.name, "minimal");
     assert_eq!(meta.description, "");
     assert!(meta.input_schema.is_none());
@@ -641,9 +826,18 @@ fn test_metadata_skill_error() {
 /// @covers: Skill::metadata
 #[test]
 fn test_metadata_skill_edge() {
-    let meta = TestSkill.metadata();
-    assert_eq!(meta.name, TestSkill.name());
-    assert_eq!(meta.description, TestSkill.description());
+    let meta = TestSkill
+        .metadata(SkillMetadataLookupRequest)
+        .unwrap()
+        .metadata;
+    assert_eq!(meta.name, TestSkill.name(SkillNameRequest).unwrap().name);
+    assert_eq!(
+        meta.description,
+        TestSkill
+            .description(SkillDescriptionRequest)
+            .unwrap()
+            .description
+    );
 }
 
 // ============================================================================
@@ -654,15 +848,22 @@ fn test_metadata_skill_edge() {
 #[test]
 fn test_load_agent_manager_happy() {
     let manager = TestAgentManager::new();
-    let result = futures::executor::block_on(manager.load_agent("success.yaml"));
-    assert_eq!(result, Ok(()));
+    let result = futures::executor::block_on(manager.load_agent(AgentLoadRequest {
+        spec: "success.yaml",
+    }));
+    assert!(result.is_ok());
+    assert_eq!(
+        result.unwrap().agent.id(AgentIdRequest).unwrap().id,
+        "success_agent"
+    );
 }
 
 /// @covers: AgentManager::load_agent
 #[test]
 fn test_load_agent_manager_error() {
     let manager = TestAgentManager::new().with_failure(true);
-    let result = futures::executor::block_on(manager.load_agent("any.yaml"));
+    let result =
+        futures::executor::block_on(manager.load_agent(AgentLoadRequest { spec: "any.yaml" }));
     assert!(result.is_err());
     assert!(matches!(result, Err(AgentError::InvalidSpec(_))));
 }
@@ -671,7 +872,7 @@ fn test_load_agent_manager_error() {
 #[test]
 fn test_load_agent_manager_edge() {
     let manager = TestAgentManager::new();
-    let result = futures::executor::block_on(manager.load_agent(""));
+    let result = futures::executor::block_on(manager.load_agent(AgentLoadRequest { spec: "" }));
     assert!(result.is_err());
     assert!(matches!(result, Err(AgentError::InvalidSpec(_))));
 }
@@ -684,16 +885,21 @@ fn test_load_agent_manager_edge() {
 #[test]
 fn test_agent_manager_happy() {
     let manager = TestAgentManager::new();
-    let result = manager.agent("success_agent");
-    assert_eq!(result, Ok(()));
-    assert_eq!(result.unwrap().id(), "success_agent");
+    let result = manager.agent(AgentLookupRequest {
+        id: "success_agent",
+    });
+    assert!(result.is_ok());
+    assert_eq!(
+        result.unwrap().agent.id(AgentIdRequest).unwrap().id,
+        "success_agent"
+    );
 }
 
 /// @covers: AgentManager::agent
 #[test]
 fn test_agent_manager_error() {
     let manager = TestAgentManager::new();
-    let result = manager.agent("nonexistent");
+    let result = manager.agent(AgentLookupRequest { id: "nonexistent" });
     assert!(result.is_err());
     assert!(matches!(result, Err(AgentError::NotFound(_))));
 }
@@ -702,7 +908,7 @@ fn test_agent_manager_error() {
 #[test]
 fn test_agent_manager_edge() {
     let manager = TestAgentManager::new();
-    let result = manager.agent("");
+    let result = manager.agent(AgentLookupRequest { id: "" });
     assert!(result.is_err());
 }
 
@@ -714,9 +920,9 @@ fn test_agent_manager_edge() {
 #[test]
 fn test_list_agent_ids_manager_happy() {
     let manager = TestAgentManager::new();
-    let result = manager.list_agent_ids();
-    assert_eq!(result, Ok(()));
-    let ids = result.unwrap();
+    let result = manager.list_agent_ids(ListAgentIdsRequest);
+    assert!(result.is_ok());
+    let ids = result.unwrap().ids;
     assert!(ids.len() >= 2);
     assert!(ids.contains(&"success_agent".to_string()));
     assert!(ids.contains(&"failing_agent".to_string()));
@@ -726,10 +932,11 @@ fn test_list_agent_ids_manager_happy() {
 #[test]
 fn test_list_agent_ids_manager_error() {
     // Note: In this implementation, list_agent_ids always succeeds.
-    // Testing that it's callable and returns consistent result.
+    // Testing that it's callable and returns the same ids on repeated calls.
     let manager = TestAgentManager::new();
-    let result = manager.list_agent_ids();
-    assert_eq!(result, Ok(()));
+    let first = manager.list_agent_ids(ListAgentIdsRequest).unwrap().ids;
+    let second = manager.list_agent_ids(ListAgentIdsRequest).unwrap().ids;
+    assert_eq!(first, second);
 }
 
 /// @covers: AgentManager::list_agent_ids
@@ -740,9 +947,9 @@ fn test_list_agent_ids_manager_edge() {
         agents: std::collections::HashMap::new(),
         fail_load: false,
     };
-    let result = manager.list_agent_ids();
-    assert_eq!(result, Ok(()));
-    assert_eq!(result.unwrap().len(), 0);
+    let result = manager.list_agent_ids(ListAgentIdsRequest);
+    assert!(result.is_ok());
+    assert_eq!(result.unwrap().ids.len(), 0);
 }
 
 // ============================================================================
@@ -753,9 +960,9 @@ fn test_list_agent_ids_manager_edge() {
 #[test]
 fn test_metadata_registry_happy() {
     let registry = TestAgentRegistry::new();
-    let result = registry.metadata("test_agent");
-    assert_eq!(result, Ok(()));
-    let meta = result.unwrap();
+    let result = registry.metadata(AgentMetadataLookupRequest { id: "test_agent" });
+    assert!(result.is_ok());
+    let meta = result.unwrap().metadata;
     assert_eq!(meta.id, "test_agent");
     assert_eq!(meta.name, "Success Agent");
     assert_eq!(meta.version, "1.0.0");
@@ -766,7 +973,7 @@ fn test_metadata_registry_happy() {
 #[test]
 fn test_metadata_registry_error() {
     let registry = TestAgentRegistry::new();
-    let result = registry.metadata("nonexistent");
+    let result = registry.metadata(AgentMetadataLookupRequest { id: "nonexistent" });
     assert!(result.is_err());
     assert!(matches!(result, Err(AgentError::NotFound(_))));
 }
@@ -775,7 +982,7 @@ fn test_metadata_registry_error() {
 #[test]
 fn test_metadata_registry_edge() {
     let registry = TestAgentRegistry::empty();
-    let result = registry.metadata("any");
+    let result = registry.metadata(AgentMetadataLookupRequest { id: "any" });
     assert!(result.is_err());
     assert!(matches!(result, Err(AgentError::NotFound(_))));
 }
@@ -788,15 +995,29 @@ fn test_metadata_registry_edge() {
 #[test]
 fn test_registry_get_happy() {
     let registry = TestAgentRegistry::new();
-    let agent = registry.get("test_agent");
-    assert!(agent.unwrap());
+    let agent = registry
+        .get(RegistryLookupRequest {
+            id: "test_agent".to_string(),
+        })
+        .unwrap()
+        .entry;
+    assert!(agent.is_some());
+    assert_eq!(
+        agent.unwrap().id(AgentIdRequest).unwrap().id,
+        "success_agent"
+    );
 }
 
 /// @covers: Registry::get (inherited by AgentRegistry)
 #[test]
 fn test_registry_get_error() {
     let registry = TestAgentRegistry::new();
-    let agent = registry.get("missing");
+    let agent = registry
+        .get(RegistryLookupRequest {
+            id: "missing".to_string(),
+        })
+        .unwrap()
+        .entry;
     assert!(agent.is_none());
 }
 
@@ -804,7 +1025,12 @@ fn test_registry_get_error() {
 #[test]
 fn test_registry_get_edge() {
     let registry = TestAgentRegistry::empty();
-    let agent = registry.get("any");
+    let agent = registry
+        .get(RegistryLookupRequest {
+            id: "any".to_string(),
+        })
+        .unwrap()
+        .entry;
     assert!(agent.is_none());
 }
 
@@ -812,7 +1038,7 @@ fn test_registry_get_edge() {
 #[test]
 fn test_registry_list_ids_happy() {
     let registry = TestAgentRegistry::new();
-    let ids = registry.list_ids();
+    let ids = registry.list_ids(ListIdsRequest).unwrap().ids;
     assert_eq!(ids.len(), 2);
     assert!(ids.contains(&"test_agent".to_string()));
 }
@@ -821,7 +1047,7 @@ fn test_registry_list_ids_happy() {
 #[test]
 fn test_registry_list_ids_error() {
     let registry = TestAgentRegistry::empty();
-    let ids = registry.list_ids();
+    let ids = registry.list_ids(ListIdsRequest).unwrap().ids;
     assert_eq!(ids.len(), 0);
 }
 
@@ -829,7 +1055,7 @@ fn test_registry_list_ids_error() {
 #[test]
 fn test_registry_list_ids_edge() {
     let registry = TestAgentRegistry::new();
-    let ids = registry.list_ids();
+    let ids = registry.list_ids(ListIdsRequest).unwrap().ids;
     assert!(ids.iter().all(|id| !id.is_empty()));
 }
 
@@ -837,64 +1063,77 @@ fn test_registry_list_ids_edge() {
 #[test]
 fn test_registry_len_happy() {
     let registry = TestAgentRegistry::new();
-    assert_eq!(registry.len(), 2);
+    assert_eq!(registry.len(LenRequest).unwrap().count, 2);
 }
 
 /// @covers: Registry::len (inherited by AgentRegistry)
 #[test]
 fn test_registry_len_error() {
     let registry = TestAgentRegistry::empty();
-    assert_eq!(registry.len(), 0);
+    assert_eq!(registry.len(LenRequest).unwrap().count, 0);
 }
 
 /// @covers: Registry::len (inherited by AgentRegistry)
 #[test]
 fn test_registry_len_edge() {
     let registry = TestAgentRegistry::new();
-    assert!(registry.len() > 0);
+    assert!(registry.len(LenRequest).unwrap().count > 0);
 }
 
 /// @covers: Registry::is_empty (inherited by AgentRegistry)
 #[test]
 fn test_registry_is_empty_happy() {
     let registry = TestAgentRegistry::empty();
-    assert!(registry.is_empty());
+    assert!(registry.is_empty(EmptinessRequest).unwrap().empty);
 }
 
 /// @covers: Registry::is_empty (inherited by AgentRegistry)
 #[test]
 fn test_registry_is_empty_error() {
     let registry = TestAgentRegistry::new();
-    assert!(!registry.is_empty());
+    assert!(!registry.is_empty(EmptinessRequest).unwrap().empty);
 }
 
 /// @covers: Registry::is_empty (inherited by AgentRegistry)
 #[test]
 fn test_registry_is_empty_edge() {
     let registry = TestAgentRegistry::new();
-    assert_eq!(registry.is_empty(), registry.len() == 0);
+    assert_eq!(
+        registry.is_empty(EmptinessRequest).unwrap().empty,
+        registry.len(LenRequest).unwrap().count == 0
+    );
 }
 
 /// @covers: Agent::skill happy path
 #[test]
 fn test_skill_agent_happy_returns_result() {
     let agent = SuccessAgent;
-    let result = agent.skill("any");
-    assert!(result.is_ok() || result.is_err());
+    // SuccessAgent's only registered skill is named "test_skill_name" (see TestSkill::name).
+    let result = agent.skill(SkillLookupRequest {
+        name: "test_skill_name",
+    });
+    assert!(result.is_ok());
+    assert_eq!(
+        result.unwrap().skill.name(SkillNameRequest).unwrap().name,
+        "test_skill_name"
+    );
 }
 
 /// @covers: Agent::skill error path
 #[test]
 fn test_skill_agent_error_not_found() {
     let agent = FailingAgent;
-    let result = agent.skill("nonexistent");
+    let result = agent.skill(SkillLookupRequest {
+        name: "nonexistent",
+    });
     assert!(result.is_err());
+    assert!(matches!(result, Err(AgentError::SkillNotFound(_))));
 }
 
 /// @covers: Agent::skill edge case empty name
 #[test]
 fn test_skill_agent_edge_empty_name() {
     let agent = EmptyAgent;
-    let result = agent.skill("");
+    let result = agent.skill(SkillLookupRequest { name: "" });
     assert!(result.is_err());
 }

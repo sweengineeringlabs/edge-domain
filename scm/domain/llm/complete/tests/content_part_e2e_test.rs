@@ -2,12 +2,14 @@
 
 use edge_llm_complete::{ContentPart, ImageUrl};
 
+/// @covers: text
 #[test]
 fn test_content_part_text_variant_sets_text_happy() {
     let part = ContentPart::text("hello");
     assert!(matches!(part, ContentPart::Text { text } if text == "hello"));
 }
 
+/// @covers: image_url
 #[test]
 fn test_content_part_image_url_variant_wraps_url_error() {
     let img = ImageUrl::new("https://example.com/img.png");
@@ -15,6 +17,7 @@ fn test_content_part_image_url_variant_wraps_url_error() {
     assert!(matches!(&part, ContentPart::ImageUrl { image_url } if image_url.url == img.url));
 }
 
+/// @covers: image_base64
 #[test]
 fn test_content_part_base64_sets_media_type_edge() {
     let part = ContentPart::image_base64("abc123", "image/png");

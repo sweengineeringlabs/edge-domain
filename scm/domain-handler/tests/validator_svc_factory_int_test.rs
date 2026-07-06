@@ -7,7 +7,10 @@ fn test_validator_svc_factory_constant_value_happy() {
 
 #[test]
 fn test_validator_svc_factory_constant_not_empty_error() {
-    assert!(!VALIDATOR_SVC_FACTORY.is_empty(), "VALIDATOR_SVC_FACTORY must not be empty");
+    assert!(
+        !VALIDATOR_SVC_FACTORY.is_empty(),
+        "VALIDATOR_SVC_FACTORY must not be empty"
+    );
 }
 
 #[test]

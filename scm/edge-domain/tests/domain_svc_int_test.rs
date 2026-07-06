@@ -4,9 +4,12 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain::*;
-use edge_domain_handler::HandlerContext;
+use edge_domain_handler::{
+    EmptinessRequest as HandlerEmptinessRequest, ExecutionRequest, HandlerContext,
+};
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::SecurityContext;
+use edge_security_runtime::SecurityContext;
+use edge_domain_service::EmptinessRequest as ServiceEmptinessRequest;
 use std::sync::Arc;
 
 /// @covers: echo_handler
@@ -23,22 +26,34 @@ async fn test_echo_handler_returns_input_as_output() {
     let security = SecurityContext::unauthenticated();
     let bus = Domain::direct_command_bus();
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = HandlerContext::new(&security, bus.as_ref(), observer.as_ref());
-    assert_eq!(h.execute("ping".into(), ctx).await.unwrap(), "ping");
+    let ctx = HandlerContext {
+        security: &security,
+        commands: bus.as_ref(),
+        observer: observer.as_ref(),
+    };
+    assert_eq!(
+        h.execute(ExecutionRequest {
+            req: "ping".to_string(),
+            ctx: &ctx
+        })
+        .await
+        .unwrap(),
+        "ping"
+    );
 }
 
 /// @covers: new_handler_registry
 #[test]
 fn test_new_handler_registry_returns_empty_registry() {
     let reg = Domain::new_handler_registry::<String, String>();
-    assert!(reg.is_empty());
+    assert!(reg.is_empty(HandlerEmptinessRequest).unwrap().empty);
 }
 
 /// @covers: new_service_registry
 #[test]
 fn test_new_service_registry_returns_empty_registry() {
     let reg = Domain::new_service_registry::<String, String>();
-    assert!(reg.is_empty());
+    assert!(reg.is_empty(ServiceEmptinessRequest).unwrap().empty);
 }
 
 /// @covers: new_in_memory_repository
@@ -58,16 +73,34 @@ fn test_new_in_memory_queryable_repository() {
 /// @covers: new_in_memory_queryable_repository
 #[tokio::test]
 async fn test_new_in_memory_queryable_repository_returns_functional_store() {
-    use edge_domain::Spec;
+    use edge_domain::{RepositoryError, Spec, SpecMatchesRequest, SpecMatchesResponse};
     struct Any;
-    impl Spec<String> for Any {
-        fn matches(&self, _: &String) -> bool {
-            true
+    impl Spec for Any {
+        type Entity = String;
+
+        fn matches(
+            &self,
+            _req: SpecMatchesRequest<'_, String>,
+        ) -> Result<SpecMatchesResponse, RepositoryError> {
+            Ok(SpecMatchesResponse { matches: true })
         }
     }
     let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
-    repo.save(1u32, "x".to_string()).await.unwrap();
-    assert_eq!(repo.count_by(&Any).await.unwrap(), 1);
+    repo.save(RepositorySaveRequest {
+        id: 1u32,
+        entity: "x".to_string(),
+    })
+    .await
+    .unwrap();
+    assert_eq!(
+        repo.count_by(SpecRequest {
+            spec: Box::new(Any)
+        })
+        .await
+        .unwrap()
+        .count,
+        1
+    );
 }
 
 /// @covers: new_in_memory_repository
@@ -75,23 +108,51 @@ async fn test_new_in_memory_queryable_repository_returns_functional_store() {
 async fn test_new_in_memory_repository_saves_and_finds_entity() {
     let repo: Arc<dyn edge_domain::Repository<Entity = String, Id = u32>> =
         Domain::new_in_memory_repository::<String, u32>();
-    repo.save(1u32, "x".to_string()).await.unwrap();
-    assert!(repo.find(&1u32).await.unwrap().is_some());
+    repo.save(RepositorySaveRequest {
+        id: 1u32,
+        entity: "x".to_string(),
+    })
+    .await
+    .unwrap();
+    assert!(repo
+        .find(RepositoryIdRequest { id: &1u32 })
+        .await
+        .unwrap()
+        .entity
+        .is_some());
 }
 
 /// @covers: new_in_memory_queryable_repository
 #[tokio::test]
 async fn test_new_in_memory_queryable_repository_supports_count_by() {
-    use edge_domain::Spec;
+    use edge_domain::{RepositoryError, Spec, SpecMatchesRequest, SpecMatchesResponse};
     struct Any;
-    impl Spec<String> for Any {
-        fn matches(&self, _: &String) -> bool {
-            true
+    impl Spec for Any {
+        type Entity = String;
+
+        fn matches(
+            &self,
+            _req: SpecMatchesRequest<'_, String>,
+        ) -> Result<SpecMatchesResponse, RepositoryError> {
+            Ok(SpecMatchesResponse { matches: true })
         }
     }
     let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
-    repo.save(1u32, "x".to_string()).await.unwrap();
-    assert_eq!(repo.count_by(&Any).await.unwrap(), 1);
+    repo.save(RepositorySaveRequest {
+        id: 1u32,
+        entity: "x".to_string(),
+    })
+    .await
+    .unwrap();
+    assert_eq!(
+        repo.count_by(SpecRequest {
+            spec: Box::new(Any)
+        })
+        .await
+        .unwrap()
+        .count,
+        1
+    );
 }
 
 /// @covers: validate_config
@@ -100,8 +161,11 @@ fn test_validate_config_returns_ok_for_valid_input() {
     use edge_domain::{Validator, ValidatorError};
     struct AlwaysValid;
     impl Validator for AlwaysValid {
-        fn validate(&self) -> Result<(), ValidatorError> {
-            Ok(())
+        fn validate(
+            &self,
+            _req: edge_domain_validator::ValidationRequest,
+        ) -> Result<edge_domain_validator::ValidationResponse, ValidatorError> {
+            Ok(edge_domain_validator::ValidationResponse)
         }
     }
     assert_eq!(Domain::validate_config(&AlwaysValid), Ok(()));
@@ -113,7 +177,10 @@ fn test_validate_config_returns_err_for_invalid_input() {
     use edge_domain::{Validator, ValidatorError};
     struct AlwaysInvalid;
     impl Validator for AlwaysInvalid {
-        fn validate(&self) -> Result<(), ValidatorError> {
+        fn validate(
+            &self,
+            _req: edge_domain_validator::ValidationRequest,
+        ) -> Result<edge_domain_validator::ValidationResponse, ValidatorError> {
             Err(ValidatorError::Invalid("bad".into()))
         }
     }
@@ -144,14 +211,24 @@ fn test_direct_query_bus_returns_arc_query_bus() {
 #[derive(Clone)]
 struct AnyEvent;
 impl edge_domain::DomainEvent for AnyEvent {
-    fn event_type(&self) -> &str {
-        "test.any"
+    fn event_type(&self, _req: EventTypeRequest) -> Result<EventTypeResponse<'_>, EventError> {
+        Ok(EventTypeResponse {
+            event_type: "test.any",
+        })
     }
-    fn aggregate_id(&self) -> &str {
-        "id"
+    fn aggregate_id(
+        &self,
+        _req: EventAggregateIdRequest,
+    ) -> Result<EventAggregateIdResponse<'_>, EventError> {
+        Ok(EventAggregateIdResponse { aggregate_id: "id" })
     }
-    fn occurred_at(&self) -> std::time::SystemTime {
-        std::time::SystemTime::now()
+    fn occurred_at(
+        &self,
+        _req: EventOccurredAtRequest,
+    ) -> Result<EventOccurredAtResponse, EventError> {
+        Ok(EventOccurredAtResponse {
+            occurred_at: std::time::SystemTime::now(),
+        })
     }
 }
 
@@ -168,7 +245,13 @@ fn test_in_process_event_bus_factory_returns_working_bus() {
     use futures::executor::block_on;
     let bus = Domain::in_process_event_bus(EventBusConfig::default());
     block_on(async move {
-        assert_eq!(bus.publish(Arc::new(AnyEvent)).await, Ok(()));
+        assert_eq!(
+            bus.publish(EventBusPublishRequest {
+                event: Arc::new(AnyEvent)
+            })
+            .await,
+            Ok(())
+        );
     });
 }
 
@@ -178,7 +261,13 @@ fn test_noop_event_bus_factory_returns_working_bus() {
     use futures::executor::block_on;
     let bus = Domain::noop_event_bus();
     block_on(async move {
-        assert_eq!(bus.publish(Arc::new(AnyEvent)).await, Ok(()));
+        assert_eq!(
+            bus.publish(EventBusPublishRequest {
+                event: Arc::new(AnyEvent)
+            })
+            .await,
+            Ok(())
+        );
     });
 }
 
@@ -195,11 +284,23 @@ fn test_reconstitute_returns_none_for_unknown_id() {
     }
     impl edge_domain::Aggregate for AnyAgg {
         type Event = AnyEvent;
-        fn apply(&mut self, e: &AnyEvent) {
-            self.id = e.aggregate_id().into();
+        fn apply(
+            &mut self,
+            req: AggregateApplyRequest<'_, AnyEvent>,
+        ) -> Result<AggregateApplyResponse, EventError> {
+            self.id = req
+                .event
+                .aggregate_id(EventAggregateIdRequest)
+                .unwrap()
+                .aggregate_id
+                .into();
+            Ok(AggregateApplyResponse)
         }
-        fn id(&self) -> &str {
-            &self.id
+        fn id(
+            &self,
+            _req: AggregateIdentityRequest,
+        ) -> Result<AggregateIdentityResponse<'_>, EventError> {
+            Ok(AggregateIdentityResponse { id: &self.id })
         }
     }
     let store: Arc<dyn edge_domain::EventStore<Event = AnyEvent>> =
@@ -219,11 +320,23 @@ async fn test_reconstitute_returns_none_for_empty_store() {
     }
     impl edge_domain::Aggregate for AnyAgg {
         type Event = AnyEvent;
-        fn apply(&mut self, e: &AnyEvent) {
-            self.id = e.aggregate_id().into();
+        fn apply(
+            &mut self,
+            req: AggregateApplyRequest<'_, AnyEvent>,
+        ) -> Result<AggregateApplyResponse, EventError> {
+            self.id = req
+                .event
+                .aggregate_id(EventAggregateIdRequest)
+                .unwrap()
+                .aggregate_id
+                .into();
+            Ok(AggregateApplyResponse)
         }
-        fn id(&self) -> &str {
-            &self.id
+        fn id(
+            &self,
+            _req: AggregateIdentityRequest,
+        ) -> Result<AggregateIdentityResponse<'_>, EventError> {
+            Ok(AggregateIdentityResponse { id: &self.id })
         }
     }
     let store = Domain::new_in_memory_event_store::<AnyEvent>();

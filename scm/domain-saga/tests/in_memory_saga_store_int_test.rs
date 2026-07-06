@@ -1,15 +1,27 @@
 //! Integration tests for `InMemorySagaStore`.
 // @allow: no_mocks_in_integration
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_saga::{Command, CommandError, DomainEvent, InMemorySagaStore, Saga, SagaStore};
+use edge_domain_command::ExecutionRequest;
+use edge_domain_event::{EventAggregateIdRequest, EventAggregateIdResponse, EventError};
+use edge_domain_saga::{
+    Command, CommandError, DomainEvent, InMemorySagaStore, Saga, SagaError, SagaGetRequest,
+    SagaHandleRequest, SagaHandleResponse, SagaIsCompleteRequest, SagaIsCompleteResponse,
+    SagaRegisterRequest, SagaStore,
+};
 use futures::future::BoxFuture;
 
 #[derive(Clone)]
 struct RegEvt2;
 
 impl DomainEvent for RegEvt2 {
-    fn aggregate_id(&self) -> &str {
-        "reg2"
+    fn aggregate_id(
+        &self,
+        _req: EventAggregateIdRequest,
+    ) -> Result<EventAggregateIdResponse<'_>, EventError> {
+        Ok(EventAggregateIdResponse {
+            aggregate_id: "reg2",
+        })
     }
 }
 
@@ -17,7 +29,7 @@ impl DomainEvent for RegEvt2 {
 struct RegCmd2;
 
 impl Command for RegCmd2 {
-    fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+    fn execute(&self, _req: ExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
         Box::pin(async move { Ok(()) })
     }
 }
@@ -32,35 +44,51 @@ impl Saga for CountingSaga {
     type Event = RegEvt2;
     type Command = RegCmd2;
 
-    fn handle(&mut self, _e: &Self::Event) -> Vec<Self::Command> {
+    fn handle(
+        &mut self,
+        _req: SagaHandleRequest<'_, Self::Event>,
+    ) -> Result<SagaHandleResponse<Self::Command>, SagaError> {
         self.count += 1;
-        vec![]
+        Ok(SagaHandleResponse { commands: vec![] })
     }
 
-    fn is_complete(&self) -> bool {
-        self.count >= 3
+    fn is_complete(
+        &self,
+        _req: SagaIsCompleteRequest,
+    ) -> Result<SagaIsCompleteResponse, SagaError> {
+        Ok(SagaIsCompleteResponse {
+            complete: self.count >= 3,
+        })
     }
 }
 
 #[test]
 fn test_new_store_is_empty_happy() {
     let store = InMemorySagaStore::<CountingSaga>::new();
-    assert!(store.get(&"x".to_string()).is_err());
+    let id = "x".to_string();
+    assert!(store.get(SagaGetRequest { id: &id }).is_err());
 }
 
 #[test]
 fn test_default_store_is_empty_error() {
     let store = InMemorySagaStore::<CountingSaga>::default();
-    assert!(store.get(&"x".to_string()).is_err());
+    let id = "x".to_string();
+    assert!(store.get(SagaGetRequest { id: &id }).is_err());
 }
 
 #[test]
 fn test_store_stores_and_retrieves_saga_edge() {
     let mut store = InMemorySagaStore::<CountingSaga>::new();
-    store.register("c1".to_string(), CountingSaga::default()).ok();
-    let saga = match store.get(&"c1".to_string()) {
-        Ok(s) => s,
+    store
+        .register(SagaRegisterRequest {
+            id: "c1".to_string(),
+            saga: CountingSaga::default(),
+        })
+        .ok();
+    let id = "c1".to_string();
+    let saga = match store.get(SagaGetRequest { id: &id }) {
+        Ok(resp) => resp.saga,
         Err(e) => panic!("expected saga, got: {e}"),
     };
-    assert!(!saga.is_complete());
+    assert!(!saga.is_complete(SagaIsCompleteRequest).unwrap().complete);
 }

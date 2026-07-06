@@ -16,6 +16,9 @@ fn test_complete_factory_svc_constant_is_nonempty_error() {
 fn test_std_complete_factory_is_accessible_via_svc_surface_edge() {
     let factory = StdCompleteFactory::std_complete_factory();
     let msg = StdCompleteFactory::user_message("test".to_string());
-    assert_eq!(msg.content, edge_llm_complete::MessageContent::Text("test".to_string()));
-    drop(factory);
+    assert_eq!(
+        msg.content,
+        edge_llm_complete::MessageContent::Text("test".to_string())
+    );
+    assert_eq!(factory, StdCompleteFactory);
 }

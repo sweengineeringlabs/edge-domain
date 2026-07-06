@@ -10,7 +10,7 @@ description = "edge-domain — Event port contract: event sourcing, CQRS event b
 keywords    = ["domain", "event", "event-sourcing", "sea", "swe"]
 categories  = ["development-tools"]
 
-[package.metadata.struct-engine]
+[package.metadata.arch]
 application_type = "lib"
 service_type     = "event"
 

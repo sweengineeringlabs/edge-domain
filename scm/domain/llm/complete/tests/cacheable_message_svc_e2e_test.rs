@@ -1,4 +1,5 @@
 //! Scenario coverage for the `cacheable_message_svc` SAF surface.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_complete::{CacheableMessage, Message, CACHEABLE_MESSAGE_SVC};
 
@@ -14,8 +15,13 @@ fn test_cacheable_message_svc_constant_is_nonempty_error() {
 
 #[test]
 fn test_cacheable_message_trait_accessible_via_svc_surface_edge() {
-    use edge_llm_complete::CacheControl;
+    use edge_llm_complete::{CacheControl, CacheControlRequest};
     let msg = Message::user("hi");
-    let cached = msg.with_cache_control(CacheControl::ephemeral());
-    assert!(cached.cache_control.unwrap());
+    let cached = msg
+        .with_cache_control(CacheControlRequest {
+            cache: Box::new(CacheControl::ephemeral()),
+        })
+        .unwrap()
+        .message;
+    assert!(cached.cache_control.is_some());
 }

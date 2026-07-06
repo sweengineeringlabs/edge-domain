@@ -1,10 +1,11 @@
 //! Coverage for api/event/types/noop/noop_event_publisher.rs
-use edge_domain::{Domain, NoopEventPublisher};
+use edge_domain::{Domain, EventPublisherPublishRequest, NoopEventPublisher};
 use futures::executor::block_on;
 
 #[test]
 fn test_noop_event_publisher_marker_type_is_constructible() {
-    let _marker = NoopEventPublisher;
+    let marker = NoopEventPublisher;
+    assert_eq!(std::mem::size_of_val(&marker), 0);
 }
 
 #[test]
@@ -14,7 +15,11 @@ fn test_noop_event_publisher_publish_always_succeeds() {
         struct AnyEvent;
         impl DomainEvent for AnyEvent {}
         let pub_ = Domain::noop_event_publisher();
-        assert!(pub_.publish(&AnyEvent).await.is_ok());
+        assert_eq!(
+            pub_.publish(EventPublisherPublishRequest { event: &AnyEvent })
+                .await,
+            Ok(())
+        );
     });
 }
 
@@ -26,7 +31,11 @@ fn test_noop_event_publisher_repeated_publish_never_errors() {
         impl DomainEvent for AnyEvent {}
         let pub_ = Domain::noop_event_publisher();
         for _ in 0..5 {
-            assert!(pub_.publish(&AnyEvent).await.is_ok());
+            assert_eq!(
+                pub_.publish(EventPublisherPublishRequest { event: &AnyEvent })
+                    .await,
+                Ok(())
+            );
         }
     });
 }

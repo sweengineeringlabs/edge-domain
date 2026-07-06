@@ -1,7 +1,5 @@
 //! Metadata about a skill — documents its interface and behavior.
 
-use crate::api::types::SkillMetadataBuilder;
-
 /// Metadata about a skill — documents its interface and behavior.
 #[derive(Debug, Clone)]
 pub struct SkillMetadata {
@@ -17,11 +15,4 @@ pub struct SkillMetadata {
     pub async_execution: bool,
     /// Whether the skill is expected to be long-running.
     pub long_running: bool,
-}
-
-impl SkillMetadata {
-    /// Create a new SkillMetadataBuilder for constructing SkillMetadata.
-    pub fn builder() -> SkillMetadataBuilder {
-        SkillMetadataBuilder::new()
-    }
 }

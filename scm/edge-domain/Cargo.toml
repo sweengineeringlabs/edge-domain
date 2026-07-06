@@ -10,7 +10,7 @@ description = "edge — L2 Domain: umbrella crate; activate individual features 
 keywords    = ["domain", "handler", "event-sourcing", "sea", "swe"]
 categories  = ["development-tools"]
 
-[package.metadata.struct-engine]
+[package.metadata.arch]
 application_type = "lib"
 service_type     = "handler"
 
@@ -23,7 +23,7 @@ default     = [
     "clock", "validator", "policy",
     "command", "query", "snapshot", "service",
     "repository", "handler", "event",
-    "projection", "saga",
+    "projection", "saga", "security",
 ]
 entity      = ["dep:edge-domain-entity"]
 valueobject = ["dep:edge-domain-valueobject"]
@@ -37,10 +37,10 @@ service     = ["dep:edge-domain-service"]
 repository  = ["dep:edge-domain-repository"]
 handler     = ["dep:edge-domain-handler"]
 event       = ["dep:edge-domain-event"]
-pipeline    = ["dep:edge-domain-pipeline"]
+pipeline    = ["dep:edge-pipeline"]
 projection  = ["dep:edge-domain-projection", "event"]
 saga        = ["dep:edge-domain-saga",        "event", "command"]
-security    = []
+security    = ["dep:edge-security-runtime", "dep:edge-security-authn", "dep:edge-security-authz"]
 registry    = ["dep:edge-domain-registry"]
 lifecycle   = ["dep:edge-domain-lifecycle"]
 observer    = ["dep:edge-domain-observer"]
@@ -72,13 +72,15 @@ edge-domain-service     = { path = "../domain-service", optional = true }
 edge-domain-repository  = { path = "../domain-repository", optional = true }
 edge-domain-handler     = { path = "../domain-handler", optional = true }
 edge-domain-event       = { path = "../domain-event", optional = true }
-edge-domain-pipeline    = { path = "../domain-pipeline", optional = true }
+edge-pipeline           = { git = "https://github.com/sweengineeringlabs/edge-pipeline.git", tag = "v0.2.0", optional = true }
 edge-domain-projection  = { path = "../domain-projection", optional = true }
 edge-domain-saga        = { path = "../domain-saga", optional = true }
 edge-domain-registry    = { path = "../domain-registry", optional = true }
 edge-domain-lifecycle   = { path = "../domain-lifecycle", optional = true }
 edge-domain-observer    = { path = "../domain-observer", optional = true }
-edge-domain-security    = { path = "../domain-security" }
+edge-security-runtime   = { workspace = true, optional = true }
+edge-security-authn     = { workspace = true, optional = true }
+edge-security-authz     = { workspace = true, optional = true }
 
 [dev-dependencies]
 tokio       = { version = "1", features = ["macros", "rt", "rt-multi-thread"] }
@@ -95,13 +97,15 @@ edge-domain-service.workspace      = true
 edge-domain-repository.workspace   = true
 edge-domain-handler.workspace      = true
 edge-domain-event.workspace        = true
-edge-domain-pipeline.workspace     = true
+edge-pipeline.workspace            = true
 edge-domain-projection.workspace   = true
 edge-domain-saga.workspace         = true
 edge-domain-registry.workspace     = true
 edge-domain-lifecycle.workspace    = true
 edge-domain-observer.workspace     = true
-edge-domain-security.workspace     = true
+edge-security-runtime.workspace    = true
+edge-security-authn.workspace      = true
+edge-security-authz.workspace      = true
 
 [lints.rust]
 unsafe_code = "deny"

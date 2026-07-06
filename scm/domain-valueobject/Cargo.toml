@@ -10,7 +10,7 @@ description  = "edge-domain — ValueObject port contract and NonEmptyString ref
 keywords     = ["domain", "value-object", "sea", "swe"]
 categories   = ["development-tools"]
 
-[package.metadata.struct-engine]
+[package.metadata.arch]
 application_type = "lib"
 service_type     = "valueobject"
 

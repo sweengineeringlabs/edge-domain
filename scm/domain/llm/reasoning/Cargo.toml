@@ -10,7 +10,7 @@ description = "LLM Reasoning domain primitive: multi-strategy reasoning patterns
 keywords    = ["llm", "reasoning", "patterns", "strategy", "sea"]
 categories  = ["development-tools"]
 
-[package.metadata.struct-engine]
+[package.metadata.arch]
 application_type = "lib"
 service_type     = "reasoning"
 
@@ -23,11 +23,12 @@ async-trait.workspace = true
 serde.workspace = true
 edge-domain-handler.workspace  = true
 edge-domain-observer.workspace  = true
+edge-pipeline.workspace  = true
 
 [dev-dependencies]
 serde_json.workspace = true
 futures.workspace = true
-edge-domain-security.workspace = true
+edge-security-runtime.workspace = true
 edge-domain-command.workspace = true
 
 [lints.rust]

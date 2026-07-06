@@ -10,7 +10,7 @@ description = "edge-domain — Observer port: trait contracts for request-scoped
 keywords    = ["domain", "observer", "tracing", "metrics", "sea"]
 categories  = ["development-tools"]
 
-[package.metadata.struct-engine]
+[package.metadata.arch]
 application_type = "lib"
 service_type     = "observer"
 

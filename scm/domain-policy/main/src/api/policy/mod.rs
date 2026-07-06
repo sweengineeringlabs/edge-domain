@@ -4,7 +4,8 @@ pub mod traits;
 pub mod types;
 
 pub use composite_policy::CompositePolicy;
-pub use errors::PolicyViolation;
+pub use errors::PolicyError;
 pub use traits::Policy;
-pub use traits::PolicyBootstrap;
-pub use types::StdPolicyFactory;
+pub use types::PolicyEvaluateRequest;
+pub use types::PolicyNameRequest;
+pub use types::PolicyNameResponse;

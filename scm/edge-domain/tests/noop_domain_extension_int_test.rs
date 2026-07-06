@@ -5,5 +5,6 @@ use edge_domain::NoopDomainExtension;
 /// @covers: noop_domain_extension
 #[test]
 fn test_noop_domain_extension_constructs_without_args() {
-    let _ext = NoopDomainExtension;
+    let ext = NoopDomainExtension;
+    assert_eq!(std::mem::size_of_val(&ext), 0);
 }

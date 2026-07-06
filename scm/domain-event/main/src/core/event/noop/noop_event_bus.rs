@@ -1,29 +1,37 @@
 //! [`EventBus`] impl for [`NoopEventBus`] — discards all events.
 
-use std::sync::Arc;
-
 use futures::future::BoxFuture;
 
 use crate::api::EventError;
-use crate::api::{DomainEvent, EventBus, EventSource};
-use crate::api::{EventReceiver, NoopEventBus};
+use crate::api::{EventBus, EventSource};
+use crate::api::{
+    EventBusPublishRequest, EventBusSubscribeRequest, EventBusSubscribeResponse, EventReceiver,
+    EventSourceRecvNextRequest, EventSourceRecvNextResponse, NoopEventBus,
+};
 
 /// Private source returned by [`NoopEventBus::subscribe`] — immediately closed.
 struct NoopEventBusSource;
 
 impl EventSource for NoopEventBusSource {
-    fn recv_next(&mut self) -> BoxFuture<'_, Result<Arc<dyn DomainEvent>, EventError>> {
+    fn recv_next(
+        &mut self,
+        _req: EventSourceRecvNextRequest,
+    ) -> BoxFuture<'_, Result<EventSourceRecvNextResponse, EventError>> {
         Box::pin(async { Err(EventError::Unavailable("noop bus has no events".into())) })
     }
 }
 
 impl EventBus for NoopEventBus {
-    fn publish(&self, _event: Arc<dyn DomainEvent>) -> BoxFuture<'_, Result<(), EventError>> {
+    fn publish(&self, _req: EventBusPublishRequest) -> BoxFuture<'_, Result<(), EventError>> {
         Box::pin(async { Ok(()) })
     }
 
-    fn subscribe(&self) -> EventReceiver {
-        EventReceiver::new(NoopEventBusSource)
+    fn subscribe(
+        &self,
+        _req: EventBusSubscribeRequest,
+    ) -> Result<EventBusSubscribeResponse, EventError> {
+        Ok(EventBusSubscribeResponse {
+            receiver: EventReceiver::new(NoopEventBusSource),
+        })
     }
 }
-

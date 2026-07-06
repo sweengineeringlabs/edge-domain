@@ -19,16 +19,14 @@ fn test_errors_are_equality_comparable_edge() {
     let err1 = SagaError::AlreadyRegistered("x".into());
     let err2 = SagaError::AlreadyRegistered("x".into());
     assert_eq!(
-        err1,
-        err2,
+        err1, err2,
         "identical AlreadyRegistered errors must be equal"
     );
 
     let notfound1 = SagaError::NotFound("y".into());
     let notfound2 = SagaError::NotFound("y".into());
     assert_eq!(
-        notfound1,
-        notfound2,
+        notfound1, notfound2,
         "identical NotFound errors must be equal"
     );
     assert_ne!(

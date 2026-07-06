@@ -3,6 +3,11 @@ use std::hash::Hash;
 use edge_domain_command::Command;
 use edge_domain_event::DomainEvent;
 
+use crate::api::saga::errors::SagaError;
+use crate::api::saga::types::{
+    SagaHandleRequest, SagaHandleResponse, SagaIsCompleteRequest, SagaIsCompleteResponse,
+};
+
 /// Orchestrates a long-running business process.
 ///
 /// A saga reacts to [`DomainEvent`]s, maintains its own durable state, and
@@ -19,8 +24,11 @@ pub trait Saga: Send + Sync {
     type Command: Command;
 
     /// Apply an event; return zero or more commands to dispatch.
-    fn handle(&mut self, event: &Self::Event) -> Vec<Self::Command>;
+    fn handle(
+        &mut self,
+        req: SagaHandleRequest<'_, Self::Event>,
+    ) -> Result<SagaHandleResponse<Self::Command>, SagaError>;
 
     /// Whether this saga has reached a terminal state (completed or compensated).
-    fn is_complete(&self) -> bool;
+    fn is_complete(&self, req: SagaIsCompleteRequest) -> Result<SagaIsCompleteResponse, SagaError>;
 }

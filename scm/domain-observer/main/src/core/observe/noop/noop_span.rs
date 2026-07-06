@@ -1,14 +1,20 @@
+use crate::api::NoopSpan;
+use crate::api::ObserveError;
 use crate::api::Span;
-
-pub(crate) struct NoopSpan;
+use crate::api::SpanAnnotationRequest;
+use crate::api::SpanAnnotationResponse;
+use crate::api::SpanFinishRequest;
+use crate::api::SpanFinishResponse;
 
 impl Span for NoopSpan {
-    fn record(&self, key: &str, value: &str) {
-        let _ = (key, value);
+    fn record(&self, req: SpanAnnotationRequest) -> Result<SpanAnnotationResponse, ObserveError> {
+        let _ = req;
+        Ok(SpanAnnotationResponse)
     }
 
-    fn finish(&self) {
-        let _ = self;
+    fn finish(&self, req: SpanFinishRequest) -> Result<SpanFinishResponse, ObserveError> {
+        let _ = (self, req);
+        Ok(SpanFinishResponse)
     }
 }
 
@@ -19,14 +25,18 @@ mod tests {
     #[test]
     fn test_record_key_value_discarded_happy() {
         let s = NoopSpan;
-        s.record("k", "v");
+        s.record(SpanAnnotationRequest {
+            key: "k".to_string(),
+            value: "v".to_string(),
+        })
+        .unwrap();
         assert_eq!(std::mem::size_of_val(&s), 0);
     }
 
     #[test]
     fn test_finish_completes_without_panic_error() {
         let s = NoopSpan;
-        s.finish();
+        s.finish(SpanFinishRequest).unwrap();
         assert_eq!(std::mem::size_of_val(&s), 0);
     }
 

@@ -1,11 +1,13 @@
 //! Coverage for api/event/types/noop/noop_event_bus.rs
-use edge_domain::{Domain, NoopEventBus};
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+use edge_domain::{Domain, EventBusPublishRequest, EventBusSubscribeRequest, NoopEventBus};
 use futures::executor::block_on;
 use std::sync::Arc;
 
 #[test]
 fn test_noop_event_bus_marker_type_is_constructible() {
-    let _marker = NoopEventBus;
+    let marker = NoopEventBus;
+    assert_eq!(std::mem::size_of_val(&marker), 0);
 }
 
 #[test]
@@ -15,7 +17,13 @@ fn test_noop_event_bus_publish_returns_ok() {
         struct AnyEvent;
         impl DomainEvent for AnyEvent {}
         let bus = Domain::noop_event_bus();
-        assert!(bus.publish(Arc::new(AnyEvent)).await.is_ok());
+        assert_eq!(
+            bus.publish(EventBusPublishRequest {
+                event: Arc::new(AnyEvent)
+            })
+            .await,
+            Ok(())
+        );
     });
 }
 
@@ -23,7 +31,7 @@ fn test_noop_event_bus_publish_returns_ok() {
 fn test_noop_event_bus_subscribe_returns_closed_receiver() {
     block_on(async {
         let bus = Domain::noop_event_bus();
-        let mut rx = bus.subscribe();
+        let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         // noop bus receiver immediately signals unavailable
         assert!(rx.recv().await.is_err());
     });

@@ -29,9 +29,14 @@
 //! let observer = StdObserveFactory::noop_observer_context();
 //!
 //! // Handler observes its behavior
-//! observer.tracer().start_span("my_handler", "execute").finish();
-//! observer.metrics().counter("requests").increment(1);
-//! observer.drain().emit(LogRecord::new("INFO", "handler", "started"));
+//! observer.tracer(TracerRequest)?.tracer
+//!     .start_span(SpanStartRequest { handler_id: "my_handler".into(), operation: "execute".into() })?
+//!     .span.finish(SpanFinishRequest)?;
+//! observer.metrics(MetricsRequest)?.metrics
+//!     .counter(CounterLookupRequest { name: "requests".into() })?
+//!     .counter.increment(IncrementRequest { delta: 1 })?;
+//! observer.drain(DrainRequest)?.drain
+//!     .emit(LogEmitRequest { level: "INFO".into(), handler_id: "handler".into(), message: "started".into() })?;
 //! ```
 
 #![deny(unsafe_code)]
@@ -43,7 +48,52 @@ mod core;
 mod saf;
 mod spi;
 
+pub use api::BootstrapNameRequest;
+pub use api::BootstrapNameResponse;
+pub use api::CounterLookupRequest;
+pub use api::CounterLookupResponse;
+pub use api::DrainRequest;
+pub use api::DrainResponse;
+pub use api::GaugeLookupRequest;
+pub use api::GaugeLookupResponse;
+pub use api::GaugeSetRequest;
+pub use api::GaugeSetResponse;
+pub use api::HandlerTracerBuildRequest;
+pub use api::HandlerTracerBuildResponse;
+pub use api::HistogramLookupRequest;
+pub use api::HistogramLookupResponse;
+pub use api::HistogramRecordRequest;
+pub use api::HistogramRecordResponse;
+pub use api::IncrementRequest;
+pub use api::IncrementResponse;
+pub use api::LogDrainBuildRequest;
+pub use api::LogDrainBuildResponse;
+pub use api::LogEmitRequest;
+pub use api::LogEmitResponse;
+pub use api::MetricRegistryBuildRequest;
+pub use api::MetricRegistryBuildResponse;
+pub use api::MetricsRequest;
+pub use api::MetricsResponse;
+pub use api::NoopCounter;
+pub use api::NoopGauge;
+pub use api::NoopHandlerTracer;
+pub use api::NoopHistogram;
+pub use api::NoopLogDrain;
+pub use api::NoopMetricRegistry;
+pub use api::NoopObserverContext;
+pub use api::NoopSpan;
+pub use api::ObserveError;
+pub use api::SpanAnnotationRequest;
+pub use api::SpanAnnotationResponse;
+pub use api::SpanFinishRequest;
+pub use api::SpanFinishResponse;
+pub use api::SpanStartRequest;
+pub use api::SpanStartResponse;
 pub use api::StdObserveFactory;
+pub use api::TracerRequest;
+pub use api::TracerResponse;
+pub use api::ValidationRequest;
+pub use api::ValidationResponse;
 pub use saf::Counter;
 pub use saf::Gauge;
 pub use saf::HandlerTracer;
@@ -55,12 +105,22 @@ pub use saf::ObserveBootstrap;
 pub use saf::ObserverContext;
 pub use saf::Span;
 pub use saf::COUNTER_SVC;
+pub use saf::COUNTER_SVC_FACTORY;
 pub use saf::GAUGE_SVC;
+pub use saf::GAUGE_SVC_FACTORY;
 pub use saf::HANDLER_TRACER_SVC;
+pub use saf::HANDLER_TRACER_SVC_FACTORY;
 pub use saf::HISTOGRAM_SVC;
+pub use saf::HISTOGRAM_SVC_FACTORY;
 pub use saf::LOG_DRAIN_SVC;
+pub use saf::LOG_DRAIN_SVC_FACTORY;
 pub use saf::METRIC_REGISTRY_SVC;
+pub use saf::METRIC_REGISTRY_SVC_FACTORY;
 pub use saf::NOOP_OBSERVE_SVC;
+pub use saf::NOOP_OBSERVE_SVC_FACTORY;
+pub use saf::OBSERVER_CONTEXT_SVC_FACTORY;
+pub use saf::OBSERVE_BOOTSTRAP_SVC_FACTORY;
 pub use saf::OBSERVE_CONTEXT_SVC;
 pub use saf::OBSERVE_FACTORY_SVC;
 pub use saf::SPAN_SVC;
+pub use saf::SPAN_SVC_FACTORY;

@@ -1,6 +1,7 @@
 //! `Policy` — a named, testable business rule.
 
-use crate::api::policy::errors::PolicyViolation;
+use crate::api::policy::errors::PolicyError;
+use crate::api::policy::types::{PolicyEvaluateRequest, PolicyNameRequest, PolicyNameResponse};
 
 /// A named, testable business rule that operates on domain state.
 ///
@@ -14,10 +15,10 @@ pub trait Policy: Send + Sync {
     type Input;
 
     /// A human-readable name for this policy.
-    fn name(&self) -> &'static str;
+    fn name(&self, req: PolicyNameRequest) -> Result<PolicyNameResponse, PolicyError>;
 
-    /// Evaluate the policy against `input`.
+    /// Evaluate the policy against the request's input.
     ///
-    /// Returns `Ok(())` if the rule is satisfied, or `Err(PolicyViolation)`.
-    fn evaluate(&self, input: &Self::Input) -> Result<(), PolicyViolation>;
+    /// Returns `Ok(())` if the rule is satisfied, or `Err(PolicyError)`.
+    fn evaluate(&self, req: PolicyEvaluateRequest<'_, Self::Input>) -> Result<(), PolicyError>;
 }

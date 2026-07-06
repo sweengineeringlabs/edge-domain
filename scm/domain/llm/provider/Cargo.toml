@@ -10,7 +10,7 @@ description = "LLM Provider domain primitive: execution backend abstraction for 
 keywords    = ["llm", "provider", "execution", "backend", "sea"]
 categories  = ["development-tools"]
 
-[package.metadata.struct-engine]
+[package.metadata.arch]
 application_type = "lib"
 service_type     = "provider"
 
@@ -31,7 +31,7 @@ edge-llm-complete.workspace = true
 [dev-dependencies]
 serde_json.workspace = true
 futures.workspace = true
-edge-domain-security.workspace = true
+edge-security-runtime.workspace = true
 edge-domain-command.workspace = true
 tempfile = "3"
 

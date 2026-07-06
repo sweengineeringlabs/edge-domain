@@ -1,8 +1,10 @@
 //! Scenario coverage for the `CompleteBootstrap` trait.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_complete::{
     CacheControl, CompleteBootstrap, Completer, ContentPart, FinishReason, ImageUrl, Message,
-    NoopCompleter, Role, StdCompleteFactory, StreamDelta, ToolCallDelta, ToolChoice,
+    ModelSupportRequest, NoopCompleter, Role, StdCompleteFactory, StreamDelta,
+    SupportedModelsRequest, ToolCallDelta, ToolChoice,
 };
 use serde_json::json;
 
@@ -19,7 +21,9 @@ fn test_noop_completer_type_is_noop_error() {
     // NoopCompleter has no models — confirms it is the noop variant.
     use edge_llm_complete::Completer;
     assert!(StdCompleteFactory::noop_completer()
-        .supported_models()
+        .supported_models(SupportedModelsRequest)
+        .unwrap()
+        .models
         .is_empty());
 }
 
@@ -27,7 +31,16 @@ fn test_noop_completer_type_is_noop_error() {
 fn test_noop_completer_is_default_constructable_edge() {
     let a = StdCompleteFactory::noop_completer();
     let b = NoopCompleter;
-    assert!(a.supported_models().is_empty() && b.supported_models().is_empty());
+    assert!(
+        a.supported_models(SupportedModelsRequest)
+            .unwrap()
+            .models
+            .is_empty()
+            && b.supported_models(SupportedModelsRequest)
+                .unwrap()
+                .models
+                .is_empty()
+    );
 }
 
 // ── echo_completer ───────────────────────────────────────────────────────────
@@ -35,20 +48,32 @@ fn test_noop_completer_is_default_constructable_edge() {
 #[test]
 fn test_echo_completer_supports_echo_model_happy() {
     use edge_llm_complete::Completer;
-    assert!(StdCompleteFactory::echo_completer().supports("echo"));
+    assert!(
+        StdCompleteFactory::echo_completer()
+            .supports(ModelSupportRequest { model: "echo" })
+            .unwrap()
+            .supported
+    );
 }
 
 #[test]
 fn test_echo_completer_does_not_support_unknown_model_error() {
     use edge_llm_complete::Completer;
-    assert!(!StdCompleteFactory::echo_completer().supports("gpt-4"));
+    assert!(
+        !StdCompleteFactory::echo_completer()
+            .supports(ModelSupportRequest { model: "gpt-4" })
+            .unwrap()
+            .supported
+    );
 }
 
 #[test]
 fn test_echo_completer_supported_models_nonempty_edge() {
     use edge_llm_complete::Completer;
     assert!(!StdCompleteFactory::echo_completer()
-        .supported_models()
+        .supported_models(SupportedModelsRequest)
+        .unwrap()
+        .models
         .is_empty());
 }
 
@@ -476,6 +501,10 @@ fn test_std_complete_factory_is_not_a_completer_error() {
     let factory = StdCompleteFactory::std_complete_factory();
     let noop = StdCompleteFactory::noop_completer();
     // Both are constructed from factory methods — factory is unit struct, noop has no models.
-    assert!(noop.supported_models().is_empty());
+    assert!(noop
+        .supported_models(SupportedModelsRequest)
+        .unwrap()
+        .models
+        .is_empty());
     let _ = factory;
 }

@@ -1,7 +1,7 @@
 //! Tests for the `PromptMetadata` value type.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_llm_prompt::{PromptMetadata, Variable, VariableType};
+use edge_llm_prompt::{PromptMetadata, Variable, VariableKind};
 
 fn meta(vars: Vec<Variable>) -> PromptMetadata {
     PromptMetadata::new("id".to_string(), "name".to_string(), "1".to_string(), vars)
@@ -18,8 +18,8 @@ fn test_prompt_metadata_new_sets_fields() {
 /// @covers: PromptMetadata::required_variables — filters required only
 #[test]
 fn test_prompt_metadata_required_variables() {
-    let req = Variable::new("a".to_string(), VariableType::String);
-    let opt = Variable::with_default("b".to_string(), VariableType::String, serde_json::json!(1));
+    let req = Variable::new("a".to_string(), VariableKind::String);
+    let opt = Variable::with_default("b".to_string(), VariableKind::String, serde_json::json!(1));
     let m = meta(vec![req, opt]);
     assert_eq!(m.required_variables().len(), 1);
 }
@@ -27,7 +27,7 @@ fn test_prompt_metadata_required_variables() {
 /// @covers: PromptMetadata::optional_variables — filters optional only
 #[test]
 fn test_prompt_metadata_optional_variables() {
-    let opt = Variable::with_default("b".to_string(), VariableType::String, serde_json::json!(1));
+    let opt = Variable::with_default("b".to_string(), VariableKind::String, serde_json::json!(1));
     let m = meta(vec![opt]);
     assert_eq!(m.optional_variables().len(), 1);
 }

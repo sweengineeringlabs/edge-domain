@@ -1,6 +1,7 @@
 use edge_llm_complete::CompleteError;
 use std::time::Duration;
 
+/// @covers: is_retryable
 #[test]
 fn test_is_retryable_network_error_returns_true() {
     assert!(CompleteError::NetworkError("timeout".to_string()).is_retryable());
@@ -19,6 +20,7 @@ fn test_is_retryable_rate_limited_returns_true() {
     .is_retryable());
 }
 
+/// @covers: retry_after
 #[test]
 fn test_retry_after_rate_limited_with_ms_returns_duration() {
     let err = CompleteError::RateLimited {

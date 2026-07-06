@@ -3,7 +3,7 @@
 use async_trait::async_trait;
 
 use crate::api::complete::errors::CompleteError;
-use crate::api::complete::types::{CompletionRequest, CompletionResponse};
+use crate::api::complete::types::{CompletionResponse, ProcessingRequest};
 
 /// SEA processor boundary (service_type = `"processor"`).
 ///
@@ -14,6 +14,6 @@ pub trait Processor: Send + Sync {
     /// Process a completion request and return the response.
     async fn process(
         &self,
-        request: &CompletionRequest,
+        req: ProcessingRequest<'_>,
     ) -> Result<CompletionResponse, CompleteError>;
 }

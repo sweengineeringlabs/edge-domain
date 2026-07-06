@@ -2,7 +2,7 @@
 //! [`EventSource`](super::super::traits::EventSource) operations.
 
 /// Error produced by event bus and event source operations.
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, PartialEq, Eq, thiserror::Error)]
 pub enum EventError {
     /// Event serialization or deserialization failed.
     #[error("serialization failed: {0}")]

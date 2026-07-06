@@ -16,7 +16,11 @@ fn test_finish_reason_equality_error() {
     let stop1 = FinishReason::Stop;
     let stop2 = FinishReason::Stop;
     assert_eq!(stop1, stop2, "same variant must be equal");
-    assert_ne!(stop1, FinishReason::Length, "different variants must not be equal");
+    assert_ne!(
+        stop1,
+        FinishReason::Length,
+        "different variants must not be equal"
+    );
 }
 
 /// @covers: FinishReason — serializes and deserializes correctly

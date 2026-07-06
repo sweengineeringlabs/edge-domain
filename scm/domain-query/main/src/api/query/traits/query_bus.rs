@@ -2,10 +2,10 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::query::traits::Query;
 use crate::api::query::QueryError;
+use crate::api::query::types::{QueryDispatchRequest, QueryResultResponse};
 
-/// Dispatches [`Query`] instances and returns their results.
+/// Dispatches [`Query`](super::Query) instances and returns their results.
 pub trait QueryBus: Send + Sync {
     /// The result type produced by queries dispatched through this bus.
     type Result: Send + 'static;
@@ -13,6 +13,6 @@ pub trait QueryBus: Send + Sync {
     /// Dispatch a query and return its result.
     fn dispatch(
         &self,
-        query: Box<dyn Query<Result = Self::Result>>,
-    ) -> BoxFuture<'_, Result<Self::Result, QueryError>>;
+        req: QueryDispatchRequest<Self::Result>,
+    ) -> BoxFuture<'_, Result<QueryResultResponse<Self::Result>, QueryError>>;
 }

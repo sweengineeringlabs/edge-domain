@@ -7,7 +7,10 @@ fn test_into_handler_svc_factory_constant_value_happy() {
 
 #[test]
 fn test_into_handler_svc_factory_constant_not_empty_error() {
-    assert!(!INTO_HANDLER_SVC_FACTORY.is_empty(), "INTO_HANDLER_SVC_FACTORY must not be empty");
+    assert!(
+        !INTO_HANDLER_SVC_FACTORY.is_empty(),
+        "INTO_HANDLER_SVC_FACTORY must not be empty"
+    );
 }
 
 #[test]

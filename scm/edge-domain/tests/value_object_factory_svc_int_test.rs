@@ -1,4 +1,5 @@
 //! Integration tests for the `ValueObjectFactory` SAF facade.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 // This factory is only present when the inline valueobject fallback is compiled
 // (i.e., when the `valueobject` feature is disabled).
@@ -28,6 +29,6 @@ mod tests {
     #[test]
     fn test_value_object_factory_non_empty_string_whitespace_is_non_empty_edge() {
         let r = TestValueObjects::non_empty_string("  ".to_string());
-        assert!(r.is_ok(), "whitespace-only string is non-empty");
+        assert_eq!(r.unwrap().as_str(), "  ");
     }
 }

@@ -2,7 +2,10 @@
 //! crate root and implementable by downstream consumers.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::Snapshot;
+use edge_domain::{
+    Snapshot, SnapshotAggregateIdRequest, SnapshotAggregateIdResponse, SnapshotError,
+    SnapshotVersionRequest, SnapshotVersionResponse,
+};
 
 /// A consumer-defined aggregate snapshot.
 #[derive(Clone)]
@@ -14,11 +17,21 @@ struct OrderSnapshot {
 
 impl Snapshot for OrderSnapshot {
     type AggregateId = String;
-    fn aggregate_id(&self) -> &Self::AggregateId {
-        &self.order_id
+    fn aggregate_id(
+        &self,
+        _req: SnapshotAggregateIdRequest,
+    ) -> Result<SnapshotAggregateIdResponse<'_, String>, SnapshotError> {
+        Ok(SnapshotAggregateIdResponse {
+            aggregate_id: &self.order_id,
+        })
     }
-    fn version(&self) -> u64 {
-        self.version
+    fn version(
+        &self,
+        _req: SnapshotVersionRequest,
+    ) -> Result<SnapshotVersionResponse, SnapshotError> {
+        Ok(SnapshotVersionResponse {
+            version: self.version,
+        })
     }
 }
 
@@ -30,7 +43,12 @@ fn test_aggregate_id_returns_owning_aggregate_happy() {
         version: 10,
         line_items: 3,
     };
-    assert_eq!(snap.aggregate_id(), "order-42");
+    assert_eq!(
+        snap.aggregate_id(SnapshotAggregateIdRequest)
+            .unwrap()
+            .aggregate_id,
+        "order-42"
+    );
 }
 
 /// @covers: Snapshot::aggregate_id
@@ -46,7 +64,14 @@ fn test_aggregate_id_distinguishes_snapshots_of_different_aggregates_edge() {
         version: 1,
         line_items: 0,
     };
-    assert_ne!(a.aggregate_id(), b.aggregate_id());
+    assert_ne!(
+        a.aggregate_id(SnapshotAggregateIdRequest)
+            .unwrap()
+            .aggregate_id,
+        b.aggregate_id(SnapshotAggregateIdRequest)
+            .unwrap()
+            .aggregate_id
+    );
 }
 
 /// @covers: Snapshot::aggregate_id
@@ -60,7 +85,15 @@ fn test_aggregate_id_stable_across_clone_error() {
         line_items: 9,
     };
     let cloned = snap.clone();
-    assert_eq!(snap.aggregate_id(), cloned.aggregate_id());
+    assert_eq!(
+        snap.aggregate_id(SnapshotAggregateIdRequest)
+            .unwrap()
+            .aggregate_id,
+        cloned
+            .aggregate_id(SnapshotAggregateIdRequest)
+            .unwrap()
+            .aggregate_id
+    );
     assert_eq!(cloned.line_items, 9);
 }
 
@@ -72,7 +105,7 @@ fn test_version_returns_captured_stream_version_happy() {
         version: 27,
         line_items: 5,
     };
-    assert_eq!(snap.version(), 27);
+    assert_eq!(snap.version(SnapshotVersionRequest).unwrap().version, 27);
 }
 
 /// @covers: Snapshot::version
@@ -83,7 +116,7 @@ fn test_version_one_is_the_minimum_meaningful_value_edge() {
         version: 1,
         line_items: 1,
     };
-    assert_eq!(snap.version(), 1);
+    assert_eq!(snap.version(SnapshotVersionRequest).unwrap().version, 1);
 }
 
 /// @covers: Snapshot::version
@@ -95,5 +128,5 @@ fn test_version_zero_signals_nothing_to_snapshot_error() {
         version: 0,
         line_items: 0,
     };
-    assert_eq!(snap.version(), 0);
+    assert_eq!(snap.version(SnapshotVersionRequest).unwrap().version, 0);
 }

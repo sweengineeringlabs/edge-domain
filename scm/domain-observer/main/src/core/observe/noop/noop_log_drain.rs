@@ -1,7 +1,8 @@
 use crate::api::LogDrain;
-use crate::api::LogRecord;
-
-pub(crate) struct NoopLogDrain;
+use crate::api::LogEmitRequest;
+use crate::api::LogEmitResponse;
+use crate::api::NoopLogDrain;
+use crate::api::ObserveError;
 
 impl NoopLogDrain {
     pub(crate) fn new() -> Self {
@@ -10,8 +11,9 @@ impl NoopLogDrain {
 }
 
 impl LogDrain for NoopLogDrain {
-    fn emit(&self, record: LogRecord) {
-        let _ = record;
+    fn emit(&self, req: LogEmitRequest) -> Result<LogEmitResponse, ObserveError> {
+        let _ = req;
+        Ok(LogEmitResponse)
     }
 }
 
@@ -28,7 +30,12 @@ mod tests {
     #[test]
     fn test_emit_info_record_discarded_error() {
         let d = NoopLogDrain::new();
-        d.emit(LogRecord::new("INFO", "h", "msg"));
+        d.emit(LogEmitRequest {
+            level: "INFO".to_string(),
+            handler_id: "h".to_string(),
+            message: "msg".to_string(),
+        })
+        .unwrap();
         assert_eq!(std::mem::size_of_val(&d), 0);
     }
 
@@ -36,7 +43,12 @@ mod tests {
     fn test_emit_multiple_records_no_accumulation_edge() {
         let d = NoopLogDrain::new();
         for i in 0..10 {
-            d.emit(LogRecord::new("DEBUG", "h", &format!("msg {i}")));
+            d.emit(LogEmitRequest {
+                level: "DEBUG".to_string(),
+                handler_id: "h".to_string(),
+                message: format!("msg {i}"),
+            })
+            .unwrap();
         }
         assert_eq!(std::mem::size_of_val(&d), 0);
     }

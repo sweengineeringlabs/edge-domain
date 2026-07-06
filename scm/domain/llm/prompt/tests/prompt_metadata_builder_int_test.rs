@@ -1,7 +1,7 @@
 //! Tests for the `PromptMetadataBuilder` type.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_llm_prompt::{PromptBootstrap, StdPromptFactory, Variable, VariableType};
+use edge_llm_prompt::{PromptBootstrap, StdPromptFactory, Variable, VariableKind};
 
 /// @covers: PromptMetadataBuilder — builds with id, name, version
 #[test]
@@ -18,7 +18,7 @@ fn test_prompt_metadata_builder_core_fields() {
 /// @covers: PromptMetadataBuilder — variables carried through
 #[test]
 fn test_prompt_metadata_builder_variables() {
-    let var = Variable::new("a".to_string(), VariableType::String);
+    let var = Variable::new("a".to_string(), VariableKind::String);
     let m = StdPromptFactory::prompt_metadata_builder()
         .variables(vec![var])
         .build();

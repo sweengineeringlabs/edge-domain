@@ -1,14 +1,17 @@
 //! Integration tests for `InProcessEventBus`.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
-use edge_domain_event::{DomainEvent, EventBus, EventError, EventBootstrap, EventBusConfig, InProcessEventBus};
-
-struct Events;
-impl EventBootstrap for Events {}
+use edge_domain_event::{
+    DomainEvent, EventBus, EventBusPublishRequest, EventBusSubscribeRequest, EventError,
+    EventTypeRequest, InProcessEventBus,
+};
 
 struct SigEvt;
 impl DomainEvent for SigEvt {
-    fn event_type(&self) -> &str { "signal" }
+    fn event_type(&self, _req: EventTypeRequest) -> Result<edge_domain_event::EventTypeResponse<'_>, EventError> {
+        Ok(edge_domain_event::EventTypeResponse { event_type: "signal" })
+    }
 }
 
 /// @covers: InProcessEventBus::new — creates a bus with given capacity
@@ -27,7 +30,7 @@ fn test_in_process_event_bus_default_is_usable_error() {
         .expect("rt");
     rt.block_on(async {
         let bus = InProcessEventBus::default();
-        assert!(bus.publish(Arc::new(SigEvt)).await.is_ok());
+        assert!(bus.publish(EventBusPublishRequest { event: Arc::new(SigEvt) }).await.is_ok());
     });
 }
 
@@ -39,11 +42,11 @@ fn test_in_process_event_bus_subscriber_receives_event_happy() {
         .build()
         .expect("rt");
     rt.block_on(async {
-        let bus = Events::in_process_bus(EventBusConfig { capacity: 8 });
-        let mut rx = bus.subscribe();
-        bus.publish(Arc::new(SigEvt)).await.expect("publish");
+        let bus = InProcessEventBus::new(8);
+        let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
+        bus.publish(EventBusPublishRequest { event: Arc::new(SigEvt) }).await.expect("publish");
         let event = rx.recv().await.expect("recv");
-        assert_eq!(event.event_type(), "signal");
+        assert_eq!(event.event_type(EventTypeRequest).unwrap().event_type, "signal");
     });
 }
 
@@ -56,7 +59,7 @@ fn test_in_process_event_bus_publish_no_receivers_ok_error() {
         .expect("rt");
     rt.block_on(async {
         let bus = InProcessEventBus::new(4);
-        assert!(bus.publish(Arc::new(SigEvt)).await.is_ok());
+        assert!(bus.publish(EventBusPublishRequest { event: Arc::new(SigEvt) }).await.is_ok());
     });
 }
 
@@ -69,9 +72,9 @@ fn test_in_process_event_bus_two_subscribers_both_receive_edge() {
         .expect("rt");
     rt.block_on(async {
         let bus = InProcessEventBus::new(16);
-        let mut rx1 = bus.subscribe();
-        let mut rx2 = bus.subscribe();
-        bus.publish(Arc::new(SigEvt)).await.expect("publish");
+        let mut rx1 = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
+        let mut rx2 = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
+        bus.publish(EventBusPublishRequest { event: Arc::new(SigEvt) }).await.expect("publish");
         assert!(rx1.recv().await.is_ok());
         assert!(rx2.recv().await.is_ok());
     });
@@ -86,7 +89,7 @@ fn test_in_process_event_bus_dropped_sender_returns_error_edge() {
         .expect("rt");
     rt.block_on(async {
         let bus = InProcessEventBus::new(4);
-        let mut rx = bus.subscribe();
+        let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         // Drop the bus (sender)
         drop(bus);
         let result = rx.recv().await;

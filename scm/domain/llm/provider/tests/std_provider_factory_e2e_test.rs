@@ -5,12 +5,13 @@ use std::sync::Arc;
 
 use edge_domain_observer::StdObserveFactory;
 use edge_llm_complete::NoopCompleter;
-use edge_llm_provider::{Provider, ProviderBootstrap, StdProviderFactory};
+use edge_llm_provider::{ProviderBootstrap, ProviderNameRequest, StdProviderFactory};
 
 /// @covers: StdProviderFactory — std_factory returns the factory instance
 #[test]
 fn test_std_provider_bootstrap_std_factory_returns_instance() {
-    let _factory: StdProviderFactory = StdProviderFactory::std_factory();
+    let factory: StdProviderFactory = StdProviderFactory::std_factory();
+    assert_eq!(format!("{factory:?}"), "StdProviderFactory");
 }
 
 /// @covers: StdProviderFactory — is zero-sized
@@ -33,11 +34,13 @@ fn test_std_provider_bootstrap_builds_provider() {
     assert_eq!(
         StdProviderFactory::provider(
             config,
-            info,
+            Box::new(info),
             Arc::new(NoopCompleter),
             StdObserveFactory::noop_arc_observe_context()
         )
-        .name(),
+        .name(ProviderNameRequest)
+        .expect("name() should succeed for a valid provider")
+        .name,
         "claude"
     );
 }

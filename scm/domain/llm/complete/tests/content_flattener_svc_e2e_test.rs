@@ -1,6 +1,9 @@
 //! Scenario coverage for the `content_flattener_svc` SAF surface.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_llm_complete::{ContentFlattener, MessageContent, NoopCompleter, CONTENT_FLATTENER_SVC};
+use edge_llm_complete::{
+    ContentFlattener, FlattenRequest, MessageContent, NoopCompleter, CONTENT_FLATTENER_SVC,
+};
 
 #[test]
 fn test_content_flattener_svc_constant_is_expected_value_happy() {
@@ -15,6 +18,8 @@ fn test_content_flattener_svc_constant_is_nonempty_error() {
 #[test]
 fn test_content_flattener_flattens_text_edge() {
     let content = MessageContent::Text("hello".to_string());
-    let result = NoopCompleter.flatten(&content);
-    assert_eq!(result, "hello");
+    let result = NoopCompleter
+        .flatten(FlattenRequest { content: &content })
+        .unwrap();
+    assert_eq!(result.text, "hello");
 }

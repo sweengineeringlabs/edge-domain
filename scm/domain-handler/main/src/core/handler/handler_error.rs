@@ -5,11 +5,17 @@ use crate::api::HandlerError;
 impl From<edge_domain_service::ServiceError> for HandlerError {
     fn from(e: edge_domain_service::ServiceError) -> Self {
         match e {
-            edge_domain_service::ServiceError::InvalidRequest(msg) => HandlerError::InvalidRequest(msg),
-            edge_domain_service::ServiceError::RuleViolation(msg)  => HandlerError::FailedPrecondition(msg),
-            edge_domain_service::ServiceError::NotFound(msg)       => HandlerError::NotFound(msg),
-            edge_domain_service::ServiceError::Unavailable(msg)    => HandlerError::ExecutionFailed(msg),
-            edge_domain_service::ServiceError::Internal(msg)       => HandlerError::ExecutionFailed(msg),
+            edge_domain_service::ServiceError::InvalidRequest(msg) => {
+                HandlerError::InvalidRequest(msg)
+            }
+            edge_domain_service::ServiceError::RuleViolation(msg) => {
+                HandlerError::FailedPrecondition(msg)
+            }
+            edge_domain_service::ServiceError::NotFound(msg) => HandlerError::NotFound(msg),
+            edge_domain_service::ServiceError::Unavailable(msg) => {
+                HandlerError::ExecutionFailed(msg)
+            }
+            edge_domain_service::ServiceError::Internal(msg) => HandlerError::ExecutionFailed(msg),
         }
     }
 }

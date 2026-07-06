@@ -27,9 +27,14 @@ fn test_query_error_internal_display_contains_message() {
 #[test]
 fn test_query_error_has_no_rule_violation_variant() {
     // Queries are read-only — RuleViolation is a write concern only.
-    // This test documents the intentional absence by exhausting the match.
+    // This test documents the intentional absence by exhausting the match:
+    // if a RuleViolation variant were ever added, this would fail to compile.
     let e = QueryError::NotFound("x".into());
-    match e {
-        QueryError::InvalidInput(_) | QueryError::NotFound(_) | QueryError::Internal(_) => {}
-    }
+    let matched = match e {
+        QueryError::InvalidInput(_) | QueryError::NotFound(_) | QueryError::Internal(_) => true,
+    };
+    assert!(
+        matched,
+        "QueryError should only ever contain the three known read-only variants"
+    );
 }

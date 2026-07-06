@@ -34,5 +34,5 @@ fn test_message_builder_accumulates_tool_calls_and_cache_control() {
         .build();
     assert_eq!(msg.name.as_deref(), Some("alice"));
     assert_eq!(msg.tool_calls.len(), 1);
-    assert!(msg.cache_control.unwrap());
+    assert!(msg.cache_control.is_some());
 }

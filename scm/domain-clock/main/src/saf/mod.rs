@@ -1,3 +1,3 @@
 mod clock;
 
-pub use clock::{Clock, ClockBootstrap};
+pub use clock::{Clock, CLOCK_SVC, CLOCK_SVC_FACTORY};

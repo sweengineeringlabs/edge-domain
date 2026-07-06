@@ -18,18 +18,3 @@ pub struct ParameterDocumentation {
     /// Serialized validation rules for the parameter, if any.
     pub validation_rules: Option<String>,
 }
-
-impl ParameterDocumentation {
-    /// Creates a new parameter documentation entry with the given core fields.
-    pub fn new(name: String, description: String, param_type: String, required: bool) -> Self {
-        Self {
-            name,
-            description,
-            param_type,
-            required,
-            default: None,
-            examples: Vec::new(),
-            validation_rules: None,
-        }
-    }
-}

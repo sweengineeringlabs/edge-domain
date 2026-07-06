@@ -3,7 +3,10 @@
 use async_trait::async_trait;
 
 use crate::api::handler::errors::HandlerError;
-use crate::api::handler::types::HandlerContext;
+use crate::api::handler::types::{
+    ExecutionRequest, HealthCheckRequest, HealthCheckResponse, IdRequest, IdResponse,
+    PatternRequest, PatternResponse,
+};
 
 /// An async request/response execution unit identified by an id and pattern.
 #[async_trait]
@@ -15,31 +18,42 @@ pub trait Handler: Send + Sync {
     type Response: Send + 'static;
 
     /// Stable identifier for this handler.
-    fn id(&self) -> &str {
-        "handler"
+    fn id(&self, _req: IdRequest) -> Result<IdResponse, HandlerError> {
+        Ok(IdResponse {
+            id: "handler".to_string(),
+        })
     }
 
     /// Route pattern this handler matches.
-    fn pattern(&self) -> &str {
-        ""
+    fn pattern(&self, _req: PatternRequest) -> Result<PatternResponse, HandlerError> {
+        Ok(PatternResponse {
+            pattern: String::new(),
+        })
     }
 
     /// Execute the handler with the given request and request-scoped context.
     #[allow(clippy::missing_errors_doc)]
-    async fn execute(&self, req: Self::Request, ctx: HandlerContext<'_>) -> Result<Self::Response, HandlerError>;
+    async fn execute(
+        &self,
+        req: ExecutionRequest<'_, Self::Request>,
+    ) -> Result<Self::Response, HandlerError>;
 
     /// Return `true` if the handler is healthy and able to process requests.
-    async fn health_check(&self) -> bool {
-        true
+    async fn health_check(
+        &self,
+        _req: HealthCheckRequest,
+    ) -> Result<HealthCheckResponse, HandlerError> {
+        Ok(HealthCheckResponse { healthy: true })
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::api::handler::types::HandlerContext;
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::SecurityContext;
+    use edge_security_runtime::SecurityContext;
 
     struct AlwaysOk;
 
@@ -48,12 +62,8 @@ mod tests {
         type Request = String;
         type Response = String;
 
-        async fn execute(
-            &self,
-            req: String,
-            _ctx: HandlerContext<'_>,
-        ) -> Result<String, HandlerError> {
-            Ok(req)
+        async fn execute(&self, req: ExecutionRequest<'_, String>) -> Result<String, HandlerError> {
+            Ok(req.req)
         }
     }
 
@@ -66,8 +76,7 @@ mod tests {
 
         async fn execute(
             &self,
-            _req: String,
-            _ctx: HandlerContext<'_>,
+            _req: ExecutionRequest<'_, String>,
         ) -> Result<String, HandlerError> {
             Err(HandlerError::ExecutionFailed("fail".into()))
         }
@@ -78,8 +87,18 @@ mod tests {
         let security = SecurityContext::unauthenticated();
         let bus = StdCommandBusFactory::direct();
         let observer = StdObserveFactory::noop_observer_context();
-        let ctx = HandlerContext { security: &security, commands: &bus, observer: observer.as_ref() };
-        assert!(AlwaysOk.execute("hi".into(), ctx).await.is_ok());
+        let ctx = HandlerContext {
+            security: &security,
+            commands: &bus,
+            observer: observer.as_ref(),
+        };
+        assert!(AlwaysOk
+            .execute(ExecutionRequest {
+                req: "hi".into(),
+                ctx: &ctx
+            })
+            .await
+            .is_ok());
     }
 
     #[tokio::test]
@@ -87,22 +106,38 @@ mod tests {
         let security = SecurityContext::unauthenticated();
         let bus = StdCommandBusFactory::direct();
         let observer = StdObserveFactory::noop_observer_context();
-        let ctx = HandlerContext { security: &security, commands: &bus, observer: observer.as_ref() };
-        assert!(AlwaysFail.execute("hi".into(), ctx).await.is_err());
+        let ctx = HandlerContext {
+            security: &security,
+            commands: &bus,
+            observer: observer.as_ref(),
+        };
+        assert!(AlwaysFail
+            .execute(ExecutionRequest {
+                req: "hi".into(),
+                ctx: &ctx
+            })
+            .await
+            .is_err());
     }
 
     #[tokio::test]
     async fn test_id_default_returns_handler_edge() {
-        assert_eq!(AlwaysOk.id(), "handler");
+        assert_eq!(AlwaysOk.id(IdRequest).unwrap().id, "handler");
     }
 
     #[tokio::test]
     async fn test_pattern_default_returns_empty_edge() {
-        assert_eq!(AlwaysOk.pattern(), "");
+        assert_eq!(AlwaysOk.pattern(PatternRequest).unwrap().pattern, "");
     }
 
     #[tokio::test]
     async fn test_health_check_default_returns_true_happy() {
-        assert!(AlwaysOk.health_check().await);
+        assert!(
+            AlwaysOk
+                .health_check(HealthCheckRequest)
+                .await
+                .unwrap()
+                .healthy
+        );
     }
 }

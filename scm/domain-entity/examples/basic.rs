@@ -1,6 +1,6 @@
 //! Basic `Entity` usage example.
 
-use edge_domain_entity::Entity;
+use edge_domain_entity::{Entity, EntityError, IdRequest, IdResponse};
 
 struct OrderLine {
     id: u64,
@@ -10,15 +10,16 @@ struct OrderLine {
 
 impl Entity for OrderLine {
     type Id = u64;
-    fn id(&self) -> &u64 {
-        &self.id
+    fn id(&self, _req: IdRequest) -> Result<IdResponse<'_, u64>, EntityError> {
+        Ok(IdResponse { id: &self.id })
     }
 }
 
-fn main() {
+fn main() -> Result<(), EntityError> {
     let line = OrderLine {
         id: 1,
         quantity: 10,
     };
-    println!("order line id: {}", line.id());
+    println!("order line id: {}", line.id(IdRequest)?.id);
+    Ok(())
 }

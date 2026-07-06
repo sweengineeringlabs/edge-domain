@@ -16,12 +16,32 @@ mod saf;
 
 pub use saf::Registry;
 pub use saf::RegistryBootstrap;
-pub use saf::REGISTRY_SVC;
 pub use saf::REGISTRY_BOOTSTRAP_SVC;
+pub use saf::REGISTRY_BOOTSTRAP_SVC_FACTORY;
+pub use saf::REGISTRY_SVC;
+pub use saf::REGISTRY_SVC_FACTORY;
 
 // ── concrete reference types ──────────────────────────────────────────────────
 pub use api::InMemoryRegistry;
 pub use api::StdRegistryFactory;
+
+// ── request/response types ────────────────────────────────────────────────────
+pub use api::BootstrapNameRequest;
+pub use api::BootstrapNameResponse;
+pub use api::DeregisterRequest;
+pub use api::DeregisterResponse;
+pub use api::EmptinessRequest;
+pub use api::EmptinessResponse;
+pub use api::LenRequest;
+pub use api::LenResponse;
+pub use api::ListIdsRequest;
+pub use api::ListIdsResponse;
+pub use api::RegisterRequest;
+pub use api::RegisterResponse;
+pub use api::RegistryLookupRequest;
+pub use api::RegistryLookupResponse;
+pub use api::TryRegisterRequest;
+pub use api::TryRegisterResponse;
 
 // ── error types ───────────────────────────────────────────────────────────────
 pub use api::RegistryError;

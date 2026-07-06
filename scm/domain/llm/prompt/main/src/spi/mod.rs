@@ -1,12 +1,8 @@
 //! Extension hooks for downstream consumers.
 //!
 //! Downstream crates implement the `PromptBootstrap` contract from `crate::api`.
-//! This module re-exports the default handler wiring types so `saf/` can compose
-//! them without importing from `core/` directly (SEA §7).
-
-pub(crate) mod prompt;
-
-pub(crate) use self::prompt::DefaultPromptHandler;
+//! This crate has no pluggable strategy implementations beyond the reference
+//! ones in `core/`; this module exists to satisfy the SEA structural layout.
 
 // SPI extension anchor — satisfies the spi_dir_not_empty structural rule.
 const _: () = ();

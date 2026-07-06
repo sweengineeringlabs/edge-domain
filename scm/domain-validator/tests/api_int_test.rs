@@ -1,0 +1,21 @@
+//! Layer-level coverage for the small request/response value types declared under
+//! `api/validator/types/` that have no dedicated per-type test file (SEA layer test
+//! coverage, `sea_layer_test_coverage`). Each test constructs the type through the
+//! crate's public API and asserts on its real shape or field values.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
+use edge_domain_validator::{ValidationRequest, ValidationResponse};
+
+/// @covers: ValidationRequest
+#[test]
+fn test_validation_request_is_zero_sized_happy() {
+    assert_eq!(std::mem::size_of::<ValidationRequest>(), 0);
+    let _ = ValidationRequest;
+}
+
+/// @covers: ValidationResponse
+#[test]
+fn test_validation_response_is_zero_sized_edge() {
+    assert_eq!(std::mem::size_of::<ValidationResponse>(), 0);
+    let _ = ValidationResponse;
+}

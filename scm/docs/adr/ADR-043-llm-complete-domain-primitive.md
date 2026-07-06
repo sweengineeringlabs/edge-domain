@@ -177,3 +177,15 @@ Dependencies: `thiserror`, `async-trait`, `serde`, `serde_json`, `futures` (for 
 3. **SAF layer** — factory fns, SAF const anchors, integration tests, `examples/complete.rs`; gate: `cargo test`, arch 183/183, clippy, fmt
 
 Final state: **183/183 arch audit** (commit f357770, 2026-06-19).
+
+---
+
+## Amendment (2026-07-04): tool-calling loop added
+
+edge-domain#118 added a `ToolCallLoop` trait + `BoundedToolCallLoop` reference implementation on
+top of this primitive: a bounded multi-turn loop that calls `Completer::complete()` each turn
+and, when the response requests tool calls, fans them out concurrently via
+`edge-pipeline`'s `ParallelStep` before feeding results back into the conversation. This
+did not change any contract described above — it's a new capability layered on top, not a
+revision of `Completer`/`ToolOps`. L1 (synchronous `ToolOps::execute()`) is unchanged and still
+applies to each concurrent branch.

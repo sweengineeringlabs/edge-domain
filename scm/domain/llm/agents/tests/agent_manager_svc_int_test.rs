@@ -2,11 +2,15 @@
 //! Integration tests for AGENT_MANAGER_SVC constant and AgentManager trait re-export.
 
 use async_trait::async_trait;
-use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
-use edge_domain_handler::{Handler, HandlerContext, HandlerError};
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::SecurityContext;
-use edge_llm_agent::{Agent, AgentError, AgentManager, NoopAgentManager, Skill};
+use edge_llm_agent::{
+    Agent, AgentCreationRequest, AgentCreationResponse, AgentDescriptionRequest,
+    AgentDescriptionResponse, AgentError, AgentHandlerRequest, AgentHandlerResponse,
+    AgentIdRequest, AgentIdResponse, AgentLoadRequest, AgentLoadResponse, AgentLookupRequest,
+    AgentLookupResponse, AgentManager, AgentNameRequest, AgentNameResponse, AgentProviderRequest,
+    AgentProviderResponse, AgentSkillsRequest, AgentSkillsResponse, ListAgentIdsRequest,
+    ListAgentIdsResponse, NoopAgentManager, SkillExecutionRequest, SkillExecutionResponse,
+};
 use edge_llm_provider::{
     EchoProviderCompleter, ModelInfo, Provider, ProviderBootstrap, ProviderConfig,
     StdProviderFactory,
@@ -16,7 +20,7 @@ use std::sync::Arc;
 fn noop_provider() -> Arc<dyn Provider> {
     StdProviderFactory::provider(
         ProviderConfig::new("noop".to_string(), 0.0, 0),
-        ModelInfo::default(),
+        Box::<ModelInfo>::default(),
         Arc::new(EchoProviderCompleter),
         StdObserveFactory::noop_arc_observe_context(),
     )
@@ -28,33 +32,44 @@ struct TestAgent {
 
 #[async_trait]
 impl Agent for TestAgent {
-    fn id(&self) -> &str {
-        &self.id
+    fn id(&self, _req: AgentIdRequest) -> Result<AgentIdResponse, AgentError> {
+        Ok(AgentIdResponse {
+            id: self.id.clone(),
+        })
     }
 
-    fn name(&self) -> &str {
-        "Test Agent"
+    fn name(&self, _req: AgentNameRequest) -> Result<AgentNameResponse, AgentError> {
+        Ok(AgentNameResponse {
+            name: "Test Agent".to_string(),
+        })
     }
 
-    fn description(&self) -> &str {
-        "Test agent for manager testing"
+    fn description(
+        &self,
+        _req: AgentDescriptionRequest,
+    ) -> Result<AgentDescriptionResponse, AgentError> {
+        Ok(AgentDescriptionResponse {
+            description: "Test agent for manager testing".to_string(),
+        })
     }
 
     async fn execute_skill(
         &self,
-        _skill_name: &str,
-        _input: String,
-        _ctx: HandlerContext<'_>,
-    ) -> Result<String, AgentError> {
-        Ok("result".to_string())
+        _req: SkillExecutionRequest<'_>,
+    ) -> Result<SkillExecutionResponse, AgentError> {
+        Ok(SkillExecutionResponse {
+            output: "result".to_string(),
+        })
     }
 
-    fn skills(&self) -> Vec<Arc<dyn Skill<Request = String, Response = String>>> {
-        vec![]
+    fn skills(&self, _req: AgentSkillsRequest) -> Result<AgentSkillsResponse, AgentError> {
+        Ok(AgentSkillsResponse { skills: vec![] })
     }
 
-    fn provider(&self) -> Arc<dyn Provider> {
-        noop_provider()
+    fn provider(&self, _req: AgentProviderRequest) -> Result<AgentProviderResponse, AgentError> {
+        Ok(AgentProviderResponse {
+            provider: noop_provider(),
+        })
     }
 }
 
@@ -64,41 +79,54 @@ struct TestAgentManager {
 
 #[async_trait]
 impl AgentManager for TestAgentManager {
-    async fn load_agent(&self, spec: &str) -> Result<Arc<dyn Agent>, AgentError> {
+    async fn load_agent(&self, req: AgentLoadRequest<'_>) -> Result<AgentLoadResponse, AgentError> {
+        let spec = req.spec;
         if spec == "valid" {
-            Ok(Arc::new(TestAgent {
-                id: "loaded_agent".to_string(),
-            }))
+            Ok(AgentLoadResponse {
+                agent: Arc::new(TestAgent {
+                    id: "loaded_agent".to_string(),
+                }),
+            })
         } else {
             Err(AgentError::InvalidSpec(spec.to_string()))
         }
     }
 
-    fn agent(&self, id: &str) -> Result<Arc<dyn Agent>, AgentError> {
+    fn agent(&self, req: AgentLookupRequest<'_>) -> Result<AgentLookupResponse, AgentError> {
+        let id = req.id;
         self.agents
             .iter()
-            .find(|a| a.id() == id)
+            .find(|a| a.id(AgentIdRequest).map(|r| r.id).unwrap_or_default() == id)
             .cloned()
+            .map(|agent| AgentLookupResponse { agent })
             .ok_or_else(|| AgentError::NotFound(id.to_string()))
     }
 
-    fn list_agent_ids(&self) -> Result<Vec<String>, AgentError> {
-        Ok(self.agents.iter().map(|a| a.id().to_string()).collect())
+    fn list_agent_ids(
+        &self,
+        _req: ListAgentIdsRequest,
+    ) -> Result<ListAgentIdsResponse, AgentError> {
+        Ok(ListAgentIdsResponse {
+            ids: self
+                .agents
+                .iter()
+                .map(|a| a.id(AgentIdRequest).map(|r| r.id).unwrap_or_default())
+                .collect(),
+        })
     }
 
-    fn agent_handler(&self, skill: &str) -> Box<dyn Handler<Request = String, Response = String>> {
-        NoopAgentManager.agent_handler(skill)
+    fn agent_handler(
+        &self,
+        req: AgentHandlerRequest<'_>,
+    ) -> Result<AgentHandlerResponse, AgentError> {
+        NoopAgentManager.agent_handler(req)
     }
 
     fn default_agent(
         &self,
-        id: &str,
-        name: &str,
-        description: &str,
-        provider: Arc<dyn Provider>,
-        skills: Vec<Arc<dyn Skill<Request = String, Response = String>>>,
-    ) -> Arc<dyn Agent> {
-        NoopAgentManager.default_agent(id, name, description, provider, skills)
+        req: AgentCreationRequest<'_>,
+    ) -> Result<AgentCreationResponse, AgentError> {
+        NoopAgentManager.default_agent(req)
     }
 }
 
@@ -129,25 +157,27 @@ fn test_svc_agent_manager_happy_trait_can_be_implemented() {
             id: "test".to_string(),
         })],
     };
-    let agent = manager.agent("test");
-    let a = agent.unwrap();
-    assert_eq!(a.id(), "test");
+    let agent = manager.agent(AgentLookupRequest { id: "test" });
+    let a = agent.unwrap().agent;
+    assert_eq!(a.id(AgentIdRequest).unwrap().id, "test");
 }
 
 /// @covers: AgentManager trait re-export — load_agent
 #[test]
 fn test_svc_agent_manager_happy_load_agent_valid_spec() {
     let manager = TestAgentManager { agents: vec![] };
-    let result = futures::executor::block_on(manager.load_agent("valid"));
-    let agent = result.unwrap();
-    assert_eq!(agent.id(), "loaded_agent");
+    let result =
+        futures::executor::block_on(manager.load_agent(AgentLoadRequest { spec: "valid" }));
+    let agent = result.unwrap().agent;
+    assert_eq!(agent.id(AgentIdRequest).unwrap().id, "loaded_agent");
 }
 
 /// @covers: AgentManager trait re-export — load_agent error
 #[test]
 fn test_svc_agent_manager_error_load_agent_invalid_spec() {
     let manager = TestAgentManager { agents: vec![] };
-    let result = futures::executor::block_on(manager.load_agent("invalid"));
+    let result =
+        futures::executor::block_on(manager.load_agent(AgentLoadRequest { spec: "invalid" }));
     assert!(result.is_err());
     match result {
         Err(AgentError::InvalidSpec(spec)) => assert_eq!(spec, "invalid"),
@@ -159,7 +189,7 @@ fn test_svc_agent_manager_error_load_agent_invalid_spec() {
 #[test]
 fn test_svc_agent_manager_error_agent_not_found() {
     let manager = TestAgentManager { agents: vec![] };
-    let result = manager.agent("nonexistent");
+    let result = manager.agent(AgentLookupRequest { id: "nonexistent" });
     assert!(result.is_err());
 }
 
@@ -171,8 +201,8 @@ fn test_svc_agent_manager_happy_list_agent_ids_returns_list() {
             id: "agent1".to_string(),
         })],
     };
-    let result = manager.list_agent_ids();
-    let ids = result.unwrap();
+    let result = manager.list_agent_ids(ListAgentIdsRequest);
+    let ids = result.unwrap().ids;
     assert_eq!(ids.len(), 1);
     assert_eq!(ids[0], "agent1");
 }
@@ -181,7 +211,7 @@ fn test_svc_agent_manager_happy_list_agent_ids_returns_list() {
 #[test]
 fn test_svc_agent_manager_edge_list_agent_ids_empty() {
     let manager = TestAgentManager { agents: vec![] };
-    let result = manager.list_agent_ids();
-    let ids = result.unwrap();
+    let result = manager.list_agent_ids(ListAgentIdsRequest);
+    let ids = result.unwrap().ids;
     assert_eq!(ids.len(), 0);
 }

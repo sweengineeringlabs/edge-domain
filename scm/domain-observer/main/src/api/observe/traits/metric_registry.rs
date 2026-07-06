@@ -1,15 +1,22 @@
 //! `MetricRegistry` — metric instrument factory.
 
-use super::{Counter, Gauge, Histogram};
+use crate::api::observe::errors::ObserveError;
+use crate::api::observe::types::{
+    CounterLookupRequest, CounterLookupResponse, GaugeLookupRequest, GaugeLookupResponse,
+    HistogramLookupRequest, HistogramLookupResponse,
+};
 
 /// Creates named metric instruments.
 pub trait MetricRegistry: Send + Sync {
     /// Return a counter for `name`.
-    fn counter(&self, name: &str) -> Box<dyn Counter>;
+    fn counter(&self, req: CounterLookupRequest) -> Result<CounterLookupResponse, ObserveError>;
 
     /// Return a histogram for `name`.
-    fn histogram(&self, name: &str) -> Box<dyn Histogram>;
+    fn histogram(
+        &self,
+        req: HistogramLookupRequest,
+    ) -> Result<HistogramLookupResponse, ObserveError>;
 
     /// Return a gauge for `name`.
-    fn gauge(&self, name: &str) -> Box<dyn Gauge>;
+    fn gauge(&self, req: GaugeLookupRequest) -> Result<GaugeLookupResponse, ObserveError>;
 }

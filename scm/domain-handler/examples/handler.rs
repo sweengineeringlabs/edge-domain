@@ -1,7 +1,10 @@
 //! Basic `Handler` usage example.
 
 use async_trait::async_trait;
-use edge_domain_handler::{Handler, HandlerContext, HandlerError, HandlerProvider};
+use edge_domain_handler::{
+    ExecutionRequest, Handler, HandlerError, HandlerProvider, IdRequest, IdResponse,
+    PatternRequest, PatternResponse,
+};
 
 struct Handlers;
 impl HandlerProvider for Handlers {}
@@ -13,14 +16,18 @@ impl Handler for Greet {
     type Request = String;
     type Response = String;
 
-    fn id(&self) -> &str {
-        "greet"
+    fn id(&self, _req: IdRequest) -> Result<IdResponse, HandlerError> {
+        Ok(IdResponse {
+            id: "greet".to_string(),
+        })
     }
-    fn pattern(&self) -> &str {
-        "/greet"
+    fn pattern(&self, _req: PatternRequest) -> Result<PatternResponse, HandlerError> {
+        Ok(PatternResponse {
+            pattern: "/greet".to_string(),
+        })
     }
-    async fn execute(&self, req: String, _ctx: HandlerContext<'_>) -> Result<String, HandlerError> {
-        let greeting = format!("Hello, {}!", req);
+    async fn execute(&self, req: ExecutionRequest<'_, String>) -> Result<String, HandlerError> {
+        let greeting = format!("Hello, {}!", req.req);
         Ok(greeting)
     }
 }

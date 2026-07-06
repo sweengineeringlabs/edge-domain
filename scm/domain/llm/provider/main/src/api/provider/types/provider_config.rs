@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
-use swe_edge_configbuilder::ConfigSection;
+
+use crate::api::provider::types::JsonValue;
 
 /// Provider configuration with credential source + HTTP + model defaults.
 ///
@@ -32,7 +33,7 @@ pub struct ProviderConfig {
     // Credential source configuration (from ADR-015 Tier 2a)
     /// Credential source: env var, file path, or override env var. From swe-edge-security.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub credential_source: Option<serde_json::Value>, // CredentialSourceConfig serialized
+    pub credential_source: Option<JsonValue>, // CredentialSourceConfig serialized
 
     // Per-provider model defaults
     /// Maximum tokens for completion responses (override global default)
@@ -59,67 +60,4 @@ pub struct ProviderConfig {
     /// HTTP connection timeout in seconds
     #[serde(skip_serializing_if = "Option::is_none")]
     pub http_connect_timeout_secs: Option<u64>,
-}
-
-impl ProviderConfig {
-    /// Create a new provider config with required fields.
-    ///
-    /// All credential, model defaults, and HTTP config are optional and default to None.
-    pub fn new(model: String, temperature: f32, max_context_tokens: u32) -> Self {
-        Self {
-            model,
-            temperature,
-            api_base: None,
-            max_context_tokens,
-            supports_vision: false,
-            supports_functions: false,
-            supports_streaming: false,
-            credential_source: None,
-            max_tokens: None,
-            system_prompt: None,
-            top_p: None,
-            top_k: None,
-            http_timeout_secs: None,
-            http_connect_timeout_secs: None,
-        }
-    }
-
-    /// Set credential source configuration.
-    pub fn with_credential_source(mut self, source: serde_json::Value) -> Self {
-        self.credential_source = Some(source);
-        self
-    }
-
-    /// Set per-provider model defaults.
-    pub fn with_model_defaults(
-        mut self,
-        max_tokens: Option<u32>,
-        system_prompt: Option<String>,
-        top_p: Option<f32>,
-        top_k: Option<u32>,
-    ) -> Self {
-        self.max_tokens = max_tokens;
-        self.system_prompt = system_prompt;
-        self.top_p = top_p;
-        self.top_k = top_k;
-        self
-    }
-
-    /// Set HTTP transport timeouts.
-    pub fn with_http_config(
-        mut self,
-        timeout_secs: Option<u64>,
-        connect_timeout_secs: Option<u64>,
-    ) -> Self {
-        self.http_timeout_secs = timeout_secs;
-        self.http_connect_timeout_secs = connect_timeout_secs;
-        self
-    }
-}
-
-impl ConfigSection for ProviderConfig {
-    fn section_name() -> &'static str {
-        // @allow: no_stub_fn_bodies — TOML section key for this type
-        "llm.provider"
-    }
 }

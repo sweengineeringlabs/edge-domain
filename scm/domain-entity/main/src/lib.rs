@@ -14,3 +14,11 @@ mod core;
 mod saf;
 
 pub use saf::Entity;
+pub use saf::ENTITY_SVC;
+pub use saf::ENTITY_SVC_FACTORY;
+
+pub use api::EntityError;
+pub use api::IdRequest;
+pub use api::IdResponse;
+pub use api::ValidationRequest;
+pub use api::ValidationResponse;

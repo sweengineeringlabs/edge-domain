@@ -4,5 +4,7 @@
 //! This layer provides no-op implementations for contract testing;
 //! production implementations (llmboot, state-machine, etc.) live in edge/plugins/*.
 
+pub(crate) mod conversation;
 pub(crate) mod noop;
+pub(crate) mod traits;
 pub(crate) mod types;

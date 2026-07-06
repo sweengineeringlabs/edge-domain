@@ -11,14 +11,3 @@ pub struct ToolDefinition {
     /// JSON Schema describing the tool's input parameters.
     pub parameters: Value,
 }
-
-impl ToolDefinition {
-    /// Construct a tool definition.
-    pub fn new(name: impl Into<String>, description: impl Into<String>, parameters: Value) -> Self {
-        Self {
-            name: name.into(),
-            description: description.into(),
-            parameters,
-        }
-    }
-}

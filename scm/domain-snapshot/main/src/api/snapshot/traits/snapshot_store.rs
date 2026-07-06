@@ -6,6 +6,7 @@ use futures::future::BoxFuture;
 
 use crate::api::snapshot::errors::SnapshotError;
 use crate::api::snapshot::traits::Snapshot;
+use crate::api::snapshot::types::{SnapshotLoadRequest, SnapshotLoadResponse, SnapshotSaveRequest};
 
 /// Stores and retrieves [`Snapshot`]s keyed by aggregate id.
 pub trait SnapshotStore: Send + Sync {
@@ -16,11 +17,14 @@ pub trait SnapshotStore: Send + Sync {
     type Snap: Snapshot<AggregateId = Self::AggregateId>;
 
     /// Persist a snapshot, replacing any earlier snapshot for the same aggregate.
-    fn save(&self, snapshot: Self::Snap) -> BoxFuture<'_, Result<(), SnapshotError>>;
+    fn save(
+        &self,
+        req: SnapshotSaveRequest<Self::Snap>,
+    ) -> BoxFuture<'_, Result<(), SnapshotError>>;
 
     /// Load the latest snapshot for `id`, or `None` if none has been saved.
-    fn load(
-        &self,
-        id: &Self::AggregateId,
-    ) -> BoxFuture<'_, Result<Option<Self::Snap>, SnapshotError>>;
+    fn load<'a>(
+        &'a self,
+        req: SnapshotLoadRequest<'a, Self::AggregateId>,
+    ) -> BoxFuture<'a, Result<SnapshotLoadResponse<Self::Snap>, SnapshotError>>;
 }

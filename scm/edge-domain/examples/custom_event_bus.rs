@@ -11,7 +11,12 @@
 //! SEA constraint: all imports come from the edge_domain SAF surface.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{Domain, DomainEvent, EventBus, EventBusConfig, EventError, EventReceiver};
+use edge_domain::{
+    Domain, DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventBus,
+    EventBusConfig, EventBusPublishRequest, EventBusSubscribeRequest, EventBusSubscribeResponse,
+    EventError, EventOccurredAtRequest, EventOccurredAtResponse, EventTypeRequest,
+    EventTypeResponse,
+};
 use futures::future::BoxFuture;
 use std::sync::Arc;
 use std::sync::Mutex;
@@ -23,16 +28,29 @@ struct AuditedEvent {
 }
 
 impl DomainEvent for AuditedEvent {
-    fn event_type(&self) -> &str {
-        &self.event_type
+    fn event_type(&self, _req: EventTypeRequest) -> Result<EventTypeResponse<'_>, EventError> {
+        Ok(EventTypeResponse {
+            event_type: &self.event_type,
+        })
     }
 
-    fn aggregate_id(&self) -> &str {
-        "audit-log"
+    fn aggregate_id(
+        &self,
+        _req: EventAggregateIdRequest,
+    ) -> Result<EventAggregateIdResponse<'_>, EventError> {
+        Ok(EventAggregateIdResponse {
+            aggregate_id: "audit-log",
+        })
     }
 
-    fn occurred_at(&self) -> std::time::SystemTime {
-        std::time::SystemTime::UNIX_EPOCH + std::time::Duration::from_secs(self.timestamp)
+    fn occurred_at(
+        &self,
+        _req: EventOccurredAtRequest,
+    ) -> Result<EventOccurredAtResponse, EventError> {
+        Ok(EventOccurredAtResponse {
+            occurred_at: std::time::SystemTime::UNIX_EPOCH
+                + std::time::Duration::from_secs(self.timestamp),
+        })
     }
 }
 
@@ -58,10 +76,17 @@ impl AuditingEventBus {
 }
 
 impl EventBus for AuditingEventBus {
-    fn publish(&self, event: Arc<dyn DomainEvent>) -> BoxFuture<'static, Result<(), EventError>> {
+    fn publish(&self, req: EventBusPublishRequest) -> BoxFuture<'_, Result<(), EventError>> {
+        let event = req.event;
         let audit_log = Arc::clone(&self.audit_log);
-        let event_type = event.event_type().to_string();
-        let aggregate_id = event.aggregate_id().to_string();
+        let event_type = event
+            .event_type(EventTypeRequest)
+            .map(|r| r.event_type.to_string())
+            .unwrap_or_default();
+        let aggregate_id = event
+            .aggregate_id(EventAggregateIdRequest)
+            .map(|r| r.aggregate_id.to_string())
+            .unwrap_or_default();
         let inner = Arc::clone(&self.inner);
 
         Box::pin(async move {
@@ -79,13 +104,16 @@ impl EventBus for AuditingEventBus {
             audit_log.lock().unwrap().push(entry);
 
             // Delegate to underlying bus
-            inner.publish(event).await
+            inner.publish(EventBusPublishRequest { event }).await
         })
     }
 
-    fn subscribe(&self) -> EventReceiver {
+    fn subscribe(
+        &self,
+        req: EventBusSubscribeRequest,
+    ) -> Result<EventBusSubscribeResponse, EventError> {
         // Delegate subscription to underlying bus
-        self.inner.subscribe()
+        self.inner.subscribe(req)
     }
 }
 
@@ -111,7 +139,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             event_type: format!("order.state_changed.phase_{i}"),
             timestamp: (1000 + i) as u64,
         });
-        bus.publish(event).await?;
+        bus.publish(EventBusPublishRequest { event }).await?;
         println!("   ✓ Event {i} published");
     }
     println!();

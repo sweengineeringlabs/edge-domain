@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use std::time::Duration;
 
 /// Comprehensive error taxonomy for LLM provider execution
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -85,69 +84,4 @@ pub enum ExecutionError {
     /// Unknown/unclassified error
     #[serde(rename = "unknown")]
     Unknown(String),
-}
-
-impl ExecutionError {
-    /// Check if this error is retryable
-    pub fn is_retryable(&self) -> bool {
-        matches!(
-            self,
-            ExecutionError::RateLimited { .. }
-                | ExecutionError::ProviderUnavailable { .. }
-                | ExecutionError::NetworkError(_)
-                | ExecutionError::Timeout { .. }
-                | ExecutionError::QuotaExceeded { .. }
-        )
-    }
-
-    /// Get retry-after duration if available
-    pub fn retry_after(&self) -> Option<Duration> {
-        match self {
-            ExecutionError::RateLimited { retry_after_ms } => {
-                retry_after_ms.map(Duration::from_millis)
-            }
-            ExecutionError::QuotaExceeded { reset_at_ms } => reset_at_ms.map(Duration::from_millis),
-            ExecutionError::Timeout { duration_ms } => Some(Duration::from_millis(*duration_ms)),
-            _ => None,
-        }
-    }
-
-    /// Get error message
-    pub fn message(&self) -> String {
-        match self {
-            ExecutionError::AuthenticationFailed(msg) => format!("Authentication failed: {}", msg),
-            ExecutionError::RateLimited { retry_after_ms } => {
-                format!("Rate limited (retry after {:?})", retry_after_ms)
-            }
-            ExecutionError::ContextWindowExceeded {
-                max_tokens,
-                requested,
-            } => {
-                format!(
-                    "Context window exceeded: requested {} > max {}",
-                    requested, max_tokens
-                )
-            }
-            ExecutionError::ModelNotFound(model) => format!("Model not found: {}", model),
-            ExecutionError::ProviderUnavailable { message } => {
-                format!("Provider unavailable: {}", message)
-            }
-            ExecutionError::Timeout { duration_ms } => {
-                format!("Timeout after {}ms", duration_ms)
-            }
-            ExecutionError::InvalidRequest(msg) => format!("Invalid request: {}", msg),
-            ExecutionError::StreamingError(msg) => format!("Streaming error: {}", msg),
-            ExecutionError::CacheError(msg) => format!("Cache error: {}", msg),
-            ExecutionError::ToolCallFailed { tool_name, reason } => {
-                format!("Tool call failed ({}): {}", tool_name, reason)
-            }
-            ExecutionError::ValidationFailed(msg) => format!("Validation failed: {}", msg),
-            ExecutionError::ContentFiltered(msg) => format!("Content filtered: {}", msg),
-            ExecutionError::QuotaExceeded { reset_at_ms } => {
-                format!("Quota exceeded (reset at {:?})", reset_at_ms)
-            }
-            ExecutionError::NetworkError(msg) => format!("Network error: {}", msg),
-            ExecutionError::Unknown(msg) => format!("Unknown error: {}", msg),
-        }
-    }
 }

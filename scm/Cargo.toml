@@ -20,14 +20,11 @@ members  = [
     "domain-repository",
     "domain-handler",
     "domain-event",
-    "domain-pipeline",
     "domain-projection",
     "domain-saga",
-    "domain-security",
     "domain-registry",
     "domain-lifecycle",
     "domain-observer",
-    "domain-vpn",
 ]
 
 [workspace.package]
@@ -67,10 +64,12 @@ edge-domain-service     = { path = "domain-service" }
 edge-domain-repository  = { path = "domain-repository" }
 edge-domain-handler     = { path = "domain-handler" }
 edge-domain-event       = { path = "domain-event" }
-edge-domain-pipeline    = { path = "domain-pipeline" }
+edge-pipeline           = { git = "https://github.com/sweengineeringlabs/edge-pipeline.git", tag = "v0.2.0" }
 edge-domain-projection  = { path = "domain-projection" }
 edge-domain-saga        = { path = "domain-saga" }
-edge-domain-security    = { path = "domain-security" }
+edge-security-runtime   = { path = "../../security/runtime/scm/identity" }
+edge-security-authn     = { path = "../../security/authn/scm/authn" }
+edge-security-authz     = { path = "../../security/authz/scm/authz" }
 edge-domain-registry    = { path = "domain-registry" }
 edge-domain-lifecycle   = { path = "domain-lifecycle" }
 edge-llm-agent          = { path = "domain/llm/agents" }
@@ -79,9 +78,9 @@ edge-llm-provider       = { path = "domain/llm/provider" }
 edge-llm-prompt         = { path = "domain/llm/prompt" }
 edge-llm-reasoning      = { path = "domain/llm/reasoning" }
 edge-domain-observer    = { path = "domain-observer" }
-edge-domain-vpn         = { path = "domain-vpn" }
 swe-edge-configbuilder  = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", tag = "v0.4.1" }
 
 # ── Development override — use local path when building inside the swe-edge assembly
 [patch."https://github.com/sweengineeringlabs/edge-configbuilder.git"]
 swe-edge-configbuilder = { path = "../../configbuilder/scm" }
+

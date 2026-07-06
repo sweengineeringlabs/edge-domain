@@ -1,2 +1,2 @@
-pub mod policy_violation;
-pub use policy_violation::PolicyViolation;
+pub mod policy_error;
+pub use policy_error::PolicyError;

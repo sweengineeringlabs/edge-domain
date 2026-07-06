@@ -10,7 +10,7 @@ description = "edge-domain — VPN port contract: TunnelManager trait, VpnClient
 keywords    = ["domain", "vpn", "wireguard", "tunnel", "sea"]
 categories  = ["network-programming"]
 
-[package.metadata.struct-engine]
+[package.metadata.arch]
 application_type = "lib"
 service_type     = "vpn"
 

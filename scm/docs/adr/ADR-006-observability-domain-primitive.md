@@ -18,7 +18,7 @@ Introduce `edge-domain-observer` as a new sub-crate in this workspace — a peer
 
 ## New crate: `edge-domain-observer`
 
-Location: `domain-observe/` (peer to `domain-clock/`, `domain-security/`)
+Location: `domain-observer/` (peer to `domain-clock/`, `domain-security/`)
 Crate name: `edge-domain-observer`
 `service_type`: `"observe"`
 

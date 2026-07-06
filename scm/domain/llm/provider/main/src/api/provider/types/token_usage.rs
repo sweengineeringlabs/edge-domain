@@ -18,32 +18,3 @@ pub struct TokenUsage {
     /// Tokens written to cache
     pub cache_creation_input_tokens: u32,
 }
-
-impl TokenUsage {
-    /// Create a new token usage record
-    pub fn new(
-        prompt_tokens: u32,
-        completion_tokens: u32,
-        cache_read_input_tokens: u32,
-        cache_creation_input_tokens: u32,
-    ) -> Self {
-        let total_tokens = prompt_tokens + completion_tokens;
-        Self {
-            prompt_tokens,
-            completion_tokens,
-            total_tokens,
-            cache_read_input_tokens,
-            cache_creation_input_tokens,
-        }
-    }
-
-    /// Total tokens including cache operations
-    pub fn total_with_cache(&self) -> u32 {
-        self.total_tokens + self.cache_read_input_tokens + self.cache_creation_input_tokens
-    }
-
-    /// Check if cache was hit (any reads)
-    pub fn cache_hit(&self) -> bool {
-        self.cache_read_input_tokens > 0
-    }
-}

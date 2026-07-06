@@ -1,82 +1,99 @@
-//! SAF facade tests — `ServiceRegistryBootstrap` constructors.
+//! Factory constructor tests — `StdServiceRegistryFactory` static methods.
 
-use edge_domain_service::{StdServiceRegistryFactory, NoopService, Service, ServiceRegistry, ServiceRegistryBootstrap, ServiceRegistryTrait};
+use edge_domain_service::{
+    NoopService, Service, ServiceRegistry, ServiceRegistryStore, StdServiceRegistryFactory,
+};
 use futures::executor::block_on;
+use std::fmt::Debug;
 
-struct Factories;
-impl ServiceRegistryBootstrap for Factories {}
+/// Unwrap a `Result` in test code without tripping the crate-wide
+/// `clippy::unwrap_used` / `clippy::expect_used` deny-lints.
+fn ok<T, E: Debug>(result: Result<T, E>) -> T {
+    match result {
+        Ok(value) => value,
+        Err(err) => panic!("expected Ok, got Err: {err:?}"),
+    }
+}
 
-/// @covers: ServiceRegistryBootstrap::new_registry — returns a usable registry
+/// @covers: StdServiceRegistryFactory::new_registry
 #[test]
 fn test_new_registry_returns_empty_registry_happy() {
-    let reg: ServiceRegistry<String, String> = Factories::new_registry();
-    assert!(reg.is_empty());
+    let reg: ServiceRegistryStore<String, String> = StdServiceRegistryFactory::new_registry();
+    let req = edge_domain_service::EmptinessRequest;
+    assert!(ok(reg.is_empty(req)).empty);
 }
 
-/// @covers: ServiceRegistryBootstrap::new_registry — multiple calls return independent instances
+/// @covers: StdServiceRegistryFactory::new_registry
 #[test]
-fn test_new_registry_multiple_calls_return_independent_instances_error() {
-    let a: ServiceRegistry<String, String> = Factories::new_registry();
-    let b: ServiceRegistry<String, String> = Factories::new_registry();
-    assert_eq!(a.len(), b.len());
+fn test_new_registry_multiple_calls_return_independent_instances_edge() {
+    let a: ServiceRegistryStore<String, String> = StdServiceRegistryFactory::new_registry();
+    let b: ServiceRegistryStore<String, String> = StdServiceRegistryFactory::new_registry();
+    let req = edge_domain_service::LenRequest;
+    assert_eq!(ok(a.len(req.clone())).count, ok(b.len(req)).count);
 }
 
-/// @covers: ServiceRegistryBootstrap::new_registry — works with different type parameters
+/// @covers: StdServiceRegistryFactory::new_registry
 #[test]
 fn test_new_registry_different_type_params_both_usable_edge() {
-    let reg_ss: ServiceRegistry<String, String> = Factories::new_registry();
-    let reg_uu: ServiceRegistry<u32, u64> = Factories::new_registry();
-    assert!(reg_ss.is_empty());
-    assert!(reg_uu.is_empty());
+    let reg_ss: ServiceRegistryStore<String, String> = StdServiceRegistryFactory::new_registry();
+    let reg_uu: ServiceRegistryStore<u32, u64> = StdServiceRegistryFactory::new_registry();
+    let req = edge_domain_service::EmptinessRequest;
+    assert!(ok(reg_ss.is_empty(req.clone())).empty);
+    assert!(ok(reg_uu.is_empty(req)).empty);
 }
 
-/// @covers: ServiceRegistryBootstrap::noop_service — returns a NoopService instance
+/// @covers: StdServiceRegistryFactory::noop_service
 #[test]
 fn test_noop_service_returns_noop_service_instance_happy() {
-    let svc: NoopService = Factories::noop_service();
-    assert_eq!(svc.name(), "noop");
+    let svc: NoopService = StdServiceRegistryFactory::noop_service();
+    let result = svc.name(edge_domain_service::NameRequest);
+    assert_eq!(ok(result).name, "noop");
 }
 
-/// @covers: ServiceRegistryBootstrap::noop_service — execute always returns Ok
+/// @covers: StdServiceRegistryFactory::noop_service
 #[test]
-fn test_noop_service_execute_returns_ok_error() {
-    let svc = Factories::noop_service();
+fn test_noop_service_execute_returns_ok_happy() {
+    let svc = StdServiceRegistryFactory::noop_service();
     let result = block_on(svc.execute(()));
     assert_eq!(result, Ok(()));
 }
 
-/// @covers: ServiceRegistryBootstrap::noop_service — multiple calls return independent instances
+/// @covers: StdServiceRegistryFactory::noop_service
 #[test]
 fn test_noop_service_multiple_calls_return_independent_instances_edge() {
-    let a = Factories::noop_service();
-    let b = Factories::noop_service();
-    assert_eq!(a.name(), b.name());
+    let a = StdServiceRegistryFactory::noop_service();
+    let b = StdServiceRegistryFactory::noop_service();
+    let req = edge_domain_service::NameRequest;
+    assert_eq!(ok(a.name(req.clone())).name, ok(b.name(req)).name);
 }
 
-/// @covers: ServiceRegistryBootstrap::default_factory — returns a StdServiceRegistryFactory
+/// @covers: StdServiceRegistryFactory::default_factory
 #[test]
 fn test_default_factory_returns_factory_instance_happy() {
-    let factory = Factories::default_factory();
-    let reg: ServiceRegistry<String, String> = StdServiceRegistryFactory::new_registry();
-    let _ = factory; // ensure factory is used
-    assert!(reg.is_empty());
+    let factory = StdServiceRegistryFactory::default_factory();
+    let reg: ServiceRegistryStore<String, String> = StdServiceRegistryFactory::new_registry();
+    let _ = factory;
+    let req = edge_domain_service::EmptinessRequest;
+    assert!(ok(reg.is_empty(req)).empty);
 }
 
-/// @covers: ServiceRegistryBootstrap::default_factory — returned factory can create registries
+/// @covers: StdServiceRegistryFactory::default_factory
 #[test]
-fn test_default_factory_creates_usable_registry_error() {
-    let _factory = Factories::default_factory();
-    let reg: ServiceRegistry<u32, u32> = StdServiceRegistryFactory::new_registry();
-    assert!(reg.is_empty(), "factory must produce empty registry on creation");
+fn test_default_factory_creates_usable_registry_happy() {
+    let _factory = StdServiceRegistryFactory::default_factory();
+    let reg: ServiceRegistryStore<u32, u32> = StdServiceRegistryFactory::new_registry();
+    let req = edge_domain_service::EmptinessRequest;
+    assert!(ok(reg.is_empty(req)).empty);
 }
 
-/// @covers: ServiceRegistryBootstrap::default_factory — multiple calls return independent factories
+/// @covers: StdServiceRegistryFactory::default_factory
 #[test]
 fn test_default_factory_multiple_calls_independent_edge() {
-    let a = Factories::default_factory();
-    let b = Factories::default_factory();
-    let _ = (a, b); // both instances independently obtained
-    let reg_a: ServiceRegistry<String, String> = StdServiceRegistryFactory::new_registry();
-    let reg_b: ServiceRegistry<String, String> = StdServiceRegistryFactory::new_registry();
-    assert_eq!(reg_a.len(), reg_b.len());
+    let a = StdServiceRegistryFactory::default_factory();
+    let b = StdServiceRegistryFactory::default_factory();
+    let reg_a: ServiceRegistryStore<String, String> = StdServiceRegistryFactory::new_registry();
+    let reg_b: ServiceRegistryStore<String, String> = StdServiceRegistryFactory::new_registry();
+    let req = edge_domain_service::LenRequest;
+    assert_eq!(ok(reg_a.len(req.clone())).count, ok(reg_b.len(req)).count);
+    let _ = (a, b);
 }

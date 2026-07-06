@@ -1,18 +1,24 @@
 //! Scenario coverage for the `ModelOps` trait.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use async_trait::async_trait;
-use edge_llm_complete::{CompleteError, ModelInfo, ModelOps};
+use edge_llm_complete::{CompleteError, ModelInfo, ModelInfoRequest, ModelInfoResponse, ModelOps};
 use futures::executor::block_on;
 
 struct EchoModelOps;
 
 #[async_trait]
 impl ModelOps for EchoModelOps {
-    async fn find_model(&self, name: &str) -> Result<ModelInfo, CompleteError> {
-        if name == "echo" {
-            Ok(ModelInfo::new("echo", "Echo Model", "echo", 4096))
+    async fn find_model(
+        &self,
+        req: ModelInfoRequest<'_>,
+    ) -> Result<ModelInfoResponse, CompleteError> {
+        if req.model == "echo" {
+            Ok(ModelInfoResponse {
+                info: Box::new(ModelInfo::new("echo", "Echo Model", "echo", 4096)),
+            })
         } else {
-            Err(CompleteError::ModelNotFound(name.to_string()))
+            Err(CompleteError::ModelNotFound(req.model.to_string()))
         }
     }
 }
@@ -21,19 +27,19 @@ impl ModelOps for EchoModelOps {
 
 #[test]
 fn test_find_model_known_model_returns_info_happy() {
-    let info = block_on(EchoModelOps.find_model("echo")).unwrap();
-    assert_eq!(info.id, "echo");
+    let resp = block_on(EchoModelOps.find_model(ModelInfoRequest { model: "echo" })).unwrap();
+    assert_eq!(resp.info.id, "echo");
 }
 
 #[test]
 fn test_find_model_unknown_model_returns_error_error() {
-    let err = block_on(EchoModelOps.find_model("gpt-999")).unwrap_err();
+    let err = block_on(EchoModelOps.find_model(ModelInfoRequest { model: "gpt-999" })).unwrap_err();
     assert!(matches!(err, CompleteError::ModelNotFound(_)));
 }
 
 #[test]
 fn test_find_model_empty_name_returns_error_edge() {
-    let err = block_on(EchoModelOps.find_model("")).unwrap_err();
+    let err = block_on(EchoModelOps.find_model(ModelInfoRequest { model: "" })).unwrap_err();
     assert!(matches!(err, CompleteError::ModelNotFound(_)));
 }
 

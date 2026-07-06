@@ -1,27 +1,75 @@
-//! Integration tests for [`StdServiceRegistryFactory`].
+//! Tests for [`StdServiceRegistryFactory`] — default registry factory.
 
-use edge_domain_service::{StdServiceRegistryFactory, ServiceRegistry, ServiceRegistryBootstrap, ServiceRegistryTrait};
+use edge_domain_service::{Service, ServiceRegistry, StdServiceRegistryFactory};
+use futures::executor::block_on;
 
-/// @covers: ServiceRegistryBootstrap::new_registry
+/// @covers: StdServiceRegistryFactory
 #[test]
-fn test_new_registry_returns_empty_registry_happy() {
-    let reg: ServiceRegistry<String, String> = StdServiceRegistryFactory::new_registry();
-    assert!(reg.is_empty());
+fn test_std_service_registry_factory_is_copy() {
+    let factory1 = StdServiceRegistryFactory;
+    let factory2 = StdServiceRegistryFactory;
+    assert_eq!(factory1, factory2);
 }
 
-/// @covers: ServiceRegistryBootstrap::new_registry
+/// @covers: StdServiceRegistryFactory
 #[test]
-fn test_new_registry_multiple_calls_return_independent_instances_error() {
-    let a: ServiceRegistry<String, String> = StdServiceRegistryFactory::new_registry();
-    let b: ServiceRegistry<String, String> = StdServiceRegistryFactory::new_registry();
-    assert_eq!(a.len(), b.len());
+fn test_std_service_registry_factory_debug_impl() {
+    let factory = StdServiceRegistryFactory;
+    let debug_str = format!("{:?}", factory);
+    assert_eq!(debug_str, "StdServiceRegistryFactory");
 }
 
-/// @covers: ServiceRegistryBootstrap::new_registry
+/// @covers: StdServiceRegistryFactory
 #[test]
-fn test_new_registry_different_type_params_both_usable_edge() {
-    let reg_ss: ServiceRegistry<String, String> = StdServiceRegistryFactory::new_registry();
-    let reg_uu: ServiceRegistry<u32, u64> = StdServiceRegistryFactory::new_registry();
-    assert!(reg_ss.is_empty());
-    assert!(reg_uu.is_empty());
+fn test_std_service_registry_factory_default_impl() {
+    let factory = StdServiceRegistryFactory::default();
+    assert_eq!(factory, StdServiceRegistryFactory);
+}
+
+/// @covers: StdServiceRegistryFactory
+#[test]
+fn test_std_service_registry_factory_clone_impl() {
+    let factory1 = StdServiceRegistryFactory;
+    let factory2 = factory1.clone();
+    assert_eq!(factory1, factory2);
+}
+
+/// @covers: StdServiceRegistryFactory
+#[test]
+fn test_std_service_registry_factory_equality_happy() {
+    let factory1 = StdServiceRegistryFactory;
+    let factory2 = StdServiceRegistryFactory;
+    assert_eq!(factory1, factory2);
+}
+
+/// @covers: StdServiceRegistryFactory
+#[test]
+fn test_std_service_registry_factory_partial_ord_happy() {
+    let factory1 = StdServiceRegistryFactory;
+    let factory2 = StdServiceRegistryFactory;
+    assert!(!(factory1 < factory2));
+    assert!(!(factory2 < factory1));
+}
+
+/// @covers: StdServiceRegistryFactory
+#[test]
+fn test_std_service_registry_factory_hash_consistent_happy() {
+    use std::collections::HashSet;
+    let factory1 = StdServiceRegistryFactory;
+    let factory2 = StdServiceRegistryFactory;
+    let mut set = HashSet::new();
+    set.insert(factory1);
+    set.insert(factory2);
+    assert_eq!(set.len(), 1);
+}
+
+/// @covers: StdServiceRegistryFactory
+#[test]
+fn test_std_service_registry_factory_produces_valid_registry_edge() {
+    let registry = StdServiceRegistryFactory::new_registry::<String, String>();
+    let req = edge_domain_service::EmptinessRequest;
+    match registry.is_empty(req) {
+        Ok(response) => assert!(response.empty),
+        Err(err) => panic!("expected Ok, got Err: {err:?}"),
+    }
 }

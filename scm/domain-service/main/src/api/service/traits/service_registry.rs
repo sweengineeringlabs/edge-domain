@@ -1,8 +1,11 @@
 //! `ServiceRegistry` trait — a named registry of [`Service`] implementations.
 
-use std::sync::Arc;
-
-use super::service::Service;
+use crate::api::service::{
+    EmptinessRequest, EmptinessResponse, LenRequest, LenResponse, ListNamesRequest,
+    ListNamesResponse, NoopService, RegisterServiceRequest, RegisterServiceResponse, ServiceError,
+    ServiceLookupRequest, ServiceLookupResponse, ServiceRegistryStore, ServiceRemovalRequest,
+    ServiceRemovalResponse, StdServiceRegistryFactory,
+};
 
 /// A registry that maps service names to [`Service`] implementations.
 ///
@@ -17,26 +20,43 @@ pub trait ServiceRegistry: Send + Sync {
     /// Register a service under its reported name.
     fn register(
         &self,
-        service: Arc<dyn Service<Request = Self::Request, Response = Self::Response>>,
-    );
+        req: &RegisterServiceRequest<Self::Request, Self::Response>,
+    ) -> Result<RegisterServiceResponse, ServiceError>;
 
-    /// Remove the service with the given name. Returns `true` if it was present.
-    fn deregister(&self, name: &str) -> bool;
+    /// Remove the service with the given name.
+    fn deregister(
+        &self,
+        req: &ServiceRemovalRequest,
+    ) -> Result<ServiceRemovalResponse, ServiceError>;
 
     /// Look up a service by name.
     fn get(
         &self,
-        name: &str,
-    ) -> Option<Arc<dyn Service<Request = Self::Request, Response = Self::Response>>>;
+        req: &ServiceLookupRequest,
+    ) -> Result<ServiceLookupResponse<Self::Request, Self::Response>, ServiceError>;
 
     /// Return the names of all registered services.
-    fn list_names(&self) -> Vec<String>;
+    fn list_names(&self, req: ListNamesRequest) -> Result<ListNamesResponse, ServiceError>;
 
     /// Return the number of registered services.
-    fn len(&self) -> usize;
+    fn len(&self, req: LenRequest) -> Result<LenResponse, ServiceError>;
 
     /// Return `true` when no services are registered.
-    fn is_empty(&self) -> bool {
-        self.len() == 0
-    }
+    fn is_empty(&self, req: EmptinessRequest) -> Result<EmptinessResponse, ServiceError>;
+
+    /// Create a default empty registry (for factory support).
+    fn default_factory() -> StdServiceRegistryFactory
+    where
+        Self: Sized;
+
+    /// Provide a noop service for testing.
+    fn noop_service() -> NoopService
+    where
+        Self: Sized;
+
+    /// Construct a fresh, empty in-process registry store bound to this
+    /// trait's request/response types.
+    fn new_store() -> ServiceRegistryStore<Self::Request, Self::Response>
+    where
+        Self: Sized;
 }

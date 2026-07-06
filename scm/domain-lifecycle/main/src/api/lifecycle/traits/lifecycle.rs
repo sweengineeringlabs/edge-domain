@@ -5,6 +5,10 @@ use std::fmt::Debug;
 use async_trait::async_trait;
 
 use crate::api::lifecycle::errors::LifecycleError;
+use crate::api::lifecycle::types::{
+    LifecycleIsInRequest, LifecycleIsInResponse, LifecycleStateRequest, LifecycleStateResponse,
+    LifecycleTransitionRequest,
+};
 
 /// A state-machine abstraction for entities that transition through a typed
 /// set of states.
@@ -27,16 +31,28 @@ pub trait Lifecycle: Send + Sync {
     type State: Copy + Eq + Debug + Send + Sync;
 
     /// Return the current state without transitioning.
-    fn state(&self) -> Self::State;
+    fn state(
+        &self,
+        req: LifecycleStateRequest,
+    ) -> Result<LifecycleStateResponse<Self::State>, LifecycleError>;
 
-    /// Attempt to transition to `target`.  Returns
+    /// Attempt to transition to the requested target.  Returns
     /// [`LifecycleError::InvalidTransition`] when the active
     /// [`TransitionPolicy`](crate::api::lifecycle::traits::TransitionPolicy)
     /// rejects the move.
-    async fn transition_to(&self, target: Self::State) -> Result<(), LifecycleError>;
+    async fn transition_to(
+        &self,
+        req: LifecycleTransitionRequest<Self::State>,
+    ) -> Result<(), LifecycleError>;
 
-    /// Return `true` when the current state equals `state`.
-    fn is_in(&self, state: Self::State) -> bool {
-        self.state() == state
+    /// Return whether the current state equals the requested state.
+    fn is_in(
+        &self,
+        req: LifecycleIsInRequest<Self::State>,
+    ) -> Result<LifecycleIsInResponse, LifecycleError> {
+        let current = self.state(LifecycleStateRequest)?.state;
+        Ok(LifecycleIsInResponse {
+            is_in: current == req.state,
+        })
     }
 }

@@ -1,15 +1,15 @@
 //! Scenario coverage for the `StreamOps` trait.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_llm_complete::{CompleteError, FinishReason, StreamChunk, StreamDelta, StreamOps};
+use edge_llm_complete::{
+    CompleteError, DeltaApplicationRequest, FinishReason, StreamChunk, StreamDelta, StreamOps,
+};
 
 struct AccumulatorOps;
 
 impl StreamOps for AccumulatorOps {
-    fn apply_delta(
-        &self,
-        chunk: &mut StreamChunk,
-        delta: &StreamDelta,
-    ) -> Result<(), CompleteError> {
+    fn apply_delta(&self, req: DeltaApplicationRequest<'_>) -> Result<(), CompleteError> {
+        let DeltaApplicationRequest { chunk, delta } = req;
         match (&mut chunk.delta.content, delta.content.clone()) {
             (Some(existing), Some(new)) => existing.push_str(&new),
             (slot @ None, Some(new)) => *slot = Some(new),
@@ -25,15 +25,24 @@ impl StreamOps for AccumulatorOps {
 fn test_apply_delta_appends_content_happy() {
     let mut chunk = StreamChunk::partial("id-1", StreamDelta::text("hello"));
     let delta = StreamDelta::text(" world");
-    AccumulatorOps.apply_delta(&mut chunk, &delta).unwrap();
+    AccumulatorOps
+        .apply_delta(DeltaApplicationRequest {
+            chunk: &mut chunk,
+            delta: &delta,
+        })
+        .unwrap();
     assert_eq!(chunk.delta.content, Some("hello world".to_string()));
 }
 
 #[test]
 fn test_apply_delta_empty_delta_is_noop_error() {
     let mut chunk = StreamChunk::partial("id-1", StreamDelta::text("hi"));
+    let empty = StreamDelta::empty();
     AccumulatorOps
-        .apply_delta(&mut chunk, &StreamDelta::empty())
+        .apply_delta(DeltaApplicationRequest {
+            chunk: &mut chunk,
+            delta: &empty,
+        })
         .unwrap();
     assert_eq!(chunk.delta.content, Some("hi".to_string()));
 }
@@ -41,8 +50,12 @@ fn test_apply_delta_empty_delta_is_noop_error() {
 #[test]
 fn test_apply_delta_initialises_none_content_edge() {
     let mut chunk = StreamChunk::partial("id-1", StreamDelta::empty());
+    let init = StreamDelta::text("init");
     AccumulatorOps
-        .apply_delta(&mut chunk, &StreamDelta::text("init"))
+        .apply_delta(DeltaApplicationRequest {
+            chunk: &mut chunk,
+            delta: &init,
+        })
         .unwrap();
     assert_eq!(chunk.delta.content, Some("init".to_string()));
 }

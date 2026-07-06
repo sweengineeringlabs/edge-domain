@@ -1,39 +1,41 @@
-//! SAF facade tests — `PolicyBootstrap` constructors.
+//! SAF facade tests — `CompositePolicy` construction.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_policy::{Policy, PolicyBootstrap, PolicyViolation};
-
-struct TestPolicies;
-impl PolicyBootstrap for TestPolicies {}
+use edge_domain_policy::{CompositePolicy, Policy, PolicyEvaluateRequest, PolicyNameRequest, PolicyNameResponse, PolicyError};
 
 struct AlwaysFails;
 impl Policy for AlwaysFails {
     type Input = String;
-    fn name(&self) -> &'static str {
-        "always-fails"
+    fn name(&self, _req: PolicyNameRequest) -> Result<PolicyNameResponse, PolicyError> {
+        Ok(PolicyNameResponse { name: "always-fails" })
     }
-    fn evaluate(&self, _input: &String) -> Result<(), PolicyViolation> {
-        Err(PolicyViolation::new("always-fails", "denied"))
+    fn evaluate(&self, _req: PolicyEvaluateRequest<'_, String>) -> Result<(), PolicyError> {
+        Err(PolicyError::new("always-fails", "denied"))
     }
 }
 
-/// @covers: PolicyBootstrap::composite — empty composite always passes
+/// @covers: CompositePolicy::new — empty composite always passes
 #[test]
 fn test_composite_empty_always_passes_happy() {
-    let policy = TestPolicies::composite::<String>();
-    assert_eq!(policy.evaluate(&"anything".to_string()), Ok(()), "empty composite should pass");
+    let policy = CompositePolicy::<String>::new();
+    assert_eq!(
+        policy.evaluate(PolicyEvaluateRequest { input: &"anything".to_string() }),
+        Ok(()),
+        "empty composite should pass"
+    );
 }
 
-/// @covers: PolicyBootstrap::composite — first failing rule rejects input
+/// @covers: CompositePolicy::new — first failing rule rejects input
 #[test]
 fn test_composite_with_failing_rule_rejects_input_error() {
-    let policy = TestPolicies::composite::<String>().with(Box::new(AlwaysFails));
-    let result = policy.evaluate(&"input".to_string());
-    assert!(matches!(result, Err(v) if v.policy() == "always-fails"), "should reject with always-fails policy");
+    let policy = CompositePolicy::<String>::new().with(Box::new(AlwaysFails));
+    let result = policy.evaluate(PolicyEvaluateRequest { input: &"input".to_string() });
+    assert!(matches!(result, Err(v) if v.policy == "always-fails"), "should reject with always-fails policy");
 }
 
-/// @covers: PolicyBootstrap::composite — generic over input type
+/// @covers: CompositePolicy::new — generic over input type
 #[test]
 fn test_composite_generic_over_input_type_edge() {
-    let policy = TestPolicies::composite::<u64>();
-    assert_eq!(policy.evaluate(&42), Ok(()), "empty composite with u64 should pass");
+    let policy = CompositePolicy::<u64>::new();
+    assert_eq!(policy.evaluate(PolicyEvaluateRequest { input: &42 }), Ok(()), "empty composite with u64 should pass");
 }

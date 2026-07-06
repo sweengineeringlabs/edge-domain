@@ -11,6 +11,11 @@ mod core;
 mod saf;
 
 pub use api::InMemoryProjection;
+pub use api::ProjectionApplyRequest;
 pub use api::ProjectionError;
+pub use api::ProjectionReadModelRequest;
+pub use api::ProjectionReadModelResponse;
+pub use api::TryDrainRequest;
+pub use api::TryDrainResponse;
 pub use edge_domain_event::DomainEvent;
-pub use saf::{Projection, ProjectionBootstrap, PROJECTION_BOOTSTRAP_SVC, PROJECTION_SVC};
+pub use saf::{Projection, PROJECTION_SVC, PROJECTION_SVC_FACTORY};

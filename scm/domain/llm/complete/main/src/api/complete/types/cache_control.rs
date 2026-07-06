@@ -7,17 +7,3 @@ pub struct CacheControl {
     #[serde(rename = "type")]
     pub cache_type: String,
 }
-
-impl CacheControl {
-    /// Construct a cache control of the given type string.
-    pub fn new(cache_type: impl Into<String>) -> Self {
-        Self {
-            cache_type: cache_type.into(),
-        }
-    }
-
-    /// The `"ephemeral"` cache control type used for Anthropic prompt caching.
-    pub fn ephemeral() -> Self {
-        Self::new("ephemeral")
-    }
-}

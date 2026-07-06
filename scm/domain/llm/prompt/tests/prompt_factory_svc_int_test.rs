@@ -2,8 +2,10 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_prompt::{
-    ContextManager, Prompt, PromptBootstrap, PromptMetadata, StdPromptFactory, TokenCounter,
-    VariableType,
+    CompletenessRequest, ContextManager, CountTokensRequest, ExactnessRequest, Prompt,
+    PromptBootstrap, PromptMetadata, PromptMetadataRequest, RegisterVariableRequest,
+    StdPromptFactory, TemplateLookupRequest, TemplateValidationRequest, TokenCounter, VariableKind,
+    VariableLookupRequest,
 };
 
 // --- std_factory ---
@@ -12,7 +14,11 @@ use edge_llm_prompt::{
 #[test]
 fn test_std_factory_returns_instance_happy() {
     let f: StdPromptFactory = StdPromptFactory::std_factory();
-    assert_eq!(std::mem::size_of_val(&f), 0, "StdPromptFactory should be zero-sized");
+    assert_eq!(
+        std::mem::size_of_val(&f),
+        0,
+        "StdPromptFactory should be zero-sized"
+    );
 }
 
 /// @covers: PromptBootstrap::std_factory — instance is zero-sized
@@ -27,7 +33,11 @@ fn test_std_factory_is_zero_sized_error() {
 fn test_std_factory_repeatable_edge() {
     let a = StdPromptFactory::std_factory();
     let b = StdPromptFactory::std_factory();
-    assert_eq!(std::mem::size_of_val(&a), std::mem::size_of_val(&b), "both calls should be identical");
+    assert_eq!(
+        std::mem::size_of_val(&a),
+        std::mem::size_of_val(&b),
+        "both calls should be identical"
+    );
 }
 
 // --- variable_builder ---
@@ -37,9 +47,9 @@ fn test_std_factory_repeatable_edge() {
 fn test_variable_builder_overrides_happy() {
     let v = StdPromptFactory::variable_builder()
         .name("topic".to_string())
-        .var_type(VariableType::Number)
+        .var_type(VariableKind::Number)
         .build();
-    assert_eq!(v.var_type, VariableType::Number);
+    assert_eq!(v.var_type, VariableKind::Number);
 }
 
 /// @covers: PromptBootstrap::variable_builder — default is required
@@ -124,7 +134,8 @@ fn test_prompt_builds_with_metadata_happy() {
     let m = PromptMetadata::new("p".to_string(), "P".to_string(), "1".to_string(), vec![]);
     assert_eq!(
         StdPromptFactory::prompt("body".to_string(), m)
-            .metadata()
+            .metadata(PromptMetadataRequest)
+            .expect("metadata ok")
             .id,
         "p"
     );
@@ -135,7 +146,7 @@ fn test_prompt_builds_with_metadata_happy() {
 fn test_prompt_unbalanced_template_invalid_error() {
     let m = PromptMetadata::new("p".to_string(), "P".to_string(), "1".to_string(), vec![]);
     assert!(StdPromptFactory::prompt("{{x}".to_string(), m)
-        .validate()
+        .validate(TemplateValidationRequest)
         .is_err());
 }
 
@@ -143,7 +154,7 @@ fn test_prompt_unbalanced_template_invalid_error() {
 #[test]
 fn test_prompt_empty_template_valid_edge() {
     let m = PromptMetadata::new("p".to_string(), "P".to_string(), "1".to_string(), vec![]);
-    let result = StdPromptFactory::prompt(String::new(), m).validate();
+    let result = StdPromptFactory::prompt(String::new(), m).validate(TemplateValidationRequest);
     assert_eq!(result, Ok(()), "empty template should be valid");
 }
 
@@ -152,14 +163,21 @@ fn test_prompt_empty_template_valid_edge() {
 /// @covers: PromptBootstrap::context_manager — builds an empty manager
 #[test]
 fn test_context_manager_starts_complete_happy() {
-    assert!(StdPromptFactory::context_manager().is_complete());
+    assert!(
+        StdPromptFactory::context_manager()
+            .is_complete(CompletenessRequest)
+            .expect("is_complete ok")
+            .complete
+    );
 }
 
 /// @covers: PromptBootstrap::context_manager — unknown variable is absent
 #[test]
 fn test_context_manager_no_variables_error() {
     assert!(StdPromptFactory::context_manager()
-        .get_variable("x")
+        .get_variable(VariableLookupRequest { name: "x" })
+        .expect("get_variable ok")
+        .variable
         .is_none());
 }
 
@@ -168,13 +186,17 @@ fn test_context_manager_no_variables_error() {
 fn test_context_manager_independent_instances_edge() {
     use edge_llm_prompt::Variable;
     let mut a = StdPromptFactory::context_manager();
-    a.register_variable(
-        "x".to_string(),
-        Variable::new("x".to_string(), VariableType::String),
-    )
+    a.register_variable(RegisterVariableRequest {
+        name: "x".to_string(),
+        var: &Variable::new("x".to_string(), VariableKind::String),
+    })
     .expect("register");
     let b = StdPromptFactory::context_manager();
-    assert!(b.get_variable("x").is_none());
+    assert!(b
+        .get_variable(VariableLookupRequest { name: "x" })
+        .expect("get_variable ok")
+        .variable
+        .is_none());
 }
 
 // --- token_counter ---
@@ -182,19 +204,36 @@ fn test_context_manager_independent_instances_edge() {
 /// @covers: PromptBootstrap::token_counter — builds a working counter
 #[test]
 fn test_token_counter_counts_text_happy() {
-    assert!(StdPromptFactory::token_counter().count_tokens("hello") >= 1);
+    assert!(
+        StdPromptFactory::token_counter()
+            .count_tokens(CountTokensRequest { text: "hello" })
+            .expect("count_tokens ok")
+            .count
+            >= 1
+    );
 }
 
 /// @covers: PromptBootstrap::token_counter — empty string counts zero
 #[test]
 fn test_token_counter_empty_zero_error() {
-    assert_eq!(StdPromptFactory::token_counter().count_tokens(""), 0);
+    assert_eq!(
+        StdPromptFactory::token_counter()
+            .count_tokens(CountTokensRequest { text: "" })
+            .expect("count_tokens ok")
+            .count,
+        0
+    );
 }
 
 /// @covers: PromptBootstrap::token_counter — reports it is not exact
 #[test]
 fn test_token_counter_not_exact_edge() {
-    assert!(!StdPromptFactory::token_counter().is_exact());
+    assert!(
+        !StdPromptFactory::token_counter()
+            .is_exact(ExactnessRequest)
+            .expect("is_exact ok")
+            .exact
+    );
 }
 
 // --- default_prompt_handler ---
@@ -203,21 +242,32 @@ fn test_token_counter_not_exact_edge() {
 #[test]
 fn test_default_prompt_handler_renders_happy() {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
-    use edge_domain_handler::{Handler, HandlerContext};
+    use edge_domain_handler::{ExecutionRequest, Handler, HandlerContext};
     use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::SecurityContext;
+    use edge_security_runtime::SecurityContext;
     use edge_llm_prompt::{RenderContext, Variable};
     use futures::executor::block_on;
-    let var = Variable::new("name".to_string(), VariableType::String);
+    let var = Variable::new("name".to_string(), VariableKind::String);
     let m = PromptMetadata::new("g".to_string(), "G".to_string(), "1".to_string(), vec![var]);
     let h = StdPromptFactory::default_prompt_handler("Hi {{name}}".to_string(), m);
-    let security = SecurityContext::unauthenticated();
+    let security: SecurityContext = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
+    let ctx = HandlerContext {
+        security: &security,
+        commands: &commands,
+        observer: observer.as_ref(),
+    };
     let render_ctx =
         RenderContext::new().with_variable("name".to_string(), serde_json::json!("Ada"));
-    let out = block_on(Handler::execute(&h, render_ctx, ctx)).expect("ok");
+    let out = block_on(Handler::execute(
+        &h,
+        ExecutionRequest {
+            req: render_ctx,
+            ctx: &ctx,
+        },
+    ))
+    .expect("ok");
     assert_eq!(out, "Hi Ada");
 }
 
@@ -225,28 +275,42 @@ fn test_default_prompt_handler_renders_happy() {
 #[test]
 fn test_default_prompt_handler_missing_variable_errors_error() {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
-    use edge_domain_handler::{Handler, HandlerContext};
+    use edge_domain_handler::{ExecutionRequest, Handler, HandlerContext};
     use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::SecurityContext;
+    use edge_security_runtime::SecurityContext;
     use edge_llm_prompt::{RenderContext, Variable};
     use futures::executor::block_on;
-    let var = Variable::new("name".to_string(), VariableType::String);
+    let var = Variable::new("name".to_string(), VariableKind::String);
     let m = PromptMetadata::new("g".to_string(), "G".to_string(), "1".to_string(), vec![var]);
     let h = StdPromptFactory::default_prompt_handler("Hi {{name}}".to_string(), m);
-    let security = SecurityContext::unauthenticated();
+    let security: SecurityContext = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
-    assert!(block_on(Handler::execute(&h, RenderContext::new(), ctx)).is_err());
+    let ctx = HandlerContext {
+        security: &security,
+        commands: &commands,
+        observer: observer.as_ref(),
+    };
+    assert!(block_on(Handler::execute(
+        &h,
+        ExecutionRequest {
+            req: RenderContext::new(),
+            ctx: &ctx,
+        }
+    ))
+    .is_err());
 }
 
 /// @covers: default_prompt_handler — exposes the stable dispatch id
 #[test]
 fn test_default_prompt_handler_id_is_stable_edge() {
-    use edge_domain_handler::Handler;
+    use edge_domain_handler::{Handler, IdRequest};
     let m = PromptMetadata::new("g".to_string(), "G".to_string(), "1".to_string(), vec![]);
     let h = StdPromptFactory::default_prompt_handler("static".to_string(), m);
-    assert_eq!(Handler::id(&h), "prompt.render");
+    assert_eq!(
+        Handler::id(&h, IdRequest).expect("id ok").id,
+        "prompt.render"
+    );
 }
 
 // --- prompt_handler ---
@@ -255,23 +319,34 @@ fn test_default_prompt_handler_id_is_stable_edge() {
 #[test]
 fn test_prompt_handler_renders_with_arc_prompt_happy() {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
-    use edge_domain_handler::{Handler, HandlerContext};
+    use edge_domain_handler::{ExecutionRequest, Handler, HandlerContext};
     use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::SecurityContext;
+    use edge_security_runtime::SecurityContext;
     use edge_llm_prompt::{RenderContext, Variable};
     use futures::executor::block_on;
     use std::sync::Arc;
-    let var = Variable::new("name".to_string(), VariableType::String);
+    let var = Variable::new("name".to_string(), VariableKind::String);
     let m = PromptMetadata::new("g".to_string(), "G".to_string(), "1".to_string(), vec![var]);
     let prompt = Arc::new(StdPromptFactory::prompt("Hi {{name}}".to_string(), m));
     let h = StdPromptFactory::prompt_handler(prompt);
-    let security = SecurityContext::unauthenticated();
+    let security: SecurityContext = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
+    let ctx = HandlerContext {
+        security: &security,
+        commands: &commands,
+        observer: observer.as_ref(),
+    };
     let render_ctx =
         RenderContext::new().with_variable("name".to_string(), serde_json::json!("Eve"));
-    let out = block_on(Handler::execute(&h, render_ctx, ctx)).expect("ok");
+    let out = block_on(Handler::execute(
+        &h,
+        ExecutionRequest {
+            req: render_ctx,
+            ctx: &ctx,
+        },
+    ))
+    .expect("ok");
     assert_eq!(out, "Hi Eve");
 }
 
@@ -279,32 +354,46 @@ fn test_prompt_handler_renders_with_arc_prompt_happy() {
 #[test]
 fn test_prompt_handler_missing_required_variable_error() {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
-    use edge_domain_handler::{Handler, HandlerContext};
+    use edge_domain_handler::{ExecutionRequest, Handler, HandlerContext};
     use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::SecurityContext;
+    use edge_security_runtime::SecurityContext;
     use edge_llm_prompt::{RenderContext, Variable};
     use futures::executor::block_on;
     use std::sync::Arc;
-    let var = Variable::new("name".to_string(), VariableType::String);
+    let var = Variable::new("name".to_string(), VariableKind::String);
     let m = PromptMetadata::new("g".to_string(), "G".to_string(), "1".to_string(), vec![var]);
     let prompt = Arc::new(StdPromptFactory::prompt("Hi {{name}}".to_string(), m));
     let h = StdPromptFactory::prompt_handler(prompt);
-    let security = SecurityContext::unauthenticated();
+    let security: SecurityContext = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = HandlerContext::new(&security, &commands, observer.as_ref());
-    assert!(block_on(Handler::execute(&h, RenderContext::new(), ctx)).is_err());
+    let ctx = HandlerContext {
+        security: &security,
+        commands: &commands,
+        observer: observer.as_ref(),
+    };
+    assert!(block_on(Handler::execute(
+        &h,
+        ExecutionRequest {
+            req: RenderContext::new(),
+            ctx: &ctx,
+        }
+    ))
+    .is_err());
 }
 
 /// @covers: StdPromptFactory::prompt_handler — empty template renders to an empty string
 #[test]
 fn test_prompt_handler_empty_template_edge() {
-    use edge_domain_handler::Handler;
+    use edge_domain_handler::{Handler, IdRequest};
     use std::sync::Arc;
     let m = PromptMetadata::new("e".to_string(), "E".to_string(), "1".to_string(), vec![]);
     let prompt = Arc::new(StdPromptFactory::prompt(String::new(), m));
     let h = StdPromptFactory::prompt_handler(prompt);
-    assert_eq!(Handler::id(&h), "prompt.render");
+    assert_eq!(
+        Handler::id(&h, IdRequest).expect("id ok").id,
+        "prompt.render"
+    );
 }
 
 // --- template_provider ---
@@ -320,7 +409,9 @@ fn test_template_provider_starts_empty_happy() {
 fn test_template_provider_unknown_id_absent_error() {
     use edge_llm_prompt::TemplateProvider;
     assert!(StdPromptFactory::template_provider()
-        .get_template("x")
+        .get_template(TemplateLookupRequest { id: "x" })
+        .expect("get_template ok")
+        .template
         .is_none());
 }
 
@@ -335,7 +426,11 @@ fn test_template_provider_independent_instances_edge() {
         "c".to_string(),
     ));
     let b = StdPromptFactory::template_provider();
-    assert!(b.get_template("x").is_none());
+    assert!(b
+        .get_template(TemplateLookupRequest { id: "x" })
+        .expect("get_template ok")
+        .template
+        .is_none());
 }
 
 // --- prompt_template_builder ---

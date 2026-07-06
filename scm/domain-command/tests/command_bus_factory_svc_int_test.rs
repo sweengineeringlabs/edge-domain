@@ -1,4 +1,5 @@
 //! SAF facade tests — `CommandBusBootstrap` constructors.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
 
@@ -75,20 +76,22 @@ fn test_logging_distinct_instances_for_different_inner_error() {
 /// @covers: CommandBusBootstrap::logging — inner bus is callable through logging wrapper
 #[test]
 fn test_logging_delegates_dispatch_to_inner_edge() {
-    use edge_domain_command::{Command, CommandError};
+    use edge_domain_command::{Command, CommandDispatchRequest, CommandError, ExecutionRequest};
     use futures::executor::block_on;
     use futures::future::BoxFuture;
 
     struct LoggingFactoryOk;
     impl Command for LoggingFactoryOk {
-        fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+        fn execute(&self, _req: ExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
             Box::pin(async { Ok(()) })
         }
     }
 
     let inner: Arc<dyn CommandBus> = Arc::new(NoopCommandBus);
     let bus = Buses::logging(inner);
-    let result = block_on(bus.dispatch(Box::new(LoggingFactoryOk)));
+    let result = block_on(bus.dispatch(CommandDispatchRequest {
+        command: Box::new(LoggingFactoryOk),
+    }));
     let unit = result.expect("dispatch should succeed");
     assert_eq!(unit, (), "dispatch result should be unit");
 }

@@ -6,7 +6,24 @@ use futures::future::BoxFuture;
 
 use crate::api::EventError;
 use crate::api::{DomainEvent, EventBus, EventSource};
-use crate::api::{EventReceiver, InProcessEventBus};
+use crate::api::{
+    EventBusPublishRequest, EventBusSubscribeRequest, EventBusSubscribeResponse, EventReceiver,
+    EventSourceRecvNextRequest, EventSourceRecvNextResponse, InProcessEventBus,
+};
+
+impl InProcessEventBus {
+    /// Create a new bus with the given channel `capacity`.
+    pub fn new(capacity: usize) -> Self {
+        let (sender, _) = tokio::sync::broadcast::channel(capacity);
+        Self { sender }
+    }
+}
+
+impl Default for InProcessEventBus {
+    fn default() -> Self {
+        Self::new(1024)
+    }
+}
 
 /// Private receiver side of the broadcast channel.
 struct InProcessEventBusSource {
@@ -14,10 +31,13 @@ struct InProcessEventBusSource {
 }
 
 impl EventSource for InProcessEventBusSource {
-    fn recv_next(&mut self) -> BoxFuture<'_, Result<Arc<dyn DomainEvent>, EventError>> {
+    fn recv_next(
+        &mut self,
+        _req: EventSourceRecvNextRequest,
+    ) -> BoxFuture<'_, Result<EventSourceRecvNextResponse, EventError>> {
         Box::pin(async {
             match self.receiver.recv().await {
-                Ok(event) => Ok(event),
+                Ok(event) => Ok(EventSourceRecvNextResponse { event }),
                 Err(tokio::sync::broadcast::error::RecvError::Closed) => {
                     Err(EventError::Unavailable("channel closed".into()))
                 }
@@ -30,17 +50,22 @@ impl EventSource for InProcessEventBusSource {
 }
 
 impl EventBus for InProcessEventBus {
-    fn publish(&self, event: Arc<dyn DomainEvent>) -> BoxFuture<'_, Result<(), EventError>> {
+    fn publish(&self, req: EventBusPublishRequest) -> BoxFuture<'_, Result<(), EventError>> {
         Box::pin(async move {
             // send() fails only when there are no receivers, which is not an error
-            let _ = self.sender.send(event);
+            let _ = self.sender.send(req.event);
             Ok(())
         })
     }
 
-    fn subscribe(&self) -> EventReceiver {
-        EventReceiver::new(InProcessEventBusSource {
-            receiver: self.sender.subscribe(),
+    fn subscribe(
+        &self,
+        _req: EventBusSubscribeRequest,
+    ) -> Result<EventBusSubscribeResponse, EventError> {
+        Ok(EventBusSubscribeResponse {
+            receiver: EventReceiver::new(InProcessEventBusSource {
+                receiver: self.sender.subscribe(),
+            }),
         })
     }
 }
@@ -48,12 +73,19 @@ impl EventBus for InProcessEventBus {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::api::{EventTypeRequest, EventTypeResponse};
 
     struct InProcessEventBusTestEvt;
     impl DomainEvent for InProcessEventBusTestEvt {
-        fn event_type(&self) -> &str {
-            "test.evt"
+        fn event_type(&self, _req: EventTypeRequest) -> Result<EventTypeResponse<'_>, EventError> {
+            Ok(EventTypeResponse {
+                event_type: "test.evt",
+            })
         }
+    }
+
+    fn publish_req(event: Arc<dyn DomainEvent>) -> EventBusPublishRequest {
+        EventBusPublishRequest { event }
     }
 
     /// @covers: publish
@@ -65,7 +97,7 @@ mod tests {
             .expect("tokio rt");
         rt.block_on(async {
             let bus = InProcessEventBus::new(16);
-            let result = bus.publish(Arc::new(InProcessEventBusTestEvt)).await;
+            let result = bus.publish(publish_req(Arc::new(InProcessEventBusTestEvt))).await;
             assert!(result.is_ok());
         });
     }
@@ -79,10 +111,19 @@ mod tests {
             .expect("tokio rt");
         rt.block_on(async {
             let bus = InProcessEventBus::new(16);
-            let mut rx = bus.subscribe();
-            bus.publish(Arc::new(InProcessEventBusTestEvt)).await.expect("publish");
+            let mut rx = bus
+                .subscribe(EventBusSubscribeRequest)
+                .expect("subscribe")
+                .receiver;
+            bus.publish(publish_req(Arc::new(InProcessEventBusTestEvt)))
+                .await
+                .expect("publish");
             let event = rx.recv().await.expect("recv");
-            assert_eq!(event.event_type(), "test.evt");
+            let event_type = event
+                .event_type(EventTypeRequest)
+                .expect("event_type")
+                .event_type;
+            assert_eq!(event_type, "test.evt");
         });
     }
 
@@ -95,9 +136,17 @@ mod tests {
             .expect("tokio rt");
         rt.block_on(async {
             let bus = InProcessEventBus::new(16);
-            let mut rx1 = bus.subscribe();
-            let mut rx2 = bus.subscribe();
-            bus.publish(Arc::new(InProcessEventBusTestEvt)).await.expect("publish");
+            let mut rx1 = bus
+                .subscribe(EventBusSubscribeRequest)
+                .expect("subscribe")
+                .receiver;
+            let mut rx2 = bus
+                .subscribe(EventBusSubscribeRequest)
+                .expect("subscribe")
+                .receiver;
+            bus.publish(publish_req(Arc::new(InProcessEventBusTestEvt)))
+                .await
+                .expect("publish");
             assert!(rx1.recv().await.is_ok());
             assert!(rx2.recv().await.is_ok());
         });

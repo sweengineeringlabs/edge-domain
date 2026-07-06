@@ -1,34 +1,39 @@
 //! Integration tests for `CompositePolicy` AND-composition.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_policy::{CompositePolicy, Policy, PolicyViolation};
+use edge_domain_policy::{CompositePolicy, Policy, PolicyEvaluateRequest, PolicyNameRequest, PolicyNameResponse, PolicyError};
 
 struct Reject(&'static str);
 impl Policy for Reject {
     type Input = String;
-    fn name(&self) -> &'static str {
-        self.0
+    fn name(&self, _req: PolicyNameRequest) -> Result<PolicyNameResponse, PolicyError> {
+        Ok(PolicyNameResponse { name: self.0 })
     }
-    fn evaluate(&self, _input: &String) -> Result<(), PolicyViolation> {
-        Err(PolicyViolation::new(self.0, "denied"))
+    fn evaluate(&self, _req: PolicyEvaluateRequest<'_, String>) -> Result<(), PolicyError> {
+        Err(PolicyError::new(self.0, "denied"))
     }
 }
 
 struct Accept;
 impl Policy for Accept {
     type Input = String;
-    fn name(&self) -> &'static str {
-        "accept"
+    fn name(&self, _req: PolicyNameRequest) -> Result<PolicyNameResponse, PolicyError> {
+        Ok(PolicyNameResponse { name: "accept" })
     }
-    fn evaluate(&self, _input: &String) -> Result<(), PolicyViolation> {
+    fn evaluate(&self, _req: PolicyEvaluateRequest<'_, String>) -> Result<(), PolicyError> {
         Ok(())
     }
+}
+
+fn eval(input: &String) -> PolicyEvaluateRequest<'_, String> {
+    PolicyEvaluateRequest { input }
 }
 
 /// @covers: CompositePolicy::new + evaluate — empty composite passes
 #[test]
 fn test_evaluate_empty_composite_passes_happy() {
     let c: CompositePolicy<String> = CompositePolicy::new();
-    assert_eq!(c.evaluate(&"x".to_string()), Ok(()), "empty composite should pass");
+    assert_eq!(c.evaluate(eval(&"x".to_string())), Ok(()), "empty composite should pass");
 }
 
 /// @covers: CompositePolicy::with + evaluate — failing member short-circuits
@@ -37,7 +42,7 @@ fn test_evaluate_failing_member_returns_err_error() {
     let c = CompositePolicy::new()
         .with(Box::new(Accept))
         .with(Box::new(Reject("second")));
-    let err = c.evaluate(&"x".to_string());
+    let err = c.evaluate(eval(&"x".to_string()));
     assert!(err.is_err());
 }
 
@@ -47,6 +52,6 @@ fn test_evaluate_first_violation_short_circuits_edge() {
     let c = CompositePolicy::new()
         .with(Box::new(Reject("first")))
         .with(Box::new(Reject("second")));
-    let err = c.evaluate(&"x".to_string()).unwrap_err();
+    let err = c.evaluate(eval(&"x".to_string())).unwrap_err();
     assert_eq!(err.policy, "first");
 }

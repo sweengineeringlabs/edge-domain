@@ -10,7 +10,7 @@ description  = "edge-domain — Entity port contract: identity-bearing domain ob
 keywords     = ["domain", "entity", "sea", "swe"]
 categories   = ["development-tools"]
 
-[package.metadata.struct-engine]
+[package.metadata.arch]
 application_type = "lib"
 service_type     = "entity"
 

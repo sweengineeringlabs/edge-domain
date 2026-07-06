@@ -1,5 +1,6 @@
 //! Coverage for api/command/direct_command_bus.rs and api/command/types/direct_command_bus.rs
-use edge_domain::{CommandBus, DirectCommandBus, Domain};
+use edge_domain::{CommandBus, Domain};
+use edge_domain_command::DirectCommandBus;
 use std::sync::Arc;
 
 #[test]

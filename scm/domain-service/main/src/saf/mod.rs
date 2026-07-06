@@ -1,7 +1,4 @@
 mod service;
+mod tests;
 
-pub use service::{
-    SERVICE_REGISTRY_FACTORY_SVC,
-    SERVICE_REGISTRY_SVC,
-    SERVICE_SVC,
-};
+pub use service::{SERVICE_REGISTRY_SVC, SERVICE_SVC};

@@ -1,7 +1,6 @@
 //! API-layer type for the in-memory snapshot store.
 
 use std::collections::HashMap;
-use std::hash::Hash;
 
 use parking_lot::RwLock;
 
@@ -14,25 +13,4 @@ use crate::api::snapshot::traits::Snapshot;
 pub struct InMemorySnapshotStore<S: Snapshot> {
     /// The underlying snapshot map — exposed for test-time inspection.
     pub snapshots: RwLock<HashMap<S::AggregateId, S>>,
-}
-
-impl<S: Snapshot> InMemorySnapshotStore<S>
-where
-    S::AggregateId: Eq + Hash,
-{
-    /// Create a new empty in-memory snapshot store.
-    pub fn new() -> Self {
-        Self {
-            snapshots: RwLock::new(HashMap::new()),
-        }
-    }
-}
-
-impl<S: Snapshot> Default for InMemorySnapshotStore<S>
-where
-    S::AggregateId: Eq + Hash,
-{
-    fn default() -> Self {
-        Self::new()
-    }
 }

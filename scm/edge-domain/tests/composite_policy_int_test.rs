@@ -5,19 +5,22 @@
 //! rather than contrived assertions.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{CompositePolicy, Policy, PolicyViolation};
+use edge_domain::{
+    CompositePolicy, Policy, PolicyError, PolicyEvaluateRequest, PolicyNameRequest,
+    PolicyNameResponse,
+};
 
 struct NonEmpty;
 struct MaxLength(usize);
 
 impl Policy for NonEmpty {
     type Input = String;
-    fn name(&self) -> &'static str {
-        "non-empty"
+    fn name(&self, _req: PolicyNameRequest) -> Result<PolicyNameResponse, PolicyError> {
+        Ok(PolicyNameResponse { name: "non-empty" })
     }
-    fn evaluate(&self, input: &String) -> Result<(), PolicyViolation> {
-        if input.is_empty() {
-            Err(PolicyViolation::new("non-empty", "value must not be empty"))
+    fn evaluate(&self, req: PolicyEvaluateRequest<'_, String>) -> Result<(), PolicyError> {
+        if req.input.is_empty() {
+            Err(PolicyError::new("non-empty", "value must not be empty"))
         } else {
             Ok(())
         }
@@ -26,19 +29,23 @@ impl Policy for NonEmpty {
 
 impl Policy for MaxLength {
     type Input = String;
-    fn name(&self) -> &'static str {
-        "max-length"
+    fn name(&self, _req: PolicyNameRequest) -> Result<PolicyNameResponse, PolicyError> {
+        Ok(PolicyNameResponse { name: "max-length" })
     }
-    fn evaluate(&self, input: &String) -> Result<(), PolicyViolation> {
-        if input.len() <= self.0 {
+    fn evaluate(&self, req: PolicyEvaluateRequest<'_, String>) -> Result<(), PolicyError> {
+        if req.input.len() <= self.0 {
             Ok(())
         } else {
-            Err(PolicyViolation::new(
+            Err(PolicyError::new(
                 "max-length",
-                format!("length {} exceeds maximum {}", input.len(), self.0),
+                format!("length {} exceeds maximum {}", req.input.len(), self.0),
             ))
         }
     }
+}
+
+fn eval(input: &String) -> PolicyEvaluateRequest<'_, String> {
+    PolicyEvaluateRequest { input }
 }
 
 /// @covers: CompositePolicy::new, Policy::evaluate (composite, all pass)
@@ -47,7 +54,7 @@ fn test_evaluate_all_policies_pass_returns_ok_happy() {
     let policy = CompositePolicy::new()
         .with(Box::new(NonEmpty))
         .with(Box::new(MaxLength(10)));
-    let result = policy.evaluate(&"hello".to_string());
+    let result = policy.evaluate(eval(&"hello".to_string()));
     assert!(result.is_ok(), "both policies should pass for valid input");
     assert_eq!(result.unwrap(), ());
 }
@@ -58,7 +65,7 @@ fn test_evaluate_first_policy_fails_short_circuits_error() {
     let policy = CompositePolicy::new()
         .with(Box::new(NonEmpty))
         .with(Box::new(MaxLength(10)));
-    let err = policy.evaluate(&String::new()).unwrap_err();
+    let err = policy.evaluate(eval(&String::new())).unwrap_err();
     assert_eq!(err.policy, "non-empty");
 }
 
@@ -68,7 +75,7 @@ fn test_evaluate_second_policy_fails_returns_its_violation_error() {
     let policy = CompositePolicy::new()
         .with(Box::new(NonEmpty))
         .with(Box::new(MaxLength(3)));
-    let err = policy.evaluate(&"toolong".to_string()).unwrap_err();
+    let err = policy.evaluate(eval(&"toolong".to_string())).unwrap_err();
     assert_eq!(err.policy, "max-length");
     assert!(err.reason.contains("7"));
 }
@@ -77,7 +84,7 @@ fn test_evaluate_second_policy_fails_returns_its_violation_error() {
 #[test]
 fn test_evaluate_empty_composite_always_returns_ok_edge() {
     let policy: CompositePolicy<String> = CompositePolicy::new();
-    let result = policy.evaluate(&"anything".to_string());
+    let result = policy.evaluate(eval(&"anything".to_string()));
     assert_eq!(result, Ok(()), "empty composite should always pass");
 }
 
@@ -85,16 +92,16 @@ fn test_evaluate_empty_composite_always_returns_ok_edge() {
 #[test]
 fn test_name_returns_composite_happy() {
     let policy: CompositePolicy<String> = CompositePolicy::new();
-    assert_eq!(policy.name(), "composite");
+    assert_eq!(policy.name(PolicyNameRequest).unwrap().name, "composite");
 }
 
 /// @covers: CompositePolicy::add (single policy)
 #[test]
 fn test_add_single_policy_is_evaluated_edge() {
     let policy = CompositePolicy::new().with(Box::new(MaxLength(5)));
-    let pass = policy.evaluate(&"hi".to_string());
+    let pass = policy.evaluate(eval(&"hi".to_string()));
     assert_eq!(pass, Ok(()), "short string should pass max length");
-    let fail = policy.evaluate(&"exceeds".to_string());
+    let fail = policy.evaluate(eval(&"exceeds".to_string()));
     assert!(fail.is_err(), "long string should fail max length");
     let err = fail.unwrap_err();
     assert_eq!(err.policy, "max-length");

@@ -2,6 +2,7 @@
 
 use futures::future::BoxFuture;
 
+use crate::api::command::types::{ExecutionRequest, NameRequest, NameResponse};
 use crate::api::command::CommandError;
 
 /// A named write operation that mutates domain state and returns no value.
@@ -10,10 +11,12 @@ use crate::api::command::CommandError;
 /// ("create order", "cancel subscription") and return only success or failure.
 pub trait Command: Send + Sync {
     /// Stable name identifying this command type.
-    fn name(&self) -> &str {
-        "command"
+    fn name(&self, _req: NameRequest) -> Result<NameResponse, CommandError> {
+        Ok(NameResponse {
+            name: "command".to_string(),
+        })
     }
 
     /// Execute the command, mutating domain state.
-    fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>>;
+    fn execute(&self, _req: ExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>>;
 }

@@ -5,7 +5,12 @@
 //! `_error` scenarios exercise a real rollback, not a contrived assertion.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{Command, DomainEvent, Saga};
+use edge_domain::{
+    Command, DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventError,
+    EventTypeRequest, EventTypeResponse, Saga, SagaError, SagaHandleRequest, SagaHandleResponse,
+    SagaIsCompleteRequest, SagaIsCompleteResponse,
+};
+use edge_domain_command::{ExecutionRequest, NameRequest, NameResponse};
 
 /// Events the saga reacts to.
 #[derive(Clone)]
@@ -16,19 +21,26 @@ enum OrderEvent {
 }
 
 impl DomainEvent for OrderEvent {
-    fn event_type(&self) -> &str {
-        match self {
-            OrderEvent::Placed { .. } => "order.placed",
-            OrderEvent::Confirmed { .. } => "order.confirmed",
-            OrderEvent::PaymentFailed { .. } => "order.payment_failed",
-        }
+    fn event_type(&self, _req: EventTypeRequest) -> Result<EventTypeResponse<'_>, EventError> {
+        Ok(EventTypeResponse {
+            event_type: match self {
+                OrderEvent::Placed { .. } => "order.placed",
+                OrderEvent::Confirmed { .. } => "order.confirmed",
+                OrderEvent::PaymentFailed { .. } => "order.payment_failed",
+            },
+        })
     }
-    fn aggregate_id(&self) -> &str {
-        match self {
-            OrderEvent::Placed { order_id }
-            | OrderEvent::Confirmed { order_id }
-            | OrderEvent::PaymentFailed { order_id } => order_id,
-        }
+    fn aggregate_id(
+        &self,
+        _req: EventAggregateIdRequest,
+    ) -> Result<EventAggregateIdResponse<'_>, EventError> {
+        Ok(EventAggregateIdResponse {
+            aggregate_id: match self {
+                OrderEvent::Placed { order_id }
+                | OrderEvent::Confirmed { order_id }
+                | OrderEvent::PaymentFailed { order_id } => order_id,
+            },
+        })
     }
 }
 
@@ -40,13 +52,19 @@ enum OrderCommand {
 }
 
 impl Command for OrderCommand {
-    fn name(&self) -> &str {
-        match self {
-            OrderCommand::ReserveStock { .. } => "reserve-stock",
-            OrderCommand::RefundCustomer { .. } => "refund-customer",
-        }
+    fn name(&self, _req: NameRequest) -> Result<NameResponse, edge_domain::CommandError> {
+        Ok(NameResponse {
+            name: match self {
+                OrderCommand::ReserveStock { .. } => "reserve-stock",
+                OrderCommand::RefundCustomer { .. } => "refund-customer",
+            }
+            .to_string(),
+        })
     }
-    fn execute(&self) -> futures::future::BoxFuture<'_, Result<(), edge_domain::CommandError>> {
+    fn execute(
+        &self,
+        _req: ExecutionRequest,
+    ) -> futures::future::BoxFuture<'_, Result<(), edge_domain::CommandError>> {
         Box::pin(async move { Ok(()) })
     }
 }
@@ -62,8 +80,11 @@ impl Saga for OrderSaga {
     type Event = OrderEvent;
     type Command = OrderCommand;
 
-    fn handle(&mut self, event: &Self::Event) -> Vec<Self::Command> {
-        match event {
+    fn handle(
+        &mut self,
+        req: SagaHandleRequest<'_, Self::Event>,
+    ) -> Result<SagaHandleResponse<Self::Command>, SagaError> {
+        let commands = match req.event {
             OrderEvent::Placed { order_id } => {
                 vec![OrderCommand::ReserveStock {
                     order_id: order_id.clone(),
@@ -80,11 +101,17 @@ impl Saga for OrderSaga {
                     order_id: order_id.clone(),
                 }]
             }
-        }
+        };
+        Ok(SagaHandleResponse { commands })
     }
 
-    fn is_complete(&self) -> bool {
-        self.complete
+    fn is_complete(
+        &self,
+        _req: SagaIsCompleteRequest,
+    ) -> Result<SagaIsCompleteResponse, SagaError> {
+        Ok(SagaIsCompleteResponse {
+            complete: self.complete,
+        })
     }
 }
 
@@ -92,9 +119,13 @@ impl Saga for OrderSaga {
 #[test]
 fn test_handle_order_placed_stages_reserve_stock_happy() {
     let mut saga = OrderSaga::default();
-    let cmds = saga.handle(&OrderEvent::Placed {
+    let event = OrderEvent::Placed {
         order_id: "order-1".to_string(),
-    });
+    };
+    let cmds = saga
+        .handle(SagaHandleRequest { event: &event })
+        .unwrap()
+        .commands;
     assert_eq!(
         cmds,
         vec![OrderCommand::ReserveStock {
@@ -107,9 +138,13 @@ fn test_handle_order_placed_stages_reserve_stock_happy() {
 #[test]
 fn test_handle_order_confirmed_stages_no_commands_edge() {
     let mut saga = OrderSaga::default();
-    let cmds = saga.handle(&OrderEvent::Confirmed {
+    let event = OrderEvent::Confirmed {
         order_id: "order-1".to_string(),
-    });
+    };
+    let cmds = saga
+        .handle(SagaHandleRequest { event: &event })
+        .unwrap()
+        .commands;
     assert!(cmds.is_empty());
 }
 
@@ -117,9 +152,13 @@ fn test_handle_order_confirmed_stages_no_commands_edge() {
 #[test]
 fn test_handle_payment_failed_stages_compensating_refund_error() {
     let mut saga = OrderSaga::default();
-    let cmds = saga.handle(&OrderEvent::PaymentFailed {
+    let event = OrderEvent::PaymentFailed {
         order_id: "order-1".to_string(),
-    });
+    };
+    let cmds = saga
+        .handle(SagaHandleRequest { event: &event })
+        .unwrap()
+        .commands;
     assert_eq!(
         cmds,
         vec![OrderCommand::RefundCustomer {
@@ -133,25 +172,27 @@ fn test_handle_payment_failed_stages_compensating_refund_error() {
 #[test]
 fn test_is_complete_after_confirmation_returns_true_happy() {
     let mut saga = OrderSaga::default();
-    saga.handle(&OrderEvent::Confirmed {
+    let event = OrderEvent::Confirmed {
         order_id: "order-1".to_string(),
-    });
-    assert!(saga.is_complete());
+    };
+    saga.handle(SagaHandleRequest { event: &event }).unwrap();
+    assert!(saga.is_complete(SagaIsCompleteRequest).unwrap().complete);
 }
 
 /// @covers: Saga::is_complete
 #[test]
 fn test_is_complete_before_any_event_returns_false_edge() {
     let saga = OrderSaga::default();
-    assert!(!saga.is_complete());
+    assert!(!saga.is_complete(SagaIsCompleteRequest).unwrap().complete);
 }
 
 /// @covers: Saga::is_complete
 #[test]
 fn test_is_complete_after_compensation_returns_true_error() {
     let mut saga = OrderSaga::default();
-    saga.handle(&OrderEvent::PaymentFailed {
+    let event = OrderEvent::PaymentFailed {
         order_id: "order-1".to_string(),
-    });
-    assert!(saga.is_complete());
+    };
+    saga.handle(SagaHandleRequest { event: &event }).unwrap();
+    assert!(saga.is_complete(SagaIsCompleteRequest).unwrap().complete);
 }

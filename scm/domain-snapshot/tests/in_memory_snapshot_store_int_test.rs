@@ -1,18 +1,45 @@
 //! Integration tests for `InMemorySnapshotStore` — covers the type file directly.
 // @allow: no_mocks_in_integration — InMemorySnapshotStore is the production-shipped reference impl, not a test double
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_snapshot::{InMemorySnapshotStore, Snapshot, SnapshotStore};
+use edge_domain_snapshot::{
+    InMemorySnapshotStore, Snapshot, SnapshotAggregateIdRequest, SnapshotAggregateIdResponse,
+    SnapshotError, SnapshotLoadRequest, SnapshotSaveRequest, SnapshotStore, SnapshotVersionRequest,
+    SnapshotVersionResponse,
+};
 use futures::executor::block_on;
 
 #[derive(Clone)]
-struct OrderSnapshot { id: String, version: u64 }
+struct OrderSnapshot {
+    id: String,
+    version: u64,
+}
 impl Snapshot for OrderSnapshot {
     type AggregateId = String;
-    fn aggregate_id(&self) -> &Self::AggregateId { &self.id }
-    fn version(&self) -> u64 { self.version }
+    fn aggregate_id(
+        &self,
+        _req: SnapshotAggregateIdRequest,
+    ) -> Result<SnapshotAggregateIdResponse<'_, String>, SnapshotError> {
+        Ok(SnapshotAggregateIdResponse {
+            aggregate_id: &self.id,
+        })
+    }
+    fn version(
+        &self,
+        _req: SnapshotVersionRequest,
+    ) -> Result<SnapshotVersionResponse, SnapshotError> {
+        Ok(SnapshotVersionResponse {
+            version: self.version,
+        })
+    }
 }
 
-fn order_snapshot(id: &str, v: u64) -> OrderSnapshot { OrderSnapshot { id: id.to_string(), version: v } }
+fn order_snapshot(id: &str, v: u64) -> OrderSnapshot {
+    OrderSnapshot {
+        id: id.to_string(),
+        version: v,
+    }
+}
 
 /// @covers: InMemorySnapshotStore::new — creates empty store
 #[test]
@@ -25,7 +52,10 @@ fn test_new_creates_empty_store_happy() {
 #[test]
 fn test_load_missing_aggregate_returns_none_error() {
     let store = InMemorySnapshotStore::<OrderSnapshot>::new();
-    let result = block_on(store.load(&"ghost".to_string())).unwrap();
+    let id = "ghost".to_string();
+    let result = block_on(store.load(SnapshotLoadRequest { id: &id }))
+        .unwrap()
+        .snapshot;
     assert!(result.is_none());
 }
 
@@ -33,7 +63,13 @@ fn test_load_missing_aggregate_returns_none_error() {
 #[test]
 fn test_load_different_aggregate_id_returns_none_edge() {
     let store = InMemorySnapshotStore::<OrderSnapshot>::new();
-    block_on(store.save(order_snapshot("a", 1))).unwrap();
-    let result = block_on(store.load(&"b".to_string())).unwrap();
+    block_on(store.save(SnapshotSaveRequest {
+        snapshot: order_snapshot("a", 1),
+    }))
+    .unwrap();
+    let id = "b".to_string();
+    let result = block_on(store.load(SnapshotLoadRequest { id: &id }))
+        .unwrap()
+        .snapshot;
     assert!(result.is_none());
 }

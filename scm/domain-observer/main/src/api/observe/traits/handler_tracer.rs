@@ -1,6 +1,7 @@
 //! `HandlerTracer` — tracing contract for domain handlers.
 
-use super::Span;
+use crate::api::observe::errors::ObserveError;
+use crate::api::observe::types::{SpanStartRequest, SpanStartResponse};
 
 /// Opens tracing spans for a domain handler execution.
 ///
@@ -8,5 +9,5 @@ use super::Span;
 /// `edge-dispatch` for every handler invocation.
 pub trait HandlerTracer: Send + Sync {
     /// Start a new span named `operation` for handler `handler_id`.
-    fn start_span(&self, handler_id: &str, operation: &str) -> Box<dyn Span>;
+    fn start_span(&self, req: SpanStartRequest) -> Result<SpanStartResponse, ObserveError>;
 }

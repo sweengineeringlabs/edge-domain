@@ -1,8 +1,25 @@
+use std::collections::HashMap;
 use std::fmt::Display;
 
+use crate::api::InMemorySagaStore;
 use crate::api::SagaError;
 use crate::api::{Saga, SagaStore};
-use crate::api::InMemorySagaStore;
+use crate::api::{SagaGetRequest, SagaGetResponse, SagaRegisterRequest};
+
+impl<S: Saga> InMemorySagaStore<S> {
+    /// Construct an empty store.
+    pub fn new() -> Self {
+        Self {
+            sagas: HashMap::new(),
+        }
+    }
+}
+
+impl<S: Saga> Default for InMemorySagaStore<S> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl<S> SagaStore for InMemorySagaStore<S>
 where
@@ -11,25 +28,32 @@ where
 {
     type SagaInstance = S;
 
-    fn register(&mut self, id: S::SagaId, saga: S) -> Result<(), SagaError> {
-        if self.sagas.contains_key(&id) {
-            return Err(SagaError::AlreadyRegistered(id.to_string()));
+    fn register(&mut self, req: SagaRegisterRequest<S::SagaId, S>) -> Result<(), SagaError> {
+        if self.sagas.contains_key(&req.id) {
+            return Err(SagaError::AlreadyRegistered(req.id.to_string()));
         }
-        self.sagas.insert(id, saga);
+        self.sagas.insert(req.id, req.saga);
         Ok(())
     }
 
-    fn get(&self, id: &S::SagaId) -> Result<&S, SagaError> {
+    fn get<'a>(
+        &'a self,
+        req: SagaGetRequest<'a, S::SagaId>,
+    ) -> Result<SagaGetResponse<'a, S>, SagaError> {
         self.sagas
-            .get(id)
-            .ok_or_else(|| SagaError::NotFound(id.to_string()))
+            .get(req.id)
+            .map(|saga| SagaGetResponse { saga })
+            .ok_or_else(|| SagaError::NotFound(req.id.to_string()))
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use edge_domain_command::{Command, CommandError};
+    use crate::api::{
+        SagaHandleRequest, SagaHandleResponse, SagaIsCompleteRequest, SagaIsCompleteResponse,
+    };
+    use edge_domain_command::{Command, CommandError, ExecutionRequest};
     use edge_domain_event::DomainEvent;
     use futures::future::BoxFuture;
 
@@ -42,13 +66,19 @@ mod tests {
     struct InMemorySagaStoreTestSagaSignal;
 
     impl DomainEvent for InMemorySagaStoreTestSagaSignal {
-        fn aggregate_id(&self) -> &str {
-            "saga-test"
+        fn aggregate_id(
+            &self,
+            _req: edge_domain_event::EventAggregateIdRequest,
+        ) -> Result<edge_domain_event::EventAggregateIdResponse<'_>, edge_domain_event::EventError>
+        {
+            Ok(edge_domain_event::EventAggregateIdResponse {
+                aggregate_id: "saga-test",
+            })
         }
     }
 
     impl Command for InMemorySagaStoreTestSagaSignal {
-        fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+        fn execute(&self, _req: ExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
             Box::pin(async move { Ok(()) })
         }
     }
@@ -58,13 +88,21 @@ mod tests {
         type Event = InMemorySagaStoreTestSagaSignal;
         type Command = InMemorySagaStoreTestSagaSignal;
 
-        fn handle(&mut self, _event: &Self::Event) -> Vec<Self::Command> {
+        fn handle(
+            &mut self,
+            _req: SagaHandleRequest<'_, Self::Event>,
+        ) -> Result<SagaHandleResponse<Self::Command>, SagaError> {
             self.done = true;
-            vec![]
+            Ok(SagaHandleResponse { commands: vec![] })
         }
 
-        fn is_complete(&self) -> bool {
-            self.done
+        fn is_complete(
+            &self,
+            _req: SagaIsCompleteRequest,
+        ) -> Result<SagaIsCompleteResponse, SagaError> {
+            Ok(SagaIsCompleteResponse {
+                complete: self.done,
+            })
         }
     }
 
@@ -73,19 +111,34 @@ mod tests {
     #[test]
     fn test_register_then_get_returns_ok() {
         let mut store = TestStore::new();
-        store.register("s1".to_string(), InMemorySagaStoreTestSaga::default())
+        store
+            .register(SagaRegisterRequest {
+                id: "s1".to_string(),
+                saga: InMemorySagaStoreTestSaga::default(),
+            })
             .ok();
-        let saga = store.get(&"s1".to_string()).unwrap();
-        assert_eq!(saga.is_complete(), false, "newly registered saga should not be complete");
+        let id = "s1".to_string();
+        let saga = store.get(SagaGetRequest { id: &id }).unwrap().saga;
+        assert!(
+            !saga.is_complete(SagaIsCompleteRequest).unwrap().complete,
+            "newly registered saga should not be complete"
+        );
     }
 
     #[test]
     fn test_register_duplicate_returns_already_registered() {
         let mut store = TestStore::new();
-        store.register("s1".to_string(), InMemorySagaStoreTestSaga::default())
+        store
+            .register(SagaRegisterRequest {
+                id: "s1".to_string(),
+                saga: InMemorySagaStoreTestSaga::default(),
+            })
             .ok();
         let err = store
-            .register("s1".to_string(), InMemorySagaStoreTestSaga::default())
+            .register(SagaRegisterRequest {
+                id: "s1".to_string(),
+                saga: InMemorySagaStoreTestSaga::default(),
+            })
             .unwrap_err();
         assert_eq!(err, SagaError::AlreadyRegistered("s1".to_string()));
     }
@@ -93,7 +146,11 @@ mod tests {
     #[test]
     fn test_get_unknown_id_returns_not_found() {
         let store = TestStore::new();
-        let err = store.get(&"ghost".to_string()).unwrap_err();
+        let err = store
+            .get(SagaGetRequest {
+                id: &"ghost".to_string(),
+            })
+            .unwrap_err();
         assert_eq!(err, SagaError::NotFound("ghost".to_string()));
     }
 }

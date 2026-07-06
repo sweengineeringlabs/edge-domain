@@ -10,7 +10,7 @@ description = "edge-domain — Application boot contract: Application and SvcFac
 keywords    = ["domain", "application", "factory", "sea", "swe"]
 categories  = ["development-tools"]
 
-[package.metadata.struct-engine]
+[package.metadata.arch]
 application_type = "lib"
 service_type     = "service"
 

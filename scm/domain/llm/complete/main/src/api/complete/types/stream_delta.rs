@@ -10,18 +10,3 @@ pub struct StreamDelta {
     /// Partial tool-call fragments, if any.
     pub tool_calls: Option<Vec<ToolCallDelta>>,
 }
-
-impl StreamDelta {
-    /// Construct a text-only delta.
-    pub fn text(content: impl Into<String>) -> Self {
-        Self {
-            content: Some(content.into()),
-            tool_calls: None,
-        }
-    }
-
-    /// Construct an empty delta (heartbeat / keep-alive).
-    pub fn empty() -> Self {
-        Self::default()
-    }
-}

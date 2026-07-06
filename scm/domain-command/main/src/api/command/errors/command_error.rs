@@ -1,7 +1,7 @@
 //! Error type for [`Command`](super::super::traits::Command) operations.
 
 /// Error produced by command execution.
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
 pub enum CommandError {
     /// The command input was invalid.
     #[error("invalid input: {0}")]

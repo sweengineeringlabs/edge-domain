@@ -10,15 +10,3 @@ pub struct BufferedStreamHandler {
     pub(crate) pending: Option<ToolCallDelta>,
     pub(crate) queued: Vec<StreamChunk>,
 }
-
-impl BufferedStreamHandler {
-    /// Construct an empty stream handler.
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    /// Current accumulated text.
-    pub fn text(&self) -> &str {
-        &self.buffer
-    }
-}

@@ -2,7 +2,8 @@
 
 use crate::api::complete::errors::CompleteError;
 use crate::api::complete::types::{
-    CompletionRequest, CompletionResponse, FinishReason, Message, TokenUsage,
+    CompletionCheckRequest, CompletionRequest, CompletionResponse, FinishReason, Message,
+    TokenUsage,
 };
 
 /// Assembly and inspection contract for completion payloads.
@@ -52,5 +53,5 @@ pub trait CompleteOps: Send + Sync {
     }
 
     /// Validate the request and return an error if it is structurally invalid.
-    fn check(&self, request: &CompletionRequest) -> Result<(), CompleteError>;
+    fn check(&self, req: CompletionCheckRequest<'_>) -> Result<(), CompleteError>;
 }

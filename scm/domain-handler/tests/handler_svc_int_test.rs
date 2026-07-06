@@ -1,10 +1,14 @@
 //! Integration tests — `Handler` trait via SAF facade.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use async_trait::async_trait;
 use edge_domain_command::{CommandBus, CommandBusBootstrap, StdCommandBusFactory};
-use edge_domain_handler::{Handler, HandlerContext, HandlerError};
+use edge_domain_handler::{
+    ExecutionRequest, Handler, HandlerContext, HandlerError, HealthCheckRequest, IdRequest,
+    PatternRequest,
+};
 use edge_domain_observer::{ObserverContext, StdObserveFactory};
-use edge_domain_security::SecurityContext;
+use edge_security_runtime::SecurityContext;
 use futures::executor::block_on;
 
 struct OkHandler;
@@ -14,15 +18,22 @@ impl Handler for OkHandler {
     type Request = String;
     type Response = String;
 
-    fn id(&self) -> &str {
-        "ok-handler"
+    fn id(&self, _req: IdRequest) -> Result<edge_domain_handler::IdResponse, HandlerError> {
+        Ok(edge_domain_handler::IdResponse {
+            id: "ok-handler".to_string(),
+        })
     }
-    fn pattern(&self) -> &str {
-        "/ok"
+    fn pattern(
+        &self,
+        _req: PatternRequest,
+    ) -> Result<edge_domain_handler::PatternResponse, HandlerError> {
+        Ok(edge_domain_handler::PatternResponse {
+            pattern: "/ok".to_string(),
+        })
     }
 
-    async fn execute(&self, req: String, _ctx: HandlerContext<'_>) -> Result<String, HandlerError> {
-        Ok(req.to_uppercase())
+    async fn execute(&self, req: ExecutionRequest<'_, String>) -> Result<String, HandlerError> {
+        Ok(req.req.to_uppercase())
     }
 }
 
@@ -33,11 +44,7 @@ impl Handler for FailHandler {
     type Request = String;
     type Response = String;
 
-    async fn execute(
-        &self,
-        _req: String,
-        _ctx: HandlerContext<'_>,
-    ) -> Result<String, HandlerError> {
+    async fn execute(&self, _req: ExecutionRequest<'_, String>) -> Result<String, HandlerError> {
         Err(HandlerError::ExecutionFailed("deliberate".into()))
     }
 }
@@ -49,15 +56,14 @@ impl Handler for UnhealthyHandler {
     type Request = String;
     type Response = String;
 
-    async fn execute(
-        &self,
-        _req: String,
-        _ctx: HandlerContext<'_>,
-    ) -> Result<String, HandlerError> {
+    async fn execute(&self, _req: ExecutionRequest<'_, String>) -> Result<String, HandlerError> {
         Err(HandlerError::Unhealthy)
     }
-    async fn health_check(&self) -> bool {
-        false
+    async fn health_check(
+        &self,
+        _req: HealthCheckRequest,
+    ) -> Result<edge_domain_handler::HealthCheckResponse, HandlerError> {
+        Ok(edge_domain_handler::HealthCheckResponse { healthy: false })
     }
 }
 
@@ -66,7 +72,11 @@ fn make_ctx<'a>(
     bus: &'a dyn CommandBus,
     observer: &'a dyn ObserverContext,
 ) -> HandlerContext<'a> {
-    HandlerContext { security, commands: bus, observer }
+    HandlerContext {
+        security,
+        commands: bus,
+        observer,
+    }
 }
 
 /// @covers: Handler::execute — success path
@@ -77,7 +87,11 @@ fn test_execute_ok_handler_returns_response_happy() {
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = make_ctx(&security, &bus, observer.as_ref());
     assert_eq!(
-        block_on(OkHandler.execute("hello".into(), ctx)).unwrap(),
+        block_on(OkHandler.execute(ExecutionRequest {
+            req: "hello".into(),
+            ctx: &ctx
+        }))
+        .unwrap(),
         "HELLO"
     );
 }
@@ -89,43 +103,55 @@ fn test_execute_failing_handler_returns_err_error() {
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = make_ctx(&security, &bus, observer.as_ref());
-    assert!(block_on(FailHandler.execute("x".into(), ctx)).is_err());
+    assert!(block_on(FailHandler.execute(ExecutionRequest {
+        req: "x".into(),
+        ctx: &ctx
+    }))
+    .is_err());
 }
 
 /// @covers: Handler::id default and override
 #[test]
 fn test_id_returns_configured_value_happy() {
-    assert_eq!(OkHandler.id(), "ok-handler");
+    assert_eq!(OkHandler.id(IdRequest).unwrap().id, "ok-handler");
 }
 
 /// @covers: Handler::id default
 #[test]
 fn test_id_default_returns_handler_edge() {
-    assert_eq!(FailHandler.id(), "handler");
+    assert_eq!(FailHandler.id(IdRequest).unwrap().id, "handler");
 }
 
 /// @covers: Handler::pattern override
 #[test]
 fn test_pattern_returns_configured_value_happy() {
-    assert_eq!(OkHandler.pattern(), "/ok");
+    assert_eq!(OkHandler.pattern(PatternRequest).unwrap().pattern, "/ok");
 }
 
 /// @covers: Handler::pattern default
 #[test]
 fn test_pattern_default_returns_empty_edge() {
-    assert_eq!(FailHandler.pattern(), "");
+    assert_eq!(FailHandler.pattern(PatternRequest).unwrap().pattern, "");
 }
 
 /// @covers: Handler::health_check default returns true
 #[test]
 fn test_health_check_default_returns_true_happy() {
-    assert!(block_on(OkHandler.health_check()));
+    assert!(
+        block_on(OkHandler.health_check(HealthCheckRequest))
+            .unwrap()
+            .healthy
+    );
 }
 
 /// @covers: Handler::health_check overridden to false
 #[test]
 fn test_health_check_unhealthy_handler_returns_false_error() {
-    assert!(!block_on(UnhealthyHandler.health_check()));
+    assert!(
+        !block_on(UnhealthyHandler.health_check(HealthCheckRequest))
+            .unwrap()
+            .healthy
+    );
 }
 
 /// @covers: Handler::execute — unauthenticated context threads through correctly
@@ -136,7 +162,11 @@ fn test_execute_with_unauthenticated_context_returns_response_happy() {
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = make_ctx(&security, &bus, observer.as_ref());
     assert_eq!(
-        block_on(OkHandler.execute("world".into(), ctx)).unwrap(),
+        block_on(OkHandler.execute(ExecutionRequest {
+            req: "world".into(),
+            ctx: &ctx
+        }))
+        .unwrap(),
         "WORLD"
     );
 }
@@ -144,13 +174,17 @@ fn test_execute_with_unauthenticated_context_returns_response_happy() {
 /// @covers: Handler::execute — authenticated context threads through correctly
 #[test]
 fn test_execute_with_authenticated_context_still_executes_edge() {
-    use edge_domain_security::AnonymousPrincipal;
+    use edge_security_runtime::AnonymousPrincipal;
     let security = SecurityContext::authenticated_with(Box::new(AnonymousPrincipal));
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = make_ctx(&security, &bus, observer.as_ref());
     assert_eq!(
-        block_on(OkHandler.execute("test".into(), ctx)).unwrap(),
+        block_on(OkHandler.execute(ExecutionRequest {
+            req: "test".into(),
+            ctx: &ctx
+        }))
+        .unwrap(),
         "TEST"
     );
 }
@@ -158,11 +192,11 @@ fn test_execute_with_authenticated_context_still_executes_edge() {
 /// @covers: Handler::id — non-overriding impl always returns default (no error path)
 #[test]
 fn test_id_non_overriding_impl_returns_default_handler_error() {
-    assert_eq!(FailHandler.id(), "handler");
+    assert_eq!(FailHandler.id(IdRequest).unwrap().id, "handler");
 }
 
 /// @covers: Handler::pattern — non-overriding impl always returns empty (no error path)
 #[test]
 fn test_pattern_non_overriding_impl_returns_empty_string_error() {
-    assert_eq!(FailHandler.pattern(), "");
+    assert_eq!(FailHandler.pattern(PatternRequest).unwrap().pattern, "");
 }

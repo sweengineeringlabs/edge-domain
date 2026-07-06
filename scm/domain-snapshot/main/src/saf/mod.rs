@@ -1,7 +1,6 @@
 mod snapshot;
 
 pub use snapshot::{
-    Snapshot,
-    SnapshotStore, SnapshotStoreBootstrap,
-    SNAPSHOT_SVC, SNAPSHOT_STORE_SVC, SNAPSHOT_STORE_FACTORY_SVC,
+    Snapshot, SnapshotStore, SNAPSHOT_STORE_SVC, SNAPSHOT_STORE_SVC_FACTORY, SNAPSHOT_SVC,
+    SNAPSHOT_SVC_FACTORY,
 };

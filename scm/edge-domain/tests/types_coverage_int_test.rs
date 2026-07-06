@@ -1,22 +1,27 @@
 //! Comprehensive coverage tests for api/ types and configuration modules.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{Aggregate, DomainEvent, Spec};
-use edge_domain_security::SecurityContext;
+use edge_domain::{
+    Aggregate, AggregateApplyRequest, DomainEvent, EventAggregateIdRequest,
+    EventAggregateIdResponse, EventOccurredAtRequest, EventOccurredAtResponse, EventTypeRequest,
+    EventTypeResponse, RepositoryError, Spec, SpecMatchesRequest, SpecMatchesResponse,
+};
+use edge_security_runtime::SecurityContext;
 use std::time::SystemTime;
 
 /// @covers: SecurityContext — unauthenticated constructor
 #[test]
 fn test_security_context_unauthenticated() {
-    let ctx = SecurityContext::unauthenticated();
+    let ctx: SecurityContext = SecurityContext::unauthenticated();
     assert!(!ctx.authenticated);
     assert!(ctx.principal.is_none());
 }
 
-/// @covers: SecurityContext — authenticated_with constructor
+/// @covers: SecurityContext — authenticated constructor
 #[test]
 fn test_security_context_authenticated_with_principal() {
-    use edge_domain_security::AnonymousPrincipal;
-    let ctx = SecurityContext::authenticated_with(Box::new(AnonymousPrincipal));
+    use edge_security_runtime::AnonymousPrincipal;
+    let ctx: SecurityContext = SecurityContext::authenticated_with(Box::new(AnonymousPrincipal));
     assert!(ctx.authenticated);
     assert!(ctx.principal.is_some());
 }
@@ -31,14 +36,25 @@ fn test_aggregate_trait_apply_default() {
     struct TestEvent;
 
     impl DomainEvent for TestEvent {
-        fn event_type(&self) -> &str {
-            "test"
+        fn event_type(
+            &self,
+            _req: EventTypeRequest,
+        ) -> Result<EventTypeResponse<'_>, edge_domain::EventError> {
+            Ok(EventTypeResponse { event_type: "test" })
         }
-        fn aggregate_id(&self) -> &str {
-            "id"
+        fn aggregate_id(
+            &self,
+            _req: EventAggregateIdRequest,
+        ) -> Result<EventAggregateIdResponse<'_>, edge_domain::EventError> {
+            Ok(EventAggregateIdResponse { aggregate_id: "id" })
         }
-        fn occurred_at(&self) -> SystemTime {
-            SystemTime::now()
+        fn occurred_at(
+            &self,
+            _req: EventOccurredAtRequest,
+        ) -> Result<EventOccurredAtResponse, edge_domain::EventError> {
+            Ok(EventOccurredAtResponse {
+                occurred_at: SystemTime::now(),
+            })
         }
     }
 
@@ -48,21 +64,32 @@ fn test_aggregate_trait_apply_default() {
 
     let mut agg = TestAggregate;
     let event = TestEvent;
-    agg.apply(&event); // Should use default impl without error
+    agg.apply(AggregateApplyRequest { event: &event }).unwrap(); // Should use default impl without error
 }
 
 /// @covers: Spec
 #[test]
 fn test_spec_matches_default() {
     struct AlwaysFalseSpec;
-    impl Spec<String> for AlwaysFalseSpec {
-        fn matches(&self, _s: &String) -> bool {
-            false
+    impl Spec for AlwaysFalseSpec {
+        type Entity = String;
+
+        fn matches(
+            &self,
+            _req: SpecMatchesRequest<'_, String>,
+        ) -> Result<SpecMatchesResponse, RepositoryError> {
+            Ok(SpecMatchesResponse { matches: false })
         }
     }
 
     let spec = AlwaysFalseSpec;
-    assert!(!spec.matches(&"test".to_string()));
+    let entity = "test".to_string();
+    assert!(
+        !spec
+            .matches(SpecMatchesRequest { entity: &entity })
+            .unwrap()
+            .matches
+    );
 }
 
 /// @covers: Spec type and trait method defaults
@@ -70,8 +97,15 @@ fn test_spec_matches_default() {
 fn test_spec_default_implementation() {
     // Verify default impl of matches returns false
     struct TestSpec;
-    impl Spec<i32> for TestSpec {}
+    impl Spec for TestSpec {
+        type Entity = i32;
+    }
 
     let spec = TestSpec;
-    assert!(!spec.matches(&42));
+    assert!(
+        !spec
+            .matches(SpecMatchesRequest { entity: &42 })
+            .unwrap()
+            .matches
+    );
 }

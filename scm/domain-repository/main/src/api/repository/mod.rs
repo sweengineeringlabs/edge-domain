@@ -1,7 +1,16 @@
 pub mod errors;
+pub mod page;
 pub mod traits;
 pub mod types;
 
 pub use errors::RepositoryError;
-pub use traits::{QueryableRepository, Repository, RepositoryBootstrap};
-pub use types::{InMemoryRepository, Page, Spec};
+pub use page::Page;
+pub use traits::{QueryableRepository, Repository, Spec};
+pub use types::{
+    AlwaysMatchSpec, CountByResponse, InMemoryRepository, MatchingEntitiesResponse,
+    MatchingEntityResponse, RepositoryCountResponse, RepositoryDeleteResponse,
+    RepositoryExistsResponse, RepositoryFindResponse, RepositoryIdRequest,
+    RepositoryListPageRequest, RepositoryListPageResponse, RepositoryListRequest,
+    RepositoryListResponse, RepositorySaveRequest, SpecMatchesRequest, SpecMatchesResponse,
+    SpecRequest,
+};

@@ -30,8 +30,8 @@ fn test_svc_skill_metadata_happy_all_fields_accessible() {
     };
     assert_eq!(metadata.name, "code_review");
     assert_eq!(metadata.description, "Review code");
-    assert!(metadata.input_schema.unwrap());
-    assert!(metadata.output_schema.unwrap());
+    assert!(metadata.input_schema.is_some());
+    assert!(metadata.output_schema.is_some());
     assert!(metadata.async_execution);
     assert!(!metadata.long_running);
 }
@@ -76,7 +76,7 @@ fn test_svc_skill_metadata_happy_input_schema_with_value() {
         async_execution: true,
         long_running: false,
     };
-    assert!(metadata.input_schema.unwrap());
+    assert!(metadata.input_schema.is_some());
     assert_eq!(metadata.input_schema.unwrap(), schema);
 }
 
@@ -106,7 +106,7 @@ fn test_svc_skill_metadata_happy_output_schema_with_value() {
         async_execution: true,
         long_running: false,
     };
-    assert!(metadata.output_schema.unwrap());
+    assert!(metadata.output_schema.is_some());
     assert_eq!(metadata.output_schema.unwrap(), schema);
 }
 
@@ -222,8 +222,14 @@ fn test_svc_skill_metadata_happy_both_schemas_present() {
         async_execution: true,
         long_running: false,
     };
-    assert!(metadata.input_schema.unwrap());
-    assert!(metadata.output_schema.unwrap());
+    assert_eq!(
+        metadata.input_schema,
+        Some(r#"{"type": "object"}"#.to_string())
+    );
+    assert_eq!(
+        metadata.output_schema,
+        Some(r#"{"type": "string"}"#.to_string())
+    );
 }
 
 /// @covers: SkillMetadata type re-export — edge case empty strings
@@ -239,7 +245,7 @@ fn test_svc_skill_metadata_edge_empty_string_fields() {
     };
     assert_eq!(metadata.name, "");
     assert_eq!(metadata.description, "");
-    assert!(metadata.input_schema.unwrap());
+    assert!(metadata.input_schema.is_some());
 }
 
 /// @covers: SkillMetadata type re-export — all flags together

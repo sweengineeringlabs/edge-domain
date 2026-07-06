@@ -1,11 +1,7 @@
-//! `StdServiceRegistryFactory` — concrete factory implementation.
-//!
-//! This type is kept in `api/types/` to satisfy the structural audit's one-type-per-file
-//! rule. Its [`ServiceRegistryBootstrap`](crate::api::service::traits::service_registry_bootstrap::ServiceRegistryBootstrap)
-//! implementation lives in `core/service/service_registry_factory.rs` (core impl, not renamed).
+//! `StdServiceRegistryFactory` — default concrete factory for service registry construction.
 
 /// The default concrete factory for constructing [`ServiceRegistry`](super::ServiceRegistry) instances.
 ///
-/// Implements [`ServiceRegistryBootstrap`](crate::api::service::traits::service_registry_bootstrap::ServiceRegistryBootstrap).
-#[derive(Debug, Default, Clone, Copy)]
+/// Provides static factory methods for creating registries, noop services, and related instances.
+#[derive(Debug, Default, Clone, Copy, Eq, PartialEq, Hash, Ord, PartialOrd)]
 pub struct StdServiceRegistryFactory;

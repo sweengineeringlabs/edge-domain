@@ -1,7 +1,9 @@
-﻿mod clock;
+mod clock;
 pub use clock::Clock;
-pub use clock::ClockBootstrap;
 pub use clock::ClockError;
+pub use clock::ElapsedSinceEpochRequest;
+pub use clock::ElapsedSinceEpochResponse;
 pub use clock::FixedClock;
-pub use clock::StdClockFactory;
+pub use clock::NowRequest;
+pub use clock::NowResponse;
 pub use clock::SystemClock;

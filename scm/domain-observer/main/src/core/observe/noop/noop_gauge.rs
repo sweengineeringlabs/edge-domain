@@ -1,10 +1,13 @@
 use crate::api::Gauge;
-
-pub(crate) struct NoopGauge;
+use crate::api::GaugeSetRequest;
+use crate::api::GaugeSetResponse;
+use crate::api::NoopGauge;
+use crate::api::ObserveError;
 
 impl Gauge for NoopGauge {
-    fn set(&self, value: f64) {
-        let _ = value;
+    fn set(&self, req: GaugeSetRequest) -> Result<GaugeSetResponse, ObserveError> {
+        let _ = req;
+        Ok(GaugeSetResponse)
     }
 }
 
@@ -15,14 +18,14 @@ mod tests {
     #[test]
     fn test_set_value_discarded_happy() {
         let g = NoopGauge;
-        g.set(42.0);
+        g.set(GaugeSetRequest { value: 42.0 }).unwrap();
         assert_eq!(std::mem::size_of_val(&g), 0);
     }
 
     #[test]
     fn test_set_negative_value_no_panic_error() {
         let g = NoopGauge;
-        g.set(-1.0);
+        g.set(GaugeSetRequest { value: -1.0 }).unwrap();
         assert_eq!(std::mem::size_of_val(&g), 0);
     }
 

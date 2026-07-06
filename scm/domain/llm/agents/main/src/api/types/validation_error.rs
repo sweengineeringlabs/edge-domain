@@ -6,10 +6,3 @@ pub struct ValidationError {
     /// The reason the field failed validation.
     pub reason: String,
 }
-
-impl ValidationError {
-    /// Creates a new validation error for the given field and reason.
-    pub fn new(field: String, reason: String) -> Self {
-        Self { field, reason }
-    }
-}

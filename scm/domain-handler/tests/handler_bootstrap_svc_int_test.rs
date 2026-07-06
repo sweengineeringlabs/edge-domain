@@ -1,14 +1,17 @@
 //! Rule-222 coverage for [`HandlerBootstrap`] trait fn `bootstrap_name`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_handler::{HandlerBootstrap, NoopHandlerFactory};
+use edge_domain_handler::{BootstrapNameRequest, HandlerBootstrap, NoopHandlerFactory};
 
 /// @covers: HandlerBootstrap::bootstrap_name
 #[test]
 fn test_bootstrap_name_returns_nonempty_string_happy() {
     let f = NoopHandlerFactory;
     assert!(
-        !f.bootstrap_name().is_empty(),
+        !f.bootstrap_name(BootstrapNameRequest)
+            .unwrap()
+            .name
+            .is_empty(),
         "bootstrap_name must return a non-empty identifier"
     );
 }
@@ -18,7 +21,7 @@ fn test_bootstrap_name_returns_nonempty_string_happy() {
 fn test_bootstrap_name_is_idempotent_error() {
     let f = NoopHandlerFactory;
     assert_eq!(
-        f.bootstrap_name(),
+        f.bootstrap_name(BootstrapNameRequest).unwrap().name,
         "handler",
         "bootstrap_name must return the expected static value"
     );
@@ -28,5 +31,5 @@ fn test_bootstrap_name_is_idempotent_error() {
 #[test]
 fn test_bootstrap_name_is_callable_via_trait_object_edge() {
     let f: &dyn HandlerBootstrap = &NoopHandlerFactory;
-    let _ = f.bootstrap_name();
+    let _ = f.bootstrap_name(BootstrapNameRequest);
 }

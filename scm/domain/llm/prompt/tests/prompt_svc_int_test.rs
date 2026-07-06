@@ -2,8 +2,9 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_prompt::{
-    Prompt, PromptBootstrap, PromptMetadata, RenderContext, StdPromptFactory, Variable,
-    VariableType,
+    CacheBuildRequest, Prompt, PromptBootstrap, PromptMetadata, PromptMetadataRequest,
+    PromptVariableKindRequest, RenderContext, RenderRequest, StdPromptFactory,
+    TemplateValidationRequest, Variable, VariableKind,
 };
 use futures::executor::block_on;
 
@@ -18,7 +19,7 @@ fn prompt_with(template: &str, vars: Vec<Variable>) -> impl Prompt {
 }
 
 fn required(name: &str) -> Variable {
-    Variable::new(name.to_string(), VariableType::String)
+    Variable::new(name.to_string(), VariableKind::String)
 }
 
 // --- render ---
@@ -28,7 +29,12 @@ fn required(name: &str) -> Variable {
 fn test_render_substitutes_provided_variable_happy() {
     let p = prompt_with("Hi {{name}}", vec![required("name")]);
     let ctx = RenderContext::new().with_variable("name".to_string(), serde_json::json!("Ada"));
-    assert_eq!(block_on(p.render(&ctx)).expect("render"), "Hi Ada");
+    assert_eq!(
+        block_on(p.render(RenderRequest { context: &ctx }))
+            .expect("render")
+            .rendered,
+        "Hi Ada"
+    );
 }
 
 /// @covers: Prompt::render — errors when a required variable is missing
@@ -36,7 +42,7 @@ fn test_render_substitutes_provided_variable_happy() {
 fn test_render_missing_required_returns_error_error() {
     let p = prompt_with("Hi {{name}}", vec![required("name")]);
     let ctx = RenderContext::new();
-    assert!(block_on(p.render(&ctx)).is_err());
+    assert!(block_on(p.render(RenderRequest { context: &ctx })).is_err());
 }
 
 /// @covers: Prompt::render — empty template with no vars renders empty
@@ -44,7 +50,12 @@ fn test_render_missing_required_returns_error_error() {
 fn test_render_empty_template_returns_empty_edge() {
     let p = prompt_with("", vec![]);
     let ctx = RenderContext::new();
-    assert_eq!(block_on(p.render(&ctx)).expect("render"), "");
+    assert_eq!(
+        block_on(p.render(RenderRequest { context: &ctx }))
+            .expect("render")
+            .rendered,
+        ""
+    );
 }
 
 // --- metadata ---
@@ -52,20 +63,36 @@ fn test_render_empty_template_returns_empty_edge() {
 /// @covers: Prompt::metadata — reports the configured id
 #[test]
 fn test_metadata_reports_id_happy() {
-    assert_eq!(prompt_with("x", vec![]).metadata().id, "greet");
+    assert_eq!(
+        prompt_with("x", vec![])
+            .metadata(PromptMetadataRequest)
+            .expect("metadata")
+            .id,
+        "greet"
+    );
 }
 
 /// @covers: Prompt::metadata — variable list carried through
 #[test]
 fn test_metadata_carries_variables_error() {
     let p = prompt_with("x", vec![required("a")]);
-    assert_eq!(p.metadata().variables.len(), 1);
+    assert_eq!(
+        p.metadata(PromptMetadataRequest)
+            .expect("metadata")
+            .variables
+            .len(),
+        1
+    );
 }
 
 /// @covers: Prompt::metadata — empty variable set is reported as empty
 #[test]
 fn test_metadata_empty_variables_edge() {
-    assert!(prompt_with("x", vec![]).metadata().variables.is_empty());
+    assert!(prompt_with("x", vec![])
+        .metadata(PromptMetadataRequest)
+        .expect("metadata")
+        .variables
+        .is_empty());
 }
 
 // --- validate ---
@@ -73,43 +100,65 @@ fn test_metadata_empty_variables_edge() {
 /// @covers: Prompt::validate — balanced braces validate cleanly
 #[test]
 fn test_validate_balanced_braces_ok_happy() {
-    assert_eq!(prompt_with("Hi {{name}}", vec![required("name")])
-        .validate(),
-        Ok(()));
+    assert_eq!(
+        prompt_with("Hi {{name}}", vec![required("name")]).validate(TemplateValidationRequest),
+        Ok(())
+    );
 }
 
 /// @covers: Prompt::validate — unbalanced braces are rejected
 #[test]
 fn test_validate_unbalanced_braces_rejected_error() {
-    assert!(prompt_with("Hi {{name}", vec![]).validate().is_err());
+    assert!(prompt_with("Hi {{name}", vec![])
+        .validate(TemplateValidationRequest)
+        .is_err());
 }
 
 /// @covers: Prompt::validate — template with no placeholders is valid
 #[test]
 fn test_validate_no_placeholders_ok_edge() {
-    assert_eq!(prompt_with("plain text", vec![]).validate(), Ok(()));
+    assert_eq!(
+        prompt_with("plain text", vec![]).validate(TemplateValidationRequest),
+        Ok(())
+    );
 }
 
-// --- variable_type ---
+// --- variable_kind ---
 
-/// @covers: Prompt::variable_type — reports the declared type
+/// @covers: Prompt::variable_kind — reports the declared type
 #[test]
-fn test_variable_type_reports_declared_happy() {
+fn test_variable_kind_reports_declared_happy() {
     let p = prompt_with("x", vec![required("name")]);
-    assert_eq!(p.variable_type("name"), Some(VariableType::String));
+    assert_eq!(
+        p.variable_kind(PromptVariableKindRequest { name: "name" })
+            .expect("variable_kind")
+            .kind,
+        Some(VariableKind::String)
+    );
 }
 
-/// @covers: Prompt::variable_type — unknown variable returns None
+/// @covers: Prompt::variable_kind — unknown variable returns None
 #[test]
-fn test_variable_type_unknown_returns_none_error() {
+fn test_variable_kind_unknown_returns_none_error() {
     let p = prompt_with("x", vec![required("name")]);
-    assert_eq!(p.variable_type("missing"), None);
+    assert_eq!(
+        p.variable_kind(PromptVariableKindRequest { name: "missing" })
+            .expect("variable_kind")
+            .kind,
+        None
+    );
 }
 
-/// @covers: Prompt::variable_type — empty name with no vars returns None
+/// @covers: Prompt::variable_kind — empty name with no vars returns None
 #[test]
-fn test_variable_type_empty_name_none_edge() {
-    assert_eq!(prompt_with("x", vec![]).variable_type(""), None);
+fn test_variable_kind_empty_name_none_edge() {
+    assert_eq!(
+        prompt_with("x", vec![])
+            .variable_kind(PromptVariableKindRequest { name: "" })
+            .expect("variable_kind")
+            .kind,
+        None
+    );
 }
 
 // --- cache ---
@@ -118,7 +167,12 @@ fn test_variable_type_empty_name_none_edge() {
 #[test]
 fn test_cache_keys_by_template_id_happy() {
     let p = prompt_with("x", vec![]);
-    let entry = p.cache(&RenderContext::new(), "rendered".to_string());
+    let entry = p
+        .cache(CacheBuildRequest {
+            context: &RenderContext::new(),
+            rendered: "rendered".to_string(),
+        })
+        .expect("cache");
     assert!(entry.key.starts_with("greet::"));
 }
 
@@ -126,7 +180,12 @@ fn test_cache_keys_by_template_id_happy() {
 #[test]
 fn test_cache_token_count_matches_rendered_error() {
     let p = prompt_with("x", vec![]);
-    let entry = p.cache(&RenderContext::new(), "abcd".to_string());
+    let entry = p
+        .cache(CacheBuildRequest {
+            context: &RenderContext::new(),
+            rendered: "abcd".to_string(),
+        })
+        .expect("cache");
     assert_eq!(entry.token_count, 4);
 }
 
@@ -134,6 +193,11 @@ fn test_cache_token_count_matches_rendered_error() {
 #[test]
 fn test_cache_empty_rendered_zero_tokens_edge() {
     let p = prompt_with("x", vec![]);
-    let entry = p.cache(&RenderContext::new(), String::new());
+    let entry = p
+        .cache(CacheBuildRequest {
+            context: &RenderContext::new(),
+            rendered: String::new(),
+        })
+        .expect("cache");
     assert_eq!(entry.token_count, 0);
 }

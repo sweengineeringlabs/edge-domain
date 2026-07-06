@@ -1,7 +1,10 @@
 //! Basic `Projection` usage example.
+#![allow(clippy::expect_used)]
 
 use edge_domain_event::DomainEvent;
-use edge_domain_projection::Projection;
+use edge_domain_projection::{
+    Projection, ProjectionApplyRequest, ProjectionError, ProjectionReadModelRequest,
+};
 
 struct Credited {
     amount: u64,
@@ -15,12 +18,20 @@ struct Balance {
 impl Projection for Balance {
     type Event = Credited;
     type ReadModel = u64;
-    fn apply(&mut self, e: &Credited) { self.total += e.amount; }
-    fn read_model(&self) -> &u64 { &self.total }
+    fn apply(&mut self, req: ProjectionApplyRequest<'_, Credited>) -> Result<(), ProjectionError> {
+        self.total += req.event.amount;
+        Ok(())
+    }
+    fn read_model(
+        &self,
+        _req: ProjectionReadModelRequest,
+    ) -> Result<edge_domain_projection::ProjectionReadModelResponse<'_, u64>, ProjectionError> {
+        Ok(edge_domain_projection::ProjectionReadModelResponse { read_model: &self.total })
+    }
 }
 
 fn main() {
     let mut b = Balance { total: 0 };
-    b.apply(&Credited { amount: 42 });
-    println!("balance: {}", b.read_model());
+    b.apply(ProjectionApplyRequest { event: &Credited { amount: 42 } }).expect("apply should succeed");
+    println!("balance: {}", b.read_model(ProjectionReadModelRequest).expect("read_model").read_model);
 }

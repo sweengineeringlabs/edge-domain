@@ -1,10 +1,13 @@
 use crate::api::Counter;
-
-pub(crate) struct NoopCounter;
+use crate::api::IncrementRequest;
+use crate::api::IncrementResponse;
+use crate::api::NoopCounter;
+use crate::api::ObserveError;
 
 impl Counter for NoopCounter {
-    fn increment(&self, delta: u64) {
-        let _ = delta;
+    fn increment(&self, req: IncrementRequest) -> Result<IncrementResponse, ObserveError> {
+        let _ = req;
+        Ok(IncrementResponse)
     }
 }
 
@@ -15,14 +18,14 @@ mod tests {
     #[test]
     fn test_increment_delta_discarded_happy() {
         let c = NoopCounter;
-        c.increment(1);
+        c.increment(IncrementRequest { delta: 1 }).unwrap();
         assert_eq!(std::mem::size_of_val(&c), 0);
     }
 
     #[test]
     fn test_increment_max_value_no_panic_error() {
         let c = NoopCounter;
-        c.increment(u64::MAX);
+        c.increment(IncrementRequest { delta: u64::MAX }).unwrap();
         assert_eq!(std::mem::size_of_val(&c), 0);
     }
 

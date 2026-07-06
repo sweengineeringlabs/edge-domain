@@ -1,14 +1,14 @@
 //! No-op [`SchemaValidator`] implementation for testing the contract.
 
 use crate::api::NoopSchemaValidator;
+use crate::api::SchemaValidationRequest;
 use crate::api::{SchemaValidator, ValidationError};
-use serde_json::Value;
 
 impl SchemaValidator for NoopSchemaValidator {
-    fn validate(&self, input: &Value) -> Result<(), ValidationError> {
+    fn validate(&self, req: SchemaValidationRequest<'_>) -> Result<(), ValidationError> {
         // Accepts any JSON object; rejects non-object payloads so the contract
         // has an observable failure mode.
-        if input.is_object() {
+        if req.input.is_object() {
             Ok(())
         } else {
             Err(ValidationError::new(
@@ -26,22 +26,33 @@ mod tests {
 
     #[test]
     fn test_noop_schema_validator_accepts_object() {
-        assert_eq!(NoopSchemaValidator.validate(&json!({"k": "v"})), Ok(()));
+        let input = json!({"k": "v"});
+        assert!(matches!(
+            NoopSchemaValidator.validate(SchemaValidationRequest { input: &input }),
+            Ok(())
+        ));
     }
 
     #[test]
     fn test_noop_schema_validator_rejects_non_object() {
-        assert!(NoopSchemaValidator.validate(&json!(42)).is_err());
+        let input = json!(42);
+        assert!(NoopSchemaValidator
+            .validate(SchemaValidationRequest { input: &input })
+            .is_err());
     }
 
     #[test]
     fn test_noop_schema_validator_validate_tool_call_parses_arguments() {
         use crate::api::ToolCall;
+        use crate::api::ToolCallValidationRequest;
         let call = ToolCall {
             id: "1".to_string(),
             name: "search".to_string(),
             arguments: r#"{"q":"rust"}"#.to_string(),
         };
-        assert_eq!(NoopSchemaValidator.validate_tool_call(&call), Ok(()));
+        assert!(matches!(
+            NoopSchemaValidator.validate_tool_call(ToolCallValidationRequest { call: &call }),
+            Ok(())
+        ));
     }
 }

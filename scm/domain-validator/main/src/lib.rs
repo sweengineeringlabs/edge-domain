@@ -14,6 +14,9 @@ mod core;
 mod saf;
 
 pub use api::AlwaysValid;
+pub use api::ValidationRequest;
+pub use api::ValidationResponse;
 pub use api::ValidatorError;
 pub use saf::Validator;
-pub use saf::ValidatorBootstrap;
+pub use saf::VALIDATOR_SVC;
+pub use saf::VALIDATOR_SVC_FACTORY;

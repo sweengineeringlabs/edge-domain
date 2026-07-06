@@ -2,9 +2,23 @@
 //!
 //! One test per unique method name × 3 suffixes covers all 47 trait functions because
 //! the arch audit pattern `test_<fn>_*_<suffix>` matches on method name globally across traits.
+// @allow: no_mocks_in_integration — InMemoryRepository is the production-shipped reference impl, not a test double
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain::*;
+use edge_domain_command::{
+    CommandDispatchRequest, ExecutionRequest as CommandExecutionRequest,
+    NameRequest as CommandNameRequest, NameResponse as CommandNameResponse,
+};
+use edge_domain_handler::{
+    DeregisterHandlerRequest, EmptinessRequest as HandlerEmptinessRequest, HandlerBuildResponse,
+    HandlerLookupRequest, IdRequest, LenRequest as HandlerLenRequest, ListIdsRequest,
+    PatternRequest, RegisterHandlerRequest,
+};
+use edge_domain_service::{
+    EmptinessRequest as ServiceEmptinessRequest, LenRequest as ServiceLenRequest, ListNamesRequest,
+    NameRequest, RegisterServiceRequest, ServiceError, ServiceLookupRequest, ServiceRemovalRequest,
+};
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 use std::sync::Arc;
@@ -18,14 +32,26 @@ struct TestEvent {
 }
 
 impl DomainEvent for TestEvent {
-    fn event_type(&self) -> &str {
-        "test.event"
+    fn event_type(&self, _req: EventTypeRequest) -> Result<EventTypeResponse<'_>, EventError> {
+        Ok(EventTypeResponse {
+            event_type: "test.event",
+        })
     }
-    fn aggregate_id(&self) -> &str {
-        &self.aggregate_id
+    fn aggregate_id(
+        &self,
+        _req: EventAggregateIdRequest,
+    ) -> Result<EventAggregateIdResponse<'_>, EventError> {
+        Ok(EventAggregateIdResponse {
+            aggregate_id: &self.aggregate_id,
+        })
     }
-    fn occurred_at(&self) -> SystemTime {
-        SystemTime::UNIX_EPOCH
+    fn occurred_at(
+        &self,
+        _req: EventOccurredAtRequest,
+    ) -> Result<EventOccurredAtResponse, EventError> {
+        Ok(EventOccurredAtResponse {
+            occurred_at: SystemTime::UNIX_EPOCH,
+        })
     }
 }
 
@@ -37,31 +63,42 @@ struct TestAggregate {
 
 impl Aggregate for TestAggregate {
     type Event = TestEvent;
-    fn apply(&mut self, e: &TestEvent) {
-        self.id = e.aggregate_id.clone();
+    fn apply(
+        &mut self,
+        req: AggregateApplyRequest<'_, TestEvent>,
+    ) -> Result<AggregateApplyResponse, EventError> {
+        self.id = req.event.aggregate_id.clone();
         self.count += 1;
+        Ok(AggregateApplyResponse)
     }
-    fn id(&self) -> &str {
-        &self.id
+    fn id(
+        &self,
+        _req: AggregateIdentityRequest,
+    ) -> Result<AggregateIdentityResponse<'_>, EventError> {
+        Ok(AggregateIdentityResponse { id: &self.id })
     }
 }
 
 struct OkCmd;
 impl Command for OkCmd {
-    fn name(&self) -> &str {
-        "ok-cmd"
+    fn name(&self, _req: CommandNameRequest) -> Result<CommandNameResponse, CommandError> {
+        Ok(CommandNameResponse {
+            name: "ok-cmd".to_string(),
+        })
     }
-    fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+    fn execute(&self, _req: CommandExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
         Box::pin(async { Ok(()) })
     }
 }
 
 struct ErrCmd;
 impl Command for ErrCmd {
-    fn name(&self) -> &str {
-        "err-cmd"
+    fn name(&self, _req: CommandNameRequest) -> Result<CommandNameResponse, CommandError> {
+        Ok(CommandNameResponse {
+            name: "err-cmd".to_string(),
+        })
     }
-    fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+    fn execute(&self, _req: CommandExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
         Box::pin(async { Err(CommandError::RuleViolation("blocked".into())) })
     }
 }
@@ -69,22 +106,28 @@ impl Command for ErrCmd {
 struct OkQry(String);
 impl Query for OkQry {
     type Result = String;
-    fn name(&self) -> &str {
-        "ok-qry"
+    fn name(&self, _req: QueryNameRequest) -> Result<QueryNameResponse<'_>, QueryError> {
+        Ok(QueryNameResponse { name: "ok-qry" })
     }
-    fn execute(&self) -> BoxFuture<'_, Result<String, QueryError>> {
+    fn execute(
+        &self,
+        _req: QueryExecuteRequest,
+    ) -> BoxFuture<'_, Result<QueryResultResponse<String>, QueryError>> {
         let v = self.0.clone();
-        Box::pin(async move { Ok(v) })
+        Box::pin(async move { Ok(QueryResultResponse { result: v }) })
     }
 }
 
 struct ErrQry;
 impl Query for ErrQry {
     type Result = String;
-    fn name(&self) -> &str {
-        "err-qry"
+    fn name(&self, _req: QueryNameRequest) -> Result<QueryNameResponse<'_>, QueryError> {
+        Ok(QueryNameResponse { name: "err-qry" })
     }
-    fn execute(&self) -> BoxFuture<'_, Result<String, QueryError>> {
+    fn execute(
+        &self,
+        _req: QueryExecuteRequest,
+    ) -> BoxFuture<'_, Result<QueryResultResponse<String>, QueryError>> {
         Box::pin(async { Err(QueryError::Internal("oops".into())) })
     }
 }
@@ -93,8 +136,10 @@ struct OkSvc;
 impl Service for OkSvc {
     type Request = String;
     type Response = String;
-    fn name(&self) -> &str {
-        "ok-svc"
+    fn name(&self, _req: NameRequest) -> Result<edge_domain_service::NameResponse, ServiceError> {
+        Ok(edge_domain_service::NameResponse {
+            name: "ok-svc".to_string(),
+        })
     }
     fn execute(&self, req: String) -> BoxFuture<'_, Result<String, ServiceError>> {
         Box::pin(async move { Ok(req) })
@@ -105,8 +150,10 @@ struct ErrSvc;
 impl Service for ErrSvc {
     type Request = String;
     type Response = String;
-    fn name(&self) -> &str {
-        "err-svc"
+    fn name(&self, _req: NameRequest) -> Result<edge_domain_service::NameResponse, ServiceError> {
+        Ok(edge_domain_service::NameResponse {
+            name: "err-svc".to_string(),
+        })
     }
     fn execute(&self, _: String) -> BoxFuture<'_, Result<String, ServiceError>> {
         Box::pin(async { Err(ServiceError::RuleViolation("blocked".into())) })
@@ -114,16 +161,26 @@ impl Service for ErrSvc {
 }
 
 struct AlwaysMatch;
-impl Spec<String> for AlwaysMatch {
-    fn matches(&self, _: &String) -> bool {
-        true
+impl Spec for AlwaysMatch {
+    type Entity = String;
+
+    fn matches(
+        &self,
+        _req: SpecMatchesRequest<'_, String>,
+    ) -> Result<SpecMatchesResponse, RepositoryError> {
+        Ok(SpecMatchesResponse { matches: true })
     }
 }
 
 struct NeverMatch;
-impl Spec<String> for NeverMatch {
-    fn matches(&self, _: &String) -> bool {
-        false
+impl Spec for NeverMatch {
+    type Entity = String;
+
+    fn matches(
+        &self,
+        _req: SpecMatchesRequest<'_, String>,
+    ) -> Result<SpecMatchesResponse, RepositoryError> {
+        Ok(SpecMatchesResponse { matches: false })
     }
 }
 
@@ -135,8 +192,10 @@ struct GoodCfgHandler {
 }
 impl HandlerBootstrap for GoodCfgHandler {
     type Config = GoodCfg;
-    fn build(_: GoodCfg) -> Result<Self, HandlerError> {
-        Ok(GoodCfgHandler { _marker: () })
+    fn build(_: GoodCfg) -> Result<HandlerBuildResponse<Self>, HandlerError> {
+        Ok(HandlerBuildResponse {
+            handler: GoodCfgHandler { _marker: () },
+        })
     }
 }
 #[derive(Debug)]
@@ -145,8 +204,8 @@ struct BadCfgHandler {
 }
 impl HandlerBootstrap for BadCfgHandler {
     type Config = BadCfg;
-    fn build(_: BadCfg) -> Result<Self, HandlerError> {
-        Err(HandlerError::internal("bad config"))
+    fn build(_: BadCfg) -> Result<HandlerBuildResponse<Self>, HandlerError> {
+        Err(HandlerError::ExecutionFailed("bad config".to_string()))
     }
 }
 
@@ -155,23 +214,20 @@ impl EventStore for ErrEventStore {
     type Event = TestEvent;
     fn append(
         &self,
-        _: &str,
-        _: Vec<TestEvent>,
-        _: ExpectedVersion,
-    ) -> BoxFuture<'_, Result<u64, EventStoreError>> {
+        _req: EventStoreAppendRequest<'_, TestEvent>,
+    ) -> BoxFuture<'_, Result<EventStoreAppendResponse, EventStoreError>> {
         Box::pin(async { Err(EventStoreError::Unavailable("down".into())) })
     }
     fn load(
         &self,
-        _: &str,
-    ) -> BoxFuture<'_, Result<Vec<EventEnvelope<TestEvent>>, EventStoreError>> {
+        _req: EventStoreLoadRequest<'_>,
+    ) -> BoxFuture<'_, Result<EventStoreLoadResponse<TestEvent>, EventStoreError>> {
         Box::pin(async { Err(EventStoreError::Unavailable("down".into())) })
     }
     fn load_from(
         &self,
-        _: &str,
-        _: u64,
-    ) -> BoxFuture<'_, Result<Vec<EventEnvelope<TestEvent>>, EventStoreError>> {
+        _req: EventStoreLoadFromRequest<'_>,
+    ) -> BoxFuture<'_, Result<EventStoreLoadFromResponse<TestEvent>, EventStoreError>> {
         Box::pin(async { Err(EventStoreError::Unavailable("down".into())) })
     }
 }
@@ -185,14 +241,18 @@ fn make_test_handler() -> Arc<dyn Handler<Request = String, Response = String>> 
 
 #[test]
 fn test_name_command_returns_defined_value_happy() {
-    assert_eq!(OkCmd.name(), "ok-cmd");
+    assert_eq!(OkCmd.name(CommandNameRequest).unwrap().name, "ok-cmd");
 }
 
 #[test]
 fn test_name_query_consistent_across_calls_not_error() {
     // name() must never error — returns same value each call
     let q = OkQry("x".into());
-    assert_eq!(q.name(), "ok", "query name should be stable and known");
+    assert_eq!(
+        q.name(QueryNameRequest).unwrap().name,
+        "ok-qry",
+        "query name should be stable and known"
+    );
 }
 
 #[test]
@@ -201,14 +261,19 @@ fn test_name_service_can_be_empty_string_edge() {
     impl Service for EmptySvc {
         type Request = ();
         type Response = ();
-        fn name(&self) -> &str {
-            ""
+        fn name(
+            &self,
+            _req: NameRequest,
+        ) -> Result<edge_domain_service::NameResponse, ServiceError> {
+            Ok(edge_domain_service::NameResponse {
+                name: String::new(),
+            })
         }
         fn execute(&self, _: ()) -> BoxFuture<'_, Result<(), ServiceError>> {
             Box::pin(async { Ok(()) })
         }
     }
-    assert_eq!(EmptySvc.name(), "");
+    assert_eq!(EmptySvc.name(NameRequest).unwrap().name, "");
 }
 
 // ─── execute ─────────────────────────────────────────────────────────────────
@@ -217,22 +282,44 @@ fn test_name_service_can_be_empty_string_edge() {
 #[test]
 fn test_execute_command_returns_ok_happy() {
     block_on(async {
-        assert_eq!(OkCmd.execute().await, Ok(()), "command should execute successfully");
+        use std::sync::atomic::{AtomicUsize, Ordering};
+
+        struct CountingCmd(AtomicUsize);
+        impl Command for CountingCmd {
+            fn execute(
+                &self,
+                _req: CommandExecutionRequest,
+            ) -> BoxFuture<'_, Result<(), CommandError>> {
+                self.0.fetch_add(1, Ordering::SeqCst);
+                Box::pin(async { Ok(()) })
+            }
+        }
+
+        let cmd = CountingCmd(AtomicUsize::new(0));
+        cmd.execute(CommandExecutionRequest).await.unwrap();
+        assert_eq!(
+            cmd.0.load(Ordering::SeqCst),
+            1,
+            "command should execute exactly once"
+        );
     });
 }
 
 #[test]
 fn test_execute_command_returns_err_on_failure_error() {
     block_on(async {
-        assert!(ErrCmd.execute().await.is_err());
+        assert!(ErrCmd.execute(CommandExecutionRequest).await.is_err());
     });
 }
 
 #[test]
 fn test_execute_query_with_empty_response_edge() {
     block_on(async {
-        let result = OkQry(String::new()).execute().await.unwrap();
-        assert_eq!(result, "");
+        let result = OkQry(String::new())
+            .execute(QueryExecuteRequest)
+            .await
+            .unwrap();
+        assert_eq!(result.result, "");
     });
 }
 
@@ -242,8 +329,34 @@ fn test_execute_query_with_empty_response_edge() {
 #[test]
 fn test_dispatch_command_returns_ok_happy() {
     block_on(async {
+        use std::sync::atomic::{AtomicUsize, Ordering};
+
+        struct CountingCmd(Arc<AtomicUsize>);
+        impl Command for CountingCmd {
+            fn execute(
+                &self,
+                _req: CommandExecutionRequest,
+            ) -> BoxFuture<'_, Result<(), CommandError>> {
+                let counter = self.0.clone();
+                Box::pin(async move {
+                    counter.fetch_add(1, Ordering::SeqCst);
+                    Ok(())
+                })
+            }
+        }
+
+        let counter = Arc::new(AtomicUsize::new(0));
         let bus = Domain::direct_command_bus();
-        assert_eq!(bus.dispatch(Box::new(OkCmd)).await, Ok(()), "dispatch should succeed");
+        bus.dispatch(CommandDispatchRequest {
+            command: Box::new(CountingCmd(counter.clone())),
+        })
+        .await
+        .unwrap();
+        assert_eq!(
+            counter.load(Ordering::SeqCst),
+            1,
+            "dispatch should execute the command exactly once"
+        );
     });
 }
 
@@ -251,7 +364,12 @@ fn test_dispatch_command_returns_ok_happy() {
 fn test_dispatch_command_propagates_error() {
     block_on(async {
         let bus = Domain::direct_command_bus();
-        assert!(bus.dispatch(Box::new(ErrCmd)).await.is_err());
+        assert!(bus
+            .dispatch(CommandDispatchRequest {
+                command: Box::new(ErrCmd)
+            })
+            .await
+            .is_err());
     });
 }
 
@@ -260,10 +378,12 @@ fn test_dispatch_query_result_type_preserved_edge() {
     block_on(async {
         let bus = Domain::direct_query_bus::<String>();
         let r = bus
-            .dispatch(Box::new(OkQry("echo".into())))
+            .dispatch(QueryDispatchRequest {
+                query: Box::new(OkQry("echo".into())),
+            })
             .await
             .expect("dispatch failed");
-        assert_eq!(r, "echo");
+        assert_eq!(r.result, "echo");
     });
 }
 
@@ -271,7 +391,12 @@ fn test_dispatch_query_result_type_preserved_edge() {
 fn test_dispatch_query_propagates_error_error() {
     block_on(async {
         let bus = Domain::direct_query_bus::<String>();
-        assert!(bus.dispatch(Box::new(ErrQry)).await.is_err());
+        assert!(bus
+            .dispatch(QueryDispatchRequest {
+                query: Box::new(ErrQry)
+            })
+            .await
+            .is_err());
     });
 }
 
@@ -281,10 +406,13 @@ fn test_dispatch_query_propagates_error_error() {
 #[test]
 fn test_apply_event_updates_aggregate_state_happy() {
     let mut agg = TestAggregate::default();
-    agg.apply(&TestEvent {
-        aggregate_id: "a1".into(),
-    });
-    assert_eq!(agg.id(), "a1");
+    agg.apply(AggregateApplyRequest {
+        event: &TestEvent {
+            aggregate_id: "a1".into(),
+        },
+    })
+    .unwrap();
+    assert_eq!(agg.id(AggregateIdentityRequest).unwrap().id, "a1");
     assert_eq!(agg.count, 1);
 }
 
@@ -296,33 +424,52 @@ fn test_apply_no_op_on_default_impl_not_error() {
     #[derive(Clone)]
     struct NoOpEvent;
     impl DomainEvent for NoOpEvent {
-        fn event_type(&self) -> &str {
-            "noop"
+        fn event_type(&self, _req: EventTypeRequest) -> Result<EventTypeResponse<'_>, EventError> {
+            Ok(EventTypeResponse { event_type: "noop" })
         }
-        fn aggregate_id(&self) -> &str {
-            ""
+        fn aggregate_id(
+            &self,
+            _req: EventAggregateIdRequest,
+        ) -> Result<EventAggregateIdResponse<'_>, EventError> {
+            Ok(EventAggregateIdResponse { aggregate_id: "" })
         }
-        fn occurred_at(&self) -> SystemTime {
-            SystemTime::UNIX_EPOCH
+        fn occurred_at(
+            &self,
+            _req: EventOccurredAtRequest,
+        ) -> Result<EventOccurredAtResponse, EventError> {
+            Ok(EventOccurredAtResponse {
+                occurred_at: SystemTime::UNIX_EPOCH,
+            })
         }
     }
     impl Aggregate for NoOpAgg {
         type Event = NoOpEvent;
     }
     let mut agg = NoOpAgg;
-    agg.apply(&NoOpEvent); // should not panic
-    assert_eq!(agg.id(), "", "default impl should not modify state");
+    agg.apply(AggregateApplyRequest { event: &NoOpEvent })
+        .unwrap(); // should not panic
+    assert_eq!(
+        agg.id(AggregateIdentityRequest).unwrap().id,
+        "",
+        "default impl should not modify state"
+    );
 }
 
 #[test]
 fn test_apply_called_twice_increments_count_edge() {
     let mut agg = TestAggregate::default();
-    agg.apply(&TestEvent {
-        aggregate_id: "a".into(),
-    });
-    agg.apply(&TestEvent {
-        aggregate_id: "a".into(),
-    });
+    agg.apply(AggregateApplyRequest {
+        event: &TestEvent {
+            aggregate_id: "a".into(),
+        },
+    })
+    .unwrap();
+    agg.apply(AggregateApplyRequest {
+        event: &TestEvent {
+            aggregate_id: "a".into(),
+        },
+    })
+    .unwrap();
     assert_eq!(agg.count, 2);
 }
 
@@ -332,22 +479,25 @@ fn test_apply_called_twice_increments_count_edge() {
 #[test]
 fn test_id_aggregate_reflects_applied_event_happy() {
     let mut agg = TestAggregate::default();
-    agg.apply(&TestEvent {
-        aggregate_id: "agg-42".into(),
-    });
-    assert_eq!(agg.id(), "agg-42");
+    agg.apply(AggregateApplyRequest {
+        event: &TestEvent {
+            aggregate_id: "agg-42".into(),
+        },
+    })
+    .unwrap();
+    assert_eq!(agg.id(AggregateIdentityRequest).unwrap().id, "agg-42");
 }
 
 #[test]
 fn test_id_handler_matches_constructor_arg_not_error() {
     let h = make_test_handler();
-    assert_eq!(h.id(), "test");
+    assert_eq!(h.id(IdRequest).unwrap().id, "test");
 }
 
 #[test]
 fn test_id_aggregate_default_is_empty_edge() {
     let agg = TestAggregate::default();
-    assert_eq!(agg.id(), "");
+    assert_eq!(agg.id(AggregateIdentityRequest).unwrap().id, "");
 }
 
 // ─── event_type ──────────────────────────────────────────────────────────────
@@ -358,7 +508,10 @@ fn test_event_type_returns_defined_value_happy() {
     let e = TestEvent {
         aggregate_id: "x".into(),
     };
-    assert_eq!(e.event_type(), "test.event");
+    assert_eq!(
+        e.event_type(EventTypeRequest).unwrap().event_type,
+        "test.event"
+    );
 }
 
 #[test]
@@ -366,7 +519,11 @@ fn test_event_type_stable_across_calls_not_error() {
     let e = TestEvent {
         aggregate_id: "x".into(),
     };
-    assert_eq!(e.event_type(), "test", "event type should be stable and known");
+    assert_eq!(
+        e.event_type(EventTypeRequest).unwrap().event_type,
+        "test.event",
+        "event type should be stable and known"
+    );
 }
 
 #[test]
@@ -374,7 +531,13 @@ fn test_event_type_default_impl_returns_event_edge() {
     // Default DomainEvent::event_type returns "event" — documents default behavior
     struct DefaultEvent;
     impl DomainEvent for DefaultEvent {}
-    assert_eq!(DefaultEvent.event_type(), "event");
+    assert_eq!(
+        DefaultEvent
+            .event_type(EventTypeRequest)
+            .unwrap()
+            .event_type,
+        "event"
+    );
 }
 
 // ─── aggregate_id ────────────────────────────────────────────────────────────
@@ -385,7 +548,12 @@ fn test_aggregate_id_returns_set_value_happy() {
     let e = TestEvent {
         aggregate_id: "order-1".into(),
     };
-    assert_eq!(e.aggregate_id(), "order-1");
+    assert_eq!(
+        e.aggregate_id(EventAggregateIdRequest)
+            .unwrap()
+            .aggregate_id,
+        "order-1"
+    );
 }
 
 #[test]
@@ -393,7 +561,13 @@ fn test_aggregate_id_consistent_across_calls_not_error() {
     let e = TestEvent {
         aggregate_id: "x".into(),
     };
-    assert_eq!(e.aggregate_id(), "x", "aggregate id should be stable and known");
+    assert_eq!(
+        e.aggregate_id(EventAggregateIdRequest)
+            .unwrap()
+            .aggregate_id,
+        "x",
+        "aggregate id should be stable and known"
+    );
 }
 
 #[test]
@@ -401,7 +575,12 @@ fn test_aggregate_id_can_be_empty_string_edge() {
     let e = TestEvent {
         aggregate_id: String::new(),
     };
-    assert_eq!(e.aggregate_id(), "");
+    assert_eq!(
+        e.aggregate_id(EventAggregateIdRequest)
+            .unwrap()
+            .aggregate_id,
+        ""
+    );
 }
 
 // ─── occurred_at ─────────────────────────────────────────────────────────────
@@ -412,7 +591,10 @@ fn test_occurred_at_returns_expected_time_happy() {
     let e = TestEvent {
         aggregate_id: "x".into(),
     };
-    assert_eq!(e.occurred_at(), SystemTime::UNIX_EPOCH);
+    assert_eq!(
+        e.occurred_at(EventOccurredAtRequest).unwrap().occurred_at,
+        SystemTime::UNIX_EPOCH
+    );
 }
 
 #[test]
@@ -420,7 +602,13 @@ fn test_occurred_at_is_after_unix_epoch_not_error() {
     // Default occurred_at is SystemTime::now() — must be >= UNIX_EPOCH
     struct NowEvent;
     impl DomainEvent for NowEvent {}
-    assert!(NowEvent.occurred_at() >= SystemTime::UNIX_EPOCH);
+    assert!(
+        NowEvent
+            .occurred_at(EventOccurredAtRequest)
+            .unwrap()
+            .occurred_at
+            >= SystemTime::UNIX_EPOCH
+    );
 }
 
 #[test]
@@ -428,8 +616,15 @@ fn test_occurred_at_unix_epoch_is_valid_timestamp_edge() {
     let e = TestEvent {
         aggregate_id: "x".into(),
     };
-    let dur = e.occurred_at().duration_since(SystemTime::UNIX_EPOCH);
-    assert!(dur.is_ok(), "timestamp should be valid and after unix epoch");
+    let dur = e
+        .occurred_at(EventOccurredAtRequest)
+        .unwrap()
+        .occurred_at
+        .duration_since(SystemTime::UNIX_EPOCH);
+    assert!(
+        dur.is_ok(),
+        "timestamp should be valid and after unix epoch"
+    );
 }
 
 // ─── publish ─────────────────────────────────────────────────────────────────
@@ -442,7 +637,11 @@ fn test_publish_to_noop_bus_returns_ok_happy() {
         let e: Arc<dyn DomainEvent> = Arc::new(TestEvent {
             aggregate_id: "x".into(),
         });
-        assert_eq!(bus.publish(e).await, Ok(()), "noop bus should always succeed");
+        assert_eq!(
+            bus.publish(EventBusPublishRequest { event: e }).await,
+            Ok(()),
+            "noop bus should always succeed"
+        );
     });
 }
 
@@ -453,7 +652,12 @@ fn test_publish_to_noop_publisher_never_errors_not_error() {
         let e = TestEvent {
             aggregate_id: "x".into(),
         };
-        assert_eq!(pub_.publish(&e).await, Ok(()), "noop publisher is infallible");
+        assert_eq!(
+            pub_.publish(EventPublisherPublishRequest { event: &e })
+                .await,
+            Ok(()),
+            "noop publisher is infallible"
+        );
     });
 }
 
@@ -465,8 +669,13 @@ fn test_publish_multiple_events_sequentially_edge() {
             let e: Arc<dyn DomainEvent> = Arc::new(TestEvent {
                 aggregate_id: i.to_string(),
             });
-            let result = bus.publish(e).await;
-            assert_eq!(result, Ok(()), "noop bus publish should always succeed for iteration {}", i);
+            let result = bus.publish(EventBusPublishRequest { event: e }).await;
+            assert_eq!(
+                result,
+                Ok(()),
+                "noop bus publish should always succeed for iteration {}",
+                i
+            );
         }
     });
 }
@@ -478,7 +687,7 @@ fn test_publish_multiple_events_sequentially_edge() {
 fn test_subscribe_noop_bus_yields_receiver_happy() {
     block_on(async {
         let bus = Domain::noop_event_bus();
-        let mut rx = bus.subscribe();
+        let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         // noop bus's receiver immediately signals unavailable
         assert!(rx.recv().await.is_err());
     });
@@ -488,11 +697,13 @@ fn test_subscribe_noop_bus_yields_receiver_happy() {
 fn test_subscribe_active_bus_receives_published_event_not_error() {
     block_on(async {
         let bus = Domain::in_process_event_bus(EventBusConfig::default());
-        let mut rx = bus.subscribe();
+        let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         let e: Arc<dyn DomainEvent> = Arc::new(TestEvent {
             aggregate_id: "e1".into(),
         });
-        bus.publish(e).await.unwrap();
+        bus.publish(EventBusPublishRequest { event: e })
+            .await
+            .unwrap();
         assert!(rx.recv().await.is_ok());
     });
 }
@@ -501,12 +712,14 @@ fn test_subscribe_active_bus_receives_published_event_not_error() {
 fn test_subscribe_multiple_receivers_each_get_event_edge() {
     block_on(async {
         let bus = Domain::in_process_event_bus(EventBusConfig::default());
-        let mut rx1 = bus.subscribe();
-        let mut rx2 = bus.subscribe();
+        let mut rx1 = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
+        let mut rx2 = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         let e: Arc<dyn DomainEvent> = Arc::new(TestEvent {
             aggregate_id: "e2".into(),
         });
-        bus.publish(e).await.unwrap();
+        bus.publish(EventBusPublishRequest { event: e })
+            .await
+            .unwrap();
         assert!(rx1.recv().await.is_ok());
         assert!(rx2.recv().await.is_ok());
     });
@@ -520,15 +733,16 @@ fn test_append_returns_version_after_first_event_happy() {
     block_on(async {
         let store = Domain::new_in_memory_event_store::<TestEvent>();
         let ver = store
-            .append(
-                "agg-1",
-                vec![TestEvent {
+            .append(EventStoreAppendRequest {
+                aggregate_id: "agg-1",
+                events: vec![TestEvent {
                     aggregate_id: "agg-1".into(),
                 }],
-                ExpectedVersion::NoStream,
-            )
+                expected: ExpectedVersion::NoStream,
+            })
             .await
-            .unwrap();
+            .unwrap()
+            .sequence;
         assert_eq!(ver, 1);
     });
 }
@@ -538,23 +752,23 @@ fn test_append_nostream_on_existing_stream_returns_error() {
     block_on(async {
         let store = Domain::new_in_memory_event_store::<TestEvent>();
         store
-            .append(
-                "agg-1",
-                vec![TestEvent {
+            .append(EventStoreAppendRequest {
+                aggregate_id: "agg-1",
+                events: vec![TestEvent {
                     aggregate_id: "agg-1".into(),
                 }],
-                ExpectedVersion::NoStream,
-            )
+                expected: ExpectedVersion::NoStream,
+            })
             .await
             .unwrap();
         let result = store
-            .append(
-                "agg-1",
-                vec![TestEvent {
+            .append(EventStoreAppendRequest {
+                aggregate_id: "agg-1",
+                events: vec![TestEvent {
                     aggregate_id: "agg-1".into(),
                 }],
-                ExpectedVersion::NoStream,
-            )
+                expected: ExpectedVersion::NoStream,
+            })
             .await;
         assert!(result.is_err());
     });
@@ -564,17 +778,24 @@ fn test_append_nostream_on_existing_stream_returns_error() {
 fn test_append_any_version_never_conflicts_edge() {
     block_on(async {
         let store = Domain::new_in_memory_event_store::<TestEvent>();
-        for i in 0..3 {
-            let result = store
-                .append(
-                    "agg-1",
-                    vec![TestEvent {
-                        aggregate_id: "agg-1".into()
+        for i in 0..3u64 {
+            let response = store
+                .append(EventStoreAppendRequest {
+                    aggregate_id: "agg-1",
+                    events: vec![TestEvent {
+                        aggregate_id: "agg-1".into(),
                     }],
-                    ExpectedVersion::Any,
-                )
-                .await;
-            assert_eq!(result, Ok(()), "append with Any version should succeed iteration {}", i);
+                    expected: ExpectedVersion::Any,
+                })
+                .await
+                .unwrap_or_else(|e| {
+                    panic!("append with Any version should succeed iteration {i}: {e:?}")
+                });
+            assert_eq!(
+                response.sequence,
+                i + 1,
+                "sequence should increment monotonically"
+            );
         }
     });
 }
@@ -587,9 +808,9 @@ fn test_load_after_append_returns_events_happy() {
     block_on(async {
         let store = Domain::new_in_memory_event_store::<TestEvent>();
         store
-            .append(
-                "a1",
-                vec![
+            .append(EventStoreAppendRequest {
+                aggregate_id: "a1",
+                events: vec![
                     TestEvent {
                         aggregate_id: "a1".into(),
                     },
@@ -597,11 +818,15 @@ fn test_load_after_append_returns_events_happy() {
                         aggregate_id: "a1".into(),
                     },
                 ],
-                ExpectedVersion::Any,
-            )
+                expected: ExpectedVersion::Any,
+            })
             .await
             .unwrap();
-        let events = store.load("a1").await.unwrap();
+        let events = store
+            .load(EventStoreLoadRequest { aggregate_id: "a1" })
+            .await
+            .unwrap()
+            .events;
         assert_eq!(events.len(), 2);
     });
 }
@@ -610,7 +835,13 @@ fn test_load_after_append_returns_events_happy() {
 fn test_load_nonexistent_stream_returns_empty_not_error() {
     block_on(async {
         let store = Domain::new_in_memory_event_store::<TestEvent>();
-        let events = store.load("ghost").await.unwrap();
+        let events = store
+            .load(EventStoreLoadRequest {
+                aggregate_id: "ghost",
+            })
+            .await
+            .unwrap()
+            .events;
         assert!(events.is_empty());
     });
 }
@@ -620,16 +851,20 @@ fn test_load_events_have_correct_sequence_edge() {
     block_on(async {
         let store = Domain::new_in_memory_event_store::<TestEvent>();
         store
-            .append(
-                "a1",
-                vec![TestEvent {
+            .append(EventStoreAppendRequest {
+                aggregate_id: "a1",
+                events: vec![TestEvent {
                     aggregate_id: "a1".into(),
                 }],
-                ExpectedVersion::Any,
-            )
+                expected: ExpectedVersion::Any,
+            })
             .await
             .unwrap();
-        let events = store.load("a1").await.unwrap();
+        let events = store
+            .load(EventStoreLoadRequest { aggregate_id: "a1" })
+            .await
+            .unwrap()
+            .events;
         assert_eq!(events[0].sequence, 1);
     });
 }
@@ -643,17 +878,24 @@ fn test_load_from_returns_subset_from_sequence_happy() {
         let store = Domain::new_in_memory_event_store::<TestEvent>();
         for _ in 0..3u32 {
             store
-                .append(
-                    "a1",
-                    vec![TestEvent {
+                .append(EventStoreAppendRequest {
+                    aggregate_id: "a1",
+                    events: vec![TestEvent {
                         aggregate_id: "a1".into(),
                     }],
-                    ExpectedVersion::Any,
-                )
+                    expected: ExpectedVersion::Any,
+                })
                 .await
                 .unwrap();
         }
-        let events = store.load_from("a1", 2).await.unwrap();
+        let events = store
+            .load_from(EventStoreLoadFromRequest {
+                aggregate_id: "a1",
+                from_sequence: 2,
+            })
+            .await
+            .unwrap()
+            .events;
         assert_eq!(events.len(), 2); // sequences 2 and 3
     });
 }
@@ -663,16 +905,23 @@ fn test_load_from_beyond_end_returns_empty_not_error() {
     block_on(async {
         let store = Domain::new_in_memory_event_store::<TestEvent>();
         store
-            .append(
-                "a1",
-                vec![TestEvent {
+            .append(EventStoreAppendRequest {
+                aggregate_id: "a1",
+                events: vec![TestEvent {
                     aggregate_id: "a1".into(),
                 }],
-                ExpectedVersion::Any,
-            )
+                expected: ExpectedVersion::Any,
+            })
             .await
             .unwrap();
-        let events = store.load_from("a1", 999).await.unwrap();
+        let events = store
+            .load_from(EventStoreLoadFromRequest {
+                aggregate_id: "a1",
+                from_sequence: 999,
+            })
+            .await
+            .unwrap()
+            .events;
         assert!(events.is_empty());
     });
 }
@@ -680,7 +929,12 @@ fn test_load_from_beyond_end_returns_empty_not_error() {
 #[test]
 fn test_load_from_unavailable_store_propagates_error_edge() {
     block_on(async {
-        let result = ErrEventStore.load_from("a1", 0).await;
+        let result = ErrEventStore
+            .load_from(EventStoreLoadFromRequest {
+                aggregate_id: "a1",
+                from_sequence: 0,
+            })
+            .await;
         assert!(result.is_err());
     });
 }
@@ -692,11 +946,13 @@ fn test_load_from_unavailable_store_propagates_error_edge() {
 fn test_recv_next_active_bus_returns_event_happy() {
     block_on(async {
         let bus = Domain::in_process_event_bus(EventBusConfig::default());
-        let mut rx = bus.subscribe();
+        let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         let e: Arc<dyn DomainEvent> = Arc::new(TestEvent {
             aggregate_id: "r1".into(),
         });
-        bus.publish(e).await.unwrap();
+        bus.publish(EventBusPublishRequest { event: e })
+            .await
+            .unwrap();
         assert!(rx.recv().await.is_ok());
     });
 }
@@ -706,7 +962,7 @@ fn test_recv_next_closed_source_returns_unavailable_error() {
     block_on(async {
         // noop bus subscribe returns a ClosedEventSource
         let bus = Domain::noop_event_bus();
-        let mut rx = bus.subscribe();
+        let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         assert!(matches!(rx.recv().await, Err(EventError::Unavailable(_))));
     });
 }
@@ -715,13 +971,18 @@ fn test_recv_next_closed_source_returns_unavailable_error() {
 fn test_recv_next_event_type_preserved_edge() {
     block_on(async {
         let bus = Domain::in_process_event_bus(EventBusConfig::default());
-        let mut rx = bus.subscribe();
+        let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         let e: Arc<dyn DomainEvent> = Arc::new(TestEvent {
             aggregate_id: "r2".into(),
         });
-        bus.publish(e).await.unwrap();
+        bus.publish(EventBusPublishRequest { event: e })
+            .await
+            .unwrap();
         let received = rx.recv().await.unwrap();
-        assert_eq!(received.event_type(), "test.event");
+        assert_eq!(
+            received.event_type(EventTypeRequest).unwrap().event_type,
+            "test.event"
+        );
     });
 }
 
@@ -731,19 +992,23 @@ fn test_recv_next_event_type_preserved_edge() {
 #[test]
 fn test_pattern_handler_matches_constructor_arg_happy() {
     let h = make_test_handler();
-    assert_eq!(h.pattern(), "/test");
+    assert_eq!(h.pattern(PatternRequest).unwrap().pattern, "/test");
 }
 
 #[test]
 fn test_pattern_stable_across_calls_not_error() {
     let h = make_test_handler();
-    assert_eq!(h.pattern(), "test", "handler pattern should be stable and known");
+    assert_eq!(
+        h.pattern(PatternRequest).unwrap().pattern,
+        "/test",
+        "handler pattern should be stable and known"
+    );
 }
 
 #[test]
 fn test_pattern_can_be_root_path_edge() {
     let h = Domain::echo_handler::<String>("root", "/");
-    assert_eq!(h.pattern(), "/");
+    assert_eq!(h.pattern(PatternRequest).unwrap().pattern, "/");
 }
 
 // ─── build ───────────────────────────────────────────────────────────────────
@@ -751,8 +1016,9 @@ fn test_pattern_can_be_root_path_edge() {
 
 #[test]
 fn test_build_valid_config_returns_ok_happy() {
-    let result = GoodCfgHandler::build(GoodCfg);
-    assert_eq!(result, Ok(GoodCfgHandler), "valid config should build successfully");
+    let response = GoodCfgHandler::build(GoodCfg).unwrap();
+    let _handler: GoodCfgHandler = response.handler;
+    assert_eq!(std::mem::size_of::<GoodCfgHandler>(), 0);
 }
 
 #[test]
@@ -772,23 +1038,27 @@ fn test_build_error_message_describes_failure_edge() {
 #[test]
 fn test_register_handler_then_registry_not_empty_happy() {
     let reg = Domain::new_handler_registry::<String, String>();
-    reg.register(make_test_handler());
-    assert!(!reg.is_empty());
+    reg.register(RegisterHandlerRequest::new(make_test_handler()))
+        .unwrap();
+    assert!(!reg.is_empty(HandlerEmptinessRequest).unwrap().empty);
 }
 
 #[test]
 fn test_register_same_id_twice_overwrites_not_error() {
     let reg = Domain::new_handler_registry::<String, String>();
-    reg.register(make_test_handler());
-    reg.register(make_test_handler());
-    assert_eq!(reg.len(), 1); // not 2 — overwrites
+    reg.register(RegisterHandlerRequest::new(make_test_handler()))
+        .unwrap();
+    reg.register(RegisterHandlerRequest::new(make_test_handler()))
+        .unwrap();
+    assert_eq!(reg.len(HandlerLenRequest).unwrap().count, 1); // not 2 — overwrites
 }
 
 #[test]
 fn test_register_service_increments_len_edge() {
     let reg = Domain::new_service_registry::<String, String>();
-    reg.register(Arc::new(OkSvc));
-    assert_eq!(reg.len(), 1);
+    reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
+        .unwrap();
+    assert_eq!(reg.len(ServiceLenRequest).unwrap().count, 1);
 }
 
 // ─── deregister ──────────────────────────────────────────────────────────────
@@ -797,22 +1067,39 @@ fn test_register_service_increments_len_edge() {
 #[test]
 fn test_deregister_registered_handler_returns_true_happy() {
     let reg = Domain::new_handler_registry::<String, String>();
-    reg.register(make_test_handler());
-    assert!(reg.deregister("test"));
+    reg.register(RegisterHandlerRequest::new(make_test_handler()))
+        .unwrap();
+    assert!(
+        reg.deregister(DeregisterHandlerRequest {
+            id: "test".to_string()
+        })
+        .unwrap()
+        .was_present
+    );
 }
 
 #[test]
 fn test_deregister_absent_handler_returns_false_error() {
     let reg = Domain::new_handler_registry::<String, String>();
-    assert!(!reg.deregister("ghost"));
+    assert!(
+        !reg.deregister(DeregisterHandlerRequest {
+            id: "ghost".to_string()
+        })
+        .unwrap()
+        .was_present
+    );
 }
 
 #[test]
 fn test_deregister_leaves_registry_empty_edge() {
     let reg = Domain::new_service_registry::<String, String>();
-    reg.register(Arc::new(OkSvc));
-    reg.deregister("ok-svc");
-    assert!(reg.is_empty());
+    reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
+        .unwrap();
+    reg.deregister(&ServiceRemovalRequest {
+        name: "ok-svc".to_string(),
+    })
+    .unwrap();
+    assert!(reg.is_empty(ServiceEmptinessRequest).unwrap().empty);
 }
 
 // ─── get ─────────────────────────────────────────────────────────────────────
@@ -822,24 +1109,50 @@ fn test_deregister_leaves_registry_empty_edge() {
 fn test_get_registered_handler_returns_some_happy() {
     let reg = Domain::new_handler_registry::<String, String>();
     let h = make_test_handler();
-    reg.register(h.clone());
-    let result = reg.get("test");
+    reg.register(RegisterHandlerRequest::new(h.clone()))
+        .unwrap();
+    let result = reg
+        .get(HandlerLookupRequest {
+            id: "test".to_string(),
+        })
+        .unwrap()
+        .handler;
     assert!(result.is_some(), "registered handler should be retrievable");
-    assert_eq!(result.unwrap().pattern(), "test", "retrieved handler should match registered handler");
+    assert_eq!(
+        result.unwrap().pattern(PatternRequest).unwrap().pattern,
+        "/test",
+        "retrieved handler should match registered handler"
+    );
 }
 
 #[test]
 fn test_get_nonexistent_key_returns_none_not_error() {
     let reg = Domain::new_handler_registry::<String, String>();
-    assert!(reg.get("ghost").is_none());
+    assert!(reg
+        .get(HandlerLookupRequest {
+            id: "ghost".to_string()
+        })
+        .unwrap()
+        .handler
+        .is_none());
 }
 
 #[test]
 fn test_get_after_deregister_returns_none_edge() {
     let reg = Domain::new_service_registry::<String, String>();
-    reg.register(Arc::new(OkSvc));
-    reg.deregister("ok-svc");
-    assert!(reg.get("ok-svc").is_none());
+    reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
+        .unwrap();
+    reg.deregister(&ServiceRemovalRequest {
+        name: "ok-svc".to_string(),
+    })
+    .unwrap();
+    assert!(reg
+        .get(&ServiceLookupRequest {
+            name: "ok-svc".to_string()
+        })
+        .unwrap()
+        .service
+        .is_none());
 }
 
 // ─── list_ids ────────────────────────────────────────────────────────────────
@@ -848,22 +1161,32 @@ fn test_get_after_deregister_returns_none_edge() {
 #[test]
 fn test_list_ids_contains_registered_id_happy() {
     let reg = Domain::new_handler_registry::<String, String>();
-    reg.register(make_test_handler());
-    assert!(reg.list_ids().contains(&"test".to_string()));
+    reg.register(RegisterHandlerRequest::new(make_test_handler()))
+        .unwrap();
+    assert!(reg
+        .list_ids(ListIdsRequest)
+        .unwrap()
+        .ids
+        .contains(&"test".to_string()));
 }
 
 #[test]
 fn test_list_ids_empty_before_registration_not_error() {
     let reg = Domain::new_handler_registry::<String, String>();
-    assert!(reg.list_ids().is_empty());
+    assert!(reg.list_ids(ListIdsRequest).unwrap().ids.is_empty());
 }
 
 #[test]
 fn test_list_ids_len_matches_registry_len_edge() {
     let reg = Domain::new_handler_registry::<String, String>();
-    reg.register(Domain::echo_handler("a", "/a"));
-    reg.register(Domain::echo_handler("b", "/b"));
-    assert_eq!(reg.list_ids().len(), reg.len());
+    reg.register(RegisterHandlerRequest::new(Domain::echo_handler("a", "/a")))
+        .unwrap();
+    reg.register(RegisterHandlerRequest::new(Domain::echo_handler("b", "/b")))
+        .unwrap();
+    assert_eq!(
+        reg.list_ids(ListIdsRequest).unwrap().ids.len(),
+        reg.len(HandlerLenRequest).unwrap().count
+    );
 }
 
 // ─── len ─────────────────────────────────────────────────────────────────────
@@ -872,25 +1195,32 @@ fn test_list_ids_len_matches_registry_len_edge() {
 #[test]
 fn test_len_increments_after_register_happy() {
     let reg = Domain::new_handler_registry::<String, String>();
-    assert_eq!(reg.len(), 0);
-    reg.register(make_test_handler());
-    assert_eq!(reg.len(), 1);
+    assert_eq!(reg.len(HandlerLenRequest).unwrap().count, 0);
+    reg.register(RegisterHandlerRequest::new(make_test_handler()))
+        .unwrap();
+    assert_eq!(reg.len(HandlerLenRequest).unwrap().count, 1);
 }
 
 #[test]
 fn test_len_decrements_after_deregister_not_error() {
     let reg = Domain::new_handler_registry::<String, String>();
-    reg.register(make_test_handler());
-    reg.deregister("test");
-    assert_eq!(reg.len(), 0);
+    reg.register(RegisterHandlerRequest::new(make_test_handler()))
+        .unwrap();
+    reg.deregister(DeregisterHandlerRequest {
+        id: "test".to_string(),
+    })
+    .unwrap();
+    assert_eq!(reg.len(HandlerLenRequest).unwrap().count, 0);
 }
 
 #[test]
 fn test_len_service_registry_matches_registered_count_edge() {
     let reg = Domain::new_service_registry::<String, String>();
-    reg.register(Arc::new(OkSvc));
-    reg.register(Arc::new(ErrSvc));
-    assert_eq!(reg.len(), 2);
+    reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
+        .unwrap();
+    reg.register(&RegisterServiceRequest::new(Arc::new(ErrSvc)))
+        .unwrap();
+    assert_eq!(reg.len(ServiceLenRequest).unwrap().count, 2);
 }
 
 // ─── is_empty ────────────────────────────────────────────────────────────────
@@ -899,22 +1229,27 @@ fn test_len_service_registry_matches_registered_count_edge() {
 #[test]
 fn test_is_empty_true_on_new_registry_happy() {
     let reg = Domain::new_handler_registry::<String, String>();
-    assert!(reg.is_empty());
+    assert!(reg.is_empty(HandlerEmptinessRequest).unwrap().empty);
 }
 
 #[test]
 fn test_is_empty_false_after_registration_not_error() {
     let reg = Domain::new_handler_registry::<String, String>();
-    reg.register(make_test_handler());
-    assert!(!reg.is_empty());
+    reg.register(RegisterHandlerRequest::new(make_test_handler()))
+        .unwrap();
+    assert!(!reg.is_empty(HandlerEmptinessRequest).unwrap().empty);
 }
 
 #[test]
 fn test_is_empty_true_after_deregister_all_edge() {
     let reg = Domain::new_service_registry::<String, String>();
-    reg.register(Arc::new(OkSvc));
-    reg.deregister("ok-svc");
-    assert!(reg.is_empty());
+    reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
+        .unwrap();
+    reg.deregister(&ServiceRemovalRequest {
+        name: "ok-svc".to_string(),
+    })
+    .unwrap();
+    assert!(reg.is_empty(ServiceEmptinessRequest).unwrap().empty);
 }
 
 // ─── find_by ─────────────────────────────────────────────────────────────────
@@ -924,9 +1259,25 @@ fn test_is_empty_true_after_deregister_all_edge() {
 fn test_find_by_returns_all_matching_items_happy() {
     block_on(async {
         let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
-        repo.save(1u32, "alpha".into()).await.unwrap();
-        repo.save(2u32, "beta".into()).await.unwrap();
-        let all = repo.find_by(&AlwaysMatch).await.unwrap();
+        repo.save(RepositorySaveRequest {
+            id: 1u32,
+            entity: "alpha".into(),
+        })
+        .await
+        .unwrap();
+        repo.save(RepositorySaveRequest {
+            id: 2u32,
+            entity: "beta".into(),
+        })
+        .await
+        .unwrap();
+        let all = repo
+            .find_by(SpecRequest {
+                spec: Box::new(AlwaysMatch),
+            })
+            .await
+            .unwrap()
+            .items;
         assert_eq!(all.len(), 2);
     });
 }
@@ -935,8 +1286,19 @@ fn test_find_by_returns_all_matching_items_happy() {
 fn test_find_by_no_match_returns_empty_vec_not_error() {
     block_on(async {
         let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
-        repo.save(1u32, "x".into()).await.unwrap();
-        let result = repo.find_by(&NeverMatch).await.unwrap();
+        repo.save(RepositorySaveRequest {
+            id: 1u32,
+            entity: "x".into(),
+        })
+        .await
+        .unwrap();
+        let result = repo
+            .find_by(SpecRequest {
+                spec: Box::new(NeverMatch),
+            })
+            .await
+            .unwrap()
+            .items;
         assert!(result.is_empty());
     });
 }
@@ -945,7 +1307,13 @@ fn test_find_by_no_match_returns_empty_vec_not_error() {
 fn test_find_by_empty_repo_returns_empty_vec_edge() {
     block_on(async {
         let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
-        let result = repo.find_by(&AlwaysMatch).await.unwrap();
+        let result = repo
+            .find_by(SpecRequest {
+                spec: Box::new(AlwaysMatch),
+            })
+            .await
+            .unwrap()
+            .items;
         assert!(result.is_empty());
     });
 }
@@ -957,8 +1325,19 @@ fn test_find_by_empty_repo_returns_empty_vec_edge() {
 fn test_find_one_by_returns_first_match_happy() {
     block_on(async {
         let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
-        repo.save(1u32, "first".into()).await.unwrap();
-        let result = repo.find_one_by(&AlwaysMatch).await.unwrap();
+        repo.save(RepositorySaveRequest {
+            id: 1u32,
+            entity: "first".into(),
+        })
+        .await
+        .unwrap();
+        let result = repo
+            .find_one_by(SpecRequest {
+                spec: Box::new(AlwaysMatch),
+            })
+            .await
+            .unwrap()
+            .entity;
         assert_eq!(result.as_deref(), Some("first"));
     });
 }
@@ -967,8 +1346,20 @@ fn test_find_one_by_returns_first_match_happy() {
 fn test_find_one_by_no_match_returns_none_not_error() {
     block_on(async {
         let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
-        repo.save(1u32, "x".into()).await.unwrap();
-        assert!(repo.find_one_by(&NeverMatch).await.unwrap().is_none());
+        repo.save(RepositorySaveRequest {
+            id: 1u32,
+            entity: "x".into(),
+        })
+        .await
+        .unwrap();
+        assert!(repo
+            .find_one_by(SpecRequest {
+                spec: Box::new(NeverMatch)
+            })
+            .await
+            .unwrap()
+            .entity
+            .is_none());
     });
 }
 
@@ -976,7 +1367,14 @@ fn test_find_one_by_no_match_returns_none_not_error() {
 fn test_find_one_by_empty_repo_returns_none_edge() {
     block_on(async {
         let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
-        assert!(repo.find_one_by(&AlwaysMatch).await.unwrap().is_none());
+        assert!(repo
+            .find_one_by(SpecRequest {
+                spec: Box::new(AlwaysMatch)
+            })
+            .await
+            .unwrap()
+            .entity
+            .is_none());
     });
 }
 
@@ -987,9 +1385,27 @@ fn test_find_one_by_empty_repo_returns_none_edge() {
 fn test_count_by_returns_matching_count_happy() {
     block_on(async {
         let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
-        repo.save(1u32, "a".into()).await.unwrap();
-        repo.save(2u32, "b".into()).await.unwrap();
-        assert_eq!(repo.count_by(&AlwaysMatch).await.unwrap(), 2);
+        repo.save(RepositorySaveRequest {
+            id: 1u32,
+            entity: "a".into(),
+        })
+        .await
+        .unwrap();
+        repo.save(RepositorySaveRequest {
+            id: 2u32,
+            entity: "b".into(),
+        })
+        .await
+        .unwrap();
+        assert_eq!(
+            repo.count_by(SpecRequest {
+                spec: Box::new(AlwaysMatch)
+            })
+            .await
+            .unwrap()
+            .count,
+            2
+        );
     });
 }
 
@@ -997,8 +1413,21 @@ fn test_count_by_returns_matching_count_happy() {
 fn test_count_by_no_match_returns_zero_not_error() {
     block_on(async {
         let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
-        repo.save(1u32, "x".into()).await.unwrap();
-        assert_eq!(repo.count_by(&NeverMatch).await.unwrap(), 0);
+        repo.save(RepositorySaveRequest {
+            id: 1u32,
+            entity: "x".into(),
+        })
+        .await
+        .unwrap();
+        assert_eq!(
+            repo.count_by(SpecRequest {
+                spec: Box::new(NeverMatch)
+            })
+            .await
+            .unwrap()
+            .count,
+            0
+        );
     });
 }
 
@@ -1006,7 +1435,15 @@ fn test_count_by_no_match_returns_zero_not_error() {
 fn test_count_by_empty_repo_returns_zero_edge() {
     block_on(async {
         let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
-        assert_eq!(repo.count_by(&AlwaysMatch).await.unwrap(), 0);
+        assert_eq!(
+            repo.count_by(SpecRequest {
+                spec: Box::new(AlwaysMatch)
+            })
+            .await
+            .unwrap()
+            .count,
+            0
+        );
     });
 }
 
@@ -1017,8 +1454,20 @@ fn test_count_by_empty_repo_returns_zero_edge() {
 fn test_find_after_save_returns_some_happy() {
     block_on(async {
         let repo = Domain::new_in_memory_repository::<String, u32>();
-        repo.save(7u32, "seven".into()).await.unwrap();
-        assert_eq!(repo.find(&7u32).await.unwrap().as_deref(), Some("seven"));
+        repo.save(RepositorySaveRequest {
+            id: 7u32,
+            entity: "seven".into(),
+        })
+        .await
+        .unwrap();
+        assert_eq!(
+            repo.find(RepositoryIdRequest { id: &7u32 })
+                .await
+                .unwrap()
+                .entity
+                .as_deref(),
+            Some("seven")
+        );
     });
 }
 
@@ -1026,7 +1475,12 @@ fn test_find_after_save_returns_some_happy() {
 fn test_find_nonexistent_returns_ok_none_not_error() {
     block_on(async {
         let repo = Domain::new_in_memory_repository::<String, u32>();
-        assert!(repo.find(&0u32).await.unwrap().is_none());
+        assert!(repo
+            .find(RepositoryIdRequest { id: &0u32 })
+            .await
+            .unwrap()
+            .entity
+            .is_none());
     });
 }
 
@@ -1034,9 +1488,21 @@ fn test_find_nonexistent_returns_ok_none_not_error() {
 fn test_find_after_delete_returns_none_edge() {
     block_on(async {
         let repo = Domain::new_in_memory_repository::<String, u32>();
-        repo.save(1u32, "x".into()).await.unwrap();
-        repo.delete(&1u32).await.unwrap();
-        assert!(repo.find(&1u32).await.unwrap().is_none());
+        repo.save(RepositorySaveRequest {
+            id: 1u32,
+            entity: "x".into(),
+        })
+        .await
+        .unwrap();
+        repo.delete(RepositoryIdRequest { id: &1u32 })
+            .await
+            .unwrap();
+        assert!(repo
+            .find(RepositoryIdRequest { id: &1u32 })
+            .await
+            .unwrap()
+            .entity
+            .is_none());
     });
 }
 
@@ -1047,8 +1513,20 @@ fn test_find_after_delete_returns_none_edge() {
 fn test_save_then_find_round_trips_happy() {
     block_on(async {
         let repo = Domain::new_in_memory_repository::<String, u32>();
-        repo.save(1u32, "hello".into()).await.unwrap();
-        assert_eq!(repo.find(&1u32).await.unwrap().as_deref(), Some("hello"));
+        repo.save(RepositorySaveRequest {
+            id: 1u32,
+            entity: "hello".into(),
+        })
+        .await
+        .unwrap();
+        assert_eq!(
+            repo.find(RepositoryIdRequest { id: &1u32 })
+                .await
+                .unwrap()
+                .entity
+                .as_deref(),
+            Some("hello")
+        );
     });
 }
 
@@ -1056,9 +1534,26 @@ fn test_save_then_find_round_trips_happy() {
 fn test_save_overwrites_existing_entity_not_error() {
     block_on(async {
         let repo = Domain::new_in_memory_repository::<String, u32>();
-        repo.save(1u32, "old".into()).await.unwrap();
-        repo.save(1u32, "new".into()).await.unwrap();
-        assert_eq!(repo.find(&1u32).await.unwrap().as_deref(), Some("new"));
+        repo.save(RepositorySaveRequest {
+            id: 1u32,
+            entity: "old".into(),
+        })
+        .await
+        .unwrap();
+        repo.save(RepositorySaveRequest {
+            id: 1u32,
+            entity: "new".into(),
+        })
+        .await
+        .unwrap();
+        assert_eq!(
+            repo.find(RepositoryIdRequest { id: &1u32 })
+                .await
+                .unwrap()
+                .entity
+                .as_deref(),
+            Some("new")
+        );
     });
 }
 
@@ -1067,9 +1562,14 @@ fn test_save_multiple_entities_increases_count_edge() {
     block_on(async {
         let repo = Domain::new_in_memory_repository::<String, u32>();
         for i in 0..5u32 {
-            repo.save(i, i.to_string()).await.unwrap();
+            repo.save(RepositorySaveRequest {
+                id: i,
+                entity: i.to_string(),
+            })
+            .await
+            .unwrap();
         }
-        assert_eq!(repo.count().await.unwrap(), 5);
+        assert_eq!(repo.count(RepositoryListRequest).await.unwrap().count, 5);
     });
 }
 
@@ -1080,8 +1580,18 @@ fn test_save_multiple_entities_increases_count_edge() {
 fn test_delete_existing_entity_returns_true_happy() {
     block_on(async {
         let repo = Domain::new_in_memory_repository::<String, u32>();
-        repo.save(1u32, "x".into()).await.unwrap();
-        assert!(repo.delete(&1u32).await.unwrap());
+        repo.save(RepositorySaveRequest {
+            id: 1u32,
+            entity: "x".into(),
+        })
+        .await
+        .unwrap();
+        assert!(
+            repo.delete(RepositoryIdRequest { id: &1u32 })
+                .await
+                .unwrap()
+                .removed
+        );
     });
 }
 
@@ -1090,7 +1600,13 @@ fn test_delete_nonexistent_entity_returns_false_error() {
     block_on(async {
         // delete of non-existent key must return false, not Err
         let repo = Domain::new_in_memory_repository::<String, u32>();
-        assert!(!repo.delete(&99u32).await.unwrap());
+        assert!(
+            !repo
+                .delete(RepositoryIdRequest { id: &99u32 })
+                .await
+                .unwrap()
+                .removed
+        );
     });
 }
 
@@ -1098,10 +1614,22 @@ fn test_delete_nonexistent_entity_returns_false_error() {
 fn test_delete_reduces_count_edge() {
     block_on(async {
         let repo = Domain::new_in_memory_repository::<String, u32>();
-        repo.save(1u32, "a".into()).await.unwrap();
-        repo.save(2u32, "b".into()).await.unwrap();
-        repo.delete(&1u32).await.unwrap();
-        assert_eq!(repo.count().await.unwrap(), 1);
+        repo.save(RepositorySaveRequest {
+            id: 1u32,
+            entity: "a".into(),
+        })
+        .await
+        .unwrap();
+        repo.save(RepositorySaveRequest {
+            id: 2u32,
+            entity: "b".into(),
+        })
+        .await
+        .unwrap();
+        repo.delete(RepositoryIdRequest { id: &1u32 })
+            .await
+            .unwrap();
+        assert_eq!(repo.count(RepositoryListRequest).await.unwrap().count, 1);
     });
 }
 
@@ -1112,9 +1640,19 @@ fn test_delete_reduces_count_edge() {
 fn test_list_returns_all_saved_entities_happy() {
     block_on(async {
         let repo = Domain::new_in_memory_repository::<String, u32>();
-        repo.save(1u32, "a".into()).await.unwrap();
-        repo.save(2u32, "b".into()).await.unwrap();
-        let all = repo.list().await.unwrap();
+        repo.save(RepositorySaveRequest {
+            id: 1u32,
+            entity: "a".into(),
+        })
+        .await
+        .unwrap();
+        repo.save(RepositorySaveRequest {
+            id: 2u32,
+            entity: "b".into(),
+        })
+        .await
+        .unwrap();
+        let all = repo.list(RepositoryListRequest).await.unwrap().items;
         assert_eq!(all.len(), 2);
     });
 }
@@ -1123,7 +1661,7 @@ fn test_list_returns_all_saved_entities_happy() {
 fn test_list_empty_repo_returns_empty_vec_not_error() {
     block_on(async {
         let repo = Domain::new_in_memory_repository::<String, u32>();
-        let all = repo.list().await.unwrap();
+        let all = repo.list(RepositoryListRequest).await.unwrap().items;
         assert!(all.is_empty());
     });
 }
@@ -1132,9 +1670,16 @@ fn test_list_empty_repo_returns_empty_vec_not_error() {
 fn test_list_after_delete_reflects_removal_edge() {
     block_on(async {
         let repo = Domain::new_in_memory_repository::<String, u32>();
-        repo.save(1u32, "a".into()).await.unwrap();
-        repo.delete(&1u32).await.unwrap();
-        let all = repo.list().await.unwrap();
+        repo.save(RepositorySaveRequest {
+            id: 1u32,
+            entity: "a".into(),
+        })
+        .await
+        .unwrap();
+        repo.delete(RepositoryIdRequest { id: &1u32 })
+            .await
+            .unwrap();
+        let all = repo.list(RepositoryListRequest).await.unwrap().items;
         assert!(all.is_empty());
     });
 }
@@ -1146,8 +1691,18 @@ fn test_list_after_delete_reflects_removal_edge() {
 fn test_exists_after_save_returns_true_happy() {
     block_on(async {
         let repo = Domain::new_in_memory_repository::<String, u32>();
-        repo.save(1u32, "x".into()).await.unwrap();
-        assert!(repo.exists(&1u32).await.unwrap());
+        repo.save(RepositorySaveRequest {
+            id: 1u32,
+            entity: "x".into(),
+        })
+        .await
+        .unwrap();
+        assert!(
+            repo.exists(RepositoryIdRequest { id: &1u32 })
+                .await
+                .unwrap()
+                .exists
+        );
     });
 }
 
@@ -1155,7 +1710,13 @@ fn test_exists_after_save_returns_true_happy() {
 fn test_exists_nonexistent_returns_false_not_error() {
     block_on(async {
         let repo = Domain::new_in_memory_repository::<String, u32>();
-        assert!(!repo.exists(&99u32).await.unwrap());
+        assert!(
+            !repo
+                .exists(RepositoryIdRequest { id: &99u32 })
+                .await
+                .unwrap()
+                .exists
+        );
     });
 }
 
@@ -1163,9 +1724,22 @@ fn test_exists_nonexistent_returns_false_not_error() {
 fn test_exists_after_delete_returns_false_edge() {
     block_on(async {
         let repo = Domain::new_in_memory_repository::<String, u32>();
-        repo.save(1u32, "x".into()).await.unwrap();
-        repo.delete(&1u32).await.unwrap();
-        assert!(!repo.exists(&1u32).await.unwrap());
+        repo.save(RepositorySaveRequest {
+            id: 1u32,
+            entity: "x".into(),
+        })
+        .await
+        .unwrap();
+        repo.delete(RepositoryIdRequest { id: &1u32 })
+            .await
+            .unwrap();
+        assert!(
+            !repo
+                .exists(RepositoryIdRequest { id: &1u32 })
+                .await
+                .unwrap()
+                .exists
+        );
     });
 }
 
@@ -1176,9 +1750,19 @@ fn test_exists_after_delete_returns_false_edge() {
 fn test_count_reflects_number_of_saved_entities_happy() {
     block_on(async {
         let repo = Domain::new_in_memory_repository::<String, u32>();
-        repo.save(1u32, "a".into()).await.unwrap();
-        repo.save(2u32, "b".into()).await.unwrap();
-        assert_eq!(repo.count().await.unwrap(), 2);
+        repo.save(RepositorySaveRequest {
+            id: 1u32,
+            entity: "a".into(),
+        })
+        .await
+        .unwrap();
+        repo.save(RepositorySaveRequest {
+            id: 2u32,
+            entity: "b".into(),
+        })
+        .await
+        .unwrap();
+        assert_eq!(repo.count(RepositoryListRequest).await.unwrap().count, 2);
     });
 }
 
@@ -1186,7 +1770,7 @@ fn test_count_reflects_number_of_saved_entities_happy() {
 fn test_count_empty_repo_returns_zero_not_error() {
     block_on(async {
         let repo = Domain::new_in_memory_repository::<String, u32>();
-        assert_eq!(repo.count().await.unwrap(), 0);
+        assert_eq!(repo.count(RepositoryListRequest).await.unwrap().count, 0);
     });
 }
 
@@ -1194,9 +1778,16 @@ fn test_count_empty_repo_returns_zero_not_error() {
 fn test_count_decrements_after_delete_edge() {
     block_on(async {
         let repo = Domain::new_in_memory_repository::<String, u32>();
-        repo.save(1u32, "x".into()).await.unwrap();
-        repo.delete(&1u32).await.unwrap();
-        assert_eq!(repo.count().await.unwrap(), 0);
+        repo.save(RepositorySaveRequest {
+            id: 1u32,
+            entity: "x".into(),
+        })
+        .await
+        .unwrap();
+        repo.delete(RepositoryIdRequest { id: &1u32 })
+            .await
+            .unwrap();
+        assert_eq!(repo.count(RepositoryListRequest).await.unwrap().count, 0);
     });
 }
 
@@ -1208,9 +1799,21 @@ fn test_list_page_returns_first_page_happy() {
     block_on(async {
         let repo = InMemoryRepository::<String, u32>::new();
         for i in 0..5u32 {
-            repo.save(i, i.to_string()).await.unwrap();
+            repo.save(RepositorySaveRequest {
+                id: i,
+                entity: i.to_string(),
+            })
+            .await
+            .unwrap();
         }
-        let page = repo.list_page(0, 3).await.unwrap();
+        let page = repo
+            .list_page(RepositoryListPageRequest {
+                offset: 0,
+                limit: 3,
+            })
+            .await
+            .unwrap()
+            .page;
         assert_eq!(page.items.len(), 3);
         assert_eq!(page.total, 5);
     });
@@ -1220,8 +1823,20 @@ fn test_list_page_returns_first_page_happy() {
 fn test_list_page_offset_beyond_end_returns_empty_items_not_error() {
     block_on(async {
         let repo = InMemoryRepository::<String, u32>::new();
-        repo.save(1u32, "x".into()).await.unwrap();
-        let page = repo.list_page(10, 5).await.unwrap();
+        repo.save(RepositorySaveRequest {
+            id: 1u32,
+            entity: "x".into(),
+        })
+        .await
+        .unwrap();
+        let page = repo
+            .list_page(RepositoryListPageRequest {
+                offset: 10,
+                limit: 5,
+            })
+            .await
+            .unwrap()
+            .page;
         assert!(page.items.is_empty());
         assert_eq!(page.total, 1);
     });
@@ -1232,9 +1847,21 @@ fn test_list_page_total_equals_full_count_edge() {
     block_on(async {
         let repo = InMemoryRepository::<String, u32>::new();
         for i in 0..4u32 {
-            repo.save(i, i.to_string()).await.unwrap();
+            repo.save(RepositorySaveRequest {
+                id: i,
+                entity: i.to_string(),
+            })
+            .await
+            .unwrap();
         }
-        let page = repo.list_page(0, 2).await.unwrap();
+        let page = repo
+            .list_page(RepositoryListPageRequest {
+                offset: 0,
+                limit: 2,
+            })
+            .await
+            .unwrap()
+            .page;
         assert_eq!(page.total, 4);
         assert_eq!(page.items.len(), 2);
     });
@@ -1245,17 +1872,35 @@ fn test_list_page_total_equals_full_count_edge() {
 
 #[test]
 fn test_matches_always_true_spec_returns_true_happy() {
-    assert!(AlwaysMatch.matches(&"anything".to_string()));
+    let entity = "anything".to_string();
+    assert!(
+        AlwaysMatch
+            .matches(SpecMatchesRequest { entity: &entity })
+            .unwrap()
+            .matches
+    );
 }
 
 #[test]
 fn test_matches_always_false_spec_returns_false_error() {
-    assert!(!NeverMatch.matches(&"anything".to_string()));
+    let entity = "anything".to_string();
+    assert!(
+        !NeverMatch
+            .matches(SpecMatchesRequest { entity: &entity })
+            .unwrap()
+            .matches
+    );
 }
 
 #[test]
 fn test_matches_empty_string_input_edge() {
-    assert!(AlwaysMatch.matches(&String::new()));
+    let entity = String::new();
+    assert!(
+        AlwaysMatch
+            .matches(SpecMatchesRequest { entity: &entity })
+            .unwrap()
+            .matches
+    );
 }
 
 // ─── list_names ──────────────────────────────────────────────────────────────
@@ -1264,20 +1909,30 @@ fn test_matches_empty_string_input_edge() {
 #[test]
 fn test_list_names_contains_registered_service_name_happy() {
     let reg = Domain::new_service_registry::<String, String>();
-    reg.register(Arc::new(OkSvc));
-    assert!(reg.list_names().contains(&"ok-svc".to_string()));
+    reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
+        .unwrap();
+    assert!(reg
+        .list_names(ListNamesRequest)
+        .unwrap()
+        .names
+        .contains(&"ok-svc".to_string()));
 }
 
 #[test]
 fn test_list_names_empty_before_registration_not_error() {
     let reg = Domain::new_service_registry::<String, String>();
-    assert!(reg.list_names().is_empty());
+    assert!(reg.list_names(ListNamesRequest).unwrap().names.is_empty());
 }
 
 #[test]
 fn test_list_names_len_matches_registry_len_edge() {
     let reg = Domain::new_service_registry::<String, String>();
-    reg.register(Arc::new(OkSvc));
-    reg.register(Arc::new(ErrSvc));
-    assert_eq!(reg.list_names().len(), reg.len());
+    reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
+        .unwrap();
+    reg.register(&RegisterServiceRequest::new(Arc::new(ErrSvc)))
+        .unwrap();
+    assert_eq!(
+        reg.list_names(ListNamesRequest).unwrap().names.len(),
+        reg.len(ServiceLenRequest).unwrap().count
+    );
 }

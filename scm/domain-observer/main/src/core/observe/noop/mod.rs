@@ -7,7 +7,3 @@ mod noop_metric_registry;
 mod noop_observe;
 mod noop_observer_context;
 mod noop_span;
-
-pub(crate) use noop_handler_tracer::NoopHandlerTracer;
-pub(crate) use noop_log_drain::NoopLogDrain;
-pub(crate) use noop_metric_registry::NoopMetricRegistry;

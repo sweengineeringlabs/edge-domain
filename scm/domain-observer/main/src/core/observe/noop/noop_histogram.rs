@@ -1,10 +1,13 @@
 use crate::api::Histogram;
-
-pub(crate) struct NoopHistogram;
+use crate::api::HistogramRecordRequest;
+use crate::api::HistogramRecordResponse;
+use crate::api::NoopHistogram;
+use crate::api::ObserveError;
 
 impl Histogram for NoopHistogram {
-    fn record(&self, value: f64) {
-        let _ = value;
+    fn record(&self, req: HistogramRecordRequest) -> Result<HistogramRecordResponse, ObserveError> {
+        let _ = req;
+        Ok(HistogramRecordResponse)
     }
 }
 
@@ -15,14 +18,14 @@ mod tests {
     #[test]
     fn test_record_value_discarded_happy() {
         let h = NoopHistogram;
-        h.record(25.0);
+        h.record(HistogramRecordRequest { value: 25.0 }).unwrap();
         assert_eq!(std::mem::size_of_val(&h), 0);
     }
 
     #[test]
     fn test_record_zero_no_panic_error() {
         let h = NoopHistogram;
-        h.record(0.0);
+        h.record(HistogramRecordRequest { value: 0.0 }).unwrap();
         assert_eq!(std::mem::size_of_val(&h), 0);
     }
 
