@@ -1,5 +1,6 @@
 use crate::api::saga::errors::SagaError;
 use crate::api::saga::traits::Saga;
+use crate::api::saga::types::{SagaGetRequest, SagaGetResponse, SagaRegisterRequest};
 
 /// Stores live [`Saga`] instances keyed by their `SagaId`.
 pub trait SagaStore: Send + Sync {
@@ -12,12 +13,14 @@ pub trait SagaStore: Send + Sync {
     /// under `id`; the existing instance is left untouched.
     fn register(
         &mut self,
-        id: <Self::SagaInstance as Saga>::SagaId,
-        saga: Self::SagaInstance,
+        req: SagaRegisterRequest<<Self::SagaInstance as Saga>::SagaId, Self::SagaInstance>,
     ) -> Result<(), SagaError>;
 
     /// Borrow the saga registered under `id`.
     ///
     /// Returns [`SagaError::NotFound`] when no saga is registered under `id`.
-    fn get(&self, id: &<Self::SagaInstance as Saga>::SagaId) -> Result<&Self::SagaInstance, SagaError>;
+    fn get<'a>(
+        &'a self,
+        req: SagaGetRequest<'a, <Self::SagaInstance as Saga>::SagaId>,
+    ) -> Result<SagaGetResponse<'a, Self::SagaInstance>, SagaError>;
 }

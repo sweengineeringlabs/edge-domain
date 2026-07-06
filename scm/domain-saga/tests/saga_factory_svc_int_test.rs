@@ -1,17 +1,26 @@
-//! SAF tests — `SagaBootstrap` trait.
+//! SAF facade tests — saga construction via direct constructors.
 // @allow: no_mocks_in_integration
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain_event::{EventAggregateIdRequest, EventAggregateIdResponse, EventError};
-use edge_domain_saga::{Command, CommandError, DomainEvent, NoopSaga, NoopSagaCommand, NoopSagaEvent, Saga, SagaBootstrap, SagaStore, StdSagaFactory};
+use edge_domain_saga::{
+    Command, CommandError, DomainEvent, InMemorySagaStore, NoopSaga, NoopSagaCommand,
+    NoopSagaEvent, Saga, SagaError, SagaGetRequest, SagaHandleRequest, SagaHandleResponse,
+    SagaIsCompleteRequest, SagaIsCompleteResponse, SagaRegisterRequest, SagaStore,
+};
 use futures::future::BoxFuture;
 
 #[derive(Clone)]
 struct FactEvt;
 
 impl DomainEvent for FactEvt {
-    fn aggregate_id(&self, _req: EventAggregateIdRequest) -> Result<EventAggregateIdResponse<'_>, EventError> {
-        Ok(EventAggregateIdResponse { aggregate_id: "fact-test" })
+    fn aggregate_id(
+        &self,
+        _req: EventAggregateIdRequest,
+    ) -> Result<EventAggregateIdResponse<'_>, EventError> {
+        Ok(EventAggregateIdResponse {
+            aggregate_id: "fact-test",
+        })
     }
 }
 
@@ -32,144 +41,142 @@ impl Saga for SimpleSaga {
     type Event = FactEvt;
     type Command = FactCmd;
 
-    fn handle(&mut self, _e: &Self::Event) -> Vec<Self::Command> {
-        vec![]
+    fn handle(
+        &mut self,
+        _req: SagaHandleRequest<'_, Self::Event>,
+    ) -> Result<SagaHandleResponse<Self::Command>, SagaError> {
+        Ok(SagaHandleResponse { commands: vec![] })
     }
 
-    fn is_complete(&self) -> bool {
-        true
+    fn is_complete(
+        &self,
+        _req: SagaIsCompleteRequest,
+    ) -> Result<SagaIsCompleteResponse, SagaError> {
+        Ok(SagaIsCompleteResponse { complete: true })
     }
 }
 
-struct Factories;
-impl SagaBootstrap for Factories {}
-
-/// @covers: in_memory_store
+/// @covers: InMemorySagaStore::new
 #[test]
 fn test_in_memory_store_creates_empty_registry_happy() {
-    let reg = Factories::in_memory_store::<SimpleSaga>();
-    assert!(reg.get(&"any".to_string()).is_err());
+    let reg = InMemorySagaStore::<SimpleSaga>::new();
+    let id = "any".to_string();
+    assert!(reg.get(SagaGetRequest { id: &id }).is_err());
 }
 
-/// @covers: in_memory_store
+/// @covers: InMemorySagaStore::new
 #[test]
 fn test_in_memory_store_accepts_registration_error() {
-    let mut reg = Factories::in_memory_store::<SimpleSaga>();
-    assert_eq!(reg.register("s1".to_string(), SimpleSaga), Ok(()));
+    let mut reg = InMemorySagaStore::<SimpleSaga>::new();
+    reg.register(SagaRegisterRequest {
+        id: "s1".to_string(),
+        saga: SimpleSaga,
+    })
+    .expect("registration should succeed");
 }
 
-/// @covers: in_memory_store
+/// @covers: InMemorySagaStore::new
 #[test]
 fn test_in_memory_store_multiple_instances_are_independent_edge() {
-    let mut reg1 = Factories::in_memory_store::<SimpleSaga>();
-    let reg2 = Factories::in_memory_store::<SimpleSaga>();
-    reg1.register("s1".to_string(), SimpleSaga).ok();
-    assert!(reg1.get(&"s1".to_string()).is_ok());
-    assert!(reg2.get(&"s1".to_string()).is_err());
+    let mut reg1 = InMemorySagaStore::<SimpleSaga>::new();
+    let reg2 = InMemorySagaStore::<SimpleSaga>::new();
+    reg1.register(SagaRegisterRequest {
+        id: "s1".to_string(),
+        saga: SimpleSaga,
+    })
+    .ok();
+    let id = "s1".to_string();
+    assert!(reg1.get(SagaGetRequest { id: &id }).is_ok());
+    assert!(reg2.get(SagaGetRequest { id: &id }).is_err());
 }
 
-/// @covers: noop
+/// @covers: NoopSaga::default
 #[test]
 fn test_noop_creates_noop_saga_not_complete_happy() {
-    let saga: NoopSaga = Factories::noop();
-    assert!(!saga.is_complete());
+    let saga = NoopSaga::default();
+    assert!(!saga.is_complete(SagaIsCompleteRequest).unwrap().complete);
 }
 
-/// @covers: noop
+/// @covers: NoopSaga::default
 #[test]
 fn test_noop_creates_fresh_instance_each_call_error() {
     // Each call returns a new independent instance — not a shared ref
-    let s1: NoopSaga = Factories::noop();
-    let s2: NoopSaga = Factories::noop();
-    assert!(!s1.is_complete());
-    assert!(!s2.is_complete());
+    let s1 = NoopSaga::default();
+    let s2 = NoopSaga::default();
+    assert!(!s1.is_complete(SagaIsCompleteRequest).unwrap().complete);
+    assert!(!s2.is_complete(SagaIsCompleteRequest).unwrap().complete);
 }
 
-/// @covers: noop
+/// @covers: NoopSaga::default
 #[test]
-fn test_noop_default_and_factory_produce_equivalent_state_edge() {
-    let from_factory: NoopSaga = Factories::noop();
-    let from_default = NoopSaga::default();
-    assert_eq!(from_factory.is_complete(), from_default.is_complete());
+fn test_noop_default_produces_consistent_state_edge() {
+    let a = NoopSaga::default();
+    let b = NoopSaga::default();
+    assert_eq!(
+        a.is_complete(SagaIsCompleteRequest).unwrap().complete,
+        b.is_complete(SagaIsCompleteRequest).unwrap().complete
+    );
 }
 
-/// @covers: noop_event
+/// @covers: NoopSagaEvent
 #[test]
 fn test_noop_event_creates_event_with_empty_aggregate_id_happy() {
-    use edge_domain_saga::DomainEvent;
-    let evt: NoopSagaEvent = Factories::noop_event();
-    assert_eq!(evt.aggregate_id(EventAggregateIdRequest).unwrap().aggregate_id, "");
+    let evt = NoopSagaEvent;
+    assert_eq!(
+        evt.aggregate_id(EventAggregateIdRequest)
+            .unwrap()
+            .aggregate_id,
+        ""
+    );
 }
 
-/// @covers: noop_event
+/// @covers: NoopSagaEvent
 #[test]
 fn test_noop_event_event_type_returns_default_error() {
-    use edge_domain_saga::DomainEvent;
     use edge_domain_event::EventTypeRequest;
-    let evt: NoopSagaEvent = Factories::noop_event();
-    assert_eq!(evt.event_type(EventTypeRequest).unwrap().event_type, "event");
+    let evt = NoopSagaEvent;
+    assert_eq!(
+        evt.event_type(EventTypeRequest).unwrap().event_type,
+        "event"
+    );
 }
 
-/// @covers: noop_event
+/// @covers: NoopSagaEvent
 #[test]
 fn test_noop_event_can_be_cloned_edge() {
-    let evt: NoopSagaEvent = Factories::noop_event();
+    let evt = NoopSagaEvent;
     let cloned = evt.clone();
-    use edge_domain_saga::DomainEvent;
-    assert_eq!(cloned.aggregate_id(EventAggregateIdRequest).unwrap().aggregate_id, "");
+    assert_eq!(
+        cloned
+            .aggregate_id(EventAggregateIdRequest)
+            .unwrap()
+            .aggregate_id,
+        ""
+    );
 }
 
-/// @covers: noop_command
+/// @covers: NoopSagaCommand
 #[test]
 fn test_noop_command_execute_returns_ok_happy() {
     use futures::executor::block_on;
-    use edge_domain_saga::Command;
-    let cmd: NoopSagaCommand = Factories::noop_command();
-    assert_eq!(block_on(cmd.execute()), Ok(()));
+    let cmd = NoopSagaCommand;
+    block_on(cmd.execute()).expect("noop saga command execute should always succeed");
 }
 
-/// @covers: noop_command
+/// @covers: NoopSagaCommand
 #[test]
 fn test_noop_command_name_returns_default_error() {
-    use edge_domain_saga::Command;
-    let cmd: NoopSagaCommand = Factories::noop_command();
+    let cmd = NoopSagaCommand;
     assert_eq!(cmd.name(), "command");
 }
 
-/// @covers: noop_command
+/// @covers: NoopSagaCommand
 #[test]
 fn test_noop_command_can_be_called_repeatedly_edge() {
     use futures::executor::block_on;
-    use edge_domain_saga::Command;
-    let cmd: NoopSagaCommand = Factories::noop_command();
+    let cmd = NoopSagaCommand;
     let r1 = block_on(cmd.execute());
     let r2 = block_on(cmd.execute());
-    assert_eq!(r1, Ok(()));
-    assert_eq!(r2, Ok(()));
-}
-
-/// @covers: std_factory
-#[test]
-fn test_std_factory_returns_std_saga_factory_happy() {
-    let f: StdSagaFactory = Factories::std_factory();
-    // StdSagaFactory is a unit struct — constructing it is the proof
-    assert_eq!(std::mem::size_of_val(&f), 0);
-}
-
-/// @covers: std_factory
-#[test]
-fn test_std_factory_can_create_registry_via_returned_type_error() {
-    let _f: StdSagaFactory = Factories::std_factory();
-    // StdSagaFactory implements SagaBootstrap; ensure it reaches registry creation
-    let reg = StdSagaFactory::in_memory_store::<SimpleSaga>();
-    assert!(reg.get(&"x".to_string()).is_err());
-}
-
-/// @covers: std_factory
-#[test]
-fn test_std_factory_multiple_calls_produce_equivalent_instances_edge() {
-    let f1: StdSagaFactory = Factories::std_factory();
-    let f2: StdSagaFactory = Factories::std_factory();
-    // Both are unit structs — equivalent by construction
-    assert_eq!(std::mem::size_of_val(&f1), std::mem::size_of_val(&f2));
+    r1.expect("first execute should succeed");
+    r2.expect("second execute should also succeed");
 }

@@ -9,18 +9,3 @@ use crate::api::saga::traits::Saga;
 pub struct InMemorySagaStore<S: Saga> {
     pub(crate) sagas: HashMap<S::SagaId, S>,
 }
-
-impl<S: Saga> InMemorySagaStore<S> {
-    /// Construct an empty store.
-    pub fn new() -> Self {
-        Self {
-            sagas: HashMap::new(),
-        }
-    }
-}
-
-impl<S: Saga> Default for InMemorySagaStore<S> {
-    fn default() -> Self {
-        Self::new()
-    }
-}

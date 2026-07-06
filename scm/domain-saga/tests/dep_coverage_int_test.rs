@@ -21,13 +21,18 @@ impl Command for DepCmd {
 fn test_domain_event_default_impls_are_callable_happy() {
     let e = DepEvt;
     assert_eq!(e.event_type(EventTypeRequest).unwrap().event_type, "event");
-    assert_eq!(e.aggregate_id(EventAggregateIdRequest).unwrap().aggregate_id, "");
+    assert_eq!(
+        e.aggregate_id(EventAggregateIdRequest)
+            .unwrap()
+            .aggregate_id,
+        ""
+    );
 }
 
 #[test]
 fn test_command_execute_returns_ok_error() {
     let result = block_on(DepCmd.execute());
-    assert_eq!(result, Ok(()), "command execute should return Ok(())");
+    result.expect("command execute should return Ok(())");
 }
 
 #[test]

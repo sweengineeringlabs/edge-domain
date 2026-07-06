@@ -2,7 +2,10 @@
 
 use edge_domain_command::{Command, CommandError};
 use edge_domain_event::DomainEvent;
-use edge_domain_saga::Saga;
+use edge_domain_saga::{
+    Saga, SagaError, SagaHandleRequest, SagaHandleResponse, SagaIsCompleteRequest,
+    SagaIsCompleteResponse,
+};
 use futures::future::BoxFuture;
 
 struct Signal;
@@ -21,15 +24,31 @@ impl Saga for MySaga {
     type SagaId = String;
     type Event = Signal;
     type Command = Signal;
-    fn handle(&mut self, _e: &Signal) -> Vec<Signal> {
+    fn handle(
+        &mut self,
+        _req: SagaHandleRequest<'_, Signal>,
+    ) -> Result<SagaHandleResponse<Signal>, SagaError> {
         self.done = true;
-        vec![]
+        Ok(SagaHandleResponse { commands: vec![] })
     }
-    fn is_complete(&self) -> bool { self.done }
+    fn is_complete(
+        &self,
+        _req: SagaIsCompleteRequest,
+    ) -> Result<SagaIsCompleteResponse, SagaError> {
+        Ok(SagaIsCompleteResponse {
+            complete: self.done,
+        })
+    }
 }
 
 fn main() {
     let mut s = MySaga { done: false };
-    s.handle(&Signal);
-    println!("complete: {}", s.is_complete());
+    if let Err(e) = s.handle(SagaHandleRequest { event: &Signal }) {
+        eprintln!("handle failed: {e}");
+        return;
+    }
+    match s.is_complete(SagaIsCompleteRequest) {
+        Ok(resp) => println!("complete: {}", resp.complete),
+        Err(e) => eprintln!("is_complete failed: {e}"),
+    }
 }
