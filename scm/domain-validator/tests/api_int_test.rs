@@ -4,23 +4,7 @@
 //! crate's public API and asserts on its real shape or field values.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_validator::{
-    BootstrapNameRequest, BootstrapNameResponse, ValidationRequest, ValidationResponse,
-};
-
-/// @covers: BootstrapNameRequest
-#[test]
-fn test_bootstrap_name_request_is_zero_sized_happy() {
-    assert_eq!(std::mem::size_of::<BootstrapNameRequest>(), 0);
-    let _ = BootstrapNameRequest;
-}
-
-/// @covers: BootstrapNameResponse
-#[test]
-fn test_bootstrap_name_response_holds_name_happy() {
-    let r = BootstrapNameResponse { name: "svc" };
-    assert_eq!(r.name, "svc");
-}
+use edge_domain_validator::{ValidationRequest, ValidationResponse};
 
 /// @covers: ValidationRequest
 #[test]

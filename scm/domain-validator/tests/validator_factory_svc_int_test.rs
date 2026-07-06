@@ -1,27 +1,24 @@
-//! SAF facade tests — `ValidatorBootstrap` constructors.
+//! SAF facade tests — `AlwaysValid` construction.
 
-use edge_domain_validator::{ValidationRequest, ValidationResponse, Validator, ValidatorBootstrap};
+use edge_domain_validator::{AlwaysValid, ValidationRequest, ValidationResponse, Validator};
 
-struct TestValidators;
-impl ValidatorBootstrap for TestValidators {}
-
-/// @covers: ValidatorBootstrap::always_valid — returns a passing validator
+/// @covers: AlwaysValid — returns a passing validator
 #[test]
 fn test_always_valid_returns_passing_validator_happy() {
-    let v = TestValidators::always_valid();
+    let v = AlwaysValid;
     assert_eq!(v.validate(ValidationRequest), Ok(ValidationResponse));
 }
 
-/// @covers: ValidatorBootstrap::always_valid — never rejects
+/// @covers: AlwaysValid — never rejects
 #[test]
 fn test_always_valid_never_rejects_error() {
-    let v = TestValidators::always_valid();
+    let v = AlwaysValid;
     assert_eq!(v.validate(ValidationRequest), Ok(ValidationResponse));
 }
 
-/// @covers: ValidatorBootstrap::always_valid — zero-sized marker
+/// @covers: AlwaysValid — zero-sized marker
 #[test]
 fn test_always_valid_is_zero_size_edge() {
-    let v = TestValidators::always_valid();
+    let v = AlwaysValid;
     assert_eq!(std::mem::size_of_val(&v), 0);
 }

@@ -1,10 +1,6 @@
 mod validator;
 pub use validator::ValidatorError;
 pub use validator::Validator;
-pub use validator::ValidatorBootstrap;
 pub use validator::AlwaysValid;
-pub use validator::BootstrapNameRequest;
-pub use validator::BootstrapNameResponse;
-pub use validator::StdValidatorFactory;
 pub use validator::ValidationRequest;
 pub use validator::ValidationResponse;
