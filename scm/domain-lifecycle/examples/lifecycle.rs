@@ -2,9 +2,8 @@
 #![allow(clippy::expect_used)]
 
 use edge_domain_lifecycle::{
-    Lifecycle, LifecycleBootstrap, LifecycleError, LifecycleStateRequest,
-    LifecycleTransitionRequest, StdLifecycleFactory, TransitionAllowedRequest,
-    TransitionAllowedResponse, TransitionPolicy,
+    Lifecycle, LifecycleError, LifecycleStateRequest, LifecycleTransitionRequest, ManagedLifecycle,
+    TransitionAllowedRequest, TransitionAllowedResponse, TransitionPolicy,
 };
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
@@ -41,8 +40,7 @@ fn main() {
         .build()
         .expect("rt")
         .block_on(async {
-            let task =
-                StdLifecycleFactory::managed(TaskState::Pending, Box::new(ForwardOnlyPolicy));
+            let task = ManagedLifecycle::new(TaskState::Pending, Box::new(ForwardOnlyPolicy));
 
             task.transition_to(LifecycleTransitionRequest { target: TaskState::Running })
                 .await

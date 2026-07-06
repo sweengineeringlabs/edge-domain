@@ -1,10 +1,9 @@
-//! SAF facade tests — `LifecycleBootstrap`.
+//! SAF facade tests — `ManagedLifecycle` construction via `PermissivePolicy`/custom policies.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain_lifecycle::{
-    Lifecycle, LifecycleBootstrap, LifecycleError, LifecycleStateRequest,
-    LifecycleTransitionRequest, PermissivePolicy, StdLifecycleFactory, TransitionAllowedRequest,
-    TransitionAllowedResponse, TransitionPolicy, LIFECYCLE_FACTORY_SVC,
+    Lifecycle, LifecycleError, LifecycleStateRequest, LifecycleTransitionRequest, ManagedLifecycle,
+    PermissivePolicy, TransitionAllowedRequest, TransitionAllowedResponse, TransitionPolicy,
 };
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
@@ -36,28 +35,24 @@ fn state_of<L: Lifecycle>(lc: &L) -> L::State {
     lc.state(LifecycleStateRequest).unwrap().state
 }
 
-// ── LIFECYCLE_FACTORY_SVC ─────────────────────────────────────────────────────
-
-/// @covers: LIFECYCLE_FACTORY_SVC constant
-#[test]
-fn test_lifecycle_factory_svc_constant_non_empty_happy() {
-    assert!(!LIFECYCLE_FACTORY_SVC.is_empty());
+fn permissive(initial: S) -> ManagedLifecycle<S> {
+    ManagedLifecycle::new(initial, Box::new(PermissivePolicy::new()))
 }
 
 // ── managed ───────────────────────────────────────────────────────────────────
 
-/// @covers: LifecycleBootstrap::managed
+/// @covers: ManagedLifecycle::new
 #[test]
 fn test_managed_starts_in_initial_state_happy() {
-    let lc = StdLifecycleFactory::managed(S::A, Box::new(PermissivePolicy::new()));
+    let lc = permissive(S::A);
     assert_eq!(state_of(&lc), S::A);
 }
 
-/// @covers: LifecycleBootstrap::managed
+/// @covers: ManagedLifecycle::new
 #[test]
 fn test_managed_with_deny_policy_rejects_transition_error() {
     rt().block_on(async {
-        let lc = StdLifecycleFactory::managed(S::A, Box::new(DenyAll));
+        let lc = ManagedLifecycle::new(S::A, Box::new(DenyAll));
         let err = lc
             .transition_to(LifecycleTransitionRequest { target: S::B })
             .await
@@ -66,11 +61,11 @@ fn test_managed_with_deny_policy_rejects_transition_error() {
     });
 }
 
-/// @covers: LifecycleBootstrap::managed
+/// @covers: ManagedLifecycle::new
 #[test]
 fn test_managed_with_permissive_policy_allows_chain_edge() {
     rt().block_on(async {
-        let lc = StdLifecycleFactory::managed(S::A, Box::new(PermissivePolicy::new()));
+        let lc = permissive(S::A);
         lc.transition_to(LifecycleTransitionRequest { target: S::B })
             .await
             .expect("A→B");
@@ -83,19 +78,19 @@ fn test_managed_with_permissive_policy_allows_chain_edge() {
 
 // ── permissive ────────────────────────────────────────────────────────────────
 
-/// @covers: LifecycleBootstrap::permissive
+/// @covers: PermissivePolicy::new
 #[test]
 fn test_permissive_starts_in_initial_state_happy() {
-    let lc = StdLifecycleFactory::permissive(S::A);
+    let lc = permissive(S::A);
     assert_eq!(state_of(&lc), S::A);
 }
 
-/// @covers: LifecycleBootstrap::permissive
+/// @covers: PermissivePolicy::new
 #[test]
 fn test_permissive_does_not_reject_any_transition_error() {
     rt().block_on(async {
         // "error" scenario: verify there is no situation where permissive rejects
-        let lc = StdLifecycleFactory::permissive(S::C);
+        let lc = permissive(S::C);
         lc.transition_to(LifecycleTransitionRequest { target: S::A })
             .await
             .expect("backward transition allowed");
@@ -103,38 +98,14 @@ fn test_permissive_does_not_reject_any_transition_error() {
     });
 }
 
-/// @covers: LifecycleBootstrap::permissive
+/// @covers: PermissivePolicy::new
 #[test]
 fn test_permissive_allows_self_transition_edge() {
     rt().block_on(async {
-        let lc = StdLifecycleFactory::permissive(S::B);
+        let lc = permissive(S::B);
         lc.transition_to(LifecycleTransitionRequest { target: S::B })
             .await
             .expect("self-transition allowed");
         assert_eq!(state_of(&lc), S::B);
     });
-}
-
-// ── std_factory ───────────────────────────────────────────────────────────────
-
-/// @covers: LifecycleBootstrap::std_factory
-#[test]
-fn test_std_factory_returns_factory_instance_happy() {
-    let _f: StdLifecycleFactory = StdLifecycleFactory::std_factory();
-    let lc = StdLifecycleFactory::permissive(S::A);
-    assert_eq!(state_of(&lc), S::A);
-}
-
-/// @covers: LifecycleBootstrap::std_factory
-#[test]
-fn test_std_factory_is_zero_sized_error() {
-    assert_eq!(std::mem::size_of::<StdLifecycleFactory>(), 0);
-}
-
-/// @covers: LifecycleBootstrap::std_factory
-#[test]
-fn test_std_factory_constructs_usable_lifecycle_edge() {
-    let _f = StdLifecycleFactory::std_factory();
-    let lc = StdLifecycleFactory::permissive(S::A);
-    assert_eq!(state_of(&lc), S::A);
 }

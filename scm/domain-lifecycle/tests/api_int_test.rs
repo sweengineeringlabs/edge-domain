@@ -1,29 +1,14 @@
 //! Layer-level coverage for `api/lifecycle/types/*.rs` request/response types.
 
 use edge_domain_lifecycle::{
-    BootstrapNameRequest, BootstrapNameResponse, LifecycleIsInRequest, LifecycleIsInResponse,
-    LifecycleStateRequest, LifecycleStateResponse, LifecycleTransitionRequest,
-    TransitionAllowedRequest, TransitionAllowedResponse,
+    LifecycleIsInRequest, LifecycleIsInResponse, LifecycleStateRequest, LifecycleStateResponse,
+    LifecycleTransitionRequest, TransitionAllowedRequest, TransitionAllowedResponse,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum TestState {
     A,
     B,
-}
-
-/// @covers: BootstrapNameRequest
-#[test]
-fn test_bootstrap_name_request_is_zero_sized_edge() {
-    assert_eq!(std::mem::size_of::<BootstrapNameRequest>(), 0);
-    let _ = BootstrapNameRequest;
-}
-
-/// @covers: BootstrapNameResponse
-#[test]
-fn test_bootstrap_name_response_holds_name_happy() {
-    let r = BootstrapNameResponse { name: "lifecycle" };
-    assert_eq!(r.name, "lifecycle");
 }
 
 /// @covers: LifecycleStateRequest

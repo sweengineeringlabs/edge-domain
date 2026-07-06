@@ -1,8 +1,5 @@
 mod lifecycle;
-pub use lifecycle::BootstrapNameRequest;
-pub use lifecycle::BootstrapNameResponse;
 pub use lifecycle::Lifecycle;
-pub use lifecycle::LifecycleBootstrap;
 pub use lifecycle::LifecycleError;
 pub use lifecycle::LifecycleIsInRequest;
 pub use lifecycle::LifecycleIsInResponse;
@@ -11,7 +8,6 @@ pub use lifecycle::LifecycleStateResponse;
 pub use lifecycle::LifecycleTransitionRequest;
 pub use lifecycle::ManagedLifecycle;
 pub use lifecycle::PermissivePolicy;
-pub use lifecycle::StdLifecycleFactory;
 pub use lifecycle::TransitionAllowedRequest;
 pub use lifecycle::TransitionAllowedResponse;
 pub use lifecycle::TransitionPolicy;
