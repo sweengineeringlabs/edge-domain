@@ -109,6 +109,16 @@ pub use edge_domain_projection::ProjectionReadModelResponse;
 pub use edge_domain_query::DirectQueryBus;
 #[cfg(feature = "query")]
 pub use edge_domain_query::QueryBus;
+#[cfg(feature = "query")]
+pub use edge_domain_query::QueryDispatchRequest;
+#[cfg(feature = "query")]
+pub use edge_domain_query::QueryExecuteRequest;
+#[cfg(feature = "query")]
+pub use edge_domain_query::QueryNameRequest;
+#[cfg(feature = "query")]
+pub use edge_domain_query::QueryNameResponse;
+#[cfg(feature = "query")]
+pub use edge_domain_query::QueryResultResponse;
 
 // ── repository ────────────────────────────────────────────────────────────────
 #[cfg(feature = "repository")]

@@ -94,22 +94,28 @@ impl Command for ErrCmd {
 struct OkQry(String);
 impl Query for OkQry {
     type Result = String;
-    fn name(&self) -> &str {
-        "ok-qry"
+    fn name(&self, _req: QueryNameRequest) -> Result<QueryNameResponse<'_>, QueryError> {
+        Ok(QueryNameResponse { name: "ok-qry" })
     }
-    fn execute(&self) -> BoxFuture<'_, Result<String, QueryError>> {
+    fn execute(
+        &self,
+        _req: QueryExecuteRequest,
+    ) -> BoxFuture<'_, Result<QueryResultResponse<String>, QueryError>> {
         let v = self.0.clone();
-        Box::pin(async move { Ok(v) })
+        Box::pin(async move { Ok(QueryResultResponse { result: v }) })
     }
 }
 
 struct ErrQry;
 impl Query for ErrQry {
     type Result = String;
-    fn name(&self) -> &str {
-        "err-qry"
+    fn name(&self, _req: QueryNameRequest) -> Result<QueryNameResponse<'_>, QueryError> {
+        Ok(QueryNameResponse { name: "err-qry" })
     }
-    fn execute(&self) -> BoxFuture<'_, Result<String, QueryError>> {
+    fn execute(
+        &self,
+        _req: QueryExecuteRequest,
+    ) -> BoxFuture<'_, Result<QueryResultResponse<String>, QueryError>> {
         Box::pin(async { Err(QueryError::Internal("oops".into())) })
     }
 }
@@ -220,7 +226,7 @@ fn test_name_command_returns_defined_value_happy() {
 fn test_name_query_consistent_across_calls_not_error() {
     // name() must never error — returns same value each call
     let q = OkQry("x".into());
-    assert_eq!(q.name(), "ok-qry", "query name should be stable and known");
+    assert_eq!(q.name(QueryNameRequest).unwrap().name, "ok-qry", "query name should be stable and known");
 }
 
 #[test]
@@ -267,8 +273,8 @@ fn test_execute_command_returns_err_on_failure_error() {
 #[test]
 fn test_execute_query_with_empty_response_edge() {
     block_on(async {
-        let result = OkQry(String::new()).execute().await.unwrap();
-        assert_eq!(result, "");
+        let result = OkQry(String::new()).execute(QueryExecuteRequest).await.unwrap();
+        assert_eq!(result.result, "");
     });
 }
 
@@ -299,10 +305,10 @@ fn test_dispatch_query_result_type_preserved_edge() {
     block_on(async {
         let bus = Domain::direct_query_bus::<String>();
         let r = bus
-            .dispatch(Box::new(OkQry("echo".into())))
+            .dispatch(QueryDispatchRequest { query: Box::new(OkQry("echo".into())) })
             .await
             .expect("dispatch failed");
-        assert_eq!(r, "echo");
+        assert_eq!(r.result, "echo");
     });
 }
 
@@ -310,7 +316,7 @@ fn test_dispatch_query_result_type_preserved_edge() {
 fn test_dispatch_query_propagates_error_error() {
     block_on(async {
         let bus = Domain::direct_query_bus::<String>();
-        assert!(bus.dispatch(Box::new(ErrQry)).await.is_err());
+        assert!(bus.dispatch(QueryDispatchRequest { query: Box::new(ErrQry) }).await.is_err());
     });
 }
 

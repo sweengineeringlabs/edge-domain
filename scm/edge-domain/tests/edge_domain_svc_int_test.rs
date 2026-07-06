@@ -128,23 +128,26 @@ async fn test_factory_fn_noop_event_publisher_silently_discards_events() {
 /// @covers: direct_query_bus
 #[tokio::test]
 async fn test_factory_fn_direct_query_bus_dispatches_query_inline() {
-    use edge_domain::Query;
+    use edge_domain::{Query, QueryDispatchRequest, QueryExecuteRequest, QueryNameRequest, QueryNameResponse, QueryResultResponse};
     use futures::future::BoxFuture;
     struct EchoQuery(String);
     impl Query for EchoQuery {
         type Result = String;
-        fn name(&self) -> &str {
-            "echo"
+        fn name(&self, _req: QueryNameRequest) -> Result<QueryNameResponse<'_>, QueryError> {
+            Ok(QueryNameResponse { name: "echo" })
         }
-        fn execute(&self) -> BoxFuture<'_, Result<String, QueryError>> {
+        fn execute(
+            &self,
+            _req: QueryExecuteRequest,
+        ) -> BoxFuture<'_, Result<QueryResultResponse<String>, QueryError>> {
             let v = self.0.clone();
-            Box::pin(async move { Ok(v) })
+            Box::pin(async move { Ok(QueryResultResponse { result: v }) })
         }
     }
     let bus: Arc<dyn QueryBus<Result = String>> = Domain::direct_query_bus();
     let result = bus
-        .dispatch(Box::new(EchoQuery("pong".into())))
+        .dispatch(QueryDispatchRequest { query: Box::new(EchoQuery("pong".into())) })
         .await
         .unwrap();
-    assert_eq!(result, "pong");
+    assert_eq!(result.result, "pong");
 }

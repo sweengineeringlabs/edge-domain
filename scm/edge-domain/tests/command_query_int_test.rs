@@ -1,7 +1,10 @@
 //! Integration tests for `Command`, `Query`, `CommandBus`, and `QueryBus`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{Command, CommandBus, CommandError, Query, QueryBus, QueryError};
+use edge_domain::{
+    Command, CommandBus, CommandError, Query, QueryBus, QueryDispatchRequest, QueryError,
+    QueryExecuteRequest, QueryNameRequest, QueryNameResponse, QueryResultResponse,
+};
 use futures::future::BoxFuture;
 use std::sync::Arc;
 
@@ -37,12 +40,15 @@ struct EchoQuery {
 
 impl Query for EchoQuery {
     type Result = String;
-    fn name(&self) -> &str {
-        "echo"
+    fn name(&self, _req: QueryNameRequest) -> Result<QueryNameResponse<'_>, QueryError> {
+        Ok(QueryNameResponse { name: "echo" })
     }
-    fn execute(&self) -> BoxFuture<'_, Result<String, QueryError>> {
+    fn execute(
+        &self,
+        _req: QueryExecuteRequest,
+    ) -> BoxFuture<'_, Result<QueryResultResponse<String>, QueryError>> {
         let v = self.value.clone();
-        Box::pin(async move { Ok(v) })
+        Box::pin(async move { Ok(QueryResultResponse { result: v }) })
     }
 }
 
@@ -50,10 +56,13 @@ struct MissingQuery;
 
 impl Query for MissingQuery {
     type Result = String;
-    fn name(&self) -> &str {
-        "missing"
+    fn name(&self, _req: QueryNameRequest) -> Result<QueryNameResponse<'_>, QueryError> {
+        Ok(QueryNameResponse { name: "missing" })
     }
-    fn execute(&self) -> BoxFuture<'_, Result<String, QueryError>> {
+    fn execute(
+        &self,
+        _req: QueryExecuteRequest,
+    ) -> BoxFuture<'_, Result<QueryResultResponse<String>, QueryError>> {
         Box::pin(async { Err(QueryError::NotFound("resource-42".into())) })
     }
 }
@@ -76,9 +85,9 @@ impl QueryBus for DirectQueryBus {
     type Result = String;
     fn dispatch(
         &self,
-        query: Box<dyn Query<Result = String>>,
-    ) -> BoxFuture<'_, Result<String, QueryError>> {
-        Box::pin(async move { query.execute().await })
+        req: QueryDispatchRequest<String>,
+    ) -> BoxFuture<'_, Result<QueryResultResponse<String>, QueryError>> {
+        Box::pin(async move { req.query.execute(QueryExecuteRequest).await })
     }
 }
 
@@ -108,13 +117,13 @@ async fn test_query_trait_execute_returns_result_without_mutation() {
     let q = EchoQuery {
         value: "pong".into(),
     };
-    assert_eq!(q.execute().await.unwrap(), "pong");
+    assert_eq!(q.execute(QueryExecuteRequest).await.unwrap().result, "pong");
 }
 
 /// @covers: Query::execute
 #[tokio::test]
 async fn test_query_trait_execute_returns_not_found_error() {
-    let err = MissingQuery.execute().await.unwrap_err();
+    let err = MissingQuery.execute(QueryExecuteRequest).await.unwrap_err();
     assert!(matches!(err, QueryError::NotFound(_)));
     assert!(err.to_string().contains("resource-42"));
 }
@@ -138,18 +147,20 @@ async fn test_command_bus_trait_dispatch_propagates_command_error() {
 async fn test_query_bus_trait_dispatch_returns_query_result() {
     let bus: Arc<dyn QueryBus<Result = String>> = Arc::new(DirectQueryBus);
     let result = bus
-        .dispatch(Box::new(EchoQuery {
-            value: "hello".into(),
-        }))
+        .dispatch(QueryDispatchRequest {
+            query: Box::new(EchoQuery {
+                value: "hello".into(),
+            }),
+        })
         .await
         .unwrap();
-    assert_eq!(result, "hello");
+    assert_eq!(result.result, "hello");
 }
 
 /// @covers: QueryBus::dispatch
 #[tokio::test]
 async fn test_query_bus_trait_dispatch_propagates_query_error() {
     let bus: Arc<dyn QueryBus<Result = String>> = Arc::new(DirectQueryBus);
-    let err = bus.dispatch(Box::new(MissingQuery)).await.unwrap_err();
+    let err = bus.dispatch(QueryDispatchRequest { query: Box::new(MissingQuery) }).await.unwrap_err();
     assert!(matches!(err, QueryError::NotFound(_)));
 }

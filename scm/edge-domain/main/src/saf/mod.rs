@@ -96,7 +96,6 @@ pub use edge_domain_command::CommandError;
 // ── query (sub-crate when feature enabled) ────────────────────────────────────
 #[cfg(feature = "query")]
 pub use edge_domain_query::Query;
-pub use edge_domain_query::QueryBusBootstrap;
 pub use edge_domain_query::QueryError;
 
 // ── snapshot (sub-crate when feature enabled) ─────────────────────────────────

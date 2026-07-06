@@ -100,22 +100,28 @@ impl Command for ErrCommand {
 struct OkQuery(String);
 impl Query for OkQuery {
     type Result = String;
-    fn name(&self) -> &str {
-        "ok"
+    fn name(&self, _req: QueryNameRequest) -> Result<QueryNameResponse<'_>, QueryError> {
+        Ok(QueryNameResponse { name: "ok" })
     }
-    fn execute(&self) -> BoxFuture<'_, Result<String, QueryError>> {
+    fn execute(
+        &self,
+        _req: QueryExecuteRequest,
+    ) -> BoxFuture<'_, Result<QueryResultResponse<String>, QueryError>> {
         let v = self.0.clone();
-        Box::pin(async move { Ok(v) })
+        Box::pin(async move { Ok(QueryResultResponse { result: v }) })
     }
 }
 
 struct ErrQuery;
 impl Query for ErrQuery {
     type Result = String;
-    fn name(&self) -> &str {
-        "err"
+    fn name(&self, _req: QueryNameRequest) -> Result<QueryNameResponse<'_>, QueryError> {
+        Ok(QueryNameResponse { name: "err" })
     }
-    fn execute(&self) -> BoxFuture<'_, Result<String, QueryError>> {
+    fn execute(
+        &self,
+        _req: QueryExecuteRequest,
+    ) -> BoxFuture<'_, Result<QueryResultResponse<String>, QueryError>> {
         Box::pin(async { Err(QueryError::NotFound("intentional".into())) })
     }
 }
@@ -572,10 +578,10 @@ fn test_direct_query_bus_dispatches_successful_query_happy() {
     block_on(async {
         let bus = Domain::direct_query_bus::<String>();
         let result = bus
-            .dispatch(Box::new(OkQuery("pong".into())))
+            .dispatch(QueryDispatchRequest { query: Box::new(OkQuery("pong".into())) })
             .await
             .unwrap();
-        assert_eq!(result, "pong");
+        assert_eq!(result.result, "pong");
     });
 }
 
@@ -583,7 +589,7 @@ fn test_direct_query_bus_dispatches_successful_query_happy() {
 fn test_direct_query_bus_propagates_query_error() {
     block_on(async {
         let bus = Domain::direct_query_bus::<String>();
-        assert!(bus.dispatch(Box::new(ErrQuery)).await.is_err());
+        assert!(bus.dispatch(QueryDispatchRequest { query: Box::new(ErrQuery) }).await.is_err());
     });
 }
 
@@ -592,10 +598,10 @@ fn test_direct_query_bus_dispatches_empty_result_edge() {
     block_on(async {
         let bus = Domain::direct_query_bus::<String>();
         let result = bus
-            .dispatch(Box::new(OkQuery(String::new())))
+            .dispatch(QueryDispatchRequest { query: Box::new(OkQuery(String::new())) })
             .await
             .unwrap();
-        assert_eq!(result, "");
+        assert_eq!(result.result, "");
     });
 }
 
