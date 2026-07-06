@@ -253,11 +253,29 @@ pub use edge_domain_lifecycle::TransitionPolicy;
 
 // ── security ──────────────────────────────────────────────────────────────────
 #[cfg(feature = "security")]
+pub use edge_security_runtime::AnonymousPrincipal;
+#[cfg(feature = "security")]
 pub use edge_security_runtime::Principal;
 #[cfg(feature = "security")]
 pub use edge_security_runtime::SecurityContext;
 #[cfg(feature = "security")]
 pub use edge_security_runtime::SecurityError;
+#[cfg(feature = "security")]
+pub use edge_security_authn::AuthnError;
+#[cfg(feature = "security")]
+pub use edge_security_authn::AuthnRequest;
+#[cfg(feature = "security")]
+pub use edge_security_authn::AuthnResponse;
+#[cfg(feature = "security")]
+pub use edge_security_authn::Authenticator;
+#[cfg(feature = "security")]
+pub use edge_security_authz::AuthzError;
+#[cfg(feature = "security")]
+pub use edge_security_authz::AuthzRequest;
+#[cfg(feature = "security")]
+pub use edge_security_authz::AuthzResponse;
+#[cfg(feature = "security")]
+pub use edge_security_authz::Authorizer;
 
 // ── observer (opt-in; NOT in default features) ───────────────────────────────
 #[cfg(feature = "observer")]
