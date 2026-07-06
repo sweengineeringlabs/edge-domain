@@ -3,7 +3,9 @@
 
 use std::sync::Arc;
 
-use edge_domain::{Domain, HandlerContext, HandlerError, Repository};
+use edge_domain::{
+    Domain, HandlerContext, HandlerError, Repository, RepositoryIdRequest, RepositorySaveRequest,
+};
 use edge_domain_handler::{EmptinessRequest, ExecutionRequest, LenRequest};
 use edge_domain_observer::StdObserveFactory;
 use edge_domain_security::{SecurityBootstrap, SecurityServices};
@@ -27,11 +29,19 @@ async fn test_paired_write_is_visible_to_read() {
 
     writer
         .repo
-        .save("k".to_string(), "v".to_string())
+        .save(RepositorySaveRequest {
+            id: "k".to_string(),
+            entity: "v".to_string(),
+        })
         .await
         .unwrap();
-    let found = reader.repo.find(&"k".to_string()).await.unwrap();
-    assert_eq!(found, Some("v".to_string()));
+    let id = "k".to_string();
+    let found = reader
+        .repo
+        .find(RepositoryIdRequest { id: &id })
+        .await
+        .unwrap();
+    assert_eq!(found.entity, Some("v".to_string()));
 }
 
 /// @covers: Domain::paired — independent from_config() calls use different backends
@@ -40,10 +50,20 @@ async fn test_independent_backends_do_not_share_state() {
     let repo_a = Domain::new_in_memory_repository::<String, String>();
     let repo_b = Domain::new_in_memory_repository::<String, String>();
 
-    repo_a.save("k".to_string(), "v".to_string()).await.unwrap();
+    repo_a
+        .save(RepositorySaveRequest {
+            id: "k".to_string(),
+            entity: "v".to_string(),
+        })
+        .await
+        .unwrap();
 
-    let found = repo_b.find(&"k".to_string()).await.unwrap();
-    assert_eq!(found, None, "separate instances must not share state");
+    let id = "k".to_string();
+    let found = repo_b.find(RepositoryIdRequest { id: &id }).await.unwrap();
+    assert_eq!(
+        found.entity, None,
+        "separate instances must not share state"
+    );
 }
 
 /// @covers: Domain::paired — different handler types allowed

@@ -73,16 +73,34 @@ fn test_new_in_memory_queryable_repository() {
 /// @covers: new_in_memory_queryable_repository
 #[tokio::test]
 async fn test_new_in_memory_queryable_repository_returns_functional_store() {
-    use edge_domain::Spec;
+    use edge_domain::{RepositoryError, Spec, SpecMatchesRequest, SpecMatchesResponse};
     struct Any;
-    impl Spec<String> for Any {
-        fn matches(&self, _: &String) -> bool {
-            true
+    impl Spec for Any {
+        type Entity = String;
+
+        fn matches(
+            &self,
+            _req: SpecMatchesRequest<'_, String>,
+        ) -> Result<SpecMatchesResponse, RepositoryError> {
+            Ok(SpecMatchesResponse { matches: true })
         }
     }
     let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
-    repo.save(1u32, "x".to_string()).await.unwrap();
-    assert_eq!(repo.count_by(&Any).await.unwrap(), 1);
+    repo.save(RepositorySaveRequest {
+        id: 1u32,
+        entity: "x".to_string(),
+    })
+    .await
+    .unwrap();
+    assert_eq!(
+        repo.count_by(SpecRequest {
+            spec: Box::new(Any)
+        })
+        .await
+        .unwrap()
+        .count,
+        1
+    );
 }
 
 /// @covers: new_in_memory_repository
@@ -90,23 +108,51 @@ async fn test_new_in_memory_queryable_repository_returns_functional_store() {
 async fn test_new_in_memory_repository_saves_and_finds_entity() {
     let repo: Arc<dyn edge_domain::Repository<Entity = String, Id = u32>> =
         Domain::new_in_memory_repository::<String, u32>();
-    repo.save(1u32, "x".to_string()).await.unwrap();
-    assert!(repo.find(&1u32).await.unwrap().is_some());
+    repo.save(RepositorySaveRequest {
+        id: 1u32,
+        entity: "x".to_string(),
+    })
+    .await
+    .unwrap();
+    assert!(repo
+        .find(RepositoryIdRequest { id: &1u32 })
+        .await
+        .unwrap()
+        .entity
+        .is_some());
 }
 
 /// @covers: new_in_memory_queryable_repository
 #[tokio::test]
 async fn test_new_in_memory_queryable_repository_supports_count_by() {
-    use edge_domain::Spec;
+    use edge_domain::{RepositoryError, Spec, SpecMatchesRequest, SpecMatchesResponse};
     struct Any;
-    impl Spec<String> for Any {
-        fn matches(&self, _: &String) -> bool {
-            true
+    impl Spec for Any {
+        type Entity = String;
+
+        fn matches(
+            &self,
+            _req: SpecMatchesRequest<'_, String>,
+        ) -> Result<SpecMatchesResponse, RepositoryError> {
+            Ok(SpecMatchesResponse { matches: true })
         }
     }
     let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
-    repo.save(1u32, "x".to_string()).await.unwrap();
-    assert_eq!(repo.count_by(&Any).await.unwrap(), 1);
+    repo.save(RepositorySaveRequest {
+        id: 1u32,
+        entity: "x".to_string(),
+    })
+    .await
+    .unwrap();
+    assert_eq!(
+        repo.count_by(SpecRequest {
+            spec: Box::new(Any)
+        })
+        .await
+        .unwrap()
+        .count,
+        1
+    );
 }
 
 /// @covers: validate_config

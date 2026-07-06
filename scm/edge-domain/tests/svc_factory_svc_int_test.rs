@@ -72,7 +72,10 @@ impl Aggregate for AnyAgg {
             .into();
         Ok(AggregateApplyResponse)
     }
-    fn id(&self, _req: AggregateIdentityRequest) -> Result<AggregateIdentityResponse<'_>, EventError> {
+    fn id(
+        &self,
+        _req: AggregateIdentityRequest,
+    ) -> Result<AggregateIdentityResponse<'_>, EventError> {
         Ok(AggregateIdentityResponse { id: &self.id })
     }
 }
@@ -147,16 +150,26 @@ impl Validator for AlwaysInvalid {
 }
 
 struct AnySpec;
-impl Spec<String> for AnySpec {
-    fn matches(&self, _: &String) -> bool {
-        true
+impl Spec for AnySpec {
+    type Entity = String;
+
+    fn matches(
+        &self,
+        _req: SpecMatchesRequest<'_, String>,
+    ) -> Result<SpecMatchesResponse, RepositoryError> {
+        Ok(SpecMatchesResponse { matches: true })
     }
 }
 
 struct NoSpec;
-impl Spec<String> for NoSpec {
-    fn matches(&self, _: &String) -> bool {
-        false
+impl Spec for NoSpec {
+    type Entity = String;
+
+    fn matches(
+        &self,
+        _req: SpecMatchesRequest<'_, String>,
+    ) -> Result<SpecMatchesResponse, RepositoryError> {
+        Ok(SpecMatchesResponse { matches: false })
     }
 }
 
@@ -292,8 +305,19 @@ fn test_paired_write_through_first_visible_to_second_not_error() {
         // verifies shared backend — write through first is visible through second
         let repo = Domain::new_in_memory_repository::<String, u32>();
         let (writer, reader) = Domain::paired(repo, |r| r.clone(), |r| r);
-        writer.save(1u32, "x".into()).await.unwrap();
-        assert!(reader.find(&1u32).await.unwrap().is_some());
+        writer
+            .save(RepositorySaveRequest {
+                id: 1u32,
+                entity: "x".into(),
+            })
+            .await
+            .unwrap();
+        assert!(reader
+            .find(RepositoryIdRequest { id: &1u32 })
+            .await
+            .unwrap()
+            .entity
+            .is_some());
     });
 }
 
@@ -337,8 +361,20 @@ fn test_new_service_registry_len_is_zero_edge() {
 fn test_new_in_memory_repository_save_then_find_happy() {
     block_on(async {
         let repo = Domain::new_in_memory_repository::<String, u32>();
-        repo.save(1u32, "hello".into()).await.unwrap();
-        assert_eq!(repo.find(&1u32).await.unwrap().as_deref(), Some("hello"));
+        repo.save(RepositorySaveRequest {
+            id: 1u32,
+            entity: "hello".into(),
+        })
+        .await
+        .unwrap();
+        assert_eq!(
+            repo.find(RepositoryIdRequest { id: &1u32 })
+                .await
+                .unwrap()
+                .entity
+                .as_deref(),
+            Some("hello")
+        );
     });
 }
 
@@ -346,7 +382,12 @@ fn test_new_in_memory_repository_save_then_find_happy() {
 fn test_new_in_memory_repository_find_absent_returns_ok_none_not_error() {
     block_on(async {
         let repo = Domain::new_in_memory_repository::<String, u32>();
-        assert!(repo.find(&99u32).await.unwrap().is_none());
+        assert!(repo
+            .find(RepositoryIdRequest { id: &99u32 })
+            .await
+            .unwrap()
+            .entity
+            .is_none());
     });
 }
 
@@ -354,9 +395,26 @@ fn test_new_in_memory_repository_find_absent_returns_ok_none_not_error() {
 fn test_new_in_memory_repository_overwrite_same_id_edge() {
     block_on(async {
         let repo = Domain::new_in_memory_repository::<String, u32>();
-        repo.save(1u32, "first".into()).await.unwrap();
-        repo.save(1u32, "second".into()).await.unwrap();
-        assert_eq!(repo.find(&1u32).await.unwrap().as_deref(), Some("second"));
+        repo.save(RepositorySaveRequest {
+            id: 1u32,
+            entity: "first".into(),
+        })
+        .await
+        .unwrap();
+        repo.save(RepositorySaveRequest {
+            id: 1u32,
+            entity: "second".into(),
+        })
+        .await
+        .unwrap();
+        assert_eq!(
+            repo.find(RepositoryIdRequest { id: &1u32 })
+                .await
+                .unwrap()
+                .entity
+                .as_deref(),
+            Some("second")
+        );
     });
 }
 
@@ -366,9 +424,25 @@ fn test_new_in_memory_repository_overwrite_same_id_edge() {
 fn test_new_in_memory_queryable_repository_find_by_returns_matches_happy() {
     block_on(async {
         let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
-        repo.save(1u32, "hello".into()).await.unwrap();
-        repo.save(2u32, "world".into()).await.unwrap();
-        let all = repo.find_by(&AnySpec).await.unwrap();
+        repo.save(RepositorySaveRequest {
+            id: 1u32,
+            entity: "hello".into(),
+        })
+        .await
+        .unwrap();
+        repo.save(RepositorySaveRequest {
+            id: 2u32,
+            entity: "world".into(),
+        })
+        .await
+        .unwrap();
+        let all = repo
+            .find_by(SpecRequest {
+                spec: Box::new(AnySpec),
+            })
+            .await
+            .unwrap()
+            .items;
         assert_eq!(all.len(), 2);
     });
 }
@@ -377,8 +451,19 @@ fn test_new_in_memory_queryable_repository_find_by_returns_matches_happy() {
 fn test_new_in_memory_queryable_repository_no_match_returns_empty_not_error() {
     block_on(async {
         let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
-        repo.save(1u32, "x".into()).await.unwrap();
-        let result = repo.find_by(&NoSpec).await.unwrap();
+        repo.save(RepositorySaveRequest {
+            id: 1u32,
+            entity: "x".into(),
+        })
+        .await
+        .unwrap();
+        let result = repo
+            .find_by(SpecRequest {
+                spec: Box::new(NoSpec),
+            })
+            .await
+            .unwrap()
+            .items;
         assert!(result.is_empty());
     });
 }
@@ -387,7 +472,14 @@ fn test_new_in_memory_queryable_repository_no_match_returns_empty_not_error() {
 fn test_new_in_memory_queryable_repository_find_one_by_none_on_empty_edge() {
     block_on(async {
         let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
-        assert!(repo.find_one_by(&AnySpec).await.unwrap().is_none());
+        assert!(repo
+            .find_one_by(SpecRequest {
+                spec: Box::new(AnySpec)
+            })
+            .await
+            .unwrap()
+            .entity
+            .is_none());
     });
 }
 
@@ -578,7 +670,9 @@ fn test_direct_query_bus_dispatches_successful_query_happy() {
     block_on(async {
         let bus = Domain::direct_query_bus::<String>();
         let result = bus
-            .dispatch(QueryDispatchRequest { query: Box::new(OkQuery("pong".into())) })
+            .dispatch(QueryDispatchRequest {
+                query: Box::new(OkQuery("pong".into())),
+            })
             .await
             .unwrap();
         assert_eq!(result.result, "pong");
@@ -589,7 +683,12 @@ fn test_direct_query_bus_dispatches_successful_query_happy() {
 fn test_direct_query_bus_propagates_query_error() {
     block_on(async {
         let bus = Domain::direct_query_bus::<String>();
-        assert!(bus.dispatch(QueryDispatchRequest { query: Box::new(ErrQuery) }).await.is_err());
+        assert!(bus
+            .dispatch(QueryDispatchRequest {
+                query: Box::new(ErrQuery)
+            })
+            .await
+            .is_err());
     });
 }
 
@@ -598,7 +697,9 @@ fn test_direct_query_bus_dispatches_empty_result_edge() {
     block_on(async {
         let bus = Domain::direct_query_bus::<String>();
         let result = bus
-            .dispatch(QueryDispatchRequest { query: Box::new(OkQuery(String::new())) })
+            .dispatch(QueryDispatchRequest {
+                query: Box::new(OkQuery(String::new())),
+            })
             .await
             .unwrap();
         assert_eq!(result.result, "");

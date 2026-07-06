@@ -3,7 +3,7 @@
 
 use edge_domain::{
     Command, CommandBus, CommandError, Domain, QueryBus, QueryError, QueryableRepository,
-    Repository,
+    Repository, RepositoryIdRequest, RepositorySaveRequest, SpecRequest,
 };
 use edge_domain_handler::{
     EmptinessRequest as HandlerEmptinessRequest, LenRequest as HandlerLenRequest,
@@ -46,26 +46,54 @@ fn test_new_in_memory_queryable_repository_returns_arc_queryable_repository() {
 #[tokio::test]
 async fn test_new_in_memory_repository_saves_and_finds_entity() {
     let repo: Arc<dyn Repository<Entity = String, Id = u32>> = Domain::new_in_memory_repository();
-    repo.save(1u32, "hello".to_string()).await.unwrap();
-    let found = repo.find(&1u32).await.unwrap();
-    assert_eq!(found.as_deref(), Some("hello"));
+    repo.save(RepositorySaveRequest {
+        id: 1u32,
+        entity: "hello".to_string(),
+    })
+    .await
+    .unwrap();
+    let found = repo.find(RepositoryIdRequest { id: &1u32 }).await.unwrap();
+    assert_eq!(found.entity.as_deref(), Some("hello"));
 }
 
 /// @covers: new_in_memory_queryable_repository
 #[tokio::test]
 async fn test_new_in_memory_queryable_repository_finds_by_spec() {
-    use edge_domain::Spec;
+    use edge_domain::{RepositoryError, Spec, SpecMatchesRequest, SpecMatchesResponse};
     struct LongStr;
-    impl Spec<String> for LongStr {
-        fn matches(&self, s: &String) -> bool {
-            s.len() > 3
+    impl Spec for LongStr {
+        type Entity = String;
+
+        fn matches(
+            &self,
+            req: SpecMatchesRequest<'_, String>,
+        ) -> Result<SpecMatchesResponse, RepositoryError> {
+            Ok(SpecMatchesResponse {
+                matches: req.entity.len() > 3,
+            })
         }
     }
     let repo: Arc<dyn QueryableRepository<Entity = String, Id = u32>> =
         Domain::new_in_memory_queryable_repository();
-    repo.save(1u32, "hi".to_string()).await.unwrap();
-    repo.save(2u32, "hello".to_string()).await.unwrap();
-    let results = repo.find_by(&LongStr).await.unwrap();
+    repo.save(RepositorySaveRequest {
+        id: 1u32,
+        entity: "hi".to_string(),
+    })
+    .await
+    .unwrap();
+    repo.save(RepositorySaveRequest {
+        id: 2u32,
+        entity: "hello".to_string(),
+    })
+    .await
+    .unwrap();
+    let results = repo
+        .find_by(SpecRequest {
+            spec: Box::new(LongStr),
+        })
+        .await
+        .unwrap()
+        .items;
     assert_eq!(results.len(), 1);
     assert_eq!(results[0], "hello");
 }
@@ -128,7 +156,10 @@ async fn test_factory_fn_noop_event_publisher_silently_discards_events() {
 /// @covers: direct_query_bus
 #[tokio::test]
 async fn test_factory_fn_direct_query_bus_dispatches_query_inline() {
-    use edge_domain::{Query, QueryDispatchRequest, QueryExecuteRequest, QueryNameRequest, QueryNameResponse, QueryResultResponse};
+    use edge_domain::{
+        Query, QueryDispatchRequest, QueryExecuteRequest, QueryNameRequest, QueryNameResponse,
+        QueryResultResponse,
+    };
     use futures::future::BoxFuture;
     struct EchoQuery(String);
     impl Query for EchoQuery {
@@ -146,7 +177,9 @@ async fn test_factory_fn_direct_query_bus_dispatches_query_inline() {
     }
     let bus: Arc<dyn QueryBus<Result = String>> = Domain::direct_query_bus();
     let result = bus
-        .dispatch(QueryDispatchRequest { query: Box::new(EchoQuery("pong".into())) })
+        .dispatch(QueryDispatchRequest {
+            query: Box::new(EchoQuery("pong".into())),
+        })
         .await
         .unwrap();
     assert_eq!(result.result, "pong");

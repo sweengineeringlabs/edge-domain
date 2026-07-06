@@ -122,11 +122,45 @@ pub use edge_domain_query::QueryResultResponse;
 
 // ── repository ────────────────────────────────────────────────────────────────
 #[cfg(feature = "repository")]
+pub use edge_domain_repository::AlwaysMatchSpec;
+#[cfg(feature = "repository")]
+pub use edge_domain_repository::CountByResponse;
+#[cfg(feature = "repository")]
 pub use edge_domain_repository::InMemoryRepository;
+#[cfg(feature = "repository")]
+pub use edge_domain_repository::MatchingEntitiesResponse;
+#[cfg(feature = "repository")]
+pub use edge_domain_repository::MatchingEntityResponse;
 #[cfg(feature = "repository")]
 pub use edge_domain_repository::QueryableRepository;
 #[cfg(feature = "repository")]
 pub use edge_domain_repository::Repository;
+#[cfg(feature = "repository")]
+pub use edge_domain_repository::RepositoryCountResponse;
+#[cfg(feature = "repository")]
+pub use edge_domain_repository::RepositoryDeleteResponse;
+#[cfg(feature = "repository")]
+pub use edge_domain_repository::RepositoryExistsResponse;
+#[cfg(feature = "repository")]
+pub use edge_domain_repository::RepositoryFindResponse;
+#[cfg(feature = "repository")]
+pub use edge_domain_repository::RepositoryIdRequest;
+#[cfg(feature = "repository")]
+pub use edge_domain_repository::RepositoryListPageRequest;
+#[cfg(feature = "repository")]
+pub use edge_domain_repository::RepositoryListPageResponse;
+#[cfg(feature = "repository")]
+pub use edge_domain_repository::RepositoryListRequest;
+#[cfg(feature = "repository")]
+pub use edge_domain_repository::RepositoryListResponse;
+#[cfg(feature = "repository")]
+pub use edge_domain_repository::RepositorySaveRequest;
+#[cfg(feature = "repository")]
+pub use edge_domain_repository::SpecMatchesRequest;
+#[cfg(feature = "repository")]
+pub use edge_domain_repository::SpecMatchesResponse;
+#[cfg(feature = "repository")]
+pub use edge_domain_repository::SpecRequest;
 
 // ── saga ──────────────────────────────────────────────────────────────────────
 #[cfg(feature = "saga")]

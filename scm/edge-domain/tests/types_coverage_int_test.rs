@@ -4,7 +4,7 @@
 use edge_domain::{
     Aggregate, AggregateApplyRequest, DomainEvent, EventAggregateIdRequest,
     EventAggregateIdResponse, EventOccurredAtRequest, EventOccurredAtResponse, EventTypeRequest,
-    EventTypeResponse, Spec,
+    EventTypeResponse, RepositoryError, Spec, SpecMatchesRequest, SpecMatchesResponse,
 };
 use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
 use std::time::SystemTime;
@@ -64,22 +64,32 @@ fn test_aggregate_trait_apply_default() {
 
     let mut agg = TestAggregate;
     let event = TestEvent;
-    agg.apply(AggregateApplyRequest { event: &event })
-        .unwrap(); // Should use default impl without error
+    agg.apply(AggregateApplyRequest { event: &event }).unwrap(); // Should use default impl without error
 }
 
 /// @covers: Spec
 #[test]
 fn test_spec_matches_default() {
     struct AlwaysFalseSpec;
-    impl Spec<String> for AlwaysFalseSpec {
-        fn matches(&self, _s: &String) -> bool {
-            false
+    impl Spec for AlwaysFalseSpec {
+        type Entity = String;
+
+        fn matches(
+            &self,
+            _req: SpecMatchesRequest<'_, String>,
+        ) -> Result<SpecMatchesResponse, RepositoryError> {
+            Ok(SpecMatchesResponse { matches: false })
         }
     }
 
     let spec = AlwaysFalseSpec;
-    assert!(!spec.matches(&"test".to_string()));
+    let entity = "test".to_string();
+    assert!(
+        !spec
+            .matches(SpecMatchesRequest { entity: &entity })
+            .unwrap()
+            .matches
+    );
 }
 
 /// @covers: Spec type and trait method defaults
@@ -87,8 +97,15 @@ fn test_spec_matches_default() {
 fn test_spec_default_implementation() {
     // Verify default impl of matches returns false
     struct TestSpec;
-    impl Spec<i32> for TestSpec {}
+    impl Spec for TestSpec {
+        type Entity = i32;
+    }
 
     let spec = TestSpec;
-    assert!(!spec.matches(&42));
+    assert!(
+        !spec
+            .matches(SpecMatchesRequest { entity: &42 })
+            .unwrap()
+            .matches
+    );
 }

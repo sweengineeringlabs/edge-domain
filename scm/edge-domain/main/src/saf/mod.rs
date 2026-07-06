@@ -129,6 +129,18 @@ pub use edge_domain_repository::Page;
 pub use edge_domain_repository::RepositoryError;
 #[cfg(feature = "repository")]
 pub use edge_domain_repository::Spec;
+#[cfg(feature = "repository")]
+pub use edge_domain_repository::QUERYABLE_REPOSITORY_SVC;
+#[cfg(feature = "repository")]
+pub use edge_domain_repository::QUERYABLE_REPOSITORY_SVC_FACTORY;
+#[cfg(feature = "repository")]
+pub use edge_domain_repository::REPOSITORY_SVC;
+#[cfg(feature = "repository")]
+pub use edge_domain_repository::REPOSITORY_SVC_FACTORY;
+#[cfg(feature = "repository")]
+pub use edge_domain_repository::SPEC_SVC;
+#[cfg(feature = "repository")]
+pub use edge_domain_repository::SPEC_SVC_FACTORY;
 
 // ── handler (sub-crate when feature enabled) ──────────────────────────────────
 #[cfg(feature = "handler")]
