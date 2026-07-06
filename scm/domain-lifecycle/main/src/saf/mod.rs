@@ -1,6 +1,7 @@
 mod lifecycle;
 
 pub use lifecycle::{
-    Lifecycle, LifecycleBootstrap, TransitionPolicy, LIFECYCLE_FACTORY_SVC, LIFECYCLE_SVC,
-    TRANSITION_POLICY_SVC,
+    Lifecycle, LifecycleBootstrap, TransitionPolicy, LIFECYCLE_BOOTSTRAP_SVC_FACTORY,
+    LIFECYCLE_FACTORY_SVC, LIFECYCLE_SVC, LIFECYCLE_SVC_FACTORY, TRANSITION_POLICY_SVC,
+    TRANSITION_POLICY_SVC_FACTORY,
 };

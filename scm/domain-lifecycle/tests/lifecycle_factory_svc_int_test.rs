@@ -2,8 +2,9 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain_lifecycle::{
-    Lifecycle, LifecycleBootstrap, LifecycleError, PermissivePolicy, StdLifecycleFactory,
-    TransitionPolicy, LIFECYCLE_FACTORY_SVC,
+    Lifecycle, LifecycleBootstrap, LifecycleError, LifecycleStateRequest,
+    LifecycleTransitionRequest, PermissivePolicy, StdLifecycleFactory, TransitionAllowedRequest,
+    TransitionAllowedResponse, TransitionPolicy, LIFECYCLE_FACTORY_SVC,
 };
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
@@ -17,8 +18,11 @@ struct DenyAll;
 impl TransitionPolicy for DenyAll {
     type State = S;
 
-    fn is_allowed(&self, _: S, _: S) -> bool {
-        false
+    fn is_allowed(
+        &self,
+        _req: TransitionAllowedRequest<S>,
+    ) -> Result<TransitionAllowedResponse, LifecycleError> {
+        Ok(TransitionAllowedResponse { allowed: false })
     }
 }
 
@@ -26,6 +30,10 @@ fn rt() -> tokio::runtime::Runtime {
     tokio::runtime::Builder::new_current_thread()
         .build()
         .expect("rt")
+}
+
+fn state_of<L: Lifecycle>(lc: &L) -> L::State {
+    lc.state(LifecycleStateRequest).unwrap().state
 }
 
 // ── LIFECYCLE_FACTORY_SVC ─────────────────────────────────────────────────────
@@ -42,7 +50,7 @@ fn test_lifecycle_factory_svc_constant_non_empty_happy() {
 #[test]
 fn test_managed_starts_in_initial_state_happy() {
     let lc = StdLifecycleFactory::managed(S::A, Box::new(PermissivePolicy::new()));
-    assert_eq!(lc.state(), S::A);
+    assert_eq!(state_of(&lc), S::A);
 }
 
 /// @covers: LifecycleBootstrap::managed
@@ -50,7 +58,10 @@ fn test_managed_starts_in_initial_state_happy() {
 fn test_managed_with_deny_policy_rejects_transition_error() {
     rt().block_on(async {
         let lc = StdLifecycleFactory::managed(S::A, Box::new(DenyAll));
-        let err = lc.transition_to(S::B).await.expect_err("must fail");
+        let err = lc
+            .transition_to(LifecycleTransitionRequest { target: S::B })
+            .await
+            .expect_err("must fail");
         assert!(matches!(err, LifecycleError::InvalidTransition { .. }));
     });
 }
@@ -60,9 +71,13 @@ fn test_managed_with_deny_policy_rejects_transition_error() {
 fn test_managed_with_permissive_policy_allows_chain_edge() {
     rt().block_on(async {
         let lc = StdLifecycleFactory::managed(S::A, Box::new(PermissivePolicy::new()));
-        lc.transition_to(S::B).await.expect("A→B");
-        lc.transition_to(S::C).await.expect("B→C");
-        assert_eq!(lc.state(), S::C);
+        lc.transition_to(LifecycleTransitionRequest { target: S::B })
+            .await
+            .expect("A→B");
+        lc.transition_to(LifecycleTransitionRequest { target: S::C })
+            .await
+            .expect("B→C");
+        assert_eq!(state_of(&lc), S::C);
     });
 }
 
@@ -72,7 +87,7 @@ fn test_managed_with_permissive_policy_allows_chain_edge() {
 #[test]
 fn test_permissive_starts_in_initial_state_happy() {
     let lc = StdLifecycleFactory::permissive(S::A);
-    assert_eq!(lc.state(), S::A);
+    assert_eq!(state_of(&lc), S::A);
 }
 
 /// @covers: LifecycleBootstrap::permissive
@@ -81,8 +96,10 @@ fn test_permissive_does_not_reject_any_transition_error() {
     rt().block_on(async {
         // "error" scenario: verify there is no situation where permissive rejects
         let lc = StdLifecycleFactory::permissive(S::C);
-        lc.transition_to(S::A).await.expect("backward transition allowed");
-        assert_eq!(lc.state(), S::A);
+        lc.transition_to(LifecycleTransitionRequest { target: S::A })
+            .await
+            .expect("backward transition allowed");
+        assert_eq!(state_of(&lc), S::A);
     });
 }
 
@@ -91,8 +108,10 @@ fn test_permissive_does_not_reject_any_transition_error() {
 fn test_permissive_allows_self_transition_edge() {
     rt().block_on(async {
         let lc = StdLifecycleFactory::permissive(S::B);
-        lc.transition_to(S::B).await.expect("self-transition allowed");
-        assert_eq!(lc.state(), S::B);
+        lc.transition_to(LifecycleTransitionRequest { target: S::B })
+            .await
+            .expect("self-transition allowed");
+        assert_eq!(state_of(&lc), S::B);
     });
 }
 
@@ -101,9 +120,9 @@ fn test_permissive_allows_self_transition_edge() {
 /// @covers: LifecycleBootstrap::std_factory
 #[test]
 fn test_std_factory_returns_factory_instance_happy() {
-    let f: StdLifecycleFactory = StdLifecycleFactory::std_factory();
-    let lc = f.permissive(S::A);
-    assert_eq!(lc.state(), S::A);
+    let _f: StdLifecycleFactory = StdLifecycleFactory::std_factory();
+    let lc = StdLifecycleFactory::permissive(S::A);
+    assert_eq!(state_of(&lc), S::A);
 }
 
 /// @covers: LifecycleBootstrap::std_factory
@@ -115,7 +134,7 @@ fn test_std_factory_is_zero_sized_error() {
 /// @covers: LifecycleBootstrap::std_factory
 #[test]
 fn test_std_factory_constructs_usable_lifecycle_edge() {
-    let f = StdLifecycleFactory::std_factory();
-    let lc = f.permissive(S::A);
-    assert_eq!(lc.state(), S::A);
+    let _f = StdLifecycleFactory::std_factory();
+    let lc = StdLifecycleFactory::permissive(S::A);
+    assert_eq!(state_of(&lc), S::A);
 }

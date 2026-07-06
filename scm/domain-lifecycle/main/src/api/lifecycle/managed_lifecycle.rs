@@ -14,14 +14,3 @@ pub struct ManagedLifecycle<S: Copy + Eq + Debug + Send + Sync + 'static> {
     pub(crate) state: RwLock<S>,
     pub(crate) policy: Box<dyn TransitionPolicy<State = S>>,
 }
-
-impl<S: Copy + Eq + Debug + Send + Sync + 'static> ManagedLifecycle<S> {
-    /// Construct a new lifecycle in `initial` state, governed by `policy`.
-    /// Construct a new lifecycle in `initial` state, governed by `policy`.
-    pub fn new(initial: S, policy: Box<dyn TransitionPolicy<State = S>>) -> Self {
-        Self {
-            state: RwLock::new(initial),
-            policy,
-        }
-    }
-}

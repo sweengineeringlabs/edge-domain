@@ -1,7 +1,10 @@
 //! Integration tests for `StdLifecycleFactory` — covers the types/ file directly.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_lifecycle::{Lifecycle, LifecycleBootstrap, PermissivePolicy, StdLifecycleFactory};
+use edge_domain_lifecycle::{
+    Lifecycle, LifecycleBootstrap, LifecycleStateRequest, LifecycleTransitionRequest,
+    PermissivePolicy, StdLifecycleFactory,
+};
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 enum S {
@@ -13,6 +16,10 @@ fn rt() -> tokio::runtime::Runtime {
     tokio::runtime::Builder::new_current_thread()
         .build()
         .expect("rt")
+}
+
+fn state_of<L: Lifecycle>(lc: &L) -> L::State {
+    lc.state(LifecycleStateRequest).unwrap().state
 }
 
 /// @covers: StdLifecycleFactory — constructs via literal and `std_factory`
@@ -35,8 +42,10 @@ fn test_std_lifecycle_factory_zero_sized_error() {
 fn test_std_lifecycle_factory_managed_returns_lifecycle_edge() {
     rt().block_on(async {
         let lc = StdLifecycleFactory::managed(S::A, Box::new(PermissivePolicy::new()));
-        lc.transition_to(S::B).await.expect("transition");
-        assert_eq!(lc.state(), S::B);
+        lc.transition_to(LifecycleTransitionRequest { target: S::B })
+            .await
+            .expect("transition");
+        assert_eq!(state_of(&lc), S::B);
     });
 }
 
@@ -45,7 +54,9 @@ fn test_std_lifecycle_factory_managed_returns_lifecycle_edge() {
 fn test_std_lifecycle_factory_permissive_allows_all_transitions_happy() {
     rt().block_on(async {
         let lc = StdLifecycleFactory::permissive(S::A);
-        lc.transition_to(S::B).await.expect("transition");
-        assert_eq!(lc.state(), S::B);
+        lc.transition_to(LifecycleTransitionRequest { target: S::B })
+            .await
+            .expect("transition");
+        assert_eq!(state_of(&lc), S::B);
     });
 }

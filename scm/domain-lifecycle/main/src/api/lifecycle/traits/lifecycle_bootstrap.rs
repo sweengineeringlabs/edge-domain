@@ -2,14 +2,21 @@
 
 use std::fmt::Debug;
 
+use crate::api::lifecycle::errors::LifecycleError;
 use crate::api::lifecycle::traits::TransitionPolicy;
-use crate::api::lifecycle::types::{ManagedLifecycle, PermissivePolicy, StdLifecycleFactory};
+use crate::api::lifecycle::types::{
+    BootstrapNameRequest, BootstrapNameResponse, ManagedLifecycle, PermissivePolicy,
+    StdLifecycleFactory,
+};
 
 /// Bootstrap trait for the standard `Lifecycle` implementation.
 pub trait LifecycleBootstrap {
     /// Identifies this bootstrap implementation.
-    fn bootstrap_name(&self) -> &'static str {
-        "lifecycle"
+    fn bootstrap_name(
+        &self,
+        _req: BootstrapNameRequest,
+    ) -> Result<BootstrapNameResponse, LifecycleError> {
+        Ok(BootstrapNameResponse { name: "lifecycle" })
     }
 
     /// Construct a [`ManagedLifecycle`] in `initial` state, governed by `policy`.
