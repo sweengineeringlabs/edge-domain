@@ -1,8 +1,10 @@
 //! [`AppServiceProvider`] — composition-root contract for wiring service dependencies into a [`Bootstrap`].
 
-use crate::api::NoopAppSvcFactory;
-use crate::api::app::types::{NameRequest, NameResponse, ProviderBuildRequest, ProviderBuildResponse};
+use crate::api::app::types::{
+    NameRequest, NameResponse, ProviderBuildRequest, ProviderBuildResponse,
+};
 use crate::api::AppError;
+use crate::api::NoopAppSvcFactory;
 
 /// Port contract for the composition root that wires the service graph and produces a [`Bootstrap`].
 ///

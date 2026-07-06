@@ -60,10 +60,7 @@ mod tests {
     #[test]
     fn test_name_returns_app_service_provider_edge() {
         assert_eq!(
-            DefaultAppServiceProvider
-                .name(NameRequest)
-                .unwrap()
-                .name,
+            DefaultAppServiceProvider.name(NameRequest).unwrap().name,
             "app_service_provider"
         );
     }

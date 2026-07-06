@@ -9,7 +9,10 @@ use edge_domain_app::{
 struct PassthroughProvider(NoopAppBootstrap);
 
 impl AppServiceProvider for PassthroughProvider {
-    fn build(&self, _req: ProviderBuildRequest) -> Result<ProviderBuildResponse, edge_domain_app::AppError> {
+    fn build(
+        &self,
+        _req: ProviderBuildRequest,
+    ) -> Result<ProviderBuildResponse, edge_domain_app::AppError> {
         Ok(ProviderBuildResponse {
             bootstrap: Box::new(self.0),
         })

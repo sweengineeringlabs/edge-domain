@@ -2,9 +2,9 @@
 
 use futures::future::BoxFuture;
 
+use crate::api::app::types::{NameRequest, NameResponse, RuntimeBootRequest, RuntimeBootResponse};
 use crate::api::AppError;
 use crate::api::NoopAppRuntime;
-use crate::api::app::types::{NameRequest, NameResponse, RuntimeBootRequest, RuntimeBootResponse};
 
 /// Enforces the canonical boot sequence: `Bootstrap::build` → `Application::run`.
 ///
@@ -15,7 +15,9 @@ use crate::api::app::types::{NameRequest, NameResponse, RuntimeBootRequest, Runt
 pub trait AppRuntime: Send + Sync {
     /// Stable identifier for this runtime.
     fn name(&self, _req: NameRequest) -> Result<NameResponse, AppError> {
-        Ok(NameResponse { name: "app_runtime" })
+        Ok(NameResponse {
+            name: "app_runtime",
+        })
     }
 
     /// Execute the full boot gate: build an application via `bootstrap`, then run it.
