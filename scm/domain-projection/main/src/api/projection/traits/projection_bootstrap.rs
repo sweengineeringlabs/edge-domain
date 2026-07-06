@@ -3,13 +3,18 @@
 use edge_domain_event::DomainEvent;
 
 use crate::api::projection::errors::ProjectionError;
-use crate::api::projection::types::{InMemoryProjection, StdProjectionFactory};
+use crate::api::projection::types::{
+    BootstrapNameRequest, BootstrapNameResponse, InMemoryProjection, StdProjectionFactory, TryDrainResponse,
+};
 
 /// Factory for creating and driving [`InMemoryProjection`] instances.
 pub trait ProjectionBootstrap {
     /// Identifies this bootstrap implementation.
-    fn bootstrap_name(&self) -> &'static str {
-        "projection"
+    fn bootstrap_name(
+        &self,
+        _req: BootstrapNameRequest,
+    ) -> Result<BootstrapNameResponse, ProjectionError> {
+        Ok(BootstrapNameResponse { name: "projection" })
     }
 
     /// Construct an in-memory projection seeded with `initial`, updated by `reducer`.
@@ -29,7 +34,7 @@ pub trait ProjectionBootstrap {
     fn try_drain<E, R, F>(
         projection: &mut InMemoryProjection<E, R, F>,
         events: &[E],
-    ) -> Result<usize, ProjectionError>
+    ) -> Result<TryDrainResponse, ProjectionError>
     where
         E: DomainEvent + Send + Sync,
         R: Send + Sync,
@@ -42,11 +47,14 @@ pub trait ProjectionBootstrap {
         for e in events {
             (projection.reducer)(&mut projection.read_model, e);
         }
-        Ok(events.len())
+        Ok(TryDrainResponse { count: events.len() })
     }
 
     /// Return the standard projection-factory instance.
-    fn std_factory() -> StdProjectionFactory where Self: Sized {
+    fn std_factory() -> StdProjectionFactory
+    where
+        Self: Sized,
+    {
         StdProjectionFactory
     }
 }

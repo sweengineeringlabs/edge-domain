@@ -4,5 +4,7 @@ pub mod types;
 
 pub use errors::ProjectionError;
 pub use traits::{Projection, ProjectionBootstrap};
-pub use types::InMemoryProjection;
-pub use types::StdProjectionFactory;
+pub use types::{
+    BootstrapNameRequest, BootstrapNameResponse, InMemoryProjection, ProjectionApplyRequest,
+    ProjectionReadModelRequest, ProjectionReadModelResponse, StdProjectionFactory, TryDrainResponse,
+};

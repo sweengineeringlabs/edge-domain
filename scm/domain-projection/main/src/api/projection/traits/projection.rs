@@ -1,11 +1,12 @@
 use edge_domain_event::DomainEvent;
 
+use crate::api::projection::errors::ProjectionError;
+use crate::api::projection::types::{ProjectionApplyRequest, ProjectionReadModelRequest, ProjectionReadModelResponse};
+
 /// Consumes domain events and maintains a read model.
 ///
 /// The read side of CQRS: apply events in stream order to build a
-/// denormalised view optimised for queries.  `apply` is intentionally
-/// infallible — a projection that needs to surface failures should record them
-/// in the read model rather than abort the fan-out.
+/// denormalised view optimised for queries.
 pub trait Projection: Send + Sync {
     /// The event type this projection handles.
     type Event: DomainEvent;
@@ -14,8 +15,11 @@ pub trait Projection: Send + Sync {
     type ReadModel;
 
     /// Apply one event to update the read model in place.
-    fn apply(&mut self, event: &Self::Event);
+    fn apply(&mut self, req: ProjectionApplyRequest<'_, Self::Event>) -> Result<(), ProjectionError>;
 
-    /// Return a reference to the current read model state.
-    fn read_model(&self) -> &Self::ReadModel;
+    /// Return the current read model state.
+    fn read_model(
+        &self,
+        req: ProjectionReadModelRequest,
+    ) -> Result<ProjectionReadModelResponse<'_, Self::ReadModel>, ProjectionError>;
 }

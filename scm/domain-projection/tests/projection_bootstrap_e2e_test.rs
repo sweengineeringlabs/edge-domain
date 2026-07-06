@@ -4,8 +4,8 @@
 
 use edge_domain_event::{EventAggregateIdRequest, EventAggregateIdResponse, EventError};
 use edge_domain_projection::{
-    DomainEvent, Projection, ProjectionApplyRequest, ProjectionBootstrap, ProjectionError,
-    ProjectionReadModelRequest,
+    BootstrapNameRequest, DomainEvent, Projection, ProjectionApplyRequest, ProjectionBootstrap,
+    ProjectionError, ProjectionReadModelRequest, StdProjectionFactory,
 };
 
 #[derive(Clone)]
@@ -28,6 +28,31 @@ fn score_evt(points: u32) -> ScoreEvt {
 
 fn read(p: &impl Projection<Event = ScoreEvt, ReadModel = u32>) -> u32 {
     *p.read_model(ProjectionReadModelRequest).expect("read_model should succeed").read_model
+}
+
+/// @covers: bootstrap_name
+#[test]
+fn test_bootstrap_name_returns_nonempty_string_happy() {
+    let f = StdProjectionFactory;
+    let response = f.bootstrap_name(BootstrapNameRequest).expect("bootstrap_name should succeed");
+    assert!(!response.name.is_empty(), "bootstrap_name must return a non-empty identifier");
+}
+
+/// @covers: bootstrap_name
+#[test]
+fn test_bootstrap_name_is_idempotent_error() {
+    let f = StdProjectionFactory;
+    let name1 = f.bootstrap_name(BootstrapNameRequest).expect("bootstrap_name should succeed").name;
+    let name2 = f.bootstrap_name(BootstrapNameRequest).expect("bootstrap_name should succeed").name;
+    assert_eq!(name1, name2, "bootstrap_name must return the same value on repeated calls");
+    assert_eq!(name1, "projection", "bootstrap_name must return expected identifier");
+}
+
+/// @covers: bootstrap_name
+#[test]
+fn test_bootstrap_name_is_callable_via_trait_object_edge() {
+    let f: &dyn ProjectionBootstrap = &StdProjectionFactory;
+    let _ = f.bootstrap_name(BootstrapNameRequest).expect("bootstrap_name should succeed");
 }
 
 /// @covers: in_memory
