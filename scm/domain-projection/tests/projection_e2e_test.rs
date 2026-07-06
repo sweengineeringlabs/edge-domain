@@ -4,8 +4,8 @@
 
 use edge_domain_event::{EventAggregateIdRequest, EventAggregateIdResponse, EventError};
 use edge_domain_projection::{
-    DomainEvent, InMemoryProjection, Projection, ProjectionApplyRequest, ProjectionBootstrap,
-    ProjectionReadModelRequest,
+    DomainEvent, InMemoryProjection, Projection, ProjectionApplyRequest, ProjectionError,
+    ProjectionReadModelRequest, TryDrainRequest,
 };
 
 #[derive(Clone)]
@@ -19,11 +19,8 @@ impl DomainEvent for BalanceEvt {
     }
 }
 
-struct Factories;
-impl ProjectionBootstrap for Factories {}
-
 fn make_balance(seed: i64) -> impl Projection<Event = BalanceEvt, ReadModel = i64> {
-    Factories::in_memory(seed, |total: &mut i64, e: &BalanceEvt| *total += e.delta)
+    InMemoryProjection::new(seed, |total: &mut i64, e: &BalanceEvt| *total += e.delta)
 }
 
 fn evt(delta: i64) -> BalanceEvt {
@@ -84,7 +81,7 @@ fn test_read_model_reflects_all_applied_events_edge() {
 }
 
 fn make_count(seed: u32) -> InMemoryProjection<BalanceEvt, u32, impl Fn(&mut u32, &BalanceEvt) + Send + Sync> {
-    Factories::in_memory(seed, |count: &mut u32, _e: &BalanceEvt| *count += 1)
+    InMemoryProjection::new(seed, |count: &mut u32, _e: &BalanceEvt| *count += 1)
 }
 
 /// @covers: apply
@@ -94,4 +91,31 @@ fn test_apply_counts_each_event_regardless_of_payload_edge() {
     p.apply(ProjectionApplyRequest { event: &evt(0) }).expect("apply should succeed");
     p.apply(ProjectionApplyRequest { event: &evt(999) }).expect("apply should succeed");
     assert_eq!(*p.read_model(ProjectionReadModelRequest).expect("read_model").read_model, 2);
+}
+
+/// @covers: try_drain
+#[test]
+fn test_try_drain_events_slice_returns_count_happy() {
+    let mut p = make_balance(0);
+    let events = [evt(3), evt(4)];
+    let response = p.try_drain(TryDrainRequest { events: &events }).expect("try_drain should succeed");
+    assert_eq!(response.count, 2);
+    assert_eq!(read(&p), 7);
+}
+
+/// @covers: try_drain
+#[test]
+fn test_try_drain_empty_slice_returns_empty_stream_error() {
+    let mut p = make_balance(0);
+    let err = p.try_drain(TryDrainRequest { events: &[] }).unwrap_err();
+    assert_eq!(err, ProjectionError::EmptyStream);
+}
+
+/// @covers: try_drain
+#[test]
+fn test_try_drain_single_event_returns_one_edge() {
+    let mut p = make_balance(0);
+    let response = p.try_drain(TryDrainRequest { events: &[evt(1)] }).expect("try_drain should succeed");
+    assert_eq!(response.count, 1);
+    assert_eq!(read(&p), 1);
 }

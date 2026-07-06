@@ -3,8 +3,8 @@ pub mod traits;
 pub mod types;
 
 pub use errors::ProjectionError;
-pub use traits::{Projection, ProjectionBootstrap};
+pub use traits::Projection;
 pub use types::{
-    BootstrapNameRequest, BootstrapNameResponse, InMemoryProjection, ProjectionApplyRequest,
-    ProjectionReadModelRequest, ProjectionReadModelResponse, StdProjectionFactory, TryDrainResponse,
+    InMemoryProjection, ProjectionApplyRequest, ProjectionReadModelRequest,
+    ProjectionReadModelResponse, TryDrainRequest, TryDrainResponse,
 };

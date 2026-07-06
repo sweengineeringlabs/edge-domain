@@ -1,7 +1,10 @@
 use edge_domain_event::DomainEvent;
 
 use crate::api::projection::errors::ProjectionError;
-use crate::api::projection::types::{ProjectionApplyRequest, ProjectionReadModelRequest, ProjectionReadModelResponse};
+use crate::api::projection::types::{
+    ProjectionApplyRequest, ProjectionReadModelRequest, ProjectionReadModelResponse, TryDrainRequest,
+    TryDrainResponse,
+};
 
 /// Consumes domain events and maintains a read model.
 ///
@@ -22,4 +25,23 @@ pub trait Projection: Send + Sync {
         &self,
         req: ProjectionReadModelRequest,
     ) -> Result<ProjectionReadModelResponse<'_, Self::ReadModel>, ProjectionError>;
+
+    /// Fold a slice of events by calling [`apply`](Self::apply) once per event.
+    ///
+    /// Returns [`ProjectionError::EmptyStream`] when `events` is empty.
+    fn try_drain(
+        &mut self,
+        req: TryDrainRequest<'_, Self::Event>,
+    ) -> Result<TryDrainResponse, ProjectionError>
+    where
+        Self: Sized,
+    {
+        if req.events.is_empty() {
+            return Err(ProjectionError::EmptyStream);
+        }
+        for event in req.events {
+            self.apply(ProjectionApplyRequest { event })?;
+        }
+        Ok(TryDrainResponse { count: req.events.len() })
+    }
 }

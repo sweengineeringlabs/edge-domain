@@ -1,23 +1,8 @@
 //! Layer-level coverage for `api/projection/types/*.rs` request/response types.
 
 use edge_domain_projection::{
-    BootstrapNameRequest, BootstrapNameResponse, ProjectionApplyRequest, ProjectionReadModelRequest,
-    ProjectionReadModelResponse, TryDrainResponse,
+    ProjectionApplyRequest, ProjectionReadModelRequest, ProjectionReadModelResponse, TryDrainResponse,
 };
-
-/// @covers: BootstrapNameRequest
-#[test]
-fn test_bootstrap_name_request_is_zero_sized_edge() {
-    assert_eq!(std::mem::size_of::<BootstrapNameRequest>(), 0);
-    let _ = BootstrapNameRequest;
-}
-
-/// @covers: BootstrapNameResponse
-#[test]
-fn test_bootstrap_name_response_holds_name_happy() {
-    let r = BootstrapNameResponse { name: "projection" };
-    assert_eq!(r.name, "projection");
-}
 
 /// @covers: ProjectionApplyRequest
 #[test]
