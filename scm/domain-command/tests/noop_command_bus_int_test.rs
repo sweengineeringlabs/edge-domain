@@ -1,21 +1,22 @@
 //! Integration tests for `NoopCommandBus` — discards every command silently.
 
 use edge_domain_command::{
-    Command, CommandBus, CommandBusBootstrap, CommandError, NoopCommandBus, StdCommandBusFactory,
+    Command, CommandBus, CommandBusBootstrap, CommandDispatchRequest, CommandError,
+    ExecutionRequest, NoopCommandBus, StdCommandBusFactory,
 };
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 
 struct Ok_;
 impl Command for Ok_ {
-    fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+    fn execute(&self, _req: ExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
         Box::pin(async { Ok(()) })
     }
 }
 
 struct Err_;
 impl Command for Err_ {
-    fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+    fn execute(&self, _req: ExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
         Box::pin(async { Err(CommandError::RuleViolation("denied".into())) })
     }
 }
@@ -30,14 +31,20 @@ fn test_noop_command_bus_is_zero_sized_happy() {
 #[test]
 fn test_noop_command_bus_dispatch_ok_command_returns_ok_happy() {
     let bus = StdCommandBusFactory::noop_bus();
-    assert_eq!(block_on(bus.dispatch(Box::new(Ok_))), Ok(()));
+    let result = block_on(bus.dispatch(CommandDispatchRequest {
+        command: Box::new(Ok_),
+    }));
+    assert_eq!(result, Ok(()));
 }
 
 /// @covers: NoopCommandBus::dispatch — returns Ok even for a failing command
 #[test]
 fn test_noop_command_bus_dispatch_error_command_still_returns_ok_error() {
     let bus = StdCommandBusFactory::noop_bus();
-    assert_eq!(block_on(bus.dispatch(Box::new(Err_))), Ok(()));
+    let result = block_on(bus.dispatch(CommandDispatchRequest {
+        command: Box::new(Err_),
+    }));
+    assert_eq!(result, Ok(()));
 }
 
 /// @covers: NoopCommandBus — usable via dyn CommandBus reference
@@ -45,5 +52,8 @@ fn test_noop_command_bus_dispatch_error_command_still_returns_ok_error() {
 fn test_noop_command_bus_dyn_dispatch_returns_ok_edge() {
     let bus = NoopCommandBus;
     let bus_ref: &dyn CommandBus = &bus;
-    assert_eq!(block_on(bus_ref.dispatch(Box::new(Ok_))), Ok(()));
+    let result = block_on(bus_ref.dispatch(CommandDispatchRequest {
+        command: Box::new(Ok_),
+    }));
+    assert_eq!(result, Ok(()));
 }

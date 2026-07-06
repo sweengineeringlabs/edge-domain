@@ -2,28 +2,33 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::Command;
 use crate::api::CommandBus;
+use crate::api::CommandDispatchRequest;
 use crate::api::CommandError;
 use crate::api::DirectCommandBus;
+use crate::api::ExecutionRequest;
 
 impl CommandBus for DirectCommandBus {
-    fn dispatch(&self, cmd: Box<dyn Command>) -> BoxFuture<'_, Result<(), CommandError>> {
-        Box::pin(async move { cmd.execute().await })
+    fn dispatch(&self, req: CommandDispatchRequest) -> BoxFuture<'_, Result<(), CommandError>> {
+        Box::pin(async move { req.command.execute(ExecutionRequest).await })
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::api::DirectCommandBus;
+    use crate::api::Command;
+    use crate::api::NameRequest;
+    use crate::api::NameResponse;
 
     struct DirectCommandBusOk;
     impl Command for DirectCommandBusOk {
-        fn name(&self) -> &str {
-            "ok"
+        fn name(&self, _req: NameRequest) -> Result<NameResponse, CommandError> {
+            Ok(NameResponse {
+                name: "ok".to_string(),
+            })
         }
-        fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+        fn execute(&self, _req: ExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
             Box::pin(async { Ok(()) })
         }
     }
@@ -32,7 +37,9 @@ mod tests {
     #[tokio::test]
     async fn test_dispatch_ok_command_returns_ok() {
         assert!(DirectCommandBus
-            .dispatch(Box::new(DirectCommandBusOk))
+            .dispatch(CommandDispatchRequest {
+                command: Box::new(DirectCommandBusOk)
+            })
             .await
             .is_ok());
     }

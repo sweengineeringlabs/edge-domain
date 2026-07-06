@@ -1,20 +1,22 @@
 //! Integration tests for `DirectCommandBus` — the zero-size in-process command bus marker.
 
-use edge_domain_command::{Command, CommandBus, CommandBusBootstrap, CommandError, DirectCommandBus,
-    StdCommandBusFactory};
+use edge_domain_command::{
+    Command, CommandBus, CommandBusBootstrap, CommandDispatchRequest, CommandError,
+    DirectCommandBus, ExecutionRequest, StdCommandBusFactory,
+};
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 
 struct Ok_;
 impl Command for Ok_ {
-    fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+    fn execute(&self, _req: ExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
         Box::pin(async { Ok(()) })
     }
 }
 
 struct Err_;
 impl Command for Err_ {
-    fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+    fn execute(&self, _req: ExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
         Box::pin(async { Err(CommandError::RuleViolation("denied".into())) })
     }
 }
@@ -29,7 +31,9 @@ fn test_direct_command_bus_is_zero_sized_happy() {
 #[test]
 fn test_direct_command_bus_dispatch_error_command_returns_err_error() {
     let bus = StdCommandBusFactory::direct();
-    let result = block_on(bus.dispatch(Box::new(Err_)));
+    let result = block_on(bus.dispatch(CommandDispatchRequest {
+        command: Box::new(Err_),
+    }));
     assert!(result.is_err());
 }
 
@@ -38,6 +42,8 @@ fn test_direct_command_bus_dispatch_error_command_returns_err_error() {
 fn test_direct_command_bus_dyn_dispatch_returns_ok_edge() {
     let bus = StdCommandBusFactory::direct();
     let bus_ref: &dyn CommandBus = &bus;
-    let result = block_on(bus_ref.dispatch(Box::new(Ok_)));
+    let result = block_on(bus_ref.dispatch(CommandDispatchRequest {
+        command: Box::new(Ok_),
+    }));
     assert_eq!(result, Ok(()));
 }
