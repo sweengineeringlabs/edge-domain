@@ -63,8 +63,6 @@ pub use edge_domain_valueobject::ValueObjectError;
 #[cfg(feature = "clock")]
 pub use edge_domain_clock::Clock;
 #[cfg(feature = "clock")]
-pub use edge_domain_clock::ClockBootstrap;
-#[cfg(feature = "clock")]
 pub use edge_domain_clock::FixedClock;
 #[cfg(feature = "clock")]
 pub use edge_domain_clock::SystemClock;
@@ -73,8 +71,6 @@ pub use edge_domain_clock::SystemClock;
 #[cfg(feature = "validator")]
 pub use edge_domain_validator::Validator;
 #[cfg(feature = "validator")]
-pub use edge_domain_validator::ValidatorBootstrap;
-#[cfg(feature = "validator")]
 pub use edge_domain_validator::ValidatorError;
 
 // ── policy (sub-crate when feature enabled) ───────────────────────────────────
@@ -82,8 +78,6 @@ pub use edge_domain_validator::ValidatorError;
 pub use edge_domain_policy::CompositePolicy;
 #[cfg(feature = "policy")]
 pub use edge_domain_policy::Policy;
-#[cfg(feature = "policy")]
-pub use edge_domain_policy::PolicyBootstrap;
 #[cfg(feature = "policy")]
 pub use edge_domain_policy::PolicyError;
 #[cfg(feature = "policy")]
@@ -133,7 +127,6 @@ pub use edge_domain_handler::HandlerProvider;
 // ── event (sub-crate when feature enabled) ────────────────────────────────────
 #[cfg(feature = "event")]
 pub use edge_domain_event::ClosedEventSource;
-pub use edge_domain_event::EventBootstrap;
 pub use edge_domain_event::EventEnvelope;
 pub use edge_domain_event::EventReceiver;
 pub use edge_domain_event::EventSource;
@@ -172,8 +165,6 @@ pub use edge_pipeline::Validator as PipelineValidator;
 pub use edge_pipeline::ValidatorSvc as PipelineValidatorSvc;
 
 // ── projection (sub-crate when feature enabled) ───────────────────────────────
-#[cfg(feature = "projection")]
-pub use edge_domain_projection::ProjectionBootstrap;
 pub use edge_domain_projection::ProjectionError;
 #[cfg(feature = "projection")]
 pub use edge_domain_projection::TryDrainResponse;
@@ -197,8 +188,6 @@ pub use edge_domain_registry::RegistryError;
 // ── lifecycle (opt-in; NOT in default features) ───────────────────────────────
 #[cfg(feature = "lifecycle")]
 pub use edge_domain_lifecycle::Lifecycle;
-#[cfg(feature = "lifecycle")]
-pub use edge_domain_lifecycle::LifecycleBootstrap;
 #[cfg(feature = "lifecycle")]
 pub use edge_domain_lifecycle::LifecycleError;
 #[cfg(feature = "lifecycle")]

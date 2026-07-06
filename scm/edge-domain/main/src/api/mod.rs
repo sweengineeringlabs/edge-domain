@@ -28,10 +28,6 @@ pub use edge_domain_event::AggregateIdentityRequest;
 #[cfg(feature = "event")]
 pub use edge_domain_event::AggregateIdentityResponse;
 #[cfg(feature = "event")]
-pub use edge_domain_event::BootstrapNameRequest;
-#[cfg(feature = "event")]
-pub use edge_domain_event::BootstrapNameResponse;
-#[cfg(feature = "event")]
 pub use edge_domain_event::DomainEvent;
 #[cfg(feature = "event")]
 pub use edge_domain_event::EventAggregateIdRequest;
