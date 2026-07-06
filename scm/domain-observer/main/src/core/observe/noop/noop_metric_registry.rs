@@ -1,6 +1,3 @@
-use super::noop_counter::NoopCounter;
-use super::noop_gauge::NoopGauge;
-use super::noop_histogram::NoopHistogram;
 use crate::api::Counter;
 use crate::api::CounterLookupRequest;
 use crate::api::CounterLookupResponse;
@@ -11,9 +8,11 @@ use crate::api::Histogram;
 use crate::api::HistogramLookupRequest;
 use crate::api::HistogramLookupResponse;
 use crate::api::MetricRegistry;
+use crate::api::NoopCounter;
+use crate::api::NoopGauge;
+use crate::api::NoopHistogram;
+use crate::api::NoopMetricRegistry;
 use crate::api::ObserveError;
-
-pub(crate) struct NoopMetricRegistry;
 
 impl NoopMetricRegistry {
     pub(crate) fn new() -> Self {

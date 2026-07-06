@@ -1,11 +1,10 @@
+use crate::api::NoopSpan;
 use crate::api::ObserveError;
 use crate::api::Span;
 use crate::api::SpanAnnotationRequest;
 use crate::api::SpanAnnotationResponse;
 use crate::api::SpanFinishRequest;
 use crate::api::SpanFinishResponse;
-
-pub(crate) struct NoopSpan;
 
 impl Span for NoopSpan {
     fn record(&self, req: SpanAnnotationRequest) -> Result<SpanAnnotationResponse, ObserveError> {

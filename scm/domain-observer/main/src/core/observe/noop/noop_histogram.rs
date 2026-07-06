@@ -1,9 +1,8 @@
 use crate::api::Histogram;
 use crate::api::HistogramRecordRequest;
 use crate::api::HistogramRecordResponse;
+use crate::api::NoopHistogram;
 use crate::api::ObserveError;
-
-pub(crate) struct NoopHistogram;
 
 impl Histogram for NoopHistogram {
     fn record(&self, req: HistogramRecordRequest) -> Result<HistogramRecordResponse, ObserveError> {

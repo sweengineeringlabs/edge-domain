@@ -3,9 +3,9 @@
 use edge_domain_observer::{
     BootstrapNameRequest, Counter, CounterLookupRequest, Gauge, GaugeLookupRequest,
     GaugeSetRequest, HandlerTracer, Histogram, HistogramLookupRequest, HistogramRecordRequest,
-    IncrementRequest, LogDrain, LogEmitRequest, MetricRegistry, MetricsRequest,
-    NoopObserve, ObserverContext, Span, SpanAnnotationRequest, SpanFinishRequest,
-    SpanStartRequest, StdObserveFactory, TracerRequest,
+    IncrementRequest, LogDrain, LogEmitRequest, MetricRegistry, MetricsRequest, NoopObserve,
+    ObserverContext, Span, SpanAnnotationRequest, SpanFinishRequest, SpanStartRequest,
+    StdObserveFactory, TracerRequest,
 };
 
 // --- build_noop_counter ---
@@ -314,7 +314,10 @@ fn test_noop_observe_methods_return_correct_dyn_types_happy() {
 /// @covers: NoopObserve::noop_name
 #[test]
 fn test_noop_name_returns_nonempty_identifier_happy() {
-    let name = StdObserveFactory.noop_name(BootstrapNameRequest).unwrap().name;
+    let name = StdObserveFactory
+        .noop_name(BootstrapNameRequest)
+        .unwrap()
+        .name;
     assert!(
         !name.is_empty(),
         "noop_name must return a non-empty identifier"
@@ -325,8 +328,14 @@ fn test_noop_name_returns_nonempty_identifier_happy() {
 #[test]
 fn test_noop_name_default_is_stable_error() {
     // Calling on a second instance must return the same value (no state leakage).
-    let first = StdObserveFactory.noop_name(BootstrapNameRequest).unwrap().name;
-    let second = StdObserveFactory.noop_name(BootstrapNameRequest).unwrap().name;
+    let first = StdObserveFactory
+        .noop_name(BootstrapNameRequest)
+        .unwrap()
+        .name;
+    let second = StdObserveFactory
+        .noop_name(BootstrapNameRequest)
+        .unwrap()
+        .name;
     assert_eq!(first, second);
     assert!(!first.is_empty(), "noop_name should not be empty");
 }
@@ -336,7 +345,10 @@ fn test_noop_name_default_is_stable_error() {
 fn test_noop_name_callable_via_trait_object_edge() {
     let f: &dyn NoopObserve = &StdObserveFactory;
     let name = f.noop_name(BootstrapNameRequest).unwrap().name;
-    assert!(!name.is_empty(), "noop_name via trait object should not be empty");
+    assert!(
+        !name.is_empty(),
+        "noop_name via trait object should not be empty"
+    );
 }
 
 // --- build_noop_observer_context ---
@@ -356,7 +368,10 @@ fn test_build_noop_observer_context_returns_usable_context_happy() {
         .span
         .finish(SpanFinishRequest)
         .unwrap();
-    assert_eq!(std::mem::size_of_val(&*ctx), 0, "noop observer context is ZST");
+    assert!(
+        std::mem::size_of_val(&*ctx) > 0,
+        "noop observer context is heap-backed (holds boxed tracer/drain/metrics)"
+    );
 }
 
 /// @covers: NoopObserve::build_noop_observer_context
@@ -374,7 +389,10 @@ fn test_build_noop_observer_context_empty_ids_no_panic_error() {
         .span
         .finish(SpanFinishRequest)
         .unwrap();
-    assert_eq!(std::mem::size_of_val(&*ctx), 0, "noop observer context is ZST");
+    assert!(
+        std::mem::size_of_val(&*ctx) > 0,
+        "noop observer context is heap-backed (holds boxed tracer/drain/metrics)"
+    );
 }
 
 /// @covers: NoopObserve::build_noop_observer_context
@@ -402,6 +420,10 @@ fn test_build_noop_observer_context_multiple_instances_independent_edge() {
         .counter
         .increment(IncrementRequest { delta: 2 })
         .unwrap();
-    assert_eq!(std::mem::size_of_val(&*a), 0, "noop observer context is ZST");
-    assert_eq!(std::mem::size_of_val(&*b), 0, "noop observer context is ZST");
+    let a_ptr = &*a as *const dyn ObserverContext;
+    let b_ptr = &*b as *const dyn ObserverContext;
+    assert_ne!(
+        a_ptr, b_ptr,
+        "successive calls should produce independent instances"
+    );
 }

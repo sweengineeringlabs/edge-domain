@@ -1,6 +1,3 @@
-use super::noop_handler_tracer::NoopHandlerTracer;
-use super::noop_log_drain::NoopLogDrain;
-use super::noop_metric_registry::NoopMetricRegistry;
 use crate::api::DrainRequest;
 use crate::api::DrainResponse;
 use crate::api::HandlerTracer;
@@ -8,23 +5,21 @@ use crate::api::LogDrain;
 use crate::api::MetricRegistry;
 use crate::api::MetricsRequest;
 use crate::api::MetricsResponse;
+use crate::api::NoopHandlerTracer;
+use crate::api::NoopLogDrain;
+use crate::api::NoopMetricRegistry;
+use crate::api::NoopObserverContext;
 use crate::api::ObserveError;
 use crate::api::ObserverContext;
 use crate::api::TracerRequest;
 use crate::api::TracerResponse;
 
-pub(crate) struct NoopObserverContext {
-    tracer: NoopHandlerTracer,
-    drain: NoopLogDrain,
-    metrics: NoopMetricRegistry,
-}
-
 impl NoopObserverContext {
     pub(crate) fn new() -> Self {
         Self {
-            tracer: NoopHandlerTracer::new(),
-            drain: NoopLogDrain::new(),
-            metrics: NoopMetricRegistry::new(),
+            tracer: Box::new(NoopHandlerTracer::new()),
+            drain: Box::new(NoopLogDrain::new()),
+            metrics: Box::new(NoopMetricRegistry::new()),
         }
     }
 }
@@ -32,19 +27,19 @@ impl NoopObserverContext {
 impl ObserverContext for NoopObserverContext {
     fn tracer(&self, _req: TracerRequest) -> Result<TracerResponse<'_>, ObserveError> {
         Ok(TracerResponse {
-            tracer: &self.tracer as &dyn HandlerTracer,
+            tracer: self.tracer.as_ref() as &dyn HandlerTracer,
         })
     }
 
     fn drain(&self, _req: DrainRequest) -> Result<DrainResponse<'_>, ObserveError> {
         Ok(DrainResponse {
-            drain: &self.drain as &dyn LogDrain,
+            drain: self.drain.as_ref() as &dyn LogDrain,
         })
     }
 
     fn metrics(&self, _req: MetricsRequest) -> Result<MetricsResponse<'_>, ObserveError> {
         Ok(MetricsResponse {
-            metrics: &self.metrics as &dyn MetricRegistry,
+            metrics: self.metrics.as_ref() as &dyn MetricRegistry,
         })
     }
 }
@@ -52,9 +47,7 @@ impl ObserverContext for NoopObserverContext {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::api::{
-        CounterLookupRequest, IncrementRequest, SpanFinishRequest, SpanStartRequest,
-    };
+    use crate::api::{CounterLookupRequest, IncrementRequest, SpanFinishRequest, SpanStartRequest};
 
     #[test]
     fn test_new_creates_noop_observer_context_happy() {
@@ -70,7 +63,11 @@ mod tests {
             .unwrap()
             .span;
         span.finish(SpanFinishRequest).unwrap();
-        assert_eq!(std::mem::size_of_val(&*span), 0, "noop observer context is a ZST");
+        assert_eq!(
+            std::mem::size_of_val(&*span),
+            0,
+            "noop observer context is a ZST"
+        );
     }
 
     #[test]
@@ -103,6 +100,10 @@ mod tests {
             .unwrap()
             .counter;
         counter.increment(IncrementRequest { delta: 1 }).unwrap();
-        assert_eq!(std::mem::size_of_val(&*counter), 0, "metric counter is a ZST");
+        assert_eq!(
+            std::mem::size_of_val(&*counter),
+            0,
+            "metric counter is a ZST"
+        );
     }
 }

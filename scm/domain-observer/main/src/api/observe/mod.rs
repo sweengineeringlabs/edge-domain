@@ -1,10 +1,19 @@
 //! Observe theme — traits, types, and errors.
 
 pub mod errors;
+pub mod noop;
 pub mod traits;
 pub mod types;
 
 pub use errors::ObserveError;
+pub use noop::NoopCounter;
+pub use noop::NoopGauge;
+pub use noop::NoopHandlerTracer;
+pub use noop::NoopHistogram;
+pub use noop::NoopLogDrain;
+pub use noop::NoopMetricRegistry;
+pub use noop::NoopObserverContext;
+pub use noop::NoopSpan;
 pub use traits::Counter;
 pub use traits::Gauge;
 pub use traits::HandlerTracer;

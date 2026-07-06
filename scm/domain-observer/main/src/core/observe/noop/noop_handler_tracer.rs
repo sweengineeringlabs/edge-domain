@@ -1,11 +1,10 @@
-use super::noop_span::NoopSpan;
 use crate::api::HandlerTracer;
+use crate::api::NoopHandlerTracer;
+use crate::api::NoopSpan;
 use crate::api::ObserveError;
 use crate::api::Span;
 use crate::api::SpanStartRequest;
 use crate::api::SpanStartResponse;
-
-pub(crate) struct NoopHandlerTracer;
 
 impl NoopHandlerTracer {
     pub(crate) fn new() -> Self {
@@ -51,8 +50,16 @@ mod tests {
     #[test]
     fn test_start_span_multiple_calls_independent_edge() {
         let t = NoopHandlerTracer::new();
-        t.start_span(start("a", "op1")).unwrap().span.finish(SpanFinishRequest).unwrap();
-        t.start_span(start("b", "op2")).unwrap().span.finish(SpanFinishRequest).unwrap();
+        t.start_span(start("a", "op1"))
+            .unwrap()
+            .span
+            .finish(SpanFinishRequest)
+            .unwrap();
+        t.start_span(start("b", "op2"))
+            .unwrap()
+            .span
+            .finish(SpanFinishRequest)
+            .unwrap();
         assert_eq!(std::mem::size_of_val(&t), 0);
     }
 }

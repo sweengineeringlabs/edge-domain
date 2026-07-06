@@ -1,9 +1,8 @@
 use crate::api::Counter;
 use crate::api::IncrementRequest;
 use crate::api::IncrementResponse;
+use crate::api::NoopCounter;
 use crate::api::ObserveError;
-
-pub(crate) struct NoopCounter;
 
 impl Counter for NoopCounter {
     fn increment(&self, req: IncrementRequest) -> Result<IncrementResponse, ObserveError> {

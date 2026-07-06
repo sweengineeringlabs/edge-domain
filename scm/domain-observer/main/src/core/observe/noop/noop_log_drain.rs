@@ -1,9 +1,8 @@
 use crate::api::LogDrain;
 use crate::api::LogEmitRequest;
 use crate::api::LogEmitResponse;
+use crate::api::NoopLogDrain;
 use crate::api::ObserveError;
-
-pub(crate) struct NoopLogDrain;
 
 impl NoopLogDrain {
     pub(crate) fn new() -> Self {

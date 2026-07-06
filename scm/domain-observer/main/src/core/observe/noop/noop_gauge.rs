@@ -1,9 +1,8 @@
 use crate::api::Gauge;
 use crate::api::GaugeSetRequest;
 use crate::api::GaugeSetResponse;
+use crate::api::NoopGauge;
 use crate::api::ObserveError;
-
-pub(crate) struct NoopGauge;
 
 impl Gauge for NoopGauge {
     fn set(&self, req: GaugeSetRequest) -> Result<GaugeSetResponse, ObserveError> {
