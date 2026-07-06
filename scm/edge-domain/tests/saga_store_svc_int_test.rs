@@ -98,12 +98,13 @@ fn test_new_in_memory_saga_store_starts_empty_edge() {
 #[test]
 fn test_register_new_id_returns_ok_happy() {
     let mut s = store();
-    assert!(s
-        .register(SagaRegisterRequest {
+    assert_eq!(
+        s.register(SagaRegisterRequest {
             id: "order-1".to_string(),
             saga: CounterSaga::default()
-        })
-        .is_ok());
+        }),
+        Ok(())
+    );
 }
 
 /// @covers: SagaStore::register

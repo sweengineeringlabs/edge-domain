@@ -6,7 +6,8 @@ use std::sync::Arc;
 
 #[test]
 fn test_noop_event_bus_marker_type_is_constructible() {
-    let _marker = NoopEventBus;
+    let marker = NoopEventBus;
+    assert_eq!(std::mem::size_of_val(&marker), 0);
 }
 
 #[test]
@@ -16,12 +17,13 @@ fn test_noop_event_bus_publish_returns_ok() {
         struct AnyEvent;
         impl DomainEvent for AnyEvent {}
         let bus = Domain::noop_event_bus();
-        assert!(bus
-            .publish(EventBusPublishRequest {
+        assert_eq!(
+            bus.publish(EventBusPublishRequest {
                 event: Arc::new(AnyEvent)
             })
-            .await
-            .is_ok());
+            .await,
+            Ok(())
+        );
     });
 }
 

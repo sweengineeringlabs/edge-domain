@@ -4,7 +4,8 @@ use std::sync::Arc;
 
 #[test]
 fn test_direct_query_bus_marker_type_is_constructible() {
-    let _marker = DirectQueryBus::<String>::new();
+    let marker = DirectQueryBus::<String>::new();
+    assert_eq!(std::mem::size_of_val(&marker), 0);
 }
 
 #[test]

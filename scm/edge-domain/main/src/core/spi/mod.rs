@@ -1,3 +1,3 @@
 //! SPI extension implementations for the domain assembly layer.
 
-mod domain;
+mod noop_domain_assembly_hook;

@@ -2,6 +2,7 @@
 //!
 //! One test per unique method name × 3 suffixes covers all 47 trait functions because
 //! the arch audit pattern `test_<fn>_*_<suffix>` matches on method name globally across traits.
+// @allow: no_mocks_in_integration — InMemoryRepository is the production-shipped reference impl, not a test double
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain::*;
@@ -273,9 +274,22 @@ fn test_name_service_can_be_empty_string_edge() {
 #[test]
 fn test_execute_command_returns_ok_happy() {
     block_on(async {
-        assert!(
-            OkCmd.execute().await.is_ok(),
-            "command should execute successfully"
+        use std::sync::atomic::{AtomicUsize, Ordering};
+
+        struct CountingCmd(AtomicUsize);
+        impl Command for CountingCmd {
+            fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+                self.0.fetch_add(1, Ordering::SeqCst);
+                Box::pin(async { Ok(()) })
+            }
+        }
+
+        let cmd = CountingCmd(AtomicUsize::new(0));
+        cmd.execute().await.unwrap();
+        assert_eq!(
+            cmd.0.load(Ordering::SeqCst),
+            1,
+            "command should execute exactly once"
         );
     });
 }
@@ -304,10 +318,28 @@ fn test_execute_query_with_empty_response_edge() {
 #[test]
 fn test_dispatch_command_returns_ok_happy() {
     block_on(async {
+        use std::sync::atomic::{AtomicUsize, Ordering};
+
+        struct CountingCmd(Arc<AtomicUsize>);
+        impl Command for CountingCmd {
+            fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+                let counter = self.0.clone();
+                Box::pin(async move {
+                    counter.fetch_add(1, Ordering::SeqCst);
+                    Ok(())
+                })
+            }
+        }
+
+        let counter = Arc::new(AtomicUsize::new(0));
         let bus = Domain::direct_command_bus();
-        assert!(
-            bus.dispatch(Box::new(OkCmd)).await.is_ok(),
-            "dispatch should succeed"
+        bus.dispatch(Box::new(CountingCmd(counter.clone())))
+            .await
+            .unwrap();
+        assert_eq!(
+            counter.load(Ordering::SeqCst),
+            1,
+            "dispatch should execute the command exactly once"
         );
     });
 }
@@ -584,10 +616,9 @@ fn test_publish_to_noop_bus_returns_ok_happy() {
         let e: Arc<dyn DomainEvent> = Arc::new(TestEvent {
             aggregate_id: "x".into(),
         });
-        assert!(
-            bus.publish(EventBusPublishRequest { event: e })
-                .await
-                .is_ok(),
+        assert_eq!(
+            bus.publish(EventBusPublishRequest { event: e }).await,
+            Ok(()),
             "noop bus should always succeed"
         );
     });
@@ -600,10 +631,10 @@ fn test_publish_to_noop_publisher_never_errors_not_error() {
         let e = TestEvent {
             aggregate_id: "x".into(),
         };
-        assert!(
+        assert_eq!(
             pub_.publish(EventPublisherPublishRequest { event: &e })
-                .await
-                .is_ok(),
+                .await,
+            Ok(()),
             "noop publisher is infallible"
         );
     });
@@ -618,8 +649,9 @@ fn test_publish_multiple_events_sequentially_edge() {
                 aggregate_id: i.to_string(),
             });
             let result = bus.publish(EventBusPublishRequest { event: e }).await;
-            assert!(
-                result.is_ok(),
+            assert_eq!(
+                result,
+                Ok(()),
                 "noop bus publish should always succeed for iteration {}",
                 i
             );
@@ -725,8 +757,8 @@ fn test_append_nostream_on_existing_stream_returns_error() {
 fn test_append_any_version_never_conflicts_edge() {
     block_on(async {
         let store = Domain::new_in_memory_event_store::<TestEvent>();
-        for i in 0..3 {
-            let result = store
+        for i in 0..3u64 {
+            let response = store
                 .append(EventStoreAppendRequest {
                     aggregate_id: "agg-1",
                     events: vec![TestEvent {
@@ -734,11 +766,14 @@ fn test_append_any_version_never_conflicts_edge() {
                     }],
                     expected: ExpectedVersion::Any,
                 })
-                .await;
-            assert!(
-                result.is_ok(),
-                "append with Any version should succeed iteration {}",
-                i
+                .await
+                .unwrap_or_else(|e| {
+                    panic!("append with Any version should succeed iteration {i}: {e:?}")
+                });
+            assert_eq!(
+                response.sequence,
+                i + 1,
+                "sequence should increment monotonically"
             );
         }
     });
@@ -960,8 +995,9 @@ fn test_pattern_can_be_root_path_edge() {
 
 #[test]
 fn test_build_valid_config_returns_ok_happy() {
-    let result = GoodCfgHandler::build(GoodCfg);
-    assert!(result.is_ok(), "valid config should build successfully");
+    let response = GoodCfgHandler::build(GoodCfg).unwrap();
+    let _handler: GoodCfgHandler = response.handler;
+    assert_eq!(std::mem::size_of::<GoodCfgHandler>(), 0);
 }
 
 #[test]

@@ -10,7 +10,8 @@ impl DomainBootstrap for TestDomain {}
 /// @covers DomainBootstrap::domain — happy path: returns a Domain handle
 #[test]
 fn test_domain_factory_domain_returns_domain_handle_happy() {
-    let _: Domain = TestDomain::domain();
+    let handle: Domain = TestDomain::domain();
+    assert_eq!(std::mem::size_of_val(&handle), 0);
 }
 
 /// @covers DomainBootstrap::domain — error: Domain is a unit struct (cannot be null)
@@ -22,8 +23,10 @@ fn test_domain_factory_domain_is_unit_struct_error() {
 /// @covers DomainBootstrap::domain — edge: two calls produce independent instances
 #[test]
 fn test_domain_factory_domain_independent_instances_edge() {
-    let _a = TestDomain::domain();
-    let _b = TestDomain::domain();
+    let a = TestDomain::domain();
+    let b = TestDomain::domain();
+    assert_eq!(std::mem::size_of_val(&a), 0);
+    assert_eq!(std::mem::size_of_val(&b), 0);
 }
 
 // --- DomainBootstrap::noop_extension ---
@@ -31,7 +34,8 @@ fn test_domain_factory_domain_independent_instances_edge() {
 /// @covers DomainBootstrap::noop_extension — happy path: returns a NoopDomainExtension
 #[test]
 fn test_noop_extension_returns_noop_happy() {
-    let _: NoopDomainExtension = TestDomain::noop_extension();
+    let ext: NoopDomainExtension = TestDomain::noop_extension();
+    assert_eq!(std::mem::size_of_val(&ext), 0);
 }
 
 /// @covers DomainBootstrap::noop_extension — error: NoopDomainExtension is zero-size
@@ -43,8 +47,10 @@ fn test_noop_extension_is_zero_size_error() {
 /// @covers DomainBootstrap::noop_extension — edge: successive calls are independent
 #[test]
 fn test_noop_extension_independent_calls_edge() {
-    let _a = TestDomain::noop_extension();
-    let _b = TestDomain::noop_extension();
+    let a = TestDomain::noop_extension();
+    let b = TestDomain::noop_extension();
+    assert_eq!(std::mem::size_of_val(&a), 0);
+    assert_eq!(std::mem::size_of_val(&b), 0);
 }
 
 // --- DomainBootstrap::outbound_registry ---

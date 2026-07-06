@@ -1,6 +1,7 @@
 //! Extension hook trait for downstream consumers.
 
 use crate::api::domain::errors::DomainError;
+use crate::api::domain::types::DomainExtensionHealthRequest;
 
 /// Marker trait for downstream domain extensions.
 ///
@@ -17,7 +18,7 @@ pub trait DomainExtension: Send + Sync {
     /// Check extension health. Returns an error if this extension cannot operate.
     ///
     /// The default implementation always returns `Ok(())`.
-    fn health(&self) -> Result<(), DomainError> {
+    fn health(&self, _req: DomainExtensionHealthRequest) -> Result<(), DomainError> {
         Ok(())
     }
 }

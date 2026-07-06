@@ -1,14 +1,18 @@
 //! API layer — domain aggregation re-exports.
 
+#[cfg(test)]
+mod tests;
+
 // ── domain (never extracted; always internal) ─────────────────────────────────
 mod domain;
 pub use domain::{
-    Domain, DomainBootstrap, DomainError, DomainExtension, NoopDomainExtension, OutboundRegistry,
+    Domain, DomainBootstrap, DomainBootstrapNameRequest, DomainBootstrapNameResponse, DomainError,
+    DomainExtension, DomainExtensionHealthRequest, NoopDomainExtension, OutboundRegistry,
 };
 
 // ── spi ───────────────────────────────────────────────────────────────────────
 mod spi;
-pub use spi::DomainSpi;
+pub use spi::{DomainAssemblyHook, NoopDomainAssemblyHook};
 
 // ── command ───────────────────────────────────────────────────────────────────
 #[cfg(feature = "command")]

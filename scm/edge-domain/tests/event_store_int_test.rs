@@ -63,7 +63,10 @@ impl Aggregate for Counter {
         Ok(AggregateApplyResponse)
     }
 
-    fn id(&self, _req: AggregateIdentityRequest) -> Result<AggregateIdentityResponse<'_>, EventError> {
+    fn id(
+        &self,
+        _req: AggregateIdentityRequest,
+    ) -> Result<AggregateIdentityResponse<'_>, EventError> {
         Ok(AggregateIdentityResponse { id: &self.id })
     }
 }
@@ -73,7 +76,8 @@ impl Aggregate for Counter {
 /// @covers: new_in_memory_event_store
 #[test]
 fn test_new_in_memory_event_store_is_constructible() {
-    let _store = Domain::new_in_memory_event_store::<CounterIncremented>();
+    let store = Domain::new_in_memory_event_store::<CounterIncremented>();
+    assert_ne!(std::mem::size_of_val(&store), 0);
 }
 
 /// @covers: EventStore::append — returns version 1 after first event.
@@ -304,10 +308,7 @@ async fn test_reconstitute_rebuilds_aggregate_from_events() {
         .expect("must exist");
 
     assert_eq!(counter.value, 3);
-    assert_eq!(
-        counter.id(AggregateIdentityRequest).unwrap().id,
-        "c1"
-    );
+    assert_eq!(counter.id(AggregateIdentityRequest).unwrap().id, "c1");
 }
 
 /// @covers: reconstitute — idempotent across multiple calls.

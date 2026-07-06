@@ -50,7 +50,8 @@ fn test_non_empty_string_usable_as_hashmap_key() {
 /// @covers: ValueObjectFactory::non_empty_string — happy path: valid string succeeds
 #[test]
 fn test_non_empty_string_valid_input_happy() {
-    assert!(NonEmptyString::new("hello").is_ok());
+    let s = NonEmptyString::new("hello").unwrap();
+    assert_eq!(s.as_str(), "hello");
 }
 
 /// @covers: ValueObjectFactory::non_empty_string — error: empty string is rejected
@@ -62,5 +63,6 @@ fn test_non_empty_string_empty_input_error() {
 /// @covers: ValueObjectFactory::non_empty_string — edge: whitespace-only is non-empty
 #[test]
 fn test_non_empty_string_whitespace_only_is_valid_edge() {
-    assert!(NonEmptyString::new("  ").is_ok());
+    let s = NonEmptyString::new("  ").unwrap();
+    assert_eq!(s.as_str(), "  ");
 }

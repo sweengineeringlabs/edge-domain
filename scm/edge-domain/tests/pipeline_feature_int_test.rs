@@ -10,6 +10,7 @@ use edge_domain::{
     ContextMutationRequest, Pipeline, PipelineBuilder, PipelineConfig, PipelineEmptinessRequest,
     PipelineError, PipelineSvc, Step, StepCountRequest, StepNameRequest, StepNameResponse,
 };
+use edge_pipeline::PipelineConfig as RawPipelineConfig;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -106,4 +107,19 @@ fn test_pipeline_config_through_edge_domain() {
     assert_eq!(config.timeout_per_step, Some(Duration::from_secs(10)));
     assert!(config.emit_lifecycle_events);
     assert!(!config.abort_on_error);
+}
+
+/// @covers: edge_domain's re-exported pipeline types are the underlying edge_pipeline types
+#[test]
+fn test_edge_domain_pipeline_config_is_edge_pipeline_config_edge() {
+    // Proves the facade re-export is a type alias, not a look-alike wrapper —
+    // a RawPipelineConfig (imported directly from edge_pipeline) must be
+    // directly assignable to the edge_domain::PipelineConfig binding used
+    // throughout this file.
+    let direct: RawPipelineConfig = PipelineConfig::default();
+    let via_facade: PipelineConfig = direct;
+    assert_eq!(
+        via_facade.abort_on_error,
+        PipelineConfig::default().abort_on_error
+    );
 }

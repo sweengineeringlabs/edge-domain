@@ -245,12 +245,13 @@ fn test_in_process_event_bus_factory_returns_working_bus() {
     use futures::executor::block_on;
     let bus = Domain::in_process_event_bus(EventBusConfig::default());
     block_on(async move {
-        assert!(bus
-            .publish(EventBusPublishRequest {
+        assert_eq!(
+            bus.publish(EventBusPublishRequest {
                 event: Arc::new(AnyEvent)
             })
-            .await
-            .is_ok());
+            .await,
+            Ok(())
+        );
     });
 }
 
@@ -260,12 +261,13 @@ fn test_noop_event_bus_factory_returns_working_bus() {
     use futures::executor::block_on;
     let bus = Domain::noop_event_bus();
     block_on(async move {
-        assert!(bus
-            .publish(EventBusPublishRequest {
+        assert_eq!(
+            bus.publish(EventBusPublishRequest {
                 event: Arc::new(AnyEvent)
             })
-            .await
-            .is_ok());
+            .await,
+            Ok(())
+        );
     });
 }
 

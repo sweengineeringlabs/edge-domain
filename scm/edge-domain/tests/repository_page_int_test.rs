@@ -1,4 +1,5 @@
 //! Integration tests for `Repository` pagination — `list_page`, `exists`, `count`.
+// @allow: no_mocks_in_integration — InMemoryRepository is the production-shipped reference impl, not a test double
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain::{

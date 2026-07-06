@@ -37,8 +37,9 @@ fn test_handler_provider_echo_handler_arbitrary_strings_edge() {
 /// @covers HandlerProvider::in_process_registry — happy path: returns the registry
 #[test]
 fn test_in_process_registry_returns_registry_happy() {
-    let _: InProcessHandlerRegistry<String, String> =
+    let reg: InProcessHandlerRegistry<String, String> =
         TestHandlers::in_process_registry::<String, String>();
+    assert_ne!(std::mem::size_of_val(&reg), 0);
 }
 
 /// @covers HandlerProvider::in_process_registry — error: registry starts empty
@@ -51,6 +52,12 @@ fn test_in_process_registry_starts_empty_error() {
 /// @covers HandlerProvider::in_process_registry — edge: successive calls are independent
 #[test]
 fn test_in_process_registry_independent_calls_edge() {
-    let _a = TestHandlers::in_process_registry::<String, String>();
-    let _b = TestHandlers::in_process_registry::<String, String>();
+    let a = TestHandlers::in_process_registry::<String, String>();
+    let b = TestHandlers::in_process_registry::<String, String>();
+    let a_ptr = &a as *const _;
+    let b_ptr = &b as *const _;
+    assert_ne!(
+        a_ptr, b_ptr,
+        "successive calls should produce independent instances"
+    );
 }

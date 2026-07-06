@@ -1,4 +1,5 @@
 //! Integration tests for the event primitives' SAF facade.
+// @allow: no_mocks_in_integration — InMemoryEventStore is the production-shipped reference impl, not a test double
 #![allow(clippy::unwrap_used)]
 
 use edge_domain::{
@@ -39,14 +40,22 @@ impl DomainEvent for AnyEvent {
 #[test]
 fn test_in_process_bus_returns_bus_happy() {
     let bus: InProcessEventBus = InProcessEventBus::new(256);
-    assert_ne!(std::mem::size_of_val(&bus), 0, "InProcessEventBus should be heap-backed");
+    assert_ne!(
+        std::mem::size_of_val(&bus),
+        0,
+        "InProcessEventBus should be heap-backed"
+    );
 }
 
 /// @covers InProcessEventBus::new — error: minimum valid capacity (1) constructs without panic
 #[test]
 fn test_in_process_bus_min_capacity_constructs_error() {
     let bus: InProcessEventBus = InProcessEventBus::new(1);
-    assert_ne!(std::mem::size_of_val(&bus), 0, "bus with min capacity should construct successfully");
+    assert_ne!(
+        std::mem::size_of_val(&bus),
+        0,
+        "bus with min capacity should construct successfully"
+    );
 }
 
 /// @covers InProcessEventBus::new — edge: successive calls produce independent buses
@@ -57,7 +66,10 @@ fn test_in_process_bus_independent_calls_edge() {
     // Different pointers indicate independent instances
     let a_ptr = &a as *const _;
     let b_ptr = &b as *const _;
-    assert_ne!(a_ptr, b_ptr, "successive calls should produce independent instances");
+    assert_ne!(
+        a_ptr, b_ptr,
+        "successive calls should produce independent instances"
+    );
 }
 
 // --- NoopEventBus ---
@@ -66,7 +78,11 @@ fn test_in_process_bus_independent_calls_edge() {
 #[test]
 fn test_noop_bus_returns_marker_happy() {
     let bus: NoopEventBus = NoopEventBus;
-    assert_eq!(std::mem::size_of_val(&bus), 0, "NoopEventBus should be zero-sized");
+    assert_eq!(
+        std::mem::size_of_val(&bus),
+        0,
+        "NoopEventBus should be zero-sized"
+    );
 }
 
 /// @covers NoopEventBus — error: NoopEventBus is zero-size (cannot panic)
@@ -90,7 +106,11 @@ fn test_noop_bus_independent_calls_edge() {
 #[test]
 fn test_noop_publisher_returns_marker_happy() {
     let pub_: NoopEventPublisher = NoopEventPublisher;
-    assert_eq!(std::mem::size_of_val(&pub_), 0, "NoopEventPublisher should be zero-sized");
+    assert_eq!(
+        std::mem::size_of_val(&pub_),
+        0,
+        "NoopEventPublisher should be zero-sized"
+    );
 }
 
 /// @covers NoopEventPublisher — error: NoopEventPublisher is zero-size
@@ -113,8 +133,13 @@ fn test_noop_publisher_independent_calls_edge() {
 /// @covers InMemoryEventStore::new — happy path: constructs successfully
 #[test]
 fn test_in_memory_store_constructs_successfully_happy() {
+    // @allow: no_mocks_in_integration — InMemoryEventStore is the production-shipped reference impl
     let store = InMemoryEventStore::<AnyEvent>::new();
-    assert_ne!(std::mem::size_of_val(&store), 0, "in_memory store should be heap-backed");
+    assert_ne!(
+        std::mem::size_of_val(&store),
+        0,
+        "in_memory store should be heap-backed"
+    );
 }
 
 /// @covers InMemoryEventStore::new — error: store is non-zero-size (heap-backed)
@@ -133,7 +158,10 @@ fn test_in_memory_store_successive_calls_independent_edge() {
     let b = InMemoryEventStore::<AnyEvent>::new();
     let a_ptr = &a as *const _;
     let b_ptr = &b as *const _;
-    assert_ne!(a_ptr, b_ptr, "successive calls should produce independent instances");
+    assert_ne!(
+        a_ptr, b_ptr,
+        "successive calls should produce independent instances"
+    );
 }
 
 // --- ClosedEventSource ---
@@ -142,7 +170,11 @@ fn test_in_memory_store_successive_calls_independent_edge() {
 #[test]
 fn test_closed_source_returns_marker_happy() {
     let source: ClosedEventSource = ClosedEventSource;
-    assert_eq!(std::mem::size_of_val(&source), 0, "ClosedEventSource should be zero-sized");
+    assert_eq!(
+        std::mem::size_of_val(&source),
+        0,
+        "ClosedEventSource should be zero-sized"
+    );
 }
 
 /// @covers ClosedEventSource — error: ClosedEventSource is zero-size

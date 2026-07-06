@@ -38,7 +38,12 @@ impl DomainEvent for AnyEvent {
 /// @covers InProcessEventBus — happy path: constructible via default
 #[test]
 fn test_in_process_event_bus_is_constructible_happy() {
-    let _bus = InProcessEventBus::default();
+    let bus = InProcessEventBus::default();
+    assert_ne!(
+        std::mem::size_of_val(&bus),
+        0,
+        "InProcessEventBus should be heap-backed"
+    );
 }
 
 /// @covers InProcessEventBus — happy path: factory publishes successfully
@@ -46,12 +51,13 @@ fn test_in_process_event_bus_is_constructible_happy() {
 fn test_in_process_event_bus_factory_publishes_successfully_happy() {
     block_on(async {
         let bus = Domain::in_process_event_bus(EventBusConfig::default());
-        assert!(bus
-            .publish(EventBusPublishRequest {
+        assert_eq!(
+            bus.publish(EventBusPublishRequest {
                 event: Arc::new(AnyEvent)
             })
-            .await
-            .is_ok());
+            .await,
+            Ok(())
+        );
     });
 }
 
@@ -66,8 +72,9 @@ fn test_in_process_event_bus_publish_no_subscribers_returns_ok_error() {
                 event: Arc::new(AnyEvent),
             })
             .await;
-        assert!(
-            result.is_ok(),
+        assert_eq!(
+            result,
+            Ok(()),
             "publish with no active subscribers must return Ok"
         );
     });

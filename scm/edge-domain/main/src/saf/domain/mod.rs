@@ -1,11 +1,11 @@
 //! SAF — domain domain facades.
-mod domain_bootstrap_svc;
+mod domain_assembly_hook_svc_factory;
+mod domain_bootstrap_svc_factory;
 mod domain_event_svc;
-mod domain_extension_svc;
-mod domain_spi_svc;
+mod domain_extension_svc_factory;
 mod domain_svc;
-pub use self::domain_bootstrap_svc::*;
+pub use self::domain_assembly_hook_svc_factory::*;
+pub use self::domain_bootstrap_svc_factory::*;
 pub use self::domain_event_svc::*;
-pub use self::domain_extension_svc::*;
-pub use self::domain_spi_svc::*;
+pub use self::domain_extension_svc_factory::*;
 pub use self::domain_svc::*;

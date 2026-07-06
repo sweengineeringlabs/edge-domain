@@ -29,7 +29,7 @@ impl LocalValidator for InvalidConfig {
 #[test]
 fn test_validator_contract_accepts_valid_config() {
     let config = ValidConfig;
-    assert!(config.validate().is_ok());
+    assert_eq!(config.validate(), Ok(()));
 }
 
 #[test]

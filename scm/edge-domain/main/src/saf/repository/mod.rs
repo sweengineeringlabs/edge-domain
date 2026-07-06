@@ -1,5 +1,3 @@
-//! SAF — repository sub-module: repository and repository-factory facades.
-mod repository_factory_svc;
+//! SAF — repository sub-module: repository facade.
 mod repository_svc;
-pub use self::repository_factory_svc::*;
 pub use self::repository_svc::*;

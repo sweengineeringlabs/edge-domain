@@ -5,7 +5,9 @@
 //! real business violation rather than a contrived assertion.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{Policy, PolicyError, PolicyEvaluateRequest, PolicyNameRequest, PolicyNameResponse};
+use edge_domain::{
+    Policy, PolicyError, PolicyEvaluateRequest, PolicyNameRequest, PolicyNameResponse,
+};
 
 /// A policy that rejects transfers exceeding a daily limit.
 struct SpendingLimitPolicy {
@@ -16,7 +18,9 @@ impl Policy for SpendingLimitPolicy {
     type Input = u64;
 
     fn name(&self, _req: PolicyNameRequest) -> Result<PolicyNameResponse, PolicyError> {
-        Ok(PolicyNameResponse { name: "spending-limit" })
+        Ok(PolicyNameResponse {
+            name: "spending-limit",
+        })
     }
 
     fn evaluate(&self, req: PolicyEvaluateRequest<'_, u64>) -> Result<(), PolicyError> {
@@ -53,14 +57,14 @@ fn test_name_is_static_str_edge() {
 #[test]
 fn test_evaluate_within_limit_returns_ok_happy() {
     let p = SpendingLimitPolicy { limit: 200 };
-    assert!(p.evaluate(eval(&150)).is_ok());
+    assert_eq!(p.evaluate(eval(&150)), Ok(()));
 }
 
 /// @covers: Policy::evaluate
 #[test]
 fn test_evaluate_exactly_at_limit_returns_ok_edge() {
     let p = SpendingLimitPolicy { limit: 100 };
-    assert!(p.evaluate(eval(&100)).is_ok());
+    assert_eq!(p.evaluate(eval(&100)), Ok(()));
 }
 
 /// @covers: Policy::evaluate

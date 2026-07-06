@@ -1,5 +1,8 @@
 //! SAF layer — domain public facade.
 
+#[cfg(test)]
+mod tests;
+
 mod aggregate_svc;
 mod clock;
 mod command;
@@ -67,9 +70,9 @@ pub use edge_domain_clock::FixedClock;
 #[cfg(feature = "clock")]
 pub use edge_domain_clock::SystemClock;
 
-// ── validator (sub-crate when feature enabled) ────────────────────────────────
+// ── validator (sub-crate when feature enabled; re-exported publicly via api::*) ─
 #[cfg(feature = "validator")]
-pub use edge_domain_validator::Validator;
+pub(crate) use edge_domain_validator::Validator;
 #[cfg(feature = "validator")]
 pub use edge_domain_validator::ValidatorError;
 
@@ -185,7 +188,7 @@ pub use edge_pipeline::StepRegistry as PipelineStepRegistry;
 #[cfg(feature = "pipeline")]
 pub use edge_pipeline::StepRegistrySvc as PipelineStepRegistrySvc;
 #[cfg(feature = "pipeline")]
-pub use edge_pipeline::Validator as PipelineValidator;
+pub(crate) use edge_pipeline::Validator as PipelineValidator;
 #[cfg(feature = "pipeline")]
 pub use edge_pipeline::ValidatorSvc as PipelineValidatorSvc;
 
