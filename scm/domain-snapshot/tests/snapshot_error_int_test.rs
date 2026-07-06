@@ -24,7 +24,11 @@ fn test_unavailable_display_includes_reason_error() {
 /// @covers: SnapshotError — variants format distinctly
 #[test]
 fn test_variants_format_distinctly_edge() {
-    let inv = SnapshotError::InvalidVersion { aggregate_id: "x".into(), version: 0 }.to_string();
+    let inv = SnapshotError::InvalidVersion {
+        aggregate_id: "x".into(),
+        version: 0,
+    }
+    .to_string();
     let int = SnapshotError::Internal("y".into()).to_string();
     assert_ne!(inv, int);
 }
