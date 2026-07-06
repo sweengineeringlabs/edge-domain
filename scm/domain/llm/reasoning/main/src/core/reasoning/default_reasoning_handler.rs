@@ -85,7 +85,7 @@ mod tests {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::HandlerContext;
     use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+    use edge_security_runtime::SecurityContext;
     use futures::executor::block_on;
 
     fn handler() -> DefaultReasoningHandler {
@@ -96,7 +96,7 @@ mod tests {
 
     #[test]
     fn test_handler_execute_returns_complete_process_happy() {
-        let security: SecurityContext = SecurityServices::unauthenticated();
+        let security: SecurityContext = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
@@ -136,7 +136,7 @@ mod tests {
 
     #[test]
     fn test_handler_execute_blank_problem_error() {
-        let security: SecurityContext = SecurityServices::unauthenticated();
+        let security: SecurityContext = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {

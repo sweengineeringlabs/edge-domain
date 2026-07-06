@@ -4,7 +4,7 @@
 use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{ExecutionRequest, Handler, HandlerContext, IdRequest, PatternRequest};
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+use edge_security_runtime::SecurityContext;
 use edge_llm_reasoning::{ReasoningPattern, StdReasoningFactory};
 use futures::executor::block_on;
 
@@ -12,7 +12,7 @@ use futures::executor::block_on;
 #[test]
 fn test_handler_execute_returns_complete_process_happy() {
     let h = StdReasoningFactory::default_reasoning_handler(ReasoningPattern::ChainOfThought);
-    let security: SecurityContext = SecurityServices::unauthenticated();
+    let security: SecurityContext = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -58,7 +58,7 @@ fn test_handler_pattern_is_stable_edge() {
 #[test]
 fn test_handler_execute_blank_problem_errors_error() {
     let h = StdReasoningFactory::default_reasoning_handler(ReasoningPattern::ChainOfThought);
-    let security: SecurityContext = SecurityServices::unauthenticated();
+    let security: SecurityContext = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {

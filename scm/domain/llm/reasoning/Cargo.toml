@@ -28,7 +28,7 @@ edge-pipeline.workspace  = true
 [dev-dependencies]
 serde_json.workspace = true
 futures.workspace = true
-edge-domain-security.workspace = true
+edge-security-runtime.workspace = true
 edge-domain-command.workspace = true
 
 [lints.rust]

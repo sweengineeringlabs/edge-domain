@@ -203,10 +203,10 @@ fn test_default_reasoning_handler_runs_happy() {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::{ExecutionRequest, Handler, HandlerContext};
     use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::{SecurityBootstrap, SecurityServices};
+    use edge_security_runtime::SecurityContext;
     use futures::executor::block_on;
     let h = StdReasoningFactory::default_reasoning_handler(ReasoningPattern::ChainOfThought);
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -231,10 +231,10 @@ fn test_default_reasoning_handler_pattern_mismatch_errors_error() {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::{ExecutionRequest, Handler, HandlerContext};
     use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::{SecurityBootstrap, SecurityServices};
+    use edge_security_runtime::SecurityContext;
     use futures::executor::block_on;
     let h = StdReasoningFactory::default_reasoning_handler(ReasoningPattern::GraphBased);
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -268,14 +268,14 @@ fn test_reasoning_handler_produces_thinking_process_happy() {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::{ExecutionRequest, Handler, HandlerContext};
     use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::{SecurityBootstrap, SecurityServices};
+    use edge_security_runtime::SecurityContext;
     use futures::executor::block_on;
     use std::sync::Arc;
     let reasoner = Arc::new(StdReasoningFactory::reasoning(
         ReasoningPattern::ChainOfThought,
     ));
     let h = StdReasoningFactory::reasoning_handler(reasoner);
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -300,12 +300,12 @@ fn test_reasoning_handler_rejects_unsupported_pattern_error() {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::{ExecutionRequest, Handler, HandlerContext};
     use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::{SecurityBootstrap, SecurityServices};
+    use edge_security_runtime::SecurityContext;
     use futures::executor::block_on;
     use std::sync::Arc;
     let reasoner = Arc::new(StdReasoningFactory::reasoning(ReasoningPattern::GraphBased));
     let h = StdReasoningFactory::reasoning_handler(reasoner);
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {

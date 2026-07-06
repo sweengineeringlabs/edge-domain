@@ -41,7 +41,7 @@ mod tests {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::{ExecutionRequest, HandlerContext};
     use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+    use edge_security_runtime::SecurityContext;
     use futures::executor::block_on;
 
     /// @covers: reasoning_handler
@@ -51,7 +51,7 @@ mod tests {
             Arc::new(LinearReasoning::new(ReasoningPattern::ChainOfThought));
         let handler = StdReasoningFactory::reasoning_handler(reasoner);
 
-        let security: SecurityContext = SecurityServices::unauthenticated();
+        let security: SecurityContext = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
