@@ -8,16 +8,3 @@ use std::marker::PhantomData;
 /// Use for testing and bring-up where a real bus is not wired yet.
 /// The concrete `QueryBus` implementation lives in `core::query::noop_query`.
 pub struct NoopQueryBus<R>(pub(crate) PhantomData<fn() -> R>);
-
-impl<R> NoopQueryBus<R> {
-    /// Construct a new `NoopQueryBus`.
-    pub fn new() -> Self {
-        Self(PhantomData)
-    }
-}
-
-impl<R> Default for NoopQueryBus<R> {
-    fn default() -> Self {
-        Self::new()
-    }
-}
