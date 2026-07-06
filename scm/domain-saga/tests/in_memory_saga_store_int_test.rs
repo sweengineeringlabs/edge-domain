@@ -2,6 +2,7 @@
 // @allow: no_mocks_in_integration
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
+use edge_domain_command::ExecutionRequest;
 use edge_domain_event::{EventAggregateIdRequest, EventAggregateIdResponse, EventError};
 use edge_domain_saga::{
     Command, CommandError, DomainEvent, InMemorySagaStore, Saga, SagaError, SagaGetRequest,
@@ -28,7 +29,7 @@ impl DomainEvent for RegEvt2 {
 struct RegCmd2;
 
 impl Command for RegCmd2 {
-    fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+    fn execute(&self, _req: ExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
         Box::pin(async move { Ok(()) })
     }
 }

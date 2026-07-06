@@ -2,7 +2,7 @@
 // @allow: no_mocks_in_integration
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_command::{Command, CommandError};
+use edge_domain_command::{Command, CommandError, ExecutionRequest, NameRequest};
 use edge_domain_event::{DomainEvent, EventAggregateIdRequest, EventTypeRequest};
 use futures::executor::block_on;
 use futures::future::BoxFuture;
@@ -12,7 +12,7 @@ impl DomainEvent for DepEvt {}
 
 struct DepCmd;
 impl Command for DepCmd {
-    fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+    fn execute(&self, _req: ExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
         Box::pin(async move { Ok(()) })
     }
 }
@@ -31,11 +31,11 @@ fn test_domain_event_default_impls_are_callable_happy() {
 
 #[test]
 fn test_command_execute_returns_ok_error() {
-    let result = block_on(DepCmd.execute());
+    let result = block_on(DepCmd.execute(ExecutionRequest));
     result.expect("command execute should return Ok(())");
 }
 
 #[test]
 fn test_command_name_default_is_command_edge() {
-    assert_eq!(DepCmd.name(), "command");
+    assert_eq!(DepCmd.name(NameRequest).unwrap().name, "command");
 }

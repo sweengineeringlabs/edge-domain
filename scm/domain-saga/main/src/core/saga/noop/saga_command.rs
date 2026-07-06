@@ -1,10 +1,10 @@
-use edge_domain_command::{Command, CommandError};
+use edge_domain_command::{Command, CommandError, ExecutionRequest};
 use futures::future::BoxFuture;
 
 use crate::api::NoopSagaCommand;
 
 impl Command for NoopSagaCommand {
-    fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+    fn execute(&self, _req: ExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
         Box::pin(async { Ok(()) })
     }
 }

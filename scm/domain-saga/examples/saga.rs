@@ -1,6 +1,6 @@
 //! Basic `Saga` usage example.
 
-use edge_domain_command::{Command, CommandError};
+use edge_domain_command::{Command, CommandError, ExecutionRequest};
 use edge_domain_event::DomainEvent;
 use edge_domain_saga::{
     Saga, SagaError, SagaHandleRequest, SagaHandleResponse, SagaIsCompleteRequest,
@@ -11,7 +11,7 @@ use futures::future::BoxFuture;
 struct Signal;
 impl DomainEvent for Signal {}
 impl Command for Signal {
-    fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+    fn execute(&self, _req: ExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
         Box::pin(async { Ok(()) })
     }
 }

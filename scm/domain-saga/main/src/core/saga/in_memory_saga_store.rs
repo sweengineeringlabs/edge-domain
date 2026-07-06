@@ -53,7 +53,7 @@ mod tests {
     use crate::api::{
         SagaHandleRequest, SagaHandleResponse, SagaIsCompleteRequest, SagaIsCompleteResponse,
     };
-    use edge_domain_command::{Command, CommandError};
+    use edge_domain_command::{Command, CommandError, ExecutionRequest};
     use edge_domain_event::DomainEvent;
     use futures::future::BoxFuture;
 
@@ -78,7 +78,7 @@ mod tests {
     }
 
     impl Command for InMemorySagaStoreTestSagaSignal {
-        fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+        fn execute(&self, _req: ExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
             Box::pin(async move { Ok(()) })
         }
     }

@@ -2,6 +2,7 @@
 // @allow: no_mocks_in_integration
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
+use edge_domain_command::{ExecutionRequest, NameRequest};
 use edge_domain_event::{EventAggregateIdRequest, EventAggregateIdResponse, EventError};
 use edge_domain_saga::{
     Command, CommandError, DomainEvent, InMemorySagaStore, NoopSaga, NoopSagaCommand,
@@ -28,7 +29,7 @@ impl DomainEvent for FactEvt {
 struct FactCmd;
 
 impl Command for FactCmd {
-    fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+    fn execute(&self, _req: ExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
         Box::pin(async move { Ok(()) })
     }
 }
@@ -160,14 +161,15 @@ fn test_noop_event_can_be_cloned_edge() {
 fn test_noop_command_execute_returns_ok_happy() {
     use futures::executor::block_on;
     let cmd = NoopSagaCommand;
-    block_on(cmd.execute()).expect("noop saga command execute should always succeed");
+    block_on(cmd.execute(ExecutionRequest))
+        .expect("noop saga command execute should always succeed");
 }
 
 /// @covers: NoopSagaCommand
 #[test]
 fn test_noop_command_name_returns_default_error() {
     let cmd = NoopSagaCommand;
-    assert_eq!(cmd.name(), "command");
+    assert_eq!(cmd.name(NameRequest).unwrap().name, "command");
 }
 
 /// @covers: NoopSagaCommand
@@ -175,8 +177,8 @@ fn test_noop_command_name_returns_default_error() {
 fn test_noop_command_can_be_called_repeatedly_edge() {
     use futures::executor::block_on;
     let cmd = NoopSagaCommand;
-    let r1 = block_on(cmd.execute());
-    let r2 = block_on(cmd.execute());
+    let r1 = block_on(cmd.execute(ExecutionRequest));
+    let r2 = block_on(cmd.execute(ExecutionRequest));
     r1.expect("first execute should succeed");
     r2.expect("second execute should also succeed");
 }
