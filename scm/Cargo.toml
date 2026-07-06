@@ -26,7 +26,6 @@ members  = [
     "domain-registry",
     "domain-lifecycle",
     "domain-observer",
-    "domain-vpn",
 ]
 
 [workspace.package]
@@ -78,7 +77,6 @@ edge-llm-provider       = { path = "domain/llm/provider" }
 edge-llm-prompt         = { path = "domain/llm/prompt" }
 edge-llm-reasoning      = { path = "domain/llm/reasoning" }
 edge-domain-observer    = { path = "domain-observer" }
-edge-domain-vpn         = { path = "domain-vpn" }
 swe-edge-configbuilder  = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", tag = "v0.4.1" }
 
 # ── Development override — use local path when building inside the swe-edge assembly
