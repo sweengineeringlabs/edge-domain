@@ -1,6 +1,10 @@
 //! Integration tests for the `PolicyBootstrap` SAF facade.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{CompositePolicy, Policy, PolicyBootstrap, PolicyViolation};
+use edge_domain::{
+    CompositePolicy, Policy, PolicyBootstrap, PolicyError, PolicyEvaluateRequest,
+    PolicyNameRequest, PolicyNameResponse,
+};
 
 struct TestPolicies;
 impl PolicyBootstrap for TestPolicies {}
@@ -9,7 +13,9 @@ impl PolicyBootstrap for TestPolicies {}
 #[test]
 fn test_composite_empty_always_passes_happy() {
     let p: CompositePolicy<String> = TestPolicies::composite();
-    assert!(p.evaluate(&"any".to_string()).is_ok());
+    assert!(p
+        .evaluate(PolicyEvaluateRequest { input: &"any".to_string() })
+        .is_ok());
 }
 
 /// @covers PolicyBootstrap::composite — error: composite with a failing rule rejects input
@@ -18,15 +24,17 @@ fn test_composite_with_failing_rule_rejects_input_error() {
     struct Reject;
     impl Policy for Reject {
         type Input = String;
-        fn name(&self) -> &'static str {
-            "reject-all"
+        fn name(&self, _req: PolicyNameRequest) -> Result<PolicyNameResponse, PolicyError> {
+            Ok(PolicyNameResponse { name: "reject-all" })
         }
-        fn evaluate(&self, _: &String) -> Result<(), PolicyViolation> {
-            Err(PolicyViolation::new("reject-all", "always fails"))
+        fn evaluate(&self, _req: PolicyEvaluateRequest<'_, String>) -> Result<(), PolicyError> {
+            Err(PolicyError::new("reject-all", "always fails"))
         }
     }
     let p: CompositePolicy<String> = TestPolicies::composite::<String>().with(Box::new(Reject));
-    assert!(p.evaluate(&"input".to_string()).is_err());
+    assert!(p
+        .evaluate(PolicyEvaluateRequest { input: &"input".to_string() })
+        .is_err());
 }
 
 /// @covers PolicyBootstrap::composite — edge: composite is generic over input type

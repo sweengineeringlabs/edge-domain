@@ -7,7 +7,7 @@ use edge_domain_clock::SystemClock;
 use edge_domain_command::CommandError;
 use edge_domain_event::EventError;
 use edge_domain_handler::HandlerError;
-use edge_domain_policy::PolicyViolation;
+use edge_domain_policy::PolicyError;
 use edge_domain_projection::ProjectionError;
 use edge_domain_query::QueryError;
 use edge_domain_repository::RepositoryError;
@@ -22,7 +22,7 @@ use edge_domain_validator::ValidatorError;
 fn test_all_optional_sub_crate_deps_are_linkable() {
     let _ = std::mem::size_of::<SystemClock>();
     let _ = std::mem::size_of::<ValidatorError>();
-    let _ = std::mem::size_of::<PolicyViolation>();
+    let _ = std::mem::size_of::<PolicyError>();
     let _ = std::mem::size_of::<CommandError>();
     let _ = std::mem::size_of::<QueryError>();
     let _ = std::mem::size_of::<SnapshotError>();

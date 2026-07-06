@@ -85,7 +85,13 @@ pub use edge_domain_policy::Policy;
 #[cfg(feature = "policy")]
 pub use edge_domain_policy::PolicyBootstrap;
 #[cfg(feature = "policy")]
-pub use edge_domain_policy::PolicyViolation;
+pub use edge_domain_policy::PolicyError;
+#[cfg(feature = "policy")]
+pub use edge_domain_policy::PolicyEvaluateRequest;
+#[cfg(feature = "policy")]
+pub use edge_domain_policy::PolicyNameRequest;
+#[cfg(feature = "policy")]
+pub use edge_domain_policy::PolicyNameResponse;
 
 // ── command (sub-crate when feature enabled) ──────────────────────────────────
 #[cfg(feature = "command")]
@@ -194,9 +200,23 @@ pub use edge_domain_lifecycle::LifecycleBootstrap;
 #[cfg(feature = "lifecycle")]
 pub use edge_domain_lifecycle::LifecycleError;
 #[cfg(feature = "lifecycle")]
+pub use edge_domain_lifecycle::LifecycleIsInRequest;
+#[cfg(feature = "lifecycle")]
+pub use edge_domain_lifecycle::LifecycleIsInResponse;
+#[cfg(feature = "lifecycle")]
+pub use edge_domain_lifecycle::LifecycleStateRequest;
+#[cfg(feature = "lifecycle")]
+pub use edge_domain_lifecycle::LifecycleStateResponse;
+#[cfg(feature = "lifecycle")]
+pub use edge_domain_lifecycle::LifecycleTransitionRequest;
+#[cfg(feature = "lifecycle")]
 pub use edge_domain_lifecycle::ManagedLifecycle;
 #[cfg(feature = "lifecycle")]
 pub use edge_domain_lifecycle::PermissivePolicy;
+#[cfg(feature = "lifecycle")]
+pub use edge_domain_lifecycle::TransitionAllowedRequest;
+#[cfg(feature = "lifecycle")]
+pub use edge_domain_lifecycle::TransitionAllowedResponse;
 #[cfg(feature = "lifecycle")]
 pub use edge_domain_lifecycle::TransitionPolicy;
 
