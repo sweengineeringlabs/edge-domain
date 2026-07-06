@@ -112,8 +112,9 @@ pub use edge_domain_service::StdServiceRegistryFactory;
 // ── repository (sub-crate when feature enabled) ───────────────────────────────
 #[cfg(feature = "repository")]
 pub use edge_domain_repository::Page;
-pub use edge_domain_repository::RepositoryBootstrap;
+#[cfg(feature = "repository")]
 pub use edge_domain_repository::RepositoryError;
+#[cfg(feature = "repository")]
 pub use edge_domain_repository::Spec;
 
 // ── handler (sub-crate when feature enabled) ──────────────────────────────────
