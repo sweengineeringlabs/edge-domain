@@ -4,7 +4,7 @@
 use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{ExecutionRequest, Handler, HandlerContext, IdRequest};
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+use edge_security_runtime::SecurityContext;
 use edge_llm_provider::{EchoExecutionModel, ExecutionConfig, ExecutionMode, StdProviderFactory};
 use futures::executor::block_on;
 use std::sync::Arc;
@@ -20,7 +20,7 @@ fn config(tokens: u32) -> ExecutionConfig {
 fn test_provider_handler_custom_model_happy_executes_step() {
     let model = Arc::new(EchoExecutionModel::new(config(4096)));
     let h = StdProviderFactory::provider_handler(model);
-    let security: SecurityContext = SecurityServices::unauthenticated();
+    let security: SecurityContext = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -41,7 +41,7 @@ fn test_provider_handler_custom_model_happy_executes_step() {
 fn test_provider_handler_zero_token_budget_error_returns_err() {
     let model = Arc::new(EchoExecutionModel::new(config(0)));
     let h = StdProviderFactory::provider_handler(model);
-    let security: SecurityContext = SecurityServices::unauthenticated();
+    let security: SecurityContext = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -70,7 +70,7 @@ fn test_provider_handler_edge_dispatch_id_is_stable() {
 #[test]
 fn test_default_provider_handler_happy_returns_non_empty_reasoning() {
     let h = StdProviderFactory::default_provider_handler(config(4096));
-    let security: SecurityContext = SecurityServices::unauthenticated();
+    let security: SecurityContext = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -90,7 +90,7 @@ fn test_default_provider_handler_happy_returns_non_empty_reasoning() {
 #[test]
 fn test_default_provider_handler_zero_budget_error_propagates() {
     let h = StdProviderFactory::default_provider_handler(config(0));
-    let security: SecurityContext = SecurityServices::unauthenticated();
+    let security: SecurityContext = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {

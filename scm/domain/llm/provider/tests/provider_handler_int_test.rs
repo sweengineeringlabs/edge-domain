@@ -4,7 +4,7 @@
 use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{ExecutionRequest, Handler, HandlerContext, IdRequest, PatternRequest};
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+use edge_security_runtime::SecurityContext;
 use edge_llm_provider::{ExecutionConfig, ExecutionMode, StdProviderFactory};
 use futures::executor::block_on;
 
@@ -16,7 +16,7 @@ fn make_config() -> ExecutionConfig {
 #[test]
 fn test_handler_execute_runs_core_happy() {
     let h = StdProviderFactory::default_provider_handler(make_config());
-    let security: SecurityContext = SecurityServices::unauthenticated();
+    let security: SecurityContext = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {

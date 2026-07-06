@@ -1,4 +1,5 @@
 //! Basic `edge-llm-provider` usage example.
+#![allow(clippy::expect_used)]
 
 use std::sync::Arc;
 
