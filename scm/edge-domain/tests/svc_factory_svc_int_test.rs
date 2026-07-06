@@ -2,16 +2,20 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain::*;
+use edge_domain_command::{
+    CommandDispatchRequest, ExecutionRequest as CommandExecutionRequest,
+    NameRequest as CommandNameRequest, NameResponse as CommandNameResponse,
+};
 use edge_domain_handler::{
     EmptinessRequest as HandlerEmptinessRequest, ExecutionRequest, LenRequest as HandlerLenRequest,
     ListIdsRequest,
 };
 use edge_domain_observer::{ObserverContext, StdObserveFactory};
-use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
 use edge_domain_service::{
     EmptinessRequest as ServiceEmptinessRequest, LenRequest as ServiceLenRequest,
     ServiceLookupRequest,
 };
+use edge_security_runtime::SecurityContext;
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 use std::sync::Arc;
@@ -82,10 +86,12 @@ impl Aggregate for AnyAgg {
 
 struct ErrCommand;
 impl Command for ErrCommand {
-    fn name(&self) -> &str {
-        "err"
+    fn name(&self, _req: CommandNameRequest) -> Result<CommandNameResponse, CommandError> {
+        Ok(CommandNameResponse {
+            name: "err".to_string(),
+        })
     }
-    fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+    fn execute(&self, _req: CommandExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
         Box::pin(async { Err(CommandError::InvalidInput("intentional".into())) })
     }
 }
@@ -192,7 +198,7 @@ impl EventStore for ErrStore {
 fn test_echo_handler_string_roundtrip_happy() {
     block_on(async {
         let h = Domain::echo_handler::<String>("id", "/");
-        let security = SecurityServices::unauthenticated();
+        let security = SecurityContext::unauthenticated();
         let bus = Domain::direct_command_bus();
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = test_ctx(&security, &bus, observer.as_ref());
@@ -213,7 +219,7 @@ fn test_echo_handler_always_returns_ok_not_error() {
     block_on(async {
         // echo_handler execution is infallible — documents no error path
         let h = Domain::echo_handler::<String>("id", "/");
-        let security = SecurityServices::unauthenticated();
+        let security = SecurityContext::unauthenticated();
         let bus = Domain::direct_command_bus();
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = test_ctx(&security, &bus, observer.as_ref());
@@ -235,7 +241,7 @@ fn test_echo_handler_always_returns_ok_not_error() {
 fn test_echo_handler_empty_string_preserved_edge() {
     block_on(async {
         let h = Domain::echo_handler::<String>("id", "/");
-        let security = SecurityServices::unauthenticated();
+        let security = SecurityContext::unauthenticated();
         let bus = Domain::direct_command_bus();
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = test_ctx(&security, &bus, observer.as_ref());
@@ -482,7 +488,10 @@ fn test_direct_command_bus_dispatches_successful_command_happy() {
 
         struct CountingCommand(Arc<AtomicUsize>);
         impl Command for CountingCommand {
-            fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+            fn execute(
+                &self,
+                _req: CommandExecutionRequest,
+            ) -> BoxFuture<'_, Result<(), CommandError>> {
                 let counter = self.0.clone();
                 Box::pin(async move {
                     counter.fetch_add(1, Ordering::SeqCst);
@@ -493,9 +502,11 @@ fn test_direct_command_bus_dispatches_successful_command_happy() {
 
         let counter = Arc::new(AtomicUsize::new(0));
         let bus = Domain::direct_command_bus();
-        bus.dispatch(Box::new(CountingCommand(counter.clone())))
-            .await
-            .unwrap();
+        bus.dispatch(CommandDispatchRequest {
+            command: Box::new(CountingCommand(counter.clone())),
+        })
+        .await
+        .unwrap();
         assert_eq!(
             counter.load(Ordering::SeqCst),
             1,
@@ -508,7 +519,12 @@ fn test_direct_command_bus_dispatches_successful_command_happy() {
 fn test_direct_command_bus_propagates_command_error() {
     block_on(async {
         let bus = Domain::direct_command_bus();
-        assert!(bus.dispatch(Box::new(ErrCommand)).await.is_err());
+        assert!(bus
+            .dispatch(CommandDispatchRequest {
+                command: Box::new(ErrCommand)
+            })
+            .await
+            .is_err());
     });
 }
 
@@ -516,7 +532,12 @@ fn test_direct_command_bus_propagates_command_error() {
 fn test_direct_command_bus_error_message_preserved_edge() {
     block_on(async {
         let bus = Domain::direct_command_bus();
-        let err = bus.dispatch(Box::new(ErrCommand)).await.unwrap_err();
+        let err = bus
+            .dispatch(CommandDispatchRequest {
+                command: Box::new(ErrCommand),
+            })
+            .await
+            .unwrap_err();
         assert!(err.to_string().contains("intentional"));
     });
 }

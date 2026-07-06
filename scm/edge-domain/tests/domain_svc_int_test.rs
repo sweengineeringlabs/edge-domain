@@ -8,7 +8,7 @@ use edge_domain_handler::{
     EmptinessRequest as HandlerEmptinessRequest, ExecutionRequest, HandlerContext,
 };
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityServices};
+use edge_security_runtime::SecurityContext;
 use edge_domain_service::EmptinessRequest as ServiceEmptinessRequest;
 use std::sync::Arc;
 
@@ -23,7 +23,7 @@ fn test_echo_handler() {
 #[tokio::test]
 async fn test_echo_handler_returns_input_as_output() {
     let h = Domain::echo_handler::<String>("echo", "/echo");
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = Domain::direct_command_bus();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {

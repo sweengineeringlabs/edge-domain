@@ -18,7 +18,7 @@ use edge_domain_handler::{
     IdResponse, ListIdsRequest, RegisterHandlerRequest,
 };
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityServices};
+use edge_security_runtime::SecurityContext;
 
 struct GreetHandler;
 
@@ -57,7 +57,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         })?
         .handler
         .expect("handler must be present");
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = Domain::direct_command_bus();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {

@@ -5,6 +5,7 @@ use edge_domain::{
     Command, CommandBus, CommandError, Domain, QueryBus, QueryError, QueryableRepository,
     Repository, RepositoryIdRequest, RepositorySaveRequest, SpecRequest,
 };
+use edge_domain_command::{CommandDispatchRequest, ExecutionRequest, NameRequest, NameResponse};
 use edge_domain_handler::{
     EmptinessRequest as HandlerEmptinessRequest, LenRequest as HandlerLenRequest,
 };
@@ -104,15 +105,22 @@ async fn test_factory_fn_direct_command_bus_dispatches_command_inline() {
     use futures::future::BoxFuture;
     struct PingCommand;
     impl Command for PingCommand {
-        fn name(&self) -> &str {
-            "ping"
+        fn name(&self, _req: NameRequest) -> Result<NameResponse, CommandError> {
+            Ok(NameResponse {
+                name: "ping".to_string(),
+            })
         }
-        fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+        fn execute(&self, _req: ExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
             Box::pin(async { Ok(()) })
         }
     }
     let bus: Arc<dyn CommandBus> = Domain::direct_command_bus();
-    assert!(bus.dispatch(Box::new(PingCommand)).await.is_ok());
+    assert!(bus
+        .dispatch(CommandDispatchRequest {
+            command: Box::new(PingCommand)
+        })
+        .await
+        .is_ok());
 }
 
 /// @covers: noop_event_publisher

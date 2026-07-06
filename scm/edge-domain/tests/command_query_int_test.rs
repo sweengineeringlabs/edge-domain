@@ -5,6 +5,7 @@ use edge_domain::{
     Command, CommandBus, CommandError, Query, QueryBus, QueryDispatchRequest, QueryError,
     QueryExecuteRequest, QueryNameRequest, QueryNameResponse, QueryResultResponse,
 };
+use edge_domain_command::{CommandDispatchRequest, ExecutionRequest, NameRequest, NameResponse};
 use futures::future::BoxFuture;
 use std::sync::Arc;
 
@@ -13,10 +14,12 @@ use std::sync::Arc;
 struct NoopCommand;
 
 impl Command for NoopCommand {
-    fn name(&self) -> &str {
-        "noop"
+    fn name(&self, _req: NameRequest) -> Result<NameResponse, CommandError> {
+        Ok(NameResponse {
+            name: "noop".to_string(),
+        })
     }
-    fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+    fn execute(&self, _req: ExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
         Box::pin(async { Ok(()) })
     }
 }
@@ -24,10 +27,12 @@ impl Command for NoopCommand {
 struct FailingCommand;
 
 impl Command for FailingCommand {
-    fn name(&self) -> &str {
-        "failing"
+    fn name(&self, _req: NameRequest) -> Result<NameResponse, CommandError> {
+        Ok(NameResponse {
+            name: "failing".to_string(),
+        })
     }
-    fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+    fn execute(&self, _req: ExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
         Box::pin(async { Err(CommandError::RuleViolation("blocked".into())) })
     }
 }
@@ -72,8 +77,8 @@ impl Query for MissingQuery {
 struct DirectCommandBus;
 
 impl CommandBus for DirectCommandBus {
-    fn dispatch(&self, cmd: Box<dyn Command>) -> BoxFuture<'_, Result<(), CommandError>> {
-        Box::pin(async move { cmd.execute().await })
+    fn dispatch(&self, req: CommandDispatchRequest) -> BoxFuture<'_, Result<(), CommandError>> {
+        Box::pin(async move { req.command.execute(ExecutionRequest).await })
     }
 }
 
@@ -96,19 +101,19 @@ impl QueryBus for DirectQueryBus {
 /// @covers: Command::execute
 #[tokio::test]
 async fn test_command_trait_execute_returns_ok_on_success() {
-    assert!(NoopCommand.execute().await.is_ok());
+    assert!(NoopCommand.execute(ExecutionRequest).await.is_ok());
 }
 
 /// @covers: Command::execute
 #[tokio::test]
 async fn test_command_trait_execute_returns_err_on_failure() {
-    assert!(FailingCommand.execute().await.is_err());
+    assert!(FailingCommand.execute(ExecutionRequest).await.is_err());
 }
 
 /// @covers: Command::name
 #[test]
 fn test_command_trait_name_returns_stable_identifier() {
-    assert_eq!(NoopCommand.name(), "noop");
+    assert_eq!(NoopCommand.name(NameRequest).unwrap().name, "noop");
 }
 
 /// @covers: Query::execute
@@ -132,14 +137,24 @@ async fn test_query_trait_execute_returns_not_found_error() {
 #[tokio::test]
 async fn test_command_bus_trait_dispatch_delegates_to_command_execute() {
     let bus: Arc<dyn CommandBus> = Arc::new(DirectCommandBus);
-    assert!(bus.dispatch(Box::new(NoopCommand)).await.is_ok());
+    assert!(bus
+        .dispatch(CommandDispatchRequest {
+            command: Box::new(NoopCommand)
+        })
+        .await
+        .is_ok());
 }
 
 /// @covers: CommandBus::dispatch
 #[tokio::test]
 async fn test_command_bus_trait_dispatch_propagates_command_error() {
     let bus: Arc<dyn CommandBus> = Arc::new(DirectCommandBus);
-    assert!(bus.dispatch(Box::new(FailingCommand)).await.is_err());
+    assert!(bus
+        .dispatch(CommandDispatchRequest {
+            command: Box::new(FailingCommand)
+        })
+        .await
+        .is_err());
 }
 
 /// @covers: QueryBus::dispatch
@@ -161,6 +176,11 @@ async fn test_query_bus_trait_dispatch_returns_query_result() {
 #[tokio::test]
 async fn test_query_bus_trait_dispatch_propagates_query_error() {
     let bus: Arc<dyn QueryBus<Result = String>> = Arc::new(DirectQueryBus);
-    let err = bus.dispatch(QueryDispatchRequest { query: Box::new(MissingQuery) }).await.unwrap_err();
+    let err = bus
+        .dispatch(QueryDispatchRequest {
+            query: Box::new(MissingQuery),
+        })
+        .await
+        .unwrap_err();
     assert!(matches!(err, QueryError::NotFound(_)));
 }

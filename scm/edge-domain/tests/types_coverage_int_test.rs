@@ -6,13 +6,13 @@ use edge_domain::{
     EventAggregateIdResponse, EventOccurredAtRequest, EventOccurredAtResponse, EventTypeRequest,
     EventTypeResponse, RepositoryError, Spec, SpecMatchesRequest, SpecMatchesResponse,
 };
-use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+use edge_security_runtime::SecurityContext;
 use std::time::SystemTime;
 
 /// @covers: SecurityContext — unauthenticated constructor
 #[test]
 fn test_security_context_unauthenticated() {
-    let ctx: SecurityContext = SecurityServices::unauthenticated();
+    let ctx: SecurityContext = SecurityContext::unauthenticated();
     assert!(!ctx.authenticated);
     assert!(ctx.principal.is_none());
 }
@@ -20,8 +20,8 @@ fn test_security_context_unauthenticated() {
 /// @covers: SecurityContext — authenticated constructor
 #[test]
 fn test_security_context_authenticated_with_principal() {
-    use edge_domain_security::AnonymousPrincipal;
-    let ctx: SecurityContext = SecurityServices::authenticated(Box::new(AnonymousPrincipal));
+    use edge_security_runtime::AnonymousPrincipal;
+    let ctx: SecurityContext = SecurityContext::authenticated_with(Box::new(AnonymousPrincipal));
     assert!(ctx.authenticated);
     assert!(ctx.principal.is_some());
 }

@@ -10,6 +10,7 @@ use edge_domain::{
     EventTypeRequest, EventTypeResponse, Saga, SagaError, SagaHandleRequest, SagaHandleResponse,
     SagaIsCompleteRequest, SagaIsCompleteResponse,
 };
+use edge_domain_command::{ExecutionRequest, NameRequest, NameResponse};
 
 /// Events the saga reacts to.
 #[derive(Clone)]
@@ -51,13 +52,19 @@ enum OrderCommand {
 }
 
 impl Command for OrderCommand {
-    fn name(&self) -> &str {
-        match self {
-            OrderCommand::ReserveStock { .. } => "reserve-stock",
-            OrderCommand::RefundCustomer { .. } => "refund-customer",
-        }
+    fn name(&self, _req: NameRequest) -> Result<NameResponse, edge_domain::CommandError> {
+        Ok(NameResponse {
+            name: match self {
+                OrderCommand::ReserveStock { .. } => "reserve-stock",
+                OrderCommand::RefundCustomer { .. } => "refund-customer",
+            }
+            .to_string(),
+        })
     }
-    fn execute(&self) -> futures::future::BoxFuture<'_, Result<(), edge_domain::CommandError>> {
+    fn execute(
+        &self,
+        _req: ExecutionRequest,
+    ) -> futures::future::BoxFuture<'_, Result<(), edge_domain::CommandError>> {
         Box::pin(async move { Ok(()) })
     }
 }

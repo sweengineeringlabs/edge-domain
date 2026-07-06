@@ -4,7 +4,7 @@
 use edge_domain::{Domain, EchoHandler, Handler, HandlerContext};
 use edge_domain_handler::{ExecutionRequest, HealthCheckRequest, IdRequest, PatternRequest};
 use edge_domain_observer::{ObserverContext, StdObserveFactory};
-use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+use edge_security_runtime::SecurityContext;
 use std::sync::Arc;
 
 fn make_ctx<'a>(
@@ -30,7 +30,7 @@ fn test_echo_handler_factory_returns_arc_handler() {
 #[tokio::test]
 async fn test_echo_handler_returns_request_as_response() {
     let h = Domain::echo_handler::<String>("echo", "/echo");
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = Domain::direct_command_bus();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = make_ctx(&security, &bus, observer.as_ref());
@@ -71,7 +71,7 @@ async fn test_echo_handler_struct_health_check_defaults_to_true() {
 #[tokio::test]
 async fn test_echo_handler_works_with_numeric_type() {
     let h: Arc<dyn Handler<Request = u64, Response = u64>> = Domain::echo_handler("num", "/num");
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = Domain::direct_command_bus();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = make_ctx(&security, &bus, observer.as_ref());

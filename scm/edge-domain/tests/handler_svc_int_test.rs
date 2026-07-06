@@ -8,7 +8,7 @@ use edge_domain::HandlerContext;
 use edge_domain::HandlerError;
 use edge_domain_handler::{ExecutionRequest, HealthCheckRequest, IdRequest, IdResponse};
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+use edge_security_runtime::SecurityContext;
 
 struct Doubler;
 
@@ -28,7 +28,7 @@ impl Handler for Doubler {
 
 #[tokio::test]
 async fn test_handler_svc_facade_execute_doubles_input() {
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = Domain::direct_command_bus();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {

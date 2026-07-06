@@ -23,7 +23,7 @@ default     = [
     "clock", "validator", "policy",
     "command", "query", "snapshot", "service",
     "repository", "handler", "event",
-    "projection", "saga",
+    "projection", "saga", "security",
 ]
 entity      = ["dep:edge-domain-entity"]
 valueobject = ["dep:edge-domain-valueobject"]
@@ -40,7 +40,7 @@ event       = ["dep:edge-domain-event"]
 pipeline    = ["dep:edge-pipeline"]
 projection  = ["dep:edge-domain-projection", "event"]
 saga        = ["dep:edge-domain-saga",        "event", "command"]
-security    = []
+security    = ["dep:edge-security-runtime"]
 registry    = ["dep:edge-domain-registry"]
 lifecycle   = ["dep:edge-domain-lifecycle"]
 observer    = ["dep:edge-domain-observer"]
@@ -78,7 +78,7 @@ edge-domain-saga        = { path = "../domain-saga", optional = true }
 edge-domain-registry    = { path = "../domain-registry", optional = true }
 edge-domain-lifecycle   = { path = "../domain-lifecycle", optional = true }
 edge-domain-observer    = { path = "../domain-observer", optional = true }
-edge-domain-security    = { path = "../domain-security" }
+edge-security-runtime   = { workspace = true, optional = true }
 
 [dev-dependencies]
 tokio       = { version = "1", features = ["macros", "rt", "rt-multi-thread"] }
@@ -101,7 +101,7 @@ edge-domain-saga.workspace         = true
 edge-domain-registry.workspace     = true
 edge-domain-lifecycle.workspace    = true
 edge-domain-observer.workspace     = true
-edge-domain-security.workspace     = true
+edge-security-runtime.workspace    = true
 
 [lints.rust]
 unsafe_code = "deny"

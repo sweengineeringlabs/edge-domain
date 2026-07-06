@@ -251,12 +251,13 @@ pub use edge_domain_lifecycle::TransitionAllowedResponse;
 #[cfg(feature = "lifecycle")]
 pub use edge_domain_lifecycle::TransitionPolicy;
 
-// ── security (opt-in; NOT in default features) ───────────────────────────────
+// ── security ──────────────────────────────────────────────────────────────────
 #[cfg(feature = "security")]
-pub use edge_domain_security::Principal;
-pub use edge_domain_security::Security;
-pub use edge_domain_security::SecurityBootstrap;
-pub use edge_domain_security::SecurityError;
+pub use edge_security_runtime::Principal;
+#[cfg(feature = "security")]
+pub use edge_security_runtime::SecurityContext;
+#[cfg(feature = "security")]
+pub use edge_security_runtime::SecurityError;
 
 // ── observer (opt-in; NOT in default features) ───────────────────────────────
 #[cfg(feature = "observer")]

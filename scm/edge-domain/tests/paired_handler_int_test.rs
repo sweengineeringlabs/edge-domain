@@ -8,7 +8,7 @@ use edge_domain::{
 };
 use edge_domain_handler::{EmptinessRequest, ExecutionRequest, LenRequest};
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityServices};
+use edge_security_runtime::SecurityContext;
 
 struct WriteHandler {
     repo: Arc<dyn Repository<Entity = String, Id = String>>,
@@ -90,7 +90,7 @@ fn test_paired_accepts_heterogeneous_handler_types() {
 #[tokio::test]
 async fn test_domain_echo_handler_returns_input_unchanged() {
     let h = Domain::echo_handler::<String>("e", "/e");
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = Domain::direct_command_bus();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {

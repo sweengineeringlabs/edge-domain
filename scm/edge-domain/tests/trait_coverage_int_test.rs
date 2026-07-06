@@ -6,6 +6,10 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain::*;
+use edge_domain_command::{
+    CommandDispatchRequest, ExecutionRequest as CommandExecutionRequest,
+    NameRequest as CommandNameRequest, NameResponse as CommandNameResponse,
+};
 use edge_domain_handler::{
     DeregisterHandlerRequest, EmptinessRequest as HandlerEmptinessRequest, HandlerBuildResponse,
     HandlerLookupRequest, IdRequest, LenRequest as HandlerLenRequest, ListIdsRequest,
@@ -77,20 +81,24 @@ impl Aggregate for TestAggregate {
 
 struct OkCmd;
 impl Command for OkCmd {
-    fn name(&self) -> &str {
-        "ok-cmd"
+    fn name(&self, _req: CommandNameRequest) -> Result<CommandNameResponse, CommandError> {
+        Ok(CommandNameResponse {
+            name: "ok-cmd".to_string(),
+        })
     }
-    fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+    fn execute(&self, _req: CommandExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
         Box::pin(async { Ok(()) })
     }
 }
 
 struct ErrCmd;
 impl Command for ErrCmd {
-    fn name(&self) -> &str {
-        "err-cmd"
+    fn name(&self, _req: CommandNameRequest) -> Result<CommandNameResponse, CommandError> {
+        Ok(CommandNameResponse {
+            name: "err-cmd".to_string(),
+        })
     }
-    fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+    fn execute(&self, _req: CommandExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
         Box::pin(async { Err(CommandError::RuleViolation("blocked".into())) })
     }
 }
@@ -233,7 +241,7 @@ fn make_test_handler() -> Arc<dyn Handler<Request = String, Response = String>> 
 
 #[test]
 fn test_name_command_returns_defined_value_happy() {
-    assert_eq!(OkCmd.name(), "ok-cmd");
+    assert_eq!(OkCmd.name(CommandNameRequest).unwrap().name, "ok-cmd");
 }
 
 #[test]
@@ -278,14 +286,17 @@ fn test_execute_command_returns_ok_happy() {
 
         struct CountingCmd(AtomicUsize);
         impl Command for CountingCmd {
-            fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+            fn execute(
+                &self,
+                _req: CommandExecutionRequest,
+            ) -> BoxFuture<'_, Result<(), CommandError>> {
                 self.0.fetch_add(1, Ordering::SeqCst);
                 Box::pin(async { Ok(()) })
             }
         }
 
         let cmd = CountingCmd(AtomicUsize::new(0));
-        cmd.execute().await.unwrap();
+        cmd.execute(CommandExecutionRequest).await.unwrap();
         assert_eq!(
             cmd.0.load(Ordering::SeqCst),
             1,
@@ -297,7 +308,7 @@ fn test_execute_command_returns_ok_happy() {
 #[test]
 fn test_execute_command_returns_err_on_failure_error() {
     block_on(async {
-        assert!(ErrCmd.execute().await.is_err());
+        assert!(ErrCmd.execute(CommandExecutionRequest).await.is_err());
     });
 }
 
@@ -322,7 +333,10 @@ fn test_dispatch_command_returns_ok_happy() {
 
         struct CountingCmd(Arc<AtomicUsize>);
         impl Command for CountingCmd {
-            fn execute(&self) -> BoxFuture<'_, Result<(), CommandError>> {
+            fn execute(
+                &self,
+                _req: CommandExecutionRequest,
+            ) -> BoxFuture<'_, Result<(), CommandError>> {
                 let counter = self.0.clone();
                 Box::pin(async move {
                     counter.fetch_add(1, Ordering::SeqCst);
@@ -333,9 +347,11 @@ fn test_dispatch_command_returns_ok_happy() {
 
         let counter = Arc::new(AtomicUsize::new(0));
         let bus = Domain::direct_command_bus();
-        bus.dispatch(Box::new(CountingCmd(counter.clone())))
-            .await
-            .unwrap();
+        bus.dispatch(CommandDispatchRequest {
+            command: Box::new(CountingCmd(counter.clone())),
+        })
+        .await
+        .unwrap();
         assert_eq!(
             counter.load(Ordering::SeqCst),
             1,
@@ -348,7 +364,12 @@ fn test_dispatch_command_returns_ok_happy() {
 fn test_dispatch_command_propagates_error() {
     block_on(async {
         let bus = Domain::direct_command_bus();
-        assert!(bus.dispatch(Box::new(ErrCmd)).await.is_err());
+        assert!(bus
+            .dispatch(CommandDispatchRequest {
+                command: Box::new(ErrCmd)
+            })
+            .await
+            .is_err());
     });
 }
 

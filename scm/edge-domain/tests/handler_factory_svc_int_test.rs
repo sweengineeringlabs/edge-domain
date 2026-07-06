@@ -8,7 +8,7 @@ use edge_domain::HandlerContext;
 use edge_domain::HandlerError;
 use edge_domain_handler::{ExecutionRequest, HandlerBuildResponse, IdRequest, IdResponse};
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityServices};
+use edge_security_runtime::SecurityContext;
 
 struct Cfg {
     label: String,
@@ -58,7 +58,7 @@ async fn test_handler_factory_svc_facade_built_handler_executes() {
     })
     .unwrap()
     .handler;
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = edge_domain::Domain::direct_command_bus();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {

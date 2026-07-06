@@ -6,6 +6,7 @@ use edge_domain::{
     Saga, SagaError, SagaGetRequest, SagaHandleRequest, SagaHandleResponse, SagaIsCompleteRequest,
     SagaIsCompleteResponse, SagaRegisterRequest, SagaStore,
 };
+use edge_domain_command::ExecutionRequest;
 
 #[derive(Clone)]
 struct Pulse {
@@ -25,7 +26,10 @@ impl DomainEvent for Pulse {
 #[derive(Clone)]
 struct Step;
 impl Command for Step {
-    fn execute(&self) -> futures::future::BoxFuture<'_, Result<(), edge_domain::CommandError>> {
+    fn execute(
+        &self,
+        _req: ExecutionRequest,
+    ) -> futures::future::BoxFuture<'_, Result<(), edge_domain::CommandError>> {
         Box::pin(async move { Ok(()) })
     }
 }

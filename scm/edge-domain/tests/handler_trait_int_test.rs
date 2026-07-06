@@ -7,7 +7,7 @@ use async_trait::async_trait;
 use edge_domain::{Domain, Handler, HandlerContext, HandlerError};
 use edge_domain_handler::{ExecutionRequest, HealthCheckRequest, IdRequest, IdResponse};
 use edge_domain_observer::{ObserverContext, StdObserveFactory};
-use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+use edge_security_runtime::SecurityContext;
 
 struct Counter {
     id: String,
@@ -69,7 +69,7 @@ async fn test_handler_trait_execute_returns_transformed_value() {
         id: "ctr".into(),
         calls: Default::default(),
     };
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = Domain::direct_command_bus();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = make_ctx(&security, &bus, observer.as_ref());
