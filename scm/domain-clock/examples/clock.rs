@@ -2,16 +2,13 @@
 
 use std::time::{Duration, SystemTime};
 
-use edge_domain_clock::{Clock, ClockBootstrap, ClockError, FixedClock, NowRequest, SystemClock};
-
-struct Clocks;
-impl ClockBootstrap for Clocks {}
+use edge_domain_clock::{Clock, ClockError, FixedClock, NowRequest, SystemClock};
 
 fn main() -> Result<(), ClockError> {
-    let wall: SystemClock = Clocks::system();
+    let wall = SystemClock;
     println!("now: {:?}", wall.now(NowRequest)?.instant);
 
-    let pinned: FixedClock = Clocks::fixed(SystemTime::UNIX_EPOCH + Duration::from_secs(1_700_000_000));
+    let pinned = FixedClock::new(SystemTime::UNIX_EPOCH + Duration::from_secs(1_700_000_000));
     println!("fixed: {:?}", pinned.now(NowRequest)?.instant);
     Ok(())
 }

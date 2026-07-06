@@ -6,24 +6,7 @@
 
 use std::time::{Duration, SystemTime};
 
-use edge_domain_clock::{
-    BootstrapNameRequest, BootstrapNameResponse, ElapsedSinceEpochRequest,
-    ElapsedSinceEpochResponse, NowRequest, NowResponse,
-};
-
-/// @covers: BootstrapNameRequest
-#[test]
-fn test_bootstrap_name_request_is_zero_sized_edge() {
-    assert_eq!(std::mem::size_of::<BootstrapNameRequest>(), 0);
-    let _ = BootstrapNameRequest;
-}
-
-/// @covers: BootstrapNameResponse
-#[test]
-fn test_bootstrap_name_response_holds_name_happy() {
-    let r = BootstrapNameResponse { name: "svc" };
-    assert_eq!(r.name, "svc");
-}
+use edge_domain_clock::{ElapsedSinceEpochRequest, ElapsedSinceEpochResponse, NowRequest, NowResponse};
 
 /// @covers: ElapsedSinceEpochRequest
 #[test]
