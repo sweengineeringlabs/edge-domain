@@ -1,12 +1,9 @@
 //! Basic `Policy` usage example.
 
 use edge_domain_policy::{
-    CompositePolicy, Policy, PolicyBootstrap, PolicyEvaluateRequest, PolicyNameRequest,
-    PolicyNameResponse, PolicyError,
+    CompositePolicy, Policy, PolicyEvaluateRequest, PolicyNameRequest, PolicyNameResponse,
+    PolicyError,
 };
-
-struct Factories;
-impl PolicyBootstrap for Factories {}
 
 struct MaxLength(usize);
 
@@ -25,7 +22,7 @@ impl Policy for MaxLength {
 }
 
 fn main() {
-    let policy: CompositePolicy<String> = Factories::composite::<String>()
+    let policy: CompositePolicy<String> = CompositePolicy::new()
         .with(Box::new(MaxLength(5)));
     println!("{:?}", policy.evaluate(PolicyEvaluateRequest { input: &"hi".to_string() }));
     println!("{:?}", policy.evaluate(PolicyEvaluateRequest { input: &"too long".to_string() }));

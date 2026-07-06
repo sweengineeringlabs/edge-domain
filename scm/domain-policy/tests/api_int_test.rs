@@ -1,24 +1,7 @@
 //! Layer-level coverage for `api/policy/types/*.rs` request/response types.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_policy::{
-    BootstrapNameRequest, BootstrapNameResponse, Policy, PolicyEvaluateRequest, PolicyNameRequest,
-    PolicyNameResponse,
-};
-
-/// @covers: BootstrapNameRequest
-#[test]
-fn test_bootstrap_name_request_is_zero_sized_edge() {
-    assert_eq!(std::mem::size_of::<BootstrapNameRequest>(), 0);
-    let _ = BootstrapNameRequest;
-}
-
-/// @covers: BootstrapNameResponse
-#[test]
-fn test_bootstrap_name_response_holds_name_happy() {
-    let r = BootstrapNameResponse { name: "policy" };
-    assert_eq!(r.name, "policy");
-}
+use edge_domain_policy::{Policy, PolicyEvaluateRequest, PolicyNameRequest, PolicyNameResponse};
 
 /// @covers: PolicyNameRequest
 #[test]
