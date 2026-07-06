@@ -100,8 +100,21 @@ pub use edge_domain_query::QueryError;
 
 // ── snapshot (sub-crate when feature enabled) ─────────────────────────────────
 #[cfg(feature = "snapshot")]
+pub use edge_domain_snapshot::SnapshotAggregateIdRequest;
+#[cfg(feature = "snapshot")]
+pub use edge_domain_snapshot::SnapshotAggregateIdResponse;
+#[cfg(feature = "snapshot")]
 pub use edge_domain_snapshot::SnapshotError;
-pub use edge_domain_snapshot::SnapshotStoreBootstrap;
+#[cfg(feature = "snapshot")]
+pub use edge_domain_snapshot::SnapshotLoadRequest;
+#[cfg(feature = "snapshot")]
+pub use edge_domain_snapshot::SnapshotLoadResponse;
+#[cfg(feature = "snapshot")]
+pub use edge_domain_snapshot::SnapshotSaveRequest;
+#[cfg(feature = "snapshot")]
+pub use edge_domain_snapshot::SnapshotVersionRequest;
+#[cfg(feature = "snapshot")]
+pub use edge_domain_snapshot::SnapshotVersionResponse;
 
 // ── service (sub-crate when feature enabled) ──────────────────────────────────
 #[cfg(feature = "service")]

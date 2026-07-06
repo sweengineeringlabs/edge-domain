@@ -1,7 +1,11 @@
 //! Integration tests for the in-memory snapshot store implementation.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{Domain, Snapshot, SnapshotError, SnapshotStore};
+use edge_domain::{
+    Domain, Snapshot, SnapshotAggregateIdRequest, SnapshotAggregateIdResponse, SnapshotError,
+    SnapshotLoadRequest, SnapshotSaveRequest, SnapshotStore, SnapshotVersionRequest,
+    SnapshotVersionResponse,
+};
 
 #[derive(Clone)]
 struct CounterSnapshot {
@@ -12,11 +16,14 @@ struct CounterSnapshot {
 
 impl Snapshot for CounterSnapshot {
     type AggregateId = String;
-    fn aggregate_id(&self) -> &Self::AggregateId {
-        &self.id
+    fn aggregate_id(
+        &self,
+        _req: SnapshotAggregateIdRequest,
+    ) -> Result<SnapshotAggregateIdResponse<'_, String>, SnapshotError> {
+        Ok(SnapshotAggregateIdResponse { aggregate_id: &self.id })
     }
-    fn version(&self) -> u64 {
-        self.version
+    fn version(&self, _req: SnapshotVersionRequest) -> Result<SnapshotVersionResponse, SnapshotError> {
+        Ok(SnapshotVersionResponse { version: self.version })
     }
 }
 
@@ -29,14 +36,17 @@ fn store() -> std::sync::Arc<dyn SnapshotStore<AggregateId = String, Snap = Coun
 async fn test_in_memory_snapshot_store_persists_and_retrieves_latest() {
     let store = store();
     store
-        .save(CounterSnapshot {
-            id: "c1".to_string(),
-            version: 12,
-            count: 99,
+        .save(SnapshotSaveRequest {
+            snapshot: CounterSnapshot {
+                id: "c1".to_string(),
+                version: 12,
+                count: 99,
+            },
         })
         .await
         .unwrap();
-    let loaded = store.load(&"c1".to_string()).await.unwrap().unwrap();
+    let id = "c1".to_string();
+    let loaded = store.load(SnapshotLoadRequest { id: &id }).await.unwrap().snapshot.unwrap();
     assert_eq!((loaded.version, loaded.count), (12, 99));
 }
 
@@ -44,7 +54,8 @@ async fn test_in_memory_snapshot_store_persists_and_retrieves_latest() {
 #[tokio::test]
 async fn test_in_memory_snapshot_store_returns_none_for_unknown_aggregate() {
     let store = store();
-    assert!(store.load(&"missing".to_string()).await.unwrap().is_none());
+    let id = "missing".to_string();
+    assert!(store.load(SnapshotLoadRequest { id: &id }).await.unwrap().snapshot.is_none());
 }
 
 /// @covers: new_in_memory_snapshot_store
@@ -52,10 +63,12 @@ async fn test_in_memory_snapshot_store_returns_none_for_unknown_aggregate() {
 async fn test_in_memory_snapshot_store_rejects_zero_version_snapshot() {
     let store = store();
     let err = store
-        .save(CounterSnapshot {
-            id: "c1".to_string(),
-            version: 0,
-            count: 0,
+        .save(SnapshotSaveRequest {
+            snapshot: CounterSnapshot {
+                id: "c1".to_string(),
+                version: 0,
+                count: 0,
+            },
         })
         .await
         .unwrap_err();
