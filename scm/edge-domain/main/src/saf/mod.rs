@@ -175,6 +175,8 @@ pub use edge_pipeline::ValidatorSvc as PipelineValidatorSvc;
 #[cfg(feature = "projection")]
 pub use edge_domain_projection::ProjectionBootstrap;
 pub use edge_domain_projection::ProjectionError;
+#[cfg(feature = "projection")]
+pub use edge_domain_projection::TryDrainResponse;
 
 // ── saga (sub-crate when feature enabled) ─────────────────────────────────────
 #[cfg(feature = "saga")]

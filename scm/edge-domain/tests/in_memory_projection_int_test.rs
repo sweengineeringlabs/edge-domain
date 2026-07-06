@@ -12,7 +12,7 @@ use std::time::SystemTime;
 use edge_domain::{
     Domain, DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventError,
     EventOccurredAtRequest, EventOccurredAtResponse, EventTypeRequest, EventTypeResponse,
-    Projection,
+    Projection, ProjectionApplyRequest, ProjectionReadModelRequest,
 };
 
 #[derive(Clone)]
@@ -79,34 +79,43 @@ fn tally_projection(
     )
 }
 
+fn apply(p: &mut dyn Projection<Event = AmountReceived, ReadModel = Tally>, amount: u64) {
+    p.apply(ProjectionApplyRequest { event: &event(amount) }).expect("apply should succeed");
+}
+
+fn total(p: &dyn Projection<Event = AmountReceived, ReadModel = Tally>) -> u64 {
+    p.read_model(ProjectionReadModelRequest).expect("read_model should succeed").read_model.total
+}
+
+fn saturated(p: &dyn Projection<Event = AmountReceived, ReadModel = Tally>) -> bool {
+    p.read_model(ProjectionReadModelRequest).expect("read_model should succeed").read_model.saturated
+}
+
 /// @covers: new_in_memory_projection
 #[test]
 fn test_new_in_memory_projection_folds_event_totals_happy() {
     let mut p = tally_projection(0);
-    p.apply(&event(100));
-    p.apply(&event(250));
-    assert_eq!(p.read_model().total, 350);
-    assert!(!p.read_model().saturated);
+    apply(&mut *p, 100);
+    apply(&mut *p, 250);
+    assert_eq!(total(&*p), 350);
+    assert!(!saturated(&*p));
 }
 
 /// @covers: new_in_memory_projection
 #[test]
 fn test_new_in_memory_projection_seeds_initial_value_edge() {
     let p = tally_projection(7);
-    assert_eq!(p.read_model().total, 7);
-    assert!(!p.read_model().saturated);
+    assert_eq!(total(&*p), 7);
+    assert!(!saturated(&*p));
 }
 
 /// @covers: new_in_memory_projection
 #[test]
 fn test_new_in_memory_projection_overflowing_event_records_saturation_error() {
     let mut p = tally_projection(u64::MAX);
-    p.apply(&event(1));
-    assert!(
-        p.read_model().saturated,
-        "overflow must be surfaced in the read model, not panic"
-    );
-    assert_eq!(p.read_model().total, u64::MAX);
+    apply(&mut *p, 1);
+    assert!(saturated(&*p), "overflow must be surfaced in the read model, not panic");
+    assert_eq!(total(&*p), u64::MAX);
 }
 
 /// @covers: Projection::apply
@@ -114,46 +123,46 @@ fn test_new_in_memory_projection_overflowing_event_records_saturation_error() {
 fn test_apply_accumulates_across_multiple_events_happy() {
     let mut p = tally_projection(0);
     for _ in 1..=4 {
-        p.apply(&event(10));
+        apply(&mut *p, 10);
     }
-    assert_eq!(p.read_model().total, 40);
+    assert_eq!(total(&*p), 40);
 }
 
 /// @covers: Projection::apply
 #[test]
 fn test_apply_no_events_leaves_initial_state_edge() {
     let p = tally_projection(5);
-    assert_eq!(p.read_model().total, 5);
+    assert_eq!(total(&*p), 5);
 }
 
 /// @covers: Projection::apply
 #[test]
 fn test_apply_overflowing_event_sets_saturated_error() {
     let mut p = tally_projection(u64::MAX - 1);
-    p.apply(&event(5));
-    assert!(p.read_model().saturated);
+    apply(&mut *p, 5);
+    assert!(saturated(&*p));
 }
 
 /// @covers: Projection::read_model
 #[test]
 fn test_read_model_returns_accumulated_total_happy() {
     let mut p = tally_projection(0);
-    p.apply(&event(42));
-    assert_eq!(p.read_model().total, 42);
+    apply(&mut *p, 42);
+    assert_eq!(total(&*p), 42);
 }
 
 /// @covers: Projection::read_model
 #[test]
 fn test_read_model_returns_initial_before_any_apply_edge() {
     let p = tally_projection(9);
-    assert_eq!(p.read_model().total, 9);
-    assert!(!p.read_model().saturated);
+    assert_eq!(total(&*p), 9);
+    assert!(!saturated(&*p));
 }
 
 /// @covers: Projection::read_model
 #[test]
 fn test_read_model_exposes_saturated_flag_after_overflow_error() {
     let mut p = tally_projection(u64::MAX);
-    p.apply(&event(100));
-    assert!(p.read_model().saturated);
+    apply(&mut *p, 100);
+    assert!(saturated(&*p));
 }

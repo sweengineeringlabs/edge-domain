@@ -7,7 +7,8 @@ use std::time::SystemTime;
 use edge_domain::{
     DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventError,
     EventOccurredAtRequest, EventOccurredAtResponse, EventTypeRequest, EventTypeResponse,
-    Projection,
+    Projection, ProjectionApplyRequest, ProjectionError, ProjectionReadModelRequest,
+    ProjectionReadModelResponse,
 };
 
 #[derive(Clone)]
@@ -57,13 +58,17 @@ impl Projection for BalanceProjection {
     type Event = AccountCredited;
     type ReadModel = BalanceReadModel;
 
-    fn apply(&mut self, event: &Self::Event) {
-        self.model.balance_cents += event.cents;
+    fn apply(&mut self, req: ProjectionApplyRequest<'_, Self::Event>) -> Result<(), ProjectionError> {
+        self.model.balance_cents += req.event.cents;
         self.model.events_seen += 1;
+        Ok(())
     }
 
-    fn read_model(&self) -> &Self::ReadModel {
-        &self.model
+    fn read_model(
+        &self,
+        _req: ProjectionReadModelRequest,
+    ) -> Result<ProjectionReadModelResponse<'_, Self::ReadModel>, ProjectionError> {
+        Ok(ProjectionReadModelResponse { read_model: &self.model })
     }
 }
 
@@ -79,16 +84,18 @@ fn event(cents: u64) -> AccountCredited {
 #[test]
 fn test_projection_svc_facade_read_model_reflects_applied_events() {
     let mut p = BalanceProjection::default();
-    p.apply(&event(500));
-    p.apply(&event(250));
-    assert_eq!(p.read_model().balance_cents, 750);
-    assert_eq!(p.read_model().events_seen, 2);
+    p.apply(ProjectionApplyRequest { event: &event(500) }).expect("apply should succeed");
+    p.apply(ProjectionApplyRequest { event: &event(250) }).expect("apply should succeed");
+    let model = p.read_model(ProjectionReadModelRequest).expect("read_model should succeed").read_model;
+    assert_eq!(model.balance_cents, 750);
+    assert_eq!(model.events_seen, 2);
 }
 
 /// @covers: Projection::read_model
 #[test]
 fn test_projection_svc_facade_read_model_is_initial_before_any_event() {
     let p = BalanceProjection::default();
-    assert_eq!(p.read_model().balance_cents, 0);
-    assert_eq!(p.read_model().events_seen, 0);
+    let model = p.read_model(ProjectionReadModelRequest).expect("read_model should succeed").read_model;
+    assert_eq!(model.balance_cents, 0);
+    assert_eq!(model.events_seen, 0);
 }

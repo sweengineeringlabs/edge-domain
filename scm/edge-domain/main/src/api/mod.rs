@@ -101,6 +101,12 @@ pub use edge_domain_handler::InProcessHandlerRegistry;
 pub use edge_domain_projection::InMemoryProjection;
 #[cfg(feature = "projection")]
 pub use edge_domain_projection::Projection;
+#[cfg(feature = "projection")]
+pub use edge_domain_projection::ProjectionApplyRequest;
+#[cfg(feature = "projection")]
+pub use edge_domain_projection::ProjectionReadModelRequest;
+#[cfg(feature = "projection")]
+pub use edge_domain_projection::ProjectionReadModelResponse;
 
 // ── query ─────────────────────────────────────────────────────────────────────
 #[cfg(feature = "query")]
