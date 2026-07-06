@@ -244,13 +244,13 @@ fn test_default_prompt_handler_renders_happy() {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::{ExecutionRequest, Handler, HandlerContext};
     use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+    use edge_security_runtime::SecurityContext;
     use edge_llm_prompt::{RenderContext, Variable};
     use futures::executor::block_on;
     let var = Variable::new("name".to_string(), VariableKind::String);
     let m = PromptMetadata::new("g".to_string(), "G".to_string(), "1".to_string(), vec![var]);
     let h = StdPromptFactory::default_prompt_handler("Hi {{name}}".to_string(), m);
-    let security: SecurityContext = SecurityServices::unauthenticated();
+    let security: SecurityContext = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -277,13 +277,13 @@ fn test_default_prompt_handler_missing_variable_errors_error() {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::{ExecutionRequest, Handler, HandlerContext};
     use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+    use edge_security_runtime::SecurityContext;
     use edge_llm_prompt::{RenderContext, Variable};
     use futures::executor::block_on;
     let var = Variable::new("name".to_string(), VariableKind::String);
     let m = PromptMetadata::new("g".to_string(), "G".to_string(), "1".to_string(), vec![var]);
     let h = StdPromptFactory::default_prompt_handler("Hi {{name}}".to_string(), m);
-    let security: SecurityContext = SecurityServices::unauthenticated();
+    let security: SecurityContext = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -321,7 +321,7 @@ fn test_prompt_handler_renders_with_arc_prompt_happy() {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::{ExecutionRequest, Handler, HandlerContext};
     use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+    use edge_security_runtime::SecurityContext;
     use edge_llm_prompt::{RenderContext, Variable};
     use futures::executor::block_on;
     use std::sync::Arc;
@@ -329,7 +329,7 @@ fn test_prompt_handler_renders_with_arc_prompt_happy() {
     let m = PromptMetadata::new("g".to_string(), "G".to_string(), "1".to_string(), vec![var]);
     let prompt = Arc::new(StdPromptFactory::prompt("Hi {{name}}".to_string(), m));
     let h = StdPromptFactory::prompt_handler(prompt);
-    let security: SecurityContext = SecurityServices::unauthenticated();
+    let security: SecurityContext = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -356,7 +356,7 @@ fn test_prompt_handler_missing_required_variable_error() {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::{ExecutionRequest, Handler, HandlerContext};
     use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+    use edge_security_runtime::SecurityContext;
     use edge_llm_prompt::{RenderContext, Variable};
     use futures::executor::block_on;
     use std::sync::Arc;
@@ -364,7 +364,7 @@ fn test_prompt_handler_missing_required_variable_error() {
     let m = PromptMetadata::new("g".to_string(), "G".to_string(), "1".to_string(), vec![var]);
     let prompt = Arc::new(StdPromptFactory::prompt("Hi {{name}}".to_string(), m));
     let h = StdPromptFactory::prompt_handler(prompt);
-    let security: SecurityContext = SecurityServices::unauthenticated();
+    let security: SecurityContext = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {

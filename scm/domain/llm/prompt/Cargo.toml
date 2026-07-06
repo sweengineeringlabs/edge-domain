@@ -27,7 +27,7 @@ edge-domain-observer.workspace = true
 
 [dev-dependencies]
 futures.workspace = true
-edge-domain-security.workspace = true
+edge-security-runtime.workspace = true
 edge-domain-command.workspace = true
 
 [lints.rust]

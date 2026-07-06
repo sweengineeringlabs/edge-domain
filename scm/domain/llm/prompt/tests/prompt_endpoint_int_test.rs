@@ -4,7 +4,7 @@
 use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::{ExecutionRequest, Handler, HandlerContext, IdRequest, PatternRequest};
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+use edge_security_runtime::SecurityContext;
 use edge_llm_prompt::{PromptMetadata, RenderContext, StdPromptFactory, Variable, VariableKind};
 use futures::executor::block_on;
 
@@ -23,7 +23,7 @@ fn make_handler() -> impl Handler<Request = RenderContext, Response = String> {
 #[test]
 fn test_handler_execute_renders_template_happy() {
     let h = make_handler();
-    let security: SecurityContext = SecurityServices::unauthenticated();
+    let security: SecurityContext = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let hctx = HandlerContext {
@@ -69,7 +69,7 @@ fn test_handler_pattern_is_stable_edge() {
 #[test]
 fn test_handler_execute_missing_variable_errors_error() {
     let h = make_handler();
-    let security: SecurityContext = SecurityServices::unauthenticated();
+    let security: SecurityContext = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let hctx = HandlerContext {
@@ -91,7 +91,7 @@ fn test_handler_execute_missing_variable_errors_error() {
 #[test]
 fn test_factory_handler_renders_through_handler_happy() {
     let h = make_handler();
-    let security: SecurityContext = SecurityServices::unauthenticated();
+    let security: SecurityContext = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let hctx = HandlerContext {

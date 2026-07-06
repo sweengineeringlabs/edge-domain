@@ -39,7 +39,7 @@ mod tests {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::{ExecutionRequest, HandlerContext, IdRequest};
     use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+    use edge_security_runtime::SecurityContext;
     use futures::executor::block_on;
 
     /// @covers: prompt_handler
@@ -52,7 +52,7 @@ mod tests {
             Arc::new(StaticPrompt::new("Hi {{name}}".to_string(), metadata));
         let handler = StdPromptFactory::prompt_handler(prompt);
 
-        let security: SecurityContext = SecurityServices::unauthenticated();
+        let security: SecurityContext = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
