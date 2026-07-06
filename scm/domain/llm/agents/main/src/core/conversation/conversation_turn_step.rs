@@ -202,7 +202,7 @@ mod tests {
     };
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::{SecurityBootstrap, SecurityServices};
+    use edge_security_runtime::SecurityContext;
     use futures::executor::block_on;
 
     struct DefaultConversationTurnStepPanicsIfCalledAgent;
@@ -246,7 +246,7 @@ mod tests {
 
     fn owned_handler_context() -> OwnedHandlerContext {
         OwnedHandlerContext {
-            security: SecurityServices::unauthenticated(),
+            security: SecurityContext::unauthenticated(),
             commands: Arc::new(StdCommandBusFactory::direct()),
             observer: StdObserveFactory::noop_observer_context(),
         }

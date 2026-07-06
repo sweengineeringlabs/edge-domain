@@ -4,7 +4,7 @@
 use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::HandlerContext;
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityServices};
+use edge_security_runtime::SecurityContext;
 use edge_llm_agent::{
     Agent, AgentIdRequest, AgentProviderRequest, AgentSkillsRequest, NoopAgent, Role,
     SkillExecutionRequest, SupportedRoleRequest, ToolChoice, ToolChoicePreferenceRequest,
@@ -27,7 +27,7 @@ fn test_noop_agent_exposes_no_skills() {
 
 #[test]
 fn test_noop_agent_execute_skill_reports_missing_skill() {
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {

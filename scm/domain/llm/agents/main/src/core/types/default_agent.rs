@@ -76,7 +76,7 @@ mod tests {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::HandlerContext;
     use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::{SecurityBootstrap, SecurityServices};
+    use edge_security_runtime::SecurityContext;
     use futures::executor::block_on;
 
     fn handler() -> DefaultAgentHandler {
@@ -87,7 +87,7 @@ mod tests {
 
     #[test]
     fn test_handler_execute_returns_skill_colon_input_happy() {
-        let security = SecurityServices::unauthenticated();
+        let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
@@ -108,7 +108,7 @@ mod tests {
 
     #[test]
     fn test_handler_execute_dispatch_increments_counter_happy() {
-        let security = SecurityServices::unauthenticated();
+        let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
@@ -128,7 +128,7 @@ mod tests {
 
     #[test]
     fn test_handler_execute_empty_input_does_not_emit_span_error() {
-        let security = SecurityServices::unauthenticated();
+        let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
@@ -166,7 +166,7 @@ mod tests {
 
     #[test]
     fn test_handler_execute_empty_input_error() {
-        let security = SecurityServices::unauthenticated();
+        let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {

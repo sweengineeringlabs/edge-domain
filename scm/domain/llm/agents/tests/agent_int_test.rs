@@ -5,7 +5,7 @@ use async_trait::async_trait;
 use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::HandlerContext;
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityServices};
+use edge_security_runtime::SecurityContext;
 use edge_llm_agent::{
     Agent, AgentDescriptionRequest, AgentError, AgentIdRequest, AgentNameRequest,
     AgentProviderRequest, AgentSkillsRequest, MessageBuilderRequest, MessageContent,
@@ -174,7 +174,7 @@ fn test_trait_agent_happy_description_returns_configured_description() {
 /// @covers: Agent::execute_skill — success case
 #[test]
 fn test_trait_agent_happy_execute_skill_success_returns_ok_response() {
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -194,7 +194,7 @@ fn test_trait_agent_happy_execute_skill_success_returns_ok_response() {
 /// @covers: Agent::execute_skill — failure case
 #[test]
 fn test_trait_agent_error_execute_skill_failure_returns_execution_failed() {
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -219,7 +219,7 @@ fn test_trait_agent_error_execute_skill_failure_returns_execution_failed() {
 /// @covers: Agent::execute_skill — input is passed through
 #[test]
 fn test_trait_agent_happy_execute_skill_preserves_input() {
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {

@@ -5,7 +5,7 @@ use async_trait::async_trait;
 use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_handler::HandlerContext;
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityServices};
+use edge_security_runtime::SecurityContext;
 use edge_llm_agent::{
     Agent, AgentDescriptionRequest, AgentError, AgentIdRequest, AgentNameRequest,
     AgentProviderRequest, AgentSkillsRequest, SkillExecutionRequest,
@@ -112,7 +112,7 @@ fn test_svc_agent_happy_trait_can_be_implemented() {
 /// @covers: Agent trait re-export — execute_skill
 #[test]
 fn test_svc_agent_happy_execute_skill_success() {
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -132,7 +132,7 @@ fn test_svc_agent_happy_execute_skill_success() {
 /// @covers: Agent trait re-export — execute_skill error handling
 #[test]
 fn test_svc_agent_error_execute_skill_unknown_skill() {
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {

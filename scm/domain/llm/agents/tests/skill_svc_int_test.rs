@@ -7,7 +7,7 @@ use edge_domain_handler::{
     ExecutionRequest, Handler, HandlerContext, HandlerError, IdRequest, IdResponse,
 };
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityServices};
+use edge_security_runtime::SecurityContext;
 use edge_llm_agent::{
     AgentError, Parameter, Skill, SkillDescriptionRequest, SkillDescriptionResponse, SkillMetadata,
     SkillMetadataLookupRequest, SkillMetadataLookupResponse, SkillNameRequest, SkillNameResponse,
@@ -254,7 +254,7 @@ fn test_svc_skill_happy_execute_processes_request() {
         should_fail: false,
         custom_name: "test",
     };
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = edge_domain_command::StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -276,7 +276,7 @@ fn test_svc_skill_error_execute_failure_propagates() {
         should_fail: true,
         custom_name: "test",
     };
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = edge_domain_command::StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {

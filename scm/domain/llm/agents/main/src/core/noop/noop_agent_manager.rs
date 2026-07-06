@@ -64,7 +64,7 @@ mod tests {
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_handler::{ExecutionRequest, Handler, HandlerContext};
     use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::{SecurityBootstrap, SecurityServices};
+    use edge_security_runtime::SecurityContext;
     use futures::executor::block_on;
 
     /// @covers: agent_handler
@@ -74,7 +74,7 @@ mod tests {
             .agent_handler(AgentHandlerRequest { skill: "review" })
             .unwrap()
             .handler;
-        let security = SecurityServices::unauthenticated();
+        let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
@@ -100,7 +100,7 @@ mod tests {
             .agent_handler(AgentHandlerRequest { skill: "review" })
             .unwrap()
             .handler;
-        let security = SecurityServices::unauthenticated();
+        let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
@@ -125,7 +125,7 @@ mod tests {
             .agent_handler(AgentHandlerRequest { skill: "" })
             .unwrap()
             .handler;
-        let security = SecurityServices::unauthenticated();
+        let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {

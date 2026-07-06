@@ -15,7 +15,7 @@ use edge_domain_registry::{
     ListIdsRequest, ListIdsResponse, RegisterRequest, RegisterResponse, Registry, RegistryError,
     RegistryLookupRequest, RegistryLookupResponse, TryRegisterRequest, TryRegisterResponse,
 };
-use edge_domain_security::{SecurityBootstrap, SecurityServices};
+use edge_security_runtime::SecurityContext;
 use edge_llm_agent::{
     Agent, AgentCreationRequest, AgentDescriptionRequest, AgentError, AgentHandlerRequest,
     AgentIdRequest, AgentLoadRequest, AgentLookupRequest, AgentManager, AgentMetadata,
@@ -602,7 +602,7 @@ fn test_description_agent_edge() {
 /// @covers: Agent::execute_skill
 #[test]
 fn test_execute_skill_agent_happy() {
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -622,7 +622,7 @@ fn test_execute_skill_agent_happy() {
 /// @covers: Agent::execute_skill
 #[test]
 fn test_execute_skill_agent_error() {
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -647,7 +647,7 @@ fn test_execute_skill_agent_error() {
 /// @covers: Agent::execute_skill
 #[test]
 fn test_execute_skill_agent_edge() {
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {

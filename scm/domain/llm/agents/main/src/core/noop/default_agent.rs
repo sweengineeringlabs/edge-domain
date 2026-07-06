@@ -176,9 +176,9 @@ mod tests {
         use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
         use edge_domain_handler::HandlerContext;
         use edge_domain_observer::StdObserveFactory;
-        use edge_domain_security::{SecurityBootstrap, SecurityServices};
+        use edge_security_runtime::SecurityContext;
         let agent = DefaultAgent::new("a", "A", "d", noop_provider(), vec![]);
-        let security = SecurityServices::unauthenticated();
+        let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
@@ -200,9 +200,9 @@ mod tests {
         use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
         use edge_domain_handler::HandlerContext;
         use edge_domain_observer::StdObserveFactory;
-        use edge_domain_security::{SecurityBootstrap, SecurityServices};
+        use edge_security_runtime::SecurityContext;
         let agent = DefaultAgent::new("a", "A", "d", noop_provider(), vec![]);
-        let security = SecurityServices::unauthenticated();
+        let security = SecurityContext::unauthenticated();
         let commands = StdCommandBusFactory::direct();
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {

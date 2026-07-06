@@ -68,8 +68,8 @@ mod tests {
 
     #[test]
     fn test_noop_skill_error_execute_returns_error() {
-        use edge_domain_security::SecurityBootstrap;
-        let security = edge_domain_security::SecurityServices::unauthenticated();
+        
+        let security = edge_security_runtime::SecurityContext::unauthenticated();
         let bus = edge_domain_command::StdCommandBusFactory::direct();
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = edge_domain_handler::HandlerContext {

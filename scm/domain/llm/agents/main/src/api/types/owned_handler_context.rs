@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use edge_domain_command::CommandBus;
 use edge_domain_observer::ObserverContext;
-use edge_domain_security::SecurityContext;
+use edge_security_runtime::SecurityContext;
 
 /// Owned counterpart to `edge_domain_handler::HandlerContext<'a>`, for callers that need
 /// to build a [`HandlerContext`](edge_domain_handler::HandlerContext) later rather than

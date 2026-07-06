@@ -251,8 +251,8 @@ fn test_skill_description_request_response_construct() {
 #[test]
 fn test_skill_execution_request_response_construct() {
     use edge_domain_command::CommandBusBootstrap;
-    use edge_domain_security::SecurityBootstrap;
-    let security = edge_domain_security::SecurityServices::unauthenticated();
+    
+    let security = edge_security_runtime::SecurityContext::unauthenticated();
     let commands = edge_domain_command::StdCommandBusFactory::direct();
     let observer = edge_domain_observer::StdObserveFactory::noop_observer_context();
     let ctx = edge_domain_handler::HandlerContext {

@@ -9,7 +9,7 @@ use edge_domain_handler::{
     ExecutionRequest, Handler, HandlerContext, HandlerError, IdRequest, PatternRequest,
 };
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityServices};
+use edge_security_runtime::SecurityContext;
 use edge_llm_agent::{
     AgentCreationRequest, AgentError, AgentHandlerRequest, AgentManager, NoopAgentManager, Skill,
     SkillDescriptionRequest, SkillExecutionRequest, SkillMetadata, SkillMetadataLookupRequest,
@@ -100,7 +100,7 @@ fn test_agent_handler_routes_input_to_named_skill_happy() {
         })
         .unwrap()
         .handler;
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -128,7 +128,7 @@ fn test_agent_handler_empty_input_returns_error() {
         })
         .unwrap()
         .handler;
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -170,7 +170,7 @@ fn test_agent_handler_targets_different_skill_names_happy() {
         .agent_handler(AgentHandlerRequest { skill: "planning" })
         .unwrap()
         .handler;
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -196,7 +196,7 @@ fn test_agent_handler_empty_skill_name_preserved_edge() {
         .agent_handler(AgentHandlerRequest { skill: "" })
         .unwrap()
         .handler;
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -230,7 +230,7 @@ fn test_default_agent_executes_registered_skill_happy() {
         })
         .unwrap()
         .agent;
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -260,7 +260,7 @@ fn test_default_agent_missing_skill_returns_not_found_error() {
         })
         .unwrap()
         .agent;
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {

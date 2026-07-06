@@ -9,7 +9,7 @@ use edge_domain_handler::{
     ExecutionRequest, Handler, HandlerContext, HandlerError, IdRequest, PatternRequest,
 };
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityServices};
+use edge_security_runtime::SecurityContext;
 use edge_llm_agent::{
     AgentCreationRequest, AgentError, AgentManager, NoopAgentManager, Skill,
     SkillDescriptionRequest, SkillExecutionRequest, SkillMetadata, SkillMetadataLookupRequest,
@@ -192,7 +192,7 @@ fn test_default_agent_happy_execute_skill_routes_to_echo_skill() {
         })
         .unwrap()
         .agent;
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -222,7 +222,7 @@ fn test_default_agent_error_execute_skill_unknown_returns_skill_not_found() {
         })
         .unwrap()
         .agent;
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -252,7 +252,7 @@ fn test_default_agent_error_execute_skill_bad_input_propagates_execution_failed(
         })
         .unwrap()
         .agent;
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -282,7 +282,7 @@ fn test_default_agent_edge_execute_skill_no_skills_returns_not_found() {
         })
         .unwrap()
         .agent;
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let commands = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {

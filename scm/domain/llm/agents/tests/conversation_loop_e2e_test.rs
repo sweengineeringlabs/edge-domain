@@ -7,7 +7,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityServices};
+use edge_security_runtime::SecurityContext;
 use edge_llm_agent::{
     Agent, AgentDescriptionRequest, AgentDescriptionResponse, AgentError, AgentIdRequest,
     AgentIdResponse, AgentManager, AgentNameRequest, AgentNameResponse, AgentProviderRequest,
@@ -165,7 +165,7 @@ fn run_request(max_turns: u32) -> ConversationRunRequest {
         messages: vec![Message::user("hello")],
         max_turns,
         handler_context: Box::new(OwnedHandlerContext {
-            security: SecurityServices::unauthenticated(),
+            security: SecurityContext::unauthenticated(),
             commands: Arc::new(StdCommandBusFactory::direct()),
             observer: StdObserveFactory::noop_observer_context(),
         }),

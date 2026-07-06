@@ -7,7 +7,7 @@ use edge_domain_handler::{
     ExecutionRequest, Handler, HandlerContext, HandlerError, IdRequest, IdResponse, PatternRequest,
 };
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityServices};
+use edge_security_runtime::SecurityContext;
 use edge_llm_agent::{
     AgentError, ContentPart, InputSchemaRequest, MessageContent, OutputSchemaRequest, Parameter,
     ParameterDocumentationBuilderRequest, ParameterDocumentationListRequest, RenderContentRequest,
@@ -209,7 +209,7 @@ fn test_trait_skill_happy_implements_handler_contract() {
 #[test]
 fn test_trait_skill_happy_execute_processes_request() {
     let skill = TestSkill { should_fail: false };
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = edge_domain_command::StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -228,7 +228,7 @@ fn test_trait_skill_happy_execute_processes_request() {
 #[test]
 fn test_trait_skill_error_execute_failure_propagates() {
     let skill = TestSkill { should_fail: true };
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = edge_domain_command::StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
