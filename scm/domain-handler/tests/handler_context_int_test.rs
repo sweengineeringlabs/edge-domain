@@ -1,17 +1,17 @@
 //! Integration tests — `HandlerContext` type.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+use edge_domain_command::{CommandBusBootstrap, CommandDispatchRequest, StdCommandBusFactory};
 use edge_domain_handler::HandlerContext;
 use edge_domain_observer::{
     SpanFinishRequest, SpanStartRequest, StdObserveFactory, TracerRequest,
 };
-use edge_domain_security::{SecurityBootstrap, SecurityServices};
+use edge_security_runtime::SecurityContext;
 
 /// @covers: HandlerContext — constructs with unauthenticated security and direct bus
 #[test]
 fn test_handler_context_constructs_with_unauthenticated_security_happy() {
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -29,7 +29,7 @@ fn test_handler_context_commands_field_is_accessible_error() {
     use edge_domain_command::NoopCommand;
     use futures::executor::block_on;
 
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -37,7 +37,10 @@ fn test_handler_context_commands_field_is_accessible_error() {
         commands: &bus,
         observer: observer.as_ref(),
     };
-    let result = block_on(ctx.commands.dispatch(Box::new(NoopCommand)));
+    let result = block_on(
+        ctx.commands
+            .dispatch(CommandDispatchRequest { command: Box::new(NoopCommand) }),
+    );
     assert!(result.is_ok());
     assert!(std::ptr::eq(ctx.security, &security));
 }
@@ -45,7 +48,7 @@ fn test_handler_context_commands_field_is_accessible_error() {
 /// @covers: HandlerContext — Copy semantics allow multiple uses without move
 #[test]
 fn test_handler_context_is_copy_edge() {
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -61,7 +64,7 @@ fn test_handler_context_is_copy_edge() {
 /// @covers: HandlerContext::observer — returns bound ObserverContext
 #[test]
 fn test_observer_returns_bound_observe_context_happy() {
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -87,7 +90,7 @@ fn test_observer_returns_bound_observe_context_happy() {
 /// @covers: HandlerContext::observer — tracer usable across multiple spans
 #[test]
 fn test_observer_tracer_usable_after_construction_happy() {
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -115,7 +118,7 @@ fn test_observer_tracer_usable_after_construction_happy() {
 /// @covers: HandlerContext::observer — empty span ids do not panic
 #[test]
 fn test_observer_empty_span_ids_no_panic_error() {
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -141,7 +144,7 @@ fn test_observer_empty_span_ids_no_panic_error() {
 /// @covers: HandlerContext — Copy semantics preserved with observer field
 #[test]
 fn test_handler_context_with_observer_is_copy_edge() {
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {

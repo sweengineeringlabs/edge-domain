@@ -11,7 +11,7 @@ use edge_domain_handler::{
     InProcessHandlerRegistry, LenRequest, ListIdsRequest, RegisterHandlerRequest,
 };
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityServices};
+use edge_security_runtime::SecurityContext;
 use futures::executor::block_on;
 
 struct Stub {
@@ -94,7 +94,7 @@ fn test_register_duplicate_id_replaces_handler_edge() {
         .unwrap()
         .handler
         .unwrap();
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -196,7 +196,7 @@ fn test_retrieved_handler_produces_expected_response_happy() {
         .unwrap()
         .handler
         .unwrap();
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {

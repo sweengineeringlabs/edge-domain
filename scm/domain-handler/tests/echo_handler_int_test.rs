@@ -10,7 +10,7 @@ use edge_domain_handler::{
     PatternRequest,
 };
 use edge_domain_observer::{ObserverContext, StdObserveFactory};
-use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+use edge_security_runtime::SecurityContext;
 use futures::executor::block_on;
 
 fn unauth_ctx<'a>(
@@ -29,7 +29,7 @@ fn unauth_ctx<'a>(
 #[test]
 fn test_execute_returns_request_unchanged_happy() {
     let h = EchoHandler::<String>::from(("echo", "/"));
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = unauth_ctx(&security, &bus, observer.as_ref());
@@ -61,7 +61,7 @@ fn test_pattern_returns_configured_pattern_happy() {
 #[test]
 fn test_execute_empty_string_returns_empty_string_edge() {
     let h = EchoHandler::<String>::from(("e", "/"));
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = unauth_ctx(&security, &bus, observer.as_ref());
@@ -90,7 +90,7 @@ fn test_health_check_returns_true_happy() {
 #[test]
 fn test_execute_with_security_context_returns_same_value_happy() {
     let h = EchoHandler::<String>::from(("e", "/"));
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = unauth_ctx(&security, &bus, observer.as_ref());
@@ -112,7 +112,7 @@ fn test_echo_handler_usable_as_dyn_handler_edge() {
         pattern: "/".into(),
         _marker: PhantomData,
     });
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = unauth_ctx(&security, &bus, observer.as_ref());

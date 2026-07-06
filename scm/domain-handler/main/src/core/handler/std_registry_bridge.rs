@@ -90,7 +90,7 @@ mod tests {
 
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::{SecurityBootstrap, SecurityServices};
+    use edge_security_runtime::SecurityContext;
     use edge_domain_service::{
         NoopService, RegisterServiceRequest as RegisterServiceRequestSvc,
         ServiceRegistry as ServiceRegistryTraitSvc, ServiceRegistryStore,
@@ -109,7 +109,7 @@ mod tests {
         let handler = StdRegistryBridgeHandler::new("svc-1".to_string(), Arc::new(NoopService));
         assert_eq!(handler.id(IdRequest).unwrap().id, "svc-1");
 
-        let security = SecurityServices::unauthenticated();
+        let security = SecurityContext::unauthenticated();
         let bus = StdCommandBusFactory::direct();
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {

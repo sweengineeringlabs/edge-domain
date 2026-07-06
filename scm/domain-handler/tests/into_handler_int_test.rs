@@ -7,7 +7,7 @@ use edge_domain_handler::{
     Validator, ValidatorRequest, INTO_HANDLER_SVC,
 };
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+use edge_security_runtime::SecurityContext;
 use edge_domain_service::{NameRequest, NameResponse, Service, ServiceError};
 use futures::future::BoxFuture;
 
@@ -107,7 +107,7 @@ async fn test_into_handler_executes_ok_service_happy() {
         .into_handler(IntoHandlerRequest)
         .unwrap()
         .handler;
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = make_ctx(&security, observer.as_ref());
     assert_eq!(
@@ -129,7 +129,7 @@ async fn test_into_handler_propagates_service_error() {
         .into_handler(IntoHandlerRequest)
         .unwrap()
         .handler;
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = make_ctx(&security, observer.as_ref());
     let err = handler
@@ -149,7 +149,7 @@ async fn test_into_handler_empty_name_service_executes_edge() {
         .into_handler(IntoHandlerRequest)
         .unwrap()
         .handler;
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = make_ctx(&security, observer.as_ref());
     assert_eq!(

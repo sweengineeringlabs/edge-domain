@@ -8,7 +8,7 @@ use edge_domain_handler::{
     HealthCheckResponse, IdRequest, PatternRequest,
 };
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityServices};
+use edge_security_runtime::SecurityContext;
 
 struct EchoHandlerDouble;
 
@@ -44,7 +44,7 @@ impl Handler for FailingHandlerDouble {
 /// @covers: Handler::execute
 #[tokio::test]
 async fn test_execute_echo_returns_input_happy() {
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
@@ -64,7 +64,7 @@ async fn test_execute_echo_returns_input_happy() {
 /// @covers: Handler::execute
 #[tokio::test]
 async fn test_execute_failing_handler_returns_execution_failed_error() {
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {

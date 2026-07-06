@@ -53,7 +53,7 @@ mod tests {
     use crate::api::handler::types::HandlerContext;
     use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
     use edge_domain_observer::StdObserveFactory;
-    use edge_domain_security::{SecurityBootstrap, SecurityServices};
+    use edge_security_runtime::SecurityContext;
 
     struct AlwaysOk;
 
@@ -84,7 +84,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_execute_ok_handler_returns_response_happy() {
-        let security = SecurityServices::unauthenticated();
+        let security = SecurityContext::unauthenticated();
         let bus = StdCommandBusFactory::direct();
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
@@ -103,7 +103,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_execute_failing_handler_returns_err_error() {
-        let security = SecurityServices::unauthenticated();
+        let security = SecurityContext::unauthenticated();
         let bus = StdCommandBusFactory::direct();
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {

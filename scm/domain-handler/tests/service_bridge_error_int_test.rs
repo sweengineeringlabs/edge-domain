@@ -7,7 +7,7 @@ use edge_domain_handler::{
     ValidatorRequest,
 };
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+use edge_security_runtime::SecurityContext;
 use edge_domain_service::{NameRequest, NameResponse, Service, ServiceError};
 use futures::future::BoxFuture;
 
@@ -70,7 +70,7 @@ async fn test_invalid_request_service_error_maps_to_handler_error_happy() {
     let h = IntoHandler::into_handler(InvalidRequestService, IntoHandlerRequest)
         .unwrap()
         .handler;
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = make_ctx(&security, observer.as_ref());
     let err = h
@@ -89,7 +89,7 @@ async fn test_not_found_service_error_maps_to_handler_error_error() {
     let h = IntoHandler::into_handler(NotFoundService, IntoHandlerRequest)
         .unwrap()
         .handler;
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = make_ctx(&security, observer.as_ref());
     let err = h

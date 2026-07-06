@@ -11,7 +11,7 @@ use edge_domain_handler::{
     IdResponse, LenRequest, PatternRequest, RegisterHandlerRequest,
 };
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityServices};
+use edge_security_runtime::SecurityContext;
 use futures::executor::block_on;
 
 struct Prov;
@@ -29,7 +29,7 @@ fn test_echo_handler_id_and_pattern_set_correctly_happy() {
 #[test]
 fn test_echo_handler_reflects_request_happy() {
     let h = Prov::echo_handler("e", "/");
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {

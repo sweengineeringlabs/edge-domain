@@ -11,7 +11,7 @@ use edge_domain_handler::{
     InProcessHandlerRegistry, LenRequest, ListIdsRequest, RegisterHandlerRequest,
 };
 use edge_domain_observer::StdObserveFactory;
-use edge_domain_security::{SecurityBootstrap, SecurityServices};
+use edge_security_runtime::SecurityContext;
 use futures::executor::block_on;
 
 struct Fixed {
@@ -133,7 +133,7 @@ fn test_retrieved_handler_executes_correctly_happy() {
     let reg = make_reg();
     reg.register(reg_id("exec")).unwrap();
     let h = reg.get(getreq("exec")).unwrap().handler.unwrap();
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {

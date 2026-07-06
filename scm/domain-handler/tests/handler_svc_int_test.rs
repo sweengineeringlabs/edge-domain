@@ -8,7 +8,7 @@ use edge_domain_handler::{
     PatternRequest,
 };
 use edge_domain_observer::{ObserverContext, StdObserveFactory};
-use edge_domain_security::{SecurityBootstrap, SecurityContext, SecurityServices};
+use edge_security_runtime::SecurityContext;
 use futures::executor::block_on;
 
 struct OkHandler;
@@ -82,7 +82,7 @@ fn make_ctx<'a>(
 /// @covers: Handler::execute — success path
 #[test]
 fn test_execute_ok_handler_returns_response_happy() {
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = make_ctx(&security, &bus, observer.as_ref());
@@ -99,7 +99,7 @@ fn test_execute_ok_handler_returns_response_happy() {
 /// @covers: Handler::execute — error propagation
 #[test]
 fn test_execute_failing_handler_returns_err_error() {
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = make_ctx(&security, &bus, observer.as_ref());
@@ -157,7 +157,7 @@ fn test_health_check_unhealthy_handler_returns_false_error() {
 /// @covers: Handler::execute — unauthenticated context threads through correctly
 #[test]
 fn test_execute_with_unauthenticated_context_returns_response_happy() {
-    let security = SecurityServices::unauthenticated();
+    let security = SecurityContext::unauthenticated();
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = make_ctx(&security, &bus, observer.as_ref());
@@ -174,8 +174,8 @@ fn test_execute_with_unauthenticated_context_returns_response_happy() {
 /// @covers: Handler::execute — authenticated context threads through correctly
 #[test]
 fn test_execute_with_authenticated_context_still_executes_edge() {
-    use edge_domain_security::AnonymousPrincipal;
-    let security = SecurityServices::authenticated(Box::new(AnonymousPrincipal));
+    use edge_security_runtime::AnonymousPrincipal;
+    let security = SecurityContext::authenticated_with(Box::new(AnonymousPrincipal));
     let bus = StdCommandBusFactory::direct();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = make_ctx(&security, &bus, observer.as_ref());
