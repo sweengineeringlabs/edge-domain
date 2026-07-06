@@ -22,7 +22,6 @@ members  = [
     "domain-event",
     "domain-projection",
     "domain-saga",
-    "domain-security",
     "domain-registry",
     "domain-lifecycle",
     "domain-observer",
@@ -68,7 +67,7 @@ edge-domain-event       = { path = "domain-event" }
 edge-pipeline           = { git = "https://github.com/sweengineeringlabs/edge-pipeline.git", tag = "v0.2.0" }
 edge-domain-projection  = { path = "domain-projection" }
 edge-domain-saga        = { path = "domain-saga" }
-edge-domain-security    = { path = "domain-security" }
+edge-security-runtime   = { path = "../../security/runtime/scm/identity" }
 edge-domain-registry    = { path = "domain-registry" }
 edge-domain-lifecycle   = { path = "domain-lifecycle" }
 edge-llm-agent          = { path = "domain/llm/agents" }
@@ -82,3 +81,4 @@ swe-edge-configbuilder  = { git = "https://github.com/sweengineeringlabs/edge-co
 # ── Development override — use local path when building inside the swe-edge assembly
 [patch."https://github.com/sweengineeringlabs/edge-configbuilder.git"]
 swe-edge-configbuilder = { path = "../../configbuilder/scm" }
+
