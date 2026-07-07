@@ -11,8 +11,6 @@ mod core;
 mod saf;
 
 // Types that are part of trait signatures
-pub use api::BootstrapNameRequest;
-pub use api::BootstrapNameResponse;
 pub use api::BridgeRequest;
 pub use api::BridgeResponse;
 pub use api::DeregisterHandlerRequest;
@@ -36,7 +34,6 @@ pub use api::LenRequest;
 pub use api::LenResponse;
 pub use api::ListIdsRequest;
 pub use api::ListIdsResponse;
-pub use api::NoopHandlerFactory;
 pub use api::PatternRequest;
 pub use api::PatternResponse;
 pub use api::RegisterHandlerRequest;
@@ -46,7 +43,6 @@ pub use api::ValidatorRequest;
 
 // Trait contracts
 pub use api::Handler;
-pub use api::HandlerProvider;
 pub use api::HandlerRegistry;
 pub use api::IntoHandler;
 pub use api::RegistryBridge;
@@ -56,8 +52,6 @@ pub use api::Validator;
 
 // SAF service identity constants
 pub use saf::BRIDGE_CONTEXT;
-pub use saf::HANDLER_PROVIDER_SVC;
-pub use saf::HANDLER_PROVIDER_SVC_FACTORY;
 pub use saf::HANDLER_REGISTRY_SVC;
 pub use saf::HANDLER_REGISTRY_SVC_FACTORY;
 pub use saf::HANDLER_SVC;

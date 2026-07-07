@@ -148,7 +148,6 @@ pub use edge_domain_repository::SPEC_SVC_FACTORY;
 #[cfg(feature = "handler")]
 pub use edge_domain_handler::HandlerContext;
 pub use edge_domain_handler::HandlerError;
-pub use edge_domain_handler::HandlerProvider;
 
 // ── event (sub-crate when feature enabled) ────────────────────────────────────
 #[cfg(feature = "event")]
@@ -249,13 +248,7 @@ pub use edge_domain_lifecycle::TransitionPolicy;
 
 // ── security ──────────────────────────────────────────────────────────────────
 #[cfg(feature = "security")]
-pub use edge_security_runtime::AnonymousPrincipal;
-#[cfg(feature = "security")]
-pub use edge_security_runtime::Principal;
-#[cfg(feature = "security")]
-pub use edge_security_runtime::SecurityContext;
-#[cfg(feature = "security")]
-pub use edge_security_runtime::SecurityError;
+pub use edge_security_authn::Authenticator;
 #[cfg(feature = "security")]
 pub use edge_security_authn::AuthnError;
 #[cfg(feature = "security")]
@@ -263,7 +256,7 @@ pub use edge_security_authn::AuthnRequest;
 #[cfg(feature = "security")]
 pub use edge_security_authn::AuthnResponse;
 #[cfg(feature = "security")]
-pub use edge_security_authn::Authenticator;
+pub use edge_security_authz::Authorizer;
 #[cfg(feature = "security")]
 pub use edge_security_authz::AuthzError;
 #[cfg(feature = "security")]
@@ -271,7 +264,13 @@ pub use edge_security_authz::AuthzRequest;
 #[cfg(feature = "security")]
 pub use edge_security_authz::AuthzResponse;
 #[cfg(feature = "security")]
-pub use edge_security_authz::Authorizer;
+pub use edge_security_runtime::AnonymousPrincipal;
+#[cfg(feature = "security")]
+pub use edge_security_runtime::Principal;
+#[cfg(feature = "security")]
+pub use edge_security_runtime::SecurityContext;
+#[cfg(feature = "security")]
+pub use edge_security_runtime::SecurityError;
 
 // ── observer (opt-in; NOT in default features) ───────────────────────────────
 #[cfg(feature = "observer")]
