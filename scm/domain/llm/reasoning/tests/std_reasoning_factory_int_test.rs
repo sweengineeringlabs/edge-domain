@@ -1,14 +1,14 @@
-//! Tests for the `StdReasoningFactory` concrete `ReasoningBootstrap` implementation.
+//! Tests for `StdReasoningFactory`'s zero-sized identity and `LinearReasoning` interop.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_reasoning::{
-    PatternSupportRequest, Reasoning, ReasoningBootstrap, ReasoningPattern, StdReasoningFactory,
+    LinearReasoning, PatternSupportRequest, Reasoning, ReasoningPattern, StdReasoningFactory,
 };
 
 /// @covers: StdReasoningFactory — std_factory returns the factory instance
 #[test]
 fn test_std_reasoning_factory_std_factory_returns_instance() {
-    let factory: StdReasoningFactory = StdReasoningFactory::std_factory();
+    let factory: StdReasoningFactory = StdReasoningFactory;
     assert_eq!(std::mem::size_of_val(&factory), 0);
 }
 
@@ -21,7 +21,7 @@ fn test_std_reasoning_factory_is_zero_sized() {
 /// @covers: StdReasoningFactory — builds a reasoner via the factory
 #[test]
 fn test_std_reasoning_factory_builds_reasoner() {
-    let r = StdReasoningFactory::reasoning(ReasoningPattern::ChainOfThought);
+    let r = LinearReasoning::new(ReasoningPattern::ChainOfThought);
     let resp = r
         .supports_pattern(PatternSupportRequest {
             pattern: ReasoningPattern::ChainOfThought,

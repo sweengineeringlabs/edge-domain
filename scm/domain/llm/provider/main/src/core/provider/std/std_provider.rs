@@ -16,7 +16,7 @@ use crate::api::{
 
 impl StdProvider {
     /// Construct a provider core from config, model metadata, a completer delegate, and an observer.
-    pub(crate) fn new(
+    pub fn new(
         config: ProviderConfig,
         model: ModelInfo,
         completer: Arc<dyn Completer>,

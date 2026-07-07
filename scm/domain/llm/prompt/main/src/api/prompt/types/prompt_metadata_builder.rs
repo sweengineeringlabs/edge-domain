@@ -3,6 +3,10 @@
 use crate::api::prompt::types::Variable;
 
 /// Fluent builder for [`PromptMetadata`](crate::api::prompt::types::PromptMetadata).
+///
+/// Orphan-type note: same rationale as
+/// [`PromptMetadata`](crate::api::prompt::types::PromptMetadata) itself — a plain builder,
+/// never a trait method parameter or return type.
 #[derive(Clone, Debug, Default)]
 pub struct PromptMetadataBuilder {
     pub(crate) id: String,

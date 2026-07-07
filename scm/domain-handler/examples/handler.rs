@@ -2,12 +2,9 @@
 
 use async_trait::async_trait;
 use edge_domain_handler::{
-    ExecutionRequest, Handler, HandlerError, HandlerProvider, IdRequest, IdResponse,
-    PatternRequest, PatternResponse,
+    EchoHandler, ExecutionRequest, Handler, HandlerError, IdRequest, IdResponse, PatternRequest,
+    PatternResponse,
 };
-
-struct Handlers;
-impl HandlerProvider for Handlers {}
 
 struct Greet;
 
@@ -33,7 +30,7 @@ impl Handler for Greet {
 }
 
 fn main() {
-    let _echo = Handlers::echo_handler("echo", "/echo");
+    let _echo: EchoHandler<String> = EchoHandler::from(("echo", "/echo"));
     let _greet = Greet;
     println!("handler sub-crate ready");
 }

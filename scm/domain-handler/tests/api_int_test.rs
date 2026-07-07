@@ -7,9 +7,8 @@
 use std::sync::Arc;
 
 use edge_domain_handler::{
-    BootstrapNameRequest, BootstrapNameResponse, BridgeRequest, BridgeResponse,
-    DeregisterHandlerRequest, DeregisterHandlerResponse, EmptinessRequest, EmptinessResponse,
-    ExecutionRequest, Handler, HandlerBuildResponse, HandlerContext, HandlerError,
+    BridgeRequest, BridgeResponse, DeregisterHandlerRequest, DeregisterHandlerResponse,
+    EmptinessRequest, EmptinessResponse, ExecutionRequest, Handler, HandlerContext, HandlerError,
     HandlerLookupRequest, HandlerLookupResponse, HandlerRegistry, HealthCheckRequest,
     HealthCheckResponse, IdRequest, IdResponse, InProcessHandlerRegistry, IntoHandlerRequest,
     IntoHandlerResponse, LenRequest, LenResponse, ListIdsRequest, ListIdsResponse, PatternRequest,
@@ -54,13 +53,6 @@ impl Service for ServiceDouble {
 }
 
 // --- zero-sized marker request types ---
-
-/// @covers: BootstrapNameRequest
-#[test]
-fn test_bootstrap_name_request_is_zero_sized_happy() {
-    assert_eq!(std::mem::size_of::<BootstrapNameRequest>(), 0);
-    let _ = BootstrapNameRequest;
-}
 
 /// @covers: EmptinessRequest
 #[test]
@@ -126,13 +118,6 @@ fn test_register_handler_response_is_zero_sized_edge() {
 }
 
 // --- field-carrying request/response types ---
-
-/// @covers: BootstrapNameResponse
-#[test]
-fn test_bootstrap_name_response_holds_name_happy() {
-    let r = BootstrapNameResponse { name: "svc" };
-    assert_eq!(r.name, "svc");
-}
 
 /// @covers: BridgeResponse
 #[test]
@@ -210,15 +195,6 @@ fn test_pattern_response_holds_pattern_happy() {
 fn test_into_handler_response_holds_handler_happy() {
     let r = IntoHandlerResponse { handler: 42u32 };
     assert_eq!(r.handler, 42);
-}
-
-/// @covers: HandlerBuildResponse
-#[test]
-fn test_handler_build_response_holds_handler_happy() {
-    let r = HandlerBuildResponse {
-        handler: "built".to_string(),
-    };
-    assert_eq!(r.handler, "built");
 }
 
 /// @covers: HandlerLookupRequest

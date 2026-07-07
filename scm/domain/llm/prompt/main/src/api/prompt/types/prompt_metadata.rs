@@ -1,7 +1,11 @@
 use crate::api::prompt::types::Variable;
 use serde::{Deserialize, Serialize};
 
-/// Metadata about a prompt template
+/// Metadata about a prompt template.
+///
+/// Orphan-type note: `Prompt::metadata` returns `PromptMetadataResponse` (flattened fields),
+/// never `PromptMetadata` directly, so `no_orphan_types` flags this as unreferenced. Plain data
+/// struct, no interface behind it — same rationale as `PromptCache`.
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct PromptMetadata {
     /// Unique identifier for this template

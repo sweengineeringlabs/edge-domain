@@ -59,15 +59,6 @@ fn test_problem_validation_request_constructs() {
 }
 
 #[test]
-fn test_reasoning_bootstrap_name_request_response_construct() {
-    let _req = ReasoningBootstrapNameRequest;
-    let resp = ReasoningBootstrapNameResponse {
-        name: "reasoning".to_string(),
-    };
-    assert_eq!(resp.name, "reasoning");
-}
-
-#[test]
 fn test_reason_request_response_construct() {
     let req = ReasonRequest {
         problem: "solve x",

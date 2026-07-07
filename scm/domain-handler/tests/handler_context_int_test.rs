@@ -1,7 +1,7 @@
 //! Integration tests — `HandlerContext` type.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_command::{CommandBusBootstrap, CommandDispatchRequest, StdCommandBusFactory};
+use edge_domain_command::{CommandDispatchRequest, DirectCommandBus};
 use edge_domain_handler::HandlerContext;
 use edge_domain_observer::{
     SpanFinishRequest, SpanStartRequest, StdObserveFactory, TracerRequest,
@@ -12,7 +12,7 @@ use edge_security_runtime::SecurityContext;
 #[test]
 fn test_handler_context_constructs_with_unauthenticated_security_happy() {
     let security = SecurityContext::unauthenticated();
-    let bus = StdCommandBusFactory::direct();
+    let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,
@@ -30,7 +30,7 @@ fn test_handler_context_commands_field_is_accessible_error() {
     use futures::executor::block_on;
 
     let security = SecurityContext::unauthenticated();
-    let bus = StdCommandBusFactory::direct();
+    let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,
@@ -49,7 +49,7 @@ fn test_handler_context_commands_field_is_accessible_error() {
 #[test]
 fn test_handler_context_is_copy_edge() {
     let security = SecurityContext::unauthenticated();
-    let bus = StdCommandBusFactory::direct();
+    let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,
@@ -65,7 +65,7 @@ fn test_handler_context_is_copy_edge() {
 #[test]
 fn test_observer_returns_bound_observe_context_happy() {
     let security = SecurityContext::unauthenticated();
-    let bus = StdCommandBusFactory::direct();
+    let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,
@@ -91,7 +91,7 @@ fn test_observer_returns_bound_observe_context_happy() {
 #[test]
 fn test_observer_tracer_usable_after_construction_happy() {
     let security = SecurityContext::unauthenticated();
-    let bus = StdCommandBusFactory::direct();
+    let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,
@@ -119,7 +119,7 @@ fn test_observer_tracer_usable_after_construction_happy() {
 #[test]
 fn test_observer_empty_span_ids_no_panic_error() {
     let security = SecurityContext::unauthenticated();
-    let bus = StdCommandBusFactory::direct();
+    let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,
@@ -145,7 +145,7 @@ fn test_observer_empty_span_ids_no_panic_error() {
 #[test]
 fn test_handler_context_with_observer_is_copy_edge() {
     let security = SecurityContext::unauthenticated();
-    let bus = StdCommandBusFactory::direct();
+    let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,

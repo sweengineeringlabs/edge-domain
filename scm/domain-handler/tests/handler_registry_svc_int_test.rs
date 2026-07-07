@@ -4,7 +4,7 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+use edge_domain_command::DirectCommandBus;
 use edge_domain_handler::{
     DeregisterHandlerRequest, EmptinessRequest, ExecutionRequest, Handler, HandlerContext,
     HandlerError, HandlerLookupRequest, HandlerRegistry, IdRequest, IdResponse,
@@ -134,7 +134,7 @@ fn test_retrieved_handler_executes_correctly_happy() {
     reg.register(reg_id("exec")).unwrap();
     let h = reg.get(getreq("exec")).unwrap().handler.unwrap();
     let security = SecurityContext::unauthenticated();
-    let bus = StdCommandBusFactory::direct();
+    let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,

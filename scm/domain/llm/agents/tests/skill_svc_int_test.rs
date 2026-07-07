@@ -2,7 +2,6 @@
 //! Integration tests for Skill trait re-export via skill_svc.rs.
 
 use async_trait::async_trait;
-use edge_domain_command::CommandBusBootstrap;
 use edge_domain_handler::{
     ExecutionRequest, Handler, HandlerContext, HandlerError, IdRequest, IdResponse,
 };
@@ -255,7 +254,7 @@ fn test_svc_skill_happy_execute_processes_request() {
         custom_name: "test",
     };
     let security = SecurityContext::unauthenticated();
-    let bus = edge_domain_command::StdCommandBusFactory::direct();
+    let bus = edge_domain_command::DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,
@@ -277,7 +276,7 @@ fn test_svc_skill_error_execute_failure_propagates() {
         custom_name: "test",
     };
     let security = SecurityContext::unauthenticated();
-    let bus = edge_domain_command::StdCommandBusFactory::direct();
+    let bus = edge_domain_command::DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,

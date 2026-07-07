@@ -1,4 +1,4 @@
-//! Direct coverage of the `edge-domain-pipeline` dependency, independent of
+//! Direct coverage of the `edge-pipeline` dependency, independent of
 //! `ConversationLoop`/`DefaultConversationTurnStep` — confirms the crate builds and
 //! runs standalone.
 #![allow(clippy::unwrap_used, clippy::expect_used)]

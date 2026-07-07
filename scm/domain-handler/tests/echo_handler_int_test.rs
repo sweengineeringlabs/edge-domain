@@ -4,7 +4,7 @@
 use std::marker::PhantomData;
 use std::sync::Arc;
 
-use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+use edge_domain_command::DirectCommandBus;
 use edge_domain_handler::{
     EchoHandler, ExecutionRequest, Handler, HandlerContext, HealthCheckRequest, IdRequest,
     PatternRequest,
@@ -30,7 +30,7 @@ fn unauth_ctx<'a>(
 fn test_execute_returns_request_unchanged_happy() {
     let h = EchoHandler::<String>::from(("echo", "/"));
     let security = SecurityContext::unauthenticated();
-    let bus = StdCommandBusFactory::direct();
+    let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = unauth_ctx(&security, &bus, observer.as_ref());
     assert_eq!(
@@ -62,7 +62,7 @@ fn test_pattern_returns_configured_pattern_happy() {
 fn test_execute_empty_string_returns_empty_string_edge() {
     let h = EchoHandler::<String>::from(("e", "/"));
     let security = SecurityContext::unauthenticated();
-    let bus = StdCommandBusFactory::direct();
+    let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = unauth_ctx(&security, &bus, observer.as_ref());
     assert_eq!(
@@ -91,7 +91,7 @@ fn test_health_check_returns_true_happy() {
 fn test_execute_with_security_context_returns_same_value_happy() {
     let h = EchoHandler::<String>::from(("e", "/"));
     let security = SecurityContext::unauthenticated();
-    let bus = StdCommandBusFactory::direct();
+    let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = unauth_ctx(&security, &bus, observer.as_ref());
     assert_eq!(
@@ -113,7 +113,7 @@ fn test_echo_handler_usable_as_dyn_handler_edge() {
         _marker: PhantomData,
     });
     let security = SecurityContext::unauthenticated();
-    let bus = StdCommandBusFactory::direct();
+    let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = unauth_ctx(&security, &bus, observer.as_ref());
     assert_eq!(

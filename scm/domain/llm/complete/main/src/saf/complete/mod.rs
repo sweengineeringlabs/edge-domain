@@ -1,6 +1,5 @@
 mod cacheable;
-mod complete_bootstrap_svc;
-mod complete_bootstrap_svc_factory;
+mod complete_factory_svc;
 mod complete_ops_svc;
 mod complete_ops_svc_factory;
 mod completer;
@@ -16,8 +15,7 @@ mod tool_result_batch_svc_factory;
 mod validator;
 
 pub use cacheable::{CacheableMessage, CACHEABLE_MESSAGE_SVC, CACHEABLE_MESSAGE_SVC_FACTORY};
-pub use complete_bootstrap_svc::{CompleteBootstrap, COMPLETE_FACTORY_SVC};
-pub use complete_bootstrap_svc_factory::COMPLETE_BOOTSTRAP_SVC_FACTORY;
+pub use complete_factory_svc::COMPLETE_FACTORY_SVC;
 pub use complete_ops_svc::{CompleteOps, COMPLETE_OPS_SVC};
 pub use complete_ops_svc_factory::COMPLETE_OPS_SVC_FACTORY;
 pub use completer::{

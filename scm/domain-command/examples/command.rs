@@ -1,13 +1,10 @@
 //! Basic `Command` usage example.
 
 use edge_domain_command::{
-    Command, CommandBusBootstrap, CommandDispatchRequest, CommandError, ExecutionRequest,
+    Command, CommandDispatchRequest, CommandError, DirectCommandBus, ExecutionRequest,
     NameRequest, NameResponse,
 };
 use futures::future::BoxFuture;
-
-struct Buses;
-impl CommandBusBootstrap for Buses {}
 
 struct Ping;
 impl Command for Ping {
@@ -23,7 +20,7 @@ impl Command for Ping {
 
 #[tokio::main]
 async fn main() {
-    let bus = Buses::direct();
+    let bus = DirectCommandBus;
     let result = edge_domain_command::CommandBus::dispatch(
         &bus,
         CommandDispatchRequest {
