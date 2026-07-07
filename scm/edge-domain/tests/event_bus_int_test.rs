@@ -1,4 +1,4 @@
-//! Integration tests for [`EventBus`], [`EventReceiver`], and [`EventBusConfig`].
+//! Integration tests for [`EventBus`], [`EventSource`], and [`EventBusConfig`].
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
@@ -7,7 +7,8 @@ use std::time::SystemTime;
 use edge_domain::{
     Domain, DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventBusConfig,
     EventBusPublishRequest, EventBusSubscribeRequest, EventError, EventOccurredAtRequest,
-    EventOccurredAtResponse, EventReceiver, EventTypeRequest, EventTypeResponse,
+    EventOccurredAtResponse, EventSource, EventSourceRecvNextRequest, EventTypeRequest,
+    EventTypeResponse,
 };
 
 // ── test fixtures ────────────────────────────────────────────────────────────
@@ -55,7 +56,7 @@ fn test_event_bus_config_default_capacity_is_1024() {
 #[tokio::test]
 async fn test_in_process_event_bus_subscribe_then_publish_delivers_event() {
     let bus = Domain::in_process_event_bus(EventBusConfig::default());
-    let mut rx: EventReceiver = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
+    let mut rx: Box<dyn EventSource> = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
     bus.publish(EventBusPublishRequest {
         event: Arc::new(OrderCreated {
             order_id: "ord-1".into(),
@@ -63,7 +64,7 @@ async fn test_in_process_event_bus_subscribe_then_publish_delivers_event() {
     })
     .await
     .unwrap();
-    let event = rx.recv().await.unwrap();
+    let event = rx.recv_next(EventSourceRecvNextRequest).await.unwrap().event;
     assert_eq!(
         event.event_type(EventTypeRequest).unwrap().event_type,
         "order.created"
@@ -105,18 +106,20 @@ async fn test_in_process_event_bus_fan_out_delivers_to_all_subscribers() {
     .await
     .unwrap();
     assert_eq!(
-        rx1.recv()
+        rx1.recv_next(EventSourceRecvNextRequest)
             .await
             .unwrap()
+            .event
             .aggregate_id(EventAggregateIdRequest)
             .unwrap()
             .aggregate_id,
         "ord-2"
     );
     assert_eq!(
-        rx2.recv()
+        rx2.recv_next(EventSourceRecvNextRequest)
             .await
             .unwrap()
+            .event
             .aggregate_id(EventAggregateIdRequest)
             .unwrap()
             .aggregate_id,
@@ -139,9 +142,10 @@ async fn test_in_process_event_bus_clone_shares_channel() {
         .await
         .unwrap();
     assert_eq!(
-        rx.recv()
+        rx.recv_next(EventSourceRecvNextRequest)
             .await
             .unwrap()
+            .event
             .aggregate_id(EventAggregateIdRequest)
             .unwrap()
             .aggregate_id,
@@ -170,12 +174,15 @@ async fn test_noop_event_bus_publish_returns_ok() {
 async fn test_noop_event_bus_subscribe_returns_closed_receiver() {
     let bus = Domain::noop_event_bus();
     let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
-    assert!(matches!(rx.recv().await, Err(EventError::Unavailable(_))));
+    assert!(matches!(
+        rx.recv_next(EventSourceRecvNextRequest).await,
+        Err(EventError::Unavailable(_))
+    ));
 }
 
-// ── EventReceiver ─────────────────────────────────────────────────────────────
+// ── EventSource::recv_next ────────────────────────────────────────────────────
 
-/// @covers: EventReceiver
+/// @covers: EventSource::recv_next
 #[tokio::test]
 async fn test_event_receiver_recv_returns_event_in_order() {
     let bus = Domain::in_process_event_bus(EventBusConfig::default());
@@ -189,7 +196,7 @@ async fn test_event_receiver_recv_returns_event_in_order() {
         })
         .await
         .unwrap();
-        let event = rx.recv().await.unwrap();
+        let event = rx.recv_next(EventSourceRecvNextRequest).await.unwrap().event;
         assert_eq!(
             event
                 .aggregate_id(EventAggregateIdRequest)

@@ -1,29 +1,46 @@
-//! Integration tests for the `CommandBusBootstrap` SAF facade.
+//! SAF facade smoke test — `CommandBus` factory (`Domain::direct_command_bus`) is exported
+//! from the crate root.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{CommandBusBootstrap, DirectCommandBus};
+use std::sync::Arc;
 
-struct TestCommandBuses;
-impl CommandBusBootstrap for TestCommandBuses {}
+use edge_domain::Domain;
+use edge_domain_command::{Command, CommandDispatchRequest, CommandError, ExecutionRequest};
+use futures::executor::block_on;
+use futures::future::BoxFuture;
 
-/// @covers CommandBusBootstrap::direct — happy path: returns a DirectCommandBus
-#[test]
-fn test_command_bus_factory_direct_returns_direct_bus_happy() {
-    let bus: DirectCommandBus = TestCommandBuses::direct();
-    assert_eq!(std::mem::size_of_val(&bus), 0);
+struct Ok_;
+impl Command for Ok_ {
+    fn execute(&self, _req: ExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
+        Box::pin(async { Ok(()) })
+    }
 }
 
-/// @covers CommandBusBootstrap::direct — error: two calls produce independent instances
+/// @covers: Domain::direct_command_bus — happy path: dispatches a successful command
 #[test]
-fn test_command_bus_factory_direct_produces_independent_instances_error() {
-    let a = TestCommandBuses::direct();
-    let b = TestCommandBuses::direct();
-    // Both are unit structs — construction succeeds and neither panics.
-    assert_eq!(std::mem::size_of_val(&a), 0);
-    assert_eq!(std::mem::size_of_val(&b), 0);
+fn test_direct_command_bus_factory_dispatches_ok_command_happy() {
+    let bus = Domain::direct_command_bus();
+    let result = block_on(bus.dispatch(CommandDispatchRequest {
+        command: Box::new(Ok_),
+    }));
+    assert_eq!(result, Ok(()));
 }
 
-/// @covers CommandBusBootstrap::direct — edge: DirectCommandBus is a unit struct (zero-size)
+/// @covers: Domain::direct_command_bus — error: each call returns an independent, usable bus
 #[test]
-fn test_command_bus_factory_direct_is_unit_struct_edge() {
-    assert_eq!(std::mem::size_of::<DirectCommandBus>(), 0);
+fn test_direct_command_bus_factory_independent_calls_error() {
+    let a = Domain::direct_command_bus();
+    let b = Domain::direct_command_bus();
+    assert!(!Arc::ptr_eq(&a, &b));
+}
+
+/// @covers: Domain::direct_command_bus — edge: usable through an explicit `&dyn CommandBus` reference
+#[test]
+fn test_direct_command_bus_factory_returns_dyn_command_bus_edge() {
+    let bus = Domain::direct_command_bus();
+    let bus_ref: &dyn edge_domain_command::CommandBus = bus.as_ref();
+    let result = block_on(bus_ref.dispatch(CommandDispatchRequest {
+        command: Box::new(Ok_),
+    }));
+    assert_eq!(result, Ok(()));
 }

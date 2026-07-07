@@ -114,18 +114,16 @@ impl Agent for DefaultAgent {
 mod tests {
     use super::*;
     use edge_domain_observer::StdObserveFactory;
-    use edge_llm_provider::{
-        EchoProviderCompleter, ModelInfo, ProviderBootstrap, ProviderConfig, StdProviderFactory,
-    };
+    use edge_llm_provider::{EchoProviderCompleter, ModelInfo, ProviderConfig, StdProvider};
     use futures::executor::block_on;
 
     fn noop_provider() -> Arc<dyn Provider> {
-        StdProviderFactory::provider(
+        Arc::new(StdProvider::new(
             ProviderConfig::new("noop".to_string(), 0.0, 0),
-            Box::<ModelInfo>::default(),
+            ModelInfo::default(),
             Arc::new(EchoProviderCompleter),
             StdObserveFactory::noop_arc_observe_context(),
-        )
+        ))
     }
 
     /// @covers: new
@@ -173,13 +171,13 @@ mod tests {
     /// @covers: execute_skill
     #[test]
     fn test_execute_skill_error_unknown_skill_returns_not_found() {
-        use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+        use edge_domain_command::DirectCommandBus;
         use edge_domain_handler::HandlerContext;
         use edge_domain_observer::StdObserveFactory;
         use edge_security_runtime::SecurityContext;
         let agent = DefaultAgent::new("a", "A", "d", noop_provider(), vec![]);
         let security = SecurityContext::unauthenticated();
-        let commands = StdCommandBusFactory::direct();
+        let commands = DirectCommandBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
             security: &security,
@@ -197,13 +195,13 @@ mod tests {
     /// @covers: execute_skill
     #[test]
     fn test_execute_skill_edge_no_skills_returns_not_found() {
-        use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+        use edge_domain_command::DirectCommandBus;
         use edge_domain_handler::HandlerContext;
         use edge_domain_observer::StdObserveFactory;
         use edge_security_runtime::SecurityContext;
         let agent = DefaultAgent::new("a", "A", "d", noop_provider(), vec![]);
         let security = SecurityContext::unauthenticated();
-        let commands = StdCommandBusFactory::direct();
+        let commands = DirectCommandBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
             security: &security,

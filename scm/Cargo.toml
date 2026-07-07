@@ -68,8 +68,8 @@ edge-pipeline           = { git = "https://github.com/sweengineeringlabs/edge-pi
 edge-domain-projection  = { path = "domain-projection" }
 edge-domain-saga        = { path = "domain-saga" }
 edge-security-runtime   = { path = "../../security/runtime/scm/identity" }
-edge-security-authn     = { path = "../../security/authn/scm/authn" }
-edge-security-authz     = { path = "../../security/authz/scm/authz" }
+edge-security-authn     = { path = "../../security/authn/scm/entrypoint" }
+edge-security-authz     = { path = "../../security/authz/scm/entrypoint" }
 edge-domain-registry    = { path = "domain-registry" }
 edge-domain-lifecycle   = { path = "domain-lifecycle" }
 edge-llm-agent          = { path = "domain/llm/agents" }

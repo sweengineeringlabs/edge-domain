@@ -1,7 +1,7 @@
 //! Handler integration tests — `prompt_handler` as a dispatchable `Handler`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+use edge_domain_command::DirectCommandBus;
 use edge_domain_handler::{ExecutionRequest, Handler, HandlerContext, IdRequest, PatternRequest};
 use edge_domain_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
@@ -24,7 +24,7 @@ fn make_handler() -> impl Handler<Request = RenderContext, Response = String> {
 fn test_handler_execute_renders_template_happy() {
     let h = make_handler();
     let security: SecurityContext = SecurityContext::unauthenticated();
-    let commands = StdCommandBusFactory::direct();
+    let commands = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let hctx = HandlerContext {
         security: &security,
@@ -70,7 +70,7 @@ fn test_handler_pattern_is_stable_edge() {
 fn test_handler_execute_missing_variable_errors_error() {
     let h = make_handler();
     let security: SecurityContext = SecurityContext::unauthenticated();
-    let commands = StdCommandBusFactory::direct();
+    let commands = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let hctx = HandlerContext {
         security: &security,
@@ -92,7 +92,7 @@ fn test_handler_execute_missing_variable_errors_error() {
 fn test_factory_handler_renders_through_handler_happy() {
     let h = make_handler();
     let security: SecurityContext = SecurityContext::unauthenticated();
-    let commands = StdCommandBusFactory::direct();
+    let commands = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let hctx = HandlerContext {
         security: &security,

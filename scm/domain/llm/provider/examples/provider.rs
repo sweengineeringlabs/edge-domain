@@ -7,7 +7,7 @@ use edge_domain_observer::StdObserveFactory;
 use edge_llm_complete::NoopCompleter;
 use edge_llm_provider::{
     ExecutionMode, HealthCheckRequest, ModelFamily, ModelFamilyRequest, ModelInfo, Provider,
-    ProviderBootstrap, ProviderConfig, ProviderNameRequest, StdProviderFactory,
+    ProviderConfig, ProviderNameRequest, StdProvider,
 };
 
 fn main() {
@@ -19,9 +19,9 @@ fn main() {
         200_000,
     );
 
-    let provider = StdProviderFactory::provider(
+    let provider = StdProvider::new(
         config,
-        Box::new(info),
+        info,
         Arc::new(NoopCompleter),
         StdObserveFactory::noop_arc_observe_context(),
     );

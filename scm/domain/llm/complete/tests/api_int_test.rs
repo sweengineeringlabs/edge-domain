@@ -34,15 +34,6 @@ fn test_completer_health_check_request_response_construct() {
 }
 
 #[test]
-fn test_complete_bootstrap_name_request_response_construct() {
-    let _req = CompleteBootstrapNameRequest;
-    let resp = CompleteBootstrapNameResponse {
-        name: "complete".to_string(),
-    };
-    assert_eq!(resp.name, "complete");
-}
-
-#[test]
 fn test_complete_request_constructs() {
     let completion = CompletionRequest::new("echo", vec![Message::user("hi")]);
     let req = CompleteRequest {

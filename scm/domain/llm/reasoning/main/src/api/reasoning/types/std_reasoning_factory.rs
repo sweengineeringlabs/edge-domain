@@ -1,8 +1,10 @@
-//! `StdReasoningFactory` — reference [`ReasoningBootstrap`](crate::api::reasoning::traits::ReasoningBootstrap) implementation.
+//! `StdReasoningFactory` — constructs dispatchable reasoning [`Handler`](edge_domain_handler::Handler)s.
 
-/// Reference implementation of [`ReasoningBootstrap`](crate::api::reasoning::traits::ReasoningBootstrap).
+/// Constructs dispatchable reasoning-execution handlers from a [`Reasoning`](crate::api::Reasoning)
+/// (see `StdReasoningFactory::reasoning_handler`/`default_reasoning_handler` in `core/`).
 ///
-/// Implement the bootstrap trait on this unit struct to gain the standard
-/// constructors for the default reasoning primitives.
+/// Orphan-type note: exposes its behavior via inherent methods that return `impl Handler`,
+/// not by implementing a trait itself, so `no_orphan_types` flags it as unreferenced — same
+/// rationale as `edge-llm-prompt`'s `StdPromptFactory` and `edge-llm-provider`'s `StdProviderFactory`.
 #[derive(Debug, Default, Clone, Copy)]
 pub struct StdReasoningFactory;

@@ -1,5 +1,3 @@
-pub mod bootstrap_name_request;
-pub mod bootstrap_name_response;
 pub mod command_dispatch_request;
 pub mod direct_command_bus;
 pub mod execution_request;
@@ -8,10 +6,7 @@ pub mod name_request;
 pub mod name_response;
 pub mod noop_command;
 pub mod noop_command_bus;
-pub mod std_command_bus_factory;
 
-pub use bootstrap_name_request::BootstrapNameRequest;
-pub use bootstrap_name_response::BootstrapNameResponse;
 pub use command_dispatch_request::CommandDispatchRequest;
 pub use direct_command_bus::DirectCommandBus;
 pub use execution_request::ExecutionRequest;
@@ -20,4 +15,3 @@ pub use name_request::NameRequest;
 pub use name_response::NameResponse;
 pub use noop_command::NoopCommand;
 pub use noop_command_bus::NoopCommandBus;
-pub use std_command_bus_factory::StdCommandBusFactory;

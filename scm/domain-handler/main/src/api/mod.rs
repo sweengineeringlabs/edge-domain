@@ -10,8 +10,6 @@ pub use handler::EmptinessRequest;
 pub use handler::EmptinessResponse;
 pub use handler::ExecutionRequest;
 pub use handler::Handler;
-pub use handler::HandlerBootstrap;
-pub use handler::HandlerBuildResponse;
 pub use handler::HandlerContext;
 pub use handler::HandlerError;
 pub use handler::HandlerLookupRequest;

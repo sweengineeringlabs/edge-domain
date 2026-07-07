@@ -4,11 +4,11 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+use edge_domain_command::DirectCommandBus;
 use edge_domain_handler::{
-    BootstrapNameRequest, DeregisterHandlerRequest, EmptinessRequest, ExecutionRequest, Handler,
-    HandlerBootstrap, HandlerContext, HandlerError, HandlerProvider, HandlerRegistry, IdRequest,
-    IdResponse, LenRequest, PatternRequest, RegisterHandlerRequest,
+    DeregisterHandlerRequest, EmptinessRequest, ExecutionRequest, Handler, HandlerContext,
+    HandlerError, HandlerProvider, HandlerRegistry, IdRequest, IdResponse, LenRequest,
+    PatternRequest, RegisterHandlerRequest,
 };
 use edge_domain_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
@@ -30,7 +30,7 @@ fn test_echo_handler_id_and_pattern_set_correctly_happy() {
 fn test_echo_handler_reflects_request_happy() {
     let h = Prov::echo_handler("e", "/");
     let security = SecurityContext::unauthenticated();
-    let bus = StdCommandBusFactory::direct();
+    let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,
@@ -141,10 +141,7 @@ fn test_in_process_registry_empty_state_is_not_an_error_error() {
 fn test_noop_handler_factory_constructs_instance_happy() {
     use edge_domain_handler::NoopHandlerFactory;
     let f: NoopHandlerFactory = Prov::noop_handler_factory();
-    assert_eq!(
-        f.bootstrap_name(BootstrapNameRequest).unwrap().name,
-        "handler"
-    );
+    assert_eq!(std::mem::size_of_val(&f), 0);
 }
 
 /// @covers: HandlerProvider::noop_handler_factory — infallible (no error path; documents absence)
@@ -152,10 +149,7 @@ fn test_noop_handler_factory_constructs_instance_happy() {
 fn test_noop_handler_factory_is_always_infallible_error() {
     use edge_domain_handler::NoopHandlerFactory;
     let f: NoopHandlerFactory = Prov::noop_handler_factory();
-    assert_eq!(
-        f.bootstrap_name(BootstrapNameRequest).unwrap().name,
-        "handler"
-    );
+    assert_eq!(std::mem::size_of_val(&f), 0);
 }
 
 /// @covers: HandlerProvider::noop_handler_factory — Copy semantics allow multiple uses
@@ -164,6 +158,5 @@ fn test_noop_handler_factory_copy_allows_multiple_uses_edge() {
     use edge_domain_handler::NoopHandlerFactory;
     let f: NoopHandlerFactory = Prov::noop_handler_factory();
     let g = f; // Copy
-    let _r1 = NoopHandlerFactory::build(()).unwrap();
-    let _ = (f, g);
+    assert_eq!(std::mem::size_of_val(&f), std::mem::size_of_val(&g));
 }

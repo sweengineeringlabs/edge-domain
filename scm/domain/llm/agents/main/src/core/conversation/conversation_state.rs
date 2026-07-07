@@ -2,7 +2,7 @@ use crate::api::Message;
 
 /// Mutable conversation state threaded through a [`ConversationLoop`](crate::api::traits::ConversationLoop) run.
 ///
-/// This is the `Ctx` for the `edge-domain-pipeline` `Pipeline` that drives the loop — pure
+/// This is the `Ctx` for the `edge-pipeline` `Pipeline` that drives the loop — pure
 /// internal plumbing, never surfaced through any trait signature.
 #[derive(Debug, Clone)]
 pub(super) struct ConversationState {

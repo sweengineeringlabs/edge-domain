@@ -5,7 +5,7 @@
 //! with happy, error, and edge cases.
 
 use async_trait::async_trait;
-use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+use edge_domain_command::DirectCommandBus;
 use edge_domain_handler::{
     ExecutionRequest, Handler, HandlerContext, HandlerError, IdRequest, IdResponse,
 };
@@ -25,18 +25,17 @@ use edge_llm_agent::{
     SkillMetadataLookupRequest, SkillNameRequest, SkillParametersRequest,
 };
 use edge_llm_provider::{
-    EchoProviderCompleter, ModelInfo, Provider, ProviderBootstrap, ProviderConfig,
-    StdProviderFactory,
+    EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, StdProvider,
 };
 use std::sync::Arc;
 
 fn noop_provider() -> Arc<dyn Provider> {
-    StdProviderFactory::provider(
+    Arc::new(StdProvider::new(
         ProviderConfig::new("noop".to_string(), 0.0, 0),
-        Box::<ModelInfo>::default(),
+        ModelInfo::default(),
         Arc::new(EchoProviderCompleter),
         StdObserveFactory::noop_arc_observe_context(),
-    )
+    ))
 }
 
 // ============================================================================
@@ -603,7 +602,7 @@ fn test_description_agent_edge() {
 #[test]
 fn test_execute_skill_agent_happy() {
     let security = SecurityContext::unauthenticated();
-    let commands = StdCommandBusFactory::direct();
+    let commands = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,
@@ -623,7 +622,7 @@ fn test_execute_skill_agent_happy() {
 #[test]
 fn test_execute_skill_agent_error() {
     let security = SecurityContext::unauthenticated();
-    let commands = StdCommandBusFactory::direct();
+    let commands = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,
@@ -648,7 +647,7 @@ fn test_execute_skill_agent_error() {
 #[test]
 fn test_execute_skill_agent_edge() {
     let security = SecurityContext::unauthenticated();
-    let commands = StdCommandBusFactory::direct();
+    let commands = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,

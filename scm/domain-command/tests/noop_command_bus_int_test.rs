@@ -1,8 +1,7 @@
 //! Integration tests for `NoopCommandBus` — discards every command silently.
 
 use edge_domain_command::{
-    Command, CommandBus, CommandBusBootstrap, CommandDispatchRequest, CommandError,
-    ExecutionRequest, NoopCommandBus, StdCommandBusFactory,
+    Command, CommandBus, CommandDispatchRequest, CommandError, ExecutionRequest, NoopCommandBus,
 };
 use futures::executor::block_on;
 use futures::future::BoxFuture;
@@ -30,7 +29,7 @@ fn test_noop_command_bus_is_zero_sized_happy() {
 /// @covers: NoopCommandBus::dispatch — returns Ok for a successful command
 #[test]
 fn test_noop_command_bus_dispatch_ok_command_returns_ok_happy() {
-    let bus = StdCommandBusFactory::noop_bus();
+    let bus = NoopCommandBus;
     let result = block_on(bus.dispatch(CommandDispatchRequest {
         command: Box::new(Ok_),
     }));
@@ -40,7 +39,7 @@ fn test_noop_command_bus_dispatch_ok_command_returns_ok_happy() {
 /// @covers: NoopCommandBus::dispatch — returns Ok even for a failing command
 #[test]
 fn test_noop_command_bus_dispatch_error_command_still_returns_ok_error() {
-    let bus = StdCommandBusFactory::noop_bus();
+    let bus = NoopCommandBus;
     let result = block_on(bus.dispatch(CommandDispatchRequest {
         command: Box::new(Err_),
     }));

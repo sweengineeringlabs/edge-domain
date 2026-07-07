@@ -51,7 +51,7 @@ pub trait Handler: Send + Sync {
 mod tests {
     use super::*;
     use crate::api::handler::types::HandlerContext;
-    use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+    use edge_domain_command::DirectCommandBus;
     use edge_domain_observer::StdObserveFactory;
     use edge_security_runtime::SecurityContext;
 
@@ -85,7 +85,7 @@ mod tests {
     #[tokio::test]
     async fn test_execute_ok_handler_returns_response_happy() {
         let security = SecurityContext::unauthenticated();
-        let bus = StdCommandBusFactory::direct();
+        let bus = DirectCommandBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
             security: &security,
@@ -104,7 +104,7 @@ mod tests {
     #[tokio::test]
     async fn test_execute_failing_handler_returns_err_error() {
         let security = SecurityContext::unauthenticated();
-        let bus = StdCommandBusFactory::direct();
+        let bus = DirectCommandBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
             security: &security,

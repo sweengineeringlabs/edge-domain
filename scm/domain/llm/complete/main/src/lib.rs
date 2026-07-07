@@ -20,9 +20,9 @@ mod spi;
 pub use crate::api::CompletionStream;
 
 pub use saf::{
-    CacheableMessage, CompleteBootstrap, CompleteOps, Completer, CompleterHandler,
-    ContentFlattener, ModelOps, Processor, StreamOps, ToolCallLoop, ToolOps, ToolResultBatch,
-    Validator, CACHEABLE_MESSAGE_SVC, COMPLETER_HANDLER_SVC, COMPLETER_SVC, COMPLETE_FACTORY_SVC,
+    CacheableMessage, CompleteOps, Completer, CompleterHandler, ContentFlattener, ModelOps,
+    Processor, StreamOps, ToolCallLoop, ToolOps, ToolResultBatch, Validator,
+    CACHEABLE_MESSAGE_SVC, COMPLETER_HANDLER_SVC, COMPLETER_SVC, COMPLETE_FACTORY_SVC,
     COMPLETE_OPS_SVC, CONTENT_FLATTENER_SVC, MODEL_OPS_SVC, PROCESSOR_SVC, STREAM_OPS_SVC,
     TOOL_CALL_LOOP_SVC, TOOL_OPS_SVC, TOOL_RESULT_BATCH_SVC, VALIDATOR_SVC,
 };
@@ -30,24 +30,23 @@ pub use saf::{
 // Re-export SAF factory markers
 pub use saf::{
     CACHEABLE_MESSAGE_SVC_FACTORY, COMPLETER_HANDLER_SVC_FACTORY, COMPLETER_SVC_FACTORY,
-    COMPLETE_BOOTSTRAP_SVC_FACTORY, COMPLETE_OPS_SVC_FACTORY, CONTENT_FLATTENER_SVC_FACTORY,
-    MODEL_OPS_SVC_FACTORY, PROCESSOR_SVC_FACTORY, STREAM_OPS_SVC_FACTORY,
-    TOOL_CALL_LOOP_SVC_FACTORY, TOOL_OPS_SVC_FACTORY, TOOL_RESULT_BATCH_SVC_FACTORY,
-    VALIDATOR_SVC_FACTORY,
+    COMPLETE_OPS_SVC_FACTORY, CONTENT_FLATTENER_SVC_FACTORY, MODEL_OPS_SVC_FACTORY,
+    PROCESSOR_SVC_FACTORY, STREAM_OPS_SVC_FACTORY, TOOL_CALL_LOOP_SVC_FACTORY,
+    TOOL_OPS_SVC_FACTORY, TOOL_RESULT_BATCH_SVC_FACTORY, VALIDATOR_SVC_FACTORY,
 };
 
 // Re-export types used by provider and other consumer crates
 pub use crate::api::{
     BoundedToolCallLoop, CacheControl, CompleteError, CompletionRequest, CompletionResponse,
     ContentPart, EchoCompleter, FinishReason, ImageUrl, Message, MessageContent, ModelInfo,
-    NoopCompleter, Role, StdCompleteFactory, StreamChunk, StreamDelta, TokenUsage, ToolCall,
-    ToolCallDelta, ToolChoice, ToolDefinition,
+    NoopCompleter, Role, StreamChunk, StreamDelta, TokenUsage, ToolCall, ToolCallDelta, ToolChoice,
+    ToolDefinition,
 };
 
 // Re-export Request/Response envelope types used by trait method signatures
 pub use crate::api::{
     AvailableToolsRequest, AvailableToolsResponse, CacheControlRequest, CacheControlResponse,
-    CompleteBootstrapNameRequest, CompleteBootstrapNameResponse, CompleteRequest,
+    CompleteRequest,
     CompleterHealthCheckRequest, CompleterHealthCheckResponse, CompletionCheckRequest,
     CompletionStreamRequest, CompletionStreamResponse, DeltaApplicationRequest, DeltaMergeRequest,
     FlattenRequest, FlattenResponse, ListModelsRequest, ListModelsResponse, MarkEphemeralRequest,

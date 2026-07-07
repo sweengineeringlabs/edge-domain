@@ -1,14 +1,11 @@
-//! `PromptBootstrap` impl and dispatchable-handler constructors for `StdPromptFactory`.
+//! Dispatchable-handler constructors for `StdPromptFactory`.
 
 use std::sync::Arc;
 
 use edge_domain_handler::Handler;
 
-use crate::api::PromptBootstrap;
 use crate::api::{Prompt, PromptMetadata, RenderContext, StaticPrompt, StdPromptFactory};
 use crate::core::prompt::DefaultPromptHandler;
-
-impl PromptBootstrap for StdPromptFactory {}
 
 impl StdPromptFactory {
     /// Construct a dispatchable prompt handler backed by the given prompt.
@@ -36,7 +33,7 @@ impl StdPromptFactory {
 mod tests {
     use super::*;
     use crate::api::{Variable, VariableKind};
-    use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+    use edge_domain_command::DirectCommandBus;
     use edge_domain_handler::{ExecutionRequest, HandlerContext, IdRequest};
     use edge_domain_observer::StdObserveFactory;
     use edge_security_runtime::SecurityContext;
@@ -53,7 +50,7 @@ mod tests {
         let handler = StdPromptFactory::prompt_handler(prompt);
 
         let security: SecurityContext = SecurityContext::unauthenticated();
-        let commands = StdCommandBusFactory::direct();
+        let commands = DirectCommandBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
             security: &security,

@@ -2,7 +2,7 @@
 //! test-double implementation via the crate's public API.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+use edge_domain_command::DirectCommandBus;
 use edge_domain_handler::{
     ExecutionRequest, Handler, HandlerContext, HandlerError, HealthCheckRequest,
     HealthCheckResponse, IdRequest, PatternRequest,
@@ -45,7 +45,7 @@ impl Handler for FailingHandlerDouble {
 #[tokio::test]
 async fn test_execute_echo_returns_input_happy() {
     let security = SecurityContext::unauthenticated();
-    let bus = StdCommandBusFactory::direct();
+    let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,
@@ -65,7 +65,7 @@ async fn test_execute_echo_returns_input_happy() {
 #[tokio::test]
 async fn test_execute_failing_handler_returns_execution_failed_error() {
     let security = SecurityContext::unauthenticated();
-    let bus = StdCommandBusFactory::direct();
+    let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,

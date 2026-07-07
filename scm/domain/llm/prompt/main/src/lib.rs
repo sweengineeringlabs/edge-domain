@@ -17,7 +17,7 @@ mod spi;
 
 // Re-export SAF layer traits and factory markers
 pub use saf::{
-    ContextManager, Prompt, PromptBootstrap, TemplateProvider, TokenCounter, CONTEXT_MANAGER_SVC,
+    ContextManager, Prompt, TemplateProvider, TokenCounter, CONTEXT_MANAGER_SVC,
     PROMPT_FACTORY_SVC, PROMPT_SVC, TEMPLATE_PROVIDER_SVC, TOKEN_COUNTER_SVC,
 };
 pub use saf::{
@@ -39,7 +39,7 @@ pub use api::{
     CompletenessResponse, ContextBuildRequest, ContextBuildResponse, CountTokensRequest,
     CountTokensResponse, EstimateTokensRequest, EstimateTokensResponse, ExactnessRequest,
     ExactnessResponse, ListByCategoryRequest, ListByCategoryResponse, ListTemplatesRequest,
-    ListTemplatesResponse, PromptBootstrapNameRequest, PromptBootstrapNameResponse,
+    ListTemplatesResponse,
     PromptMetadataRequest, PromptMetadataResponse, PromptVariableKindRequest,
     PromptVariableKindResponse, RegisterVariableRequest, RenderRequest, RenderResponse,
     TemplateLookupRequest, TemplateLookupResponse, TemplateValidationRequest, TokenizerNameRequest,

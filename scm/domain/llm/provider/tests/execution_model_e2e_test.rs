@@ -2,14 +2,13 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_provider::{
-    ExecutionConfig, ExecutionConfigLookupRequest, ExecutionMode, ExecutionModeLookupRequest,
-    ExecutionModel, ExecutionReadinessRequest, ProviderBootstrap, StdProviderFactory,
-    StepExecutionRequest,
+    EchoExecutionModel, ExecutionConfig, ExecutionConfigLookupRequest, ExecutionMode,
+    ExecutionModeLookupRequest, ExecutionModel, ExecutionReadinessRequest, StepExecutionRequest,
 };
 use futures::executor::block_on;
 
 fn model(max_tokens: u32, mode: ExecutionMode) -> impl ExecutionModel {
-    StdProviderFactory::execution_model(ExecutionConfig::new(max_tokens, 30_000, true, false, mode))
+    EchoExecutionModel::new(ExecutionConfig::new(max_tokens, 30_000, true, false, mode))
 }
 
 // --- execute_step ---

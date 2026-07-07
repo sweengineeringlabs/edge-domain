@@ -30,6 +30,18 @@ fn test_bootstrap_name_matches_expected_value_edge() {
     );
 }
 
+/// @covers: HandlerProvider::bootstrap_name — no error path exists; documents the absence
+/// by asserting the second of two independent calls still returns the expected value.
+#[test]
+fn test_bootstrap_name_is_idempotent_error() {
+    let p = ProviderDouble;
+    let _first = p.bootstrap_name(BootstrapNameRequest).unwrap();
+    assert_eq!(
+        p.bootstrap_name(BootstrapNameRequest).unwrap().name,
+        "handler_provider"
+    );
+}
+
 /// @covers: HandlerProvider::echo_handler
 #[test]
 fn test_echo_handler_creates_handler_with_id_and_pattern_happy() {
@@ -41,12 +53,8 @@ fn test_echo_handler_creates_handler_with_id_and_pattern_happy() {
 /// @covers: HandlerProvider::noop_handler_factory
 #[test]
 fn test_noop_handler_factory_constructs_instance_edge() {
-    use edge_domain_handler::HandlerBootstrap;
     let f = ProviderDouble::noop_handler_factory();
-    assert_eq!(
-        f.bootstrap_name(BootstrapNameRequest).unwrap().name,
-        "handler"
-    );
+    assert_eq!(std::mem::size_of_val(&f), 0);
 }
 
 /// @covers: HandlerProvider::in_process_registry

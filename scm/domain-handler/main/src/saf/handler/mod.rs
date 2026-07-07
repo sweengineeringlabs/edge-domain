@@ -1,5 +1,3 @@
-mod handler_bootstrap_svc;
-mod handler_bootstrap_svc_factory;
 mod handler_provider_svc;
 mod handler_provider_svc_factory;
 mod handler_registry_svc;
@@ -11,8 +9,6 @@ mod registry;
 mod service;
 mod validator;
 
-pub use handler_bootstrap_svc::HANDLER_BOOTSTRAP_SVC;
-pub use handler_bootstrap_svc_factory::HANDLER_BOOTSTRAP_SVC_FACTORY;
 pub use handler_provider_svc::HANDLER_PROVIDER_SVC;
 pub use handler_provider_svc_factory::HANDLER_PROVIDER_SVC_FACTORY;
 pub use handler_registry_svc::HANDLER_REGISTRY_SVC;

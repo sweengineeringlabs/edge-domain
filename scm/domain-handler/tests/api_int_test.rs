@@ -9,7 +9,7 @@ use std::sync::Arc;
 use edge_domain_handler::{
     BootstrapNameRequest, BootstrapNameResponse, BridgeRequest, BridgeResponse,
     DeregisterHandlerRequest, DeregisterHandlerResponse, EmptinessRequest, EmptinessResponse,
-    ExecutionRequest, Handler, HandlerBuildResponse, HandlerContext, HandlerError,
+    ExecutionRequest, Handler, HandlerContext, HandlerError,
     HandlerLookupRequest, HandlerLookupResponse, HandlerRegistry, HealthCheckRequest,
     HealthCheckResponse, IdRequest, IdResponse, InProcessHandlerRegistry, IntoHandlerRequest,
     IntoHandlerResponse, LenRequest, LenResponse, ListIdsRequest, ListIdsResponse, PatternRequest,
@@ -210,15 +210,6 @@ fn test_pattern_response_holds_pattern_happy() {
 fn test_into_handler_response_holds_handler_happy() {
     let r = IntoHandlerResponse { handler: 42u32 };
     assert_eq!(r.handler, 42);
-}
-
-/// @covers: HandlerBuildResponse
-#[test]
-fn test_handler_build_response_holds_handler_happy() {
-    let r = HandlerBuildResponse {
-        handler: "built".to_string(),
-    };
-    assert_eq!(r.handler, "built");
 }
 
 /// @covers: HandlerLookupRequest

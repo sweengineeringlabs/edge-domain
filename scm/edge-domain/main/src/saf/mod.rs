@@ -93,7 +93,6 @@ pub use edge_domain_policy::PolicyNameResponse;
 // ── command (sub-crate when feature enabled) ──────────────────────────────────
 #[cfg(feature = "command")]
 pub use edge_domain_command::Command;
-pub use edge_domain_command::CommandBusBootstrap;
 pub use edge_domain_command::CommandError;
 
 // ── query (sub-crate when feature enabled) ────────────────────────────────────
@@ -147,7 +146,6 @@ pub use edge_domain_repository::SPEC_SVC_FACTORY;
 
 // ── handler (sub-crate when feature enabled) ──────────────────────────────────
 #[cfg(feature = "handler")]
-pub use edge_domain_handler::HandlerBootstrap;
 pub use edge_domain_handler::HandlerContext;
 pub use edge_domain_handler::HandlerError;
 pub use edge_domain_handler::HandlerProvider;
@@ -156,7 +154,6 @@ pub use edge_domain_handler::HandlerProvider;
 #[cfg(feature = "event")]
 pub use edge_domain_event::ClosedEventSource;
 pub use edge_domain_event::EventEnvelope;
-pub use edge_domain_event::EventReceiver;
 pub use edge_domain_event::EventSource;
 pub use edge_domain_event::ExpectedVersion;
 
@@ -221,7 +218,6 @@ pub use edge_domain_registry::InMemoryRegistry;
 #[cfg(feature = "registry")]
 pub use edge_domain_registry::Registry;
 #[cfg(feature = "registry")]
-pub use edge_domain_registry::RegistryBootstrap;
 #[cfg(feature = "registry")]
 pub use edge_domain_registry::RegistryError;
 

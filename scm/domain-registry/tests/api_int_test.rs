@@ -7,20 +7,12 @@
 use std::sync::Arc;
 
 use edge_domain_registry::{
-    BootstrapNameRequest, BootstrapNameResponse, DeregisterRequest, DeregisterResponse,
-    EmptinessRequest, EmptinessResponse, LenRequest, LenResponse, ListIdsRequest, ListIdsResponse,
-    RegisterRequest, RegisterResponse, RegistryLookupRequest, RegistryLookupResponse,
-    TryRegisterRequest, TryRegisterResponse,
+    DeregisterRequest, DeregisterResponse, EmptinessRequest, EmptinessResponse, LenRequest,
+    LenResponse, ListIdsRequest, ListIdsResponse, RegisterRequest, RegisterResponse,
+    RegistryLookupRequest, RegistryLookupResponse, TryRegisterRequest, TryRegisterResponse,
 };
 
 // --- zero-sized marker request types ---
-
-/// @covers: BootstrapNameRequest
-#[test]
-fn test_bootstrap_name_request_is_zero_sized_happy() {
-    assert_eq!(std::mem::size_of::<BootstrapNameRequest>(), 0);
-    let _ = BootstrapNameRequest;
-}
 
 /// @covers: EmptinessRequest
 #[test]
@@ -58,13 +50,6 @@ fn test_try_register_response_is_zero_sized_edge() {
 }
 
 // --- field-carrying request/response types ---
-
-/// @covers: BootstrapNameResponse
-#[test]
-fn test_bootstrap_name_response_holds_name_happy() {
-    let r = BootstrapNameResponse { name: "svc" };
-    assert_eq!(r.name, "svc");
-}
 
 /// @covers: DeregisterRequest
 #[test]

@@ -58,7 +58,6 @@ pub trait HandlerProvider {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::api::handler::traits::handler_bootstrap::HandlerBootstrap;
 
     struct Prov;
     impl HandlerProvider for Prov {}
@@ -110,10 +109,7 @@ mod tests {
     #[test]
     fn test_noop_handler_factory_constructs_instance_edge() {
         let f: NoopHandlerFactory = Prov::noop_handler_factory();
-        assert_eq!(
-            f.bootstrap_name(BootstrapNameRequest).unwrap().name,
-            "handler"
-        );
+        assert_eq!(std::mem::size_of_val(&f), 0);
     }
 
     /// @covers: default_bridge

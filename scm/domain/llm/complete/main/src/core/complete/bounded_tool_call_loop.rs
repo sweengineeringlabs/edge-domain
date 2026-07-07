@@ -100,6 +100,18 @@ impl ToolCallLoop for BoundedToolCallLoop {
 }
 
 impl BoundedToolCallLoop {
+    /// Compose one [`Completer`](crate::api::Completer) and one
+    /// [`ToolOps`](crate::api::ToolOps) into a bounded tool-call loop.
+    pub fn new(
+        completer: Arc<dyn crate::api::Completer>,
+        tool_ops: Arc<dyn crate::api::ToolOps>,
+    ) -> Self {
+        Self {
+            completer,
+            tool_ops,
+        }
+    }
+
     fn map_parallel_error(err: ParallelStepError<CompleteError>) -> CompleteError {
         for failure in err.failures {
             if let ParallelBranchFailure::Failed(step_err) = failure {
