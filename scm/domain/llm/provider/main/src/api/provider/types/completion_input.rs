@@ -4,7 +4,11 @@ use crate::api::provider::types::{CompletionMessage, ExecutionConfig, ToolDefini
 
 /// Structured input for a single completion or streaming request.
 ///
-/// Passed to [`crate::Provider::complete`] and [`crate::Provider::stream`].
+/// Orphan-type note: `Provider`'s current trait methods don't take this type directly (no
+/// `complete`/`stream` methods exist on the trait) — it's constructed by callers and passed to
+/// `edge_llm_complete::Completer` implementations instead. Plain data struct, no interface
+/// behind it — inventing a trait solely to reference it would be ceremony with no real
+/// polymorphism.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct CompletionInput {
     /// Ordered conversation history (user / assistant / tool turns).

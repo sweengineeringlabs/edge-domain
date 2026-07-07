@@ -5,7 +5,7 @@ use futures::future::BoxFuture;
 use crate::api::EventError;
 use crate::api::{EventBus, EventSource};
 use crate::api::{
-    EventBusPublishRequest, EventBusSubscribeRequest, EventBusSubscribeResponse, EventReceiver,
+    EventBusPublishRequest, EventBusSubscribeRequest, EventBusSubscribeResponse,
     EventSourceRecvNextRequest, EventSourceRecvNextResponse, NoopEventBus,
 };
 
@@ -31,7 +31,7 @@ impl EventBus for NoopEventBus {
         _req: EventBusSubscribeRequest,
     ) -> Result<EventBusSubscribeResponse, EventError> {
         Ok(EventBusSubscribeResponse {
-            receiver: EventReceiver::new(NoopEventBusSource),
+            receiver: Box::new(NoopEventBusSource),
         })
     }
 }

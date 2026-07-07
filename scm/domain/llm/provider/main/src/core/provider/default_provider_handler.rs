@@ -74,7 +74,7 @@ impl Handler for DefaultProviderHandler {
 mod tests {
     use super::*;
     use crate::api::{EchoExecutionModel, ExecutionConfig, ExecutionMode};
-    use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+    use edge_domain_command::DirectCommandBus;
     use edge_domain_handler::HandlerContext;
     use edge_domain_observer::StdObserveFactory;
     use edge_security_runtime::SecurityContext;
@@ -90,7 +90,7 @@ mod tests {
     #[test]
     fn test_execute_returns_reasoning_containing_goal_happy() {
         let security: SecurityContext = SecurityContext::unauthenticated();
-        let commands = StdCommandBusFactory::direct();
+        let commands = DirectCommandBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
             security: &security,
@@ -111,7 +111,7 @@ mod tests {
     #[test]
     fn test_execute_opens_and_finishes_span_happy() {
         let security: SecurityContext = SecurityContext::unauthenticated();
-        let commands = StdCommandBusFactory::direct();
+        let commands = DirectCommandBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
             security: &security,

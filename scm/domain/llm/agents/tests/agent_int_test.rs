@@ -2,7 +2,7 @@
 //! Integration tests — `Agent` trait.
 
 use async_trait::async_trait;
-use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+use edge_domain_command::DirectCommandBus;
 use edge_domain_handler::HandlerContext;
 use edge_domain_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
@@ -14,17 +14,17 @@ use edge_llm_agent::{
 };
 use edge_llm_provider::{
     CompleterRequest, EchoProviderCompleter, HealthCheckRequest, ModelInfo, Provider,
-    ProviderBootstrap, ProviderConfig, StdProviderFactory,
+    ProviderConfig, StdProvider,
 };
 use std::sync::Arc;
 
 fn noop_provider() -> Arc<dyn Provider> {
-    StdProviderFactory::provider(
+    Arc::new(StdProvider::new(
         ProviderConfig::new("noop".to_string(), 0.0, 0),
-        Box::<ModelInfo>::default(),
+        ModelInfo::default(),
         Arc::new(EchoProviderCompleter),
         StdObserveFactory::noop_arc_observe_context(),
-    )
+    ))
 }
 
 struct SuccessAgent;
@@ -175,7 +175,7 @@ fn test_trait_agent_happy_description_returns_configured_description() {
 #[test]
 fn test_trait_agent_happy_execute_skill_success_returns_ok_response() {
     let security = SecurityContext::unauthenticated();
-    let commands = StdCommandBusFactory::direct();
+    let commands = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,
@@ -195,7 +195,7 @@ fn test_trait_agent_happy_execute_skill_success_returns_ok_response() {
 #[test]
 fn test_trait_agent_error_execute_skill_failure_returns_execution_failed() {
     let security = SecurityContext::unauthenticated();
-    let commands = StdCommandBusFactory::direct();
+    let commands = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,
@@ -220,7 +220,7 @@ fn test_trait_agent_error_execute_skill_failure_returns_execution_failed() {
 #[test]
 fn test_trait_agent_happy_execute_skill_preserves_input() {
     let security = SecurityContext::unauthenticated();
-    let commands = StdCommandBusFactory::direct();
+    let commands = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,

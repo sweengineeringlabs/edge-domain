@@ -8,8 +8,7 @@ use edge_llm_prompt::{
     CompletenessResponse, ContextBuildRequest, ContextBuildResponse, CountTokensRequest,
     CountTokensResponse, EstimateTokensRequest, EstimateTokensResponse, ExactnessRequest,
     ExactnessResponse, JsonValue, ListByCategoryRequest, ListByCategoryResponse,
-    ListTemplatesRequest, ListTemplatesResponse, PromptBootstrapNameRequest,
-    PromptBootstrapNameResponse, PromptMetadataRequest, PromptMetadataResponse,
+    ListTemplatesRequest, ListTemplatesResponse, PromptMetadataRequest, PromptMetadataResponse,
     PromptVariableKindRequest, PromptVariableKindResponse, RegisterVariableRequest, RenderContext,
     RenderRequest, RenderResponse, TemplateLookupRequest, TemplateLookupResponse,
     TemplateValidationRequest, TokenizerNameRequest, TokenizerNameResponse, Variable, VariableKind,
@@ -126,19 +125,6 @@ fn test_list_templates_request_is_unit() {
 fn test_list_templates_response_holds_templates() {
     let resp = ListTemplatesResponse { templates: vec![] };
     assert!(resp.templates.is_empty());
-}
-
-#[test]
-fn test_prompt_bootstrap_name_request_is_unit() {
-    assert_eq!(std::mem::size_of_val(&PromptBootstrapNameRequest), 0);
-}
-
-#[test]
-fn test_prompt_bootstrap_name_response_holds_name() {
-    assert_eq!(
-        PromptBootstrapNameResponse { name: "prompt" }.name,
-        "prompt"
-    );
 }
 
 #[test]

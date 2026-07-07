@@ -1,5 +1,5 @@
 //! `DefaultConversationTurnStep` — bridges one conversation turn into
-//! `edge-domain-pipeline`'s foreign `Step` contract.
+//! `edge-pipeline`'s foreign `Step` contract.
 
 use std::sync::Arc;
 
@@ -200,7 +200,7 @@ mod tests {
         AgentNameRequest, AgentNameResponse, AgentProviderResponse, AgentSkillsRequest,
         AgentSkillsResponse, SkillExecutionResponse,
     };
-    use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+    use edge_domain_command::DirectCommandBus;
     use edge_domain_observer::StdObserveFactory;
     use edge_security_runtime::SecurityContext;
     use futures::executor::block_on;
@@ -247,7 +247,7 @@ mod tests {
     fn owned_handler_context() -> OwnedHandlerContext {
         OwnedHandlerContext {
             security: SecurityContext::unauthenticated(),
-            commands: Arc::new(StdCommandBusFactory::direct()),
+            commands: Arc::new(DirectCommandBus),
             observer: StdObserveFactory::noop_observer_context(),
         }
     }

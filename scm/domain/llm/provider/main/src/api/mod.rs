@@ -10,7 +10,7 @@ pub use provider::{
     ModelFamily, ModelFamilyRequest, ModelFamilyResponse, ModelInfo, ModelInfoLookupRequest,
     ModelInfoResponse, NextChunkRequest, NextChunkResponse, OauthTokenSourceError,
     OauthTokenSourceResolver, PendingToolCallRequest, PendingToolCallResponse, Provider,
-    ProviderBootstrap, ProviderBootstrapNameRequest, ProviderBootstrapNameResponse, ProviderConfig,
+    ProviderConfig,
     ProviderConfigLookupRequest, ProviderConfigResponse, ProviderNameRequest, ProviderNameResponse,
     StdProvider, StdProviderFactory, StepExecutionRequest, StepExecutionResponse, StreamChunk,
     StreamDelta, StreamHandler, TokenSourceFileRequest, TokenSourceInitResponse, TokenUsage,

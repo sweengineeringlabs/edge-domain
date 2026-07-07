@@ -54,9 +54,10 @@ where
     }
 }
 
-impl<Req: Send + 'static, Resp: Send + 'static> HandlerRegistry
-    for InProcessHandlerRegistry<Req, Resp>
-{
+// SEA no_orphan_types exemption detection needs "HandlerRegistry for InProcessHandlerRegistry"
+// on one line — a wrapped signature reads as an orphan type despite this being a real impl.
+#[rustfmt::skip]
+impl<Req: Send + 'static, Resp: Send + 'static> HandlerRegistry for InProcessHandlerRegistry<Req, Resp> {
     type Request = Req;
     type Response = Resp;
 

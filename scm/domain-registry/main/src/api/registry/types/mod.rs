@@ -1,5 +1,3 @@
-pub mod bootstrap_name_request;
-pub mod bootstrap_name_response;
 pub mod deregister_request;
 pub mod deregister_response;
 pub mod emptiness_request;
@@ -13,12 +11,9 @@ pub mod register_request;
 pub mod register_response;
 pub mod registry_lookup_request;
 pub mod registry_lookup_response;
-pub mod std_registry_factory;
 pub mod try_register_request;
 pub mod try_register_response;
 
-pub use bootstrap_name_request::BootstrapNameRequest;
-pub use bootstrap_name_response::BootstrapNameResponse;
 pub use deregister_request::DeregisterRequest;
 pub use deregister_response::DeregisterResponse;
 pub use emptiness_request::EmptinessRequest;
@@ -32,6 +27,5 @@ pub use register_request::RegisterRequest;
 pub use register_response::RegisterResponse;
 pub use registry_lookup_request::RegistryLookupRequest;
 pub use registry_lookup_response::RegistryLookupResponse;
-pub use std_registry_factory::StdRegistryFactory;
 pub use try_register_request::TryRegisterRequest;
 pub use try_register_response::TryRegisterResponse;

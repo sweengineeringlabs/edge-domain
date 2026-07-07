@@ -1,8 +1,7 @@
 //! Integration tests for `DirectCommandBus` — the zero-size in-process command bus marker.
 
 use edge_domain_command::{
-    Command, CommandBus, CommandBusBootstrap, CommandDispatchRequest, CommandError,
-    DirectCommandBus, ExecutionRequest, StdCommandBusFactory,
+    Command, CommandBus, CommandDispatchRequest, CommandError, DirectCommandBus, ExecutionRequest,
 };
 use futures::executor::block_on;
 use futures::future::BoxFuture;
@@ -30,7 +29,7 @@ fn test_direct_command_bus_is_zero_sized_happy() {
 /// @covers: DirectCommandBus — dispatches failing command
 #[test]
 fn test_direct_command_bus_dispatch_error_command_returns_err_error() {
-    let bus = StdCommandBusFactory::direct();
+    let bus = DirectCommandBus;
     let result = block_on(bus.dispatch(CommandDispatchRequest {
         command: Box::new(Err_),
     }));
@@ -40,7 +39,7 @@ fn test_direct_command_bus_dispatch_error_command_returns_err_error() {
 /// @covers: DirectCommandBus — usable as a `&dyn CommandBus`
 #[test]
 fn test_direct_command_bus_dyn_dispatch_returns_ok_edge() {
-    let bus = StdCommandBusFactory::direct();
+    let bus = DirectCommandBus;
     let bus_ref: &dyn CommandBus = &bus;
     let result = block_on(bus_ref.dispatch(CommandDispatchRequest {
         command: Box::new(Ok_),

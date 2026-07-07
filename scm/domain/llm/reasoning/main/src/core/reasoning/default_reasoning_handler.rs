@@ -82,7 +82,7 @@ impl DefaultReasoningHandler {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+    use edge_domain_command::DirectCommandBus;
     use edge_domain_handler::HandlerContext;
     use edge_domain_observer::StdObserveFactory;
     use edge_security_runtime::SecurityContext;
@@ -97,7 +97,7 @@ mod tests {
     #[test]
     fn test_handler_execute_returns_complete_process_happy() {
         let security: SecurityContext = SecurityContext::unauthenticated();
-        let commands = StdCommandBusFactory::direct();
+        let commands = DirectCommandBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
             security: &security,
@@ -137,7 +137,7 @@ mod tests {
     #[test]
     fn test_handler_execute_blank_problem_error() {
         let security: SecurityContext = SecurityContext::unauthenticated();
-        let commands = StdCommandBusFactory::direct();
+        let commands = DirectCommandBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
             security: &security,

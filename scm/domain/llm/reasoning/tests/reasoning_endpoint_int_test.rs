@@ -1,7 +1,7 @@
 //! Handler integration tests — `reasoning_handler` as a dispatchable `Handler`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+use edge_domain_command::DirectCommandBus;
 use edge_domain_handler::{ExecutionRequest, Handler, HandlerContext, IdRequest, PatternRequest};
 use edge_domain_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
@@ -13,7 +13,7 @@ use futures::executor::block_on;
 fn test_handler_execute_returns_complete_process_happy() {
     let h = StdReasoningFactory::default_reasoning_handler(ReasoningPattern::ChainOfThought);
     let security: SecurityContext = SecurityContext::unauthenticated();
-    let commands = StdCommandBusFactory::direct();
+    let commands = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,
@@ -59,7 +59,7 @@ fn test_handler_pattern_is_stable_edge() {
 fn test_handler_execute_blank_problem_errors_error() {
     let h = StdReasoningFactory::default_reasoning_handler(ReasoningPattern::ChainOfThought);
     let security: SecurityContext = SecurityContext::unauthenticated();
-    let commands = StdCommandBusFactory::direct();
+    let commands = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,

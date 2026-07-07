@@ -5,7 +5,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+use edge_domain_command::DirectCommandBus;
 use edge_domain_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
 use edge_llm_agent::{
@@ -21,9 +21,7 @@ use edge_llm_complete::{
     ModelInfoRequest, ModelInfoResponse as CompleteModelInfoResponse, SupportedModelsRequest,
     SupportedModelsResponse, ToolCall,
 };
-use edge_llm_provider::{
-    ModelInfo, Provider, ProviderBootstrap, ProviderConfig, StdProviderFactory,
-};
+use edge_llm_provider::{ModelInfo, Provider, ProviderConfig, StdProvider};
 use futures::executor::block_on;
 
 struct ScriptedCompleter {
@@ -74,18 +72,18 @@ impl Completer for ScriptedCompleter {
 }
 
 fn provider_with(responses: Vec<CompletionResponse>) -> Arc<dyn Provider> {
-    StdProviderFactory::provider(
+    Arc::new(StdProvider::new(
         ProviderConfig::new("test".to_string(), 0.0, 0),
-        Box::new(ModelInfo {
+        ModelInfo {
             id: "test-model".to_string(),
             ..Default::default()
-        }),
+        },
         Arc::new(ScriptedCompleter {
             responses,
             calls: AtomicUsize::new(0),
         }),
         StdObserveFactory::noop_arc_observe_context(),
-    )
+    ))
 }
 
 fn stop_response(content: &str) -> CompletionResponse {
@@ -166,7 +164,7 @@ fn run_request(max_turns: u32) -> ConversationRunRequest {
         max_turns,
         handler_context: Box::new(OwnedHandlerContext {
             security: SecurityContext::unauthenticated(),
-            commands: Arc::new(StdCommandBusFactory::direct()),
+            commands: Arc::new(DirectCommandBus),
             observer: StdObserveFactory::noop_observer_context(),
         }),
     }

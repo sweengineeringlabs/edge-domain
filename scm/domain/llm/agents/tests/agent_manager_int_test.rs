@@ -2,7 +2,7 @@
 //! Integration tests — `AgentManager` trait.
 
 use async_trait::async_trait;
-use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+use edge_domain_command::DirectCommandBus;
 use edge_domain_handler::{ExecutionRequest, Handler, HandlerError};
 use edge_domain_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
@@ -15,8 +15,7 @@ use edge_llm_agent::{
     ListAgentIdsResponse, SkillExecutionRequest, SkillExecutionResponse,
 };
 use edge_llm_provider::{
-    EchoProviderCompleter, ModelInfo, Provider, ProviderBootstrap, ProviderConfig,
-    StdProviderFactory,
+    EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, StdProvider,
 };
 use std::sync::Arc;
 
@@ -31,12 +30,12 @@ impl Handler for InlineHandler {
 }
 
 fn noop_provider() -> Arc<dyn Provider> {
-    StdProviderFactory::provider(
+    Arc::new(StdProvider::new(
         ProviderConfig::new("noop".to_string(), 0.0, 0),
-        Box::<ModelInfo>::default(),
+        ModelInfo::default(),
         Arc::new(EchoProviderCompleter),
         StdObserveFactory::noop_arc_observe_context(),
-    )
+    ))
 }
 
 struct TestManager {
@@ -378,7 +377,7 @@ fn test_conversation_loop_scenario_happy() {
             max_turns: 0,
             handler_context: Box::new(edge_llm_agent::OwnedHandlerContext {
                 security: SecurityContext::unauthenticated(),
-                commands: Arc::new(StdCommandBusFactory::direct()),
+                commands: Arc::new(DirectCommandBus),
                 observer: StdObserveFactory::noop_observer_context(),
             }),
         },
@@ -411,7 +410,7 @@ fn test_conversation_loop_scenario_edge() {
                 max_turns: 0,
                 handler_context: Box::new(edge_llm_agent::OwnedHandlerContext {
                     security: SecurityContext::unauthenticated(),
-                    commands: Arc::new(StdCommandBusFactory::direct()),
+                    commands: Arc::new(DirectCommandBus),
                     observer: StdObserveFactory::noop_observer_context(),
                 }),
             },

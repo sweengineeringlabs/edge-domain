@@ -2,7 +2,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_prompt::{
-    ListByCategoryRequest, ListTemplatesRequest, PromptBootstrap, PromptTemplate, StdPromptFactory,
+    CatalogTemplateProvider, ListByCategoryRequest, ListTemplatesRequest, PromptTemplate,
     TemplateLookupRequest, TemplateProvider, TEMPLATE_PROVIDER_SVC,
 };
 
@@ -11,7 +11,7 @@ fn template(id: &str, category: &str) -> PromptTemplate {
 }
 
 fn provider() -> impl TemplateProvider {
-    let mut p = StdPromptFactory::template_provider();
+    let mut p = CatalogTemplateProvider::new();
     p.insert(template("code-review", "code"));
     p.insert(template("refactor", "code"));
     p.insert(template("explain", "general"));
@@ -53,7 +53,7 @@ fn test_get_template_unknown_id_error() {
 /// @covers: TemplateProvider::get_template — empty registry returns None
 #[test]
 fn test_get_template_empty_registry_edge() {
-    let empty = StdPromptFactory::template_provider();
+    let empty = CatalogTemplateProvider::new();
     assert!(empty
         .get_template(TemplateLookupRequest { id: "code-review" })
         .expect("get ok")
@@ -79,7 +79,7 @@ fn test_list_templates_returns_all_happy() {
 /// @covers: TemplateProvider::list_templates — empty registry yields an empty list
 #[test]
 fn test_list_templates_empty_registry_error() {
-    let empty = StdPromptFactory::template_provider();
+    let empty = CatalogTemplateProvider::new();
     assert!(empty
         .list_templates(ListTemplatesRequest)
         .expect("list ok")
@@ -90,7 +90,7 @@ fn test_list_templates_empty_registry_error() {
 /// @covers: TemplateProvider::list_templates — a duplicate id collapses to one entry
 #[test]
 fn test_list_templates_duplicate_id_collapses_edge() {
-    let mut p = StdPromptFactory::template_provider();
+    let mut p = CatalogTemplateProvider::new();
     p.insert(template("dup", "code"));
     p.insert(template("dup", "general"));
     assert_eq!(
@@ -129,7 +129,7 @@ fn test_list_by_category_unknown_category_error() {
 /// @covers: TemplateProvider::list_by_category — empty registry is empty
 #[test]
 fn test_list_by_category_empty_registry_edge() {
-    let empty = StdPromptFactory::template_provider();
+    let empty = CatalogTemplateProvider::new();
     assert!(empty
         .list_by_category(ListByCategoryRequest { category: "code" })
         .expect("list ok")

@@ -1,4 +1,4 @@
-//! `DefaultToolCallStep` — bridges one `ToolOps::execute` call into `edge-domain-pipeline`'s
+//! `DefaultToolCallStep` — bridges one `ToolOps::execute` call into `edge-pipeline`'s
 //! `Step` contract, one branch of a per-turn `ParallelStep` fan-out.
 //!
 //! The success path is exercised via `BoundedToolCallLoop::run()`'s own coverage

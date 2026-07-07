@@ -2,9 +2,8 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_prompt::{
-    CacheBuildRequest, Prompt, PromptBootstrap, PromptMetadata, PromptMetadataRequest,
-    PromptVariableKindRequest, RenderContext, RenderRequest, StdPromptFactory,
-    TemplateValidationRequest, Variable, VariableKind,
+    CacheBuildRequest, Prompt, PromptMetadata, PromptMetadataRequest, PromptVariableKindRequest,
+    RenderContext, RenderRequest, StaticPrompt, TemplateValidationRequest, Variable, VariableKind,
 };
 use futures::executor::block_on;
 
@@ -15,7 +14,7 @@ fn prompt_with(template: &str, vars: Vec<Variable>) -> impl Prompt {
         "1".to_string(),
         vars,
     );
-    StdPromptFactory::prompt(template.to_string(), metadata)
+    StaticPrompt::new(template.to_string(), metadata)
 }
 
 fn required(name: &str) -> Variable {

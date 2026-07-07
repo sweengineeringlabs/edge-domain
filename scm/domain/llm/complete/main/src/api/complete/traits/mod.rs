@@ -1,7 +1,6 @@
 //! Complete domain trait contracts.
 
 pub mod cacheable_message;
-pub mod complete_bootstrap;
 pub mod complete_ops;
 pub mod completer;
 pub mod completer_handler;
@@ -16,7 +15,6 @@ pub mod tool_result_batch;
 pub mod validator;
 
 pub use cacheable_message::CacheableMessage;
-pub use complete_bootstrap::CompleteBootstrap;
 pub use complete_ops::CompleteOps;
 pub use completer::Completer;
 pub use completer_handler::CompleterHandler;

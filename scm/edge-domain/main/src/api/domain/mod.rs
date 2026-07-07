@@ -6,6 +6,5 @@ pub mod types;
 
 pub use errors::DomainError;
 pub use traits::{
-    Domain, DomainBootstrap, DomainBootstrapNameRequest, DomainBootstrapNameResponse,
-    DomainExtension, DomainExtensionHealthRequest, NoopDomainExtension, OutboundRegistry,
+    Domain, DomainExtension, DomainExtensionHealthRequest, NoopDomainExtension, OutboundRegistry,
 };

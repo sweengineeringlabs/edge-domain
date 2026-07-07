@@ -1,8 +1,8 @@
-//! Coverage for api/event/types/event/event_receiver.rs
+//! Coverage for `EventSource::recv` (api/event/traits/event_source.rs)
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 use edge_domain::{
     Domain, DomainEvent, EventBusConfig, EventBusPublishRequest, EventBusSubscribeRequest,
-    EventReceiver,
+    EventSource, EventSourceRecvNextRequest,
 };
 use futures::executor::block_on;
 use std::sync::Arc;
@@ -14,7 +14,7 @@ impl DomainEvent for TestEvent {}
 fn test_event_receiver_subscribe_returns_receiver_happy() {
     block_on(async {
         let bus = Domain::in_process_event_bus(EventBusConfig::default());
-        let rx: EventReceiver = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
+        let rx: Box<dyn EventSource> = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         drop(rx);
     });
 }
@@ -32,7 +32,10 @@ fn test_event_receiver_recv_after_publish_returns_ok_happy() {
             .is_ok(),
             "publish should succeed"
         );
-        assert!(rx.recv().await.is_ok(), "receiver should get event");
+        assert!(
+            rx.recv_next(EventSourceRecvNextRequest).await.is_ok(),
+            "receiver should get event"
+        );
     });
 }
 
@@ -42,7 +45,7 @@ fn test_event_receiver_recv_without_publish_returns_err_when_bus_dropped_edge() 
         let bus = Domain::in_process_event_bus(EventBusConfig::default());
         let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         drop(bus);
-        assert!(rx.recv().await.is_err());
+        assert!(rx.recv_next(EventSourceRecvNextRequest).await.is_err());
     });
 }
 
@@ -60,7 +63,13 @@ fn test_event_receiver_multiple_subscribers_both_receive_event_happy() {
             .is_ok(),
             "publish should succeed"
         );
-        assert!(rx1.recv().await.is_ok(), "first receiver should get event");
-        assert!(rx2.recv().await.is_ok(), "second receiver should get event");
+        assert!(
+            rx1.recv_next(EventSourceRecvNextRequest).await.is_ok(),
+            "first receiver should get event"
+        );
+        assert!(
+            rx2.recv_next(EventSourceRecvNextRequest).await.is_ok(),
+            "second receiver should get event"
+        );
     });
 }

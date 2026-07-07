@@ -9,7 +9,6 @@ mod message;
 mod message_content;
 mod model_info;
 mod noop_completer;
-mod std_complete_factory;
 mod stream;
 mod token_usage;
 mod tool;

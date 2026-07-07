@@ -8,8 +8,8 @@ use edge_llm_complete::{ListModelsRequest, NoopCompleter, SupportedModelsRequest
 use edge_llm_provider::{
     CompleterRequest, FinishReason, HealthCheckRequest, LastFinishReasonRequest,
     LastTokenUsageRequest, ModelFamily, ModelFamilyRequest, ModelInfo, ModelInfoLookupRequest,
-    Provider, ProviderBootstrap, ProviderConfig, ProviderConfigLookupRequest, ProviderNameRequest,
-    StdProviderFactory, TokenizerAccuracy, TokenizerAccuracyRequest,
+    Provider, ProviderConfig, ProviderConfigLookupRequest, ProviderNameRequest, StdProvider,
+    TokenizerAccuracy, TokenizerAccuracyRequest,
 };
 use futures::executor::block_on;
 
@@ -21,12 +21,12 @@ fn provider(model: &str) -> Arc<dyn Provider> {
         ModelFamily::Anthropic,
         8192,
     );
-    StdProviderFactory::provider(
+    Arc::new(StdProvider::new(
         config,
-        Box::new(info),
+        info,
         Arc::new(NoopCompleter),
         StdObserveFactory::noop_arc_observe_context(),
-    )
+    ))
 }
 
 // --- name ---

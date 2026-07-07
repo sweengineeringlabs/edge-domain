@@ -14,18 +14,17 @@ use edge_llm_agent::{
     AgentSkillsRequest, AgentSkillsResponse, SkillExecutionRequest, SkillExecutionResponse,
 };
 use edge_llm_provider::{
-    EchoProviderCompleter, ModelInfo, Provider, ProviderBootstrap, ProviderConfig,
-    StdProviderFactory,
+    EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, StdProvider,
 };
 use std::sync::Arc;
 
 fn noop_provider() -> Arc<dyn Provider> {
-    StdProviderFactory::provider(
+    Arc::new(StdProvider::new(
         ProviderConfig::new("noop".to_string(), 0.0, 0),
-        Box::<ModelInfo>::default(),
+        ModelInfo::default(),
         Arc::new(EchoProviderCompleter),
         StdObserveFactory::noop_arc_observe_context(),
-    )
+    ))
 }
 
 struct DummyAgent;

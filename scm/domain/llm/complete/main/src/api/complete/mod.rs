@@ -11,13 +11,13 @@ pub mod types;
 
 pub use errors::CompleteError;
 pub use traits::{
-    CacheableMessage, CompleteBootstrap, CompleteOps, Completer, CompleterHandler,
-    CompletionStream, ContentFlattener, ModelOps, Processor, StreamOps, ToolCallLoop, ToolOps,
-    ToolResultBatch, Validator,
+    CacheableMessage, CompleteOps, Completer, CompleterHandler, CompletionStream,
+    ContentFlattener, ModelOps, Processor, StreamOps, ToolCallLoop, ToolOps, ToolResultBatch,
+    Validator,
 };
 pub use types::{
     AvailableToolsRequest, AvailableToolsResponse, CacheControlRequest, CacheControlResponse,
-    CompleteBootstrapNameRequest, CompleteBootstrapNameResponse, CompleteRequest,
+    CompleteRequest,
     CompleterHealthCheckRequest, CompleterHealthCheckResponse, CompletionCheckRequest,
     CompletionStreamRequest, CompletionStreamResponse, DeltaApplicationRequest, DeltaMergeRequest,
     FlattenRequest, FlattenResponse, ListModelsRequest, ListModelsResponse, MarkEphemeralRequest,
@@ -30,6 +30,5 @@ pub use types::{
 pub use types::{
     BoundedToolCallLoop, CacheControl, CompletionRequest, CompletionResponse, ContentPart,
     EchoCompleter, FinishReason, ImageUrl, Message, MessageContent, ModelInfo, NoopCompleter, Role,
-    StdCompleteFactory, StreamChunk, StreamDelta, TokenUsage, ToolCall, ToolCallDelta, ToolChoice,
-    ToolDefinition,
+    StreamChunk, StreamDelta, TokenUsage, ToolCall, ToolCallDelta, ToolChoice, ToolDefinition,
 };
