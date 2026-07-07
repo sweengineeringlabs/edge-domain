@@ -4,7 +4,7 @@
 use std::sync::Arc;
 use edge_domain_event::{
     DomainEvent, EventBus, EventBusPublishRequest, EventBusSubscribeRequest, EventError,
-    NoopEventBus,
+    EventSource, EventSourceRecvNextRequest, NoopEventBus,
 };
 
 struct SignalEvt;
@@ -34,6 +34,6 @@ fn test_noop_event_bus_publish_repeated_never_errors_error() {
 #[test]
 fn test_noop_event_bus_subscribe_returns_closed_receiver_edge() {
     let mut rx = NoopEventBus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
-    let result = futures::executor::block_on(rx.recv());
+    let result = futures::executor::block_on(rx.recv_next(EventSourceRecvNextRequest));
     assert!(matches!(result, Err(EventError::Unavailable(_))));
 }

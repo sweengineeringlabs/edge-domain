@@ -134,7 +134,8 @@ fn test_event_bus_subscribe_request_accepted_by_noop_bus_edge() {
     let mut resp = NoopEventBus
         .subscribe(EventBusSubscribeRequest)
         .expect("subscribe");
-    let recv_result = futures::executor::block_on(resp.receiver.recv());
+    let recv_result =
+        futures::executor::block_on(resp.receiver.recv_next(EventSourceRecvNextRequest));
     assert!(matches!(recv_result, Err(EventError::Unavailable(_))));
 }
 
@@ -144,7 +145,7 @@ fn test_event_bus_subscribe_response_exposes_receiver_happy() {
     use edge_domain_event::NoopEventBus;
     let resp: EventBusSubscribeResponse = NoopEventBus.subscribe(EventBusSubscribeRequest).unwrap();
     let mut rx = resp.receiver;
-    let result = futures::executor::block_on(rx.recv());
+    let result = futures::executor::block_on(rx.recv_next(EventSourceRecvNextRequest));
     assert!(matches!(result, Err(EventError::Unavailable(_))));
 }
 

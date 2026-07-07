@@ -4,7 +4,7 @@
 use std::sync::Arc;
 use edge_domain_event::{
     DomainEvent, EventBus, EventBusPublishRequest, EventBusSubscribeRequest, EventError,
-    EventTypeRequest, InProcessEventBus, NoopEventBus,
+    EventSource, EventSourceRecvNextRequest, EventTypeRequest, InProcessEventBus, NoopEventBus,
 };
 
 struct Evt;
@@ -27,7 +27,7 @@ fn test_publish_noop_returns_ok_happy() {
 #[test]
 fn test_subscribe_noop_receiver_unavailable_error() {
     let mut rx = NoopEventBus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
-    let result = futures::executor::block_on(rx.recv());
+    let result = futures::executor::block_on(rx.recv_next(EventSourceRecvNextRequest));
     assert!(matches!(result, Err(EventError::Unavailable(_))));
 }
 
@@ -42,7 +42,7 @@ fn test_in_process_bus_publish_with_subscriber_happy() {
         let bus = InProcessEventBus::new(8);
         let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         bus.publish(EventBusPublishRequest { event: Arc::new(Evt) }).await.expect("publish");
-        let e = rx.recv().await.expect("recv");
+        let e = rx.recv_next(EventSourceRecvNextRequest).await.expect("recv").event;
         assert_eq!(e.event_type(EventTypeRequest).unwrap().event_type, "evt");
     });
 }
@@ -74,7 +74,7 @@ fn test_publish_noop_repeated_publishes_all_ok_error() {
 /// @covers: NoopEventBus::subscribe — subscribe returns a receiver
 #[test]
 fn test_subscribe_noop_returns_receiver_happy() {
-    // subscribe must not panic; EventReceiver wraps a `Box<dyn EventSource>` so it is
+    // subscribe must not panic; receiver is a `Box<dyn EventSource>` so it is
     // never zero-sized regardless of which EventBus impl produced it.
     let _rx = NoopEventBus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
     assert!(std::mem::size_of_val(&_rx) > 0);
@@ -86,7 +86,7 @@ fn test_subscribe_noop_multiple_calls_all_closed_edge() {
     for _ in 0..3 {
         let mut rx = NoopEventBus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         assert!(matches!(
-            futures::executor::block_on(rx.recv()),
+            futures::executor::block_on(rx.recv_next(EventSourceRecvNextRequest)),
             Err(EventError::Unavailable(_))
         ));
     }

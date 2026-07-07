@@ -18,7 +18,6 @@ pub use event::EventOccurredAtRequest;
 pub use event::EventOccurredAtResponse;
 pub use event::EventPublisher;
 pub use event::EventPublisherPublishRequest;
-pub use event::EventReceiver;
 pub use event::EventSource;
 pub use event::EventSourceRecvNextRequest;
 pub use event::EventSourceRecvNextResponse;
