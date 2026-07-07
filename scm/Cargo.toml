@@ -67,9 +67,9 @@ edge-domain-event       = { path = "domain-event" }
 edge-pipeline           = { git = "https://github.com/sweengineeringlabs/edge-pipeline.git", tag = "v0.2.0" }
 edge-domain-projection  = { path = "domain-projection" }
 edge-domain-saga        = { path = "domain-saga" }
-edge-security-runtime   = { path = "../../security/runtime/scm/identity" }
-edge-security-authn     = { path = "../../security/authn/scm/entrypoint" }
-edge-security-authz     = { path = "../../security/authz/scm/entrypoint" }
+edge-security-runtime   = { git = "https://github.com/sweengineeringlabs/edge-security.git", tag = "v0.3.7" }
+edge-security-authn     = { git = "https://github.com/sweengineeringlabs/edge-security.git", tag = "v0.3.7" }
+edge-security-authz     = { git = "https://github.com/sweengineeringlabs/edge-security.git", tag = "v0.3.7" }
 edge-domain-registry    = { path = "domain-registry" }
 edge-domain-lifecycle   = { path = "domain-lifecycle" }
 edge-llm-agent          = { path = "domain/llm/agents" }
