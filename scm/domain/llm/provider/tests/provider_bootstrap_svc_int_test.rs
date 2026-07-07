@@ -1,7 +1,7 @@
 //! SAF service tests — `provider_handler` and `default_provider_handler` factory methods.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+use edge_domain_command::DirectCommandBus;
 use edge_domain_handler::{ExecutionRequest, Handler, HandlerContext, IdRequest};
 use edge_domain_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
@@ -21,7 +21,7 @@ fn test_provider_handler_executes_step_happy() {
     let model = Arc::new(EchoExecutionModel::new(make_config(4096)));
     let h = StdProviderFactory::provider_handler(model);
     let security: SecurityContext = SecurityContext::unauthenticated();
-    let commands = StdCommandBusFactory::direct();
+    let commands = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,
@@ -45,7 +45,7 @@ fn test_provider_handler_zero_budget_error() {
     let model = Arc::new(EchoExecutionModel::new(make_config(0)));
     let h = StdProviderFactory::provider_handler(model);
     let security: SecurityContext = SecurityContext::unauthenticated();
-    let commands = StdCommandBusFactory::direct();
+    let commands = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,
@@ -80,7 +80,7 @@ fn test_provider_handler_stable_dispatch_id_edge() {
 fn test_default_provider_handler_runs_happy() {
     let h = StdProviderFactory::default_provider_handler(make_config(4096));
     let security: SecurityContext = SecurityContext::unauthenticated();
-    let commands = StdCommandBusFactory::direct();
+    let commands = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,
@@ -103,7 +103,7 @@ fn test_default_provider_handler_runs_happy() {
 fn test_default_provider_handler_zero_budget_error() {
     let h = StdProviderFactory::default_provider_handler(make_config(0));
     let security: SecurityContext = SecurityContext::unauthenticated();
-    let commands = StdCommandBusFactory::direct();
+    let commands = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,

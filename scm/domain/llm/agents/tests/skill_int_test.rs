@@ -2,7 +2,6 @@
 //! Integration tests — `Skill` trait.
 
 use async_trait::async_trait;
-use edge_domain_command::CommandBusBootstrap;
 use edge_domain_handler::{
     ExecutionRequest, Handler, HandlerContext, HandlerError, IdRequest, IdResponse, PatternRequest,
 };
@@ -210,7 +209,7 @@ fn test_trait_skill_happy_implements_handler_contract() {
 fn test_trait_skill_happy_execute_processes_request() {
     let skill = TestSkill { should_fail: false };
     let security = SecurityContext::unauthenticated();
-    let bus = edge_domain_command::StdCommandBusFactory::direct();
+    let bus = edge_domain_command::DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,
@@ -229,7 +228,7 @@ fn test_trait_skill_happy_execute_processes_request() {
 fn test_trait_skill_error_execute_failure_propagates() {
     let skill = TestSkill { should_fail: true };
     let security = SecurityContext::unauthenticated();
-    let bus = edge_domain_command::StdCommandBusFactory::direct();
+    let bus = edge_domain_command::DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,

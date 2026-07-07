@@ -16,7 +16,7 @@ pub use types::{
     AggregateIdentityResponse, ClosedEventSource,
     EventAggregateIdRequest, EventAggregateIdResponse, EventBusConfig, EventBusPublishRequest,
     EventBusSubscribeRequest, EventBusSubscribeResponse, EventEnvelope, EventOccurredAtRequest,
-    EventOccurredAtResponse, EventPublisherPublishRequest, EventReceiver,
+    EventOccurredAtResponse, EventPublisherPublishRequest,
     EventSourceRecvNextRequest, EventSourceRecvNextResponse, EventStoreAppendRequest,
     EventStoreAppendResponse, EventStoreLoadFromRequest, EventStoreLoadFromResponse,
     EventStoreLoadRequest, EventStoreLoadResponse, EventTypeRequest, EventTypeResponse,

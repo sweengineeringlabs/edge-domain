@@ -4,9 +4,6 @@ pub mod types;
 
 pub use errors::RegistryError;
 pub use traits::Registry;
-pub use traits::RegistryBootstrap;
-pub use types::BootstrapNameRequest;
-pub use types::BootstrapNameResponse;
 pub use types::DeregisterRequest;
 pub use types::DeregisterResponse;
 pub use types::EmptinessRequest;
@@ -20,6 +17,5 @@ pub use types::RegisterRequest;
 pub use types::RegisterResponse;
 pub use types::RegistryLookupRequest;
 pub use types::RegistryLookupResponse;
-pub use types::StdRegistryFactory;
 pub use types::TryRegisterRequest;
 pub use types::TryRegisterResponse;

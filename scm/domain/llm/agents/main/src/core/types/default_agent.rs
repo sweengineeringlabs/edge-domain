@@ -73,7 +73,7 @@ impl Handler for DefaultAgentHandler {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+    use edge_domain_command::DirectCommandBus;
     use edge_domain_handler::HandlerContext;
     use edge_domain_observer::StdObserveFactory;
     use edge_security_runtime::SecurityContext;
@@ -88,7 +88,7 @@ mod tests {
     #[test]
     fn test_handler_execute_returns_skill_colon_input_happy() {
         let security = SecurityContext::unauthenticated();
-        let commands = StdCommandBusFactory::direct();
+        let commands = DirectCommandBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
             security: &security,
@@ -109,7 +109,7 @@ mod tests {
     #[test]
     fn test_handler_execute_dispatch_increments_counter_happy() {
         let security = SecurityContext::unauthenticated();
-        let commands = StdCommandBusFactory::direct();
+        let commands = DirectCommandBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
             security: &security,
@@ -129,7 +129,7 @@ mod tests {
     #[test]
     fn test_handler_execute_empty_input_does_not_emit_span_error() {
         let security = SecurityContext::unauthenticated();
-        let commands = StdCommandBusFactory::direct();
+        let commands = DirectCommandBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
             security: &security,
@@ -167,7 +167,7 @@ mod tests {
     #[test]
     fn test_handler_execute_empty_input_error() {
         let security = SecurityContext::unauthenticated();
-        let commands = StdCommandBusFactory::direct();
+        let commands = DirectCommandBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
             security: &security,

@@ -26,7 +26,6 @@ pub use api::EventError;
 pub use api::EventOccurredAtRequest;
 pub use api::EventOccurredAtResponse;
 pub use api::EventPublisherPublishRequest;
-pub use api::EventReceiver;
 pub use api::EventSourceRecvNextRequest;
 pub use api::EventSourceRecvNextResponse;
 pub use api::EventStoreAppendRequest;

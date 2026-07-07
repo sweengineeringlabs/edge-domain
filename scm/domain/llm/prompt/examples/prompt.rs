@@ -2,24 +2,24 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_prompt::{
-    Prompt, PromptBootstrap, PromptMetadataRequest, PromptVariableKindRequest, RenderContext,
-    RenderRequest, StdPromptFactory, Variable, VariableKind,
+    Prompt, PromptMetadataBuilder, PromptMetadataRequest, PromptVariableKindRequest,
+    RenderContext, RenderRequest, StaticPrompt, Variable, VariableBuilder, VariableKind,
 };
 
 fn main() {
-    let variable = StdPromptFactory::variable_builder()
+    let variable = VariableBuilder::new()
         .name("name".to_string())
         .var_type(VariableKind::String)
         .build();
 
-    let metadata = StdPromptFactory::prompt_metadata_builder()
+    let metadata = PromptMetadataBuilder::new()
         .id("greet".to_string())
         .name("Greeting".to_string())
         .version("1".to_string())
         .variables(vec![variable])
         .build();
 
-    let prompt = StdPromptFactory::prompt("Hello {{name}}".to_string(), metadata);
+    let prompt = StaticPrompt::new("Hello {{name}}".to_string(), metadata);
     println!(
         "template id: {}",
         prompt
@@ -42,7 +42,7 @@ fn main() {
     }
 
     // A registered variable round-trips through the value vocabulary.
-    let _typed: Variable = StdPromptFactory::variable_builder()
+    let _typed: Variable = VariableBuilder::new()
         .name("topic".to_string())
         .var_type(VariableKind::String)
         .build();

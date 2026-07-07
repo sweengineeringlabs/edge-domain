@@ -1,12 +1,12 @@
 //! Tests for the `PromptMetadataBuilder` type.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_llm_prompt::{PromptBootstrap, StdPromptFactory, Variable, VariableKind};
+use edge_llm_prompt::{PromptMetadataBuilder, Variable, VariableKind};
 
 /// @covers: PromptMetadataBuilder — builds with id, name, version
 #[test]
 fn test_prompt_metadata_builder_core_fields() {
-    let m = StdPromptFactory::prompt_metadata_builder()
+    let m = PromptMetadataBuilder::new()
         .id("t".to_string())
         .name("T".to_string())
         .version("2".to_string())
@@ -19,7 +19,7 @@ fn test_prompt_metadata_builder_core_fields() {
 #[test]
 fn test_prompt_metadata_builder_variables() {
     let var = Variable::new("a".to_string(), VariableKind::String);
-    let m = StdPromptFactory::prompt_metadata_builder()
+    let m = PromptMetadataBuilder::new()
         .variables(vec![var])
         .build();
     assert_eq!(m.variables.len(), 1);
@@ -28,7 +28,7 @@ fn test_prompt_metadata_builder_variables() {
 /// @covers: PromptMetadataBuilder — base token count carried through
 #[test]
 fn test_prompt_metadata_builder_base_token_count() {
-    let m = StdPromptFactory::prompt_metadata_builder()
+    let m = PromptMetadataBuilder::new()
         .base_token_count(42)
         .build();
     assert_eq!(m.base_token_count, 42);

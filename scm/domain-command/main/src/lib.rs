@@ -10,8 +10,6 @@ mod api;
 mod core;
 mod saf;
 
-pub use api::BootstrapNameRequest;
-pub use api::BootstrapNameResponse;
 pub use api::CommandDispatchRequest;
 pub use api::CommandError;
 pub use api::DirectCommandBus;
@@ -21,12 +19,6 @@ pub use api::NameRequest;
 pub use api::NameResponse;
 pub use api::NoopCommand;
 pub use api::NoopCommandBus;
-pub use api::StdCommandBusFactory;
 pub use saf::Command;
-pub use saf::CommandBootstrap;
 pub use saf::CommandBus;
-pub use saf::CommandBusBootstrap;
-pub use saf::{
-    COMMAND_BOOTSTRAP_SVC_FACTORY, COMMAND_BUS_BOOTSTRAP_SVC_FACTORY, COMMAND_BUS_SVC_FACTORY,
-    COMMAND_SVC_FACTORY,
-};
+pub use saf::{COMMAND_BUS_SVC_FACTORY, COMMAND_SVC_FACTORY};

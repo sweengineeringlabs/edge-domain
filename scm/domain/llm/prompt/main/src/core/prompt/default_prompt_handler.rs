@@ -69,7 +69,7 @@ impl Handler for DefaultPromptHandler {
 mod tests {
     use super::*;
     use crate::api::{PromptMetadata, StaticPrompt, Variable, VariableKind};
-    use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+    use edge_domain_command::DirectCommandBus;
     use edge_domain_handler::HandlerContext;
     use edge_domain_observer::StdObserveFactory;
     use edge_security_runtime::SecurityContext;
@@ -91,7 +91,7 @@ mod tests {
     #[test]
     fn test_handler_execute_renders_template_happy() {
         let security: SecurityContext = SecurityContext::unauthenticated();
-        let commands = StdCommandBusFactory::direct();
+        let commands = DirectCommandBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
             security: &security,
@@ -114,7 +114,7 @@ mod tests {
     #[test]
     fn test_handler_execute_opens_and_finishes_span_happy() {
         let security: SecurityContext = SecurityContext::unauthenticated();
-        let commands = StdCommandBusFactory::direct();
+        let commands = DirectCommandBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
             security: &security,
@@ -154,7 +154,7 @@ mod tests {
     #[test]
     fn test_handler_execute_missing_variable_error() {
         let security: SecurityContext = SecurityContext::unauthenticated();
-        let commands = StdCommandBusFactory::direct();
+        let commands = DirectCommandBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
             security: &security,

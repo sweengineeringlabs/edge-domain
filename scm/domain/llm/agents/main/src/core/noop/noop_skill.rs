@@ -49,7 +49,6 @@ impl Skill for NoopSkill {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use edge_domain_command::CommandBusBootstrap;
     use edge_domain_observer::StdObserveFactory;
 
     #[test]
@@ -70,7 +69,7 @@ mod tests {
     fn test_noop_skill_error_execute_returns_error() {
         
         let security = edge_security_runtime::SecurityContext::unauthenticated();
-        let bus = edge_domain_command::StdCommandBusFactory::direct();
+        let bus = edge_domain_command::DirectCommandBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = edge_domain_handler::HandlerContext {
             security: &security,

@@ -23,17 +23,15 @@ pub use api::{
     LastFinishReasonResponse, LastTokenUsageRequest, LastTokenUsageResponse, MessageRole,
     ModelFamily, ModelFamilyRequest, ModelFamilyResponse, ModelInfo, ModelInfoLookupRequest,
     ModelInfoResponse, NextChunkRequest, NextChunkResponse, OauthTokenSourceError,
-    PendingToolCallRequest, PendingToolCallResponse, ProviderBootstrapNameRequest,
-    ProviderBootstrapNameResponse, ProviderConfig, ProviderConfigLookupRequest,
+    PendingToolCallRequest, PendingToolCallResponse, ProviderConfig, ProviderConfigLookupRequest,
     ProviderConfigResponse, ProviderNameRequest, ProviderNameResponse, StdProvider,
     StdProviderFactory, StepExecutionRequest, StepExecutionResponse, StreamChunk, StreamDelta,
     TokenSourceFileRequest, TokenSourceInitResponse, TokenUsage, TokenizerAccuracy,
     TokenizerAccuracyRequest, TokenizerAccuracyResponse, ToolCallDelta, ToolDefinition,
 };
 pub use saf::{
-    ExecutionModel, OauthTokenSourceResolver, Provider, ProviderBootstrap, StreamHandler,
-    EXECUTION_MODEL_SVC, EXECUTION_MODEL_SVC_FACTORY, OAUTH_TOKEN_SOURCE_RESOLVER_SVC,
-    OAUTH_TOKEN_SOURCE_RESOLVER_SVC_FACTORY, PROVIDER_BOOTSTRAP_SVC,
-    PROVIDER_BOOTSTRAP_SVC_FACTORY, PROVIDER_COMPLETER_SVC, PROVIDER_SVC, PROVIDER_SVC_FACTORY,
-    STREAM_HANDLER_SVC, STREAM_HANDLER_SVC_FACTORY,
+    ExecutionModel, OauthTokenSourceResolver, Provider, StreamHandler, EXECUTION_MODEL_SVC,
+    EXECUTION_MODEL_SVC_FACTORY, OAUTH_TOKEN_SOURCE_RESOLVER_SVC,
+    OAUTH_TOKEN_SOURCE_RESOLVER_SVC_FACTORY, PROVIDER_COMPLETER_SVC, PROVIDER_SVC,
+    PROVIDER_SVC_FACTORY, STREAM_HANDLER_SVC, STREAM_HANDLER_SVC_FACTORY,
 };

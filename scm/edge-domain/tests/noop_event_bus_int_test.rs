@@ -1,6 +1,9 @@
 //! Coverage for api/event/types/noop/noop_event_bus.rs
 #![allow(clippy::unwrap_used, clippy::expect_used)]
-use edge_domain::{Domain, EventBusPublishRequest, EventBusSubscribeRequest, NoopEventBus};
+use edge_domain::{
+    Domain, EventBusPublishRequest, EventBusSubscribeRequest, EventSource,
+    EventSourceRecvNextRequest, NoopEventBus,
+};
 use futures::executor::block_on;
 use std::sync::Arc;
 
@@ -33,6 +36,6 @@ fn test_noop_event_bus_subscribe_returns_closed_receiver() {
         let bus = Domain::noop_event_bus();
         let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         // noop bus receiver immediately signals unavailable
-        assert!(rx.recv().await.is_err());
+        assert!(rx.recv_next(EventSourceRecvNextRequest).await.is_err());
     });
 }

@@ -1,5 +1,5 @@
 //! `DefaultReasoningStep` — bridges `Reasoning::next_step`/`evaluate_step` into
-//! `edge-domain-pipeline`'s `Step` contract.
+//! `edge-pipeline`'s `Step` contract.
 
 use std::sync::Arc;
 

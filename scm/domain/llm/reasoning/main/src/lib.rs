@@ -15,18 +15,15 @@ mod saf;
 mod spi;
 
 // Re-export SAF layer traits and factory markers
-pub use saf::{
-    Reasoning, ReasoningBootstrap, REASONING_BOOTSTRAP_SVC_FACTORY, REASONING_FACTORY_SVC,
-    REASONING_SVC, REASONING_SVC_FACTORY,
-};
+pub use saf::{Reasoning, REASONING_FACTORY_SVC, REASONING_SVC, REASONING_SVC_FACTORY};
 
 // Re-export API value types for integration tests and client libraries
 pub use api::{
     ChainBuildRequest, ChainBuildResponse, LinearReasoning, NextStepRequest, NextStepResponse,
     PatternMetadata, PatternMetadataBuilder, PatternMetadataLookupRequest,
     PatternMetadataLookupResponse, PatternSupportRequest, PatternSupportResponse,
-    ProblemValidationRequest, ReasonRequest, ReasonResponse, ReasoningBootstrapNameRequest,
-    ReasoningBootstrapNameResponse, ReasoningChain, ReasoningChainBuilder, ReasoningError,
+    ProblemValidationRequest, ReasonRequest, ReasonResponse,
+    ReasoningChain, ReasoningChainBuilder, ReasoningError,
     ReasoningPattern, ReasoningStep, ReasoningStepBuilder, StdReasoningFactory,
     StepEvaluationRequest, StepEvaluationResponse, StepResult, StepResultBuilder,
     SupportedPatternsRequest, SupportedPatternsResponse, ThinkingProcess, ThinkingProcessBuilder,

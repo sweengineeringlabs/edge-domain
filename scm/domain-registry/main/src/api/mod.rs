@@ -1,6 +1,4 @@
 mod registry;
-pub use registry::BootstrapNameRequest;
-pub use registry::BootstrapNameResponse;
 pub use registry::DeregisterRequest;
 pub use registry::DeregisterResponse;
 pub use registry::EmptinessRequest;
@@ -13,10 +11,8 @@ pub use registry::ListIdsResponse;
 pub use registry::RegisterRequest;
 pub use registry::RegisterResponse;
 pub use registry::Registry;
-pub use registry::RegistryBootstrap;
 pub use registry::RegistryError;
 pub use registry::RegistryLookupRequest;
 pub use registry::RegistryLookupResponse;
-pub use registry::StdRegistryFactory;
 pub use registry::TryRegisterRequest;
 pub use registry::TryRegisterResponse;

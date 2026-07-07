@@ -11,9 +11,7 @@ pub(crate) mod stream;
 pub(crate) mod tool;
 
 pub use errors::{ExecutionError, OauthTokenSourceError};
-pub use traits::{
-    ExecutionModel, OauthTokenSourceResolver, Provider, ProviderBootstrap, StreamHandler,
-};
+pub use traits::{ExecutionModel, OauthTokenSourceResolver, Provider, StreamHandler};
 pub use types::{
     AccumulateRequest, BufferedStreamHandler, CompleterRequest, CompleterResponse, CompletionInput,
     CompletionMessage, EchoExecutionModel, EchoProviderCompleter, ExecutionConfig,
@@ -23,7 +21,7 @@ pub use types::{
     LastFinishReasonResponse, LastTokenUsageRequest, LastTokenUsageResponse, MessageRole,
     ModelFamily, ModelFamilyRequest, ModelFamilyResponse, ModelInfo, ModelInfoLookupRequest,
     ModelInfoResponse, NextChunkRequest, NextChunkResponse, PendingToolCallRequest,
-    PendingToolCallResponse, ProviderBootstrapNameRequest, ProviderBootstrapNameResponse,
+    PendingToolCallResponse,
     ProviderConfig, ProviderConfigLookupRequest, ProviderConfigResponse, ProviderNameRequest,
     ProviderNameResponse, StdProvider, StdProviderFactory, StepExecutionRequest,
     StepExecutionResponse, StreamChunk, StreamDelta, TokenSourceFileRequest,

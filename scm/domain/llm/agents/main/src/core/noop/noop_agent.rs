@@ -3,9 +3,7 @@
 use std::sync::Arc;
 
 use edge_domain_observer::StdObserveFactory;
-use edge_llm_provider::{
-    EchoProviderCompleter, ModelInfo, ProviderBootstrap, ProviderConfig, StdProviderFactory,
-};
+use edge_llm_provider::{EchoProviderCompleter, ModelInfo, ProviderConfig, StdProvider};
 
 use crate::api::NoopAgent;
 use crate::api::{Agent, AgentError};
@@ -51,12 +49,12 @@ impl Agent for NoopAgent {
 
     fn provider(&self, _req: AgentProviderRequest) -> Result<AgentProviderResponse, AgentError> {
         Ok(AgentProviderResponse {
-            provider: StdProviderFactory::provider(
+            provider: Arc::new(StdProvider::new(
                 ProviderConfig::new("noop".to_string(), 0.0, 0),
-                Box::<ModelInfo>::default(),
+                ModelInfo::default(),
                 Arc::new(EchoProviderCompleter),
                 StdObserveFactory::noop_arc_observe_context(),
-            ),
+            )),
         })
     }
 }
@@ -80,12 +78,12 @@ mod tests {
 
     #[test]
     fn test_noop_agent_error_execute_skill_returns_skill_not_found() {
-        use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+        use edge_domain_command::DirectCommandBus;
         use edge_domain_handler::HandlerContext;
         use edge_domain_observer::StdObserveFactory;
         use edge_security_runtime::SecurityContext;
         let security = SecurityContext::unauthenticated();
-        let commands = StdCommandBusFactory::direct();
+        let commands = DirectCommandBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
             security: &security,

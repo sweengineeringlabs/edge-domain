@@ -5,12 +5,12 @@ use std::sync::Arc;
 
 use edge_domain_observer::StdObserveFactory;
 use edge_llm_complete::NoopCompleter;
-use edge_llm_provider::{ProviderBootstrap, ProviderNameRequest, StdProviderFactory};
+use edge_llm_provider::{Provider, ProviderNameRequest, StdProvider, StdProviderFactory};
 
 /// @covers: StdProviderFactory — std_factory returns the factory instance
 #[test]
 fn test_std_provider_bootstrap_std_factory_returns_instance() {
-    let factory: StdProviderFactory = StdProviderFactory::std_factory();
+    let factory: StdProviderFactory = StdProviderFactory;
     assert_eq!(format!("{factory:?}"), "StdProviderFactory");
 }
 
@@ -32,9 +32,9 @@ fn test_std_provider_bootstrap_builds_provider() {
         8192,
     );
     assert_eq!(
-        StdProviderFactory::provider(
+        StdProvider::new(
             config,
-            Box::new(info),
+            info,
             Arc::new(NoopCompleter),
             StdObserveFactory::noop_arc_observe_context()
         )

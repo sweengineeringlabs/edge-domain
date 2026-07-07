@@ -2,7 +2,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use async_trait::async_trait;
-use edge_domain_command::{CommandBus, CommandBusBootstrap, StdCommandBusFactory};
+use edge_domain_command::{CommandBus, DirectCommandBus};
 use edge_domain_handler::{
     ExecutionRequest, Handler, HandlerContext, HandlerError, HealthCheckRequest, IdRequest,
     PatternRequest,
@@ -83,7 +83,7 @@ fn make_ctx<'a>(
 #[test]
 fn test_execute_ok_handler_returns_response_happy() {
     let security = SecurityContext::unauthenticated();
-    let bus = StdCommandBusFactory::direct();
+    let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = make_ctx(&security, &bus, observer.as_ref());
     assert_eq!(
@@ -100,7 +100,7 @@ fn test_execute_ok_handler_returns_response_happy() {
 #[test]
 fn test_execute_failing_handler_returns_err_error() {
     let security = SecurityContext::unauthenticated();
-    let bus = StdCommandBusFactory::direct();
+    let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = make_ctx(&security, &bus, observer.as_ref());
     assert!(block_on(FailHandler.execute(ExecutionRequest {
@@ -158,7 +158,7 @@ fn test_health_check_unhealthy_handler_returns_false_error() {
 #[test]
 fn test_execute_with_unauthenticated_context_returns_response_happy() {
     let security = SecurityContext::unauthenticated();
-    let bus = StdCommandBusFactory::direct();
+    let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = make_ctx(&security, &bus, observer.as_ref());
     assert_eq!(
@@ -176,7 +176,7 @@ fn test_execute_with_unauthenticated_context_returns_response_happy() {
 fn test_execute_with_authenticated_context_still_executes_edge() {
     use edge_security_runtime::AnonymousPrincipal;
     let security = SecurityContext::authenticated_with(Box::new(AnonymousPrincipal));
-    let bus = StdCommandBusFactory::direct();
+    let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = make_ctx(&security, &bus, observer.as_ref());
     assert_eq!(

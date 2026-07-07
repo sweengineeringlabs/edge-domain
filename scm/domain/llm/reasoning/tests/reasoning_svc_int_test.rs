@@ -2,14 +2,14 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_reasoning::{
-    ChainBuildRequest, NextStepRequest, PatternMetadataLookupRequest, PatternSupportRequest,
-    ProblemValidationRequest, ReasonRequest, Reasoning, ReasoningBootstrap, ReasoningPattern,
-    StdReasoningFactory, StepEvaluationRequest, SupportedPatternsRequest, ThinkingProcess,
+    ChainBuildRequest, LinearReasoning, NextStepRequest, PatternMetadataLookupRequest,
+    PatternSupportRequest, ProblemValidationRequest, ReasonRequest, Reasoning, ReasoningPattern,
+    StepEvaluationRequest, SupportedPatternsRequest, ThinkingProcess,
 };
 use futures::executor::block_on;
 
 fn reasoner(pattern: ReasoningPattern) -> impl Reasoning {
-    StdReasoningFactory::reasoning(pattern)
+    LinearReasoning::new(pattern)
 }
 
 // --- reason ---

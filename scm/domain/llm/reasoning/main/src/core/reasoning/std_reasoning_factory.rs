@@ -1,14 +1,11 @@
-//! `ReasoningBootstrap` impl and dispatchable-handler constructors for `StdReasoningFactory`.
+//! Dispatchable-handler constructors for `StdReasoningFactory`.
 
 use std::sync::Arc;
 
 use edge_domain_handler::Handler;
 
-use crate::api::ReasoningBootstrap;
 use crate::api::{Reasoning, ReasoningPattern, StdReasoningFactory, ThinkingProcess};
 use crate::core::reasoning::DefaultReasoningHandler;
-
-impl ReasoningBootstrap for StdReasoningFactory {}
 
 impl StdReasoningFactory {
     /// Construct a dispatchable reasoning handler backed by the given reasoner.
@@ -38,7 +35,7 @@ impl StdReasoningFactory {
 mod tests {
     use super::*;
     use crate::api::{LinearReasoning, ReasonRequest};
-    use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+    use edge_domain_command::DirectCommandBus;
     use edge_domain_handler::{ExecutionRequest, HandlerContext};
     use edge_domain_observer::StdObserveFactory;
     use edge_security_runtime::SecurityContext;
@@ -52,7 +49,7 @@ mod tests {
         let handler = StdReasoningFactory::reasoning_handler(reasoner);
 
         let security: SecurityContext = SecurityContext::unauthenticated();
-        let commands = StdCommandBusFactory::direct();
+        let commands = DirectCommandBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
             security: &security,

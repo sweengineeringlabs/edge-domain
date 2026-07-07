@@ -74,7 +74,7 @@ fn test_noop_bus_subscribe_returns_closed_receiver_edge() {
     use edge_domain_event::{EventBus, EventBusSubscribeRequest, EventError};
     let bus = NoopEventBus;
     let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
-    let result = futures::executor::block_on(rx.recv());
+    let result = futures::executor::block_on(rx.recv_next(EventSourceRecvNextRequest));
     assert!(matches!(result, Err(EventError::Unavailable(_))));
 }
 
@@ -175,7 +175,7 @@ fn test_in_process_bus_publish_subscribe_round_trip_error() {
         let bus = InProcessEventBus::new(EventBusConfig::default().capacity);
         let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         bus.publish(EventBusPublishRequest { event: Arc::new(Evt) }).await.expect("publish");
-        let e = rx.recv().await.expect("recv");
+        let e = rx.recv_next(EventSourceRecvNextRequest).await.expect("recv").event;
         assert!(!e.event_type(EventTypeRequest).unwrap().event_type.is_empty());
     });
 }

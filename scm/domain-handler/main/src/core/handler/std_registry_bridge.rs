@@ -88,7 +88,7 @@ impl RegistryBridge for StdRegistryBridge {
 mod tests {
     use std::sync::Arc;
 
-    use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+    use edge_domain_command::DirectCommandBus;
     use edge_domain_observer::StdObserveFactory;
     use edge_security_runtime::SecurityContext;
     use edge_domain_service::{
@@ -110,7 +110,7 @@ mod tests {
         assert_eq!(handler.id(IdRequest).unwrap().id, "svc-1");
 
         let security = SecurityContext::unauthenticated();
-        let bus = StdCommandBusFactory::direct();
+        let bus = DirectCommandBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
             security: &security,

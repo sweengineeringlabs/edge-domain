@@ -7,9 +7,9 @@ use edge_domain_observer::StdObserveFactory;
 use edge_llm_complete::NoopCompleter;
 use edge_llm_provider::{
     CompleterRequest, FinishReason, HealthCheckRequest, LastFinishReasonRequest, ModelFamily,
-    ModelFamilyRequest, ModelInfo, ModelInfoLookupRequest, Provider, ProviderBootstrap,
-    ProviderConfig, ProviderConfigLookupRequest, ProviderNameRequest, StdProviderFactory,
-    TokenizerAccuracy, TokenizerAccuracyRequest,
+    ModelFamilyRequest, ModelInfo, ModelInfoLookupRequest, Provider, ProviderConfig,
+    ProviderConfigLookupRequest, ProviderNameRequest, StdProvider, TokenizerAccuracy,
+    TokenizerAccuracyRequest,
 };
 
 fn make_provider(model: &str) -> Arc<dyn Provider> {
@@ -20,12 +20,12 @@ fn make_provider(model: &str) -> Arc<dyn Provider> {
         ModelFamily::Anthropic,
         8192,
     );
-    StdProviderFactory::provider(
+    Arc::new(StdProvider::new(
         config,
-        Box::new(info),
+        info,
         Arc::new(NoopCompleter),
         StdObserveFactory::noop_arc_observe_context(),
-    )
+    ))
 }
 
 /// @covers: StdProvider::new — name reflects config model

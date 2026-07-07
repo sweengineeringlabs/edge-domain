@@ -7,7 +7,7 @@ use futures::future::BoxFuture;
 use crate::api::EventError;
 use crate::api::{DomainEvent, EventBus, EventSource};
 use crate::api::{
-    EventBusPublishRequest, EventBusSubscribeRequest, EventBusSubscribeResponse, EventReceiver,
+    EventBusPublishRequest, EventBusSubscribeRequest, EventBusSubscribeResponse,
     EventSourceRecvNextRequest, EventSourceRecvNextResponse, InProcessEventBus,
 };
 
@@ -63,7 +63,7 @@ impl EventBus for InProcessEventBus {
         _req: EventBusSubscribeRequest,
     ) -> Result<EventBusSubscribeResponse, EventError> {
         Ok(EventBusSubscribeResponse {
-            receiver: EventReceiver::new(InProcessEventBusSource {
+            receiver: Box::new(InProcessEventBusSource {
                 receiver: self.sender.subscribe(),
             }),
         })
@@ -118,7 +118,7 @@ mod tests {
             bus.publish(publish_req(Arc::new(InProcessEventBusTestEvt)))
                 .await
                 .expect("publish");
-            let event = rx.recv().await.expect("recv");
+            let event = rx.recv_next(EventSourceRecvNextRequest).await.expect("recv").event;
             let event_type = event
                 .event_type(EventTypeRequest)
                 .expect("event_type")
@@ -147,8 +147,8 @@ mod tests {
             bus.publish(publish_req(Arc::new(InProcessEventBusTestEvt)))
                 .await
                 .expect("publish");
-            assert!(rx1.recv().await.is_ok());
-            assert!(rx2.recv().await.is_ok());
+            assert!(rx1.recv_next(EventSourceRecvNextRequest).await.is_ok());
+            assert!(rx2.recv_next(EventSourceRecvNextRequest).await.is_ok());
         });
     }
 }

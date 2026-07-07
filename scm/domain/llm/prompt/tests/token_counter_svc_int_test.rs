@@ -2,12 +2,12 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_prompt::{
-    CountTokensRequest, EstimateTokensRequest, ExactnessRequest, PromptBootstrap, StdPromptFactory,
+    CountTokensRequest, EstimateTokensRequest, ExactnessRequest, HeuristicTokenCounter,
     TokenCounter, TokenizerNameRequest,
 };
 
 fn counter() -> impl TokenCounter {
-    StdPromptFactory::token_counter()
+    HeuristicTokenCounter::new()
 }
 
 // --- count_tokens ---

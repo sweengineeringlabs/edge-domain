@@ -3,9 +3,8 @@
 use std::sync::Arc;
 
 use edge_domain_command::{
-    Command, CommandBus, CommandBusBootstrap, CommandDispatchRequest, CommandError,
-    ExecutionRequest, LoggingCommandBus, NameRequest, NameResponse, NoopCommandBus,
-    StdCommandBusFactory,
+    Command, CommandBus, CommandDispatchRequest, CommandError, DirectCommandBus, ExecutionRequest,
+    LoggingCommandBus, NameRequest, NameResponse, NoopCommandBus,
 };
 use futures::executor::block_on;
 use futures::future::BoxFuture;
@@ -39,7 +38,7 @@ fn noop_inner() -> Arc<dyn CommandBus> {
 }
 
 fn direct_inner() -> Arc<dyn CommandBus> {
-    Arc::new(StdCommandBusFactory::direct())
+    Arc::new(DirectCommandBus)
 }
 
 /// @covers: LoggingCommandBus — constructs directly from inner field
@@ -54,7 +53,7 @@ fn test_logging_command_bus_new_from_noop_inner_happy() {
 /// @covers: LoggingCommandBus::dispatch — propagates Ok from inner bus
 #[test]
 fn test_logging_command_bus_dispatch_ok_command_returns_ok_happy() {
-    let bus = StdCommandBusFactory::logging(noop_inner());
+    let bus = LoggingCommandBus { inner: noop_inner() };
     let result = block_on(bus.dispatch(CommandDispatchRequest {
         command: Box::new(Ok_),
     }));
@@ -64,7 +63,7 @@ fn test_logging_command_bus_dispatch_ok_command_returns_ok_happy() {
 /// @covers: LoggingCommandBus::dispatch — propagates Err from inner bus
 #[test]
 fn test_logging_command_bus_dispatch_error_command_returns_err_error() {
-    let bus = StdCommandBusFactory::logging(direct_inner());
+    let bus = LoggingCommandBus { inner: direct_inner() };
     let result = block_on(bus.dispatch(CommandDispatchRequest {
         command: Box::new(Err_),
     }));
@@ -74,7 +73,7 @@ fn test_logging_command_bus_dispatch_error_command_returns_err_error() {
 /// @covers: LoggingCommandBus — usable via dyn CommandBus reference
 #[test]
 fn test_logging_command_bus_dyn_dispatch_edge() {
-    let bus = StdCommandBusFactory::logging(noop_inner());
+    let bus = LoggingCommandBus { inner: noop_inner() };
     let bus_ref: &dyn CommandBus = &bus;
     let result = block_on(bus_ref.dispatch(CommandDispatchRequest {
         command: Box::new(Ok_),

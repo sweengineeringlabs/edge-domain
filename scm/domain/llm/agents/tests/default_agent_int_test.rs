@@ -4,7 +4,7 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+use edge_domain_command::DirectCommandBus;
 use edge_domain_handler::{
     ExecutionRequest, Handler, HandlerContext, HandlerError, IdRequest, PatternRequest,
 };
@@ -16,18 +16,17 @@ use edge_llm_agent::{
     SkillNameRequest, DEFAULT_AGENT_SVC,
 };
 use edge_llm_provider::{
-    EchoProviderCompleter, ModelInfo, Provider, ProviderBootstrap, ProviderConfig,
-    ProviderNameRequest, StdProviderFactory,
+    EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, ProviderNameRequest, StdProvider,
 };
 use futures::executor::block_on;
 
 fn noop_provider() -> Arc<dyn Provider> {
-    StdProviderFactory::provider(
+    Arc::new(StdProvider::new(
         ProviderConfig::new("noop".to_string(), 0.0, 0),
-        Box::<ModelInfo>::default(),
+        ModelInfo::default(),
         Arc::new(EchoProviderCompleter),
         StdObserveFactory::noop_arc_observe_context(),
-    )
+    ))
 }
 
 /// A minimal skill that echoes `"echo:<input>"`, used as a test double.
@@ -193,7 +192,7 @@ fn test_default_agent_happy_execute_skill_routes_to_echo_skill() {
         .unwrap()
         .agent;
     let security = SecurityContext::unauthenticated();
-    let commands = StdCommandBusFactory::direct();
+    let commands = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,
@@ -223,7 +222,7 @@ fn test_default_agent_error_execute_skill_unknown_returns_skill_not_found() {
         .unwrap()
         .agent;
     let security = SecurityContext::unauthenticated();
-    let commands = StdCommandBusFactory::direct();
+    let commands = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,
@@ -253,7 +252,7 @@ fn test_default_agent_error_execute_skill_bad_input_propagates_execution_failed(
         .unwrap()
         .agent;
     let security = SecurityContext::unauthenticated();
-    let commands = StdCommandBusFactory::direct();
+    let commands = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,
@@ -283,7 +282,7 @@ fn test_default_agent_edge_execute_skill_no_skills_returns_not_found() {
         .unwrap()
         .agent;
     let security = SecurityContext::unauthenticated();
-    let commands = StdCommandBusFactory::direct();
+    let commands = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,
