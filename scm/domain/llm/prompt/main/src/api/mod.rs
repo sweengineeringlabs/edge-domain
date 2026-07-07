@@ -5,7 +5,7 @@ pub use prompt::{
     CompletenessResponse, ContextBuildRequest, ContextBuildResponse, CountTokensRequest,
     CountTokensResponse, EstimateTokensRequest, EstimateTokensResponse, ExactnessRequest,
     ExactnessResponse, ListByCategoryRequest, ListByCategoryResponse, ListTemplatesRequest,
-    ListTemplatesResponse, PromptBootstrapNameRequest, PromptBootstrapNameResponse,
+    ListTemplatesResponse,
     PromptMetadataRequest, PromptMetadataResponse, PromptVariableKindRequest,
     PromptVariableKindResponse, RegisterVariableRequest, RenderRequest, RenderResponse,
     TemplateLookupRequest, TemplateLookupResponse, TemplateValidationRequest, TokenizerNameRequest,
@@ -13,7 +13,7 @@ pub use prompt::{
 };
 pub use prompt::{
     CatalogTemplateProvider, ContextManager, HeuristicTokenCounter, JsonValue, MapContextManager,
-    Prompt, PromptBootstrap, PromptCache, PromptCacheBuilder, PromptError, PromptMetadata,
-    PromptMetadataBuilder, PromptTemplate, PromptTemplateBuilder, RenderContext, StaticPrompt,
-    StdPromptFactory, TemplateProvider, TokenCounter, Variable, VariableBuilder, VariableKind,
+    Prompt, PromptCache, PromptCacheBuilder, PromptError, PromptMetadata, PromptMetadataBuilder,
+    PromptTemplate, PromptTemplateBuilder, RenderContext, StaticPrompt, StdPromptFactory,
+    TemplateProvider, TokenCounter, Variable, VariableBuilder, VariableKind,
 };

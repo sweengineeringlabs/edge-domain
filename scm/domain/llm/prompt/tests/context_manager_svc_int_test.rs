@@ -3,12 +3,11 @@
 
 use edge_llm_prompt::{
     ClearVariablesRequest, CompletenessRequest, ContextBuildRequest, ContextManager,
-    PromptBootstrap, RegisterVariableRequest, StdPromptFactory, Variable, VariableKind,
-    VariableLookupRequest,
+    MapContextManager, RegisterVariableRequest, Variable, VariableKind, VariableLookupRequest,
 };
 
 fn manager() -> impl ContextManager {
-    StdPromptFactory::context_manager()
+    MapContextManager::new()
 }
 
 fn required(name: &str) -> Variable {

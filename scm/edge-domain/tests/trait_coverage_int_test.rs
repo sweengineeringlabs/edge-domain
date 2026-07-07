@@ -11,9 +11,9 @@ use edge_domain_command::{
     NameRequest as CommandNameRequest, NameResponse as CommandNameResponse,
 };
 use edge_domain_handler::{
-    DeregisterHandlerRequest, EmptinessRequest as HandlerEmptinessRequest, HandlerBuildResponse,
-    HandlerLookupRequest, IdRequest, LenRequest as HandlerLenRequest, ListIdsRequest,
-    PatternRequest, RegisterHandlerRequest,
+    DeregisterHandlerRequest, EmptinessRequest as HandlerEmptinessRequest, HandlerLookupRequest,
+    IdRequest, LenRequest as HandlerLenRequest, ListIdsRequest, PatternRequest,
+    RegisterHandlerRequest,
 };
 use edge_domain_service::{
     EmptinessRequest as ServiceEmptinessRequest, LenRequest as ServiceLenRequest, ListNamesRequest,
@@ -181,31 +181,6 @@ impl Spec for NeverMatch {
         _req: SpecMatchesRequest<'_, String>,
     ) -> Result<SpecMatchesResponse, RepositoryError> {
         Ok(SpecMatchesResponse { matches: false })
-    }
-}
-
-struct GoodCfg;
-struct BadCfg;
-#[derive(Debug)]
-struct GoodCfgHandler {
-    _marker: (),
-}
-impl HandlerBootstrap for GoodCfgHandler {
-    type Config = GoodCfg;
-    fn build(_: GoodCfg) -> Result<HandlerBuildResponse<Self>, HandlerError> {
-        Ok(HandlerBuildResponse {
-            handler: GoodCfgHandler { _marker: () },
-        })
-    }
-}
-#[derive(Debug)]
-struct BadCfgHandler {
-    _marker: (),
-}
-impl HandlerBootstrap for BadCfgHandler {
-    type Config = BadCfg;
-    fn build(_: BadCfg) -> Result<HandlerBuildResponse<Self>, HandlerError> {
-        Err(HandlerError::ExecutionFailed("bad config".to_string()))
     }
 }
 
@@ -689,7 +664,7 @@ fn test_subscribe_noop_bus_yields_receiver_happy() {
         let bus = Domain::noop_event_bus();
         let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         // noop bus's receiver immediately signals unavailable
-        assert!(rx.recv().await.is_err());
+        assert!(rx.recv_next(EventSourceRecvNextRequest).await.is_err());
     });
 }
 
@@ -704,7 +679,7 @@ fn test_subscribe_active_bus_receives_published_event_not_error() {
         bus.publish(EventBusPublishRequest { event: e })
             .await
             .unwrap();
-        assert!(rx.recv().await.is_ok());
+        assert!(rx.recv_next(EventSourceRecvNextRequest).await.is_ok());
     });
 }
 
@@ -720,8 +695,8 @@ fn test_subscribe_multiple_receivers_each_get_event_edge() {
         bus.publish(EventBusPublishRequest { event: e })
             .await
             .unwrap();
-        assert!(rx1.recv().await.is_ok());
-        assert!(rx2.recv().await.is_ok());
+        assert!(rx1.recv_next(EventSourceRecvNextRequest).await.is_ok());
+        assert!(rx2.recv_next(EventSourceRecvNextRequest).await.is_ok());
     });
 }
 
@@ -940,7 +915,7 @@ fn test_load_from_unavailable_store_propagates_error_edge() {
 }
 
 // ─── recv_next ───────────────────────────────────────────────────────────────
-// Covers: EventSource::recv_next (tested via EventReceiver)
+// Covers: EventSource::recv_next (tested via Box<dyn EventSource>)
 
 #[test]
 fn test_recv_next_active_bus_returns_event_happy() {
@@ -953,7 +928,7 @@ fn test_recv_next_active_bus_returns_event_happy() {
         bus.publish(EventBusPublishRequest { event: e })
             .await
             .unwrap();
-        assert!(rx.recv().await.is_ok());
+        assert!(rx.recv_next(EventSourceRecvNextRequest).await.is_ok());
     });
 }
 
@@ -963,7 +938,10 @@ fn test_recv_next_closed_source_returns_unavailable_error() {
         // noop bus subscribe returns a ClosedEventSource
         let bus = Domain::noop_event_bus();
         let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
-        assert!(matches!(rx.recv().await, Err(EventError::Unavailable(_))));
+        assert!(matches!(
+            rx.recv_next(EventSourceRecvNextRequest).await,
+            Err(EventError::Unavailable(_))
+        ));
     });
 }
 
@@ -978,7 +956,7 @@ fn test_recv_next_event_type_preserved_edge() {
         bus.publish(EventBusPublishRequest { event: e })
             .await
             .unwrap();
-        let received = rx.recv().await.unwrap();
+        let received = rx.recv_next(EventSourceRecvNextRequest).await.unwrap().event;
         assert_eq!(
             received.event_type(EventTypeRequest).unwrap().event_type,
             "test.event"
@@ -1009,27 +987,6 @@ fn test_pattern_stable_across_calls_not_error() {
 fn test_pattern_can_be_root_path_edge() {
     let h = Domain::echo_handler::<String>("root", "/");
     assert_eq!(h.pattern(PatternRequest).unwrap().pattern, "/");
-}
-
-// ─── build ───────────────────────────────────────────────────────────────────
-// Covers: HandlerBootstrap::build
-
-#[test]
-fn test_build_valid_config_returns_ok_happy() {
-    let response = GoodCfgHandler::build(GoodCfg).unwrap();
-    let _handler: GoodCfgHandler = response.handler;
-    assert_eq!(std::mem::size_of::<GoodCfgHandler>(), 0);
-}
-
-#[test]
-fn test_build_invalid_config_returns_err_error() {
-    assert!(BadCfgHandler::build(BadCfg).is_err());
-}
-
-#[test]
-fn test_build_error_message_describes_failure_edge() {
-    let err = BadCfgHandler::build(BadCfg).unwrap_err();
-    assert!(err.to_string().contains("bad config"));
 }
 
 // ─── register ────────────────────────────────────────────────────────────────

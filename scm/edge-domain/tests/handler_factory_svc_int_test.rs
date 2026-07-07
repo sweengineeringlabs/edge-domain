@@ -1,75 +1,45 @@
-#![allow(clippy::unwrap_used, clippy::expect_used, unused_imports)]
-//! SAF facade smoke test — HandlerBootstrap trait is exported from the crate root.
+//! SAF facade smoke test — `Handler` factory (`Domain::echo_handler`) is exported
+//! from the crate root.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use async_trait::async_trait;
-use edge_domain::Handler;
-use edge_domain::HandlerBootstrap;
-use edge_domain::HandlerContext;
-use edge_domain::HandlerError;
-use edge_domain_handler::{ExecutionRequest, HandlerBuildResponse, IdRequest, IdResponse};
+use edge_domain::{Domain, Handler, HandlerContext};
+use edge_domain_handler::{ExecutionRequest, IdRequest, PatternRequest};
 use edge_domain_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
+use futures::executor::block_on;
 
-struct Cfg {
-    label: String,
-}
-
-struct LabelHandler {
-    label: String,
-}
-
-impl HandlerBootstrap for LabelHandler {
-    type Config = Cfg;
-    fn build(cfg: Cfg) -> Result<HandlerBuildResponse<Self>, HandlerError> {
-        Ok(HandlerBuildResponse {
-            handler: LabelHandler { label: cfg.label },
-        })
-    }
-}
-
-#[async_trait]
-impl Handler for LabelHandler {
-    type Request = ();
-    type Response = String;
-    fn id(&self, _req: IdRequest) -> Result<IdResponse, HandlerError> {
-        Ok(IdResponse {
-            id: self.label.clone(),
-        })
-    }
-    async fn execute(&self, _req: ExecutionRequest<'_, ()>) -> Result<String, HandlerError> {
-        Ok(self.label.clone())
-    }
-}
-
+/// @covers: Domain::echo_handler — happy path: id and pattern are set from the given strings
 #[test]
-fn test_handler_factory_svc_facade_build_constructs_handler() {
-    let h = LabelHandler::build(Cfg {
-        label: "greet".into(),
-    })
-    .unwrap()
-    .handler;
-    assert_eq!(h.id(IdRequest).unwrap().id, "greet");
+fn test_echo_handler_factory_sets_id_and_pattern_happy() {
+    let h = Domain::echo_handler::<String>("greeter", "/greet");
+    assert_eq!(h.id(IdRequest).unwrap().id, "greeter");
+    assert_eq!(h.pattern(PatternRequest).unwrap().pattern, "/greet");
 }
 
-#[tokio::test]
-async fn test_handler_factory_svc_facade_built_handler_executes() {
-    let h = LabelHandler::build(Cfg {
-        label: "echo".into(),
-    })
-    .unwrap()
-    .handler;
+/// @covers: Domain::echo_handler — error: empty id/pattern strings are still accepted, not rejected
+#[test]
+fn test_echo_handler_factory_accepts_empty_strings_error() {
+    let h = Domain::echo_handler::<String>("", "");
+    assert_eq!(h.id(IdRequest).unwrap().id, "");
+    assert_eq!(h.pattern(PatternRequest).unwrap().pattern, "");
+}
+
+/// @covers: Domain::echo_handler — edge: the constructed handler actually echoes its input
+#[test]
+fn test_echo_handler_factory_built_handler_echoes_request_edge() {
+    let h = Domain::echo_handler::<String>("echo", "/echo");
     let security = SecurityContext::unauthenticated();
-    let bus = edge_domain::Domain::direct_command_bus();
+    let bus = Domain::direct_command_bus();
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,
         commands: bus.as_ref(),
         observer: observer.as_ref(),
     };
-    assert_eq!(
-        h.execute(ExecutionRequest { req: (), ctx: &ctx })
-            .await
-            .unwrap(),
-        "echo"
-    );
+    let result = block_on(h.execute(ExecutionRequest {
+        req: "hello".to_string(),
+        ctx: &ctx,
+    }))
+    .unwrap();
+    assert_eq!(result, "hello");
 }

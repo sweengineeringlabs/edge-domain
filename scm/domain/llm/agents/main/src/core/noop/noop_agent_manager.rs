@@ -61,7 +61,7 @@ impl AgentManager for NoopAgentManager {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+    use edge_domain_command::DirectCommandBus;
     use edge_domain_handler::{ExecutionRequest, Handler, HandlerContext};
     use edge_domain_observer::StdObserveFactory;
     use edge_security_runtime::SecurityContext;
@@ -75,7 +75,7 @@ mod tests {
             .unwrap()
             .handler;
         let security = SecurityContext::unauthenticated();
-        let commands = StdCommandBusFactory::direct();
+        let commands = DirectCommandBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
             security: &security,
@@ -101,7 +101,7 @@ mod tests {
             .unwrap()
             .handler;
         let security = SecurityContext::unauthenticated();
-        let commands = StdCommandBusFactory::direct();
+        let commands = DirectCommandBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
             security: &security,
@@ -126,7 +126,7 @@ mod tests {
             .unwrap()
             .handler;
         let security = SecurityContext::unauthenticated();
-        let commands = StdCommandBusFactory::direct();
+        let commands = DirectCommandBus;
         let observer = StdObserveFactory::noop_observer_context();
         let ctx = HandlerContext {
             security: &security,

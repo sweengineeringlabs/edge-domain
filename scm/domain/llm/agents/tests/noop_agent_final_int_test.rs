@@ -1,7 +1,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 //! Tests for the no-op `Agent` constructed via `saf::noop_agent`.
 
-use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+use edge_domain_command::DirectCommandBus;
 use edge_domain_handler::HandlerContext;
 use edge_domain_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
@@ -28,7 +28,7 @@ fn test_noop_agent_exposes_no_skills() {
 #[test]
 fn test_noop_agent_execute_skill_reports_missing_skill() {
     let security = SecurityContext::unauthenticated();
-    let commands = StdCommandBusFactory::direct();
+    let commands = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,

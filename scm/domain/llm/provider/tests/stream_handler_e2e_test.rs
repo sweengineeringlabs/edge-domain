@@ -2,12 +2,12 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_llm_provider::{
-    AccumulateRequest, NextChunkRequest, PendingToolCallRequest, ProviderBootstrap,
-    StdProviderFactory, StreamDelta, StreamHandler, ToolCallDelta,
+    AccumulateRequest, BufferedStreamHandler, NextChunkRequest, PendingToolCallRequest,
+    StreamDelta, StreamHandler, ToolCallDelta,
 };
 
 fn handler() -> impl StreamHandler {
-    StdProviderFactory::stream_handler()
+    BufferedStreamHandler::new()
 }
 
 // --- accumulate ---

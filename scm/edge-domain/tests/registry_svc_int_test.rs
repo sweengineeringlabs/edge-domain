@@ -5,17 +5,14 @@
 
 use edge_domain_registry::{
     DeregisterRequest, InMemoryRegistry, ListIdsRequest, RegisterRequest, Registry,
-    RegistryBootstrap, RegistryLookupRequest,
+    RegistryLookupRequest,
 };
 use std::sync::Arc;
-
-struct TestFactory;
-impl RegistryBootstrap for TestFactory {}
 
 /// @covers: Registry::register, Registry::get
 #[test]
 fn test_in_memory_registry_register_and_get_happy() {
-    let registry: InMemoryRegistry<i32> = TestFactory::in_memory();
+    let registry: InMemoryRegistry<i32> = InMemoryRegistry::new();
     registry
         .register(RegisterRequest {
             id: "key1".to_string(),
@@ -34,7 +31,7 @@ fn test_in_memory_registry_register_and_get_happy() {
 /// @covers: Registry::get (nonexistent key)
 #[test]
 fn test_in_memory_registry_get_nonexistent_key_returns_none_happy() {
-    let registry: InMemoryRegistry<i32> = TestFactory::in_memory();
+    let registry: InMemoryRegistry<i32> = InMemoryRegistry::new();
     let entry = registry
         .get(RegistryLookupRequest {
             id: "missing".to_string(),
@@ -47,7 +44,7 @@ fn test_in_memory_registry_get_nonexistent_key_returns_none_happy() {
 /// @covers: Registry::register (duplicate key)
 #[test]
 fn test_in_memory_registry_register_duplicate_key_overwrites_happy() {
-    let registry: InMemoryRegistry<i32> = TestFactory::in_memory();
+    let registry: InMemoryRegistry<i32> = InMemoryRegistry::new();
     registry
         .register(RegisterRequest {
             id: "key1".to_string(),
@@ -72,7 +69,7 @@ fn test_in_memory_registry_register_duplicate_key_overwrites_happy() {
 /// @covers: Registry::deregister
 #[test]
 fn test_in_memory_registry_deregister_removes_entry_happy() {
-    let registry: InMemoryRegistry<i32> = TestFactory::in_memory();
+    let registry: InMemoryRegistry<i32> = InMemoryRegistry::new();
     registry
         .register(RegisterRequest {
             id: "key1".to_string(),
@@ -98,7 +95,7 @@ fn test_in_memory_registry_deregister_removes_entry_happy() {
 /// @covers: Registry::list_ids
 #[test]
 fn test_in_memory_registry_list_ids_returns_all_registered_keys_happy() {
-    let registry: InMemoryRegistry<i32> = TestFactory::in_memory();
+    let registry: InMemoryRegistry<i32> = InMemoryRegistry::new();
     registry
         .register(RegisterRequest {
             id: "key1".to_string(),
@@ -121,7 +118,7 @@ fn test_in_memory_registry_list_ids_returns_all_registered_keys_happy() {
 /// @covers: InMemoryRegistry construction
 #[test]
 fn test_in_memory_registry_new_creates_empty_registry_happy() {
-    let registry: InMemoryRegistry<String> = TestFactory::in_memory();
+    let registry: InMemoryRegistry<String> = InMemoryRegistry::new();
     let keys = registry.list_ids(ListIdsRequest).unwrap().ids;
     assert!(keys.is_empty());
 }
@@ -129,7 +126,7 @@ fn test_in_memory_registry_new_creates_empty_registry_happy() {
 /// @covers: Registry::register (multiple items)
 #[test]
 fn test_in_memory_registry_register_multiple_items_happy() {
-    let registry: InMemoryRegistry<String> = TestFactory::in_memory();
+    let registry: InMemoryRegistry<String> = InMemoryRegistry::new();
     for i in 0..10 {
         registry
             .register(RegisterRequest {
@@ -143,10 +140,10 @@ fn test_in_memory_registry_register_multiple_items_happy() {
     assert_eq!(keys.len(), 10);
 }
 
-/// @covers: RegistryBootstrap construction
+/// @covers: InMemoryRegistry construction (register + get round-trip)
 #[test]
 fn test_registry_factory_creates_registry_happy() {
-    let registry: InMemoryRegistry<i32> = TestFactory::in_memory();
+    let registry: InMemoryRegistry<i32> = InMemoryRegistry::new();
     registry
         .register(RegisterRequest {
             id: "key1".to_string(),
@@ -165,7 +162,7 @@ fn test_registry_factory_creates_registry_happy() {
 /// @covers: Registry::deregister (nonexistent key)
 #[test]
 fn test_in_memory_registry_deregister_nonexistent_key_returns_false_edge() {
-    let registry: InMemoryRegistry<i32> = TestFactory::in_memory();
+    let registry: InMemoryRegistry<i32> = InMemoryRegistry::new();
     let removed = registry
         .deregister(DeregisterRequest {
             id: "missing".to_string(),
@@ -178,7 +175,7 @@ fn test_in_memory_registry_deregister_nonexistent_key_returns_false_edge() {
 /// @covers: Registry::list_ids (empty state)
 #[test]
 fn test_in_memory_registry_list_ids_empty_returns_no_items_edge() {
-    let registry: InMemoryRegistry<String> = TestFactory::in_memory();
+    let registry: InMemoryRegistry<String> = InMemoryRegistry::new();
     let keys = registry.list_ids(ListIdsRequest).unwrap().ids;
     assert!(keys.is_empty());
 }

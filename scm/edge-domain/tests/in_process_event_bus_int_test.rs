@@ -4,7 +4,8 @@
 use edge_domain::{
     Domain, DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventBusConfig,
     EventBusPublishRequest, EventBusSubscribeRequest, EventError, EventOccurredAtRequest,
-    EventOccurredAtResponse, EventTypeRequest, EventTypeResponse, InProcessEventBus,
+    EventOccurredAtResponse, EventSource, EventSourceRecvNextRequest, EventTypeRequest,
+    EventTypeResponse, InProcessEventBus,
 };
 use futures::executor::block_on;
 use std::sync::Arc;
@@ -92,6 +93,6 @@ fn test_in_process_event_bus_subscriber_receives_published_event_edge() {
             })
             .await
             .is_ok());
-        assert!(rx.recv().await.is_ok());
+        assert!(rx.recv_next(EventSourceRecvNextRequest).await.is_ok());
     });
 }

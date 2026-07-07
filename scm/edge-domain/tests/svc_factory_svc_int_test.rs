@@ -817,7 +817,7 @@ fn test_noop_event_bus_subscribe_source_is_closed_edge() {
         // noop bus subscribe returns a ClosedEventSource — first recv is Err
         let bus = Domain::noop_event_bus();
         let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
-        assert!(rx.recv().await.is_err());
+        assert!(rx.recv_next(EventSourceRecvNextRequest).await.is_err());
     });
 }
 

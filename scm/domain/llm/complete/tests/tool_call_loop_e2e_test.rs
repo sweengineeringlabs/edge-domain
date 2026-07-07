@@ -1,4 +1,4 @@
-//! Scenario coverage for the `ToolCallLoop` trait and its `CompleteBootstrap` factory.
+//! Scenario coverage for the `ToolCallLoop` trait via its `BoundedToolCallLoop` reference impl.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -6,11 +6,11 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use edge_llm_complete::{
-    AvailableToolsRequest, AvailableToolsResponse, CompleteBootstrap, CompleteError,
+    AvailableToolsRequest, AvailableToolsResponse, BoundedToolCallLoop, CompleteError,
     CompleteRequest, Completer, CompletionRequest, CompletionResponse, CompletionStreamRequest,
     CompletionStreamResponse, DeltaMergeRequest, FinishReason, ListModelsRequest,
     ListModelsResponse, ModelInfoRequest, ModelInfoResponse, Role, SupportedModelsRequest,
-    SupportedModelsResponse, TokenUsage, ToolCall, ToolCallLoopRequest,
+    SupportedModelsResponse, TokenUsage, ToolCall, ToolCallLoop, ToolCallLoopRequest,
     ToolChoicePreferenceRequest, ToolChoicePreferenceResponse, ToolExecutionRequest,
     ToolExecutionResponse, ToolOps,
 };
@@ -139,20 +139,17 @@ impl ToolOps for EchoToolOps {
     }
 }
 
-struct TestFactory;
-impl CompleteBootstrap for TestFactory {}
-
 // ── ToolCallLoop::run ─────────────────────────────────────────────────────────
 
 #[tokio::test]
 async fn test_run_single_turn_completion_returns_immediately_happy() {
-    let l = TestFactory::tool_call_loop(
+    let l: Box<dyn ToolCallLoop> = Box::new(BoundedToolCallLoop::new(
         Arc::new(ScriptedCompleter {
             tool_turns: 0,
             calls: AtomicUsize::new(0),
         }),
         Arc::new(EchoToolOps),
-    );
+    ));
     let request = CompletionRequest::new("test-model", vec![]);
     let result = l
         .run(ToolCallLoopRequest {
@@ -167,13 +164,13 @@ async fn test_run_single_turn_completion_returns_immediately_happy() {
 
 #[tokio::test]
 async fn test_run_executes_multiple_tool_calls_concurrently_and_reaches_stop_happy() {
-    let l = TestFactory::tool_call_loop(
+    let l: Box<dyn ToolCallLoop> = Box::new(BoundedToolCallLoop::new(
         Arc::new(ScriptedCompleter {
             tool_turns: 2,
             calls: AtomicUsize::new(0),
         }),
         Arc::new(EchoToolOps),
-    );
+    ));
     let request = CompletionRequest::new("test-model", vec![]);
     let result = l
         .run(ToolCallLoopRequest {
@@ -188,13 +185,13 @@ async fn test_run_executes_multiple_tool_calls_concurrently_and_reaches_stop_hap
 
 #[tokio::test]
 async fn test_run_tool_execution_failure_propagates_as_complete_error_error() {
-    let l = TestFactory::tool_call_loop(
+    let l: Box<dyn ToolCallLoop> = Box::new(BoundedToolCallLoop::new(
         Arc::new(ScriptedCompleter {
             tool_turns: 1,
             calls: AtomicUsize::new(0),
         }),
         Arc::new(FailingToolOps),
-    );
+    ));
     let request = CompletionRequest::new("test-model", vec![]);
     let result = l
         .run(ToolCallLoopRequest {
@@ -207,13 +204,13 @@ async fn test_run_tool_execution_failure_propagates_as_complete_error_error() {
 
 #[tokio::test]
 async fn test_run_hits_turn_limit_returns_turn_limit_exceeded_error() {
-    let l = TestFactory::tool_call_loop(
+    let l: Box<dyn ToolCallLoop> = Box::new(BoundedToolCallLoop::new(
         Arc::new(ScriptedCompleter {
             tool_turns: 10,
             calls: AtomicUsize::new(0),
         }),
         Arc::new(EchoToolOps),
-    );
+    ));
     let request = CompletionRequest::new("test-model", vec![]);
     let result = l
         .run(ToolCallLoopRequest {
@@ -227,17 +224,17 @@ async fn test_run_hits_turn_limit_returns_turn_limit_exceeded_error() {
     ));
 }
 
-// ── CompleteBootstrap::tool_call_loop ─────────────────────────────────────────
+// ── BoundedToolCallLoop::new ──────────────────────────────────────────────────
 
 #[tokio::test]
 async fn test_tool_call_loop_factory_builds_working_instance_happy() {
-    let l = TestFactory::tool_call_loop(
+    let l: Box<dyn ToolCallLoop> = Box::new(BoundedToolCallLoop::new(
         Arc::new(ScriptedCompleter {
             tool_turns: 0,
             calls: AtomicUsize::new(0),
         }),
         Arc::new(EchoToolOps),
-    );
+    ));
     let request = CompletionRequest::new("test-model", vec![]);
     assert!(l
         .run(ToolCallLoopRequest {
@@ -250,13 +247,13 @@ async fn test_tool_call_loop_factory_builds_working_instance_happy() {
 
 #[tokio::test]
 async fn test_tool_call_loop_factory_wires_failing_tool_ops_error() {
-    let l = TestFactory::tool_call_loop(
+    let l: Box<dyn ToolCallLoop> = Box::new(BoundedToolCallLoop::new(
         Arc::new(ScriptedCompleter {
             tool_turns: 1,
             calls: AtomicUsize::new(0),
         }),
         Arc::new(FailingToolOps),
-    );
+    ));
     let request = CompletionRequest::new("test-model", vec![]);
     let result = l
         .run(ToolCallLoopRequest {
@@ -269,20 +266,20 @@ async fn test_tool_call_loop_factory_wires_failing_tool_ops_error() {
 
 #[tokio::test]
 async fn test_tool_call_loop_factory_builds_independent_instances_edge() {
-    let l1 = TestFactory::tool_call_loop(
+    let l1: Box<dyn ToolCallLoop> = Box::new(BoundedToolCallLoop::new(
         Arc::new(ScriptedCompleter {
             tool_turns: 0,
             calls: AtomicUsize::new(0),
         }),
         Arc::new(EchoToolOps),
-    );
-    let l2 = TestFactory::tool_call_loop(
+    ));
+    let l2: Box<dyn ToolCallLoop> = Box::new(BoundedToolCallLoop::new(
         Arc::new(ScriptedCompleter {
             tool_turns: 0,
             calls: AtomicUsize::new(0),
         }),
         Arc::new(EchoToolOps),
-    );
+    ));
     let request = CompletionRequest::new("test-model", vec![]);
     let r1 = l1
         .run(ToolCallLoopRequest {

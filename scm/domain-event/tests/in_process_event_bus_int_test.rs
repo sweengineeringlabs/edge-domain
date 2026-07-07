@@ -4,7 +4,7 @@
 use std::sync::Arc;
 use edge_domain_event::{
     DomainEvent, EventBus, EventBusPublishRequest, EventBusSubscribeRequest, EventError,
-    EventTypeRequest, InProcessEventBus,
+    EventSource, EventSourceRecvNextRequest, EventTypeRequest, InProcessEventBus,
 };
 
 struct SigEvt;
@@ -45,7 +45,7 @@ fn test_in_process_event_bus_subscriber_receives_event_happy() {
         let bus = InProcessEventBus::new(8);
         let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         bus.publish(EventBusPublishRequest { event: Arc::new(SigEvt) }).await.expect("publish");
-        let event = rx.recv().await.expect("recv");
+        let event = rx.recv_next(EventSourceRecvNextRequest).await.expect("recv").event;
         assert_eq!(event.event_type(EventTypeRequest).unwrap().event_type, "signal");
     });
 }
@@ -75,8 +75,8 @@ fn test_in_process_event_bus_two_subscribers_both_receive_edge() {
         let mut rx1 = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         let mut rx2 = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         bus.publish(EventBusPublishRequest { event: Arc::new(SigEvt) }).await.expect("publish");
-        assert!(rx1.recv().await.is_ok());
-        assert!(rx2.recv().await.is_ok());
+        assert!(rx1.recv_next(EventSourceRecvNextRequest).await.is_ok());
+        assert!(rx2.recv_next(EventSourceRecvNextRequest).await.is_ok());
     });
 }
 
@@ -92,7 +92,7 @@ fn test_in_process_event_bus_dropped_sender_returns_error_edge() {
         let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         // Drop the bus (sender)
         drop(bus);
-        let result = rx.recv().await;
+        let result = rx.recv_next(EventSourceRecvNextRequest).await;
         assert!(matches!(result, Err(EventError::Unavailable(_))));
     });
 }

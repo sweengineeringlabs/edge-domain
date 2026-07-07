@@ -93,7 +93,6 @@ pub use edge_domain_policy::PolicyNameResponse;
 // ── command (sub-crate when feature enabled) ──────────────────────────────────
 #[cfg(feature = "command")]
 pub use edge_domain_command::Command;
-pub use edge_domain_command::CommandBusBootstrap;
 pub use edge_domain_command::CommandError;
 
 // ── query (sub-crate when feature enabled) ────────────────────────────────────
@@ -147,16 +146,13 @@ pub use edge_domain_repository::SPEC_SVC_FACTORY;
 
 // ── handler (sub-crate when feature enabled) ──────────────────────────────────
 #[cfg(feature = "handler")]
-pub use edge_domain_handler::HandlerBootstrap;
 pub use edge_domain_handler::HandlerContext;
 pub use edge_domain_handler::HandlerError;
-pub use edge_domain_handler::HandlerProvider;
 
 // ── event (sub-crate when feature enabled) ────────────────────────────────────
 #[cfg(feature = "event")]
 pub use edge_domain_event::ClosedEventSource;
 pub use edge_domain_event::EventEnvelope;
-pub use edge_domain_event::EventReceiver;
 pub use edge_domain_event::EventSource;
 pub use edge_domain_event::ExpectedVersion;
 
@@ -221,7 +217,6 @@ pub use edge_domain_registry::InMemoryRegistry;
 #[cfg(feature = "registry")]
 pub use edge_domain_registry::Registry;
 #[cfg(feature = "registry")]
-pub use edge_domain_registry::RegistryBootstrap;
 #[cfg(feature = "registry")]
 pub use edge_domain_registry::RegistryError;
 
@@ -253,13 +248,7 @@ pub use edge_domain_lifecycle::TransitionPolicy;
 
 // ── security ──────────────────────────────────────────────────────────────────
 #[cfg(feature = "security")]
-pub use edge_security_runtime::AnonymousPrincipal;
-#[cfg(feature = "security")]
-pub use edge_security_runtime::Principal;
-#[cfg(feature = "security")]
-pub use edge_security_runtime::SecurityContext;
-#[cfg(feature = "security")]
-pub use edge_security_runtime::SecurityError;
+pub use edge_security_authn::Authenticator;
 #[cfg(feature = "security")]
 pub use edge_security_authn::AuthnError;
 #[cfg(feature = "security")]
@@ -267,7 +256,7 @@ pub use edge_security_authn::AuthnRequest;
 #[cfg(feature = "security")]
 pub use edge_security_authn::AuthnResponse;
 #[cfg(feature = "security")]
-pub use edge_security_authn::Authenticator;
+pub use edge_security_authz::Authorizer;
 #[cfg(feature = "security")]
 pub use edge_security_authz::AuthzError;
 #[cfg(feature = "security")]
@@ -275,7 +264,13 @@ pub use edge_security_authz::AuthzRequest;
 #[cfg(feature = "security")]
 pub use edge_security_authz::AuthzResponse;
 #[cfg(feature = "security")]
-pub use edge_security_authz::Authorizer;
+pub use edge_security_runtime::AnonymousPrincipal;
+#[cfg(feature = "security")]
+pub use edge_security_runtime::Principal;
+#[cfg(feature = "security")]
+pub use edge_security_runtime::SecurityContext;
+#[cfg(feature = "security")]
+pub use edge_security_runtime::SecurityError;
 
 // ── observer (opt-in; NOT in default features) ───────────────────────────────
 #[cfg(feature = "observer")]

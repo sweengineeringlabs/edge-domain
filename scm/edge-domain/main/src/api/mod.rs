@@ -6,8 +6,8 @@ mod tests;
 // ── domain (never extracted; always internal) ─────────────────────────────────
 mod domain;
 pub use domain::{
-    Domain, DomainBootstrap, DomainBootstrapNameRequest, DomainBootstrapNameResponse, DomainError,
-    DomainExtension, DomainExtensionHealthRequest, NoopDomainExtension, OutboundRegistry,
+    Domain, DomainError, DomainExtension, DomainExtensionHealthRequest, NoopDomainExtension,
+    OutboundRegistry,
 };
 
 // ── spi ───────────────────────────────────────────────────────────────────────
@@ -57,6 +57,10 @@ pub use edge_domain_event::EventOccurredAtResponse;
 pub use edge_domain_event::EventPublisher;
 #[cfg(feature = "event")]
 pub use edge_domain_event::EventPublisherPublishRequest;
+#[cfg(feature = "event")]
+pub use edge_domain_event::EventSourceRecvNextRequest;
+#[cfg(feature = "event")]
+pub use edge_domain_event::EventSourceRecvNextResponse;
 #[cfg(feature = "event")]
 pub use edge_domain_event::EventStore;
 #[cfg(feature = "event")]

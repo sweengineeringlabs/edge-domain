@@ -1,4 +1,4 @@
-//! Tests exercising the `edge-domain-pipeline` dependency directly against
+//! Tests exercising the `edge-pipeline` dependency directly against
 //! `ThinkingProcess`/`ReasoningError`, independent of `LinearReasoning`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 

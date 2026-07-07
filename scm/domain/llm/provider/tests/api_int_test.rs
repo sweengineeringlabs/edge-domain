@@ -133,15 +133,6 @@ fn test_pending_tool_call_request_response_construct() {
 }
 
 #[test]
-fn test_provider_bootstrap_name_request_response_construct() {
-    let _req = ProviderBootstrapNameRequest;
-    let resp = ProviderBootstrapNameResponse {
-        name: "provider".to_string(),
-    };
-    assert_eq!(resp.name, "provider");
-}
-
-#[test]
 fn test_provider_config_lookup_request_response_construct() {
     let _req = ProviderConfigLookupRequest;
     let resp = ProviderConfigResponse {

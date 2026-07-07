@@ -2,7 +2,7 @@
 //! Integration tests for AGENT_SVC constant and Agent trait re-export.
 
 use async_trait::async_trait;
-use edge_domain_command::{CommandBusBootstrap, StdCommandBusFactory};
+use edge_domain_command::DirectCommandBus;
 use edge_domain_handler::HandlerContext;
 use edge_domain_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
@@ -11,18 +11,17 @@ use edge_llm_agent::{
     AgentProviderRequest, AgentSkillsRequest, SkillExecutionRequest,
 };
 use edge_llm_provider::{
-    EchoProviderCompleter, ModelInfo, Provider, ProviderBootstrap, ProviderConfig,
-    StdProviderFactory,
+    EchoProviderCompleter, ModelInfo, Provider, ProviderConfig, StdProvider,
 };
 use std::sync::Arc;
 
 fn noop_provider() -> Arc<dyn Provider> {
-    StdProviderFactory::provider(
+    Arc::new(StdProvider::new(
         ProviderConfig::new("noop".to_string(), 0.0, 0),
-        Box::<ModelInfo>::default(),
+        ModelInfo::default(),
         Arc::new(EchoProviderCompleter),
         StdObserveFactory::noop_arc_observe_context(),
-    )
+    ))
 }
 
 struct TestAgent;
@@ -113,7 +112,7 @@ fn test_svc_agent_happy_trait_can_be_implemented() {
 #[test]
 fn test_svc_agent_happy_execute_skill_success() {
     let security = SecurityContext::unauthenticated();
-    let commands = StdCommandBusFactory::direct();
+    let commands = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,
@@ -133,7 +132,7 @@ fn test_svc_agent_happy_execute_skill_success() {
 #[test]
 fn test_svc_agent_error_execute_skill_unknown_skill() {
     let security = SecurityContext::unauthenticated();
-    let commands = StdCommandBusFactory::direct();
+    let commands = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
     let ctx = HandlerContext {
         security: &security,
