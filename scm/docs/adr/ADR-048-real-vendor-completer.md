@@ -48,7 +48,7 @@ pub trait Completer: Send + Sync {
 
 This is already Request/Response-shaped (arch 0.2.46 mandate) and already has an `Error`-suffixed error type (`CompleteError`, 15 variants, `complete_error.rs:1-81`, including `NetworkError(String)` at line 48 and `StreamError(String)` at line 52 — both needed by a real implementation, already present, nothing to add). `supports`, `is_model_available`, and `health_check` all have default trail-through implementations — a real completer only has to implement `complete`, `complete_stream`, `supported_models`, `model_info`, and `list_models`; the other three come free.
 
-### Credential resolution already has a home — do not reinvent it
+### Credential resolution already has a home — do not reinvent it, and integrate with the *current* `edge-security` family
 
 `server/scm/main/src/saf/provider_svc.rs:1-32` is six `TODO(#358)` comments naming the intended flow:
 
@@ -57,18 +57,20 @@ This is already Request/Response-shaped (arch 0.2.46 mandate) and already has an
 // 2. Credential resolver — create FileCredentialResolver (from swe-edge-security ADR-015)
 ```
 
-ADR-015 (§Tier 2a, Egress HTTP Security Specialisations) already defines and ships this mechanism at `transport/egress/http/scm/auth/main/src/core/credential/file_credential_resolver.rs:1-79`:
+**Correction (post-review):** an earlier draft of this ADR pointed at `transport/egress/http/scm/auth/main/src/core/credential/file_credential_resolver.rs`. That code is real and tested, but it's built against `swe-edge-security` — a workspace dependency (`edge/scm/Cargo.toml:29`) pinned to `git tag = "v0.3.3"` of `sweengineeringlabs/edge-security.git`. This domain repo (`edge-domain`) already migrated to the *current*, post-split `edge-security-*` family at `tag = "v0.3.7"` (`domain-handler`'s `edge-security-runtime.workspace = true`; see project history, "switch edge-security-* deps from path to git+tag v0.3.7"). `swe-edge-security` v0.3.3 predates that split — no package named `swe-edge-security` or bare `edge-security` exists anywhere in the current `security/` source tree (`security/application/scm/{authn,authz,pipeline}`, `security/runtime/scm/{authz,credential,identity,tls,validation}`); the top-level `edge` repo's `transport/`, `plugins/`, `server/`, and `scm/bootstrap` simply haven't been updated off the stale pre-split tag yet. Depending on it here would pull a real vendor plugin against a known-stale version of the exact family this repo already uses correctly one directory over.
+
+The **current, correct integration point** is `edge-security-runtime-credential` (`security/runtime/scm/credential/`, package `edge-security-runtime-credential`) — a sibling of the `edge-security-runtime` crate `domain-handler`/`edge-llm-provider` already depend on, at the same (current) tag:
 
 ```rust
-pub struct FileCredentialResolver;
-impl CredentialSourceResolver for FileCredentialResolver {
-    fn resolve(&self, config: &CredentialSourceConfig) -> Result<CredentialSource, AuthError> { ... }
+// security/runtime/scm/credential/main/src/api/traits/credential_source_resolver.rs:16-22
+pub trait CredentialSourceResolver: Send + Sync {
+    fn resolve(&self, req: CredentialSourceResolveRequest) -> Result<CredentialSourceResolveResponse, CredentialError>;
 }
 ```
 
-Priority order (env-var override → file path → plain env var, ADR-015 R8) is implemented and unit-tested (`file_credential_resolver.rs:81-189`, 8 tests covering override priority, file-path priority, missing-file fallback, and the no-source error case). ADR-033's own 2026-06-22 amendment (`ADR-033-llm-provider.md:499-519`) already specifies exactly this integration: `ProviderConfig.credential_source: Option<CredentialSourceConfig>` + `oauth_token_source_factory: Option<Arc<dyn OAuthTokenSourceFactory>>`, framework instantiates `FileCredentialResolver`, plugin supplies the vendor-specific `OAuthTokenSourceFactory`. **This ADR reuses that design as-is.** An Anthropic API key is a plain bearer/header credential, not an OAuth flow, so the plugin's factory is the simple case: `CredentialSourceConfig { env_var: Some("ANTHROPIC_API_KEY".into()), file_path_env_override: Some("ANTHROPIC_CREDENTIALS_PATH".into()), .. }` resolved once at construction, no `OAuthTokenSourceFactory` needed at all for v1.
+This is already Request/Response-shaped and `*Error`-suffixed (`CredentialError`) — unlike the legacy `transport/egress/http` copy's positional `&CredentialSourceConfig` argument and `AuthError` — so it also needs no adaptation to satisfy this repo's arch mandate. A real `FileCredentialSourceResolver` `spi/` implementation already exists (`spi/file_credential_source_resolver.rs`, env-var-override → file-path → home-dir-expansion priority, matching ADR-015 R8's intended order) and is obtained via its `saf/` factory: `CredentialSourceResolverFactory::file() -> Box<dyn CredentialSourceResolver>` (`saf/credential/credential_source_resolver_svc_factory.rs:13-15`). ADR-033's own 2026-06-22 amendment (`ADR-033-llm-provider.md:499-519`) specifies the integration shape (`ProviderConfig.credential_source` + an optional `OAuthTokenSourceFactory` for OAuth vendors) — **this ADR reuses that shape**, just resolved through the current crate rather than the stale one. An Anthropic API key is a plain bearer/header credential, not an OAuth flow, so no `OAuthTokenSourceFactory` is needed for v1.
 
-(Note: a second, older `FileCredentialResolver` copy exists at `plugins/security/src/core/file_credential_resolver.rs`, built against `swe_edge_security::{CredentialSourceResolver, SecurityError}` rather than the local `AuthError` the egress/http copy uses. ADR-015 R8 names egress/http Tier 2a as the canonical home; this ADR depends on the `transport/egress/http` copy, not the `plugins/security` one. Reconciling/deleting the duplicate is out of scope here — flagged as a pre-existing inconsistency, not introduced by this ADR.)
+(Note: a second, independently-stale `FileCredentialResolver` copy also exists at `plugins/security/src/core/file_credential_resolver.rs` — its crate, `swe-edge-plugins-security`, depends on `swe-edge-security = { path = "../../../security/scm/security" }`, a path that **does not exist** on disk (`security/scm/` contains only `application/`, `runtime/`, `transport/`, `docs/` — no `security/` subdirectory). That crate cannot build today. Both legacy copies are superseded by `edge-security-runtime-credential` for the purposes of this ADR; reconciling/removing them is a separate, pre-existing monorepo issue this ADR does not fix, flagged for tracking.)
 
 ### Real SSE transport already exists too
 
@@ -115,7 +117,7 @@ edge-plugin-llm-anthropic/                      (new standalone repo, mirrors ed
             └── anthropic_completer_svc.rs         (anthropic_completer(config, http_stream, http_egress) -> impl Completer)
 ```
 
-Depends on: `edge-llm-complete` (`Completer`, `CompleteError`, `CompletionRequest`/`Response`, `StreamChunk`/`StreamDelta`, `ToolCallDelta`), `swe-edge-egress-http` (`HttpEgress`, `HttpStream`, `SseStream`, `SseEvent`), `swe-edge-security` transport egress-http Tier 2a (`FileCredentialResolver`, `CredentialSourceConfig`, `CredentialSourceResolver`).
+Depends on: `edge-llm-complete` (`Completer`, `CompleteError`, `CompletionRequest`/`Response`, `StreamChunk`/`StreamDelta`, `ToolCallDelta`), `swe-edge-egress-http` (`HttpEgress`, `HttpStream`, `SseStream`, `SseEvent`), `edge-security-runtime-credential` (`CredentialSourceResolver`, `CredentialSourceResolveRequest`/`Response`, `CredentialSourceResolverFactory::file()`) — at the same current tag `edge-llm-provider` already resolves `edge-security-runtime` against, not the stale `swe-edge-security` v0.3.3.
 
 ### `AnthropicCompleter` — mapping each trait method
 
@@ -150,7 +152,8 @@ This is a genuine incremental parser — a stateful `futures::Stream` adapter ov
 - **Context-window enforcement** — `model_info`'s static table carries a context-window figure, but nothing truncates or rejects an over-limit request before sending it to Anthropic; the vendor's own 400 response is the only backstop today.
 - **Cost/usage tracking, prompt caching (`cache_read_input_tokens`/`cache_creation_input_tokens` wiring), and eval harness integration** — `TokenUsage`'s existing fields for these are populated from Anthropic's response where present, but no consumer aggregates or bills against them.
 - **Wiring into `edge-llm-runtime` (ADR-045) or `server/scm`'s `provider_svc.rs` (#358)** — this ADR produces the plugin; registering it as the live backend behind either composition root is separate follow-on work, exactly as ADR-045 already carved out ("Real vendor `Completer` — separate ADR/issue, explicitly out of scope here").
-- **Reconciling the two `FileCredentialResolver` copies** (`plugins/security/` vs. `transport/egress/http/scm/auth/`) — flagged under Context as a pre-existing inconsistency this ADR depends around, not fixes.
+- **Reconciling the two legacy `FileCredentialResolver` copies** (`plugins/security/` — which cannot currently build, its path dependency points at a nonexistent `security/scm/security/` — and `transport/egress/http/scm/auth/`, which builds but against the stale `swe-edge-security` v0.3.3) — flagged under Context; this ADR routes around both by depending on `edge-security-runtime-credential` directly, but does not delete or fix either legacy copy.
+- **Upgrading `transport/`, `plugins/`, and `server/`'s workspace-wide `swe-edge-security` v0.3.3 pin to the current `edge-security-*` family (v0.3.7)** — a monorepo-wide version-skew issue this ADR's plugin simply avoids by not depending on the stale crate at all. Fixing the pin itself is separate, unrelated follow-on work, out of scope here.
 
 ## Consequences
 
@@ -158,7 +161,7 @@ This is a genuine incremental parser — a stateful `futures::Stream` adapter ov
 - The first real, non-echo path from `Completer::complete`/`complete_stream` to an actual LLM vendor, closing the single most-cited gap across ADR-045 and ADR-046 ("no real vendor `Completer` (still echo/noop only)").
 - A concrete, working reference for the second vendor (OpenAI-compatible) to copy structurally — same `spi/` shape (`*_request.rs`/`*_response.rs`/`*_stream.rs`), same `saf/` factory pattern, different JSON mapping.
 - Real incremental streaming validated end-to-end for the first time — `StreamChunk`/`StreamDelta` proven against a genuine multi-event source, not just constructed once in a test.
-- Credential handling proven against ADR-015's Tier 2a mechanism exactly as ADR-033's amendment already specified, closing out the design half of `edge-domain#358`'s TODOs (the assembler-wiring half remains ADR-045's follow-up, not this ADR's).
+- Credential handling proven against the *current* `edge-security-runtime-credential` mechanism exactly as ADR-033's amendment already specified, closing out the design half of `edge-domain#358`'s TODOs (the assembler-wiring half remains ADR-045's follow-up, not this ADR's) — and doing so without adding a dependency on the stale, pre-split `swe-edge-security` v0.3.3 that `transport/`, `plugins/`, and `server/` are still pinned to.
 
 **What this requires**
 - New repo scaffold (`sweengineeringlabs/edge-plugin-llm-anthropic`), mirroring `edge-plugin-a2a`'s `scm/` layout (the reference plugin at 174/174 per ADR-042's references).
@@ -187,5 +190,7 @@ Rejected. This is precisely the fakeness ADR-045 flagged ("every `Completer` imp
 - Depends on (already closed, verified): `edge-domain#77` (`NetworkError`), `edge-domain#78` (`CompletionInput`) — both confirmed resolved per 2026-07-08 provider audit
 - Follow-up (independent, not blocking): `edge-plugin-llm-openai` — same shape, different vendor JSON mapping and auth header
 - Follow-up (separate ADR/issue): register `AnthropicCompleter` behind `edge-llm-runtime` (ADR-045) and/or `server/scm`'s `provider_svc.rs` (#358)
-- Follow-up (pre-existing, unrelated): reconcile duplicate `FileCredentialResolver` copies (`plugins/security/` vs. `transport/egress/http/scm/auth/`)
+- Follow-up (pre-existing, unrelated): reconcile duplicate `FileCredentialResolver` copies (`plugins/security/` — currently non-buildable, broken path dep — vs. `transport/egress/http/scm/auth/` — buildable but stale v0.3.3) against the current `edge-security-runtime-credential`
+- Follow-up (pre-existing, unrelated, larger): upgrade `transport/`, `plugins/`, `server/`, `scm/bootstrap`'s workspace `swe-edge-security` dependency from stale `git tag = "v0.3.3"` to the current post-split `edge-security-*` family (v0.3.7) already used throughout `domain/`
+- **Revisit once `transport/` is cleaned to depend on the current `edge-security` tag:** re-evaluate whether `edge-plugin-llm-anthropic` should switch its credential resolution from `edge-security-runtime-credential` (direct, this ADR's choice) to `swe-edge-egress-auth` (transport's own HTTP-auth crate), so credential resolution for HTTP-egress plugins is centralized behind one transport-layer seam instead of each plugin reaching into `edge-security-runtime-credential` independently. **Contingent on**: confirming that cleanup also reshapes `swe-edge-egress-auth`'s `CredentialSourceResolver::resolve(&self, config: &CredentialSourceConfig) -> Result<CredentialSource, AuthError>` to the mandatory Request/Response port shape (a version-pin bump alone does not fix that; it's a separate, orthogonal defect from the staleness this ADR routed around). If the cleanup is version-only, this plugin should keep depending on `edge-security-runtime-credential` directly rather than inherit a still-non-compliant shape.
 - Not blocking this ADR: retry/backoff consumption of `CompleteError::RateLimited`/`NetworkError`, context-window enforcement, cost/usage aggregation
