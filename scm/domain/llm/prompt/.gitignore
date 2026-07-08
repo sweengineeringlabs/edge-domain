@@ -1,6 +1,0 @@
-target/
-docs/7-operations/compliance/
-
-# Transient local artifacts — must never be tracked (keeps crate root clean)
-.claude/
-arch_audit.txt
