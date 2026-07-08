@@ -3,8 +3,10 @@
 **Status:** Proposed
 **Date:** 2026-07-08
 **Author:** Senior Agentic Engine Engineer
-**Relates to:** ADR-033 (LLM Provider), ADR-034 (LLM Prompt), ADR-043 (LLM Complete), ADR-046 (edge-llm-tools Governance — same Policy-reuse pattern)
+**Relates to:** ADR-033 (LLM Provider), ADR-034 (LLM Prompt), ADR-043 (LLM Complete), ADR-046 (edge-llm-tools Governance — same Policy-reuse pattern), ADR-065 (Model-Aware TokenCounter — corrects this ADR's `estimate_tokens` call, see below)
 **GitHub Issues:** TBD
+
+**Correction (post-review, via ADR-065):** the `estimate_tokens` call below originally carried no `model` parameter — a real calibration bug in this design, not a separate enhancement, since different model families tokenize differently and a model-blind estimate can't validly gate a per-model context window. Fixed in place below (this ADR was still `Proposed`/unimplemented when caught, so this is a design correction, not a patch to shipped code). `TokenCounter::estimate_tokens` now requires a `model` field per ADR-065.
 
 ---
 
@@ -134,8 +136,11 @@ async fn complete(&self, req: ProviderCompleteRequest) -> Result<ProviderComplet
     let request = req.input.into_completion_request(model, temperature);
 
     // Proactive guard — before any network call.
+    // `model` is required here (ADR-065): different model families tokenize
+    // differently, so a model-blind estimate can't validly gate a per-model window.
     let estimated = self.token_counter.estimate_tokens(EstimateTokensRequest {
         text: &request.prompt_text(), // system + messages joined; see note below
+        model: &model,
     })?.count as u32;
     let check = ContextWindowCheckInput {
         estimated_prompt_tokens: estimated,

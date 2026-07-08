@@ -19,14 +19,14 @@ cd C:\phd-systems\swelabs\edge
 grep -rliE "embedding|vector_store|VectorStore|Embedding|retrieval.?augmented|\bRAG\b" --include=*.rs domain/
 ```
 
-Zero matches, exit code 1. Widening to the whole `edge/` tree with the four ML-specific terms (`embedding|vector_store|VectorStore|Embedding`, dropping the generic `RAG`/`retrieval` terms which are prone to false positives) returns six files, all outside `domain/` (under `security/transport/...` and `transport/egress/...`). Inspecting the first hit confirms it is a false positive, not a hidden feature:
+Zero matches, exit code 1. Widening to the whole `edge/` tree with the four ML-specific terms (`embedding|vector_store|VectorStore|Embedding`, dropping the generic `RAG`/`retrieval` terms which are prone to false positives) returns four files, all outside `domain/`. Inspecting the first hit confirms it is a false positive, not a hidden feature:
 
 ```
 security/transport/http/egress/scm/oauth/main/src/api/refresh/types/credentials_validation_request.rs:7:
 /// (`field_type_purity`) instead of embedding another domain struct.
 ```
 
-That is the English verb "embed" in a SEA-rule doc comment (the same phrasing convention used across this codebase's `field_type_purity` comments, e.g. `domain/scm/domain/llm/prompt/main/src/api/prompt/types/context_build_response.rs:8-9`), not a reference to vector embeddings. The other five hits are the same pattern (`identity_resolution_*`, `resilience_config_resilience_validator.rs`, etc. — "valid**a**tion"/"resol**u**tion"-shaped identifiers, no ML vocabulary). The landscape hole is confirmed: complete, not partial.
+That is the English verb "embed" in a SEA-rule doc comment (the same phrasing convention used across this codebase's `field_type_purity` comments, e.g. `domain/scm/domain/llm/prompt/main/src/api/prompt/types/context_build_response.rs:8-9`), not a reference to vector embeddings. The other three hits are the same pattern (`verification_response.rs`, `resilience_config_resilience_validator.rs`, `default_http_retry_int_test.rs` — "valid**a**tion"/"resol**u**tion"-shaped identifiers, no ML vocabulary). **Correction (post-review):** an earlier draft of this ADR miscounted these as "six files" and cited a nonexistent `identity_resolution_*` filename among them — corrected above to the actual re-verified count and file list. The landscape hole is confirmed: complete, not partial.
 
 **Where a retrieved chunk would have to land.** `edge-llm-prompt`'s `ContextManager` (`domain/scm/domain/llm/prompt/main/src/api/prompt/traits/context_manager.rs:10-33`) is the variable-registration contract — a prior audit this session already established it is *not* a capacity/pruning manager. Its shape:
 

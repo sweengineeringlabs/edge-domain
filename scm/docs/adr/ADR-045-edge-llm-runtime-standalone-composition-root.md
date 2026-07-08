@@ -23,13 +23,15 @@ That said, `swe-edge-bootstrap` has no consumers of its own outside two throwawa
 
 ## Decision
 
-Create a new, standalone repository, **`edge-llm-runtime`**, that **depends on `swe-edge-bootstrap`** as its composition-root library (not `server/scm`), and registers each LLM crate's `Default*Handler` through `RuntimeBuilder::http_route()`/`grpc_route()` — the same call path `hello_edge.rs` already proved works. This is a standalone repo with its own release cadence, deployable independently of both `server/scm` and the `edge/scm` example workspace — it borrows `swe-edge-bootstrap` and the LLM crates as ordinary library dependencies, the same way `hello-edge`/`hello-llmagents` already do, just as a maintained application instead of a prototype.
+Create a new, standalone repository, **`edge-llm-runtime`**, that **depends on `swe-edge-bootstrap`** as its composition-root library (not `server/scm`), and registers each LLM crate's `Default*Handler` through `RuntimeBuilder::http_route()`/`grpc_route()`. This is a standalone repo with its own release cadence, deployable independently of both `server/scm` and the `edge/scm` example workspace — it borrows `swe-edge-bootstrap` and the LLM crates as ordinary library dependencies, the same way `hello-edge`/`hello-llmagents` already do, just as a maintained application instead of a prototype.
+
+**Correction (post-review):** an earlier draft of this ADR overstated `.http_route()` itself as "the same call path `hello_edge.rs` already proved works." That's not accurate — `hello_edge.rs` proves that an LLM `Handler` (`edge-llm-provider`'s) can be dispatched end-to-end via `Domain::new_handler_registry()` and a hand-rolled `ProviderJob`/`ProviderRouter` into `Runtime::http_ingress`; it never calls `.http_route()`/`.grpc_route()` at all. Those two methods are real, tested, backed by `edge-dispatcher`'s `HandlerRegistryImpl` (per Context) — but only ever exercised in `swe-edge-bootstrap`'s own test suite (`dep_coverage_int_test.rs`, `json_codec_int_test.rs`) with generic `PingHandler`/`EchoHandler`, never with an LLM handler. So this ADR's choice to use `.http_route()` rather than reproducing `hello_edge.rs`'s hand-rolled pattern is a real, still-sound design decision (a tested, more ergonomic API over hand-rolling `Job`/`Router` again) — it is just not literally "reuse of an already-LLM-proven path." The Alternatives Considered section below already stated this correctly; the Decision text above was the one that overstated it.
 
 ### Shape
 
-`edge-llm-runtime` is an **application**, not a domain-primitive crate. It borrows existing, already-proven infrastructure as library dependencies; it does not define new domain contracts of its own:
+`edge-llm-runtime` is an **application**, not a domain-primitive crate. It borrows existing infrastructure as library dependencies; it does not define new domain contracts of its own:
 
-- `swe-edge-bootstrap::RuntimeBuilder` — the assembler. `.http_route(handler)`/`.grpc_route(handler)` registers each LLM `Arc<dyn Handler<Req,Resp>>`; internally backed by `edge-dispatcher`'s `HandlerRegistryImpl` (real, proven, not experimental — see Context).
+- `swe-edge-bootstrap::RuntimeBuilder` — the assembler. `.http_route(handler)`/`.grpc_route(handler)` registers each LLM `Arc<dyn Handler<Req,Resp>>`; internally backed by `edge-dispatcher`'s `HandlerRegistryImpl` (real, proven with generic handlers — see the correction above regarding LLM-specific proof).
 - `edge-dispatcher`'s decorators (`TimeoutHandler` in particular) — available for free once `swe-edge-bootstrap` is a dependency. Wrapping the provider handler in a deadline before registration is a natural fit given LLM completion calls can hang; left as an explicit follow-up rather than bundled into the first version, to keep this ADR's first cut minimal.
 - `edge-domain-observer::ObserverContext`, `edge-security-runtime::SecurityContext` — required fields of `HandlerContext`, threaded through real (not `Noop`) instances so spans/metrics from ADR-044's seams are actually populated.
 - HTTP transport binding via `swe-edge-ingress-http::AxumHttpServer`, the same server `swe-edge-bootstrap`'s own `Runtime` type already wraps.
@@ -73,7 +75,7 @@ Carried over from the 2026-07-08 landscape audit — none of these are fixed by 
 ## Consequences
 
 **What this enables**
-- A real, runnable, testable path for LLM: HTTP request → real domain logic → HTTP response, built on the one path already proven to work (`hello_edge.rs`'s pattern), not a fresh bespoke assembly.
+- A real, runnable, testable path for LLM: HTTP request → real domain logic → HTTP response, using `swe-edge-bootstrap`'s tested `RuntimeBuilder::http_route()` API rather than a fresh bespoke assembly — a different, more ergonomic dispatch mechanism than `hello_edge.rs`'s hand-rolled `Job`/`Router`, not a literal reuse of it (see the correction under Decision).
 - LLM crates can ship and be exercised on their own release cadence, independent of `server/scm`'s unrelated, consumer-less build-out.
 - `edge-domain#358` stops being a blocker for "can LLM be called at all" — it becomes optional future work (registering LLM in `server/scm` too, for parity, once that crate has real consumers), not a prerequisite.
 - A genuine integration-test surface: for the first time, `Provider::complete()` and friends can be exercised over real HTTP, not just unit-tested in isolation.

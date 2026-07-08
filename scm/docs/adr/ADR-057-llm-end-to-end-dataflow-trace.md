@@ -3,14 +3,16 @@
 **Status:** Proposed
 **Date:** 2026-07-08
 **Author:** Senior Agentic Engine Engineer
-**Relates to:** ADR-045 (Composition Root), ADR-046 (Tool Governance), ADR-047 (MCP), ADR-048 (Real Vendor Completer), ADR-049 (Reasoning Honesty), ADR-050 (Context-Window Guard), ADR-051 (Retry/Backoff), ADR-052 (Retrieval), ADR-053 (Guardrails), ADR-054 (Cost/Usage Tracking), ADR-055 (Eval Harness), ADR-056 (Multimodal Input)
+**Relates to:** ADR-045 (Composition Root), ADR-046 (Tool Governance), ADR-047 (MCP), ADR-048 (Real Vendor Completer), ADR-049 (Reasoning Honesty), ADR-050 (Context-Window Guard), ADR-051 (Retry/Backoff), ADR-052 (Retrieval), ADR-053 (Guardrails), ADR-054 (Cost/Usage Tracking), ADR-055 (Eval Harness), ADR-056 (Multimodal Input), ADR-071 (Persistent Usage Ledger + SpendLimitPolicy — adds a step to this trace, see below)
 **GitHub Issues:** TBD
+
+**Amendment (post-review, via ADR-071):** `SpendLimitPolicy` (ADR-071) adds a new step to the resolved trace below, immediately after the context-window check and before the guardrail's `PreCall` phase — deny an over-budget request before paying for the call, for the same reason the context-window check runs early. ADR-071 named this as a required follow-up to this ADR rather than silently diverging from it; folded in below.
 
 ---
 
 ## Context
 
-ADR-045 through ADR-056 were drafted independently and in parallel — each agent read only ADR-045/046 as a style template, not each other's decisions. Each ADR has a **local** dataflow diagram for its own integration point. None traces a single request through all of them together, in the order it would actually execute. Reconstructing that trace surfaces one structural gap and four unresolved ordering questions.
+ADR-045 through ADR-056 were drafted independently and in parallel — each agent read only ADR-045/046 as a style template, not each other's decisions. Each ADR has a **local** dataflow diagram for its own integration point. None traces a single request through all of them together, in the order it would actually execute. Reconstructing that trace surfaces one structural gap and five unresolved ordering/consistency questions.
 
 ### The structural gap: two disconnected completion paths
 
@@ -28,12 +30,13 @@ Meanwhile, **every one of ADR-050 (context-window guard), ADR-053 (guardrails), 
 
 This is not a defect introduced by any of the four ADRs — each was correctly scoped against `Provider`/`Completer` as instructed. It's a pre-existing fork this dataflow trace is the first artifact to surface.
 
-### Four composition-order questions left unresolved
+### Five composition-order and consistency questions left unresolved
 
 1. **`GovernedHandler` (ADR-046) vs. `RetryHandler` (ADR-051)** — both wrap the same `Handler`. No ADR states which wraps which.
 2. **Retrieval (ADR-052) vs. context-window guard (ADR-050)** — retrieval injects content into `ContextManager` before rendering; the context-window check must see the *post-retrieval* token count or it validates a stale, smaller estimate.
 3. **Guardrail pre-call phase (ADR-053) vs. context-window guard (ADR-050)** — both gate the outgoing call, at different layers (`Completer`-wrapping vs. a `CompositePolicy` field on `StdProvider`). Relative order was never decided.
 4. **Usage recording (ADR-054) vs. retry (ADR-051)** — `UsageRecorder::record` is called inside `StdProvider::complete()`, once per invocation. If `RetryHandler` retries at the `Handler` layer above, does a failed-then-retried call record usage once or per attempt?
+5. **`ObserverContext` instance consistency across independently-constructed seams.** `StdProvider` (`observer` field), `GuardrailedCompleter` (ADR-053, `observer` field), `DefaultUsageRecorder` (ADR-054, holds its own `Arc<dyn ObserverContext>`), and `GovernedHandler` (ADR-046, emits through `ctx.observer`) each obtain an `ObserverContext` independently — three by their own constructor parameter, one via `HandlerContext`. Nothing states they must all be the *same* `Arc<dyn ObserverContext>` instance. Verified: `ObserverContext`'s real shape (`domain-observer/main/src/api/observe/traits/observer_context.rs:13-19`) has no identity/equality concept a caller could use to detect divergence at runtime — if a composition root constructs these four with different instances (e.g. two separate `noop_observer_context()` calls), a guardrail denial's span and the request's own tracer span land in unrelated trace contexts and never correlate, silently. None of ADR-046/053/054, nor this ADR until now, named the invariant.
 
 ## Decision
 
@@ -51,14 +54,15 @@ DefaultProviderHandler::execute
           → Completer::complete()  (ADR-048's real vendor Completer, once it ships)
 ```
 
-Until `StdExecutionModel` exists, ADR-050/053/054/056 remain correctly designed but **dormant from an HTTP caller's perspective** — exercisable only through direct unit/integration tests that construct a `StdProvider` and call `.complete()` themselves, not through `edge-llm-runtime`'s registered ingress. This ADR does not ask any of those four ADRs to change; it adds the one missing piece that makes them live.
+Until `StdExecutionModel` exists, ADR-050/053/054/056/071 remain correctly designed but **dormant from an HTTP caller's perspective** — exercisable only through direct unit/integration tests that construct a `StdProvider` and call `.complete()` themselves, not through `edge-llm-runtime`'s registered ingress. This ADR does not ask any of those five ADRs to change; it adds the one missing piece that makes them live.
 
-### Resolve the four ordering questions
+### Resolve the five ordering/consistency questions
 
 1. **`GovernedHandler` outside `RetryHandler`.** Deny-fast: a capability/risk denial must never be retried. Composition: `GovernedHandler::new(RetryHandler::new(inner))`. A denied call never reaches the retry loop; a transient failure on an *allowed* call gets retried.
 2. **Retrieval before context-window guard, structurally guaranteed, not just by convention.** Retrieval (ADR-052) composes into `ContextManager` *before* `Prompt::render`/`build_context` runs; the context-window guard (ADR-050) runs later still, inside `StdProvider::complete()`, over the already-rendered `CompletionInput`. Because these three steps already sit in that pipeline order (retrieve → render → build request → guard), no new sequencing code is needed — this ADR's contribution is stating the invariant explicitly so a future change doesn't reorder it silently.
-3. **Context-window guard before guardrail pre-call check.** Rationale: the size check is the cheaper failure to detect (integer comparison vs. flattening + policy evaluation over message content) and — more importantly — independent of content, so checking it first avoids paying the guardrail's text-flattening cost (`ContentFlattener::flatten`, per ADR-053) on a request that's going to be rejected for size regardless. Both live at different layers today (`StdProvider`'s `CompositePolicy` field vs. `GuardrailedCompleter` wrapping `Arc<dyn Completer>`) — `StdProvider::complete()` naturally runs its own `CompositePolicy` check before ever calling `self.completer.complete(...)`, which already is the `GuardrailedCompleter`-wrapped instance, so this ordering falls out of the two ADRs' own designs without new code, provided composition roots wire `GuardrailedCompleter` in at construction (as ADR-053 already requires) rather than at some earlier point.
+3. **Context-window guard before guardrail pre-call check.** Rationale: the size check is the cheaper failure to detect (integer comparison vs. flattening + policy evaluation over message content) and — more importantly — independent of content, so checking it first avoids paying the guardrail's text-flattening cost (`ContentFlattener::flatten`, per ADR-053) on a request that's going to be rejected for size regardless. The two are designed to live at different layers (`StdProvider`'s `CompositePolicy` field vs. `GuardrailedCompleter` wrapping `Arc<dyn Completer>` — neither exists in the codebase yet; both are `Status: Proposed`) — once built, `StdProvider::complete()` would naturally run its own `CompositePolicy` check before ever calling `self.completer.complete(...)`, which would then be the `GuardrailedCompleter`-wrapped instance, so this ordering falls out of the two ADRs' own designs without new code, provided composition roots wire `GuardrailedCompleter` in at construction (as ADR-053 already requires) rather than at some earlier point.
 4. **Usage recorded once per successful call, not per attempt.** `RetryHandler` wraps at the `Handler` layer, `UsageRecorder` records inside `StdProvider::complete()`, one layer below. Each retry attempt is a fresh `StdProvider::complete()` invocation, so a naive reading would record usage per attempt. This ADR specifies the intended behavior explicitly: usage **should** be recorded per attempt (each attempt consumes real vendor tokens whether or not it ultimately succeeds), not just the final one — the alternative (recording only on final success) would silently undercount spend on any request that failed once and succeeded on retry. `UsageRecorder`'s emission already happens inside `StdProvider::complete()`, so per-attempt recording is what the current design already does; this ADR resolves the ambiguity in ADR-054's own text by stating it's intentional, not an oversight to fix.
+5. **One shared `Arc<dyn ObserverContext>` per composition root, constructed once and cloned into every seam.** The composition root that builds `StdProvider`, `GuardrailedCompleter`, `DefaultUsageRecorder`, and the `Handler` chain (`GovernedHandler`/`RetryHandler`) must construct exactly one `Arc<dyn ObserverContext>` (real backend or `noop_observer_context()` in tests) and pass clones of that same `Arc` into all four — never four independent instances. This is a wiring discipline, not a code change to any of ADR-046/053/054's own designs: each already accepts `Arc<dyn ObserverContext>` as an ordinary constructor parameter: the fix is entirely in how the composition root calls those constructors.
 
 ### The full resolved trace
 
@@ -80,11 +84,12 @@ ExecutionModel::execute_step  →  StdExecutionModel (NEW, this ADR — the miss
 Provider::complete()  [provider/core/provider/std/std_provider.rs]
   │  a. retrieval already composed into ContextManager before render (ADR-052 — upstream of this call)
   │  b. ContextWindowPolicy check (ADR-050) — cheap, content-independent, runs first
-  │  c. self.completer.complete(...) — completer is GuardrailedCompleter-wrapped (ADR-053)
+  │  c. SpendLimitPolicy check (ADR-071) — same CompositePolicy as (b), runs immediately after: deny before paying for an over-budget call, checked per attempt (same reasoning as usage recording, step (e))
+  │  d. self.completer.complete(...) — completer is GuardrailedCompleter-wrapped (ADR-053)
   │       i.   GuardrailPhase::PreCall check (flattened prompt text)
   │       ii.  real vendor Completer (ADR-048, once shipped) — Anthropic Messages API
   │       iii. GuardrailPhase::PostCall check (response content)
-  │  d. UsageRecorder::record(...) — per attempt, per #4 above (ADR-054)
+  │  e. UsageRecorder::record(...) — per attempt, per #4 above (ADR-054)
   ▼
 response bubbles back through Provider → ExecutionModel → Handler
   │  on ExecutionError::is_retryable() == true: RetryHandler retries from "bounded retry loop begins" (bounded attempts, per ADR-051)
@@ -94,6 +99,8 @@ HTTP/gRPC/MCP response
 separately, off this path entirely:
 edge-llm-eval (ADR-055) — calls Provider/Agent directly, never touches the registry
 ```
+
+Every box in the trace above that independently takes an `Arc<dyn ObserverContext>` (`GovernedHandler`, `StdProvider`, `GuardrailedCompleter`, `DefaultUsageRecorder`) must receive a clone of the *same* `Arc`, constructed once by the composition root — per #5 above. This is not shown as a separate box because it's not a pipeline stage; it's a constraint on how every other box gets built.
 
 Reasoning-pattern selection (ADR-049) and multimodal content (ADR-056) are not separate boxes in this trace — they're shape decisions made *before* `Provider::complete()` is called (which pattern's step logic assembled the `CompletionInput`, whether a `ContentPart::Image` is present in it) rather than additional pipeline stages.
 
@@ -107,8 +114,8 @@ Reasoning-pattern selection (ADR-049) and multimodal content (ADR-056) are not s
 ## Consequences
 
 **What this enables**
-- A concrete build order: `StdExecutionModel` (this ADR) must land before ADR-050/053/054/056's work is observable from any real request, regardless of which order those four ADRs themselves are implemented in.
-- Removes a likely-otherwise-silent integration failure: implementing all of ADR-050/053/054/056 correctly in isolation, running their unit tests green, and then discovering in an end-to-end test that none of it fires on a real HTTP request.
+- A concrete build order: `StdExecutionModel` (this ADR) must land before ADR-050/053/054/056/071's work is observable from any real request, regardless of which order those five ADRs themselves are implemented in.
+- Removes a likely-otherwise-silent integration failure: implementing all of ADR-050/053/054/056/071 correctly in isolation, running their unit tests green, and then discovering in an end-to-end test that none of it fires on a real HTTP request.
 
 **What this requires**
 - New `StdExecutionModel` in `provider/core/provider/` (or similar), converting `StepExecutionRequest ⇄ ProviderCompleteRequest`/`StepExecutionResponse ⇄ ProviderCompletionResponse`.
@@ -125,7 +132,10 @@ Rejected. Would mean implementing context-window checking, guardrails, and usage
 
 ## Tracking
 
-- New: `StdExecutionModel` bridging `ExecutionModel` → `Provider::complete()` — blocks ADR-050/053/054/056 from being HTTP-observable
+- New: `StdExecutionModel` bridging `ExecutionModel` → `Provider::complete()` — blocks ADR-050/053/054/056/071 from being HTTP-observable
 - Composition-root wiring note: `GovernedHandler(RetryHandler(inner))` ordering — applies wherever ADR-045/046/051 are actually implemented
+- Composition-root wiring note: `SpendLimitPolicy` (ADR-071) joins `StdProvider`'s `CompositePolicy` immediately after `ContextWindowPolicy`, before the `GuardrailedCompleter` handoff (per the amendment above)
 - Composition-root wiring note: wrap every constructed `Arc<dyn Completer>` in `GuardrailedCompleter` (ADR-053's own tracking item, reaffirmed here as part of the full trace)
+- Composition-root wiring note: construct exactly one `Arc<dyn ObserverContext>` per composition root and clone it into `StdProvider`, `GuardrailedCompleter`, `DefaultUsageRecorder`, and the `GovernedHandler`/`RetryHandler` chain — never independent instances (per #5 above)
+- Follow-up: an integration test asserting observer-instance sharing specifically — e.g. a test double `ObserverContext` with an instance-identifiable counter, verifying a single request's guardrail check, usage record, and handler-level span all land on the same instance — would catch a regression here that a purely functional test would not
 - Follow-up: once `StdExecutionModel` exists, add an end-to-end integration test exercising the full trace above (HTTP in → guard → retry → bridge → provider → guardrail → completer → usage → response out) against echo backends, mirroring ADR-045's own "prove the plumbing" scope
