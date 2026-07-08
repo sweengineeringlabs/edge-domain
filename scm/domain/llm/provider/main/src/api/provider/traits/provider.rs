@@ -1,12 +1,14 @@
 //! `Provider` — the LLM backend contract (primary trait).
 
+use async_trait::async_trait;
+
 use crate::api::provider::errors::ExecutionError;
 use crate::api::provider::types::{
     CompleterRequest, CompleterResponse, HealthCheckRequest, LastFinishReasonRequest,
     LastFinishReasonResponse, LastTokenUsageRequest, LastTokenUsageResponse, ModelFamilyRequest,
-    ModelFamilyResponse, ModelInfoLookupRequest, ModelInfoResponse, ProviderConfigLookupRequest,
-    ProviderConfigResponse, ProviderNameRequest, ProviderNameResponse, TokenizerAccuracyRequest,
-    TokenizerAccuracyResponse,
+    ModelFamilyResponse, ModelInfoLookupRequest, ModelInfoResponse, ProviderCompleteRequest,
+    ProviderCompletionResponse, ProviderConfigLookupRequest, ProviderConfigResponse,
+    ProviderNameRequest, ProviderNameResponse, TokenizerAccuracyRequest, TokenizerAccuracyResponse,
 };
 
 /// Pluggable LLM backend (OpenAI, Claude, local models, …).
@@ -14,6 +16,7 @@ use crate::api::provider::types::{
 /// Owns configuration, model metadata, and health state. Delegates all HTTP
 /// completion work to an inner [`Completer`](edge_llm_complete::Completer) returned by
 /// [`Provider::completer`].
+#[async_trait]
 pub trait Provider: Send + Sync {
     /// Stable identifier for this provider (e.g. `"anthropic"`).
     fn name(&self, req: ProviderNameRequest) -> Result<ProviderNameResponse, ExecutionError>;
@@ -56,8 +59,20 @@ pub trait Provider: Send + Sync {
 
     /// The HTTP-level completion boundary this provider delegates to.
     ///
-    /// Callers that need to issue a [`CompletionRequest`](edge_llm_complete::CompletionRequest)
-    /// should call `provider.completer().complete(&request)` rather than calling the
-    /// provider directly — completion is the completer's responsibility.
+    /// Callers that need direct access to the [`Completer`](edge_llm_complete::Completer) —
+    /// e.g. for streaming or model introspection — should use this rather than calling the
+    /// provider directly. For a single structured completion, prefer [`Provider::complete`].
     fn completer(&self, req: CompleterRequest) -> Result<CompleterResponse, ExecutionError>;
+
+    /// Run a structured completion through this provider's [`Completer`](edge_llm_complete::Completer).
+    ///
+    /// Fills in the model id from [`Provider::model_info`] and the sampling temperature from
+    /// [`Provider::provider_config`], converts `req` into an
+    /// [`edge_llm_complete::CompletionRequest`], and delegates to [`Provider::completer`].
+    ///
+    /// Returns [`ExecutionError`] when the underlying completer rejects or fails the request.
+    async fn complete(
+        &self,
+        req: ProviderCompleteRequest,
+    ) -> Result<ProviderCompletionResponse, ExecutionError>;
 }

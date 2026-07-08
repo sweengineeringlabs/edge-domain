@@ -3,15 +3,17 @@
 use std::fmt;
 use std::sync::Arc;
 
-use edge_llm_complete::Completer;
+use async_trait::async_trait;
+use edge_llm_complete::{CompleteRequest, Completer};
 
 use crate::api::{
     CompleterRequest, CompleterResponse, ExecutionError, HealthCheckRequest,
     LastFinishReasonRequest, LastFinishReasonResponse, LastTokenUsageRequest,
     LastTokenUsageResponse, ModelFamilyRequest, ModelFamilyResponse, ModelInfo,
-    ModelInfoLookupRequest, ModelInfoResponse, Provider, ProviderConfig,
-    ProviderConfigLookupRequest, ProviderConfigResponse, ProviderNameRequest, ProviderNameResponse,
-    StdProvider, TokenUsage, TokenizerAccuracyRequest, TokenizerAccuracyResponse,
+    ModelInfoLookupRequest, ModelInfoResponse, Provider, ProviderCompleteRequest,
+    ProviderCompletionResponse, ProviderConfig, ProviderConfigLookupRequest,
+    ProviderConfigResponse, ProviderNameRequest, ProviderNameResponse, StdProvider, TokenUsage,
+    TokenizerAccuracyRequest, TokenizerAccuracyResponse,
 };
 
 impl StdProvider {
@@ -52,6 +54,7 @@ impl Clone for StdProvider {
     }
 }
 
+#[async_trait]
 impl Provider for StdProvider {
     fn name(&self, _req: ProviderNameRequest) -> Result<ProviderNameResponse, ExecutionError> {
         Ok(ProviderNameResponse {
@@ -126,6 +129,24 @@ impl Provider for StdProvider {
         Ok(CompleterResponse {
             completer: Arc::clone(&self.completer),
         })
+    }
+
+    async fn complete(
+        &self,
+        req: ProviderCompleteRequest,
+    ) -> Result<ProviderCompletionResponse, ExecutionError> {
+        let model = self.model_info(ModelInfoLookupRequest)?.info.id.clone();
+        let temperature = self
+            .provider_config(ProviderConfigLookupRequest)?
+            .config
+            .temperature;
+        let request = req.input.into_completion_request(model, temperature);
+
+        self.completer
+            .complete(CompleteRequest { request: &request })
+            .await
+            .map(|response| ProviderCompletionResponse { response })
+            .map_err(ExecutionError::from)
     }
 }
 

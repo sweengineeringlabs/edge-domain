@@ -4,11 +4,12 @@
 use std::sync::Arc;
 
 use edge_domain_observer::StdObserveFactory;
-use edge_llm_complete::{ListModelsRequest, NoopCompleter, SupportedModelsRequest};
+use edge_llm_complete::{EchoCompleter, ListModelsRequest, NoopCompleter, SupportedModelsRequest};
 use edge_llm_provider::{
-    CompleterRequest, FinishReason, HealthCheckRequest, LastFinishReasonRequest,
-    LastTokenUsageRequest, ModelFamily, ModelFamilyRequest, ModelInfo, ModelInfoLookupRequest,
-    Provider, ProviderConfig, ProviderConfigLookupRequest, ProviderNameRequest, StdProvider,
+    CompleterRequest, CompletionInput, ExecutionConfig, ExecutionMode, FinishReason,
+    HealthCheckRequest, LastFinishReasonRequest, LastTokenUsageRequest, ModelFamily,
+    ModelFamilyRequest, ModelInfo, ModelInfoLookupRequest, Provider, ProviderCompleteRequest,
+    ProviderConfig, ProviderConfigLookupRequest, ProviderNameRequest, StdProvider,
     TokenizerAccuracy, TokenizerAccuracyRequest,
 };
 use futures::executor::block_on;
@@ -27,6 +28,29 @@ fn provider(model: &str) -> Arc<dyn Provider> {
         Arc::new(NoopCompleter),
         StdObserveFactory::noop_arc_observe_context(),
     ))
+}
+
+fn provider_with_completer(
+    model: &str,
+    completer: Arc<dyn edge_llm_complete::Completer>,
+) -> Arc<dyn Provider> {
+    let config = ProviderConfig::new(model.to_string(), 0.7, 8192);
+    let info = ModelInfo::new(
+        model.to_string(),
+        model.to_string(),
+        ModelFamily::Anthropic,
+        8192,
+    );
+    Arc::new(StdProvider::new(
+        config,
+        info,
+        completer,
+        StdObserveFactory::noop_arc_observe_context(),
+    ))
+}
+
+fn config() -> ExecutionConfig {
+    ExecutionConfig::new(4096, 30_000, true, false, ExecutionMode::Async)
 }
 
 // --- name ---
@@ -352,4 +376,53 @@ fn test_completer_stable_arc_across_calls_edge() {
     let a = p.completer(CompleterRequest).unwrap().completer;
     let b = p.completer(CompleterRequest).unwrap().completer;
     assert!(Arc::ptr_eq(&a, &b));
+}
+
+// --- complete ---
+
+/// @covers: Provider::complete — echoes the last user message back via the completer
+#[test]
+fn test_complete_returns_completer_response_happy() {
+    let p = provider_with_completer("claude", Arc::new(EchoCompleter));
+    let input = CompletionInput::simple("hi", config());
+    let response = block_on(p.complete(ProviderCompleteRequest {
+        input: Box::new(input),
+    }))
+    .unwrap()
+    .response;
+    assert_eq!(response.content, Some("hi".to_string()));
+    assert_eq!(response.model, "claude");
+}
+
+/// @covers: Provider::complete — maps the completer's error into ExecutionError
+#[test]
+fn test_complete_maps_completer_error_error() {
+    let p = provider("claude"); // wired to NoopCompleter, which always errors
+    let input = CompletionInput::simple("hi", config());
+    let err = block_on(p.complete(ProviderCompleteRequest {
+        input: Box::new(input),
+    }))
+    .unwrap_err();
+    assert!(matches!(
+        err,
+        edge_llm_provider::ExecutionError::ModelNotFound(_)
+    ));
+}
+
+/// @covers: Provider::complete — a system prompt is carried through to the completer
+#[test]
+fn test_complete_with_system_prompt_edge() {
+    let p = provider_with_completer("claude", Arc::new(EchoCompleter));
+    let input = CompletionInput::new(
+        vec![edge_llm_provider::CompletionMessage::user("hi")],
+        vec![],
+        Some("be terse".to_string()),
+        config(),
+    );
+    let response = block_on(p.complete(ProviderCompleteRequest {
+        input: Box::new(input),
+    }))
+    .unwrap()
+    .response;
+    assert_eq!(response.content, Some("hi".to_string()));
 }

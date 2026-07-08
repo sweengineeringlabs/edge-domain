@@ -1,4 +1,6 @@
-//! Constructors for [`CompletionMessage`].
+//! Constructors and conversions for [`CompletionMessage`].
+
+use edge_llm_complete::{Message, MessageContent};
 
 use crate::api::{CompletionMessage, MessageRole};
 
@@ -23,6 +25,15 @@ impl CompletionMessage {
         Self {
             role,
             content: content.into(),
+        }
+    }
+
+    /// Convert into an [`edge_llm_complete::Message`] for a [`CompletionRequest`](edge_llm_complete::CompletionRequest).
+    pub(crate) fn into_message(self) -> Message {
+        Message {
+            role: self.role.into_role(),
+            content: MessageContent::Text(self.content),
+            ..Message::default()
         }
     }
 }
@@ -59,5 +70,13 @@ mod tests {
             CompletionMessage::with_role(MessageRole::User, "hi").content,
             "hi"
         );
+    }
+
+    /// @covers: into_message
+    #[test]
+    fn test_into_message_maps_role_and_text_content() {
+        let message = CompletionMessage::user("hi").into_message();
+        assert_eq!(message.role, edge_llm_complete::Role::User);
+        assert_eq!(message.content, MessageContent::Text("hi".to_string()));
     }
 }

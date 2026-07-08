@@ -76,6 +76,43 @@ impl ExecutionError {
     }
 }
 
+impl From<edge_llm_complete::CompleteError> for ExecutionError {
+    fn from(error: edge_llm_complete::CompleteError) -> Self {
+        match error {
+            edge_llm_complete::CompleteError::ModelNotFound(m) => Self::ModelNotFound(m),
+            edge_llm_complete::CompleteError::ProviderNotFound(m) => Self::ModelNotFound(m),
+            edge_llm_complete::CompleteError::AuthenticationFailed(m) => {
+                Self::AuthenticationFailed(m)
+            }
+            edge_llm_complete::CompleteError::RateLimited { retry_after_ms } => {
+                Self::RateLimited { retry_after_ms }
+            }
+            edge_llm_complete::CompleteError::ContextLengthExceeded { used, max } => {
+                Self::ContextWindowExceeded {
+                    max_tokens: max,
+                    requested: used,
+                }
+            }
+            edge_llm_complete::CompleteError::Timeout(duration_ms) => Self::Timeout { duration_ms },
+            edge_llm_complete::CompleteError::InvalidRequest(m) => Self::InvalidRequest(m),
+            edge_llm_complete::CompleteError::Configuration(m) => Self::InvalidRequest(m),
+            edge_llm_complete::CompleteError::StreamError(m) => Self::StreamingError(m),
+            edge_llm_complete::CompleteError::ContentFiltered(m) => Self::ContentFiltered(m),
+            edge_llm_complete::CompleteError::NetworkError(m) => Self::NetworkError(m),
+            edge_llm_complete::CompleteError::ProviderError { provider, message } => {
+                Self::ProviderUnavailable {
+                    message: format!("{provider}: {message}"),
+                }
+            }
+            edge_llm_complete::CompleteError::SerializationError(m) => Self::Unknown(m),
+            edge_llm_complete::CompleteError::IoError(e) => Self::NetworkError(e.to_string()),
+            edge_llm_complete::CompleteError::TurnLimitExceeded { max_turns } => Self::Unknown(
+                format!("turn limit exceeded: {max_turns} turns without a terminal finish reason"),
+            ),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -115,5 +152,35 @@ mod tests {
     fn test_labeled_joins_label_and_detail() {
         let err = ExecutionError::InvalidRequest("bad input".to_string());
         assert_eq!(err.message(), "Invalid request: bad input");
+    }
+
+    /// @covers: from
+    #[test]
+    fn test_from_complete_error_maps_model_not_found() {
+        let err = ExecutionError::from(edge_llm_complete::CompleteError::ModelNotFound(
+            "gpt-5".to_string(),
+        ));
+        assert!(matches!(err, ExecutionError::ModelNotFound(m) if m == "gpt-5"));
+    }
+
+    /// @covers: from
+    #[test]
+    fn test_from_complete_error_maps_provider_error_with_provider_prefix() {
+        let err = ExecutionError::from(edge_llm_complete::CompleteError::ProviderError {
+            provider: "anthropic".to_string(),
+            message: "boom".to_string(),
+        });
+        assert!(
+            matches!(err, ExecutionError::ProviderUnavailable { message } if message == "anthropic: boom")
+        );
+    }
+
+    /// @covers: from
+    #[test]
+    fn test_from_complete_error_maps_turn_limit_exceeded_to_unknown() {
+        let err = ExecutionError::from(edge_llm_complete::CompleteError::TurnLimitExceeded {
+            max_turns: 5,
+        });
+        assert!(matches!(err, ExecutionError::Unknown(m) if m.contains("5 turns")));
     }
 }
