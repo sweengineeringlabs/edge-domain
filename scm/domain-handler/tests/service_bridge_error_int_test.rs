@@ -3,8 +3,8 @@
 
 use edge_domain_command::NoopCommandBus;
 use edge_domain_handler::{
-    ExecutionRequest, Handler, HandlerContext, IntoHandler, IntoHandlerRequest, Validator,
-    ValidatorRequest,
+    ExecutionRequest, Handler, HandlerContext, IntoHandler, IntoHandlerRequest,
+    ObserverContextAdapter, Validator, ValidatorRequest,
 };
 use edge_domain_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
@@ -13,7 +13,7 @@ use futures::future::BoxFuture;
 
 fn make_ctx<'a>(
     security: &'a SecurityContext,
-    observer: &'a dyn edge_domain_observer::ObserverContext,
+    observer: &'a ObserverContextAdapter<'a, dyn edge_domain_observer::ObserverContext>,
 ) -> HandlerContext<'a> {
     HandlerContext {
         security,
@@ -72,7 +72,8 @@ async fn test_invalid_request_service_error_maps_to_handler_error_happy() {
         .handler;
     let security = SecurityContext::unauthenticated();
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = make_ctx(&security, observer.as_ref());
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
+    let ctx = make_ctx(&security, &observer_adapter);
     let err = h
         .execute(ExecutionRequest {
             req: "x".into(),
@@ -91,7 +92,8 @@ async fn test_not_found_service_error_maps_to_handler_error_error() {
         .handler;
     let security = SecurityContext::unauthenticated();
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = make_ctx(&security, observer.as_ref());
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
+    let ctx = make_ctx(&security, &observer_adapter);
     let err = h
         .execute(ExecutionRequest {
             req: "x".into(),

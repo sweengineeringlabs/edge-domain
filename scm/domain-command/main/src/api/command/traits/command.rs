@@ -1,6 +1,7 @@
 //! `Command` trait — a write operation that mutates domain state.
 
-use futures::future::BoxFuture;
+use std::future::Future;
+use std::pin::Pin;
 
 use crate::api::command::types::{ExecutionRequest, NameRequest, NameResponse};
 use crate::api::command::CommandError;
@@ -18,5 +19,5 @@ pub trait Command: Send + Sync {
     }
 
     /// Execute the command, mutating domain state.
-    fn execute(&self, _req: ExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>>;
+    fn execute(&self, _req: ExecutionRequest) -> Pin<Box<dyn Future<Output = Result<(), CommandError>> + Send + '_>>;
 }

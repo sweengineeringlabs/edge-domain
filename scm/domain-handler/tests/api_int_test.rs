@@ -243,10 +243,11 @@ fn test_execution_request_holds_req_and_ctx_happy() {
 
     let security = SecurityContext::unauthenticated();
     let observer = StdObserveFactory::noop_observer_context();
+    let observer_adapter = edge_domain_handler::ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
         commands: &NoopCommandBus,
-        observer: observer.as_ref(),
+        observer: &observer_adapter,
     };
     let req = ExecutionRequest {
         req: "payload".to_string(),

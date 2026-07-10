@@ -1,9 +1,13 @@
 mod errors;
+mod local_app_runtime;
+mod local_app_service_provider;
 pub mod noop;
 mod traits;
 pub mod types;
 
 pub use errors::AppError;
+pub use local_app_runtime::LocalAppRuntime;
+pub use local_app_service_provider::LocalAppServiceProvider;
 pub use noop::NoopAppBootstrap;
 pub use noop::NoopAppRuntime;
 pub use noop::NoopAppSvcFactory;

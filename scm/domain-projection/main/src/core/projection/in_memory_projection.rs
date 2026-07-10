@@ -1,11 +1,35 @@
 use std::marker::PhantomData;
 
-use edge_domain_event::DomainEvent;
+use edge_domain_event::{DomainEvent, EventAggregateIdRequest, EventTypeRequest};
 
 use crate::api::Projection;
 use crate::api::InMemoryProjection;
 use crate::api::ProjectionError;
+use crate::api::ProjectionEvent;
+use crate::api::ProjectionEventDescribeRequest;
+use crate::api::ProjectionEventDescribeResponse;
 use crate::api::{ProjectionApplyRequest, ProjectionReadModelRequest, ProjectionReadModelResponse};
+
+/// Bridges every [`DomainEvent`] into [`ProjectionEvent`], so any real domain
+/// event can drive an [`InMemoryProjection`] (or any other `Projection`)
+/// without `api/` referencing `edge_domain_event::DomainEvent` directly.
+impl<T: DomainEvent> ProjectionEvent for T {
+    fn describe(
+        &self,
+        _req: ProjectionEventDescribeRequest,
+    ) -> Result<ProjectionEventDescribeResponse, ProjectionError> {
+        Ok(ProjectionEventDescribeResponse {
+            event_type: self
+                .event_type(EventTypeRequest)
+                .map(|r| r.event_type.to_string())
+                .unwrap_or_default(),
+            aggregate_id: self
+                .aggregate_id(EventAggregateIdRequest)
+                .map(|r| r.aggregate_id.to_string())
+                .unwrap_or_default(),
+        })
+    }
+}
 
 impl<E, R, F> InMemoryProjection<E, R, F>
 where
@@ -91,5 +115,48 @@ mod tests {
     fn test_read_model_initial_state_matches_seed() {
         let p = make(42);
         assert_eq!(*p.read_model(ProjectionReadModelRequest).expect("read_model").read_model, 42);
+    }
+
+    struct InMemoryProjectionBridgeTestEvt;
+
+    impl DomainEvent for InMemoryProjectionBridgeTestEvt {
+        fn aggregate_id(
+            &self,
+            _req: edge_domain_event::EventAggregateIdRequest,
+        ) -> Result<edge_domain_event::EventAggregateIdResponse<'_>, edge_domain_event::EventError> {
+            Ok(edge_domain_event::EventAggregateIdResponse { aggregate_id: "agg-1" })
+        }
+    }
+
+    #[test]
+    fn test_describe_domain_event_default_type_returns_event_happy() {
+        let e = InMemoryProjectionBridgeTestEvt;
+        assert_eq!(
+            e.describe(ProjectionEventDescribeRequest).unwrap().event_type,
+            "event"
+        );
+    }
+
+    #[test]
+    fn test_describe_domain_event_overridden_aggregate_id_returns_agg_1_error() {
+        let e = InMemoryProjectionBridgeTestEvt;
+        assert_eq!(
+            e.describe(ProjectionEventDescribeRequest).unwrap().aggregate_id,
+            "agg-1"
+        );
+    }
+
+    #[test]
+    fn test_describe_domain_event_default_aggregate_id_returns_empty_edge() {
+        #[derive(Clone)]
+        struct InMemoryProjectionDefaultTestEvt;
+        impl DomainEvent for InMemoryProjectionDefaultTestEvt {}
+        assert_eq!(
+            InMemoryProjectionDefaultTestEvt
+                .describe(ProjectionEventDescribeRequest)
+                .unwrap()
+                .aggregate_id,
+            ""
+        );
     }
 }

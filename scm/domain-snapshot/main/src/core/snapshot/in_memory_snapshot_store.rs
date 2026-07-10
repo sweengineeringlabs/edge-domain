@@ -5,7 +5,6 @@ use std::fmt::Display;
 use std::hash::Hash;
 
 use futures::future::BoxFuture;
-use parking_lot::RwLock;
 
 use crate::api::InMemorySnapshotStore;
 use crate::api::SnapshotError;
@@ -22,7 +21,7 @@ where
     /// Create a new empty in-memory snapshot store.
     pub fn new() -> Self {
         Self {
-            snapshots: RwLock::new(HashMap::new()),
+            snapshots: std::sync::RwLock::new(HashMap::new()),
         }
     }
 }
@@ -69,7 +68,10 @@ where
             Ok(resp) => resp.aggregate_id.clone(),
             Err(e) => return Box::pin(async move { Err(e) }),
         };
-        self.snapshots.write().insert(key, snapshot);
+        self.snapshots
+            .write()
+            .unwrap_or_else(|e| e.into_inner())
+            .insert(key, snapshot);
         Box::pin(async move { Ok(()) })
     }
 
@@ -77,7 +79,12 @@ where
         &'a self,
         req: SnapshotLoadRequest<'a, Self::AggregateId>,
     ) -> BoxFuture<'a, Result<SnapshotLoadResponse<Self::Snap>, SnapshotError>> {
-        let snapshot = self.snapshots.read().get(req.id).cloned();
+        let snapshot = self
+            .snapshots
+            .read()
+            .unwrap_or_else(|e| e.into_inner())
+            .get(req.id)
+            .cloned();
         Box::pin(async move { Ok(SnapshotLoadResponse { snapshot }) })
     }
 }
@@ -127,7 +134,11 @@ mod tests {
             snapshot: fixture("agg-1", 3),
         }))
         .unwrap();
-        assert!(store.snapshots.read().contains_key("agg-1"));
+        assert!(store
+            .snapshots
+            .read()
+            .unwrap_or_else(|e| e.into_inner())
+            .contains_key("agg-1"));
     }
 
     #[test]

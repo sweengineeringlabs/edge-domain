@@ -1,11 +1,12 @@
 //! Integration tests — `HandlerContext` type.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_command::{CommandDispatchRequest, DirectCommandBus};
-use edge_domain_handler::HandlerContext;
-use edge_domain_observer::{
-    SpanFinishRequest, SpanStartRequest, StdObserveFactory, TracerRequest,
+use edge_domain_command::DirectCommandBus;
+use edge_domain_handler::{
+    CommandDispatchRequest, HandlerContext, ObserverContextAdapter, SpanFinishRequest,
+    SpanStartRequest, TracerRequest,
 };
+use edge_domain_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
 
 /// @covers: HandlerContext — constructs with unauthenticated security and direct bus
@@ -14,10 +15,11 @@ fn test_handler_context_constructs_with_unauthenticated_security_happy() {
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: observer.as_ref(),
+        observer: &observer_adapter,
     };
     // Verify the context holds a reference to the same security object
     assert!(std::ptr::eq(ctx.security, &security));
@@ -32,10 +34,11 @@ fn test_handler_context_commands_field_is_accessible_error() {
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: observer.as_ref(),
+        observer: &observer_adapter,
     };
     let result = block_on(
         ctx.commands
@@ -51,10 +54,11 @@ fn test_handler_context_is_copy_edge() {
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: observer.as_ref(),
+        observer: &observer_adapter,
     };
     let ctx2 = ctx;
     assert!(std::ptr::eq(ctx.security, &security));
@@ -67,10 +71,11 @@ fn test_observer_returns_bound_observe_context_happy() {
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: observer.as_ref(),
+        observer: &observer_adapter,
     };
     ctx.observer
         .tracer(TracerRequest)
@@ -93,10 +98,11 @@ fn test_observer_tracer_usable_after_construction_happy() {
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: observer.as_ref(),
+        observer: &observer_adapter,
     };
     for i in 0..3 {
         ctx.observer
@@ -121,10 +127,11 @@ fn test_observer_empty_span_ids_no_panic_error() {
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: observer.as_ref(),
+        observer: &observer_adapter,
     };
     ctx.observer
         .tracer(TracerRequest)
@@ -147,10 +154,11 @@ fn test_handler_context_with_observer_is_copy_edge() {
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: observer.as_ref(),
+        observer: &observer_adapter,
     };
     let ctx2 = ctx;
     ctx.observer

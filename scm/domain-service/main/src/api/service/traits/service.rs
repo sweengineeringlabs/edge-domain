@@ -1,6 +1,7 @@
 //! `Service` trait — a named domain operation that processes a request and returns a response.
 
-use futures::future::BoxFuture;
+use std::future::Future;
+use std::pin::Pin;
 
 use crate::api::service::{NameRequest, NameResponse, ServiceError};
 
@@ -22,5 +23,8 @@ pub trait Service: Send + Sync {
     }
 
     /// Execute the service with the given request.
-    fn execute(&self, req: Self::Request) -> BoxFuture<'_, Result<Self::Response, ServiceError>>;
+    fn execute(
+        &self,
+        req: Self::Request,
+    ) -> Pin<Box<dyn Future<Output = Result<Self::Response, ServiceError>> + Send + '_>>;
 }

@@ -13,4 +13,8 @@ pub enum SagaError {
     /// No saga is registered under the requested id.
     #[error("no saga is registered under id '{0}'")]
     NotFound(String),
+
+    /// A command emitted by a saga failed during dispatch.
+    #[error("saga command dispatch failed: {0}")]
+    CommandDispatchFailed(String),
 }
