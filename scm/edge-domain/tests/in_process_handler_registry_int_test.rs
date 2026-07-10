@@ -38,14 +38,14 @@ fn make_handler(id: &'static str) -> Arc<dyn Handler<Request = i32, Response = i
 
 #[test]
 fn test_in_process_handler_registry_new_is_empty() {
-    let reg = Domain::new_handler_registry::<i32, i32>();
+    let reg = Domain.new_handler_registry::<i32, i32>();
     assert_eq!(reg.len(LenRequest).unwrap().count, 0);
     assert!(reg.list_ids(ListIdsRequest).unwrap().ids.is_empty());
 }
 
 #[test]
 fn test_in_process_handler_registry_register_makes_handler_retrievable() {
-    let reg = Domain::new_handler_registry::<i32, i32>();
+    let reg = Domain.new_handler_registry::<i32, i32>();
     reg.register(RegisterHandlerRequest::new(make_handler("a")))
         .unwrap();
     assert!(reg
@@ -59,7 +59,7 @@ fn test_in_process_handler_registry_register_makes_handler_retrievable() {
 
 #[test]
 fn test_in_process_handler_registry_get_returns_none_for_unknown_id() {
-    let reg = Domain::new_handler_registry::<i32, i32>();
+    let reg = Domain.new_handler_registry::<i32, i32>();
     assert!(reg
         .get(HandlerLookupRequest {
             id: "missing".to_string()
@@ -71,7 +71,7 @@ fn test_in_process_handler_registry_get_returns_none_for_unknown_id() {
 
 #[test]
 fn test_in_process_handler_registry_deregister_removes_and_returns_true() {
-    let reg = Domain::new_handler_registry::<i32, i32>();
+    let reg = Domain.new_handler_registry::<i32, i32>();
     reg.register(RegisterHandlerRequest::new(make_handler("x")))
         .unwrap();
     assert!(
@@ -92,7 +92,7 @@ fn test_in_process_handler_registry_deregister_removes_and_returns_true() {
 
 #[test]
 fn test_in_process_handler_registry_deregister_missing_returns_false() {
-    let reg = Domain::new_handler_registry::<i32, i32>();
+    let reg = Domain.new_handler_registry::<i32, i32>();
     assert!(
         !reg.deregister(DeregisterHandlerRequest {
             id: "ghost".to_string()
@@ -104,7 +104,7 @@ fn test_in_process_handler_registry_deregister_missing_returns_false() {
 
 #[test]
 fn test_in_process_handler_registry_register_same_id_replaces_previous() {
-    let reg = Domain::new_handler_registry::<i32, i32>();
+    let reg = Domain.new_handler_registry::<i32, i32>();
     reg.register(RegisterHandlerRequest::new(make_handler("dup")))
         .unwrap();
     reg.register(RegisterHandlerRequest::new(make_handler("dup")))
@@ -114,7 +114,7 @@ fn test_in_process_handler_registry_register_same_id_replaces_previous() {
 
 #[test]
 fn test_in_process_handler_registry_list_ids_returns_all_registered() {
-    let reg = Domain::new_handler_registry::<i32, i32>();
+    let reg = Domain.new_handler_registry::<i32, i32>();
     reg.register(RegisterHandlerRequest::new(make_handler("p")))
         .unwrap();
     reg.register(RegisterHandlerRequest::new(make_handler("q")))
@@ -126,7 +126,7 @@ fn test_in_process_handler_registry_list_ids_returns_all_registered() {
 
 #[test]
 fn test_in_process_handler_registry_len_reflects_count() {
-    let reg = Domain::new_handler_registry::<i32, i32>();
+    let reg = Domain.new_handler_registry::<i32, i32>();
     assert_eq!(reg.len(LenRequest).unwrap().count, 0);
     reg.register(RegisterHandlerRequest::new(make_handler("one")))
         .unwrap();

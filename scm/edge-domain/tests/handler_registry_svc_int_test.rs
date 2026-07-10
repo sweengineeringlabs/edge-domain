@@ -9,7 +9,7 @@ use std::sync::Arc;
 
 #[test]
 fn test_handler_registry_svc_facade_register_and_retrieve() {
-    let reg = Domain::new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<String, String>();
     let handler: Arc<dyn edge_domain::Handler<Request = String, Response = String>> =
         Arc::new(EchoHandler::from(("echo", "*")));
     reg.register(RegisterHandlerRequest::new(handler)).unwrap();
@@ -24,7 +24,7 @@ fn test_handler_registry_svc_facade_register_and_retrieve() {
 
 #[test]
 fn test_handler_registry_svc_facade_missing_id_returns_none() {
-    let reg = Domain::new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<String, String>();
     assert!(reg
         .get(HandlerLookupRequest {
             id: "absent".to_string()

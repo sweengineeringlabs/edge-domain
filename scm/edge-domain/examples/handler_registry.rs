@@ -12,10 +12,13 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
+use edge_domain::DirectCommandBusRequest;
+use edge_domain::DomainRuntime;
 use edge_domain::{Domain, Handler, HandlerContext, HandlerError};
 use edge_domain_handler::{
-    DeregisterHandlerRequest, EmptinessRequest, ExecutionRequest, HandlerLookupRequest, IdRequest,
-    IdResponse, ListIdsRequest, RegisterHandlerRequest,
+    CommandBusAdapter, DeregisterHandlerRequest, EmptinessRequest, ExecutionRequest,
+    HandlerLookupRequest, IdRequest, IdResponse, ListIdsRequest, ObserverContextAdapter,
+    RegisterHandlerRequest,
 };
 use edge_domain_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
@@ -45,7 +48,7 @@ impl Handler for GreetHandler {
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let registry = Domain::new_handler_registry::<String, String>();
+    let registry = Domain.new_handler_registry::<String, String>();
     assert!(registry.is_empty(EmptinessRequest)?.empty);
 
     registry.register(RegisterHandlerRequest::new(Arc::new(GreetHandler)))?;
@@ -58,12 +61,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .handler
         .expect("handler must be present");
     let security = SecurityContext::unauthenticated();
-    let bus = Domain::direct_command_bus();
+    let bus = Domain.direct_command_bus(DirectCommandBusRequest)?.bus;
+    let bus_adapter = CommandBusAdapter(bus.as_ref());
     let observer = StdObserveFactory::noop_observer_context();
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
-        commands: bus.as_ref(),
-        observer: observer.as_ref(),
+        commands: &bus_adapter,
+        observer: &observer_adapter,
     };
 
     let resp = handler

@@ -11,6 +11,8 @@
 //! SEA constraint: all imports come from the edge_domain SAF surface.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
+use edge_domain::DomainRuntime;
+use edge_domain::InProcessEventBusRequest;
 use edge_domain::{
     Domain, DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventBus,
     EventBusConfig, EventBusPublishRequest, EventBusSubscribeRequest, EventBusSubscribeResponse,
@@ -124,7 +126,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Create the underlying event bus (edge/domain factory)
     println!("1. Creating underlying tokio event bus...");
     let config = EventBusConfig::default();
-    let underlying_bus = Domain::in_process_event_bus(config);
+    let underlying_bus = Domain
+        .in_process_event_bus(InProcessEventBusRequest { config })?
+        .bus;
     println!("   ✓ Underlying bus created\n");
 
     // Consumer implements their own EventBus by wrapping/decorating

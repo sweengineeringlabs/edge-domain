@@ -76,14 +76,14 @@ impl Aggregate for Counter {
 /// @covers: new_in_memory_event_store
 #[test]
 fn test_new_in_memory_event_store_is_constructible() {
-    let store = Domain::new_in_memory_event_store::<CounterIncremented>();
+    let store = Domain.new_in_memory_event_store::<CounterIncremented>();
     assert_ne!(std::mem::size_of_val(&store), 0);
 }
 
 /// @covers: EventStore::append — returns version 1 after first event.
 #[tokio::test]
 async fn test_append_returns_new_stream_version() {
-    let store = Domain::new_in_memory_event_store::<CounterIncremented>();
+    let store = Domain.new_in_memory_event_store::<CounterIncremented>();
     let ver = store
         .append(EventStoreAppendRequest {
             aggregate_id: "c1",
@@ -101,7 +101,7 @@ async fn test_append_returns_new_stream_version() {
 /// @covers: EventStore::load — empty vec for unknown aggregate.
 #[tokio::test]
 async fn test_load_returns_empty_for_unknown_aggregate() {
-    let store = Domain::new_in_memory_event_store::<CounterIncremented>();
+    let store = Domain.new_in_memory_event_store::<CounterIncremented>();
     let events = store
         .load(EventStoreLoadRequest {
             aggregate_id: "unknown",
@@ -114,7 +114,7 @@ async fn test_load_returns_empty_for_unknown_aggregate() {
 /// @covers: EventStore::append + load — events are stored and returned in order.
 #[tokio::test]
 async fn test_append_and_load_round_trip() {
-    let store = Domain::new_in_memory_event_store::<CounterIncremented>();
+    let store = Domain.new_in_memory_event_store::<CounterIncremented>();
     store
         .append(EventStoreAppendRequest {
             aggregate_id: "c1",
@@ -144,7 +144,7 @@ async fn test_append_and_load_round_trip() {
 /// @covers: EventStore::load_from — returns only events at or after given sequence.
 #[tokio::test]
 async fn test_load_from_returns_subset_from_sequence() {
-    let store = Domain::new_in_memory_event_store::<CounterIncremented>();
+    let store = Domain.new_in_memory_event_store::<CounterIncremented>();
     store
         .append(EventStoreAppendRequest {
             aggregate_id: "c1",
@@ -181,7 +181,7 @@ async fn test_load_from_returns_subset_from_sequence() {
 /// @covers: ExpectedVersion::NoStream — rejects append when stream already exists.
 #[tokio::test]
 async fn test_append_no_stream_conflicts_when_stream_exists() {
-    let store = Domain::new_in_memory_event_store::<CounterIncremented>();
+    let store = Domain.new_in_memory_event_store::<CounterIncremented>();
     store
         .append(EventStoreAppendRequest {
             aggregate_id: "c1",
@@ -210,7 +210,7 @@ async fn test_append_no_stream_conflicts_when_stream_exists() {
 /// @covers: ExpectedVersion::Exact — rejects append when version differs.
 #[tokio::test]
 async fn test_append_exact_version_conflicts_on_mismatch() {
-    let store = Domain::new_in_memory_event_store::<CounterIncremented>();
+    let store = Domain.new_in_memory_event_store::<CounterIncremented>();
     store
         .append(EventStoreAppendRequest {
             aggregate_id: "c1",
@@ -246,7 +246,7 @@ async fn test_append_exact_version_conflicts_on_mismatch() {
 /// @covers: ExpectedVersion::Any — always succeeds regardless of version.
 #[tokio::test]
 async fn test_append_any_version_never_conflicts() {
-    let store = Domain::new_in_memory_event_store::<CounterIncremented>();
+    let store = Domain.new_in_memory_event_store::<CounterIncremented>();
     for _ in 0..3 {
         store
             .append(EventStoreAppendRequest {
@@ -272,8 +272,9 @@ async fn test_append_any_version_never_conflicts() {
 /// @covers: reconstitute — returns None for aggregate that was never created.
 #[tokio::test]
 async fn test_reconstitute_returns_none_for_unknown_aggregate() {
-    let store = Domain::new_in_memory_event_store::<CounterIncremented>();
-    let result = Domain::reconstitute::<Counter>(&*store, "missing")
+    let store = Domain.new_in_memory_event_store::<CounterIncremented>();
+    let result = Domain
+        .reconstitute::<Counter>(&*store, "missing")
         .await
         .expect("reconstitute");
     assert!(result.is_none());
@@ -282,7 +283,7 @@ async fn test_reconstitute_returns_none_for_unknown_aggregate() {
 /// @covers: reconstitute — replays events and rebuilds correct aggregate state.
 #[tokio::test]
 async fn test_reconstitute_rebuilds_aggregate_from_events() {
-    let store = Domain::new_in_memory_event_store::<CounterIncremented>();
+    let store = Domain.new_in_memory_event_store::<CounterIncremented>();
     store
         .append(EventStoreAppendRequest {
             aggregate_id: "c1",
@@ -302,7 +303,8 @@ async fn test_reconstitute_rebuilds_aggregate_from_events() {
         .await
         .expect("append");
 
-    let counter = Domain::reconstitute::<Counter>(&*store, "c1")
+    let counter = Domain
+        .reconstitute::<Counter>(&*store, "c1")
         .await
         .expect("reconstitute")
         .expect("must exist");
@@ -314,7 +316,7 @@ async fn test_reconstitute_rebuilds_aggregate_from_events() {
 /// @covers: reconstitute — idempotent across multiple calls.
 #[tokio::test]
 async fn test_reconstitute_is_idempotent() {
-    let store = Domain::new_in_memory_event_store::<CounterIncremented>();
+    let store = Domain.new_in_memory_event_store::<CounterIncremented>();
     store
         .append(EventStoreAppendRequest {
             aggregate_id: "c1",
@@ -326,11 +328,13 @@ async fn test_reconstitute_is_idempotent() {
         .await
         .expect("append");
 
-    let a = Domain::reconstitute::<Counter>(&*store, "c1")
+    let a = Domain
+        .reconstitute::<Counter>(&*store, "c1")
         .await
         .expect("first")
         .expect("some");
-    let b = Domain::reconstitute::<Counter>(&*store, "c1")
+    let b = Domain
+        .reconstitute::<Counter>(&*store, "c1")
         .await
         .expect("second")
         .expect("some");

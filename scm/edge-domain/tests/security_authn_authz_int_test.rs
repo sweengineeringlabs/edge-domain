@@ -3,8 +3,8 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain::{
-    AnonymousPrincipal, AuthnError, AuthnRequest, AuthnResponse, Authenticator, AuthzError,
-    AuthzRequest, AuthzResponse, Authorizer, SecurityContext,
+    AnonymousPrincipal, Authenticator, AuthnError, AuthnRequest, AuthnResponse, Authorizer,
+    AuthzError, AuthzRequest, AuthzResponse, SecurityContext,
 };
 use edge_security_authn::Authenticator as RawAuthenticator;
 use edge_security_authz::Authorizer as RawAuthorizer;

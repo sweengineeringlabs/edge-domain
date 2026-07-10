@@ -5,31 +5,37 @@
 
 use edge_domain::*;
 use edge_domain_handler::{
-    EmptinessRequest as HandlerEmptinessRequest, ExecutionRequest, HandlerContext,
+    CommandBusAdapter, EmptinessRequest as HandlerEmptinessRequest, ExecutionRequest,
+    HandlerContext, ObserverContextAdapter,
 };
 use edge_domain_observer::StdObserveFactory;
-use edge_security_runtime::SecurityContext;
 use edge_domain_service::EmptinessRequest as ServiceEmptinessRequest;
+use edge_security_runtime::SecurityContext;
 use std::sync::Arc;
 
 /// @covers: echo_handler
 #[test]
 fn test_echo_handler() {
     let _: Arc<dyn edge_domain::Handler<Request = String, Response = String>> =
-        Domain::echo_handler("id", "/path");
+        Domain.echo_handler("id", "/path");
 }
 
 /// @covers: echo_handler
 #[tokio::test]
 async fn test_echo_handler_returns_input_as_output() {
-    let h = Domain::echo_handler::<String>("echo", "/echo");
+    let h = Domain.echo_handler::<String>("echo", "/echo");
     let security = SecurityContext::unauthenticated();
-    let bus = Domain::direct_command_bus();
+    let bus = Domain
+        .direct_command_bus(DirectCommandBusRequest)
+        .unwrap()
+        .bus;
+    let bus_adapter = CommandBusAdapter(bus.as_ref());
     let observer = StdObserveFactory::noop_observer_context();
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
-        commands: bus.as_ref(),
-        observer: observer.as_ref(),
+        commands: &bus_adapter,
+        observer: &observer_adapter,
     };
     assert_eq!(
         h.execute(ExecutionRequest {
@@ -45,14 +51,14 @@ async fn test_echo_handler_returns_input_as_output() {
 /// @covers: new_handler_registry
 #[test]
 fn test_new_handler_registry_returns_empty_registry() {
-    let reg = Domain::new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<String, String>();
     assert!(reg.is_empty(HandlerEmptinessRequest).unwrap().empty);
 }
 
 /// @covers: new_service_registry
 #[test]
 fn test_new_service_registry_returns_empty_registry() {
-    let reg = Domain::new_service_registry::<String, String>();
+    let reg = Domain.new_service_registry::<String, String>();
     assert!(reg.is_empty(ServiceEmptinessRequest).unwrap().empty);
 }
 
@@ -60,14 +66,14 @@ fn test_new_service_registry_returns_empty_registry() {
 #[test]
 fn test_new_in_memory_repository() {
     let _: Arc<dyn edge_domain::Repository<Entity = String, Id = u32>> =
-        Domain::new_in_memory_repository();
+        Domain.new_in_memory_repository();
 }
 
 /// @covers: new_in_memory_queryable_repository
 #[test]
 fn test_new_in_memory_queryable_repository() {
     let _: Arc<dyn edge_domain::QueryableRepository<Entity = String, Id = u32>> =
-        Domain::new_in_memory_queryable_repository();
+        Domain.new_in_memory_queryable_repository();
 }
 
 /// @covers: new_in_memory_queryable_repository
@@ -85,7 +91,7 @@ async fn test_new_in_memory_queryable_repository_returns_functional_store() {
             Ok(SpecMatchesResponse { matches: true })
         }
     }
-    let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
+    let repo = Domain.new_in_memory_queryable_repository::<String, u32>();
     repo.save(RepositorySaveRequest {
         id: 1u32,
         entity: "x".to_string(),
@@ -107,7 +113,7 @@ async fn test_new_in_memory_queryable_repository_returns_functional_store() {
 #[tokio::test]
 async fn test_new_in_memory_repository_saves_and_finds_entity() {
     let repo: Arc<dyn edge_domain::Repository<Entity = String, Id = u32>> =
-        Domain::new_in_memory_repository::<String, u32>();
+        Domain.new_in_memory_repository::<String, u32>();
     repo.save(RepositorySaveRequest {
         id: 1u32,
         entity: "x".to_string(),
@@ -137,7 +143,7 @@ async fn test_new_in_memory_queryable_repository_supports_count_by() {
             Ok(SpecMatchesResponse { matches: true })
         }
     }
-    let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
+    let repo = Domain.new_in_memory_queryable_repository::<String, u32>();
     repo.save(RepositorySaveRequest {
         id: 1u32,
         entity: "x".to_string(),
@@ -168,7 +174,7 @@ fn test_validate_config_returns_ok_for_valid_input() {
             Ok(edge_domain_validator::ValidationResponse)
         }
     }
-    assert_eq!(Domain::validate_config(&AlwaysValid), Ok(()));
+    assert_eq!(Domain.validate_config(&AlwaysValid), Ok(()));
 }
 
 /// @covers: validate_config
@@ -184,27 +190,33 @@ fn test_validate_config_returns_err_for_invalid_input() {
             Err(ValidatorError::Invalid("bad".into()))
         }
     }
-    assert!(Domain::validate_config(&AlwaysInvalid).is_err());
+    assert!(Domain.validate_config(&AlwaysInvalid).is_err());
 }
 
 /// @covers: direct_command_bus
 #[test]
 fn test_direct_command_bus_returns_arc_command_bus() {
-    let bus = Domain::direct_command_bus();
+    let bus = Domain
+        .direct_command_bus(DirectCommandBusRequest)
+        .unwrap()
+        .bus;
     let _: Arc<dyn edge_domain::CommandBus> = bus;
 }
 
 /// @covers: noop_event_publisher
 #[test]
 fn test_noop_event_publisher_returns_arc_event_publisher() {
-    let pub_ = Domain::noop_event_publisher();
+    let pub_ = Domain
+        .noop_event_publisher(NoopEventPublisherRequest)
+        .unwrap()
+        .publisher;
     let _: Arc<dyn edge_domain::EventPublisher> = pub_;
 }
 
 /// @covers: direct_query_bus
 #[test]
 fn test_direct_query_bus_returns_arc_query_bus() {
-    let bus = Domain::direct_query_bus::<String>();
+    let bus = Domain.direct_query_bus::<String>();
     let _: Arc<dyn edge_domain::QueryBus<Result = String>> = bus;
 }
 
@@ -236,14 +248,19 @@ impl edge_domain::DomainEvent for AnyEvent {
 #[test]
 fn test_new_in_memory_event_store_returns_arc_event_store() {
     let _: Arc<dyn edge_domain::EventStore<Event = AnyEvent>> =
-        Domain::new_in_memory_event_store::<AnyEvent>();
+        Domain.new_in_memory_event_store::<AnyEvent>();
 }
 
 /// @covers: in_process_event_bus
 #[test]
 fn test_in_process_event_bus_factory_returns_working_bus() {
     use futures::executor::block_on;
-    let bus = Domain::in_process_event_bus(EventBusConfig::default());
+    let bus = Domain
+        .in_process_event_bus(InProcessEventBusRequest {
+            config: EventBusConfig::default(),
+        })
+        .unwrap()
+        .bus;
     block_on(async move {
         assert_eq!(
             bus.publish(EventBusPublishRequest {
@@ -259,7 +276,7 @@ fn test_in_process_event_bus_factory_returns_working_bus() {
 #[test]
 fn test_noop_event_bus_factory_returns_working_bus() {
     use futures::executor::block_on;
-    let bus = Domain::noop_event_bus();
+    let bus = Domain.noop_event_bus(NoopEventBusRequest).unwrap().bus;
     block_on(async move {
         assert_eq!(
             bus.publish(EventBusPublishRequest {
@@ -304,9 +321,9 @@ fn test_reconstitute_returns_none_for_unknown_id() {
         }
     }
     let store: Arc<dyn edge_domain::EventStore<Event = AnyEvent>> =
-        Domain::new_in_memory_event_store::<AnyEvent>();
+        Domain.new_in_memory_event_store::<AnyEvent>();
     let result = rt
-        .block_on(Domain::reconstitute::<AnyAgg>(&*store, "none"))
+        .block_on(Domain.reconstitute::<AnyAgg>(&*store, "none"))
         .unwrap();
     assert!(result.is_none());
 }
@@ -339,8 +356,9 @@ async fn test_reconstitute_returns_none_for_empty_store() {
             Ok(AggregateIdentityResponse { id: &self.id })
         }
     }
-    let store = Domain::new_in_memory_event_store::<AnyEvent>();
-    let result = Domain::reconstitute::<AnyAgg>(&*store, "none")
+    let store = Domain.new_in_memory_event_store::<AnyEvent>();
+    let result = Domain
+        .reconstitute::<AnyAgg>(&*store, "none")
         .await
         .unwrap();
     assert!(result.is_none());

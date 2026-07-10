@@ -46,7 +46,7 @@ impl Spec for NameStartsWith {
 }
 
 async fn seeded_repo() -> Arc<dyn QueryableRepository<Entity = Product, Id = u32>> {
-    let repo = Domain::new_in_memory_queryable_repository::<Product, u32>();
+    let repo = Domain.new_in_memory_queryable_repository::<Product, u32>();
     repo.save(RepositorySaveRequest {
         id: 1,
         entity: Product {

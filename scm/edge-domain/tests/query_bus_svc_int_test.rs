@@ -17,13 +17,22 @@ impl Query for FindById {
         _req: QueryExecuteRequest,
     ) -> futures::future::BoxFuture<'_, Result<QueryResultResponse<String>, QueryError>> {
         let id = self.0;
-        Box::pin(async move { Ok(QueryResultResponse { result: format!("item-{}", id) }) })
+        Box::pin(async move {
+            Ok(QueryResultResponse {
+                result: format!("item-{}", id),
+            })
+        })
     }
 }
 
 #[tokio::test]
 async fn test_query_bus_svc_facade_dispatch_returns_result() {
-    let bus = Domain::direct_query_bus::<String>();
-    let result = bus.dispatch(QueryDispatchRequest { query: Box::new(FindById(7)) }).await.unwrap();
+    let bus = Domain.direct_query_bus::<String>();
+    let result = bus
+        .dispatch(QueryDispatchRequest {
+            query: Box::new(FindById(7)),
+        })
+        .await
+        .unwrap();
     assert_eq!(result.result, "item-7");
 }

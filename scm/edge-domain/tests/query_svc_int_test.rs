@@ -10,7 +10,10 @@ use edge_domain::QueryResultResponse;
 struct Count(u32);
 impl Query for Count {
     type Result = u32;
-    fn name(&self, _req: QueryNameRequest) -> Result<edge_domain::QueryNameResponse<'_>, QueryError> {
+    fn name(
+        &self,
+        _req: QueryNameRequest,
+    ) -> Result<edge_domain::QueryNameResponse<'_>, QueryError> {
         Ok(edge_domain::QueryNameResponse { name: "count" })
     }
     fn execute(
@@ -24,7 +27,10 @@ impl Query for Count {
 
 #[tokio::test]
 async fn test_query_svc_facade_execute_returns_wrapped_value() {
-    assert_eq!(Count(99).execute(QueryExecuteRequest).await.unwrap().result, 99);
+    assert_eq!(
+        Count(99).execute(QueryExecuteRequest).await.unwrap().result,
+        99
+    );
 }
 
 #[tokio::test]

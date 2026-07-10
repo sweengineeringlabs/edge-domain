@@ -4,9 +4,9 @@
 use std::time::SystemTime;
 
 use edge_domain::{
-    Domain, DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse,
-    EventStoreAppendRequest, EventStoreLoadRequest, EventTypeRequest, EventTypeResponse,
-    EventOccurredAtRequest, EventOccurredAtResponse, EventError, ExpectedVersion,
+    Domain, DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventError,
+    EventOccurredAtRequest, EventOccurredAtResponse, EventStoreAppendRequest,
+    EventStoreLoadRequest, EventTypeRequest, EventTypeResponse, ExpectedVersion,
 };
 
 #[derive(Clone)]
@@ -41,7 +41,7 @@ impl DomainEvent for Incremented {
 /// @covers: InMemoryEventStore
 #[tokio::test]
 async fn test_in_memory_event_store_append_and_load_roundtrip() {
-    let store = Domain::new_in_memory_event_store::<Incremented>();
+    let store = Domain.new_in_memory_event_store::<Incremented>();
     store
         .append(EventStoreAppendRequest {
             aggregate_id: "c1",
@@ -62,7 +62,7 @@ async fn test_in_memory_event_store_append_and_load_roundtrip() {
 /// @covers: InMemoryEventStore
 #[tokio::test]
 async fn test_in_memory_event_store_load_returns_empty_for_unknown_id() {
-    let store = Domain::new_in_memory_event_store::<Incremented>();
+    let store = Domain.new_in_memory_event_store::<Incremented>();
     assert!(store
         .load(EventStoreLoadRequest {
             aggregate_id: "unknown"

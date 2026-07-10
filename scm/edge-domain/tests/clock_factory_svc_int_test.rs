@@ -73,5 +73,8 @@ fn test_fixed_does_not_advance_error() {
 fn test_fixed_unix_epoch_anchor_edge() {
     use edge_domain::FixedClock;
     let clock = FixedClock::new(SystemTime::UNIX_EPOCH);
-    assert_eq!(clock.now(NowRequest).unwrap().instant, SystemTime::UNIX_EPOCH);
+    assert_eq!(
+        clock.now(NowRequest).unwrap().instant,
+        SystemTime::UNIX_EPOCH
+    );
 }
