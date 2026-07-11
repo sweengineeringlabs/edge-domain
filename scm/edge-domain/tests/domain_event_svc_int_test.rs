@@ -2,8 +2,8 @@
 //! SAF facade smoke test — DomainEvent trait is exported from the crate root.
 
 use edge_domain::{
-    DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventError,
-    EventTypeRequest, EventTypeResponse,
+    DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventError, EventTypeRequest,
+    EventTypeResponse,
 };
 
 struct OrderPlaced {

@@ -5,7 +5,7 @@
 use edge_domain_command::DirectCommandBus;
 use edge_domain_handler::{
     ExecutionRequest, Handler, HandlerContext, HandlerError, HealthCheckRequest,
-    HealthCheckResponse, IdRequest, PatternRequest,
+    HealthCheckResponse, IdRequest, ObserverContextAdapter, PatternRequest,
 };
 use edge_domain_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
@@ -47,10 +47,11 @@ async fn test_execute_echo_returns_input_happy() {
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: observer.as_ref(),
+        observer: &observer_adapter,
     };
     let result = EchoHandlerDouble
         .execute(ExecutionRequest {
@@ -67,10 +68,11 @@ async fn test_execute_failing_handler_returns_execution_failed_error() {
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: observer.as_ref(),
+        observer: &observer_adapter,
     };
     let result = FailingHandlerDouble
         .execute(ExecutionRequest {

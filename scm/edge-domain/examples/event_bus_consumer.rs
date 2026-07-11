@@ -10,6 +10,8 @@
 //!
 //! SEA constraint: all imports come from the edge_domain SAF surface.
 
+use edge_domain::DomainRuntime;
+use edge_domain::InProcessEventBusRequest;
 use edge_domain::{
     Domain, EventAggregateIdRequest, EventAggregateIdResponse, EventBusConfig,
     EventBusPublishRequest, EventError, EventOccurredAtRequest, EventOccurredAtResponse,
@@ -57,7 +59,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // KEY: No EventBus import needed — just call the factory
     println!("1. Creating event bus via factory...");
     let config = EventBusConfig::default();
-    let event_bus = Domain::in_process_event_bus(config);
+    let event_bus = Domain
+        .in_process_event_bus(InProcessEventBusRequest { config })?
+        .bus;
     println!("   ✓ Got Arc<dyn EventBus> without importing trait\n");
 
     // Use the bus — no type knowledge of concrete implementation
@@ -67,9 +71,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             order_id: format!("order-{i}"),
             status: "processing".to_string(),
         });
-        event_bus
-            .publish(EventBusPublishRequest { event })
-            .await?;
+        event_bus.publish(EventBusPublishRequest { event }).await?;
         println!("   ✓ Event {i} published");
     }
     println!();

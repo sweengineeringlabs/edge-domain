@@ -1,6 +1,7 @@
 //! `QueryBus` trait — dispatches queries and returns their results.
 
-use futures::future::BoxFuture;
+use std::future::Future;
+use std::pin::Pin;
 
 use crate::api::query::QueryError;
 use crate::api::query::types::{QueryDispatchRequest, QueryResultResponse};
@@ -14,5 +15,5 @@ pub trait QueryBus: Send + Sync {
     fn dispatch(
         &self,
         req: QueryDispatchRequest<Self::Result>,
-    ) -> BoxFuture<'_, Result<QueryResultResponse<Self::Result>, QueryError>>;
+    ) -> Pin<Box<dyn Future<Output = Result<QueryResultResponse<Self::Result>, QueryError>> + Send + '_>>;
 }

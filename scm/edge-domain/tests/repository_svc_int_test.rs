@@ -13,8 +13,7 @@ struct Record {
 
 #[tokio::test]
 async fn test_repository_svc_facade_save_and_find() {
-    let repo: Arc<dyn Repository<Entity = Record, Id = String>> =
-        Domain::new_in_memory_repository();
+    let repo: Arc<dyn Repository<Entity = Record, Id = String>> = Domain.new_in_memory_repository();
     repo.save(RepositorySaveRequest {
         id: "r1".into(),
         entity: Record { value: 42 },
@@ -28,8 +27,7 @@ async fn test_repository_svc_facade_save_and_find() {
 
 #[tokio::test]
 async fn test_repository_svc_facade_find_missing_returns_none() {
-    let repo: Arc<dyn Repository<Entity = Record, Id = String>> =
-        Domain::new_in_memory_repository();
+    let repo: Arc<dyn Repository<Entity = Record, Id = String>> = Domain.new_in_memory_repository();
     let id = "nope".to_string();
     let found = repo.find(RepositoryIdRequest { id: &id }).await.unwrap();
     assert!(found.entity.is_none());

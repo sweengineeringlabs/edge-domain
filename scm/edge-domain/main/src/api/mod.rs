@@ -5,9 +5,19 @@ mod tests;
 
 // ── domain (never extracted; always internal) ─────────────────────────────────
 mod domain;
+#[cfg(feature = "command")]
+pub use domain::{DirectCommandBusRequest, DirectCommandBusResponse};
 pub use domain::{
-    Domain, DomainError, DomainExtension, DomainExtensionHealthRequest, NoopDomainExtension,
-    OutboundRegistry,
+    Domain, DomainError, DomainExtension, DomainExtensionHealthRequest, DomainRuntime,
+    InMemoryOutboundRegistry, NoopDomainExtension, OutboundDeregisterRequest,
+    OutboundDeregisterResponse, OutboundGetRequest, OutboundGetResponse, OutboundIsEmptyRequest,
+    OutboundIsEmptyResponse, OutboundLenRequest, OutboundLenResponse, OutboundNamesRequest,
+    OutboundNamesResponse, OutboundRegisterRequest, OutboundRegisterResponse, OutboundRegistry,
+};
+#[cfg(feature = "event")]
+pub use domain::{
+    InProcessEventBusRequest, InProcessEventBusResponse, NoopEventBusRequest, NoopEventBusResponse,
+    NoopEventPublisherRequest, NoopEventPublisherResponse,
 };
 
 // ── spi ───────────────────────────────────────────────────────────────────────

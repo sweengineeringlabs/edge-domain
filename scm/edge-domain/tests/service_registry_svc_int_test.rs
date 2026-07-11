@@ -25,7 +25,7 @@ impl Service for Greeter {
 
 #[test]
 fn test_service_registry_svc_facade_register_and_get() {
-    let reg = Domain::new_service_registry::<(), String>();
+    let reg = Domain.new_service_registry::<(), String>();
     reg.register(&RegisterServiceRequest::new(Arc::new(Greeter)))
         .unwrap();
     assert!(reg
@@ -39,7 +39,7 @@ fn test_service_registry_svc_facade_register_and_get() {
 
 #[test]
 fn test_service_registry_svc_facade_missing_name_returns_none() {
-    let reg = Domain::new_service_registry::<(), String>();
+    let reg = Domain.new_service_registry::<(), String>();
     assert!(reg
         .get(&ServiceLookupRequest {
             name: "absent".to_string()

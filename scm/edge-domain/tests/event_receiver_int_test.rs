@@ -1,5 +1,7 @@
 //! Coverage for `EventSource::recv` (api/event/traits/event_source.rs)
 #![allow(clippy::unwrap_used, clippy::expect_used)]
+use edge_domain::DomainRuntime;
+use edge_domain::InProcessEventBusRequest;
 use edge_domain::{
     Domain, DomainEvent, EventBusConfig, EventBusPublishRequest, EventBusSubscribeRequest,
     EventSource, EventSourceRecvNextRequest,
@@ -13,7 +15,12 @@ impl DomainEvent for TestEvent {}
 #[test]
 fn test_event_receiver_subscribe_returns_receiver_happy() {
     block_on(async {
-        let bus = Domain::in_process_event_bus(EventBusConfig::default());
+        let bus = Domain
+            .in_process_event_bus(InProcessEventBusRequest {
+                config: EventBusConfig::default(),
+            })
+            .unwrap()
+            .bus;
         let rx: Box<dyn EventSource> = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         drop(rx);
     });
@@ -22,7 +29,12 @@ fn test_event_receiver_subscribe_returns_receiver_happy() {
 #[test]
 fn test_event_receiver_recv_after_publish_returns_ok_happy() {
     block_on(async {
-        let bus = Domain::in_process_event_bus(EventBusConfig::default());
+        let bus = Domain
+            .in_process_event_bus(InProcessEventBusRequest {
+                config: EventBusConfig::default(),
+            })
+            .unwrap()
+            .bus;
         let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         assert!(
             bus.publish(EventBusPublishRequest {
@@ -42,7 +54,12 @@ fn test_event_receiver_recv_after_publish_returns_ok_happy() {
 #[test]
 fn test_event_receiver_recv_without_publish_returns_err_when_bus_dropped_edge() {
     block_on(async {
-        let bus = Domain::in_process_event_bus(EventBusConfig::default());
+        let bus = Domain
+            .in_process_event_bus(InProcessEventBusRequest {
+                config: EventBusConfig::default(),
+            })
+            .unwrap()
+            .bus;
         let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         drop(bus);
         assert!(rx.recv_next(EventSourceRecvNextRequest).await.is_err());
@@ -52,7 +69,12 @@ fn test_event_receiver_recv_without_publish_returns_err_when_bus_dropped_edge() 
 #[test]
 fn test_event_receiver_multiple_subscribers_both_receive_event_happy() {
     block_on(async {
-        let bus = Domain::in_process_event_bus(EventBusConfig::default());
+        let bus = Domain
+            .in_process_event_bus(InProcessEventBusRequest {
+                config: EventBusConfig::default(),
+            })
+            .unwrap()
+            .bus;
         let mut rx1 = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         let mut rx2 = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         assert!(

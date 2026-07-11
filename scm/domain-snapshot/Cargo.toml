@@ -18,9 +18,8 @@ service_type     = "snapshot"
 path = "main/src/lib.rs"
 
 [dependencies]
-futures.workspace     = true
-thiserror.workspace   = true
-parking_lot.workspace = true
+futures.workspace   = true
+thiserror.workspace = true
 
 [dev-dependencies]
 tokio   = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }

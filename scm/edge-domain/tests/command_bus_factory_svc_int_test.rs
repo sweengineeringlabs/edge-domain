@@ -1,10 +1,12 @@
-//! SAF facade smoke test — `CommandBus` factory (`Domain::direct_command_bus`) is exported
+//! SAF facade smoke test — `CommandBus` factory (`Domain.direct_command_bus`) is exported
 //! from the crate root.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
 
+use edge_domain::DirectCommandBusRequest;
 use edge_domain::Domain;
+use edge_domain::DomainRuntime;
 use edge_domain_command::{Command, CommandDispatchRequest, CommandError, ExecutionRequest};
 use futures::executor::block_on;
 use futures::future::BoxFuture;
@@ -16,28 +18,40 @@ impl Command for Ok_ {
     }
 }
 
-/// @covers: Domain::direct_command_bus — happy path: dispatches a successful command
+/// @covers: Domain.direct_command_bus — happy path: dispatches a successful command
 #[test]
 fn test_direct_command_bus_factory_dispatches_ok_command_happy() {
-    let bus = Domain::direct_command_bus();
+    let bus = Domain
+        .direct_command_bus(DirectCommandBusRequest)
+        .unwrap()
+        .bus;
     let result = block_on(bus.dispatch(CommandDispatchRequest {
         command: Box::new(Ok_),
     }));
     assert_eq!(result, Ok(()));
 }
 
-/// @covers: Domain::direct_command_bus — error: each call returns an independent, usable bus
+/// @covers: Domain.direct_command_bus — error: each call returns an independent, usable bus
 #[test]
 fn test_direct_command_bus_factory_independent_calls_error() {
-    let a = Domain::direct_command_bus();
-    let b = Domain::direct_command_bus();
+    let a = Domain
+        .direct_command_bus(DirectCommandBusRequest)
+        .unwrap()
+        .bus;
+    let b = Domain
+        .direct_command_bus(DirectCommandBusRequest)
+        .unwrap()
+        .bus;
     assert!(!Arc::ptr_eq(&a, &b));
 }
 
-/// @covers: Domain::direct_command_bus — edge: usable through an explicit `&dyn CommandBus` reference
+/// @covers: Domain.direct_command_bus — edge: usable through an explicit `&dyn CommandBus` reference
 #[test]
 fn test_direct_command_bus_factory_returns_dyn_command_bus_edge() {
-    let bus = Domain::direct_command_bus();
+    let bus = Domain
+        .direct_command_bus(DirectCommandBusRequest)
+        .unwrap()
+        .bus;
     let bus_ref: &dyn edge_domain_command::CommandBus = bus.as_ref();
     let result = block_on(bus_ref.dispatch(CommandDispatchRequest {
         command: Box::new(Ok_),

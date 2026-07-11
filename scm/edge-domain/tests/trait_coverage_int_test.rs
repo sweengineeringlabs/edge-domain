@@ -208,7 +208,7 @@ impl EventStore for ErrEventStore {
 }
 
 fn make_test_handler() -> Arc<dyn Handler<Request = String, Response = String>> {
-    Domain::echo_handler("test", "/test")
+    Domain.echo_handler("test", "/test")
 }
 
 // ─── name ────────────────────────────────────────────────────────────────────
@@ -321,7 +321,10 @@ fn test_dispatch_command_returns_ok_happy() {
         }
 
         let counter = Arc::new(AtomicUsize::new(0));
-        let bus = Domain::direct_command_bus();
+        let bus = Domain
+            .direct_command_bus(DirectCommandBusRequest)
+            .unwrap()
+            .bus;
         bus.dispatch(CommandDispatchRequest {
             command: Box::new(CountingCmd(counter.clone())),
         })
@@ -338,7 +341,10 @@ fn test_dispatch_command_returns_ok_happy() {
 #[test]
 fn test_dispatch_command_propagates_error() {
     block_on(async {
-        let bus = Domain::direct_command_bus();
+        let bus = Domain
+            .direct_command_bus(DirectCommandBusRequest)
+            .unwrap()
+            .bus;
         assert!(bus
             .dispatch(CommandDispatchRequest {
                 command: Box::new(ErrCmd)
@@ -351,7 +357,7 @@ fn test_dispatch_command_propagates_error() {
 #[test]
 fn test_dispatch_query_result_type_preserved_edge() {
     block_on(async {
-        let bus = Domain::direct_query_bus::<String>();
+        let bus = Domain.direct_query_bus::<String>();
         let r = bus
             .dispatch(QueryDispatchRequest {
                 query: Box::new(OkQry("echo".into())),
@@ -365,7 +371,7 @@ fn test_dispatch_query_result_type_preserved_edge() {
 #[test]
 fn test_dispatch_query_propagates_error_error() {
     block_on(async {
-        let bus = Domain::direct_query_bus::<String>();
+        let bus = Domain.direct_query_bus::<String>();
         assert!(bus
             .dispatch(QueryDispatchRequest {
                 query: Box::new(ErrQry)
@@ -608,7 +614,7 @@ fn test_occurred_at_unix_epoch_is_valid_timestamp_edge() {
 #[test]
 fn test_publish_to_noop_bus_returns_ok_happy() {
     block_on(async {
-        let bus = Domain::noop_event_bus();
+        let bus = Domain.noop_event_bus(NoopEventBusRequest).unwrap().bus;
         let e: Arc<dyn DomainEvent> = Arc::new(TestEvent {
             aggregate_id: "x".into(),
         });
@@ -623,7 +629,10 @@ fn test_publish_to_noop_bus_returns_ok_happy() {
 #[test]
 fn test_publish_to_noop_publisher_never_errors_not_error() {
     block_on(async {
-        let pub_ = Domain::noop_event_publisher();
+        let pub_ = Domain
+            .noop_event_publisher(NoopEventPublisherRequest)
+            .unwrap()
+            .publisher;
         let e = TestEvent {
             aggregate_id: "x".into(),
         };
@@ -639,7 +648,7 @@ fn test_publish_to_noop_publisher_never_errors_not_error() {
 #[test]
 fn test_publish_multiple_events_sequentially_edge() {
     block_on(async {
-        let bus = Domain::noop_event_bus();
+        let bus = Domain.noop_event_bus(NoopEventBusRequest).unwrap().bus;
         for i in 0..5u32 {
             let e: Arc<dyn DomainEvent> = Arc::new(TestEvent {
                 aggregate_id: i.to_string(),
@@ -661,7 +670,7 @@ fn test_publish_multiple_events_sequentially_edge() {
 #[test]
 fn test_subscribe_noop_bus_yields_receiver_happy() {
     block_on(async {
-        let bus = Domain::noop_event_bus();
+        let bus = Domain.noop_event_bus(NoopEventBusRequest).unwrap().bus;
         let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         // noop bus's receiver immediately signals unavailable
         assert!(rx.recv_next(EventSourceRecvNextRequest).await.is_err());
@@ -671,7 +680,12 @@ fn test_subscribe_noop_bus_yields_receiver_happy() {
 #[test]
 fn test_subscribe_active_bus_receives_published_event_not_error() {
     block_on(async {
-        let bus = Domain::in_process_event_bus(EventBusConfig::default());
+        let bus = Domain
+            .in_process_event_bus(InProcessEventBusRequest {
+                config: EventBusConfig::default(),
+            })
+            .unwrap()
+            .bus;
         let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         let e: Arc<dyn DomainEvent> = Arc::new(TestEvent {
             aggregate_id: "e1".into(),
@@ -686,7 +700,12 @@ fn test_subscribe_active_bus_receives_published_event_not_error() {
 #[test]
 fn test_subscribe_multiple_receivers_each_get_event_edge() {
     block_on(async {
-        let bus = Domain::in_process_event_bus(EventBusConfig::default());
+        let bus = Domain
+            .in_process_event_bus(InProcessEventBusRequest {
+                config: EventBusConfig::default(),
+            })
+            .unwrap()
+            .bus;
         let mut rx1 = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         let mut rx2 = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         let e: Arc<dyn DomainEvent> = Arc::new(TestEvent {
@@ -706,7 +725,7 @@ fn test_subscribe_multiple_receivers_each_get_event_edge() {
 #[test]
 fn test_append_returns_version_after_first_event_happy() {
     block_on(async {
-        let store = Domain::new_in_memory_event_store::<TestEvent>();
+        let store = Domain.new_in_memory_event_store::<TestEvent>();
         let ver = store
             .append(EventStoreAppendRequest {
                 aggregate_id: "agg-1",
@@ -725,7 +744,7 @@ fn test_append_returns_version_after_first_event_happy() {
 #[test]
 fn test_append_nostream_on_existing_stream_returns_error() {
     block_on(async {
-        let store = Domain::new_in_memory_event_store::<TestEvent>();
+        let store = Domain.new_in_memory_event_store::<TestEvent>();
         store
             .append(EventStoreAppendRequest {
                 aggregate_id: "agg-1",
@@ -752,7 +771,7 @@ fn test_append_nostream_on_existing_stream_returns_error() {
 #[test]
 fn test_append_any_version_never_conflicts_edge() {
     block_on(async {
-        let store = Domain::new_in_memory_event_store::<TestEvent>();
+        let store = Domain.new_in_memory_event_store::<TestEvent>();
         for i in 0..3u64 {
             let response = store
                 .append(EventStoreAppendRequest {
@@ -781,7 +800,7 @@ fn test_append_any_version_never_conflicts_edge() {
 #[test]
 fn test_load_after_append_returns_events_happy() {
     block_on(async {
-        let store = Domain::new_in_memory_event_store::<TestEvent>();
+        let store = Domain.new_in_memory_event_store::<TestEvent>();
         store
             .append(EventStoreAppendRequest {
                 aggregate_id: "a1",
@@ -809,7 +828,7 @@ fn test_load_after_append_returns_events_happy() {
 #[test]
 fn test_load_nonexistent_stream_returns_empty_not_error() {
     block_on(async {
-        let store = Domain::new_in_memory_event_store::<TestEvent>();
+        let store = Domain.new_in_memory_event_store::<TestEvent>();
         let events = store
             .load(EventStoreLoadRequest {
                 aggregate_id: "ghost",
@@ -824,7 +843,7 @@ fn test_load_nonexistent_stream_returns_empty_not_error() {
 #[test]
 fn test_load_events_have_correct_sequence_edge() {
     block_on(async {
-        let store = Domain::new_in_memory_event_store::<TestEvent>();
+        let store = Domain.new_in_memory_event_store::<TestEvent>();
         store
             .append(EventStoreAppendRequest {
                 aggregate_id: "a1",
@@ -850,7 +869,7 @@ fn test_load_events_have_correct_sequence_edge() {
 #[test]
 fn test_load_from_returns_subset_from_sequence_happy() {
     block_on(async {
-        let store = Domain::new_in_memory_event_store::<TestEvent>();
+        let store = Domain.new_in_memory_event_store::<TestEvent>();
         for _ in 0..3u32 {
             store
                 .append(EventStoreAppendRequest {
@@ -878,7 +897,7 @@ fn test_load_from_returns_subset_from_sequence_happy() {
 #[test]
 fn test_load_from_beyond_end_returns_empty_not_error() {
     block_on(async {
-        let store = Domain::new_in_memory_event_store::<TestEvent>();
+        let store = Domain.new_in_memory_event_store::<TestEvent>();
         store
             .append(EventStoreAppendRequest {
                 aggregate_id: "a1",
@@ -920,7 +939,12 @@ fn test_load_from_unavailable_store_propagates_error_edge() {
 #[test]
 fn test_recv_next_active_bus_returns_event_happy() {
     block_on(async {
-        let bus = Domain::in_process_event_bus(EventBusConfig::default());
+        let bus = Domain
+            .in_process_event_bus(InProcessEventBusRequest {
+                config: EventBusConfig::default(),
+            })
+            .unwrap()
+            .bus;
         let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         let e: Arc<dyn DomainEvent> = Arc::new(TestEvent {
             aggregate_id: "r1".into(),
@@ -936,7 +960,7 @@ fn test_recv_next_active_bus_returns_event_happy() {
 fn test_recv_next_closed_source_returns_unavailable_error() {
     block_on(async {
         // noop bus subscribe returns a ClosedEventSource
-        let bus = Domain::noop_event_bus();
+        let bus = Domain.noop_event_bus(NoopEventBusRequest).unwrap().bus;
         let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         assert!(matches!(
             rx.recv_next(EventSourceRecvNextRequest).await,
@@ -948,7 +972,12 @@ fn test_recv_next_closed_source_returns_unavailable_error() {
 #[test]
 fn test_recv_next_event_type_preserved_edge() {
     block_on(async {
-        let bus = Domain::in_process_event_bus(EventBusConfig::default());
+        let bus = Domain
+            .in_process_event_bus(InProcessEventBusRequest {
+                config: EventBusConfig::default(),
+            })
+            .unwrap()
+            .bus;
         let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         let e: Arc<dyn DomainEvent> = Arc::new(TestEvent {
             aggregate_id: "r2".into(),
@@ -956,7 +985,11 @@ fn test_recv_next_event_type_preserved_edge() {
         bus.publish(EventBusPublishRequest { event: e })
             .await
             .unwrap();
-        let received = rx.recv_next(EventSourceRecvNextRequest).await.unwrap().event;
+        let received = rx
+            .recv_next(EventSourceRecvNextRequest)
+            .await
+            .unwrap()
+            .event;
         assert_eq!(
             received.event_type(EventTypeRequest).unwrap().event_type,
             "test.event"
@@ -985,7 +1018,7 @@ fn test_pattern_stable_across_calls_not_error() {
 
 #[test]
 fn test_pattern_can_be_root_path_edge() {
-    let h = Domain::echo_handler::<String>("root", "/");
+    let h = Domain.echo_handler::<String>("root", "/");
     assert_eq!(h.pattern(PatternRequest).unwrap().pattern, "/");
 }
 
@@ -994,7 +1027,7 @@ fn test_pattern_can_be_root_path_edge() {
 
 #[test]
 fn test_register_handler_then_registry_not_empty_happy() {
-    let reg = Domain::new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<String, String>();
     reg.register(RegisterHandlerRequest::new(make_test_handler()))
         .unwrap();
     assert!(!reg.is_empty(HandlerEmptinessRequest).unwrap().empty);
@@ -1002,7 +1035,7 @@ fn test_register_handler_then_registry_not_empty_happy() {
 
 #[test]
 fn test_register_same_id_twice_overwrites_not_error() {
-    let reg = Domain::new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<String, String>();
     reg.register(RegisterHandlerRequest::new(make_test_handler()))
         .unwrap();
     reg.register(RegisterHandlerRequest::new(make_test_handler()))
@@ -1012,7 +1045,7 @@ fn test_register_same_id_twice_overwrites_not_error() {
 
 #[test]
 fn test_register_service_increments_len_edge() {
-    let reg = Domain::new_service_registry::<String, String>();
+    let reg = Domain.new_service_registry::<String, String>();
     reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
         .unwrap();
     assert_eq!(reg.len(ServiceLenRequest).unwrap().count, 1);
@@ -1023,7 +1056,7 @@ fn test_register_service_increments_len_edge() {
 
 #[test]
 fn test_deregister_registered_handler_returns_true_happy() {
-    let reg = Domain::new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<String, String>();
     reg.register(RegisterHandlerRequest::new(make_test_handler()))
         .unwrap();
     assert!(
@@ -1037,7 +1070,7 @@ fn test_deregister_registered_handler_returns_true_happy() {
 
 #[test]
 fn test_deregister_absent_handler_returns_false_error() {
-    let reg = Domain::new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<String, String>();
     assert!(
         !reg.deregister(DeregisterHandlerRequest {
             id: "ghost".to_string()
@@ -1049,7 +1082,7 @@ fn test_deregister_absent_handler_returns_false_error() {
 
 #[test]
 fn test_deregister_leaves_registry_empty_edge() {
-    let reg = Domain::new_service_registry::<String, String>();
+    let reg = Domain.new_service_registry::<String, String>();
     reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
         .unwrap();
     reg.deregister(&ServiceRemovalRequest {
@@ -1064,7 +1097,7 @@ fn test_deregister_leaves_registry_empty_edge() {
 
 #[test]
 fn test_get_registered_handler_returns_some_happy() {
-    let reg = Domain::new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<String, String>();
     let h = make_test_handler();
     reg.register(RegisterHandlerRequest::new(h.clone()))
         .unwrap();
@@ -1084,7 +1117,7 @@ fn test_get_registered_handler_returns_some_happy() {
 
 #[test]
 fn test_get_nonexistent_key_returns_none_not_error() {
-    let reg = Domain::new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<String, String>();
     assert!(reg
         .get(HandlerLookupRequest {
             id: "ghost".to_string()
@@ -1096,7 +1129,7 @@ fn test_get_nonexistent_key_returns_none_not_error() {
 
 #[test]
 fn test_get_after_deregister_returns_none_edge() {
-    let reg = Domain::new_service_registry::<String, String>();
+    let reg = Domain.new_service_registry::<String, String>();
     reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
         .unwrap();
     reg.deregister(&ServiceRemovalRequest {
@@ -1117,7 +1150,7 @@ fn test_get_after_deregister_returns_none_edge() {
 
 #[test]
 fn test_list_ids_contains_registered_id_happy() {
-    let reg = Domain::new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<String, String>();
     reg.register(RegisterHandlerRequest::new(make_test_handler()))
         .unwrap();
     assert!(reg
@@ -1129,16 +1162,16 @@ fn test_list_ids_contains_registered_id_happy() {
 
 #[test]
 fn test_list_ids_empty_before_registration_not_error() {
-    let reg = Domain::new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<String, String>();
     assert!(reg.list_ids(ListIdsRequest).unwrap().ids.is_empty());
 }
 
 #[test]
 fn test_list_ids_len_matches_registry_len_edge() {
-    let reg = Domain::new_handler_registry::<String, String>();
-    reg.register(RegisterHandlerRequest::new(Domain::echo_handler("a", "/a")))
+    let reg = Domain.new_handler_registry::<String, String>();
+    reg.register(RegisterHandlerRequest::new(Domain.echo_handler("a", "/a")))
         .unwrap();
-    reg.register(RegisterHandlerRequest::new(Domain::echo_handler("b", "/b")))
+    reg.register(RegisterHandlerRequest::new(Domain.echo_handler("b", "/b")))
         .unwrap();
     assert_eq!(
         reg.list_ids(ListIdsRequest).unwrap().ids.len(),
@@ -1151,7 +1184,7 @@ fn test_list_ids_len_matches_registry_len_edge() {
 
 #[test]
 fn test_len_increments_after_register_happy() {
-    let reg = Domain::new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<String, String>();
     assert_eq!(reg.len(HandlerLenRequest).unwrap().count, 0);
     reg.register(RegisterHandlerRequest::new(make_test_handler()))
         .unwrap();
@@ -1160,7 +1193,7 @@ fn test_len_increments_after_register_happy() {
 
 #[test]
 fn test_len_decrements_after_deregister_not_error() {
-    let reg = Domain::new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<String, String>();
     reg.register(RegisterHandlerRequest::new(make_test_handler()))
         .unwrap();
     reg.deregister(DeregisterHandlerRequest {
@@ -1172,7 +1205,7 @@ fn test_len_decrements_after_deregister_not_error() {
 
 #[test]
 fn test_len_service_registry_matches_registered_count_edge() {
-    let reg = Domain::new_service_registry::<String, String>();
+    let reg = Domain.new_service_registry::<String, String>();
     reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
         .unwrap();
     reg.register(&RegisterServiceRequest::new(Arc::new(ErrSvc)))
@@ -1185,13 +1218,13 @@ fn test_len_service_registry_matches_registered_count_edge() {
 
 #[test]
 fn test_is_empty_true_on_new_registry_happy() {
-    let reg = Domain::new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<String, String>();
     assert!(reg.is_empty(HandlerEmptinessRequest).unwrap().empty);
 }
 
 #[test]
 fn test_is_empty_false_after_registration_not_error() {
-    let reg = Domain::new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<String, String>();
     reg.register(RegisterHandlerRequest::new(make_test_handler()))
         .unwrap();
     assert!(!reg.is_empty(HandlerEmptinessRequest).unwrap().empty);
@@ -1199,7 +1232,7 @@ fn test_is_empty_false_after_registration_not_error() {
 
 #[test]
 fn test_is_empty_true_after_deregister_all_edge() {
-    let reg = Domain::new_service_registry::<String, String>();
+    let reg = Domain.new_service_registry::<String, String>();
     reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
         .unwrap();
     reg.deregister(&ServiceRemovalRequest {
@@ -1215,7 +1248,7 @@ fn test_is_empty_true_after_deregister_all_edge() {
 #[test]
 fn test_find_by_returns_all_matching_items_happy() {
     block_on(async {
-        let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
+        let repo = Domain.new_in_memory_queryable_repository::<String, u32>();
         repo.save(RepositorySaveRequest {
             id: 1u32,
             entity: "alpha".into(),
@@ -1242,7 +1275,7 @@ fn test_find_by_returns_all_matching_items_happy() {
 #[test]
 fn test_find_by_no_match_returns_empty_vec_not_error() {
     block_on(async {
-        let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
+        let repo = Domain.new_in_memory_queryable_repository::<String, u32>();
         repo.save(RepositorySaveRequest {
             id: 1u32,
             entity: "x".into(),
@@ -1263,7 +1296,7 @@ fn test_find_by_no_match_returns_empty_vec_not_error() {
 #[test]
 fn test_find_by_empty_repo_returns_empty_vec_edge() {
     block_on(async {
-        let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
+        let repo = Domain.new_in_memory_queryable_repository::<String, u32>();
         let result = repo
             .find_by(SpecRequest {
                 spec: Box::new(AlwaysMatch),
@@ -1281,7 +1314,7 @@ fn test_find_by_empty_repo_returns_empty_vec_edge() {
 #[test]
 fn test_find_one_by_returns_first_match_happy() {
     block_on(async {
-        let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
+        let repo = Domain.new_in_memory_queryable_repository::<String, u32>();
         repo.save(RepositorySaveRequest {
             id: 1u32,
             entity: "first".into(),
@@ -1302,7 +1335,7 @@ fn test_find_one_by_returns_first_match_happy() {
 #[test]
 fn test_find_one_by_no_match_returns_none_not_error() {
     block_on(async {
-        let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
+        let repo = Domain.new_in_memory_queryable_repository::<String, u32>();
         repo.save(RepositorySaveRequest {
             id: 1u32,
             entity: "x".into(),
@@ -1323,7 +1356,7 @@ fn test_find_one_by_no_match_returns_none_not_error() {
 #[test]
 fn test_find_one_by_empty_repo_returns_none_edge() {
     block_on(async {
-        let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
+        let repo = Domain.new_in_memory_queryable_repository::<String, u32>();
         assert!(repo
             .find_one_by(SpecRequest {
                 spec: Box::new(AlwaysMatch)
@@ -1341,7 +1374,7 @@ fn test_find_one_by_empty_repo_returns_none_edge() {
 #[test]
 fn test_count_by_returns_matching_count_happy() {
     block_on(async {
-        let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
+        let repo = Domain.new_in_memory_queryable_repository::<String, u32>();
         repo.save(RepositorySaveRequest {
             id: 1u32,
             entity: "a".into(),
@@ -1369,7 +1402,7 @@ fn test_count_by_returns_matching_count_happy() {
 #[test]
 fn test_count_by_no_match_returns_zero_not_error() {
     block_on(async {
-        let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
+        let repo = Domain.new_in_memory_queryable_repository::<String, u32>();
         repo.save(RepositorySaveRequest {
             id: 1u32,
             entity: "x".into(),
@@ -1391,7 +1424,7 @@ fn test_count_by_no_match_returns_zero_not_error() {
 #[test]
 fn test_count_by_empty_repo_returns_zero_edge() {
     block_on(async {
-        let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
+        let repo = Domain.new_in_memory_queryable_repository::<String, u32>();
         assert_eq!(
             repo.count_by(SpecRequest {
                 spec: Box::new(AlwaysMatch)
@@ -1410,7 +1443,7 @@ fn test_count_by_empty_repo_returns_zero_edge() {
 #[test]
 fn test_find_after_save_returns_some_happy() {
     block_on(async {
-        let repo = Domain::new_in_memory_repository::<String, u32>();
+        let repo = Domain.new_in_memory_repository::<String, u32>();
         repo.save(RepositorySaveRequest {
             id: 7u32,
             entity: "seven".into(),
@@ -1431,7 +1464,7 @@ fn test_find_after_save_returns_some_happy() {
 #[test]
 fn test_find_nonexistent_returns_ok_none_not_error() {
     block_on(async {
-        let repo = Domain::new_in_memory_repository::<String, u32>();
+        let repo = Domain.new_in_memory_repository::<String, u32>();
         assert!(repo
             .find(RepositoryIdRequest { id: &0u32 })
             .await
@@ -1444,7 +1477,7 @@ fn test_find_nonexistent_returns_ok_none_not_error() {
 #[test]
 fn test_find_after_delete_returns_none_edge() {
     block_on(async {
-        let repo = Domain::new_in_memory_repository::<String, u32>();
+        let repo = Domain.new_in_memory_repository::<String, u32>();
         repo.save(RepositorySaveRequest {
             id: 1u32,
             entity: "x".into(),
@@ -1469,7 +1502,7 @@ fn test_find_after_delete_returns_none_edge() {
 #[test]
 fn test_save_then_find_round_trips_happy() {
     block_on(async {
-        let repo = Domain::new_in_memory_repository::<String, u32>();
+        let repo = Domain.new_in_memory_repository::<String, u32>();
         repo.save(RepositorySaveRequest {
             id: 1u32,
             entity: "hello".into(),
@@ -1490,7 +1523,7 @@ fn test_save_then_find_round_trips_happy() {
 #[test]
 fn test_save_overwrites_existing_entity_not_error() {
     block_on(async {
-        let repo = Domain::new_in_memory_repository::<String, u32>();
+        let repo = Domain.new_in_memory_repository::<String, u32>();
         repo.save(RepositorySaveRequest {
             id: 1u32,
             entity: "old".into(),
@@ -1517,7 +1550,7 @@ fn test_save_overwrites_existing_entity_not_error() {
 #[test]
 fn test_save_multiple_entities_increases_count_edge() {
     block_on(async {
-        let repo = Domain::new_in_memory_repository::<String, u32>();
+        let repo = Domain.new_in_memory_repository::<String, u32>();
         for i in 0..5u32 {
             repo.save(RepositorySaveRequest {
                 id: i,
@@ -1536,7 +1569,7 @@ fn test_save_multiple_entities_increases_count_edge() {
 #[test]
 fn test_delete_existing_entity_returns_true_happy() {
     block_on(async {
-        let repo = Domain::new_in_memory_repository::<String, u32>();
+        let repo = Domain.new_in_memory_repository::<String, u32>();
         repo.save(RepositorySaveRequest {
             id: 1u32,
             entity: "x".into(),
@@ -1556,7 +1589,7 @@ fn test_delete_existing_entity_returns_true_happy() {
 fn test_delete_nonexistent_entity_returns_false_error() {
     block_on(async {
         // delete of non-existent key must return false, not Err
-        let repo = Domain::new_in_memory_repository::<String, u32>();
+        let repo = Domain.new_in_memory_repository::<String, u32>();
         assert!(
             !repo
                 .delete(RepositoryIdRequest { id: &99u32 })
@@ -1570,7 +1603,7 @@ fn test_delete_nonexistent_entity_returns_false_error() {
 #[test]
 fn test_delete_reduces_count_edge() {
     block_on(async {
-        let repo = Domain::new_in_memory_repository::<String, u32>();
+        let repo = Domain.new_in_memory_repository::<String, u32>();
         repo.save(RepositorySaveRequest {
             id: 1u32,
             entity: "a".into(),
@@ -1596,7 +1629,7 @@ fn test_delete_reduces_count_edge() {
 #[test]
 fn test_list_returns_all_saved_entities_happy() {
     block_on(async {
-        let repo = Domain::new_in_memory_repository::<String, u32>();
+        let repo = Domain.new_in_memory_repository::<String, u32>();
         repo.save(RepositorySaveRequest {
             id: 1u32,
             entity: "a".into(),
@@ -1617,7 +1650,7 @@ fn test_list_returns_all_saved_entities_happy() {
 #[test]
 fn test_list_empty_repo_returns_empty_vec_not_error() {
     block_on(async {
-        let repo = Domain::new_in_memory_repository::<String, u32>();
+        let repo = Domain.new_in_memory_repository::<String, u32>();
         let all = repo.list(RepositoryListRequest).await.unwrap().items;
         assert!(all.is_empty());
     });
@@ -1626,7 +1659,7 @@ fn test_list_empty_repo_returns_empty_vec_not_error() {
 #[test]
 fn test_list_after_delete_reflects_removal_edge() {
     block_on(async {
-        let repo = Domain::new_in_memory_repository::<String, u32>();
+        let repo = Domain.new_in_memory_repository::<String, u32>();
         repo.save(RepositorySaveRequest {
             id: 1u32,
             entity: "a".into(),
@@ -1647,7 +1680,7 @@ fn test_list_after_delete_reflects_removal_edge() {
 #[test]
 fn test_exists_after_save_returns_true_happy() {
     block_on(async {
-        let repo = Domain::new_in_memory_repository::<String, u32>();
+        let repo = Domain.new_in_memory_repository::<String, u32>();
         repo.save(RepositorySaveRequest {
             id: 1u32,
             entity: "x".into(),
@@ -1666,7 +1699,7 @@ fn test_exists_after_save_returns_true_happy() {
 #[test]
 fn test_exists_nonexistent_returns_false_not_error() {
     block_on(async {
-        let repo = Domain::new_in_memory_repository::<String, u32>();
+        let repo = Domain.new_in_memory_repository::<String, u32>();
         assert!(
             !repo
                 .exists(RepositoryIdRequest { id: &99u32 })
@@ -1680,7 +1713,7 @@ fn test_exists_nonexistent_returns_false_not_error() {
 #[test]
 fn test_exists_after_delete_returns_false_edge() {
     block_on(async {
-        let repo = Domain::new_in_memory_repository::<String, u32>();
+        let repo = Domain.new_in_memory_repository::<String, u32>();
         repo.save(RepositorySaveRequest {
             id: 1u32,
             entity: "x".into(),
@@ -1706,7 +1739,7 @@ fn test_exists_after_delete_returns_false_edge() {
 #[test]
 fn test_count_reflects_number_of_saved_entities_happy() {
     block_on(async {
-        let repo = Domain::new_in_memory_repository::<String, u32>();
+        let repo = Domain.new_in_memory_repository::<String, u32>();
         repo.save(RepositorySaveRequest {
             id: 1u32,
             entity: "a".into(),
@@ -1726,7 +1759,7 @@ fn test_count_reflects_number_of_saved_entities_happy() {
 #[test]
 fn test_count_empty_repo_returns_zero_not_error() {
     block_on(async {
-        let repo = Domain::new_in_memory_repository::<String, u32>();
+        let repo = Domain.new_in_memory_repository::<String, u32>();
         assert_eq!(repo.count(RepositoryListRequest).await.unwrap().count, 0);
     });
 }
@@ -1734,7 +1767,7 @@ fn test_count_empty_repo_returns_zero_not_error() {
 #[test]
 fn test_count_decrements_after_delete_edge() {
     block_on(async {
-        let repo = Domain::new_in_memory_repository::<String, u32>();
+        let repo = Domain.new_in_memory_repository::<String, u32>();
         repo.save(RepositorySaveRequest {
             id: 1u32,
             entity: "x".into(),
@@ -1865,7 +1898,7 @@ fn test_matches_empty_string_input_edge() {
 
 #[test]
 fn test_list_names_contains_registered_service_name_happy() {
-    let reg = Domain::new_service_registry::<String, String>();
+    let reg = Domain.new_service_registry::<String, String>();
     reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
         .unwrap();
     assert!(reg
@@ -1877,13 +1910,13 @@ fn test_list_names_contains_registered_service_name_happy() {
 
 #[test]
 fn test_list_names_empty_before_registration_not_error() {
-    let reg = Domain::new_service_registry::<String, String>();
+    let reg = Domain.new_service_registry::<String, String>();
     assert!(reg.list_names(ListNamesRequest).unwrap().names.is_empty());
 }
 
 #[test]
 fn test_list_names_len_matches_registry_len_edge() {
-    let reg = Domain::new_service_registry::<String, String>();
+    let reg = Domain.new_service_registry::<String, String>();
     reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
         .unwrap();
     reg.register(&RegisterServiceRequest::new(Arc::new(ErrSvc)))

@@ -12,10 +12,10 @@ use edge_domain_projection::ProjectionError;
 use edge_domain_query::QueryError;
 use edge_domain_repository::RepositoryError;
 use edge_domain_saga::SagaError;
-use edge_security_runtime::SecurityError;
 use edge_domain_service::ServiceError;
 use edge_domain_snapshot::SnapshotError;
 use edge_domain_validator::ValidatorError;
+use edge_security_runtime::SecurityError;
 
 /// Verifies all 13 optional sub-crate dependencies are linkable from the test binary.
 #[test]

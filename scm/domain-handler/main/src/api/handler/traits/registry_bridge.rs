@@ -4,7 +4,7 @@ use crate::api::handler::errors::HandlerError;
 use crate::api::handler::types::std_registry_bridge::StdRegistryBridge;
 use crate::api::handler::types::{BridgeRequest, BridgeResponse};
 
-/// Bridges a [`ServiceRegistry`](edge_domain_service::ServiceRegistry) into a
+/// Bridges a [`ServiceRegistry`](super::ServiceRegistry) into a
 /// [`HandlerRegistry`](super::traits::HandlerRegistry) by wrapping each registered
 /// service as a handler.
 ///

@@ -4,8 +4,13 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
+use edge_domain::DirectCommandBusRequest;
+use edge_domain::DomainRuntime;
 use edge_domain::{Domain, Handler, HandlerContext, HandlerError};
-use edge_domain_handler::{ExecutionRequest, HealthCheckRequest, IdRequest, IdResponse};
+use edge_domain_handler::{
+    CommandBusAdapter, ExecutionRequest, HealthCheckRequest, IdRequest, IdResponse,
+    ObserverContextAdapter,
+};
 use edge_domain_observer::{ObserverContext, StdObserveFactory};
 use edge_security_runtime::SecurityContext;
 
@@ -52,12 +57,12 @@ impl Handler for SickHandler {
 
 fn make_ctx<'a>(
     security: &'a SecurityContext,
-    bus: &'a Arc<dyn edge_domain::CommandBus>,
-    observer: &'a dyn ObserverContext,
+    bus: &'a CommandBusAdapter<'a, dyn edge_domain::CommandBus>,
+    observer: &'a ObserverContextAdapter<'a, dyn ObserverContext>,
 ) -> HandlerContext<'a> {
     HandlerContext {
         security,
-        commands: bus.as_ref(),
+        commands: bus,
         observer,
     }
 }
@@ -70,9 +75,15 @@ async fn test_handler_trait_execute_returns_transformed_value() {
         calls: Default::default(),
     };
     let security = SecurityContext::unauthenticated();
-    let bus = Domain::direct_command_bus();
+    let bus = Domain
+        .direct_command_bus(DirectCommandBusRequest)
+        .unwrap()
+        .bus;
+    let bus_erased: &dyn edge_domain::CommandBus = bus.as_ref();
+    let bus_adapter = CommandBusAdapter(bus_erased);
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = make_ctx(&security, &bus, observer.as_ref());
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
+    let ctx = make_ctx(&security, &bus_adapter, &observer_adapter);
     let result = h
         .execute(ExecutionRequest { req: 21, ctx: &ctx })
         .await

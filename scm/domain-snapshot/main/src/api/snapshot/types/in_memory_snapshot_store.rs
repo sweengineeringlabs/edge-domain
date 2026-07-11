@@ -1,8 +1,7 @@
 //! API-layer type for the in-memory snapshot store.
 
 use std::collections::HashMap;
-
-use parking_lot::RwLock;
+use std::sync::RwLock;
 
 use crate::api::snapshot::traits::Snapshot;
 

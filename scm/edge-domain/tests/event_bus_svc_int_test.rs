@@ -3,6 +3,7 @@
 
 use edge_domain::Domain;
 use edge_domain::DomainEvent;
+use edge_domain::DomainRuntime;
 use edge_domain::EventAggregateIdRequest;
 use edge_domain::EventAggregateIdResponse;
 use edge_domain::EventBus;
@@ -11,6 +12,7 @@ use edge_domain::EventBusSubscribeRequest;
 use edge_domain::EventError;
 use edge_domain::EventTypeRequest;
 use edge_domain::EventTypeResponse;
+use edge_domain::NoopEventBusRequest;
 use std::sync::Arc;
 
 struct Tick;
@@ -22,13 +24,15 @@ impl DomainEvent for Tick {
         &self,
         _req: EventAggregateIdRequest,
     ) -> Result<EventAggregateIdResponse<'_>, EventError> {
-        Ok(EventAggregateIdResponse { aggregate_id: "sys" })
+        Ok(EventAggregateIdResponse {
+            aggregate_id: "sys",
+        })
     }
 }
 
 #[tokio::test]
 async fn test_event_bus_svc_facade_noop_publish_returns_ok() {
-    let bus = Domain::noop_event_bus();
+    let bus = Domain.noop_event_bus(NoopEventBusRequest).unwrap().bus;
     assert!(bus
         .publish(EventBusPublishRequest {
             event: Arc::new(Tick)
@@ -39,6 +43,6 @@ async fn test_event_bus_svc_facade_noop_publish_returns_ok() {
 
 #[test]
 fn test_event_bus_svc_facade_subscribe_returns_receiver() {
-    let bus = Domain::noop_event_bus();
+    let bus = Domain.noop_event_bus(NoopEventBusRequest).unwrap().bus;
     let _rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
 }

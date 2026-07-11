@@ -4,16 +4,16 @@
 use edge_domain_command::NoopCommandBus;
 use edge_domain_handler::{
     ExecutionRequest, Handler, HandlerContext, IdRequest, IntoHandler, IntoHandlerRequest,
-    Validator, ValidatorRequest, INTO_HANDLER_SVC,
+    ObserverContextAdapter, Validator, ValidatorRequest, INTO_HANDLER_SVC,
 };
 use edge_domain_observer::StdObserveFactory;
-use edge_security_runtime::SecurityContext;
 use edge_domain_service::{NameRequest, NameResponse, Service, ServiceError};
+use edge_security_runtime::SecurityContext;
 use futures::future::BoxFuture;
 
 fn make_ctx<'a>(
     security: &'a SecurityContext,
-    observer: &'a dyn edge_domain_observer::ObserverContext,
+    observer: &'a ObserverContextAdapter<'a, dyn edge_domain_observer::ObserverContext>,
 ) -> HandlerContext<'a> {
     HandlerContext {
         security,
@@ -109,7 +109,8 @@ async fn test_into_handler_executes_ok_service_happy() {
         .handler;
     let security = SecurityContext::unauthenticated();
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = make_ctx(&security, observer.as_ref());
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
+    let ctx = make_ctx(&security, &observer_adapter);
     assert_eq!(
         handler
             .execute(ExecutionRequest {
@@ -131,7 +132,8 @@ async fn test_into_handler_propagates_service_error() {
         .handler;
     let security = SecurityContext::unauthenticated();
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = make_ctx(&security, observer.as_ref());
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
+    let ctx = make_ctx(&security, &observer_adapter);
     let err = handler
         .execute(ExecutionRequest {
             req: "x".into(),
@@ -151,7 +153,8 @@ async fn test_into_handler_empty_name_service_executes_edge() {
         .handler;
     let security = SecurityContext::unauthenticated();
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = make_ctx(&security, observer.as_ref());
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
+    let ctx = make_ctx(&security, &observer_adapter);
     assert_eq!(
         handler
             .execute(ExecutionRequest {

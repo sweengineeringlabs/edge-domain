@@ -63,7 +63,7 @@ impl Saga for CounterSaga {
 }
 
 fn store() -> Box<dyn SagaStore<SagaInstance = CounterSaga>> {
-    Domain::new_in_memory_saga_store::<CounterSaga>()
+    Domain.new_in_memory_saga_store::<CounterSaga>()
 }
 
 /// @covers: new_in_memory_saga_store

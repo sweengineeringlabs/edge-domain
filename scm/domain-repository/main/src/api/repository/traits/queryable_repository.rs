@@ -1,6 +1,7 @@
 //! `QueryableRepository` — specification-based query extension for `Repository`.
 
-use futures::future::BoxFuture;
+use std::future::Future;
+use std::pin::Pin;
 
 use crate::api::repository::errors::RepositoryError;
 use crate::api::repository::traits::Repository;
@@ -22,7 +23,7 @@ where
     fn find_by(
         &self,
         req: SpecRequest<Self::Entity>,
-    ) -> BoxFuture<'_, Result<MatchingEntitiesResponse<Self::Entity>, RepositoryError>> {
+    ) -> Pin<Box<dyn Future<Output = Result<MatchingEntitiesResponse<Self::Entity>, RepositoryError>> + Send + '_>> {
         Box::pin(async move {
             let all = self.list(RepositoryListRequest).await?.items;
             let mut items = Vec::new();
@@ -39,7 +40,7 @@ where
     fn find_one_by(
         &self,
         req: SpecRequest<Self::Entity>,
-    ) -> BoxFuture<'_, Result<MatchingEntityResponse<Self::Entity>, RepositoryError>> {
+    ) -> Pin<Box<dyn Future<Output = Result<MatchingEntityResponse<Self::Entity>, RepositoryError>> + Send + '_>> {
         Box::pin(async move {
             let all = self.list(RepositoryListRequest).await?.items;
             let mut found = None;
@@ -57,7 +58,7 @@ where
     fn count_by(
         &self,
         req: SpecRequest<Self::Entity>,
-    ) -> BoxFuture<'_, Result<CountByResponse, RepositoryError>> {
+    ) -> Pin<Box<dyn Future<Output = Result<CountByResponse, RepositoryError>> + Send + '_>> {
         Box::pin(async move {
             let all = self.list(RepositoryListRequest).await?.items;
             let mut count = 0;
@@ -92,26 +93,26 @@ mod tests {
         fn find<'a>(
             &'a self,
             req: RepositoryIdRequest<'a, usize>,
-        ) -> BoxFuture<'a, Result<RepositoryFindResponse<u32>, RepositoryError>> {
+        ) -> Pin<Box<dyn Future<Output = Result<RepositoryFindResponse<u32>, RepositoryError>> + Send + 'a>> {
             let val = self.items.get(*req.id).copied();
             Box::pin(async move { Ok(RepositoryFindResponse { entity: val }) })
         }
         fn save(
             &self,
             _req: RepositorySaveRequest<usize, u32>,
-        ) -> BoxFuture<'_, Result<(), RepositoryError>> {
+        ) -> Pin<Box<dyn Future<Output = Result<(), RepositoryError>> + Send + '_>> {
             Box::pin(async move { Ok(()) })
         }
         fn delete<'a>(
             &'a self,
             _req: RepositoryIdRequest<'a, usize>,
-        ) -> BoxFuture<'a, Result<RepositoryDeleteResponse, RepositoryError>> {
+        ) -> Pin<Box<dyn Future<Output = Result<RepositoryDeleteResponse, RepositoryError>> + Send + 'a>> {
             Box::pin(async move { Ok(RepositoryDeleteResponse { removed: false }) })
         }
         fn list(
             &self,
             _req: RepositoryListRequest,
-        ) -> BoxFuture<'_, Result<RepositoryListResponse<u32>, RepositoryError>> {
+        ) -> Pin<Box<dyn Future<Output = Result<RepositoryListResponse<u32>, RepositoryError>> + Send + '_>> {
             let vals = self.items.clone();
             Box::pin(async move { Ok(RepositoryListResponse { items: vals }) })
         }

@@ -1,11 +1,14 @@
 //! Integration tests for default domain implementations:
 //! direct_command_bus, noop_event_publisher.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
+use edge_domain::DomainRuntime;
 use edge_domain::{
     Command, CommandBus, CommandError, Domain, DomainEvent, EventAggregateIdRequest,
     EventAggregateIdResponse, EventError, EventOccurredAtRequest, EventOccurredAtResponse,
     EventPublisher, EventPublisherPublishRequest, EventTypeRequest, EventTypeResponse,
 };
+use edge_domain::{DirectCommandBusRequest, NoopEventPublisherRequest};
 use edge_domain_command::{CommandDispatchRequest, ExecutionRequest, NameRequest, NameResponse};
 use futures::future::BoxFuture;
 use std::sync::Arc;
@@ -77,7 +80,10 @@ impl EventPublisher for FailingPublisher {
 /// @covers: direct_command_bus
 #[tokio::test]
 async fn test_direct_command_bus_dispatches_ok_command_successfully() {
-    let bus: Arc<dyn CommandBus> = Domain::direct_command_bus();
+    let bus: Arc<dyn CommandBus> = Domain
+        .direct_command_bus(DirectCommandBusRequest)
+        .unwrap()
+        .bus;
     assert!(bus
         .dispatch(CommandDispatchRequest {
             command: Box::new(OkCommand)
@@ -89,7 +95,10 @@ async fn test_direct_command_bus_dispatches_ok_command_successfully() {
 /// @covers: direct_command_bus
 #[tokio::test]
 async fn test_direct_command_bus_propagates_command_error() {
-    let bus: Arc<dyn CommandBus> = Domain::direct_command_bus();
+    let bus: Arc<dyn CommandBus> = Domain
+        .direct_command_bus(DirectCommandBusRequest)
+        .unwrap()
+        .bus;
     assert!(bus
         .dispatch(CommandDispatchRequest {
             command: Box::new(ErrCommand)
@@ -103,7 +112,10 @@ async fn test_direct_command_bus_propagates_command_error() {
 /// @covers: noop_event_publisher
 #[tokio::test]
 async fn test_noop_event_publisher_always_returns_ok() {
-    let pub_: Arc<dyn EventPublisher> = Domain::noop_event_publisher();
+    let pub_: Arc<dyn EventPublisher> = Domain
+        .noop_event_publisher(NoopEventPublisherRequest)
+        .unwrap()
+        .publisher;
     assert!(pub_
         .publish(EventPublisherPublishRequest { event: &AnyEvent })
         .await
