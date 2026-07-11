@@ -19,6 +19,8 @@ pub use api::ApplicationBuildResponse;
 pub use api::ApplicationRunRequest;
 pub use api::ApplicationRunResponse;
 pub use api::Bootstrap;
+pub use api::LocalAppRuntime;
+pub use api::LocalAppServiceProvider;
 pub use api::NameRequest;
 pub use api::NameResponse;
 pub use api::NoopAppBootstrap;

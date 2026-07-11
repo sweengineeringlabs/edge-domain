@@ -7,8 +7,8 @@ use edge_domain_command::{
     NameRequest as CommandNameRequest, NameResponse as CommandNameResponse,
 };
 use edge_domain_handler::{
-    EmptinessRequest as HandlerEmptinessRequest, ExecutionRequest, LenRequest as HandlerLenRequest,
-    ListIdsRequest,
+    CommandBusAdapter, EmptinessRequest as HandlerEmptinessRequest, ExecutionRequest,
+    LenRequest as HandlerLenRequest, ListIdsRequest, ObserverContextAdapter,
 };
 use edge_domain_observer::{ObserverContext, StdObserveFactory};
 use edge_domain_service::{
@@ -22,12 +22,12 @@ use std::sync::Arc;
 
 fn test_ctx<'a>(
     security: &'a SecurityContext,
-    bus: &'a Arc<dyn CommandBus>,
-    observer: &'a dyn ObserverContext,
+    bus: &'a CommandBusAdapter<'a, dyn CommandBus>,
+    observer: &'a ObserverContextAdapter<'a, dyn ObserverContext>,
 ) -> HandlerContext<'a> {
     HandlerContext {
         security,
-        commands: bus.as_ref(),
+        commands: bus,
         observer,
     }
 }
@@ -197,11 +197,17 @@ impl EventStore for ErrStore {
 #[test]
 fn test_echo_handler_string_roundtrip_happy() {
     block_on(async {
-        let h = Domain::echo_handler::<String>("id", "/");
+        let h = Domain.echo_handler::<String>("id", "/");
         let security = SecurityContext::unauthenticated();
-        let bus = Domain::direct_command_bus();
+        let bus = Domain
+            .direct_command_bus(DirectCommandBusRequest)
+            .unwrap()
+            .bus;
+        let bus_erased: &dyn CommandBus = bus.as_ref();
+        let bus_adapter = CommandBusAdapter(bus_erased);
         let observer = StdObserveFactory::noop_observer_context();
-        let ctx = test_ctx(&security, &bus, observer.as_ref());
+        let observer_adapter = ObserverContextAdapter(observer.as_ref());
+        let ctx = test_ctx(&security, &bus_adapter, &observer_adapter);
         assert_eq!(
             h.execute(ExecutionRequest {
                 req: "ping".to_string(),
@@ -218,11 +224,17 @@ fn test_echo_handler_string_roundtrip_happy() {
 fn test_echo_handler_always_returns_ok_not_error() {
     block_on(async {
         // echo_handler execution is infallible — documents no error path
-        let h = Domain::echo_handler::<String>("id", "/");
+        let h = Domain.echo_handler::<String>("id", "/");
         let security = SecurityContext::unauthenticated();
-        let bus = Domain::direct_command_bus();
+        let bus = Domain
+            .direct_command_bus(DirectCommandBusRequest)
+            .unwrap()
+            .bus;
+        let bus_erased: &dyn CommandBus = bus.as_ref();
+        let bus_adapter = CommandBusAdapter(bus_erased);
         let observer = StdObserveFactory::noop_observer_context();
-        let ctx = test_ctx(&security, &bus, observer.as_ref());
+        let observer_adapter = ObserverContextAdapter(observer.as_ref());
+        let ctx = test_ctx(&security, &bus_adapter, &observer_adapter);
         let result = h
             .execute(ExecutionRequest {
                 req: "anything".to_string(),
@@ -240,11 +252,17 @@ fn test_echo_handler_always_returns_ok_not_error() {
 #[test]
 fn test_echo_handler_empty_string_preserved_edge() {
     block_on(async {
-        let h = Domain::echo_handler::<String>("id", "/");
+        let h = Domain.echo_handler::<String>("id", "/");
         let security = SecurityContext::unauthenticated();
-        let bus = Domain::direct_command_bus();
+        let bus = Domain
+            .direct_command_bus(DirectCommandBusRequest)
+            .unwrap()
+            .bus;
+        let bus_erased: &dyn CommandBus = bus.as_ref();
+        let bus_adapter = CommandBusAdapter(bus_erased);
         let observer = StdObserveFactory::noop_observer_context();
-        let ctx = test_ctx(&security, &bus, observer.as_ref());
+        let observer_adapter = ObserverContextAdapter(observer.as_ref());
+        let ctx = test_ctx(&security, &bus_adapter, &observer_adapter);
         assert_eq!(
             h.execute(ExecutionRequest {
                 req: String::new(),
@@ -261,7 +279,7 @@ fn test_echo_handler_empty_string_preserved_edge() {
 
 #[test]
 fn test_new_handler_registry_starts_empty_happy() {
-    let reg = Domain::new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<String, String>();
     assert!(reg.is_empty(HandlerEmptinessRequest).unwrap().empty);
     assert_eq!(reg.len(HandlerLenRequest).unwrap().count, 0);
 }
@@ -269,7 +287,7 @@ fn test_new_handler_registry_starts_empty_happy() {
 #[test]
 fn test_new_handler_registry_get_unknown_id_returns_none_not_error() {
     // get on empty registry must return None, not panic or error
-    let reg = Domain::new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<String, String>();
     assert!(reg
         .get(edge_domain_handler::HandlerLookupRequest {
             id: "unknown".to_string()
@@ -281,7 +299,7 @@ fn test_new_handler_registry_get_unknown_id_returns_none_not_error() {
 
 #[test]
 fn test_new_handler_registry_list_ids_empty_before_registration_edge() {
-    let reg = Domain::new_handler_registry::<u8, u8>();
+    let reg = Domain.new_handler_registry::<u8, u8>();
     assert!(reg.list_ids(ListIdsRequest).unwrap().ids.is_empty());
 }
 
@@ -290,7 +308,7 @@ fn test_new_handler_registry_list_ids_empty_before_registration_edge() {
 #[test]
 fn test_paired_both_closures_share_same_backend_happy() {
     let backend = Arc::new(std::sync::atomic::AtomicUsize::new(0));
-    let (a, b) = Domain::paired(Arc::clone(&backend), |b| b, |b| b);
+    let (a, b) = Domain.paired(Arc::clone(&backend), |b| b, |b| b);
     a.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
     assert_eq!(b.load(std::sync::atomic::Ordering::SeqCst), 1);
 }
@@ -299,8 +317,8 @@ fn test_paired_both_closures_share_same_backend_happy() {
 fn test_paired_write_through_first_visible_to_second_not_error() {
     block_on(async {
         // verifies shared backend — write through first is visible through second
-        let repo = Domain::new_in_memory_repository::<String, u32>();
-        let (writer, reader) = Domain::paired(repo, |r| r.clone(), |r| r);
+        let repo = Domain.new_in_memory_repository::<String, u32>();
+        let (writer, reader) = Domain.paired(repo, |r| r.clone(), |r| r);
         writer
             .save(RepositorySaveRequest {
                 id: 1u32,
@@ -320,7 +338,7 @@ fn test_paired_write_through_first_visible_to_second_not_error() {
 #[test]
 fn test_paired_returns_two_distinct_values_edge() {
     let backend = Arc::new(());
-    let (a, b) = Domain::paired(Arc::clone(&backend), |_| 1u32, |_| 2u32);
+    let (a, b) = Domain.paired(Arc::clone(&backend), |_| 1u32, |_| 2u32);
     assert_eq!(a, 1);
     assert_eq!(b, 2);
 }
@@ -329,13 +347,13 @@ fn test_paired_returns_two_distinct_values_edge() {
 
 #[test]
 fn test_new_service_registry_starts_empty_happy() {
-    let reg = Domain::new_service_registry::<String, String>();
+    let reg = Domain.new_service_registry::<String, String>();
     assert!(reg.is_empty(ServiceEmptinessRequest).unwrap().empty);
 }
 
 #[test]
 fn test_new_service_registry_get_unknown_returns_none_not_error() {
-    let reg = Domain::new_service_registry::<String, String>();
+    let reg = Domain.new_service_registry::<String, String>();
     assert!(reg
         .get(&ServiceLookupRequest {
             name: "unknown".to_string()
@@ -347,7 +365,7 @@ fn test_new_service_registry_get_unknown_returns_none_not_error() {
 
 #[test]
 fn test_new_service_registry_len_is_zero_edge() {
-    let reg = Domain::new_service_registry::<u8, u8>();
+    let reg = Domain.new_service_registry::<u8, u8>();
     assert_eq!(reg.len(ServiceLenRequest).unwrap().count, 0);
 }
 
@@ -356,7 +374,7 @@ fn test_new_service_registry_len_is_zero_edge() {
 #[test]
 fn test_new_in_memory_repository_save_then_find_happy() {
     block_on(async {
-        let repo = Domain::new_in_memory_repository::<String, u32>();
+        let repo = Domain.new_in_memory_repository::<String, u32>();
         repo.save(RepositorySaveRequest {
             id: 1u32,
             entity: "hello".into(),
@@ -377,7 +395,7 @@ fn test_new_in_memory_repository_save_then_find_happy() {
 #[test]
 fn test_new_in_memory_repository_find_absent_returns_ok_none_not_error() {
     block_on(async {
-        let repo = Domain::new_in_memory_repository::<String, u32>();
+        let repo = Domain.new_in_memory_repository::<String, u32>();
         assert!(repo
             .find(RepositoryIdRequest { id: &99u32 })
             .await
@@ -390,7 +408,7 @@ fn test_new_in_memory_repository_find_absent_returns_ok_none_not_error() {
 #[test]
 fn test_new_in_memory_repository_overwrite_same_id_edge() {
     block_on(async {
-        let repo = Domain::new_in_memory_repository::<String, u32>();
+        let repo = Domain.new_in_memory_repository::<String, u32>();
         repo.save(RepositorySaveRequest {
             id: 1u32,
             entity: "first".into(),
@@ -419,7 +437,7 @@ fn test_new_in_memory_repository_overwrite_same_id_edge() {
 #[test]
 fn test_new_in_memory_queryable_repository_find_by_returns_matches_happy() {
     block_on(async {
-        let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
+        let repo = Domain.new_in_memory_queryable_repository::<String, u32>();
         repo.save(RepositorySaveRequest {
             id: 1u32,
             entity: "hello".into(),
@@ -446,7 +464,7 @@ fn test_new_in_memory_queryable_repository_find_by_returns_matches_happy() {
 #[test]
 fn test_new_in_memory_queryable_repository_no_match_returns_empty_not_error() {
     block_on(async {
-        let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
+        let repo = Domain.new_in_memory_queryable_repository::<String, u32>();
         repo.save(RepositorySaveRequest {
             id: 1u32,
             entity: "x".into(),
@@ -467,7 +485,7 @@ fn test_new_in_memory_queryable_repository_no_match_returns_empty_not_error() {
 #[test]
 fn test_new_in_memory_queryable_repository_find_one_by_none_on_empty_edge() {
     block_on(async {
-        let repo = Domain::new_in_memory_queryable_repository::<String, u32>();
+        let repo = Domain.new_in_memory_queryable_repository::<String, u32>();
         assert!(repo
             .find_one_by(SpecRequest {
                 spec: Box::new(AnySpec)
@@ -501,7 +519,10 @@ fn test_direct_command_bus_dispatches_successful_command_happy() {
         }
 
         let counter = Arc::new(AtomicUsize::new(0));
-        let bus = Domain::direct_command_bus();
+        let bus = Domain
+            .direct_command_bus(DirectCommandBusRequest)
+            .unwrap()
+            .bus;
         bus.dispatch(CommandDispatchRequest {
             command: Box::new(CountingCommand(counter.clone())),
         })
@@ -518,7 +539,10 @@ fn test_direct_command_bus_dispatches_successful_command_happy() {
 #[test]
 fn test_direct_command_bus_propagates_command_error() {
     block_on(async {
-        let bus = Domain::direct_command_bus();
+        let bus = Domain
+            .direct_command_bus(DirectCommandBusRequest)
+            .unwrap()
+            .bus;
         assert!(bus
             .dispatch(CommandDispatchRequest {
                 command: Box::new(ErrCommand)
@@ -531,7 +555,10 @@ fn test_direct_command_bus_propagates_command_error() {
 #[test]
 fn test_direct_command_bus_error_message_preserved_edge() {
     block_on(async {
-        let bus = Domain::direct_command_bus();
+        let bus = Domain
+            .direct_command_bus(DirectCommandBusRequest)
+            .unwrap()
+            .bus;
         let err = bus
             .dispatch(CommandDispatchRequest {
                 command: Box::new(ErrCommand),
@@ -547,7 +574,10 @@ fn test_direct_command_bus_error_message_preserved_edge() {
 #[test]
 fn test_noop_event_publisher_publish_returns_ok_happy() {
     block_on(async {
-        let pub_ = Domain::noop_event_publisher();
+        let pub_ = Domain
+            .noop_event_publisher(NoopEventPublisherRequest)
+            .unwrap()
+            .publisher;
         assert_eq!(
             pub_.publish(EventPublisherPublishRequest { event: &AnyEvent })
                 .await,
@@ -561,7 +591,10 @@ fn test_noop_event_publisher_publish_returns_ok_happy() {
 fn test_noop_event_publisher_never_errors_not_error() {
     block_on(async {
         // documents infallibility: returns Ok regardless of event
-        let pub_ = Domain::noop_event_publisher();
+        let pub_ = Domain
+            .noop_event_publisher(NoopEventPublisherRequest)
+            .unwrap()
+            .publisher;
         assert_eq!(
             pub_.publish(EventPublisherPublishRequest { event: &AnyEvent })
                 .await,
@@ -574,7 +607,10 @@ fn test_noop_event_publisher_never_errors_not_error() {
 #[test]
 fn test_noop_event_publisher_accepts_repeated_publish_edge() {
     block_on(async {
-        let pub_ = Domain::noop_event_publisher();
+        let pub_ = Domain
+            .noop_event_publisher(NoopEventPublisherRequest)
+            .unwrap()
+            .publisher;
         for i in 0..3 {
             let result = pub_
                 .publish(EventPublisherPublishRequest { event: &AnyEvent })
@@ -594,7 +630,7 @@ fn test_noop_event_publisher_accepts_repeated_publish_edge() {
 #[test]
 fn test_new_in_memory_event_store_append_then_load_happy() {
     block_on(async {
-        let store = Domain::new_in_memory_event_store::<AnyEvent>();
+        let store = Domain.new_in_memory_event_store::<AnyEvent>();
         store
             .append(EventStoreAppendRequest {
                 aggregate_id: "agg-1",
@@ -617,7 +653,7 @@ fn test_new_in_memory_event_store_append_then_load_happy() {
 #[test]
 fn test_new_in_memory_event_store_version_conflict_returns_error() {
     block_on(async {
-        let store = Domain::new_in_memory_event_store::<AnyEvent>();
+        let store = Domain.new_in_memory_event_store::<AnyEvent>();
         store
             .append(EventStoreAppendRequest {
                 aggregate_id: "agg-1",
@@ -641,7 +677,7 @@ fn test_new_in_memory_event_store_version_conflict_returns_error() {
 #[test]
 fn test_new_in_memory_event_store_load_nonexistent_stream_returns_empty_edge() {
     block_on(async {
-        let store = Domain::new_in_memory_event_store::<AnyEvent>();
+        let store = Domain.new_in_memory_event_store::<AnyEvent>();
         let events = store
             .load(EventStoreLoadRequest {
                 aggregate_id: "no-such-stream",
@@ -658,7 +694,7 @@ fn test_new_in_memory_event_store_load_nonexistent_stream_returns_empty_edge() {
 #[test]
 fn test_reconstitute_with_events_returns_aggregate_happy() {
     block_on(async {
-        let store = Domain::new_in_memory_event_store::<AnyEvent>();
+        let store = Domain.new_in_memory_event_store::<AnyEvent>();
         store
             .append(EventStoreAppendRequest {
                 aggregate_id: "agg-1",
@@ -667,7 +703,8 @@ fn test_reconstitute_with_events_returns_aggregate_happy() {
             })
             .await
             .unwrap();
-        let result = Domain::reconstitute::<AnyAgg>(&*store, "agg-1")
+        let result = Domain
+            .reconstitute::<AnyAgg>(&*store, "agg-1")
             .await
             .unwrap();
         assert!(result.is_some());
@@ -677,7 +714,7 @@ fn test_reconstitute_with_events_returns_aggregate_happy() {
 #[test]
 fn test_reconstitute_store_unavailable_propagates_error() {
     block_on(async {
-        let result = Domain::reconstitute::<AnyAgg>(&ErrStore, "agg-1").await;
+        let result = Domain.reconstitute::<AnyAgg>(&ErrStore, "agg-1").await;
         assert!(result.is_err());
     });
 }
@@ -685,8 +722,9 @@ fn test_reconstitute_store_unavailable_propagates_error() {
 #[test]
 fn test_reconstitute_empty_stream_returns_none_edge() {
     block_on(async {
-        let store = Domain::new_in_memory_event_store::<AnyEvent>();
-        let result = Domain::reconstitute::<AnyAgg>(&*store, "agg-1")
+        let store = Domain.new_in_memory_event_store::<AnyEvent>();
+        let result = Domain
+            .reconstitute::<AnyAgg>(&*store, "agg-1")
             .await
             .unwrap();
         assert!(result.is_none());
@@ -698,7 +736,7 @@ fn test_reconstitute_empty_stream_returns_none_edge() {
 #[test]
 fn test_direct_query_bus_dispatches_successful_query_happy() {
     block_on(async {
-        let bus = Domain::direct_query_bus::<String>();
+        let bus = Domain.direct_query_bus::<String>();
         let result = bus
             .dispatch(QueryDispatchRequest {
                 query: Box::new(OkQuery("pong".into())),
@@ -712,7 +750,7 @@ fn test_direct_query_bus_dispatches_successful_query_happy() {
 #[test]
 fn test_direct_query_bus_propagates_query_error() {
     block_on(async {
-        let bus = Domain::direct_query_bus::<String>();
+        let bus = Domain.direct_query_bus::<String>();
         assert!(bus
             .dispatch(QueryDispatchRequest {
                 query: Box::new(ErrQuery)
@@ -725,7 +763,7 @@ fn test_direct_query_bus_propagates_query_error() {
 #[test]
 fn test_direct_query_bus_dispatches_empty_result_edge() {
     block_on(async {
-        let bus = Domain::direct_query_bus::<String>();
+        let bus = Domain.direct_query_bus::<String>();
         let result = bus
             .dispatch(QueryDispatchRequest {
                 query: Box::new(OkQuery(String::new())),
@@ -741,7 +779,12 @@ fn test_direct_query_bus_dispatches_empty_result_edge() {
 #[test]
 fn test_in_process_event_bus_publish_returns_ok_happy() {
     block_on(async {
-        let bus = Domain::in_process_event_bus(EventBusConfig::default());
+        let bus = Domain
+            .in_process_event_bus(InProcessEventBusRequest {
+                config: EventBusConfig::default(),
+            })
+            .unwrap()
+            .bus;
         assert_eq!(
             bus.publish(EventBusPublishRequest {
                 event: Arc::new(AnyEvent)
@@ -757,7 +800,12 @@ fn test_in_process_event_bus_publish_returns_ok_happy() {
 fn test_in_process_event_bus_publish_no_subscriber_not_error() {
     block_on(async {
         // fire-and-forget: publish without subscribers must succeed
-        let bus = Domain::in_process_event_bus(EventBusConfig::default());
+        let bus = Domain
+            .in_process_event_bus(InProcessEventBusRequest {
+                config: EventBusConfig::default(),
+            })
+            .unwrap()
+            .bus;
         assert_eq!(
             bus.publish(EventBusPublishRequest {
                 event: Arc::new(AnyEvent)
@@ -771,7 +819,12 @@ fn test_in_process_event_bus_publish_no_subscriber_not_error() {
 
 #[test]
 fn test_in_process_event_bus_default_config_creates_valid_bus_edge() {
-    let bus = Domain::in_process_event_bus(EventBusConfig::default());
+    let bus = Domain
+        .in_process_event_bus(InProcessEventBusRequest {
+            config: EventBusConfig::default(),
+        })
+        .unwrap()
+        .bus;
     assert!(
         !Arc::as_ptr(&bus).is_null(),
         "bus should be successfully constructed"
@@ -783,7 +836,7 @@ fn test_in_process_event_bus_default_config_creates_valid_bus_edge() {
 #[test]
 fn test_noop_event_bus_publish_returns_ok_happy() {
     block_on(async {
-        let bus = Domain::noop_event_bus();
+        let bus = Domain.noop_event_bus(NoopEventBusRequest).unwrap().bus;
         assert_eq!(
             bus.publish(EventBusPublishRequest {
                 event: Arc::new(AnyEvent)
@@ -799,7 +852,7 @@ fn test_noop_event_bus_publish_returns_ok_happy() {
 fn test_noop_event_bus_publish_never_errors_not_error() {
     block_on(async {
         // noop bus is infallible — documents no error path
-        let bus = Domain::noop_event_bus();
+        let bus = Domain.noop_event_bus(NoopEventBusRequest).unwrap().bus;
         assert_eq!(
             bus.publish(EventBusPublishRequest {
                 event: Arc::new(AnyEvent)
@@ -815,7 +868,7 @@ fn test_noop_event_bus_publish_never_errors_not_error() {
 fn test_noop_event_bus_subscribe_source_is_closed_edge() {
     block_on(async {
         // noop bus subscribe returns a ClosedEventSource — first recv is Err
-        let bus = Domain::noop_event_bus();
+        let bus = Domain.noop_event_bus(NoopEventBusRequest).unwrap().bus;
         let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         assert!(rx.recv_next(EventSourceRecvNextRequest).await.is_err());
     });
@@ -826,7 +879,7 @@ fn test_noop_event_bus_subscribe_source_is_closed_edge() {
 #[test]
 fn test_validate_config_valid_config_returns_ok_happy() {
     assert_eq!(
-        Domain::validate_config(&AlwaysValid),
+        Domain.validate_config(&AlwaysValid),
         Ok(()),
         "valid config should pass validation"
     );
@@ -834,11 +887,11 @@ fn test_validate_config_valid_config_returns_ok_happy() {
 
 #[test]
 fn test_validate_config_invalid_config_returns_err_error() {
-    assert!(Domain::validate_config(&AlwaysInvalid).is_err());
+    assert!(Domain.validate_config(&AlwaysInvalid).is_err());
 }
 
 #[test]
 fn test_validate_config_error_message_non_empty_edge() {
-    let err = Domain::validate_config(&AlwaysInvalid).unwrap_err();
+    let err = Domain.validate_config(&AlwaysInvalid).unwrap_err();
     assert!(!err.is_empty());
 }

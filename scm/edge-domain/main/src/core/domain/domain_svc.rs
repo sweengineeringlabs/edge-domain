@@ -1,4 +1,6 @@
-//! Domain factory methods — all building-block constructors as methods on [`Domain`].
+//! Domain factory methods — all building-block constructors as instance
+//! methods on [`Domain`]. The non-generic subset also implements
+//! [`DomainRuntime`], giving `Domain` a real `dyn DomainRuntime` seam.
 
 use std::hash::Hash;
 use std::sync::Arc;
@@ -7,6 +9,8 @@ use crate::api::Domain;
 
 #[cfg(feature = "command")]
 use crate::api::CommandBus;
+#[cfg(feature = "command")]
+use crate::api::{DirectCommandBusRequest, DirectCommandBusResponse};
 #[cfg(feature = "command")]
 use edge_domain_command::DirectCommandBus;
 
@@ -18,8 +22,6 @@ use crate::api::AggregateApplyRequest;
 use crate::api::DomainEvent;
 #[cfg(feature = "event")]
 use crate::api::EventBus;
-#[cfg(feature = "event")]
-use crate::api::EventBusConfig;
 #[cfg(feature = "event")]
 use crate::api::EventPublisher;
 #[cfg(feature = "event")]
@@ -34,6 +36,12 @@ use crate::api::InMemoryEventStore;
 use crate::api::NoopEventBus;
 #[cfg(feature = "event")]
 use crate::api::NoopEventPublisher;
+#[cfg(feature = "event")]
+use crate::api::{InProcessEventBusRequest, InProcessEventBusResponse};
+#[cfg(feature = "event")]
+use crate::api::{NoopEventBusRequest, NoopEventBusResponse};
+#[cfg(feature = "event")]
+use crate::api::{NoopEventPublisherRequest, NoopEventPublisherResponse};
 #[cfg(feature = "event")]
 use edge_domain_event::InProcessEventBus;
 
@@ -82,6 +90,9 @@ use crate::api::SnapshotStore;
 #[cfg(feature = "snapshot")]
 use edge_domain_snapshot::InMemorySnapshotStore;
 
+use crate::api::DomainError;
+use crate::api::DomainRuntime;
+
 impl Domain {
     /// Construct a handler that returns its input unchanged.
     ///
@@ -93,10 +104,11 @@ impl Domain {
     /// ```rust,no_run
     /// use edge_domain::Domain;
     ///
-    /// let h = Domain::echo_handler::<String>("echo", "/ping");
+    /// let h = Domain.echo_handler::<String>("echo", "/ping");
     /// ```
     #[cfg(feature = "handler")]
     pub fn echo_handler<T>(
+        &self,
         id: impl Into<String>,
         pattern: impl Into<String>,
     ) -> Arc<dyn Handler<Request = T, Response = T>>
@@ -119,11 +131,12 @@ impl Domain {
     /// use edge_domain::Domain;
     /// use edge_domain_handler::EmptinessRequest;
     ///
-    /// let registry = Domain::new_handler_registry::<String, String>();
+    /// let registry = Domain.new_handler_registry::<String, String>();
     /// assert!(registry.is_empty(EmptinessRequest).unwrap().empty);
     /// ```
     #[cfg(feature = "handler")]
     pub fn new_handler_registry<Req, Resp>(
+        &self,
     ) -> Arc<dyn HandlerRegistryTrait<Request = Req, Response = Resp>>
     where
         Req: Send + 'static,
@@ -139,6 +152,7 @@ impl Domain {
     /// store. Without this, two separate `from_config()` calls create
     /// independent backend instances and writes are invisible across them.
     pub fn paired<B: ?Sized, T, U>(
+        &self,
         backend: Arc<B>,
         make_first: impl FnOnce(Arc<B>) -> T,
         make_second: impl FnOnce(Arc<B>) -> U,
@@ -151,6 +165,7 @@ impl Domain {
     /// Construct a fresh empty [`ServiceRegistry`].
     #[cfg(feature = "service")]
     pub fn new_service_registry<Request, Response>(
+        &self,
     ) -> Arc<dyn ServiceRegistry<Request = Request, Response = Response>>
     where
         Request: Send + 'static,
@@ -162,7 +177,7 @@ impl Domain {
 
     /// Construct a thread-safe in-memory [`Repository`].
     #[cfg(feature = "repository")]
-    pub fn new_in_memory_repository<T, Id>() -> Arc<dyn Repository<Entity = T, Id = Id>>
+    pub fn new_in_memory_repository<T, Id>(&self) -> Arc<dyn Repository<Entity = T, Id = Id>>
     where
         Id: Hash + Eq + Clone + Send + Sync + 'static,
         T: Clone + Send + Sync + 'static,
@@ -174,6 +189,7 @@ impl Domain {
     /// Construct a thread-safe in-memory [`QueryableRepository`].
     #[cfg(feature = "repository")]
     pub fn new_in_memory_queryable_repository<T, Id>(
+        &self,
     ) -> Arc<dyn QueryableRepository<Entity = T, Id = Id>>
     where
         Id: Hash + Eq + Clone + Send + Sync + 'static,
@@ -183,23 +199,9 @@ impl Domain {
         Arc::new(r)
     }
 
-    /// Construct a [`CommandBus`] that dispatches commands inline.
-    #[cfg(feature = "command")]
-    pub fn direct_command_bus() -> Arc<dyn CommandBus> {
-        let b = DirectCommandBus;
-        Arc::new(b)
-    }
-
-    /// Construct an [`EventPublisher`] that discards all events silently.
-    #[cfg(feature = "event")]
-    pub fn noop_event_publisher() -> Arc<dyn EventPublisher> {
-        let p = NoopEventPublisher;
-        Arc::new(p)
-    }
-
     /// Construct a thread-safe in-memory [`EventStore`].
     #[cfg(feature = "event")]
-    pub fn new_in_memory_event_store<E>() -> Arc<dyn EventStore<Event = E>>
+    pub fn new_in_memory_event_store<E>(&self) -> Arc<dyn EventStore<Event = E>>
     where
         E: DomainEvent + Send + Sync + Clone + 'static,
     {
@@ -216,13 +218,14 @@ impl Domain {
     /// # Examples
     ///
     /// ```rust,ignore
-    /// let mut p = Domain::new_in_memory_projection::<OrderEvent, u64, _>(
+    /// let mut p = Domain.new_in_memory_projection::<OrderEvent, u64, _>(
     ///     0,
     ///     |total, env| *total += 1,
     /// );
     /// ```
     #[cfg(feature = "projection")]
     pub fn new_in_memory_projection<E, R, F>(
+        &self,
         initial: R,
         reducer: F,
     ) -> Box<dyn Projection<Event = E, ReadModel = R>>
@@ -244,11 +247,11 @@ impl Domain {
     /// # Examples
     ///
     /// ```rust,ignore
-    /// let mut store = Domain::new_in_memory_saga_store::<OrderSaga>();
+    /// let mut store = Domain.new_in_memory_saga_store::<OrderSaga>();
     /// store.register(order_id, OrderSaga::default())?;
     /// ```
     #[cfg(feature = "saga")]
-    pub fn new_in_memory_saga_store<S>() -> Box<dyn SagaStore<SagaInstance = S>>
+    pub fn new_in_memory_saga_store<S>(&self) -> Box<dyn SagaStore<SagaInstance = S>>
     where
         S: Saga + 'static,
         S::SagaId: std::fmt::Display + 'static,
@@ -265,12 +268,13 @@ impl Domain {
     /// # Examples
     ///
     /// ```rust,ignore
-    /// let store = Domain::new_in_memory_snapshot_store::<OrderSnapshot>();
+    /// let store = Domain.new_in_memory_snapshot_store::<OrderSnapshot>();
     /// store.save(snapshot).await?;
     /// let restored = store.load(&order_id).await?;
     /// ```
     #[cfg(feature = "snapshot")]
     pub fn new_in_memory_snapshot_store<S>(
+        &self,
     ) -> Arc<dyn SnapshotStore<AggregateId = S::AggregateId, Snap = S>>
     where
         S: Snapshot + Clone + 'static,
@@ -284,6 +288,7 @@ impl Domain {
     /// Returns `None` when no events exist for `aggregate_id`.
     #[cfg(feature = "event")]
     pub async fn reconstitute<A>(
+        &self,
         store: &dyn EventStore<Event = A::Event>,
         aggregate_id: &str,
     ) -> Result<Option<A>, EventStoreError>
@@ -308,33 +313,65 @@ impl Domain {
 
     /// Construct a [`QueryBus`] that dispatches queries inline.
     #[cfg(feature = "query")]
-    pub fn direct_query_bus<R: Send + 'static>() -> Arc<dyn QueryBus<Result = R>> {
+    pub fn direct_query_bus<R: Send + 'static>(&self) -> Arc<dyn QueryBus<Result = R>> {
         let b = DirectQueryBus::<R>::new();
         Arc::new(b)
+    }
+
+    /// Validate a configuration value using its [`Validator`](crate::api::Validator) impl.
+    #[cfg(feature = "validator")]
+    pub fn validate_config<V: crate::api::Validator>(&self, config: &V) -> Result<(), String> {
+        config
+            .validate(edge_domain_validator::ValidationRequest)
+            .map(|_| ())
+            .map_err(|e| e.to_string())
+    }
+}
+
+impl DomainRuntime for Domain {
+    /// Construct a [`CommandBus`] that dispatches commands inline.
+    #[cfg(feature = "command")]
+    fn direct_command_bus(
+        &self,
+        _req: DirectCommandBusRequest,
+    ) -> Result<DirectCommandBusResponse, DomainError> {
+        Ok(DirectCommandBusResponse {
+            bus: Arc::new(DirectCommandBus),
+        })
+    }
+
+    /// Construct an [`EventPublisher`] that discards all events silently.
+    #[cfg(feature = "event")]
+    fn noop_event_publisher(
+        &self,
+        _req: NoopEventPublisherRequest,
+    ) -> Result<NoopEventPublisherResponse, DomainError> {
+        Ok(NoopEventPublisherResponse {
+            publisher: Arc::new(NoopEventPublisher),
+        })
     }
 
     /// Construct an in-process broadcast-backed [`EventBus`].
     ///
     /// Backed by the tokio broadcast implementation in `edge-domain-event`.
     #[cfg(feature = "event")]
-    pub fn in_process_event_bus(config: EventBusConfig) -> Arc<dyn EventBus> {
-        let b = InProcessEventBus::new(config.capacity);
-        Arc::new(b)
+    fn in_process_event_bus(
+        &self,
+        req: InProcessEventBusRequest,
+    ) -> Result<InProcessEventBusResponse, DomainError> {
+        Ok(InProcessEventBusResponse {
+            bus: Arc::new(InProcessEventBus::new(req.config.capacity)),
+        })
     }
 
     /// Construct an [`EventBus`] that silently discards all events.
     #[cfg(feature = "event")]
-    pub fn noop_event_bus() -> Arc<dyn EventBus> {
-        let b = NoopEventBus;
-        Arc::new(b)
-    }
-
-    /// Validate a configuration value using its [`Validator`](crate::api::Validator) impl.
-    #[cfg(feature = "validator")]
-    pub fn validate_config<V: crate::api::Validator>(config: &V) -> Result<(), String> {
-        config
-            .validate(edge_domain_validator::ValidationRequest)
-            .map(|_| ())
-            .map_err(|e| e.to_string())
+    fn noop_event_bus(
+        &self,
+        _req: NoopEventBusRequest,
+    ) -> Result<NoopEventBusResponse, DomainError> {
+        Ok(NoopEventBusResponse {
+            bus: Arc::new(NoopEventBus),
+        })
     }
 }

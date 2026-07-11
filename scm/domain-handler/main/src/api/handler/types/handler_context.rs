@@ -1,8 +1,6 @@
 //! [`HandlerContext`] — request-scoped execution context threaded to every `Handler::execute` call.
 
-use edge_domain_command::CommandBus;
-use edge_domain_observer::ObserverContext;
-use edge_security_runtime::SecurityContext;
+use crate::api::handler::traits::{CommandBus, ObserverContext, SecurityPrincipal};
 
 /// Request-scoped context threaded to every [`Handler::execute`](crate::api::handler::traits::Handler::execute) call.
 ///
@@ -11,7 +9,7 @@ use edge_security_runtime::SecurityContext;
 #[derive(Copy, Clone)]
 pub struct HandlerContext<'a> {
     /// The authenticated (or unauthenticated) principal for this request.
-    pub security: &'a SecurityContext,
+    pub security: &'a dyn SecurityPrincipal,
     /// The write bus — all handler-initiated writes must go through this.
     pub commands: &'a dyn CommandBus,
     /// Observability seam — tracer, log drain, and metric registry for this request.

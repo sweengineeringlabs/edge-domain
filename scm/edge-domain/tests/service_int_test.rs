@@ -117,6 +117,6 @@ async fn test_service_trait_execute_propagates_error() {
 /// @covers: new_service_registry
 #[test]
 fn test_factory_fn_new_service_registry_returns_empty_arc_registry() {
-    let reg = Domain::new_service_registry::<String, String>();
+    let reg = Domain.new_service_registry::<String, String>();
     assert!(reg.is_empty(EmptinessRequest).unwrap().empty);
 }

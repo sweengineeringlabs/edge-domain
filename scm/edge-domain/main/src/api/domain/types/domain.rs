@@ -2,12 +2,14 @@
 
 /// Domain building-block factory.
 ///
-/// All constructors for domain infrastructure types live here as static
-/// methods. Consumers call `Domain::echo_handler(...)` rather than
-/// importing free functions.
-///
-/// Orphan-type note: exposes its behavior via inherent factory methods (see
-/// `core/domain/domain_svc.rs`), not by implementing a trait, so
-/// `no_orphan_types` flags it as unreferenced — accepted tradeoff, same
-/// rationale as `edge-llm-reasoning`'s `StdReasoningFactory`.
+/// A zero-size unit struct, so the type itself is a valid value: constructors
+/// are called instance-based as `Domain.echo_handler(...)` rather than
+/// `Domain::echo_handler(...)`. The non-generic constructors (those needing
+/// no caller-supplied type parameters) are also exposed through the
+/// [`DomainRuntime`](crate::api::DomainRuntime) trait, implemented on
+/// `Domain` in `core/domain/domain_svc.rs`, giving callers a real
+/// `dyn DomainRuntime` injection seam. Constructors that need generics
+/// (`new_in_memory_repository::<T, Id>`, `echo_handler::<T>`, ...) stay
+/// inherent methods — a generic method cannot be part of an object-safe
+/// trait.
 pub struct Domain;

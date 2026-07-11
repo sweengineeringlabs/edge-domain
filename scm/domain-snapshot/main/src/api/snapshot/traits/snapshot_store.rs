@@ -1,8 +1,8 @@
 //! `SnapshotStore` — persists and retrieves [`Snapshot`]s.
 
+use std::future::Future;
 use std::hash::Hash;
-
-use futures::future::BoxFuture;
+use std::pin::Pin;
 
 use crate::api::snapshot::errors::SnapshotError;
 use crate::api::snapshot::traits::Snapshot;
@@ -20,11 +20,11 @@ pub trait SnapshotStore: Send + Sync {
     fn save(
         &self,
         req: SnapshotSaveRequest<Self::Snap>,
-    ) -> BoxFuture<'_, Result<(), SnapshotError>>;
+    ) -> Pin<Box<dyn Future<Output = Result<(), SnapshotError>> + Send + '_>>;
 
     /// Load the latest snapshot for `id`, or `None` if none has been saved.
     fn load<'a>(
         &'a self,
         req: SnapshotLoadRequest<'a, Self::AggregateId>,
-    ) -> BoxFuture<'a, Result<SnapshotLoadResponse<Self::Snap>, SnapshotError>>;
+    ) -> Pin<Box<dyn Future<Output = Result<SnapshotLoadResponse<Self::Snap>, SnapshotError>> + Send + 'a>>;
 }

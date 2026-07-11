@@ -1,6 +1,7 @@
 //! `EventBus` trait — publish/subscribe event bus contract.
 
-use futures::future::BoxFuture;
+use std::future::Future;
+use std::pin::Pin;
 
 use crate::api::event::errors::EventError;
 use crate::api::event::types::{
@@ -14,7 +15,10 @@ use crate::api::event::types::{
 /// subsequent events asynchronously.
 pub trait EventBus: Send + Sync {
     /// Publish an event to all current subscribers.
-    fn publish(&self, req: EventBusPublishRequest) -> BoxFuture<'_, Result<(), EventError>>;
+    fn publish(
+        &self,
+        req: EventBusPublishRequest,
+    ) -> Pin<Box<dyn Future<Output = Result<(), EventError>> + Send + '_>>;
 
     /// Subscribe, returning a stream-like [`EventReceiver`](super::super::types::EventReceiver).
     fn subscribe(

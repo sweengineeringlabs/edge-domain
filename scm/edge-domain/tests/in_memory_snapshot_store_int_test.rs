@@ -20,15 +20,22 @@ impl Snapshot for CounterSnapshot {
         &self,
         _req: SnapshotAggregateIdRequest,
     ) -> Result<SnapshotAggregateIdResponse<'_, String>, SnapshotError> {
-        Ok(SnapshotAggregateIdResponse { aggregate_id: &self.id })
+        Ok(SnapshotAggregateIdResponse {
+            aggregate_id: &self.id,
+        })
     }
-    fn version(&self, _req: SnapshotVersionRequest) -> Result<SnapshotVersionResponse, SnapshotError> {
-        Ok(SnapshotVersionResponse { version: self.version })
+    fn version(
+        &self,
+        _req: SnapshotVersionRequest,
+    ) -> Result<SnapshotVersionResponse, SnapshotError> {
+        Ok(SnapshotVersionResponse {
+            version: self.version,
+        })
     }
 }
 
 fn store() -> std::sync::Arc<dyn SnapshotStore<AggregateId = String, Snap = CounterSnapshot>> {
-    Domain::new_in_memory_snapshot_store::<CounterSnapshot>()
+    Domain.new_in_memory_snapshot_store::<CounterSnapshot>()
 }
 
 /// @covers: new_in_memory_snapshot_store
@@ -46,7 +53,12 @@ async fn test_in_memory_snapshot_store_persists_and_retrieves_latest() {
         .await
         .unwrap();
     let id = "c1".to_string();
-    let loaded = store.load(SnapshotLoadRequest { id: &id }).await.unwrap().snapshot.unwrap();
+    let loaded = store
+        .load(SnapshotLoadRequest { id: &id })
+        .await
+        .unwrap()
+        .snapshot
+        .unwrap();
     assert_eq!((loaded.version, loaded.count), (12, 99));
 }
 
@@ -55,7 +67,12 @@ async fn test_in_memory_snapshot_store_persists_and_retrieves_latest() {
 async fn test_in_memory_snapshot_store_returns_none_for_unknown_aggregate() {
     let store = store();
     let id = "missing".to_string();
-    assert!(store.load(SnapshotLoadRequest { id: &id }).await.unwrap().snapshot.is_none());
+    assert!(store
+        .load(SnapshotLoadRequest { id: &id })
+        .await
+        .unwrap()
+        .snapshot
+        .is_none());
 }
 
 /// @covers: new_in_memory_snapshot_store

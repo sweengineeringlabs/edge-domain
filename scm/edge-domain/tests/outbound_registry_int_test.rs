@@ -1,48 +1,117 @@
-//! Integration tests for `OutboundRegistry`.
+//! Integration tests for `OutboundRegistry` via `InMemoryOutboundRegistry`.
+// @allow: no_mocks_in_integration — InMemoryOutboundRegistry is the production-shipped reference impl, not a test double
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::OutboundRegistry;
+use edge_domain::{
+    InMemoryOutboundRegistry, OutboundDeregisterRequest, OutboundGetRequest,
+    OutboundIsEmptyRequest, OutboundLenRequest, OutboundNamesRequest, OutboundRegisterRequest,
+    OutboundRegistry,
+};
 
-/// @covers: OutboundRegistry::new
+/// @covers: OutboundRegistry::is_empty — new registry starts empty
 #[test]
-fn test_outbound_registry_struct_new_creates_empty_registry() {
-    let reg: OutboundRegistry<String> = OutboundRegistry::new();
-    assert!(reg.is_empty());
-    assert_eq!(reg.len(), 0);
+fn test_outbound_registry_new_creates_empty_registry_happy() {
+    let reg: InMemoryOutboundRegistry<String> = InMemoryOutboundRegistry::new();
+    assert!(reg.is_empty(OutboundIsEmptyRequest).unwrap().empty);
+    assert_eq!(reg.len(OutboundLenRequest).unwrap().count, 0);
 }
 
-/// @covers: OutboundRegistry::register
+/// @covers: OutboundRegistry::register — stores a handle retrievable via get
 #[test]
-fn test_outbound_registry_struct_register_stores_handle() {
-    let reg: OutboundRegistry<String> = OutboundRegistry::new();
-    reg.register("svc", "url".to_string());
-    assert_eq!(reg.get("svc").as_deref(), Some("url"));
+fn test_outbound_registry_register_stores_handle_happy() {
+    let reg: InMemoryOutboundRegistry<String> = InMemoryOutboundRegistry::new();
+    reg.register(OutboundRegisterRequest {
+        name: "svc".into(),
+        handle: "url".to_string(),
+    })
+    .unwrap();
+    let handle = reg
+        .get(OutboundGetRequest { name: "svc".into() })
+        .unwrap()
+        .handle;
+    assert_eq!(handle.as_deref(), Some("url"));
 }
 
-/// @covers: OutboundRegistry::deregister
+/// @covers: OutboundRegistry::deregister — removes a registered handle
 #[test]
-fn test_outbound_registry_struct_deregister_removes_handle() {
-    let reg: OutboundRegistry<String> = OutboundRegistry::new();
-    reg.register("svc", "url".to_string());
-    assert!(reg.deregister("svc"));
-    assert!(reg.get("svc").is_none());
+fn test_outbound_registry_deregister_removes_handle_happy() {
+    let reg: InMemoryOutboundRegistry<String> = InMemoryOutboundRegistry::new();
+    reg.register(OutboundRegisterRequest {
+        name: "svc".into(),
+        handle: "url".to_string(),
+    })
+    .unwrap();
+    let removed = reg
+        .deregister(OutboundDeregisterRequest { name: "svc".into() })
+        .unwrap()
+        .removed;
+    assert!(removed);
+    assert!(reg
+        .get(OutboundGetRequest { name: "svc".into() })
+        .unwrap()
+        .handle
+        .is_none());
 }
 
-/// @covers: OutboundRegistry::names
+/// @covers: OutboundRegistry::deregister — missing name reports not removed
 #[test]
-fn test_outbound_registry_struct_names_returns_all_registered() {
-    let reg: OutboundRegistry<u32> = OutboundRegistry::new();
-    reg.register("a", 1);
-    reg.register("b", 2);
-    let mut names = reg.names();
+fn test_outbound_registry_deregister_missing_name_returns_false_error() {
+    let reg: InMemoryOutboundRegistry<String> = InMemoryOutboundRegistry::new();
+    let removed = reg
+        .deregister(OutboundDeregisterRequest {
+            name: "missing".into(),
+        })
+        .unwrap()
+        .removed;
+    assert!(!removed);
+}
+
+/// @covers: OutboundRegistry::names — returns every registered name
+#[test]
+fn test_outbound_registry_names_returns_all_registered_edge() {
+    let reg: InMemoryOutboundRegistry<u32> = InMemoryOutboundRegistry::new();
+    reg.register(OutboundRegisterRequest {
+        name: "a".into(),
+        handle: 1,
+    })
+    .unwrap();
+    reg.register(OutboundRegisterRequest {
+        name: "b".into(),
+        handle: 2,
+    })
+    .unwrap();
+    let mut names = reg.names(OutboundNamesRequest).unwrap().names;
     names.sort();
     assert_eq!(names, vec!["a", "b"]);
 }
 
-/// @covers: OutboundRegistry::len
+/// @covers: OutboundRegistry::len — reflects registered count
 #[test]
-fn test_outbound_registry_struct_len_reflects_count() {
-    let reg: OutboundRegistry<u32> = OutboundRegistry::new();
-    assert_eq!(reg.len(), 0);
-    reg.register("x", 1);
-    assert_eq!(reg.len(), 1);
+fn test_outbound_registry_len_reflects_count_happy() {
+    let reg: InMemoryOutboundRegistry<u32> = InMemoryOutboundRegistry::new();
+    assert_eq!(reg.len(OutboundLenRequest).unwrap().count, 0);
+    reg.register(OutboundRegisterRequest {
+        name: "x".into(),
+        handle: 1,
+    })
+    .unwrap();
+    assert_eq!(reg.len(OutboundLenRequest).unwrap().count, 1);
+}
+
+/// @covers: OutboundRegistry::get — usable via dyn dispatch
+#[test]
+fn test_outbound_registry_via_dyn_dispatch_returns_handle_edge() {
+    let reg: InMemoryOutboundRegistry<String> = InMemoryOutboundRegistry::new();
+    let dyn_reg: &dyn OutboundRegistry<Handle = String> = &reg;
+    dyn_reg
+        .register(OutboundRegisterRequest {
+            name: "dyn".into(),
+            handle: "value".to_string(),
+        })
+        .unwrap();
+    let handle = dyn_reg
+        .get(OutboundGetRequest { name: "dyn".into() })
+        .unwrap()
+        .handle;
+    assert_eq!(handle.as_deref(), Some("value"));
 }

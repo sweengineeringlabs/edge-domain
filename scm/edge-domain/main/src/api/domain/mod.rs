@@ -6,5 +6,18 @@ pub mod types;
 
 pub use errors::DomainError;
 pub use traits::{
-    Domain, DomainExtension, DomainExtensionHealthRequest, NoopDomainExtension, OutboundRegistry,
+    Domain, DomainExtension, DomainExtensionHealthRequest, DomainRuntime, InMemoryOutboundRegistry,
+    NoopDomainExtension, OutboundRegistry,
+};
+#[cfg(feature = "command")]
+pub use types::{DirectCommandBusRequest, DirectCommandBusResponse};
+#[cfg(feature = "event")]
+pub use types::{
+    InProcessEventBusRequest, InProcessEventBusResponse, NoopEventBusRequest, NoopEventBusResponse,
+    NoopEventPublisherRequest, NoopEventPublisherResponse,
+};
+pub use types::{
+    OutboundDeregisterRequest, OutboundDeregisterResponse, OutboundGetRequest, OutboundGetResponse,
+    OutboundIsEmptyRequest, OutboundIsEmptyResponse, OutboundLenRequest, OutboundLenResponse,
+    OutboundNamesRequest, OutboundNamesResponse, OutboundRegisterRequest, OutboundRegisterResponse,
 };

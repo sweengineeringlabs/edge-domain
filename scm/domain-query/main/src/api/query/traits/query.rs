@@ -1,6 +1,7 @@
 //! `Query` trait — a read operation that never mutates domain state.
 
-use futures::future::BoxFuture;
+use std::future::Future;
+use std::pin::Pin;
 
 use crate::api::query::QueryError;
 use crate::api::query::types::{QueryExecuteRequest, QueryNameRequest, QueryNameResponse, QueryResultResponse};
@@ -19,5 +20,5 @@ pub trait Query: Send + Sync {
     fn execute(
         &self,
         req: QueryExecuteRequest,
-    ) -> BoxFuture<'_, Result<QueryResultResponse<Self::Result>, QueryError>>;
+    ) -> Pin<Box<dyn Future<Output = Result<QueryResultResponse<Self::Result>, QueryError>> + Send + '_>>;
 }

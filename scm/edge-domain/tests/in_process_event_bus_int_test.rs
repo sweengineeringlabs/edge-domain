@@ -1,6 +1,8 @@
 //! Coverage for api/event/types/ins/in_process_event_bus.rs
 #![allow(clippy::unwrap_used)]
 
+use edge_domain::DomainRuntime;
+use edge_domain::InProcessEventBusRequest;
 use edge_domain::{
     Domain, DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventBusConfig,
     EventBusPublishRequest, EventBusSubscribeRequest, EventError, EventOccurredAtRequest,
@@ -51,7 +53,12 @@ fn test_in_process_event_bus_is_constructible_happy() {
 #[test]
 fn test_in_process_event_bus_factory_publishes_successfully_happy() {
     block_on(async {
-        let bus = Domain::in_process_event_bus(EventBusConfig::default());
+        let bus = Domain
+            .in_process_event_bus(InProcessEventBusRequest {
+                config: EventBusConfig::default(),
+            })
+            .unwrap()
+            .bus;
         assert_eq!(
             bus.publish(EventBusPublishRequest {
                 event: Arc::new(AnyEvent)
@@ -66,7 +73,12 @@ fn test_in_process_event_bus_factory_publishes_successfully_happy() {
 #[test]
 fn test_in_process_event_bus_publish_no_subscribers_returns_ok_error() {
     block_on(async {
-        let bus = Domain::in_process_event_bus(EventBusConfig::default());
+        let bus = Domain
+            .in_process_event_bus(InProcessEventBusRequest {
+                config: EventBusConfig::default(),
+            })
+            .unwrap()
+            .bus;
         // No subscriber — dropped immediately. Publish must not error.
         let result = bus
             .publish(EventBusPublishRequest {
@@ -85,7 +97,12 @@ fn test_in_process_event_bus_publish_no_subscribers_returns_ok_error() {
 #[test]
 fn test_in_process_event_bus_subscriber_receives_published_event_edge() {
     block_on(async {
-        let bus = Domain::in_process_event_bus(EventBusConfig::default());
+        let bus = Domain
+            .in_process_event_bus(InProcessEventBusRequest {
+                config: EventBusConfig::default(),
+            })
+            .unwrap()
+            .bus;
         let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         assert!(bus
             .publish(EventBusPublishRequest {

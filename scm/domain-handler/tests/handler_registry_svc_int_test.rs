@@ -8,7 +8,8 @@ use edge_domain_command::DirectCommandBus;
 use edge_domain_handler::{
     DeregisterHandlerRequest, EmptinessRequest, ExecutionRequest, Handler, HandlerContext,
     HandlerError, HandlerLookupRequest, HandlerRegistry, IdRequest, IdResponse,
-    InProcessHandlerRegistry, LenRequest, ListIdsRequest, RegisterHandlerRequest,
+    InProcessHandlerRegistry, LenRequest, ListIdsRequest, ObserverContextAdapter,
+    RegisterHandlerRequest,
 };
 use edge_domain_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
@@ -136,10 +137,11 @@ fn test_retrieved_handler_executes_correctly_happy() {
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: observer.as_ref(),
+        observer: &observer_adapter,
     };
     assert_eq!(
         block_on(h.execute(ExecutionRequest {

@@ -31,7 +31,7 @@ impl Spec for ActiveSpec {
 #[tokio::test]
 async fn test_queryable_repository_svc_facade_find_by_filters_correctly() {
     let repo: Arc<dyn QueryableRepository<Entity = Item, Id = String>> =
-        Domain::new_in_memory_queryable_repository();
+        Domain.new_in_memory_queryable_repository();
     repo.save(RepositorySaveRequest {
         id: "a".into(),
         entity: Item { active: true },
@@ -58,7 +58,7 @@ async fn test_queryable_repository_svc_facade_find_by_filters_correctly() {
 #[tokio::test]
 async fn test_queryable_repository_svc_facade_count_by_returns_correct_count() {
     let repo: Arc<dyn QueryableRepository<Entity = Item, Id = String>> =
-        Domain::new_in_memory_queryable_repository();
+        Domain.new_in_memory_queryable_repository();
     repo.save(RepositorySaveRequest {
         id: "x".into(),
         entity: Item { active: true },

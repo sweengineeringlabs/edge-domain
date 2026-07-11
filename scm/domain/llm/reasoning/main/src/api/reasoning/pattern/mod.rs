@@ -1,1 +1,0 @@
-mod pattern_metadata;

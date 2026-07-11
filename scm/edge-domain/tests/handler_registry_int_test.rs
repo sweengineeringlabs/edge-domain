@@ -33,7 +33,7 @@ fn echo(id: &str) -> Arc<dyn Handler<Request = String, Response = String>> {
 }
 
 fn registry() -> Arc<dyn HandlerRegistry<Request = String, Response = String>> {
-    Domain::new_handler_registry()
+    Domain.new_handler_registry()
 }
 
 /// @covers: HandlerRegistry — starts empty
