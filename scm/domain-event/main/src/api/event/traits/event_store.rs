@@ -1,6 +1,7 @@
 //! `EventStore` trait — append-only event stream persistence contract.
 
-use futures::future::BoxFuture;
+use std::future::Future;
+use std::pin::Pin;
 
 use crate::api::event::errors::EventStoreError;
 use crate::api::event::traits::DomainEvent;
@@ -25,17 +26,17 @@ pub trait EventStore: Send + Sync {
     fn append(
         &self,
         req: EventStoreAppendRequest<'_, Self::Event>,
-    ) -> BoxFuture<'_, Result<EventStoreAppendResponse, EventStoreError>>;
+    ) -> Pin<Box<dyn Future<Output = Result<EventStoreAppendResponse, EventStoreError>> + Send + '_>>;
 
     /// Load all events for an aggregate in sequence order.
     fn load(
         &self,
         req: EventStoreLoadRequest<'_>,
-    ) -> BoxFuture<'_, Result<EventStoreLoadResponse<Self::Event>, EventStoreError>>;
+    ) -> Pin<Box<dyn Future<Output = Result<EventStoreLoadResponse<Self::Event>, EventStoreError>> + Send + '_>>;
 
     /// Load events for an aggregate starting at a given sequence number (inclusive).
     fn load_from(
         &self,
         req: EventStoreLoadFromRequest<'_>,
-    ) -> BoxFuture<'_, Result<EventStoreLoadFromResponse<Self::Event>, EventStoreError>>;
+    ) -> Pin<Box<dyn Future<Output = Result<EventStoreLoadFromResponse<Self::Event>, EventStoreError>> + Send + '_>>;
 }

@@ -36,7 +36,10 @@ fn test_now_system_clock_successive_calls_do_not_go_backwards_error() {
 #[test]
 fn test_now_fixed_clock_at_unix_epoch_returns_epoch_edge() {
     let clock = FixedClock::new(SystemTime::UNIX_EPOCH);
-    assert_eq!(clock.now(NowRequest).unwrap().instant, SystemTime::UNIX_EPOCH);
+    assert_eq!(
+        clock.now(NowRequest).unwrap().instant,
+        SystemTime::UNIX_EPOCH
+    );
 }
 
 /// @covers: Clock::now (FixedClock determinism)

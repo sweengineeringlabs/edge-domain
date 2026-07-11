@@ -9,6 +9,8 @@ pub use app::ApplicationBuildResponse;
 pub use app::ApplicationRunRequest;
 pub use app::ApplicationRunResponse;
 pub use app::Bootstrap;
+pub use app::LocalAppRuntime;
+pub use app::LocalAppServiceProvider;
 pub use app::NameRequest;
 pub use app::NameResponse;
 pub use app::NoopAppBootstrap;

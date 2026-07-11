@@ -1,6 +1,7 @@
 //! `CommandBus` trait — dispatches commands to their executors.
 
-use futures::future::BoxFuture;
+use std::future::Future;
+use std::pin::Pin;
 
 use crate::api::command::types::CommandDispatchRequest;
 use crate::api::command::CommandError;
@@ -10,5 +11,8 @@ use crate::api::command::CommandError;
 /// The bus decouples the caller from the command implementation.
 pub trait CommandBus: Send + Sync {
     /// Dispatch a command. Returns `Err` if execution fails.
-    fn dispatch(&self, req: CommandDispatchRequest) -> BoxFuture<'_, Result<(), CommandError>>;
+    fn dispatch(
+        &self,
+        req: CommandDispatchRequest,
+    ) -> Pin<Box<dyn Future<Output = Result<(), CommandError>> + Send + '_>>;
 }

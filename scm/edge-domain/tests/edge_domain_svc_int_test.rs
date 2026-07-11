@@ -1,10 +1,12 @@
 //! Integration tests for saf factory functions.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
+use edge_domain::DomainRuntime;
 use edge_domain::{
     Command, CommandBus, CommandError, Domain, QueryBus, QueryError, QueryableRepository,
     Repository, RepositoryIdRequest, RepositorySaveRequest, SpecRequest,
 };
+use edge_domain::{DirectCommandBusRequest, NoopEventPublisherRequest};
 use edge_domain_command::{CommandDispatchRequest, ExecutionRequest, NameRequest, NameResponse};
 use edge_domain_handler::{
     EmptinessRequest as HandlerEmptinessRequest, LenRequest as HandlerLenRequest,
@@ -17,7 +19,7 @@ use std::sync::Arc;
 /// @covers: new_handler_registry
 #[test]
 fn test_factory_fn_new_handler_registry_returns_empty_arc_registry() {
-    let reg = Domain::new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<String, String>();
     assert!(reg.is_empty(HandlerEmptinessRequest).unwrap().empty);
     assert_eq!(reg.len(HandlerLenRequest).unwrap().count, 0);
 }
@@ -25,7 +27,7 @@ fn test_factory_fn_new_handler_registry_returns_empty_arc_registry() {
 /// @covers: new_service_registry
 #[test]
 fn test_factory_fn_new_service_registry_returns_empty_arc_registry() {
-    let reg = Domain::new_service_registry::<String, String>();
+    let reg = Domain.new_service_registry::<String, String>();
     assert!(reg.is_empty(ServiceEmptinessRequest).unwrap().empty);
     assert_eq!(reg.len(ServiceLenRequest).unwrap().count, 0);
 }
@@ -33,20 +35,20 @@ fn test_factory_fn_new_service_registry_returns_empty_arc_registry() {
 /// @covers: new_in_memory_repository
 #[test]
 fn test_new_in_memory_repository_returns_arc_repository() {
-    let _: Arc<dyn Repository<Entity = String, Id = u32>> = Domain::new_in_memory_repository();
+    let _: Arc<dyn Repository<Entity = String, Id = u32>> = Domain.new_in_memory_repository();
 }
 
 /// @covers: new_in_memory_queryable_repository
 #[test]
 fn test_new_in_memory_queryable_repository_returns_arc_queryable_repository() {
     let _: Arc<dyn QueryableRepository<Entity = String, Id = u32>> =
-        Domain::new_in_memory_queryable_repository();
+        Domain.new_in_memory_queryable_repository();
 }
 
 /// @covers: new_in_memory_repository
 #[tokio::test]
 async fn test_new_in_memory_repository_saves_and_finds_entity() {
-    let repo: Arc<dyn Repository<Entity = String, Id = u32>> = Domain::new_in_memory_repository();
+    let repo: Arc<dyn Repository<Entity = String, Id = u32>> = Domain.new_in_memory_repository();
     repo.save(RepositorySaveRequest {
         id: 1u32,
         entity: "hello".to_string(),
@@ -75,7 +77,7 @@ async fn test_new_in_memory_queryable_repository_finds_by_spec() {
         }
     }
     let repo: Arc<dyn QueryableRepository<Entity = String, Id = u32>> =
-        Domain::new_in_memory_queryable_repository();
+        Domain.new_in_memory_queryable_repository();
     repo.save(RepositorySaveRequest {
         id: 1u32,
         entity: "hi".to_string(),
@@ -114,7 +116,10 @@ async fn test_factory_fn_direct_command_bus_dispatches_command_inline() {
             Box::pin(async { Ok(()) })
         }
     }
-    let bus: Arc<dyn CommandBus> = Domain::direct_command_bus();
+    let bus: Arc<dyn CommandBus> = Domain
+        .direct_command_bus(DirectCommandBusRequest)
+        .unwrap()
+        .bus;
     assert!(bus
         .dispatch(CommandDispatchRequest {
             command: Box::new(PingCommand)
@@ -154,7 +159,10 @@ async fn test_factory_fn_noop_event_publisher_silently_discards_events() {
             })
         }
     }
-    let publisher = Domain::noop_event_publisher();
+    let publisher = Domain
+        .noop_event_publisher(NoopEventPublisherRequest)
+        .unwrap()
+        .publisher;
     assert!(publisher
         .publish(EventPublisherPublishRequest { event: &AnyEvent })
         .await
@@ -183,7 +191,7 @@ async fn test_factory_fn_direct_query_bus_dispatches_query_inline() {
             Box::pin(async move { Ok(QueryResultResponse { result: v }) })
         }
     }
-    let bus: Arc<dyn QueryBus<Result = String>> = Domain::direct_query_bus();
+    let bus: Arc<dyn QueryBus<Result = String>> = Domain.direct_query_bus();
     let result = bus
         .dispatch(QueryDispatchRequest {
             query: Box::new(EchoQuery("pong".into())),

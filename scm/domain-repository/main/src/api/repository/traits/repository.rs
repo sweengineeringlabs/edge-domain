@@ -1,6 +1,7 @@
 //! `Repository` — core async CRUD port contract.
 
-use futures::future::BoxFuture;
+use std::future::Future;
+use std::pin::Pin;
 
 use crate::api::repository::errors::RepositoryError;
 use crate::api::repository::types::Page;
@@ -30,13 +31,13 @@ pub trait Repository: Send + Sync {
     fn find<'a>(
         &'a self,
         req: RepositoryIdRequest<'a, Self::Id>,
-    ) -> BoxFuture<'a, Result<RepositoryFindResponse<Self::Entity>, RepositoryError>>;
+    ) -> Pin<Box<dyn Future<Output = Result<RepositoryFindResponse<Self::Entity>, RepositoryError>> + Send + 'a>>;
 
     /// Persists `entity` under `id`, replacing any existing entry.
     fn save(
         &self,
         req: RepositorySaveRequest<Self::Id, Self::Entity>,
-    ) -> BoxFuture<'_, Result<(), RepositoryError>>;
+    ) -> Pin<Box<dyn Future<Output = Result<(), RepositoryError>> + Send + '_>>;
 
     /// Removes the entity with the given `id`.
     ///
@@ -44,19 +45,19 @@ pub trait Repository: Send + Sync {
     fn delete<'a>(
         &'a self,
         req: RepositoryIdRequest<'a, Self::Id>,
-    ) -> BoxFuture<'a, Result<RepositoryDeleteResponse, RepositoryError>>;
+    ) -> Pin<Box<dyn Future<Output = Result<RepositoryDeleteResponse, RepositoryError>> + Send + 'a>>;
 
     /// Returns all entities in the repository.
     fn list(
         &self,
         req: RepositoryListRequest,
-    ) -> BoxFuture<'_, Result<RepositoryListResponse<Self::Entity>, RepositoryError>>;
+    ) -> Pin<Box<dyn Future<Output = Result<RepositoryListResponse<Self::Entity>, RepositoryError>> + Send + '_>>;
 
     /// Returns `true` if an entity with the given `id` exists.
     fn exists<'a>(
         &'a self,
         req: RepositoryIdRequest<'a, Self::Id>,
-    ) -> BoxFuture<'a, Result<RepositoryExistsResponse, RepositoryError>> {
+    ) -> Pin<Box<dyn Future<Output = Result<RepositoryExistsResponse, RepositoryError>> + Send + 'a>> {
         Box::pin(async move {
             let found = self.find(req).await?.entity.is_some();
             Ok(RepositoryExistsResponse { exists: found })
@@ -67,7 +68,7 @@ pub trait Repository: Send + Sync {
     fn count(
         &self,
         req: RepositoryListRequest,
-    ) -> BoxFuture<'_, Result<RepositoryCountResponse, RepositoryError>> {
+    ) -> Pin<Box<dyn Future<Output = Result<RepositoryCountResponse, RepositoryError>> + Send + '_>> {
         Box::pin(async move {
             let count = self.list(req).await?.items.len();
             Ok(RepositoryCountResponse { count })
@@ -78,7 +79,7 @@ pub trait Repository: Send + Sync {
     fn list_page(
         &self,
         req: RepositoryListPageRequest,
-    ) -> BoxFuture<'_, Result<RepositoryListPageResponse<Self::Entity>, RepositoryError>>
+    ) -> Pin<Box<dyn Future<Output = Result<RepositoryListPageResponse<Self::Entity>, RepositoryError>> + Send + '_>>
     where
         Self::Entity: Clone,
         Self: Sized,
@@ -118,7 +119,7 @@ mod tests {
         fn find<'a>(
             &'a self,
             req: RepositoryIdRequest<'a, u32>,
-        ) -> BoxFuture<'a, Result<RepositoryFindResponse<String>, RepositoryError>> {
+        ) -> Pin<Box<dyn Future<Output = Result<RepositoryFindResponse<String>, RepositoryError>> + Send + 'a>> {
             let val = self
                 .store
                 .lock()
@@ -131,7 +132,7 @@ mod tests {
         fn save(
             &self,
             req: RepositorySaveRequest<u32, String>,
-        ) -> BoxFuture<'_, Result<(), RepositoryError>> {
+        ) -> Pin<Box<dyn Future<Output = Result<(), RepositoryError>> + Send + '_>> {
             self.store
                 .lock()
                 .unwrap_or_else(|e| e.into_inner())
@@ -142,7 +143,7 @@ mod tests {
         fn delete<'a>(
             &'a self,
             req: RepositoryIdRequest<'a, u32>,
-        ) -> BoxFuture<'a, Result<RepositoryDeleteResponse, RepositoryError>> {
+        ) -> Pin<Box<dyn Future<Output = Result<RepositoryDeleteResponse, RepositoryError>> + Send + 'a>> {
             let removed = self
                 .store
                 .lock()
@@ -155,7 +156,7 @@ mod tests {
         fn list(
             &self,
             _req: RepositoryListRequest,
-        ) -> BoxFuture<'_, Result<RepositoryListResponse<String>, RepositoryError>> {
+        ) -> Pin<Box<dyn Future<Output = Result<RepositoryListResponse<String>, RepositoryError>> + Send + '_>> {
             let vals: Vec<_> = self
                 .store
                 .lock()

@@ -1,6 +1,5 @@
-use edge_domain_event::DomainEvent;
-
 use crate::api::projection::errors::ProjectionError;
+use crate::api::projection::traits::ProjectionEvent;
 use crate::api::projection::types::{
     ProjectionApplyRequest, ProjectionReadModelRequest, ProjectionReadModelResponse, TryDrainRequest,
     TryDrainResponse,
@@ -12,7 +11,7 @@ use crate::api::projection::types::{
 /// denormalised view optimised for queries.
 pub trait Projection: Send + Sync {
     /// The event type this projection handles.
-    type Event: DomainEvent;
+    type Event: ProjectionEvent;
 
     /// The read model this projection maintains.
     type ReadModel;
