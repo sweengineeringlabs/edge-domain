@@ -101,7 +101,10 @@ impl ObserverContext for FailingObserver {
 /// @covers: ObserverContext::tracer — success
 #[test]
 fn test_tracer_ok_observer_returns_tracer_happy() {
-    let tracer = OkObserver.tracer(TracerRequest).expect("tracer should succeed").tracer;
+    let tracer = OkObserver
+        .tracer(TracerRequest)
+        .expect("tracer should succeed")
+        .tracer;
     let span = tracer
         .start_span(SpanStartRequest {
             handler_id: "h".into(),
@@ -140,7 +143,10 @@ fn test_tracer_called_repeatedly_returns_tracer_edge() {
 /// @covers: ObserverContext::drain — success
 #[test]
 fn test_drain_ok_observer_emits_ok_happy() {
-    let drain = OkObserver.drain(DrainRequest).expect("drain should succeed").drain;
+    let drain = OkObserver
+        .drain(DrainRequest)
+        .expect("drain should succeed")
+        .drain;
     assert_eq!(
         drain.emit(LogEmitRequest {
             level: "info".into(),
@@ -177,9 +183,18 @@ fn test_drain_called_repeatedly_returns_drain_edge() {
 /// @covers: ObserverContext::metrics — success
 #[test]
 fn test_metrics_ok_observer_returns_registry_happy() {
-    let metrics = OkObserver.metrics(MetricsRequest).expect("metrics should succeed").metrics;
-    let counter = metrics.counter(CounterLookupRequest { name: "c".into() }).unwrap().counter;
-    assert_eq!(counter.increment(IncrementRequest { delta: 1 }), Ok(IncrementResponse));
+    let metrics = OkObserver
+        .metrics(MetricsRequest)
+        .expect("metrics should succeed")
+        .metrics;
+    let counter = metrics
+        .counter(CounterLookupRequest { name: "c".into() })
+        .unwrap()
+        .counter;
+    assert_eq!(
+        counter.increment(IncrementRequest { delta: 1 }),
+        Ok(IncrementResponse)
+    );
 }
 
 /// @covers: ObserverContext::metrics — failure propagates
@@ -194,8 +209,14 @@ fn test_metrics_called_repeatedly_returns_registry_edge() {
     let observer = OkObserver;
     for _ in 0..2 {
         let metrics = observer.metrics(MetricsRequest).unwrap().metrics;
-        let counter = metrics.counter(CounterLookupRequest { name: "c".into() }).unwrap().counter;
-        assert_eq!(counter.increment(IncrementRequest { delta: 1 }), Ok(IncrementResponse));
+        let counter = metrics
+            .counter(CounterLookupRequest { name: "c".into() })
+            .unwrap()
+            .counter;
+        assert_eq!(
+            counter.increment(IncrementRequest { delta: 1 }),
+            Ok(IncrementResponse)
+        );
     }
 }
 
@@ -221,7 +242,9 @@ fn test_wrap_erased_reference_bridges_happy() {
 fn test_wrap_erased_reference_propagates_errors_error() {
     let observer = edge_domain_observer::StdObserveFactory::noop_observer_context();
     let adapter = OkObserver::wrap(observer.as_ref());
-    let drain = ObserverContext::drain(&adapter, DrainRequest).unwrap().drain;
+    let drain = ObserverContext::drain(&adapter, DrainRequest)
+        .unwrap()
+        .drain;
     assert_eq!(
         drain.emit(LogEmitRequest {
             level: "info".into(),
@@ -238,8 +261,16 @@ fn test_wrap_adapter_reusable_edge() {
     let observer = edge_domain_observer::StdObserveFactory::noop_observer_context();
     let adapter = OkObserver::wrap(observer.as_ref());
     for _ in 0..2 {
-        let metrics = ObserverContext::metrics(&adapter, MetricsRequest).unwrap().metrics;
-        let counter = metrics.counter(CounterLookupRequest { name: "c".into() }).unwrap().counter;
-        assert_eq!(counter.increment(IncrementRequest { delta: 1 }), Ok(IncrementResponse));
+        let metrics = ObserverContext::metrics(&adapter, MetricsRequest)
+            .unwrap()
+            .metrics;
+        let counter = metrics
+            .counter(CounterLookupRequest { name: "c".into() })
+            .unwrap()
+            .counter;
+        assert_eq!(
+            counter.increment(IncrementRequest { delta: 1 }),
+            Ok(IncrementResponse)
+        );
     }
 }

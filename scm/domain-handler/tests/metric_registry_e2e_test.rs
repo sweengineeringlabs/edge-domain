@@ -24,7 +24,10 @@ impl Gauge for StubGauge {
 
 struct StubHistogram;
 impl Histogram for StubHistogram {
-    fn record(&self, _req: HistogramRecordRequest) -> Result<HistogramRecordResponse, HandlerError> {
+    fn record(
+        &self,
+        _req: HistogramRecordRequest,
+    ) -> Result<HistogramRecordResponse, HandlerError> {
         Ok(HistogramRecordResponse)
     }
 }
@@ -36,7 +39,10 @@ impl MetricRegistry for OkRegistry {
             counter: Box::new(StubCounter),
         })
     }
-    fn histogram(&self, _req: HistogramLookupRequest) -> Result<HistogramLookupResponse, HandlerError> {
+    fn histogram(
+        &self,
+        _req: HistogramLookupRequest,
+    ) -> Result<HistogramLookupResponse, HandlerError> {
         Ok(HistogramLookupResponse {
             histogram: Box::new(StubHistogram),
         })
@@ -53,7 +59,10 @@ impl MetricRegistry for FailingRegistry {
     fn counter(&self, _req: CounterLookupRequest) -> Result<CounterLookupResponse, HandlerError> {
         Err(HandlerError::ExecutionFailed("registry offline".into()))
     }
-    fn histogram(&self, _req: HistogramLookupRequest) -> Result<HistogramLookupResponse, HandlerError> {
+    fn histogram(
+        &self,
+        _req: HistogramLookupRequest,
+    ) -> Result<HistogramLookupResponse, HandlerError> {
         Err(HandlerError::ExecutionFailed("registry offline".into()))
     }
     fn gauge(&self, _req: GaugeLookupRequest) -> Result<GaugeLookupResponse, HandlerError> {
@@ -68,13 +77,18 @@ fn test_counter_ok_registry_returns_counter_happy() {
         .counter(CounterLookupRequest { name: "c".into() })
         .expect("counter should succeed")
         .counter;
-    assert_eq!(counter.increment(IncrementRequest { delta: 1 }), Ok(IncrementResponse));
+    assert_eq!(
+        counter.increment(IncrementRequest { delta: 1 }),
+        Ok(IncrementResponse)
+    );
 }
 
 /// @covers: MetricRegistry::counter — failure propagates
 #[test]
 fn test_counter_failing_registry_returns_err_error() {
-    assert!(FailingRegistry.counter(CounterLookupRequest { name: "c".into() }).is_err());
+    assert!(FailingRegistry
+        .counter(CounterLookupRequest { name: "c".into() })
+        .is_err());
 }
 
 /// @covers: MetricRegistry::counter — empty name accepted
@@ -84,7 +98,10 @@ fn test_counter_empty_name_returns_counter_edge() {
         .counter(CounterLookupRequest { name: "".into() })
         .expect("counter should succeed")
         .counter;
-    assert_eq!(counter.increment(IncrementRequest { delta: 1 }), Ok(IncrementResponse));
+    assert_eq!(
+        counter.increment(IncrementRequest { delta: 1 }),
+        Ok(IncrementResponse)
+    );
 }
 
 /// @covers: MetricRegistry::histogram — success
@@ -128,13 +145,18 @@ fn test_gauge_ok_registry_returns_gauge_happy() {
         .gauge(GaugeLookupRequest { name: "g".into() })
         .expect("gauge should succeed")
         .gauge;
-    assert_eq!(gauge.set(GaugeSetRequest { value: 1.0 }), Ok(GaugeSetResponse));
+    assert_eq!(
+        gauge.set(GaugeSetRequest { value: 1.0 }),
+        Ok(GaugeSetResponse)
+    );
 }
 
 /// @covers: MetricRegistry::gauge — failure propagates
 #[test]
 fn test_gauge_failing_registry_returns_err_error() {
-    assert!(FailingRegistry.gauge(GaugeLookupRequest { name: "g".into() }).is_err());
+    assert!(FailingRegistry
+        .gauge(GaugeLookupRequest { name: "g".into() })
+        .is_err());
 }
 
 /// @covers: MetricRegistry::gauge — empty name accepted
@@ -144,5 +166,8 @@ fn test_gauge_empty_name_returns_gauge_edge() {
         .gauge(GaugeLookupRequest { name: "".into() })
         .expect("gauge should succeed")
         .gauge;
-    assert_eq!(gauge.set(GaugeSetRequest { value: 1.0 }), Ok(GaugeSetResponse));
+    assert_eq!(
+        gauge.set(GaugeSetRequest { value: 1.0 }),
+        Ok(GaugeSetResponse)
+    );
 }

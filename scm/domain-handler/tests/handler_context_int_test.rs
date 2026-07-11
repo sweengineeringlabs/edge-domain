@@ -3,11 +3,21 @@
 
 use edge_domain_command::DirectCommandBus;
 use edge_domain_handler::{
-    CommandDispatchRequest, HandlerContext, ObserverContextAdapter, SpanFinishRequest,
-    SpanStartRequest, TracerRequest,
+    CommandDispatchRequest, HandlerContext, ObserverContextAdapter, SecurityPrincipal,
+    SpanFinishRequest, SpanStartRequest, TracerRequest,
 };
 use edge_domain_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
+
+/// Identity pointer for a `&dyn SecurityPrincipal`, so tests can assert `HandlerContext`
+/// carries the same principal through without exposing the concrete `SecurityContext` type.
+fn principal_ptr(p: &dyn SecurityPrincipal) -> *const () {
+    p as *const dyn SecurityPrincipal as *const ()
+}
+
+fn security_ptr(security: &SecurityContext) -> *const () {
+    security as *const SecurityContext as *const ()
+}
 
 /// @covers: HandlerContext — constructs with unauthenticated security and direct bus
 #[test]
@@ -22,7 +32,7 @@ fn test_handler_context_constructs_with_unauthenticated_security_happy() {
         observer: &observer_adapter,
     };
     // Verify the context holds a reference to the same security object
-    assert!(std::ptr::eq(ctx.security, &security));
+    assert!(principal_ptr(ctx.security) == security_ptr(&security));
 }
 
 /// @covers: HandlerContext::commands — dispatch on direct bus succeeds
@@ -40,12 +50,11 @@ fn test_handler_context_commands_field_is_accessible_error() {
         commands: &bus,
         observer: &observer_adapter,
     };
-    let result = block_on(
-        ctx.commands
-            .dispatch(CommandDispatchRequest { command: Box::new(NoopCommand) }),
-    );
+    let result = block_on(ctx.commands.dispatch(CommandDispatchRequest {
+        command: Box::new(NoopCommand),
+    }));
     assert!(result.is_ok());
-    assert!(std::ptr::eq(ctx.security, &security));
+    assert!(principal_ptr(ctx.security) == security_ptr(&security));
 }
 
 /// @covers: HandlerContext — Copy semantics allow multiple uses without move
@@ -61,8 +70,8 @@ fn test_handler_context_is_copy_edge() {
         observer: &observer_adapter,
     };
     let ctx2 = ctx;
-    assert!(std::ptr::eq(ctx.security, &security));
-    assert!(std::ptr::eq(ctx2.security, &security));
+    assert!(principal_ptr(ctx.security) == security_ptr(&security));
+    assert!(principal_ptr(ctx2.security) == security_ptr(&security));
 }
 
 /// @covers: HandlerContext::observer — returns bound ObserverContext
@@ -89,7 +98,7 @@ fn test_observer_returns_bound_observe_context_happy() {
         .span
         .finish(SpanFinishRequest)
         .unwrap();
-    assert!(std::ptr::eq(ctx.security, &security));
+    assert!(principal_ptr(ctx.security) == security_ptr(&security));
 }
 
 /// @covers: HandlerContext::observer — tracer usable across multiple spans
@@ -118,7 +127,7 @@ fn test_observer_tracer_usable_after_construction_happy() {
             .finish(SpanFinishRequest)
             .unwrap();
     }
-    assert!(std::ptr::eq(ctx.security, &security));
+    assert!(principal_ptr(ctx.security) == security_ptr(&security));
 }
 
 /// @covers: HandlerContext::observer — empty span ids do not panic
@@ -145,7 +154,7 @@ fn test_observer_empty_span_ids_no_panic_error() {
         .span
         .finish(SpanFinishRequest)
         .unwrap();
-    assert!(std::ptr::eq(ctx.security, &security));
+    assert!(principal_ptr(ctx.security) == security_ptr(&security));
 }
 
 /// @covers: HandlerContext — Copy semantics preserved with observer field
@@ -185,5 +194,5 @@ fn test_handler_context_with_observer_is_copy_edge() {
         .span
         .finish(SpanFinishRequest)
         .unwrap();
-    assert!(std::ptr::eq(ctx.security, &security));
+    assert!(principal_ptr(ctx.security) == security_ptr(&security));
 }

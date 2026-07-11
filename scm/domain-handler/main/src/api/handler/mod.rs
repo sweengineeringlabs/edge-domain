@@ -14,8 +14,8 @@ pub use errors::HandlerError;
 pub use in_process_handler_registry::InProcessHandlerRegistry;
 pub use traits::{
     Command, CommandBus, Counter, Gauge, Handler, HandlerRegistry, HandlerTracer, Histogram,
-    IntoHandler, LogDrain, MetricRegistry, ObserverContext, RegistryBridge, ServiceBridge,
-    ServiceHandler, Span, Validator,
+    IntoHandler, LogDrain, MetricRegistry, ObserverContext, RegistryBridge, SecurityPrincipal,
+    Service, ServiceBridge, ServiceHandler, ServiceRegistry, Span, Validator,
 };
 pub use types::{
     BridgeRequest, BridgeResponse, CommandBusAdapter, CommandDispatchRequest,
@@ -27,9 +27,10 @@ pub use types::{
     HistogramLookupRequest, HistogramLookupResponse, HistogramRecordRequest,
     HistogramRecordResponse, IdRequest, IdResponse, IncrementRequest, IncrementResponse,
     IntoHandlerRequest, IntoHandlerResponse, LenRequest, LenResponse, ListIdsRequest,
-    ListIdsResponse, LogEmitRequest, LogEmitResponse, MetricsRequest, MetricsResponse,
-    ObserverContextAdapter, PatternRequest, PatternResponse, RegisterHandlerRequest,
-    RegisterHandlerResponse, SpanAnnotationRequest, SpanAnnotationResponse, SpanFinishRequest,
-    SpanFinishResponse, SpanStartRequest, SpanStartResponse, StdRegistryBridge, TracerRequest,
-    TracerResponse, ValidatorRequest,
+    ListIdsResponse, ListNamesRequest, ListNamesResponse, LogEmitRequest, LogEmitResponse,
+    MetricsRequest, MetricsResponse, ObserverContextAdapter, PatternRequest, PatternResponse,
+    RegisterHandlerRequest, RegisterHandlerResponse, ServiceLookupRequest, ServiceLookupResponse,
+    SpanAnnotationRequest, SpanAnnotationResponse, SpanFinishRequest, SpanFinishResponse,
+    SpanStartRequest, SpanStartResponse, StdRegistryBridge, TracerRequest, TracerResponse,
+    ValidatorRequest,
 };

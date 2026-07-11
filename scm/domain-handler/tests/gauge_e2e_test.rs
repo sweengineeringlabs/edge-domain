@@ -20,7 +20,10 @@ impl Gauge for FailingGauge {
 /// @covers: Gauge::set — success
 #[test]
 fn test_set_ok_gauge_returns_ok_happy() {
-    assert_eq!(OkGauge.set(GaugeSetRequest { value: 1.5 }), Ok(GaugeSetResponse));
+    assert_eq!(
+        OkGauge.set(GaugeSetRequest { value: 1.5 }),
+        Ok(GaugeSetResponse)
+    );
 }
 
 /// @covers: Gauge::set — failure propagates
@@ -32,5 +35,8 @@ fn test_set_failing_gauge_returns_err_error() {
 /// @covers: Gauge::set — negative values accepted
 #[test]
 fn test_set_negative_value_returns_ok_edge() {
-    assert_eq!(OkGauge.set(GaugeSetRequest { value: -1.0 }), Ok(GaugeSetResponse));
+    assert_eq!(
+        OkGauge.set(GaugeSetRequest { value: -1.0 }),
+        Ok(GaugeSetResponse)
+    );
 }

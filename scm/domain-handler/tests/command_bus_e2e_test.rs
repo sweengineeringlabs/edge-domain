@@ -1,7 +1,9 @@
 //! SAF facade tests — `CommandBus` trait.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_handler::{Command, CommandBus, CommandDispatchRequest, CommandExecutionRequest, HandlerError};
+use edge_domain_handler::{
+    Command, CommandBus, CommandDispatchRequest, CommandExecutionRequest, HandlerError,
+};
 use futures::executor::block_on;
 
 struct OkCmd;
@@ -9,7 +11,8 @@ impl Command for OkCmd {
     fn execute(
         &self,
         _req: CommandExecutionRequest,
-    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<(), HandlerError>> + Send + '_>> {
+    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<(), HandlerError>> + Send + '_>>
+    {
         Box::pin(async { Ok(()) })
     }
 }
@@ -19,7 +22,8 @@ impl CommandBus for EchoBus {
     fn dispatch(
         &self,
         req: CommandDispatchRequest,
-    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<(), HandlerError>> + Send + '_>> {
+    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<(), HandlerError>> + Send + '_>>
+    {
         Box::pin(async move { req.command.execute(CommandExecutionRequest).await })
     }
 }
@@ -29,7 +33,8 @@ impl CommandBus for FailingBus {
     fn dispatch(
         &self,
         _req: CommandDispatchRequest,
-    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<(), HandlerError>> + Send + '_>> {
+    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<(), HandlerError>> + Send + '_>>
+    {
         Box::pin(async { Err(HandlerError::ExecutionFailed("bus down".into())) })
     }
 }
@@ -57,11 +62,15 @@ fn test_dispatch_failing_bus_returns_err_error() {
 fn test_dispatch_repeated_calls_are_independent_edge() {
     let bus = EchoBus;
     assert_eq!(
-        block_on(bus.dispatch(CommandDispatchRequest { command: Box::new(OkCmd) })),
+        block_on(bus.dispatch(CommandDispatchRequest {
+            command: Box::new(OkCmd)
+        })),
         Ok(())
     );
     assert_eq!(
-        block_on(bus.dispatch(CommandDispatchRequest { command: Box::new(OkCmd) })),
+        block_on(bus.dispatch(CommandDispatchRequest {
+            command: Box::new(OkCmd)
+        })),
         Ok(())
     );
 }
@@ -87,8 +96,9 @@ fn test_wrap_erased_reference_propagates_errors_error() {
         fn execute(
             &self,
             _req: CommandExecutionRequest,
-        ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<(), HandlerError>> + Send + '_>>
-        {
+        ) -> std::pin::Pin<
+            Box<dyn std::future::Future<Output = Result<(), HandlerError>> + Send + '_>,
+        > {
             Box::pin(async { Err(HandlerError::ExecutionFailed("denied".into())) })
         }
     }
@@ -104,11 +114,15 @@ fn test_wrap_adapter_reusable_edge() {
     let bus = edge_domain_command::DirectCommandBus;
     let adapter = EchoBus::wrap(&bus as &dyn edge_domain_command::CommandBus);
     assert_eq!(
-        block_on(adapter.dispatch(CommandDispatchRequest { command: Box::new(OkCmd) })),
+        block_on(adapter.dispatch(CommandDispatchRequest {
+            command: Box::new(OkCmd)
+        })),
         Ok(())
     );
     assert_eq!(
-        block_on(adapter.dispatch(CommandDispatchRequest { command: Box::new(OkCmd) })),
+        block_on(adapter.dispatch(CommandDispatchRequest {
+            command: Box::new(OkCmd)
+        })),
         Ok(())
     );
 }

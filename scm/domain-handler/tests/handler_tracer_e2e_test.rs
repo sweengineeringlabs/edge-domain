@@ -42,7 +42,10 @@ fn req(handler_id: &str) -> SpanStartRequest {
 /// @covers: HandlerTracer::start_span — success
 #[test]
 fn test_start_span_ok_tracer_returns_span_happy() {
-    let span = OkTracer.start_span(req("h")).expect("start_span should succeed").span;
+    let span = OkTracer
+        .start_span(req("h"))
+        .expect("start_span should succeed")
+        .span;
     assert_eq!(span.finish(SpanFinishRequest), Ok(SpanFinishResponse));
 }
 
@@ -55,6 +58,9 @@ fn test_start_span_failing_tracer_returns_err_error() {
 /// @covers: HandlerTracer::start_span — empty handler id accepted
 #[test]
 fn test_start_span_empty_handler_id_returns_span_edge() {
-    let span = OkTracer.start_span(req("")).expect("start_span should succeed").span;
+    let span = OkTracer
+        .start_span(req(""))
+        .expect("start_span should succeed")
+        .span;
     assert_eq!(span.finish(SpanFinishRequest), Ok(SpanFinishResponse));
 }

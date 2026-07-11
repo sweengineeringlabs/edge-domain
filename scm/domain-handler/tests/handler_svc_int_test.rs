@@ -4,8 +4,8 @@
 use async_trait::async_trait;
 use edge_domain_command::{CommandBus, DirectCommandBus};
 use edge_domain_handler::{
-    CommandBusAdapter, ExecutionRequest, Handler, HandlerContext, HandlerError,
-    HealthCheckRequest, IdRequest, ObserverContextAdapter, PatternRequest,
+    CommandBusAdapter, ExecutionRequest, Handler, HandlerContext, HandlerError, HealthCheckRequest,
+    IdRequest, ObserverContextAdapter, PatternRequest,
 };
 use edge_domain_observer::{ObserverContext, StdObserveFactory};
 use edge_security_runtime::SecurityContext;

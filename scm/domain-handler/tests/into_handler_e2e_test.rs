@@ -8,8 +8,8 @@ use edge_domain_handler::{
     ObserverContextAdapter, Validator, ValidatorRequest,
 };
 use edge_domain_observer::StdObserveFactory;
-use edge_security_runtime::SecurityContext;
 use edge_domain_service::{NameRequest, NameResponse, Service, ServiceError};
+use edge_security_runtime::SecurityContext;
 use futures::future::BoxFuture;
 
 fn make_ctx<'a>(

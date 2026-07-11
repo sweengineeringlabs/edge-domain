@@ -3,23 +3,30 @@
 
 use edge_domain_observer as obs;
 
+use super::local_handler_tracer_ref::LocalHandlerTracerRef;
+use super::local_log_drain_ref::LocalLogDrainRef;
+use super::local_metric_registry_ref::LocalMetricRegistryRef;
 use crate::api::HandlerError;
 use crate::api::{Counter, CounterLookupRequest, CounterLookupResponse};
 use crate::api::{DrainRequest, DrainResponse};
-use crate::api::{Gauge, GaugeLookupRequest, GaugeLookupResponse, GaugeSetRequest, GaugeSetResponse};
+use crate::api::{
+    Gauge, GaugeLookupRequest, GaugeLookupResponse, GaugeSetRequest, GaugeSetResponse,
+};
+use crate::api::{HandlerTracer, MetricRegistry, ObserverContext};
 use crate::api::{
     Histogram, HistogramLookupRequest, HistogramLookupResponse, HistogramRecordRequest,
     HistogramRecordResponse,
 };
-use crate::api::{HandlerTracer, MetricRegistry, ObserverContext};
 use crate::api::{IncrementRequest, IncrementResponse};
 use crate::api::{LogDrain, LogEmitRequest, LogEmitResponse};
 use crate::api::{MetricsRequest, MetricsResponse};
-use crate::api::{Span, SpanAnnotationRequest, SpanAnnotationResponse, SpanFinishRequest, SpanFinishResponse};
+use crate::api::{
+    Span, SpanAnnotationRequest, SpanAnnotationResponse, SpanFinishRequest, SpanFinishResponse,
+};
 use crate::api::{SpanStartRequest, SpanStartResponse, TracerRequest, TracerResponse};
 
 /// Converts a real [`obs::ObserveError`] into the local [`HandlerError`].
-trait IntoHandlerError {
+pub(super) trait IntoHandlerError {
     fn into_handler_error(self) -> HandlerError;
 }
 
@@ -88,62 +95,6 @@ impl<T: obs::LogDrain + ?Sized> LogDrain for T {
     }
 }
 
-/// Adapter wrapping an owned real `Span` as a local [`Span`].
-struct SpanAdapter(Box<dyn obs::Span>);
-
-impl Span for SpanAdapter {
-    fn record(&self, req: SpanAnnotationRequest) -> Result<SpanAnnotationResponse, HandlerError> {
-        obs::Span::record(
-            self.0.as_ref(),
-            obs::SpanAnnotationRequest {
-                key: req.key,
-                value: req.value,
-            },
-        )
-        .map(|_| SpanAnnotationResponse)
-        .map_err(IntoHandlerError::into_handler_error)
-    }
-
-    fn finish(&self, _req: SpanFinishRequest) -> Result<SpanFinishResponse, HandlerError> {
-        obs::Span::finish(self.0.as_ref(), obs::SpanFinishRequest)
-            .map(|_| SpanFinishResponse)
-            .map_err(IntoHandlerError::into_handler_error)
-    }
-}
-
-/// Adapter wrapping an owned real `Counter` as a local [`Counter`].
-struct CounterAdapter(Box<dyn obs::Counter>);
-
-impl Counter for CounterAdapter {
-    fn increment(&self, req: IncrementRequest) -> Result<IncrementResponse, HandlerError> {
-        obs::Counter::increment(self.0.as_ref(), obs::IncrementRequest { delta: req.delta })
-            .map(|_| IncrementResponse)
-            .map_err(IntoHandlerError::into_handler_error)
-    }
-}
-
-/// Adapter wrapping an owned real `Gauge` as a local [`Gauge`].
-struct GaugeAdapter(Box<dyn obs::Gauge>);
-
-impl Gauge for GaugeAdapter {
-    fn set(&self, req: GaugeSetRequest) -> Result<GaugeSetResponse, HandlerError> {
-        obs::Gauge::set(self.0.as_ref(), obs::GaugeSetRequest { value: req.value })
-            .map(|_| GaugeSetResponse)
-            .map_err(IntoHandlerError::into_handler_error)
-    }
-}
-
-/// Adapter wrapping an owned real `Histogram` as a local [`Histogram`].
-struct HistogramAdapter(Box<dyn obs::Histogram>);
-
-impl Histogram for HistogramAdapter {
-    fn record(&self, req: HistogramRecordRequest) -> Result<HistogramRecordResponse, HandlerError> {
-        obs::Histogram::record(self.0.as_ref(), obs::HistogramRecordRequest { value: req.value })
-            .map(|_| HistogramRecordResponse)
-            .map_err(IntoHandlerError::into_handler_error)
-    }
-}
-
 impl<T: obs::HandlerTracer + ?Sized> HandlerTracer for T {
     fn start_span(&self, req: SpanStartRequest) -> Result<SpanStartResponse, HandlerError> {
         let resp = obs::HandlerTracer::start_span(
@@ -155,7 +106,7 @@ impl<T: obs::HandlerTracer + ?Sized> HandlerTracer for T {
         )
         .map_err(IntoHandlerError::into_handler_error)?;
         Ok(SpanStartResponse {
-            span: Box::new(SpanAdapter(resp.span)),
+            span: Box::new(super::local_span_adapter::LocalSpanAdapter(resp.span)),
         })
     }
 }
@@ -165,15 +116,23 @@ impl<T: obs::MetricRegistry + ?Sized> MetricRegistry for T {
         let resp = obs::MetricRegistry::counter(self, obs::CounterLookupRequest { name: req.name })
             .map_err(IntoHandlerError::into_handler_error)?;
         Ok(CounterLookupResponse {
-            counter: Box::new(CounterAdapter(resp.counter)),
+            counter: Box::new(super::local_counter_adapter::LocalCounterAdapter(
+                resp.counter,
+            )),
         })
     }
 
-    fn histogram(&self, req: HistogramLookupRequest) -> Result<HistogramLookupResponse, HandlerError> {
-        let resp = obs::MetricRegistry::histogram(self, obs::HistogramLookupRequest { name: req.name })
-            .map_err(IntoHandlerError::into_handler_error)?;
+    fn histogram(
+        &self,
+        req: HistogramLookupRequest,
+    ) -> Result<HistogramLookupResponse, HandlerError> {
+        let resp =
+            obs::MetricRegistry::histogram(self, obs::HistogramLookupRequest { name: req.name })
+                .map_err(IntoHandlerError::into_handler_error)?;
         Ok(HistogramLookupResponse {
-            histogram: Box::new(HistogramAdapter(resp.histogram)),
+            histogram: Box::new(super::local_histogram_adapter::LocalHistogramAdapter(
+                resp.histogram,
+            )),
         })
     }
 
@@ -181,101 +140,38 @@ impl<T: obs::MetricRegistry + ?Sized> MetricRegistry for T {
         let resp = obs::MetricRegistry::gauge(self, obs::GaugeLookupRequest { name: req.name })
             .map_err(IntoHandlerError::into_handler_error)?;
         Ok(GaugeLookupResponse {
-            gauge: Box::new(GaugeAdapter(resp.gauge)),
-        })
-    }
-}
-
-/// Adapter wrapping a borrowed real `HandlerTracer` reference as a local [`HandlerTracer`].
-struct HandlerTracerRef<'a>(&'a dyn obs::HandlerTracer);
-
-impl HandlerTracer for HandlerTracerRef<'_> {
-    fn start_span(&self, req: SpanStartRequest) -> Result<SpanStartResponse, HandlerError> {
-        let resp = obs::HandlerTracer::start_span(
-            self.0,
-            obs::SpanStartRequest {
-                handler_id: req.handler_id,
-                operation: req.operation,
-            },
-        )
-        .map_err(IntoHandlerError::into_handler_error)?;
-        Ok(SpanStartResponse {
-            span: Box::new(SpanAdapter(resp.span)),
-        })
-    }
-}
-
-/// Adapter wrapping a borrowed real `LogDrain` reference as a local [`LogDrain`].
-struct LogDrainRef<'a>(&'a dyn obs::LogDrain);
-
-impl LogDrain for LogDrainRef<'_> {
-    fn emit(&self, req: LogEmitRequest) -> Result<LogEmitResponse, HandlerError> {
-        obs::LogDrain::emit(
-            self.0,
-            obs::LogEmitRequest {
-                level: req.level,
-                handler_id: req.handler_id,
-                message: req.message,
-            },
-        )
-        .map(|_| LogEmitResponse)
-        .map_err(IntoHandlerError::into_handler_error)
-    }
-}
-
-/// Adapter wrapping a borrowed real `MetricRegistry` reference as a local [`MetricRegistry`].
-struct MetricRegistryRef<'a>(&'a dyn obs::MetricRegistry);
-
-impl MetricRegistry for MetricRegistryRef<'_> {
-    fn counter(&self, req: CounterLookupRequest) -> Result<CounterLookupResponse, HandlerError> {
-        let resp = obs::MetricRegistry::counter(self.0, obs::CounterLookupRequest { name: req.name })
-            .map_err(IntoHandlerError::into_handler_error)?;
-        Ok(CounterLookupResponse {
-            counter: Box::new(CounterAdapter(resp.counter)),
-        })
-    }
-
-    fn histogram(&self, req: HistogramLookupRequest) -> Result<HistogramLookupResponse, HandlerError> {
-        let resp =
-            obs::MetricRegistry::histogram(self.0, obs::HistogramLookupRequest { name: req.name })
-                .map_err(IntoHandlerError::into_handler_error)?;
-        Ok(HistogramLookupResponse {
-            histogram: Box::new(HistogramAdapter(resp.histogram)),
-        })
-    }
-
-    fn gauge(&self, req: GaugeLookupRequest) -> Result<GaugeLookupResponse, HandlerError> {
-        let resp = obs::MetricRegistry::gauge(self.0, obs::GaugeLookupRequest { name: req.name })
-            .map_err(IntoHandlerError::into_handler_error)?;
-        Ok(GaugeLookupResponse {
-            gauge: Box::new(GaugeAdapter(resp.gauge)),
+            gauge: Box::new(super::local_gauge_adapter::LocalGaugeAdapter(resp.gauge)),
         })
     }
 }
 
 impl<T: obs::ObserverContext + ?Sized> ObserverContext for T {
     fn tracer(&self, _req: TracerRequest) -> Result<TracerResponse<'_>, HandlerError> {
-        let resp = obs::ObserverContext::tracer(self, obs::TracerRequest).map_err(IntoHandlerError::into_handler_error)?;
+        let resp = obs::ObserverContext::tracer(self, obs::TracerRequest)
+            .map_err(IntoHandlerError::into_handler_error)?;
         Ok(TracerResponse {
-            tracer: Box::new(HandlerTracerRef(resp.tracer)),
+            tracer: Box::new(LocalHandlerTracerRef(resp.tracer)),
         })
     }
 
     fn drain(&self, _req: DrainRequest) -> Result<DrainResponse<'_>, HandlerError> {
-        let resp = obs::ObserverContext::drain(self, obs::DrainRequest).map_err(IntoHandlerError::into_handler_error)?;
+        let resp = obs::ObserverContext::drain(self, obs::DrainRequest)
+            .map_err(IntoHandlerError::into_handler_error)?;
         Ok(DrainResponse {
-            drain: Box::new(LogDrainRef(resp.drain)),
+            drain: Box::new(LocalLogDrainRef(resp.drain)),
         })
     }
 
     fn metrics(&self, _req: MetricsRequest) -> Result<MetricsResponse<'_>, HandlerError> {
-        let resp = obs::ObserverContext::metrics(self, obs::MetricsRequest).map_err(IntoHandlerError::into_handler_error)?;
+        let resp = obs::ObserverContext::metrics(self, obs::MetricsRequest)
+            .map_err(IntoHandlerError::into_handler_error)?;
         Ok(MetricsResponse {
-            metrics: Box::new(MetricRegistryRef(resp.metrics)),
+            metrics: Box::new(LocalMetricRegistryRef(resp.metrics)),
         })
     }
 }
 
+#[rustfmt::skip]
 impl<T: obs::ObserverContext + ?Sized> ObserverContext for crate::api::ObserverContextAdapter<'_, T> {
     fn tracer(&self, req: TracerRequest) -> Result<TracerResponse<'_>, HandlerError> {
         ObserverContext::tracer(self.0, req)
@@ -297,9 +193,20 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_into_handler_error_converts_observe_error_message_happy() {
+        let err = obs::ObserveError::BackendUnavailable("timeout".to_string());
+        assert_eq!(
+            err.into_handler_error(),
+            HandlerError::ExecutionFailed("observe backend unavailable: timeout".to_string())
+        );
+    }
+
+    #[test]
     fn test_span_bridge_record_via_noop_returns_ok_happy() {
         let observer = StdObserveFactory::noop_observer_context();
-        let tracer = ObserverContext::tracer(observer.as_ref(), TracerRequest).unwrap().tracer;
+        let tracer = ObserverContext::tracer(observer.as_ref(), TracerRequest)
+            .unwrap()
+            .tracer;
         let span = tracer
             .start_span(SpanStartRequest {
                 handler_id: "h".into(),
@@ -335,18 +242,25 @@ mod tests {
     #[test]
     fn test_counter_bridge_increment_via_noop_returns_ok_error() {
         let observer = StdObserveFactory::noop_observer_context();
-        let metrics = ObserverContext::metrics(observer.as_ref(), MetricsRequest).unwrap().metrics;
+        let metrics = ObserverContext::metrics(observer.as_ref(), MetricsRequest)
+            .unwrap()
+            .metrics;
         let counter = metrics
             .counter(CounterLookupRequest { name: "c".into() })
             .unwrap()
             .counter;
-        assert_eq!(counter.increment(IncrementRequest { delta: 1 }), Ok(IncrementResponse));
+        assert_eq!(
+            counter.increment(IncrementRequest { delta: 1 }),
+            Ok(IncrementResponse)
+        );
     }
 
     #[test]
     fn test_observer_context_drain_via_noop_emits_ok_edge() {
         let observer = StdObserveFactory::noop_observer_context();
-        let drain = ObserverContext::drain(observer.as_ref(), DrainRequest).unwrap().drain;
+        let drain = ObserverContext::drain(observer.as_ref(), DrainRequest)
+            .unwrap()
+            .drain;
         assert_eq!(
             drain.emit(LogEmitRequest {
                 level: "info".into(),

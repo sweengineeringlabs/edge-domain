@@ -6,7 +6,10 @@ use futures::executor::block_on;
 
 struct Ping(String);
 impl Command for Ping {
-    fn name(&self, _req: CommandNameRequest) -> Result<edge_domain_handler::CommandNameResponse, HandlerError> {
+    fn name(
+        &self,
+        _req: CommandNameRequest,
+    ) -> Result<edge_domain_handler::CommandNameResponse, HandlerError> {
         Ok(edge_domain_handler::CommandNameResponse {
             name: self.0.clone(),
         })
@@ -14,7 +17,8 @@ impl Command for Ping {
     fn execute(
         &self,
         _req: CommandExecutionRequest,
-    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<(), HandlerError>> + Send + '_>> {
+    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<(), HandlerError>> + Send + '_>>
+    {
         Box::pin(async { Ok(()) })
     }
 }
@@ -24,7 +28,8 @@ impl Command for Fails {
     fn execute(
         &self,
         _req: CommandExecutionRequest,
-    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<(), HandlerError>> + Send + '_>> {
+    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<(), HandlerError>> + Send + '_>>
+    {
         Box::pin(async { Err(HandlerError::ExecutionFailed("denied".into())) })
     }
 }
@@ -32,7 +37,9 @@ impl Command for Fails {
 /// @covers: Command::name — configured name returned
 #[test]
 fn test_name_configured_value_returned_happy() {
-    let response = Ping("create".into()).name(CommandNameRequest).expect("name should succeed");
+    let response = Ping("create".into())
+        .name(CommandNameRequest)
+        .expect("name should succeed");
     assert_eq!(response.name, "create");
 }
 
@@ -54,7 +61,10 @@ fn test_name_via_dyn_dispatch_returns_name_edge() {
 /// @covers: Command::execute — success
 #[test]
 fn test_execute_ok_command_returns_ok_happy() {
-    assert_eq!(block_on(Ping("ok".into()).execute(CommandExecutionRequest)), Ok(()));
+    assert_eq!(
+        block_on(Ping("ok".into()).execute(CommandExecutionRequest)),
+        Ok(())
+    );
 }
 
 /// @covers: Command::execute — failure propagates

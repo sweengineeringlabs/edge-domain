@@ -16,7 +16,10 @@ pub trait MetricRegistry: Send + Sync {
     fn counter(&self, req: CounterLookupRequest) -> Result<CounterLookupResponse, HandlerError>;
 
     /// Return a histogram for `name`.
-    fn histogram(&self, req: HistogramLookupRequest) -> Result<HistogramLookupResponse, HandlerError>;
+    fn histogram(
+        &self,
+        req: HistogramLookupRequest,
+    ) -> Result<HistogramLookupResponse, HandlerError>;
 
     /// Return a gauge for `name`.
     fn gauge(&self, req: GaugeLookupRequest) -> Result<GaugeLookupResponse, HandlerError>;

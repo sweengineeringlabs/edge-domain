@@ -1,19 +1,29 @@
 //! SAF facade tests — `Histogram` trait.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_handler::{HandlerError, Histogram, HistogramRecordRequest, HistogramRecordResponse};
+use edge_domain_handler::{
+    HandlerError, Histogram, HistogramRecordRequest, HistogramRecordResponse,
+};
 
 struct OkHistogram;
 impl Histogram for OkHistogram {
-    fn record(&self, _req: HistogramRecordRequest) -> Result<HistogramRecordResponse, HandlerError> {
+    fn record(
+        &self,
+        _req: HistogramRecordRequest,
+    ) -> Result<HistogramRecordResponse, HandlerError> {
         Ok(HistogramRecordResponse)
     }
 }
 
 struct FailingHistogram;
 impl Histogram for FailingHistogram {
-    fn record(&self, _req: HistogramRecordRequest) -> Result<HistogramRecordResponse, HandlerError> {
-        Err(HandlerError::ExecutionFailed("histogram unavailable".into()))
+    fn record(
+        &self,
+        _req: HistogramRecordRequest,
+    ) -> Result<HistogramRecordResponse, HandlerError> {
+        Err(HandlerError::ExecutionFailed(
+            "histogram unavailable".into(),
+        ))
     }
 }
 

@@ -3,9 +3,6 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain_service::ListNamesRequest;
-use edge_domain_service::Service;
-use edge_domain_service::ServiceLookupRequest;
 
 use crate::api::BridgeRequest;
 use crate::api::BridgeResponse;
@@ -14,8 +11,11 @@ use crate::api::Handler;
 use crate::api::HandlerError;
 use crate::api::IdRequest;
 use crate::api::IdResponse;
+use crate::api::ListNamesRequest;
 use crate::api::RegisterHandlerRequest;
 use crate::api::RegistryBridge;
+use crate::api::Service;
+use crate::api::ServiceLookupRequest;
 use crate::api::StdRegistryBridge;
 
 struct StdRegistryBridgeHandler<Req, Resp>
@@ -54,10 +54,7 @@ where
 
     #[allow(clippy::missing_errors_doc)]
     async fn execute(&self, req: ExecutionRequest<'_, Req>) -> Result<Resp, HandlerError> {
-        self.inner
-            .execute(req.req)
-            .await
-            .map_err(HandlerError::from)
+        self.inner.execute(req.req).await
     }
 }
 
@@ -74,7 +71,7 @@ impl RegistryBridge for StdRegistryBridge {
         let count = names.len();
         for name in names {
             let lookup = ServiceLookupRequest { name: name.clone() };
-            if let Some(svc) = req.src.get(&lookup)?.service {
+            if let Some(svc) = req.src.get(lookup)?.service {
                 req.dst.register(RegisterHandlerRequest::new(Arc::new(
                     StdRegistryBridgeHandler::new(name, svc),
                 )))?;
@@ -90,11 +87,11 @@ mod tests {
 
     use edge_domain_command::DirectCommandBus;
     use edge_domain_observer::StdObserveFactory;
-    use edge_security_runtime::SecurityContext;
     use edge_domain_service::{
         NoopService, RegisterServiceRequest as RegisterServiceRequestSvc,
         ServiceRegistry as ServiceRegistryTraitSvc, ServiceRegistryStore,
     };
+    use edge_security_runtime::SecurityContext;
     use futures::executor::block_on;
 
     use super::StdRegistryBridgeHandler;

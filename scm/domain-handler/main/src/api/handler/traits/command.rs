@@ -4,7 +4,9 @@ use std::future::Future;
 use std::pin::Pin;
 
 use crate::api::handler::errors::HandlerError;
-use crate::api::handler::types::{CommandExecutionRequest, CommandNameRequest, CommandNameResponse};
+use crate::api::handler::types::{
+    CommandExecutionRequest, CommandNameRequest, CommandNameResponse,
+};
 
 /// A named write operation that mutates domain state and returns no value.
 ///

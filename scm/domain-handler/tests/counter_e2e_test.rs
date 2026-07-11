@@ -29,7 +29,9 @@ fn test_increment_ok_counter_returns_ok_happy() {
 /// @covers: Counter::increment — failure propagates
 #[test]
 fn test_increment_failing_counter_returns_err_error() {
-    assert!(FailingCounter.increment(IncrementRequest { delta: 1 }).is_err());
+    assert!(FailingCounter
+        .increment(IncrementRequest { delta: 1 })
+        .is_err());
 }
 
 /// @covers: Counter::increment — zero delta is accepted
