@@ -1,6 +1,7 @@
 //! `Application` trait — the boot gate for an edge application.
 
-use futures::future::BoxFuture;
+use std::future::Future;
+use std::pin::Pin;
 
 use crate::api::AppError;
 use crate::api::NoopApplication;
@@ -22,7 +23,7 @@ pub trait Application: Send + Sync {
     fn run(
         &self,
         req: ApplicationRunRequest,
-    ) -> BoxFuture<'_, Result<ApplicationRunResponse, AppError>>;
+    ) -> Pin<Box<dyn Future<Output = Result<ApplicationRunResponse, AppError>> + Send + '_>>;
 
     /// Return a no-operation application for testing or default wiring.
     fn noop() -> NoopApplication

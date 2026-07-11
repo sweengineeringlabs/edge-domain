@@ -65,7 +65,7 @@ impl Saga for PulseSaga {
 #[test]
 fn test_in_memory_saga_store_stores_and_retrieves_saga() {
     let mut store: Box<dyn SagaStore<SagaInstance = PulseSaga>> =
-        Domain::new_in_memory_saga_store::<PulseSaga>();
+        Domain.new_in_memory_saga_store::<PulseSaga>();
     store
         .register(SagaRegisterRequest {
             id: "p1".to_string(),
@@ -81,7 +81,7 @@ fn test_in_memory_saga_store_stores_and_retrieves_saga() {
 #[test]
 fn test_in_memory_saga_store_rejects_duplicate_registration() {
     let mut store: Box<dyn SagaStore<SagaInstance = PulseSaga>> =
-        Domain::new_in_memory_saga_store::<PulseSaga>();
+        Domain.new_in_memory_saga_store::<PulseSaga>();
     store
         .register(SagaRegisterRequest {
             id: "p1".to_string(),
@@ -103,7 +103,7 @@ fn test_in_memory_saga_store_rejects_duplicate_registration() {
 #[test]
 fn test_in_memory_saga_store_lookup_of_unknown_id_is_not_found() {
     let store: Box<dyn SagaStore<SagaInstance = PulseSaga>> =
-        Domain::new_in_memory_saga_store::<PulseSaga>();
+        Domain.new_in_memory_saga_store::<PulseSaga>();
     let id = "unknown".to_string();
     assert_eq!(
         store.get(SagaGetRequest { id: &id }).unwrap_err(),

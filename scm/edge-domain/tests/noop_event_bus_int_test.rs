@@ -1,5 +1,7 @@
 //! Coverage for api/event/types/noop/noop_event_bus.rs
 #![allow(clippy::unwrap_used, clippy::expect_used)]
+use edge_domain::DomainRuntime;
+use edge_domain::NoopEventBusRequest;
 use edge_domain::{
     Domain, EventBusPublishRequest, EventBusSubscribeRequest, EventSource,
     EventSourceRecvNextRequest, NoopEventBus,
@@ -19,7 +21,7 @@ fn test_noop_event_bus_publish_returns_ok() {
         use edge_domain::DomainEvent;
         struct AnyEvent;
         impl DomainEvent for AnyEvent {}
-        let bus = Domain::noop_event_bus();
+        let bus = Domain.noop_event_bus(NoopEventBusRequest).unwrap().bus;
         assert_eq!(
             bus.publish(EventBusPublishRequest {
                 event: Arc::new(AnyEvent)
@@ -33,7 +35,7 @@ fn test_noop_event_bus_publish_returns_ok() {
 #[test]
 fn test_noop_event_bus_subscribe_returns_closed_receiver() {
     block_on(async {
-        let bus = Domain::noop_event_bus();
+        let bus = Domain.noop_event_bus(NoopEventBusRequest).unwrap().bus;
         let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
         // noop bus receiver immediately signals unavailable
         assert!(rx.recv_next(EventSourceRecvNextRequest).await.is_err());

@@ -67,7 +67,7 @@ fn event(amount: u64) -> AmountReceived {
 fn tally_projection(
     initial: u64,
 ) -> Box<dyn Projection<Event = AmountReceived, ReadModel = Tally>> {
-    Domain::new_in_memory_projection::<AmountReceived, Tally, _>(
+    Domain.new_in_memory_projection::<AmountReceived, Tally, _>(
         Tally {
             total: initial,
             saturated: false,
@@ -80,15 +80,24 @@ fn tally_projection(
 }
 
 fn apply(p: &mut dyn Projection<Event = AmountReceived, ReadModel = Tally>, amount: u64) {
-    p.apply(ProjectionApplyRequest { event: &event(amount) }).expect("apply should succeed");
+    p.apply(ProjectionApplyRequest {
+        event: &event(amount),
+    })
+    .expect("apply should succeed");
 }
 
 fn total(p: &dyn Projection<Event = AmountReceived, ReadModel = Tally>) -> u64 {
-    p.read_model(ProjectionReadModelRequest).expect("read_model should succeed").read_model.total
+    p.read_model(ProjectionReadModelRequest)
+        .expect("read_model should succeed")
+        .read_model
+        .total
 }
 
 fn saturated(p: &dyn Projection<Event = AmountReceived, ReadModel = Tally>) -> bool {
-    p.read_model(ProjectionReadModelRequest).expect("read_model should succeed").read_model.saturated
+    p.read_model(ProjectionReadModelRequest)
+        .expect("read_model should succeed")
+        .read_model
+        .saturated
 }
 
 /// @covers: new_in_memory_projection
@@ -114,7 +123,10 @@ fn test_new_in_memory_projection_seeds_initial_value_edge() {
 fn test_new_in_memory_projection_overflowing_event_records_saturation_error() {
     let mut p = tally_projection(u64::MAX);
     apply(&mut *p, 1);
-    assert!(saturated(&*p), "overflow must be surfaced in the read model, not panic");
+    assert!(
+        saturated(&*p),
+        "overflow must be surfaced in the read model, not panic"
+    );
     assert_eq!(total(&*p), u64::MAX);
 }
 

@@ -1,4 +1,4 @@
-//! Integration tests for the `Repository` trait contract and `Domain::new_in_memory_repository()`.
+//! Integration tests for the `Repository` trait contract and `Domain.new_in_memory_repository()`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain::{
@@ -77,7 +77,7 @@ async fn test_repository_trait_save_propagates_error_from_impl() {
 /// @covers: new_in_memory_repository
 #[tokio::test]
 async fn test_new_in_memory_repository_save_and_find_round_trips_entity() {
-    let repo: Arc<dyn Repository<Entity = String, Id = u64>> = Domain::new_in_memory_repository();
+    let repo: Arc<dyn Repository<Entity = String, Id = u64>> = Domain.new_in_memory_repository();
     repo.save(RepositorySaveRequest {
         id: 1,
         entity: "hello".into(),
@@ -91,7 +91,7 @@ async fn test_new_in_memory_repository_save_and_find_round_trips_entity() {
 /// @covers: new_in_memory_repository
 #[tokio::test]
 async fn test_new_in_memory_repository_find_returns_none_for_missing_id() {
-    let repo: Arc<dyn Repository<Entity = String, Id = u64>> = Domain::new_in_memory_repository();
+    let repo: Arc<dyn Repository<Entity = String, Id = u64>> = Domain.new_in_memory_repository();
     let found = repo.find(RepositoryIdRequest { id: &99 }).await.unwrap();
     assert!(found.entity.is_none());
 }
@@ -99,7 +99,7 @@ async fn test_new_in_memory_repository_find_returns_none_for_missing_id() {
 /// @covers: new_in_memory_repository
 #[tokio::test]
 async fn test_new_in_memory_repository_delete_removes_entity() {
-    let repo: Arc<dyn Repository<Entity = String, Id = u64>> = Domain::new_in_memory_repository();
+    let repo: Arc<dyn Repository<Entity = String, Id = u64>> = Domain.new_in_memory_repository();
     repo.save(RepositorySaveRequest {
         id: 1,
         entity: "bye".into(),
@@ -123,7 +123,7 @@ async fn test_new_in_memory_repository_delete_removes_entity() {
 /// @covers: new_in_memory_repository
 #[tokio::test]
 async fn test_new_in_memory_repository_list_returns_all_saved_entities() {
-    let repo: Arc<dyn Repository<Entity = String, Id = u64>> = Domain::new_in_memory_repository();
+    let repo: Arc<dyn Repository<Entity = String, Id = u64>> = Domain.new_in_memory_repository();
     repo.save(RepositorySaveRequest {
         id: 1,
         entity: "a".into(),

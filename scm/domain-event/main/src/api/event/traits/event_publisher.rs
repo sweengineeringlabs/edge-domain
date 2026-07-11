@@ -1,6 +1,7 @@
 //! `EventPublisher` trait — fire-and-forget event publishing contract.
 
-use futures::future::BoxFuture;
+use std::future::Future;
+use std::pin::Pin;
 
 use crate::api::event::errors::EventError;
 use crate::api::event::types::EventPublisherPublishRequest;
@@ -11,5 +12,8 @@ use crate::api::event::types::EventPublisherPublishRequest;
 /// not need to receive events back.
 pub trait EventPublisher: Send + Sync {
     /// Publish one event.
-    fn publish(&self, req: EventPublisherPublishRequest<'_>) -> BoxFuture<'_, Result<(), EventError>>;
+    fn publish(
+        &self,
+        req: EventPublisherPublishRequest<'_>,
+    ) -> Pin<Box<dyn Future<Output = Result<(), EventError>> + Send + '_>>;
 }

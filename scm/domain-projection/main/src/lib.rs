@@ -13,9 +13,14 @@ mod saf;
 pub use api::InMemoryProjection;
 pub use api::ProjectionApplyRequest;
 pub use api::ProjectionError;
+pub use api::ProjectionEventDescribeRequest;
+pub use api::ProjectionEventDescribeResponse;
 pub use api::ProjectionReadModelRequest;
 pub use api::ProjectionReadModelResponse;
 pub use api::TryDrainRequest;
 pub use api::TryDrainResponse;
 pub use edge_domain_event::DomainEvent;
-pub use saf::{Projection, PROJECTION_SVC, PROJECTION_SVC_FACTORY};
+pub use saf::{
+    Projection, ProjectionEvent, PROJECTION_EVENT_SVC, PROJECTION_EVENT_SVC_FACTORY, PROJECTION_SVC,
+    PROJECTION_SVC_FACTORY,
+};

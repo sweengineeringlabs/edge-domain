@@ -1,6 +1,7 @@
 //! [`AppRuntime`] — the mandatory boot gate for an edge application.
 
-use futures::future::BoxFuture;
+use std::future::Future;
+use std::pin::Pin;
 
 use crate::api::app::types::{NameRequest, NameResponse, RuntimeBootRequest, RuntimeBootResponse};
 use crate::api::AppError;
@@ -26,7 +27,7 @@ pub trait AppRuntime: Send + Sync {
     fn boot<'a>(
         &'a self,
         req: RuntimeBootRequest<'a>,
-    ) -> BoxFuture<'a, Result<RuntimeBootResponse, AppError>>;
+    ) -> Pin<Box<dyn Future<Output = Result<RuntimeBootResponse, AppError>> + Send + 'a>>;
 
     /// Return the no-operation runtime for tests and default wiring.
     fn noop() -> NoopAppRuntime

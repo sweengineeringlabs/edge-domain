@@ -4,7 +4,9 @@
 use edge_domain::Command;
 use edge_domain::CommandBus;
 use edge_domain::CommandError;
+use edge_domain::DirectCommandBusRequest;
 use edge_domain::Domain;
+use edge_domain::DomainRuntime;
 use edge_domain_command::{CommandDispatchRequest, ExecutionRequest, NameRequest, NameResponse};
 
 struct Noop;
@@ -24,7 +26,10 @@ impl Command for Noop {
 
 #[tokio::test]
 async fn test_command_bus_svc_facade_dispatch_ok_command() {
-    let bus = Domain::direct_command_bus();
+    let bus = Domain
+        .direct_command_bus(DirectCommandBusRequest)
+        .unwrap()
+        .bus;
     assert!(bus
         .dispatch(CommandDispatchRequest {
             command: Box::new(Noop)
@@ -49,7 +54,10 @@ async fn test_command_bus_svc_facade_dispatch_failing_command() {
             Box::pin(async { Err(CommandError::InvalidInput("rejected".into())) })
         }
     }
-    let bus = Domain::direct_command_bus();
+    let bus = Domain
+        .direct_command_bus(DirectCommandBusRequest)
+        .unwrap()
+        .bus;
     assert!(bus
         .dispatch(CommandDispatchRequest {
             command: Box::new(Bad)

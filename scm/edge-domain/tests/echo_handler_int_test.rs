@@ -1,20 +1,25 @@
 //! Integration tests for `EchoHandler` and the `echo_handler` factory.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
+use edge_domain::DirectCommandBusRequest;
+use edge_domain::DomainRuntime;
 use edge_domain::{Domain, EchoHandler, Handler, HandlerContext};
-use edge_domain_handler::{ExecutionRequest, HealthCheckRequest, IdRequest, PatternRequest};
+use edge_domain_handler::{
+    CommandBusAdapter, ExecutionRequest, HealthCheckRequest, IdRequest, ObserverContextAdapter,
+    PatternRequest,
+};
 use edge_domain_observer::{ObserverContext, StdObserveFactory};
 use edge_security_runtime::SecurityContext;
 use std::sync::Arc;
 
 fn make_ctx<'a>(
     security: &'a SecurityContext,
-    bus: &'a Arc<dyn edge_domain::CommandBus>,
-    observer: &'a dyn ObserverContext,
+    bus: &'a CommandBusAdapter<'a, dyn edge_domain::CommandBus>,
+    observer: &'a ObserverContextAdapter<'a, dyn ObserverContext>,
 ) -> HandlerContext<'a> {
     HandlerContext {
         security,
-        commands: bus.as_ref(),
+        commands: bus,
         observer,
     }
 }
@@ -23,17 +28,23 @@ fn make_ctx<'a>(
 #[test]
 fn test_echo_handler_factory_returns_arc_handler() {
     let _: Arc<dyn Handler<Request = String, Response = String>> =
-        Domain::echo_handler("id", "/path");
+        Domain.echo_handler("id", "/path");
 }
 
 /// @covers: echo_handler
 #[tokio::test]
 async fn test_echo_handler_returns_request_as_response() {
-    let h = Domain::echo_handler::<String>("echo", "/echo");
+    let h = Domain.echo_handler::<String>("echo", "/echo");
     let security = SecurityContext::unauthenticated();
-    let bus = Domain::direct_command_bus();
+    let bus = Domain
+        .direct_command_bus(DirectCommandBusRequest)
+        .unwrap()
+        .bus;
+    let bus_erased: &dyn edge_domain::CommandBus = bus.as_ref();
+    let bus_adapter = CommandBusAdapter(bus_erased);
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = make_ctx(&security, &bus, observer.as_ref());
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
+    let ctx = make_ctx(&security, &bus_adapter, &observer_adapter);
     let result = h
         .execute(ExecutionRequest {
             req: "hello".to_string(),
@@ -48,7 +59,7 @@ async fn test_echo_handler_returns_request_as_response() {
 #[test]
 fn test_echo_handler_id_matches_constructor_arg() {
     let h: Arc<dyn Handler<Request = String, Response = String>> =
-        Domain::echo_handler("my-handler", "/api/v1");
+        Domain.echo_handler("my-handler", "/api/v1");
     assert_eq!(h.id(IdRequest).unwrap().id, "my-handler");
 }
 
@@ -56,7 +67,7 @@ fn test_echo_handler_id_matches_constructor_arg() {
 #[test]
 fn test_echo_handler_pattern_matches_constructor_arg() {
     let h: Arc<dyn Handler<Request = String, Response = String>> =
-        Domain::echo_handler("id", "/api/v1/things");
+        Domain.echo_handler("id", "/api/v1/things");
     assert_eq!(h.pattern(PatternRequest).unwrap().pattern, "/api/v1/things");
 }
 
@@ -70,11 +81,17 @@ async fn test_echo_handler_struct_health_check_defaults_to_true() {
 /// @covers: EchoHandler
 #[tokio::test]
 async fn test_echo_handler_works_with_numeric_type() {
-    let h: Arc<dyn Handler<Request = u64, Response = u64>> = Domain::echo_handler("num", "/num");
+    let h: Arc<dyn Handler<Request = u64, Response = u64>> = Domain.echo_handler("num", "/num");
     let security = SecurityContext::unauthenticated();
-    let bus = Domain::direct_command_bus();
+    let bus = Domain
+        .direct_command_bus(DirectCommandBusRequest)
+        .unwrap()
+        .bus;
+    let bus_erased: &dyn edge_domain::CommandBus = bus.as_ref();
+    let bus_adapter = CommandBusAdapter(bus_erased);
     let observer = StdObserveFactory::noop_observer_context();
-    let ctx = make_ctx(&security, &bus, observer.as_ref());
+    let observer_adapter = ObserverContextAdapter(observer.as_ref());
+    let ctx = make_ctx(&security, &bus_adapter, &observer_adapter);
     assert_eq!(
         h.execute(ExecutionRequest {
             req: 42u64,

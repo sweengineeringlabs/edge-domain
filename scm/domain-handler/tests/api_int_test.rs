@@ -11,8 +11,9 @@ use edge_domain_handler::{
     EmptinessRequest, EmptinessResponse, ExecutionRequest, Handler, HandlerContext, HandlerError,
     HandlerLookupRequest, HandlerLookupResponse, HandlerRegistry, HealthCheckRequest,
     HealthCheckResponse, IdRequest, IdResponse, InProcessHandlerRegistry, IntoHandlerRequest,
-    IntoHandlerResponse, LenRequest, LenResponse, ListIdsRequest, ListIdsResponse, PatternRequest,
-    PatternResponse, RegisterHandlerRequest, RegisterHandlerResponse, ValidatorRequest,
+    IntoHandlerResponse, LenRequest, LenResponse, ListIdsRequest, ListIdsResponse,
+    ListNamesRequest, PatternRequest, PatternResponse, RegisterHandlerRequest,
+    RegisterHandlerResponse, ValidatorRequest,
 };
 use edge_domain_service::{
     NameRequest, NameResponse, RegisterServiceRequest, Service, ServiceError,
@@ -243,10 +244,11 @@ fn test_execution_request_holds_req_and_ctx_happy() {
 
     let security = SecurityContext::unauthenticated();
     let observer = StdObserveFactory::noop_observer_context();
+    let observer_adapter = edge_domain_handler::ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
         commands: &NoopCommandBus,
-        observer: observer.as_ref(),
+        observer: &observer_adapter,
     };
     let req = ExecutionRequest {
         req: "payload".to_string(),
@@ -266,12 +268,5 @@ fn test_bridge_request_holds_src_and_dst_refs_happy() {
         src: &src,
         dst: &dst,
     };
-    assert_eq!(
-        req.src
-            .list_names(edge_domain_service::ListNamesRequest)
-            .unwrap()
-            .names
-            .len(),
-        1
-    );
+    assert_eq!(req.src.list_names(ListNamesRequest).unwrap().names.len(), 1);
 }

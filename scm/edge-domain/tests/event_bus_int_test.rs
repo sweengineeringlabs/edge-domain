@@ -4,12 +4,14 @@
 use std::sync::Arc;
 use std::time::SystemTime;
 
+use edge_domain::DomainRuntime;
 use edge_domain::{
     Domain, DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventBusConfig,
     EventBusPublishRequest, EventBusSubscribeRequest, EventError, EventOccurredAtRequest,
     EventOccurredAtResponse, EventSource, EventSourceRecvNextRequest, EventTypeRequest,
     EventTypeResponse,
 };
+use edge_domain::{InProcessEventBusRequest, NoopEventBusRequest};
 
 // ── test fixtures ────────────────────────────────────────────────────────────
 
@@ -55,7 +57,12 @@ fn test_event_bus_config_default_capacity_is_1024() {
 /// @covers: in_process_event_bus
 #[tokio::test]
 async fn test_in_process_event_bus_subscribe_then_publish_delivers_event() {
-    let bus = Domain::in_process_event_bus(EventBusConfig::default());
+    let bus = Domain
+        .in_process_event_bus(InProcessEventBusRequest {
+            config: EventBusConfig::default(),
+        })
+        .unwrap()
+        .bus;
     let mut rx: Box<dyn EventSource> = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
     bus.publish(EventBusPublishRequest {
         event: Arc::new(OrderCreated {
@@ -64,7 +71,11 @@ async fn test_in_process_event_bus_subscribe_then_publish_delivers_event() {
     })
     .await
     .unwrap();
-    let event = rx.recv_next(EventSourceRecvNextRequest).await.unwrap().event;
+    let event = rx
+        .recv_next(EventSourceRecvNextRequest)
+        .await
+        .unwrap()
+        .event;
     assert_eq!(
         event.event_type(EventTypeRequest).unwrap().event_type,
         "order.created"
@@ -81,7 +92,12 @@ async fn test_in_process_event_bus_subscribe_then_publish_delivers_event() {
 /// @covers: in_process_event_bus
 #[tokio::test]
 async fn test_in_process_event_bus_publish_with_no_subscribers_returns_ok() {
-    let bus = Domain::in_process_event_bus(EventBusConfig::default());
+    let bus = Domain
+        .in_process_event_bus(InProcessEventBusRequest {
+            config: EventBusConfig::default(),
+        })
+        .unwrap()
+        .bus;
     let result = bus
         .publish(EventBusPublishRequest {
             event: Arc::new(OrderCreated {
@@ -95,7 +111,12 @@ async fn test_in_process_event_bus_publish_with_no_subscribers_returns_ok() {
 /// @covers: in_process_event_bus
 #[tokio::test]
 async fn test_in_process_event_bus_fan_out_delivers_to_all_subscribers() {
-    let bus = Domain::in_process_event_bus(EventBusConfig::default());
+    let bus = Domain
+        .in_process_event_bus(InProcessEventBusRequest {
+            config: EventBusConfig::default(),
+        })
+        .unwrap()
+        .bus;
     let mut rx1 = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
     let mut rx2 = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
     bus.publish(EventBusPublishRequest {
@@ -130,7 +151,12 @@ async fn test_in_process_event_bus_fan_out_delivers_to_all_subscribers() {
 /// @covers: in_process_event_bus
 #[tokio::test]
 async fn test_in_process_event_bus_clone_shares_channel() {
-    let bus = Domain::in_process_event_bus(EventBusConfig::default());
+    let bus = Domain
+        .in_process_event_bus(InProcessEventBusRequest {
+            config: EventBusConfig::default(),
+        })
+        .unwrap()
+        .bus;
     let clone = bus.clone();
     let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
     clone
@@ -158,7 +184,7 @@ async fn test_in_process_event_bus_clone_shares_channel() {
 /// @covers: noop_event_bus
 #[tokio::test]
 async fn test_noop_event_bus_publish_returns_ok() {
-    let bus = Domain::noop_event_bus();
+    let bus = Domain.noop_event_bus(NoopEventBusRequest).unwrap().bus;
     assert!(bus
         .publish(EventBusPublishRequest {
             event: Arc::new(OrderCreated {
@@ -172,7 +198,7 @@ async fn test_noop_event_bus_publish_returns_ok() {
 /// @covers: noop_event_bus
 #[tokio::test]
 async fn test_noop_event_bus_subscribe_returns_closed_receiver() {
-    let bus = Domain::noop_event_bus();
+    let bus = Domain.noop_event_bus(NoopEventBusRequest).unwrap().bus;
     let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
     assert!(matches!(
         rx.recv_next(EventSourceRecvNextRequest).await,
@@ -185,7 +211,12 @@ async fn test_noop_event_bus_subscribe_returns_closed_receiver() {
 /// @covers: EventSource::recv_next
 #[tokio::test]
 async fn test_event_receiver_recv_returns_event_in_order() {
-    let bus = Domain::in_process_event_bus(EventBusConfig::default());
+    let bus = Domain
+        .in_process_event_bus(InProcessEventBusRequest {
+            config: EventBusConfig::default(),
+        })
+        .unwrap()
+        .bus;
     let mut rx = bus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
     for i in 0u32..3 {
         let id = format!("ord-{i}");
@@ -196,7 +227,11 @@ async fn test_event_receiver_recv_returns_event_in_order() {
         })
         .await
         .unwrap();
-        let event = rx.recv_next(EventSourceRecvNextRequest).await.unwrap().event;
+        let event = rx
+            .recv_next(EventSourceRecvNextRequest)
+            .await
+            .unwrap()
+            .event;
         assert_eq!(
             event
                 .aggregate_id(EventAggregateIdRequest)

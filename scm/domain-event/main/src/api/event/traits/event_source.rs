@@ -1,6 +1,7 @@
 //! `EventSource` trait — pull-based event source contract.
 
-use futures::future::BoxFuture;
+use std::future::Future;
+use std::pin::Pin;
 
 use crate::api::event::errors::EventError;
 use crate::api::event::types::{EventSourceRecvNextRequest, EventSourceRecvNextResponse};
@@ -14,5 +15,5 @@ pub trait EventSource: Send {
     fn recv_next(
         &mut self,
         req: EventSourceRecvNextRequest,
-    ) -> BoxFuture<'_, Result<EventSourceRecvNextResponse, EventError>>;
+    ) -> Pin<Box<dyn Future<Output = Result<EventSourceRecvNextResponse, EventError>> + Send + '_>>;
 }
