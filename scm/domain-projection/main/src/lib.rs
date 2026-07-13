@@ -10,7 +10,7 @@ mod api;
 mod core;
 mod saf;
 
-pub use api::InMemoryProjection;
+pub use api::MemoryProjection;
 pub use api::ProjectionApplyRequest;
 pub use api::ProjectionError;
 pub use api::ProjectionEventDescribeRequest;

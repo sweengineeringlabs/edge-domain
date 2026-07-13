@@ -6,7 +6,7 @@ pub use errors::ProjectionError;
 pub use traits::Projection;
 pub use traits::ProjectionEvent;
 pub use types::{
-    InMemoryProjection, ProjectionApplyRequest, ProjectionEventDescribeRequest,
+    MemoryProjection, ProjectionApplyRequest, ProjectionEventDescribeRequest,
     ProjectionEventDescribeResponse, ProjectionReadModelRequest, ProjectionReadModelResponse,
     TryDrainRequest, TryDrainResponse,
 };

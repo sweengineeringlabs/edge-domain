@@ -1,5 +1,5 @@
 mod projection;
-pub use projection::InMemoryProjection;
+pub use projection::MemoryProjection;
 pub use projection::Projection;
 pub use projection::ProjectionApplyRequest;
 pub use projection::ProjectionError;

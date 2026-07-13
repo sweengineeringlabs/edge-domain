@@ -1,10 +1,10 @@
-//! SAF tests — `Projection` trait via `InMemoryProjection`.
+//! SAF tests — `Projection` trait via `MemoryProjection`.
 // @allow: no_mocks_in_integration
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain_event::{EventAggregateIdRequest, EventAggregateIdResponse, EventError};
 use edge_domain_projection::{
-    DomainEvent, InMemoryProjection, Projection, ProjectionApplyRequest, ProjectionError,
+    DomainEvent, MemoryProjection, Projection, ProjectionApplyRequest, ProjectionError,
     ProjectionReadModelRequest, TryDrainRequest,
 };
 
@@ -20,7 +20,7 @@ impl DomainEvent for BalanceEvt {
 }
 
 fn make_balance(seed: i64) -> impl Projection<Event = BalanceEvt, ReadModel = i64> {
-    InMemoryProjection::new(seed, |total: &mut i64, e: &BalanceEvt| *total += e.delta)
+    MemoryProjection::new(seed, |total: &mut i64, e: &BalanceEvt| *total += e.delta)
 }
 
 fn evt(delta: i64) -> BalanceEvt {
@@ -80,8 +80,8 @@ fn test_read_model_reflects_all_applied_events_edge() {
     assert_eq!(read(&p), 70);
 }
 
-fn make_count(seed: u32) -> InMemoryProjection<BalanceEvt, u32, impl Fn(&mut u32, &BalanceEvt) + Send + Sync> {
-    InMemoryProjection::new(seed, |count: &mut u32, _e: &BalanceEvt| *count += 1)
+fn make_count(seed: u32) -> MemoryProjection<BalanceEvt, u32, impl Fn(&mut u32, &BalanceEvt) + Send + Sync> {
+    MemoryProjection::new(seed, |count: &mut u32, _e: &BalanceEvt| *count += 1)
 }
 
 /// @covers: apply

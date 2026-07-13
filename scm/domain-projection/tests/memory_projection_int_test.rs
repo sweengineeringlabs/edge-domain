@@ -1,10 +1,10 @@
-//! Integration tests for `InMemoryProjection`.
+//! Integration tests for `MemoryProjection`.
 // @allow: no_mocks_in_integration
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain_event::{EventAggregateIdRequest, EventAggregateIdResponse, EventError};
 use edge_domain_projection::{
-    DomainEvent, InMemoryProjection, Projection, ProjectionApplyRequest, ProjectionReadModelRequest,
+    DomainEvent, MemoryProjection, Projection, ProjectionApplyRequest, ProjectionReadModelRequest,
 };
 
 #[derive(Clone)]
@@ -18,8 +18,8 @@ impl DomainEvent for ItemEvt {
     }
 }
 
-fn make(seed: usize) -> InMemoryProjection<ItemEvt, usize, impl Fn(&mut usize, &ItemEvt) + Send + Sync> {
-    InMemoryProjection::new(seed, |total: &mut usize, e: &ItemEvt| *total += e.count)
+fn make(seed: usize) -> MemoryProjection<ItemEvt, usize, impl Fn(&mut usize, &ItemEvt) + Send + Sync> {
+    MemoryProjection::new(seed, |total: &mut usize, e: &ItemEvt| *total += e.count)
 }
 
 fn read(p: &impl Projection<Event = ItemEvt, ReadModel = usize>) -> usize {
@@ -41,7 +41,7 @@ fn test_new_projection_with_zero_initial_is_zero_error() {
 #[test]
 fn test_projection_reducers_are_independent_edge() {
     let mut p1 = make(0);
-    let p2 = InMemoryProjection::new(0usize, |_n: &mut usize, _e: &ItemEvt| {});
+    let p2 = MemoryProjection::new(0usize, |_n: &mut usize, _e: &ItemEvt| {});
     p1.apply(ProjectionApplyRequest { event: &ItemEvt { count: 10 } }).expect("apply should succeed");
     assert_eq!(read(&p1), 10);
     assert_eq!(read(&p2), 0);
