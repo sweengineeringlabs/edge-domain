@@ -8,7 +8,7 @@ pub use types::DeregisterRequest;
 pub use types::DeregisterResponse;
 pub use types::EmptinessRequest;
 pub use types::EmptinessResponse;
-pub use types::InMemoryRegistry;
+pub use types::MemoryRegistry;
 pub use types::LenRequest;
 pub use types::LenResponse;
 pub use types::ListIdsRequest;

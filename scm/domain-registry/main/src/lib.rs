@@ -4,7 +4,7 @@
 //! entries, generalizing the handler/service/task-controller family.
 //!
 //! Register a shared entry under a string id and resolve it later. The
-//! reference implementation is the in-process [`InMemoryRegistry`].
+//! reference implementation is the in-process [`MemoryRegistry`].
 
 #![deny(unsafe_code)]
 #![warn(missing_docs)]
@@ -19,7 +19,7 @@ pub use saf::REGISTRY_SVC;
 pub use saf::REGISTRY_SVC_FACTORY;
 
 // ── concrete reference types ──────────────────────────────────────────────────
-pub use api::InMemoryRegistry;
+pub use api::MemoryRegistry;
 
 // ── request/response types ────────────────────────────────────────────────────
 pub use api::DeregisterRequest;

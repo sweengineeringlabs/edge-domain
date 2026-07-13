@@ -1,4 +1,4 @@
-//! `Registry` impl for `InMemoryRegistry`.
+//! `Registry` impl for `MemoryRegistry`.
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -6,7 +6,7 @@ use std::sync::RwLock;
 
 use crate::api::DeregisterRequest;
 use crate::api::DeregisterResponse;
-use crate::api::InMemoryRegistry;
+use crate::api::MemoryRegistry;
 use crate::api::LenRequest;
 use crate::api::LenResponse;
 use crate::api::ListIdsRequest;
@@ -20,7 +20,7 @@ use crate::api::RegistryLookupResponse;
 use crate::api::TryRegisterRequest;
 use crate::api::TryRegisterResponse;
 
-impl<V: ?Sized + Send + Sync> InMemoryRegistry<V> {
+impl<V: ?Sized + Send + Sync> MemoryRegistry<V> {
     /// Construct an empty registry.
     pub fn new() -> Self {
         Self {
@@ -29,13 +29,13 @@ impl<V: ?Sized + Send + Sync> InMemoryRegistry<V> {
     }
 }
 
-impl<V: ?Sized + Send + Sync> Default for InMemoryRegistry<V> {
+impl<V: ?Sized + Send + Sync> Default for MemoryRegistry<V> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<V: ?Sized + Send + Sync> Registry for InMemoryRegistry<V> {
+impl<V: ?Sized + Send + Sync> Registry for MemoryRegistry<V> {
     type Value = V;
 
     fn register(&self, req: RegisterRequest<V>) -> Result<RegisterResponse, RegistryError> {
@@ -90,7 +90,7 @@ mod tests {
     use super::*;
     use crate::api::EmptinessRequest;
 
-    fn register(reg: &InMemoryRegistry<str>, id: &str, entry: &str) {
+    fn register(reg: &MemoryRegistry<str>, id: &str, entry: &str) {
         reg.register(RegisterRequest {
             id: id.to_string(),
             entry: Arc::from(entry),
@@ -100,19 +100,19 @@ mod tests {
 
     #[test]
     fn test_new_creates_empty_registry_happy() {
-        let reg: InMemoryRegistry<str> = InMemoryRegistry::new();
+        let reg: MemoryRegistry<str> = MemoryRegistry::new();
         assert!(reg.is_empty(EmptinessRequest).unwrap().empty);
     }
 
     #[test]
     fn test_default_creates_empty_registry_edge() {
-        let reg: InMemoryRegistry<str> = InMemoryRegistry::default();
+        let reg: MemoryRegistry<str> = MemoryRegistry::default();
         assert!(reg.is_empty(EmptinessRequest).unwrap().empty);
     }
 
     #[test]
     fn test_register_then_get_returns_entry_happy() {
-        let reg: InMemoryRegistry<str> = InMemoryRegistry::new();
+        let reg: MemoryRegistry<str> = MemoryRegistry::new();
         register(&reg, "a", "alpha");
         let entry = reg
             .get(RegistryLookupRequest {
@@ -125,7 +125,7 @@ mod tests {
 
     #[test]
     fn test_register_replaces_existing_entry_edge() {
-        let reg: InMemoryRegistry<str> = InMemoryRegistry::new();
+        let reg: MemoryRegistry<str> = MemoryRegistry::new();
         register(&reg, "a", "alpha");
         register(&reg, "a", "beta");
         let entry = reg
@@ -140,7 +140,7 @@ mod tests {
 
     #[test]
     fn test_try_register_duplicate_returns_err_error() {
-        let reg: InMemoryRegistry<str> = InMemoryRegistry::new();
+        let reg: MemoryRegistry<str> = MemoryRegistry::new();
         register(&reg, "a", "alpha");
         let result = reg.try_register(TryRegisterRequest {
             id: "a".to_string(),
@@ -159,7 +159,7 @@ mod tests {
 
     #[test]
     fn test_deregister_removes_entry_and_reports_presence_happy() {
-        let reg: InMemoryRegistry<str> = InMemoryRegistry::new();
+        let reg: MemoryRegistry<str> = MemoryRegistry::new();
         register(&reg, "a", "alpha");
         assert!(
             reg.deregister(DeregisterRequest {
@@ -186,7 +186,7 @@ mod tests {
 
     #[test]
     fn test_list_ids_and_len_reflect_contents_happy() {
-        let reg: InMemoryRegistry<str> = InMemoryRegistry::new();
+        let reg: MemoryRegistry<str> = MemoryRegistry::new();
         assert!(reg.is_empty(EmptinessRequest).unwrap().empty);
         register(&reg, "a", "alpha");
         register(&reg, "b", "beta");

@@ -1,19 +1,19 @@
-//! SAF facade tests — `Registry` trait via `InMemoryRegistry`.
-// @allow: no_mocks_in_integration — InMemoryRegistry is the production in-process reference impl, not a test double
+//! SAF facade tests — `Registry` trait via `MemoryRegistry`.
+// @allow: no_mocks_in_integration — MemoryRegistry is the production in-process reference impl, not a test double
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
 
 use edge_domain_registry::{
-    DeregisterRequest, EmptinessRequest, InMemoryRegistry, LenRequest, ListIdsRequest,
+    DeregisterRequest, EmptinessRequest, MemoryRegistry, LenRequest, ListIdsRequest,
     RegisterRequest, Registry, RegistryError, RegistryLookupRequest, TryRegisterRequest,
 };
 
-fn reg() -> InMemoryRegistry<str> {
-    InMemoryRegistry::new()
+fn reg() -> MemoryRegistry<str> {
+    MemoryRegistry::new()
 }
 
-fn register(r: &InMemoryRegistry<str>, id: &str, entry: &str) {
+fn register(r: &MemoryRegistry<str>, id: &str, entry: &str) {
     r.register(RegisterRequest {
         id: id.to_string(),
         entry: Arc::from(entry),
@@ -21,7 +21,7 @@ fn register(r: &InMemoryRegistry<str>, id: &str, entry: &str) {
     .unwrap();
 }
 
-fn get(r: &InMemoryRegistry<str>, id: &str) -> Option<Arc<str>> {
+fn get(r: &MemoryRegistry<str>, id: &str) -> Option<Arc<str>> {
     r.get(RegistryLookupRequest {
         id: id.to_string(),
     })

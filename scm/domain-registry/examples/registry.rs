@@ -3,12 +3,12 @@
 use std::sync::Arc;
 
 use edge_domain_registry::{
-    DeregisterRequest, InMemoryRegistry, ListIdsRequest, RegisterRequest, Registry, RegistryError,
+    DeregisterRequest, MemoryRegistry, ListIdsRequest, RegisterRequest, Registry, RegistryError,
     RegistryLookupRequest, TryRegisterRequest,
 };
 
 fn main() -> Result<(), RegistryError> {
-    let registry = InMemoryRegistry::<str>::new();
+    let registry = MemoryRegistry::<str>::new();
     registry.register(RegisterRequest {
         id: "greeting".to_string(),
         entry: Arc::from("hello"),
