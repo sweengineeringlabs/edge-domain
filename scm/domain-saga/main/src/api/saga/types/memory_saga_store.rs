@@ -6,6 +6,6 @@ use crate::api::saga::traits::Saga;
 ///
 /// Reference implementation for development and testing; state is lost when
 /// the process stops.
-pub struct InMemorySagaStore<S: Saga> {
+pub struct MemorySagaStore<S: Saga> {
     pub(crate) sagas: HashMap<S::SagaId, S>,
 }

@@ -5,7 +5,7 @@
 use edge_domain_command::ExecutionRequest;
 use edge_domain_event::{EventAggregateIdRequest, EventAggregateIdResponse, EventError};
 use edge_domain_saga::{
-    Command, CommandError, DomainEvent, InMemorySagaStore, Saga, SagaError, SagaGetRequest,
+    Command, CommandError, DomainEvent, MemorySagaStore, Saga, SagaError, SagaGetRequest,
     SagaHandleRequest, SagaHandleResponse, SagaIsCompleteRequest, SagaIsCompleteResponse,
     SagaRegisterRequest, SagaStore,
 };
@@ -136,7 +136,7 @@ fn test_is_complete_midway_through_returns_false_edge() {
 /// @covers: handle
 #[test]
 fn test_handle_via_dyn_registry_returns_ok_edge() {
-    let mut reg = InMemorySagaStore::<OrderSaga>::new();
+    let mut reg = MemorySagaStore::<OrderSaga>::new();
     reg.register(SagaRegisterRequest {
         id: "o1".to_string(),
         saga: OrderSaga::new(2),

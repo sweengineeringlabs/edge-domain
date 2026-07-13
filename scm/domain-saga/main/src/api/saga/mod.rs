@@ -8,7 +8,7 @@ pub mod types;
 pub use errors::SagaError;
 pub use traits::{Saga, SagaCommand, SagaEvent, SagaStore};
 pub use types::{
-    InMemorySagaStore, NoopSaga, NoopSagaCommand, NoopSagaEvent, SagaCommandDispatchRequest,
+    MemorySagaStore, NoopSaga, NoopSagaCommand, NoopSagaEvent, SagaCommandDispatchRequest,
     SagaEventDescribeRequest, SagaEventDescribeResponse, SagaGetRequest, SagaGetResponse,
     SagaHandleRequest, SagaHandleResponse, SagaIsCompleteRequest, SagaIsCompleteResponse,
     SagaRegisterRequest,

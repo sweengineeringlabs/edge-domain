@@ -1,11 +1,11 @@
-//! Integration tests for `InMemorySagaStore`.
+//! Integration tests for `MemorySagaStore`.
 // @allow: no_mocks_in_integration
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain_command::ExecutionRequest;
 use edge_domain_event::{EventAggregateIdRequest, EventAggregateIdResponse, EventError};
 use edge_domain_saga::{
-    Command, CommandError, DomainEvent, InMemorySagaStore, Saga, SagaError, SagaGetRequest,
+    Command, CommandError, DomainEvent, MemorySagaStore, Saga, SagaError, SagaGetRequest,
     SagaHandleRequest, SagaHandleResponse, SagaIsCompleteRequest, SagaIsCompleteResponse,
     SagaRegisterRequest, SagaStore,
 };
@@ -64,21 +64,21 @@ impl Saga for CountingSaga {
 
 #[test]
 fn test_new_store_is_empty_happy() {
-    let store = InMemorySagaStore::<CountingSaga>::new();
+    let store = MemorySagaStore::<CountingSaga>::new();
     let id = "x".to_string();
     assert!(store.get(SagaGetRequest { id: &id }).is_err());
 }
 
 #[test]
 fn test_default_store_is_empty_error() {
-    let store = InMemorySagaStore::<CountingSaga>::default();
+    let store = MemorySagaStore::<CountingSaga>::default();
     let id = "x".to_string();
     assert!(store.get(SagaGetRequest { id: &id }).is_err());
 }
 
 #[test]
 fn test_store_stores_and_retrieves_saga_edge() {
-    let mut store = InMemorySagaStore::<CountingSaga>::new();
+    let mut store = MemorySagaStore::<CountingSaga>::new();
     store
         .register(SagaRegisterRequest {
             id: "c1".to_string(),

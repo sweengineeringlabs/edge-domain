@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 use std::fmt::Display;
 
-use crate::api::InMemorySagaStore;
+use crate::api::MemorySagaStore;
 use crate::api::SagaError;
 use crate::api::{Saga, SagaStore};
 use crate::api::{SagaGetRequest, SagaGetResponse, SagaRegisterRequest};
 
-impl<S: Saga> InMemorySagaStore<S> {
+impl<S: Saga> MemorySagaStore<S> {
     /// Construct an empty store.
     pub fn new() -> Self {
         Self {
@@ -15,13 +15,13 @@ impl<S: Saga> InMemorySagaStore<S> {
     }
 }
 
-impl<S: Saga> Default for InMemorySagaStore<S> {
+impl<S: Saga> Default for MemorySagaStore<S> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<S> SagaStore for InMemorySagaStore<S>
+impl<S> SagaStore for MemorySagaStore<S>
 where
     S: Saga,
     S::SagaId: Display,
@@ -58,14 +58,14 @@ mod tests {
     use futures::future::BoxFuture;
 
     #[derive(Debug, Default)]
-    struct InMemorySagaStoreTestSaga {
+    struct MemorySagaStoreTestSaga {
         done: bool,
     }
 
     #[derive(Clone)]
-    struct InMemorySagaStoreTestSagaSignal;
+    struct MemorySagaStoreTestSagaSignal;
 
-    impl DomainEvent for InMemorySagaStoreTestSagaSignal {
+    impl DomainEvent for MemorySagaStoreTestSagaSignal {
         fn aggregate_id(
             &self,
             _req: edge_domain_event::EventAggregateIdRequest,
@@ -77,16 +77,16 @@ mod tests {
         }
     }
 
-    impl Command for InMemorySagaStoreTestSagaSignal {
+    impl Command for MemorySagaStoreTestSagaSignal {
         fn execute(&self, _req: ExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
             Box::pin(async move { Ok(()) })
         }
     }
 
-    impl Saga for InMemorySagaStoreTestSaga {
+    impl Saga for MemorySagaStoreTestSaga {
         type SagaId = String;
-        type Event = InMemorySagaStoreTestSagaSignal;
-        type Command = InMemorySagaStoreTestSagaSignal;
+        type Event = MemorySagaStoreTestSagaSignal;
+        type Command = MemorySagaStoreTestSagaSignal;
 
         fn handle(
             &mut self,
@@ -106,7 +106,7 @@ mod tests {
         }
     }
 
-    type TestStore = InMemorySagaStore<InMemorySagaStoreTestSaga>;
+    type TestStore = MemorySagaStore<MemorySagaStoreTestSaga>;
 
     #[test]
     fn test_register_then_get_returns_ok() {
@@ -114,7 +114,7 @@ mod tests {
         store
             .register(SagaRegisterRequest {
                 id: "s1".to_string(),
-                saga: InMemorySagaStoreTestSaga::default(),
+                saga: MemorySagaStoreTestSaga::default(),
             })
             .ok();
         let id = "s1".to_string();
@@ -131,13 +131,13 @@ mod tests {
         store
             .register(SagaRegisterRequest {
                 id: "s1".to_string(),
-                saga: InMemorySagaStoreTestSaga::default(),
+                saga: MemorySagaStoreTestSaga::default(),
             })
             .ok();
         let err = store
             .register(SagaRegisterRequest {
                 id: "s1".to_string(),
-                saga: InMemorySagaStoreTestSaga::default(),
+                saga: MemorySagaStoreTestSaga::default(),
             })
             .unwrap_err();
         assert_eq!(err, SagaError::AlreadyRegistered("s1".to_string()));

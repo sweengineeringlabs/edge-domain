@@ -1,5 +1,5 @@
 mod saga;
-pub use saga::InMemorySagaStore;
+pub use saga::MemorySagaStore;
 pub use saga::NoopSaga;
 pub use saga::NoopSagaCommand;
 pub use saga::NoopSagaEvent;

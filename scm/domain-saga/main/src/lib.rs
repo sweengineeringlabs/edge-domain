@@ -10,7 +10,7 @@ mod api;
 mod core;
 mod saf;
 
-pub use api::InMemorySagaStore;
+pub use api::MemorySagaStore;
 pub use api::NoopSaga;
 pub use api::NoopSagaCommand;
 pub use api::NoopSagaEvent;
