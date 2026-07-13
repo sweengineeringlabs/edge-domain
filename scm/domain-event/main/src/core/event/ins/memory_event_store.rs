@@ -1,4 +1,4 @@
-//! [`EventStore`] impl for [`InMemoryEventStore<E>`] — append-only in-memory store.
+//! [`EventStore`] impl for [`MemoryEventStore<E>`] — append-only in-memory store.
 
 use std::collections::HashMap;
 use std::time::SystemTime;
@@ -11,10 +11,10 @@ use crate::api::{DomainEvent, EventStore};
 use crate::api::{
     EventEnvelope, EventStoreAppendRequest, EventStoreAppendResponse, EventStoreLoadFromRequest,
     EventStoreLoadFromResponse, EventStoreLoadRequest, EventStoreLoadResponse, ExpectedVersion,
-    InMemoryEventStore,
+    MemoryEventStore,
 };
 
-impl<E: DomainEvent + Clone + Send + Sync + 'static> InMemoryEventStore<E> {
+impl<E: DomainEvent + Clone + Send + Sync + 'static> MemoryEventStore<E> {
     /// Create an empty store.
     pub fn new() -> Self {
         Self {
@@ -23,13 +23,13 @@ impl<E: DomainEvent + Clone + Send + Sync + 'static> InMemoryEventStore<E> {
     }
 }
 
-impl<E: DomainEvent + Clone + Send + Sync + 'static> Default for InMemoryEventStore<E> {
+impl<E: DomainEvent + Clone + Send + Sync + 'static> Default for MemoryEventStore<E> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<E> EventStore for InMemoryEventStore<E>
+impl<E> EventStore for MemoryEventStore<E>
 where
     E: DomainEvent + Clone + Send + Sync + 'static,
 {
@@ -129,8 +129,8 @@ mod tests {
     use crate::api::{EventAggregateIdRequest, EventAggregateIdResponse, EventError, EventTypeRequest, EventTypeResponse};
 
     #[derive(Clone)]
-    struct InMemoryEventStoreEvt(String);
-    impl DomainEvent for InMemoryEventStoreEvt {
+    struct MemoryEventStoreEvt(String);
+    impl DomainEvent for MemoryEventStoreEvt {
         fn event_type(&self, _req: EventTypeRequest) -> Result<EventTypeResponse<'_>, EventError> {
             Ok(EventTypeResponse { event_type: "evt" })
         }
@@ -146,9 +146,9 @@ mod tests {
 
     fn append_req(
         aggregate_id: &str,
-        events: Vec<InMemoryEventStoreEvt>,
+        events: Vec<MemoryEventStoreEvt>,
         expected: ExpectedVersion,
-    ) -> EventStoreAppendRequest<'_, InMemoryEventStoreEvt> {
+    ) -> EventStoreAppendRequest<'_, MemoryEventStoreEvt> {
         EventStoreAppendRequest {
             aggregate_id,
             events,
@@ -159,10 +159,10 @@ mod tests {
     /// @covers: append
     #[test]
     fn test_append_no_stream_first_write_returns_sequence_happy() {
-        let store: InMemoryEventStore<InMemoryEventStoreEvt> = InMemoryEventStore::new();
+        let store: MemoryEventStore<MemoryEventStoreEvt> = MemoryEventStore::new();
         let result = futures::executor::block_on(store.append(append_req(
             "agg-1",
-            vec![InMemoryEventStoreEvt("agg-1".into())],
+            vec![MemoryEventStoreEvt("agg-1".into())],
             ExpectedVersion::NoStream,
         )));
         assert_eq!(result.expect("append").sequence, 1);
@@ -171,16 +171,16 @@ mod tests {
     /// @covers: append
     #[test]
     fn test_append_no_stream_when_stream_exists_returns_conflict_error() {
-        let store: InMemoryEventStore<InMemoryEventStoreEvt> = InMemoryEventStore::new();
+        let store: MemoryEventStore<MemoryEventStoreEvt> = MemoryEventStore::new();
         futures::executor::block_on(store.append(append_req(
             "agg-2",
-            vec![InMemoryEventStoreEvt("agg-2".into())],
+            vec![MemoryEventStoreEvt("agg-2".into())],
             ExpectedVersion::NoStream,
         )))
         .expect("first append");
         let result = futures::executor::block_on(store.append(append_req(
             "agg-2",
-            vec![InMemoryEventStoreEvt("agg-2".into())],
+            vec![MemoryEventStoreEvt("agg-2".into())],
             ExpectedVersion::NoStream,
         )));
         assert!(matches!(result, Err(EventStoreError::Conflict { .. })));
@@ -189,10 +189,10 @@ mod tests {
     /// @covers: append
     #[test]
     fn test_append_exact_wrong_version_returns_conflict_edge() {
-        let store: InMemoryEventStore<InMemoryEventStoreEvt> = InMemoryEventStore::new();
+        let store: MemoryEventStore<MemoryEventStoreEvt> = MemoryEventStore::new();
         let result = futures::executor::block_on(store.append(append_req(
             "agg-3",
-            vec![InMemoryEventStoreEvt("agg-3".into())],
+            vec![MemoryEventStoreEvt("agg-3".into())],
             ExpectedVersion::Exact(99),
         )));
         assert!(matches!(result, Err(EventStoreError::Conflict { .. })));

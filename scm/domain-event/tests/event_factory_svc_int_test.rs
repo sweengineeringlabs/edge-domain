@@ -5,7 +5,7 @@
 use edge_domain_event::{
     AggregateApplyRequest, AggregateIdentityRequest, ClosedEventSource, DomainEvent,
     EventAggregateIdRequest, EventSource, EventSourceRecvNextRequest, EventTypeRequest,
-    InMemoryEventStore, InProcessEventBus, NoopAggregate, NoopDomainEvent, NoopEventBus,
+    MemoryEventStore, InProcessEventBus, NoopAggregate, NoopDomainEvent, NoopEventBus,
     NoopEventPublisher,
 };
 
@@ -34,11 +34,11 @@ fn test_closed_source_is_zero_sized_happy() {
     assert_eq!(std::mem::size_of_val(&src), 0);
 }
 
-/// @covers: InMemoryEventStore::new — returns usable store
+/// @covers: MemoryEventStore::new — returns usable store
 #[test]
 fn test_in_memory_store_appends_successfully_happy() {
     use edge_domain_event::{EventStore, EventStoreAppendRequest, ExpectedVersion};
-    let store = InMemoryEventStore::<Evt>::new();
+    let store = MemoryEventStore::<Evt>::new();
     let resp = futures::executor::block_on(store.append(EventStoreAppendRequest {
         aggregate_id: "x",
         events: vec![Evt],
@@ -101,11 +101,11 @@ fn test_noop_publisher_dyn_dispatch_never_errors_edge() {
     );
 }
 
-/// @covers: InMemoryEventStore::append — append conflict on NoStream after stream exists
+/// @covers: MemoryEventStore::append — append conflict on NoStream after stream exists
 #[test]
 fn test_in_memory_store_conflict_on_no_stream_error() {
     use edge_domain_event::{EventStore, EventStoreAppendRequest, EventStoreError, ExpectedVersion};
-    let store = InMemoryEventStore::<Evt>::new();
+    let store = MemoryEventStore::<Evt>::new();
     futures::executor::block_on(store.append(EventStoreAppendRequest {
         aggregate_id: "x",
         events: vec![Evt],
@@ -121,11 +121,11 @@ fn test_in_memory_store_conflict_on_no_stream_error() {
     assert!(matches!(err, EventStoreError::Conflict { .. }));
 }
 
-/// @covers: InMemoryEventStore::load_from — load_from returns subset
+/// @covers: MemoryEventStore::load_from — load_from returns subset
 #[test]
 fn test_in_memory_store_load_from_returns_filtered_events_edge() {
     use edge_domain_event::{EventStore, EventStoreAppendRequest, EventStoreLoadFromRequest, ExpectedVersion};
-    let store = InMemoryEventStore::<Evt>::new();
+    let store = MemoryEventStore::<Evt>::new();
     futures::executor::block_on(store.append(EventStoreAppendRequest {
         aggregate_id: "y",
         events: vec![Evt, Evt, Evt],

@@ -1,4 +1,4 @@
-//! [`InMemoryEventStore<E>`] — in-memory event store for testing and development.
+//! [`MemoryEventStore<E>`] — in-memory event store for testing and development.
 
 use std::collections::HashMap;
 
@@ -11,6 +11,6 @@ use crate::api::event::types::EventEnvelope;
 ///
 /// Uses a [`parking_lot::RwLock`] so reads are fully concurrent.
 /// Intended for unit tests and local development; not for production use.
-pub struct InMemoryEventStore<E: DomainEvent + Clone + Send + Sync + 'static> {
+pub struct MemoryEventStore<E: DomainEvent + Clone + Send + Sync + 'static> {
     pub(crate) streams: RwLock<HashMap<String, Vec<EventEnvelope<E>>>>,
 }

@@ -14,7 +14,7 @@ use edge_domain_event::{
     EventSourceRecvNextResponse, EventStore, EventStoreAppendRequest, EventStoreAppendResponse,
     EventStoreLoadFromRequest, EventStoreLoadFromResponse, EventStoreLoadRequest,
     EventStoreLoadResponse, EventTypeRequest, EventTypeResponse, ExpectedVersion,
-    InMemoryEventStore, InProcessEventBus, NoopAggregate, NoopDomainEvent,
+    MemoryEventStore, InProcessEventBus, NoopAggregate, NoopDomainEvent,
 };
 
 /// @covers: AggregateApplyRequest
@@ -238,7 +238,7 @@ fn test_event_store_append_request_constructed_with_fields_happy() {
 /// @covers: EventStoreAppendRequest
 #[test]
 fn test_event_store_append_request_used_by_in_memory_store_edge() {
-    let store = InMemoryEventStore::<NoopDomainEvent>::new();
+    let store = MemoryEventStore::<NoopDomainEvent>::new();
     let resp = futures::executor::block_on(store.append(EventStoreAppendRequest {
         aggregate_id: "agg-api-test",
         events: vec![NoopDomainEvent],
@@ -273,7 +273,7 @@ fn test_event_store_load_from_request_constructed_with_fields_happy() {
 /// @covers: EventStoreLoadFromRequest
 #[test]
 fn test_event_store_load_from_request_used_by_in_memory_store_edge() {
-    let store = InMemoryEventStore::<NoopDomainEvent>::new();
+    let store = MemoryEventStore::<NoopDomainEvent>::new();
     let events = futures::executor::block_on(
         store.load_from(EventStoreLoadFromRequest { aggregate_id: "missing", from_sequence: 1 }),
     )
@@ -292,7 +292,7 @@ fn test_event_store_load_request_constructed_with_field_happy() {
 /// @covers: EventStoreLoadRequest
 #[test]
 fn test_event_store_load_request_used_by_in_memory_store_edge() {
-    let store = InMemoryEventStore::<NoopDomainEvent>::new();
+    let store = MemoryEventStore::<NoopDomainEvent>::new();
     let events =
         futures::executor::block_on(store.load(EventStoreLoadRequest { aggregate_id: "missing" }))
             .expect("load")
@@ -359,7 +359,7 @@ fn test_event_store_load_response_holds_events_happy() {
 /// @covers: EventStoreLoadResponse
 #[test]
 fn test_event_store_load_response_used_by_in_memory_store_edge() {
-    let store = InMemoryEventStore::<NoopDomainEvent>::new();
+    let store = MemoryEventStore::<NoopDomainEvent>::new();
     let resp = futures::executor::block_on(
         store.load(EventStoreLoadRequest { aggregate_id: "none" }),
     )
@@ -378,7 +378,7 @@ fn test_event_store_load_from_response_holds_events_happy() {
 /// @covers: EventStoreLoadFromResponse
 #[test]
 fn test_event_store_load_from_response_used_by_in_memory_store_edge() {
-    let store = InMemoryEventStore::<NoopDomainEvent>::new();
+    let store = MemoryEventStore::<NoopDomainEvent>::new();
     let resp = futures::executor::block_on(store.load_from(EventStoreLoadFromRequest {
         aggregate_id: "none",
         from_sequence: 0,

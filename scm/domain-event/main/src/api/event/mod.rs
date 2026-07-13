@@ -20,6 +20,6 @@ pub use types::{
     EventSourceRecvNextRequest, EventSourceRecvNextResponse, EventStoreAppendRequest,
     EventStoreAppendResponse, EventStoreLoadFromRequest, EventStoreLoadFromResponse,
     EventStoreLoadRequest, EventStoreLoadResponse, EventTypeRequest, EventTypeResponse,
-    ExpectedVersion, InMemoryEventStore, InProcessEventBus, NoopAggregate, NoopDomainEvent,
+    ExpectedVersion, MemoryEventStore, InProcessEventBus, NoopAggregate, NoopDomainEvent,
     NoopEventBus, NoopEventPublisher,
 };

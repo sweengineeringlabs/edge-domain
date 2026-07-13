@@ -1,10 +1,10 @@
-//! SAF facade tests — `EventStore` trait via `InMemoryEventStore`.
+//! SAF facade tests — `EventStore` trait via `MemoryEventStore`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain_event::{
     DomainEvent, EventAggregateIdRequest, EventStore, EventStoreAppendRequest, EventStoreError,
     EventStoreLoadFromRequest, EventStoreLoadRequest, EventTypeRequest, ExpectedVersion,
-    InMemoryEventStore,
+    MemoryEventStore,
 };
 
 #[derive(Clone)]
@@ -18,10 +18,10 @@ impl DomainEvent for OrderEvt {
     }
 }
 
-/// @covers: InMemoryEventStore::append — first write with Any succeeds
+/// @covers: MemoryEventStore::append — first write with Any succeeds
 #[test]
 fn test_append_any_first_write_returns_sequence_happy() {
-    let store = InMemoryEventStore::<OrderEvt>::new();
+    let store = MemoryEventStore::<OrderEvt>::new();
     let resp = futures::executor::block_on(store.append(EventStoreAppendRequest {
         aggregate_id: "a1",
         events: vec![OrderEvt("a1".into())],
@@ -31,10 +31,10 @@ fn test_append_any_first_write_returns_sequence_happy() {
     assert_eq!(resp.sequence, 1);
 }
 
-/// @covers: InMemoryEventStore::load — returns empty for unknown aggregate
+/// @covers: MemoryEventStore::load — returns empty for unknown aggregate
 #[test]
 fn test_load_unknown_aggregate_returns_empty_error() {
-    let store = InMemoryEventStore::<OrderEvt>::new();
+    let store = MemoryEventStore::<OrderEvt>::new();
     let events = futures::executor::block_on(
         store.load(EventStoreLoadRequest { aggregate_id: "unknown" }),
     )
@@ -43,10 +43,10 @@ fn test_load_unknown_aggregate_returns_empty_error() {
     assert!(events.is_empty());
 }
 
-/// @covers: InMemoryEventStore::append+load — round trip
+/// @covers: MemoryEventStore::append+load — round trip
 #[test]
 fn test_append_then_load_returns_appended_events_happy() {
-    let store = InMemoryEventStore::<OrderEvt>::new();
+    let store = MemoryEventStore::<OrderEvt>::new();
     futures::executor::block_on(store.append(EventStoreAppendRequest {
         aggregate_id: "a2",
         events: vec![OrderEvt("a2".into()), OrderEvt("a2".into())],
@@ -63,10 +63,10 @@ fn test_append_then_load_returns_appended_events_happy() {
     assert_eq!(events[1].sequence, 2);
 }
 
-/// @covers: InMemoryEventStore::load_from — returns only events from sequence
+/// @covers: MemoryEventStore::load_from — returns only events from sequence
 #[test]
 fn test_load_from_sequence_2_skips_first_event_edge() {
-    let store = InMemoryEventStore::<OrderEvt>::new();
+    let store = MemoryEventStore::<OrderEvt>::new();
     futures::executor::block_on(store.append(EventStoreAppendRequest {
         aggregate_id: "a3",
         events: vec![OrderEvt("a3".into()), OrderEvt("a3".into()), OrderEvt("a3".into())],
@@ -85,7 +85,7 @@ fn test_load_from_sequence_2_skips_first_event_edge() {
 /// @covers: EventStoreError::Conflict — NoStream after stream exists
 #[test]
 fn test_append_no_stream_conflict_returns_err_error() {
-    let store = InMemoryEventStore::<OrderEvt>::new();
+    let store = MemoryEventStore::<OrderEvt>::new();
     futures::executor::block_on(store.append(EventStoreAppendRequest {
         aggregate_id: "a4",
         events: vec![OrderEvt("a4".into())],
@@ -101,10 +101,10 @@ fn test_append_no_stream_conflict_returns_err_error() {
     assert!(matches!(err, EventStoreError::Conflict { .. }));
 }
 
-/// @covers: InMemoryEventStore::append — Exact version mismatch returns conflict
+/// @covers: MemoryEventStore::append — Exact version mismatch returns conflict
 #[test]
 fn test_append_exact_wrong_version_returns_conflict_edge() {
-    let store = InMemoryEventStore::<OrderEvt>::new();
+    let store = MemoryEventStore::<OrderEvt>::new();
     let err = futures::executor::block_on(store.append(EventStoreAppendRequest {
         aggregate_id: "a5",
         events: vec![OrderEvt("a5".into())],
@@ -114,10 +114,10 @@ fn test_append_exact_wrong_version_returns_conflict_edge() {
     assert!(matches!(err, EventStoreError::Conflict { .. }));
 }
 
-/// @covers: InMemoryEventStore::load — returns appended events for known aggregate
+/// @covers: MemoryEventStore::load — returns appended events for known aggregate
 #[test]
 fn test_load_known_aggregate_returns_events_happy() {
-    let store = InMemoryEventStore::<OrderEvt>::new();
+    let store = MemoryEventStore::<OrderEvt>::new();
     futures::executor::block_on(store.append(EventStoreAppendRequest {
         aggregate_id: "a6",
         events: vec![OrderEvt("a6".into())],
@@ -133,10 +133,10 @@ fn test_load_known_aggregate_returns_events_happy() {
     assert_eq!(events[0].aggregate_id, "a6");
 }
 
-/// @covers: InMemoryEventStore::load_from — returns events from sequence 1
+/// @covers: MemoryEventStore::load_from — returns events from sequence 1
 #[test]
 fn test_load_from_sequence_1_returns_all_events_happy() {
-    let store = InMemoryEventStore::<OrderEvt>::new();
+    let store = MemoryEventStore::<OrderEvt>::new();
     futures::executor::block_on(store.append(EventStoreAppendRequest {
         aggregate_id: "a7",
         events: vec![OrderEvt("a7".into()), OrderEvt("a7".into())],
@@ -151,10 +151,10 @@ fn test_load_from_sequence_1_returns_all_events_happy() {
     assert_eq!(events.len(), 2);
 }
 
-/// @covers: InMemoryEventStore::load_from — unknown aggregate returns empty
+/// @covers: MemoryEventStore::load_from — unknown aggregate returns empty
 #[test]
 fn test_load_from_unknown_aggregate_returns_empty_error() {
-    let store = InMemoryEventStore::<OrderEvt>::new();
+    let store = MemoryEventStore::<OrderEvt>::new();
     let events = futures::executor::block_on(
         store.load_from(EventStoreLoadFromRequest { aggregate_id: "missing", from_sequence: 1 }),
     )
