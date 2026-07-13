@@ -1,5 +1,5 @@
 mod snapshot;
-pub use snapshot::InMemorySnapshotStore;
+pub use snapshot::MemorySnapshotStore;
 pub use snapshot::NoopSnapshot;
 pub use snapshot::Snapshot;
 pub use snapshot::SnapshotAggregateIdRequest;

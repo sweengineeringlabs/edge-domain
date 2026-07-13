@@ -9,7 +9,7 @@ use crate::api::snapshot::traits::Snapshot;
 ///
 /// A reference [`SnapshotStore`](crate::SnapshotStore) for development and
 /// testing.  State lives in process memory and is lost when the process stops.
-pub struct InMemorySnapshotStore<S: Snapshot> {
+pub struct MemorySnapshotStore<S: Snapshot> {
     /// The underlying snapshot map — exposed for test-time inspection.
     pub snapshots: RwLock<HashMap<S::AggregateId, S>>,
 }

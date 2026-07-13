@@ -1,4 +1,4 @@
-//! `SnapshotStore` impl for [`InMemorySnapshotStore`].
+//! `SnapshotStore` impl for [`MemorySnapshotStore`].
 
 use std::collections::HashMap;
 use std::fmt::Display;
@@ -6,7 +6,7 @@ use std::hash::Hash;
 
 use futures::future::BoxFuture;
 
-use crate::api::InMemorySnapshotStore;
+use crate::api::MemorySnapshotStore;
 use crate::api::SnapshotError;
 use crate::api::{Snapshot, SnapshotStore};
 use crate::api::{
@@ -14,7 +14,7 @@ use crate::api::{
     SnapshotVersionRequest,
 };
 
-impl<S: Snapshot> InMemorySnapshotStore<S>
+impl<S: Snapshot> MemorySnapshotStore<S>
 where
     S::AggregateId: Eq + Hash,
 {
@@ -26,7 +26,7 @@ where
     }
 }
 
-impl<S: Snapshot> Default for InMemorySnapshotStore<S>
+impl<S: Snapshot> Default for MemorySnapshotStore<S>
 where
     S::AggregateId: Eq + Hash,
 {
@@ -35,7 +35,7 @@ where
     }
 }
 
-impl<S> SnapshotStore for InMemorySnapshotStore<S>
+impl<S> SnapshotStore for MemorySnapshotStore<S>
 where
     S: Snapshot + Clone,
     S::AggregateId: Display,
@@ -95,12 +95,12 @@ mod tests {
     use crate::api::{SnapshotAggregateIdResponse, SnapshotVersionResponse};
 
     #[derive(Clone)]
-    struct InMemorySnapshotStoreOrderFixture {
+    struct MemorySnapshotStoreOrderFixture {
         aggregate_id: String,
         version: u64,
     }
 
-    impl Snapshot for InMemorySnapshotStoreOrderFixture {
+    impl Snapshot for MemorySnapshotStoreOrderFixture {
         type AggregateId = String;
         fn aggregate_id(
             &self,
@@ -120,8 +120,8 @@ mod tests {
         }
     }
 
-    fn fixture(id: &str, v: u64) -> InMemorySnapshotStoreOrderFixture {
-        InMemorySnapshotStoreOrderFixture {
+    fn fixture(id: &str, v: u64) -> MemorySnapshotStoreOrderFixture {
+        MemorySnapshotStoreOrderFixture {
             aggregate_id: id.to_string(),
             version: v,
         }
@@ -129,7 +129,7 @@ mod tests {
 
     #[test]
     fn test_save_new_snapshot_inserts_entry_happy() {
-        let store = InMemorySnapshotStore::new();
+        let store = MemorySnapshotStore::new();
         futures::executor::block_on(store.save(SnapshotSaveRequest {
             snapshot: fixture("agg-1", 3),
         }))
@@ -143,7 +143,7 @@ mod tests {
 
     #[test]
     fn test_save_version_zero_returns_invalid_version_error() {
-        let store = InMemorySnapshotStore::<InMemorySnapshotStoreOrderFixture>::new();
+        let store = MemorySnapshotStore::<MemorySnapshotStoreOrderFixture>::new();
         let err = futures::executor::block_on(store.save(SnapshotSaveRequest {
             snapshot: fixture("agg-1", 0),
         }))
@@ -153,7 +153,7 @@ mod tests {
 
     #[test]
     fn test_load_absent_aggregate_returns_none_edge() {
-        let store = InMemorySnapshotStore::<InMemorySnapshotStoreOrderFixture>::new();
+        let store = MemorySnapshotStore::<MemorySnapshotStoreOrderFixture>::new();
         let id = "absent".to_string();
         let result = futures::executor::block_on(store.load(SnapshotLoadRequest { id: &id }))
             .unwrap()

@@ -9,7 +9,7 @@ pub use errors::SnapshotError;
 pub use noop_snapshot::NoopSnapshot;
 pub use traits::{Snapshot, SnapshotStore};
 pub use types::{
-    InMemorySnapshotStore, SnapshotAggregateIdRequest, SnapshotAggregateIdResponse,
+    MemorySnapshotStore, SnapshotAggregateIdRequest, SnapshotAggregateIdResponse,
     SnapshotLoadRequest, SnapshotLoadResponse, SnapshotSaveRequest, SnapshotVersionRequest,
     SnapshotVersionResponse,
 };
