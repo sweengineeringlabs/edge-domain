@@ -6,7 +6,7 @@ pub mod types;
 
 pub use errors::DomainError;
 pub use traits::{
-    Domain, DomainExtension, DomainExtensionHealthRequest, DomainRuntime, InMemoryOutboundRegistry,
+    Domain, DomainExtension, DomainExtensionHealthRequest, DomainRuntime, MemoryOutboundRegistry,
     NoopDomainExtension, OutboundRegistry,
 };
 #[cfg(feature = "command")]

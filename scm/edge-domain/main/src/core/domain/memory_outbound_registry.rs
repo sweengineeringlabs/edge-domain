@@ -1,11 +1,11 @@
-//! `OutboundRegistry` impl for [`InMemoryOutboundRegistry`].
+//! `OutboundRegistry` impl for [`MemoryOutboundRegistry`].
 
 use std::collections::HashMap;
 
 use parking_lot::RwLock;
 
 use crate::api::DomainError;
-use crate::api::InMemoryOutboundRegistry;
+use crate::api::MemoryOutboundRegistry;
 use crate::api::OutboundRegistry;
 use crate::api::{OutboundDeregisterRequest, OutboundDeregisterResponse};
 use crate::api::{OutboundGetRequest, OutboundGetResponse};
@@ -14,7 +14,7 @@ use crate::api::{OutboundLenRequest, OutboundLenResponse};
 use crate::api::{OutboundNamesRequest, OutboundNamesResponse};
 use crate::api::{OutboundRegisterRequest, OutboundRegisterResponse};
 
-impl<H: Clone + Send + Sync> InMemoryOutboundRegistry<H> {
+impl<H: Clone + Send + Sync> MemoryOutboundRegistry<H> {
     /// Construct an empty registry.
     pub fn new() -> Self {
         Self {
@@ -23,13 +23,13 @@ impl<H: Clone + Send + Sync> InMemoryOutboundRegistry<H> {
     }
 }
 
-impl<H: Clone + Send + Sync> Default for InMemoryOutboundRegistry<H> {
+impl<H: Clone + Send + Sync> Default for MemoryOutboundRegistry<H> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<H: Clone + Send + Sync> OutboundRegistry for InMemoryOutboundRegistry<H> {
+impl<H: Clone + Send + Sync> OutboundRegistry for MemoryOutboundRegistry<H> {
     type Handle = H;
 
     fn register(
@@ -80,14 +80,14 @@ mod tests {
 
     #[test]
     fn test_new_creates_empty_registry_happy() {
-        let reg: InMemoryOutboundRegistry<String> = InMemoryOutboundRegistry::new();
+        let reg: MemoryOutboundRegistry<String> = MemoryOutboundRegistry::new();
         assert!(reg.is_empty(OutboundIsEmptyRequest).unwrap().empty);
         assert_eq!(reg.len(OutboundLenRequest).unwrap().count, 0);
     }
 
     #[test]
     fn test_register_then_get_returns_handle_happy() {
-        let reg: InMemoryOutboundRegistry<String> = InMemoryOutboundRegistry::new();
+        let reg: MemoryOutboundRegistry<String> = MemoryOutboundRegistry::new();
         reg.register(OutboundRegisterRequest {
             name: "svc".into(),
             handle: "url".to_string(),
@@ -102,7 +102,7 @@ mod tests {
 
     #[test]
     fn test_deregister_missing_name_returns_false_error() {
-        let reg: InMemoryOutboundRegistry<String> = InMemoryOutboundRegistry::new();
+        let reg: MemoryOutboundRegistry<String> = MemoryOutboundRegistry::new();
         let removed = reg
             .deregister(OutboundDeregisterRequest {
                 name: "missing".into(),
@@ -114,7 +114,7 @@ mod tests {
 
     #[test]
     fn test_names_returns_all_registered_edge() {
-        let reg: InMemoryOutboundRegistry<u32> = InMemoryOutboundRegistry::new();
+        let reg: MemoryOutboundRegistry<u32> = MemoryOutboundRegistry::new();
         reg.register(OutboundRegisterRequest {
             name: "a".into(),
             handle: 1,

@@ -1,10 +1,10 @@
 //! Umbrella-level integration tests that exercise `edge-domain-registry` as a
 //! dependency — verifying the sub-crate contract is accessible end-to-end.
-// @allow: no_mocks_in_integration — InMemoryRegistry is a reference implementation in the public API, not a mock.
+// @allow: no_mocks_in_integration — MemoryRegistry is a reference implementation in the public API, not a mock.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain_registry::{
-    DeregisterRequest, InMemoryRegistry, ListIdsRequest, RegisterRequest, Registry,
+    DeregisterRequest, MemoryRegistry, ListIdsRequest, RegisterRequest, Registry,
     RegistryLookupRequest,
 };
 use std::sync::Arc;
@@ -12,7 +12,7 @@ use std::sync::Arc;
 /// @covers: Registry::register, Registry::get
 #[test]
 fn test_in_memory_registry_register_and_get_happy() {
-    let registry: InMemoryRegistry<i32> = InMemoryRegistry::new();
+    let registry: MemoryRegistry<i32> = MemoryRegistry::new();
     registry
         .register(RegisterRequest {
             id: "key1".to_string(),
@@ -31,7 +31,7 @@ fn test_in_memory_registry_register_and_get_happy() {
 /// @covers: Registry::get (nonexistent key)
 #[test]
 fn test_in_memory_registry_get_nonexistent_key_returns_none_happy() {
-    let registry: InMemoryRegistry<i32> = InMemoryRegistry::new();
+    let registry: MemoryRegistry<i32> = MemoryRegistry::new();
     let entry = registry
         .get(RegistryLookupRequest {
             id: "missing".to_string(),
@@ -44,7 +44,7 @@ fn test_in_memory_registry_get_nonexistent_key_returns_none_happy() {
 /// @covers: Registry::register (duplicate key)
 #[test]
 fn test_in_memory_registry_register_duplicate_key_overwrites_happy() {
-    let registry: InMemoryRegistry<i32> = InMemoryRegistry::new();
+    let registry: MemoryRegistry<i32> = MemoryRegistry::new();
     registry
         .register(RegisterRequest {
             id: "key1".to_string(),
@@ -69,7 +69,7 @@ fn test_in_memory_registry_register_duplicate_key_overwrites_happy() {
 /// @covers: Registry::deregister
 #[test]
 fn test_in_memory_registry_deregister_removes_entry_happy() {
-    let registry: InMemoryRegistry<i32> = InMemoryRegistry::new();
+    let registry: MemoryRegistry<i32> = MemoryRegistry::new();
     registry
         .register(RegisterRequest {
             id: "key1".to_string(),
@@ -95,7 +95,7 @@ fn test_in_memory_registry_deregister_removes_entry_happy() {
 /// @covers: Registry::list_ids
 #[test]
 fn test_in_memory_registry_list_ids_returns_all_registered_keys_happy() {
-    let registry: InMemoryRegistry<i32> = InMemoryRegistry::new();
+    let registry: MemoryRegistry<i32> = MemoryRegistry::new();
     registry
         .register(RegisterRequest {
             id: "key1".to_string(),
@@ -115,10 +115,10 @@ fn test_in_memory_registry_list_ids_returns_all_registered_keys_happy() {
     assert!(keys.contains(&"key2".to_string()));
 }
 
-/// @covers: InMemoryRegistry construction
+/// @covers: MemoryRegistry construction
 #[test]
 fn test_in_memory_registry_new_creates_empty_registry_happy() {
-    let registry: InMemoryRegistry<String> = InMemoryRegistry::new();
+    let registry: MemoryRegistry<String> = MemoryRegistry::new();
     let keys = registry.list_ids(ListIdsRequest).unwrap().ids;
     assert!(keys.is_empty());
 }
@@ -126,7 +126,7 @@ fn test_in_memory_registry_new_creates_empty_registry_happy() {
 /// @covers: Registry::register (multiple items)
 #[test]
 fn test_in_memory_registry_register_multiple_items_happy() {
-    let registry: InMemoryRegistry<String> = InMemoryRegistry::new();
+    let registry: MemoryRegistry<String> = MemoryRegistry::new();
     for i in 0..10 {
         registry
             .register(RegisterRequest {
@@ -140,10 +140,10 @@ fn test_in_memory_registry_register_multiple_items_happy() {
     assert_eq!(keys.len(), 10);
 }
 
-/// @covers: InMemoryRegistry construction (register + get round-trip)
+/// @covers: MemoryRegistry construction (register + get round-trip)
 #[test]
 fn test_registry_factory_creates_registry_happy() {
-    let registry: InMemoryRegistry<i32> = InMemoryRegistry::new();
+    let registry: MemoryRegistry<i32> = MemoryRegistry::new();
     registry
         .register(RegisterRequest {
             id: "key1".to_string(),
@@ -162,7 +162,7 @@ fn test_registry_factory_creates_registry_happy() {
 /// @covers: Registry::deregister (nonexistent key)
 #[test]
 fn test_in_memory_registry_deregister_nonexistent_key_returns_false_edge() {
-    let registry: InMemoryRegistry<i32> = InMemoryRegistry::new();
+    let registry: MemoryRegistry<i32> = MemoryRegistry::new();
     let removed = registry
         .deregister(DeregisterRequest {
             id: "missing".to_string(),
@@ -175,7 +175,7 @@ fn test_in_memory_registry_deregister_nonexistent_key_returns_false_edge() {
 /// @covers: Registry::list_ids (empty state)
 #[test]
 fn test_in_memory_registry_list_ids_empty_returns_no_items_edge() {
-    let registry: InMemoryRegistry<String> = InMemoryRegistry::new();
+    let registry: MemoryRegistry<String> = MemoryRegistry::new();
     let keys = registry.list_ids(ListIdsRequest).unwrap().ids;
     assert!(keys.is_empty());
 }

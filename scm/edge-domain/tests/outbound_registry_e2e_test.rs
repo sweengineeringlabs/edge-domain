@@ -8,7 +8,7 @@ use edge_domain::{
     OutboundLenRequest, OutboundNamesRequest, OutboundRegisterRequest, OutboundRegistry,
 };
 
-/// Real, minimal test-double backing store — not the crate's own `InMemoryOutboundRegistry`.
+/// Real, minimal test-double backing store — not the crate's own `MemoryOutboundRegistry`.
 struct TestRegistry {
     store: Mutex<Vec<(String, String)>>,
 }

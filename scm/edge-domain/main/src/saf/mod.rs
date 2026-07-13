@@ -213,7 +213,7 @@ pub use edge_domain_saga::SagaRegisterRequest;
 
 // ── registry (opt-in; NOT in default features) ────────────────────────────────
 #[cfg(feature = "registry")]
-pub use edge_domain_registry::InMemoryRegistry;
+pub use edge_domain_registry::MemoryRegistry;
 #[cfg(feature = "registry")]
 pub use edge_domain_registry::Registry;
 #[cfg(feature = "registry")]

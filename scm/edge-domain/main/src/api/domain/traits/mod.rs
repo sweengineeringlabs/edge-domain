@@ -10,5 +10,5 @@ pub use outbound_registry::OutboundRegistry;
 
 pub use crate::api::domain::types::Domain;
 pub use crate::api::domain::types::DomainExtensionHealthRequest;
-pub use crate::api::domain::types::InMemoryOutboundRegistry;
+pub use crate::api::domain::types::MemoryOutboundRegistry;
 pub use crate::api::domain::types::NoopDomainExtension;

@@ -38,7 +38,7 @@ impl DomainEvent for Incremented {
     }
 }
 
-/// @covers: InMemoryEventStore
+/// @covers: MemoryEventStore
 #[tokio::test]
 async fn test_in_memory_event_store_append_and_load_roundtrip() {
     let store = Domain.new_in_memory_event_store::<Incremented>();
@@ -59,7 +59,7 @@ async fn test_in_memory_event_store_append_and_load_roundtrip() {
     assert_eq!(events[0].aggregate_id, "c1");
 }
 
-/// @covers: InMemoryEventStore
+/// @covers: MemoryEventStore
 #[tokio::test]
 async fn test_in_memory_event_store_load_returns_empty_for_unknown_id() {
     let store = Domain.new_in_memory_event_store::<Incremented>();

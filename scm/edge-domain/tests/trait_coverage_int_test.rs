@@ -2,7 +2,7 @@
 //!
 //! One test per unique method name × 3 suffixes covers all 47 trait functions because
 //! the arch audit pattern `test_<fn>_*_<suffix>` matches on method name globally across traits.
-// @allow: no_mocks_in_integration — InMemoryRepository is the production-shipped reference impl, not a test double
+// @allow: no_mocks_in_integration — MemoryRepository is the production-shipped reference impl, not a test double
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain::*;
@@ -1787,7 +1787,7 @@ fn test_count_decrements_after_delete_edge() {
 #[test]
 fn test_list_page_returns_first_page_happy() {
     block_on(async {
-        let repo = InMemoryRepository::<String, u32>::new();
+        let repo = MemoryRepository::<String, u32>::new();
         for i in 0..5u32 {
             repo.save(RepositorySaveRequest {
                 id: i,
@@ -1812,7 +1812,7 @@ fn test_list_page_returns_first_page_happy() {
 #[test]
 fn test_list_page_offset_beyond_end_returns_empty_items_not_error() {
     block_on(async {
-        let repo = InMemoryRepository::<String, u32>::new();
+        let repo = MemoryRepository::<String, u32>::new();
         repo.save(RepositorySaveRequest {
             id: 1u32,
             entity: "x".into(),
@@ -1835,7 +1835,7 @@ fn test_list_page_offset_beyond_end_returns_empty_items_not_error() {
 #[test]
 fn test_list_page_total_equals_full_count_edge() {
     block_on(async {
-        let repo = InMemoryRepository::<String, u32>::new();
+        let repo = MemoryRepository::<String, u32>::new();
         for i in 0..4u32 {
             repo.save(RepositorySaveRequest {
                 id: i,

@@ -10,7 +10,7 @@ use crate::api::domain::types::{
 /// Thread-safe registry of outbound handles keyed by name.
 ///
 /// The canonical implementation is
-/// [`InMemoryOutboundRegistry`](crate::api::domain::types::InMemoryOutboundRegistry).
+/// [`MemoryOutboundRegistry`](crate::api::domain::types::MemoryOutboundRegistry).
 pub trait OutboundRegistry: Send + Sync {
     /// The handle type stored in this registry.
     type Handle: Clone + Send + Sync;

@@ -31,7 +31,7 @@ use crate::api::EventStoreError;
 #[cfg(feature = "event")]
 use crate::api::EventStoreLoadRequest;
 #[cfg(feature = "event")]
-use crate::api::InMemoryEventStore;
+use crate::api::MemoryEventStore;
 #[cfg(feature = "event")]
 use crate::api::NoopEventBus;
 #[cfg(feature = "event")]
@@ -57,7 +57,7 @@ use crate::api::InProcessHandlerRegistry;
 #[cfg(feature = "projection")]
 use crate::api::Projection;
 #[cfg(feature = "projection")]
-use edge_domain_projection::InMemoryProjection;
+use edge_domain_projection::MemoryProjection;
 
 #[cfg(feature = "query")]
 use crate::api::DirectQueryBus;
@@ -65,14 +65,14 @@ use crate::api::DirectQueryBus;
 use crate::api::QueryBus;
 
 #[cfg(feature = "repository")]
-use crate::api::InMemoryRepository;
+use crate::api::MemoryRepository;
 #[cfg(feature = "repository")]
 use crate::api::QueryableRepository;
 #[cfg(feature = "repository")]
 use crate::api::Repository;
 
 #[cfg(feature = "saga")]
-use crate::api::InMemorySagaStore;
+use crate::api::MemorySagaStore;
 #[cfg(feature = "saga")]
 use crate::api::Saga;
 #[cfg(feature = "saga")]
@@ -88,7 +88,7 @@ use crate::api::Snapshot;
 #[cfg(feature = "snapshot")]
 use crate::api::SnapshotStore;
 #[cfg(feature = "snapshot")]
-use edge_domain_snapshot::InMemorySnapshotStore;
+use edge_domain_snapshot::MemorySnapshotStore;
 
 use crate::api::DomainError;
 use crate::api::DomainRuntime;
@@ -182,7 +182,7 @@ impl Domain {
         Id: Hash + Eq + Clone + Send + Sync + 'static,
         T: Clone + Send + Sync + 'static,
     {
-        let r = InMemoryRepository::new();
+        let r = MemoryRepository::new();
         Arc::new(r)
     }
 
@@ -195,7 +195,7 @@ impl Domain {
         Id: Hash + Eq + Clone + Send + Sync + 'static,
         T: Clone + Send + Sync + 'static,
     {
-        let r = InMemoryRepository::new();
+        let r = MemoryRepository::new();
         Arc::new(r)
     }
 
@@ -205,7 +205,7 @@ impl Domain {
     where
         E: DomainEvent + Send + Sync + Clone + 'static,
     {
-        let s = InMemoryEventStore::new();
+        let s = MemoryEventStore::new();
         Arc::new(s)
     }
 
@@ -234,7 +234,7 @@ impl Domain {
         R: Send + Sync + 'static,
         F: Fn(&mut R, &E) + Send + Sync + 'static,
     {
-        Box::new(InMemoryProjection::new(initial, reducer))
+        Box::new(MemoryProjection::new(initial, reducer))
     }
 
     /// Construct a fresh in-memory [`SagaStore`] for saga type `S`.
@@ -256,7 +256,7 @@ impl Domain {
         S: Saga + 'static,
         S::SagaId: std::fmt::Display + 'static,
     {
-        Box::new(InMemorySagaStore::new())
+        Box::new(MemorySagaStore::new())
     }
 
     /// Construct a thread-safe in-memory [`SnapshotStore`] for snapshot type `S`.
@@ -280,7 +280,7 @@ impl Domain {
         S: Snapshot + Clone + 'static,
         S::AggregateId: std::fmt::Display + 'static,
     {
-        Arc::new(InMemorySnapshotStore::new())
+        Arc::new(MemorySnapshotStore::new())
     }
 
     /// Reconstitute an aggregate by replaying all events from an [`EventStore`].

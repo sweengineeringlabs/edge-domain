@@ -9,7 +9,7 @@ mod domain;
 pub use domain::{DirectCommandBusRequest, DirectCommandBusResponse};
 pub use domain::{
     Domain, DomainError, DomainExtension, DomainExtensionHealthRequest, DomainRuntime,
-    InMemoryOutboundRegistry, NoopDomainExtension, OutboundDeregisterRequest,
+    MemoryOutboundRegistry, NoopDomainExtension, OutboundDeregisterRequest,
     OutboundDeregisterResponse, OutboundGetRequest, OutboundGetResponse, OutboundIsEmptyRequest,
     OutboundIsEmptyResponse, OutboundLenRequest, OutboundLenResponse, OutboundNamesRequest,
     OutboundNamesResponse, OutboundRegisterRequest, OutboundRegisterResponse, OutboundRegistry,
@@ -92,7 +92,7 @@ pub use edge_domain_event::EventTypeRequest;
 #[cfg(feature = "event")]
 pub use edge_domain_event::EventTypeResponse;
 #[cfg(feature = "event")]
-pub use edge_domain_event::InMemoryEventStore;
+pub use edge_domain_event::MemoryEventStore;
 #[cfg(feature = "event")]
 pub use edge_domain_event::InProcessEventBus;
 #[cfg(feature = "event")]
@@ -112,7 +112,7 @@ pub use edge_domain_handler::InProcessHandlerRegistry;
 
 // ── projection ────────────────────────────────────────────────────────────────
 #[cfg(feature = "projection")]
-pub use edge_domain_projection::InMemoryProjection;
+pub use edge_domain_projection::MemoryProjection;
 #[cfg(feature = "projection")]
 pub use edge_domain_projection::Projection;
 #[cfg(feature = "projection")]
@@ -144,7 +144,7 @@ pub use edge_domain_repository::AlwaysMatchSpec;
 #[cfg(feature = "repository")]
 pub use edge_domain_repository::CountByResponse;
 #[cfg(feature = "repository")]
-pub use edge_domain_repository::InMemoryRepository;
+pub use edge_domain_repository::MemoryRepository;
 #[cfg(feature = "repository")]
 pub use edge_domain_repository::MatchingEntitiesResponse;
 #[cfg(feature = "repository")]
@@ -182,7 +182,7 @@ pub use edge_domain_repository::SpecRequest;
 
 // ── saga ──────────────────────────────────────────────────────────────────────
 #[cfg(feature = "saga")]
-pub use edge_domain_saga::InMemorySagaStore;
+pub use edge_domain_saga::MemorySagaStore;
 #[cfg(feature = "saga")]
 pub use edge_domain_saga::Saga;
 #[cfg(feature = "saga")]
@@ -196,7 +196,7 @@ pub use edge_domain_service::ServiceRegistry;
 
 // ── snapshot ──────────────────────────────────────────────────────────────────
 #[cfg(feature = "snapshot")]
-pub use edge_domain_snapshot::InMemorySnapshotStore;
+pub use edge_domain_snapshot::MemorySnapshotStore;
 #[cfg(feature = "snapshot")]
 pub use edge_domain_snapshot::Snapshot;
 #[cfg(feature = "snapshot")]

@@ -1,9 +1,9 @@
-//! Integration tests for `OutboundRegistry` via `InMemoryOutboundRegistry`.
-// @allow: no_mocks_in_integration — InMemoryOutboundRegistry is the production-shipped reference impl, not a test double
+//! Integration tests for `OutboundRegistry` via `MemoryOutboundRegistry`.
+// @allow: no_mocks_in_integration — MemoryOutboundRegistry is the production-shipped reference impl, not a test double
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain::{
-    InMemoryOutboundRegistry, OutboundDeregisterRequest, OutboundGetRequest,
+    MemoryOutboundRegistry, OutboundDeregisterRequest, OutboundGetRequest,
     OutboundIsEmptyRequest, OutboundLenRequest, OutboundNamesRequest, OutboundRegisterRequest,
     OutboundRegistry,
 };
@@ -11,7 +11,7 @@ use edge_domain::{
 /// @covers: OutboundRegistry::is_empty — new registry starts empty
 #[test]
 fn test_outbound_registry_new_creates_empty_registry_happy() {
-    let reg: InMemoryOutboundRegistry<String> = InMemoryOutboundRegistry::new();
+    let reg: MemoryOutboundRegistry<String> = MemoryOutboundRegistry::new();
     assert!(reg.is_empty(OutboundIsEmptyRequest).unwrap().empty);
     assert_eq!(reg.len(OutboundLenRequest).unwrap().count, 0);
 }
@@ -19,7 +19,7 @@ fn test_outbound_registry_new_creates_empty_registry_happy() {
 /// @covers: OutboundRegistry::register — stores a handle retrievable via get
 #[test]
 fn test_outbound_registry_register_stores_handle_happy() {
-    let reg: InMemoryOutboundRegistry<String> = InMemoryOutboundRegistry::new();
+    let reg: MemoryOutboundRegistry<String> = MemoryOutboundRegistry::new();
     reg.register(OutboundRegisterRequest {
         name: "svc".into(),
         handle: "url".to_string(),
@@ -35,7 +35,7 @@ fn test_outbound_registry_register_stores_handle_happy() {
 /// @covers: OutboundRegistry::deregister — removes a registered handle
 #[test]
 fn test_outbound_registry_deregister_removes_handle_happy() {
-    let reg: InMemoryOutboundRegistry<String> = InMemoryOutboundRegistry::new();
+    let reg: MemoryOutboundRegistry<String> = MemoryOutboundRegistry::new();
     reg.register(OutboundRegisterRequest {
         name: "svc".into(),
         handle: "url".to_string(),
@@ -56,7 +56,7 @@ fn test_outbound_registry_deregister_removes_handle_happy() {
 /// @covers: OutboundRegistry::deregister — missing name reports not removed
 #[test]
 fn test_outbound_registry_deregister_missing_name_returns_false_error() {
-    let reg: InMemoryOutboundRegistry<String> = InMemoryOutboundRegistry::new();
+    let reg: MemoryOutboundRegistry<String> = MemoryOutboundRegistry::new();
     let removed = reg
         .deregister(OutboundDeregisterRequest {
             name: "missing".into(),
@@ -69,7 +69,7 @@ fn test_outbound_registry_deregister_missing_name_returns_false_error() {
 /// @covers: OutboundRegistry::names — returns every registered name
 #[test]
 fn test_outbound_registry_names_returns_all_registered_edge() {
-    let reg: InMemoryOutboundRegistry<u32> = InMemoryOutboundRegistry::new();
+    let reg: MemoryOutboundRegistry<u32> = MemoryOutboundRegistry::new();
     reg.register(OutboundRegisterRequest {
         name: "a".into(),
         handle: 1,
@@ -88,7 +88,7 @@ fn test_outbound_registry_names_returns_all_registered_edge() {
 /// @covers: OutboundRegistry::len — reflects registered count
 #[test]
 fn test_outbound_registry_len_reflects_count_happy() {
-    let reg: InMemoryOutboundRegistry<u32> = InMemoryOutboundRegistry::new();
+    let reg: MemoryOutboundRegistry<u32> = MemoryOutboundRegistry::new();
     assert_eq!(reg.len(OutboundLenRequest).unwrap().count, 0);
     reg.register(OutboundRegisterRequest {
         name: "x".into(),
@@ -101,7 +101,7 @@ fn test_outbound_registry_len_reflects_count_happy() {
 /// @covers: OutboundRegistry::get — usable via dyn dispatch
 #[test]
 fn test_outbound_registry_via_dyn_dispatch_returns_handle_edge() {
-    let reg: InMemoryOutboundRegistry<String> = InMemoryOutboundRegistry::new();
+    let reg: MemoryOutboundRegistry<String> = MemoryOutboundRegistry::new();
     let dyn_reg: &dyn OutboundRegistry<Handle = String> = &reg;
     dyn_reg
         .register(OutboundRegisterRequest {
