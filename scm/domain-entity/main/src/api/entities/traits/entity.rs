@@ -2,8 +2,8 @@
 
 use std::hash::Hash;
 
-use crate::api::entity::errors::EntityError;
-use crate::api::entity::types::{IdRequest, IdResponse, ValidationRequest, ValidationResponse};
+use crate::api::entities::errors::EntityError;
+use crate::api::entities::types::{IdRequest, IdResponse, ValidationRequest, ValidationResponse};
 
 /// A domain object with stable identity.
 ///
