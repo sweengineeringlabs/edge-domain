@@ -1,4 +1,4 @@
-//! `Repository` and `QueryableRepository` impls for [`InMemoryRepository`].
+//! `Repository` and `QueryableRepository` impls for [`MemoryRepository`].
 
 use futures::future::BoxFuture;
 
@@ -7,7 +7,7 @@ use std::hash::Hash;
 
 use parking_lot::RwLock;
 
-use crate::api::InMemoryRepository;
+use crate::api::MemoryRepository;
 use crate::api::RepositoryError;
 use crate::api::{QueryableRepository, Repository};
 use crate::api::{
@@ -15,12 +15,12 @@ use crate::api::{
     RepositoryListResponse, RepositorySaveRequest,
 };
 
-impl<T, Id> InMemoryRepository<T, Id>
+impl<T, Id> MemoryRepository<T, Id>
 where
     Id: Hash + Eq + Clone + Send + Sync + 'static,
     T: Clone + Send + Sync + 'static,
 {
-    /// Creates a new, empty `InMemoryRepository`.
+    /// Creates a new, empty `MemoryRepository`.
     pub fn new() -> Self {
         Self {
             store: RwLock::new(HashMap::new()),
@@ -28,7 +28,7 @@ where
     }
 }
 
-impl<T, Id> Default for InMemoryRepository<T, Id>
+impl<T, Id> Default for MemoryRepository<T, Id>
 where
     Id: Hash + Eq + Clone + Send + Sync + 'static,
     T: Clone + Send + Sync + 'static,
@@ -38,7 +38,7 @@ where
     }
 }
 
-impl<T, Id> Repository for InMemoryRepository<T, Id>
+impl<T, Id> Repository for MemoryRepository<T, Id>
 where
     T: Clone + Send + Sync + 'static,
     Id: std::hash::Hash + Eq + Clone + Send + Sync + 'static,
@@ -79,7 +79,7 @@ where
     }
 }
 
-impl<T, Id> QueryableRepository for InMemoryRepository<T, Id>
+impl<T, Id> QueryableRepository for MemoryRepository<T, Id>
 where
     T: Clone + Send + Sync + 'static,
     Id: std::hash::Hash + Eq + Clone + Send + Sync + 'static,
@@ -94,26 +94,26 @@ mod tests {
 
     #[test]
     fn test_new_creates_empty_store_happy() {
-        let repo = InMemoryRepository::<String, String>::new();
+        let repo = MemoryRepository::<String, String>::new();
         assert!(repo.store.read().is_empty());
     }
 
     #[test]
     fn test_default_creates_empty_store_edge() {
-        let repo = InMemoryRepository::<u32, u32>::default();
+        let repo = MemoryRepository::<u32, u32>::default();
         assert!(repo.store.read().is_empty());
     }
 
     #[test]
     fn test_new_independent_instances_are_isolated_error() {
-        let a = InMemoryRepository::<u32, u32>::new();
-        let b = InMemoryRepository::<u32, u32>::new();
+        let a = MemoryRepository::<u32, u32>::new();
+        let b = MemoryRepository::<u32, u32>::new();
         a.store.write().insert(1, 100);
         assert!(!b.store.read().contains_key(&1));
     }
 
-    fn repo() -> InMemoryRepository<String, u32> {
-        InMemoryRepository::new()
+    fn repo() -> MemoryRepository<String, u32> {
+        MemoryRepository::new()
     }
 
     #[test]
@@ -173,8 +173,8 @@ mod tests {
 
     #[test]
     fn test_find_by_spec_filters_correctly_happy() {
-        struct InMemoryRepositoryStartsWithASpec;
-        impl Spec for InMemoryRepositoryStartsWithASpec {
+        struct MemoryRepositoryStartsWithASpec;
+        impl Spec for MemoryRepositoryStartsWithASpec {
             type Entity = String;
 
             fn matches(
@@ -186,7 +186,7 @@ mod tests {
                 })
             }
         }
-        let r = InMemoryRepository::new();
+        let r = MemoryRepository::new();
         block_on(r.save(RepositorySaveRequest {
             id: 1u32,
             entity: "alpha".into(),
@@ -198,7 +198,7 @@ mod tests {
         }))
         .unwrap_or_default();
         let results = block_on(r.find_by(SpecRequest {
-            spec: Box::new(InMemoryRepositoryStartsWithASpec),
+            spec: Box::new(MemoryRepositoryStartsWithASpec),
         }))
         .map(|resp| resp.items)
         .unwrap_or_default();
@@ -208,13 +208,13 @@ mod tests {
 
     #[test]
     fn test_find_one_by_no_match_returns_none_error() {
-        struct InMemoryRepositoryNeverMatchSpec;
-        impl Spec for InMemoryRepositoryNeverMatchSpec {
+        struct MemoryRepositoryNeverMatchSpec;
+        impl Spec for MemoryRepositoryNeverMatchSpec {
             type Entity = String;
         }
-        let r: InMemoryRepository<String, u32> = InMemoryRepository::new();
+        let r: MemoryRepository<String, u32> = MemoryRepository::new();
         let found = block_on(r.find_one_by(SpecRequest {
-            spec: Box::new(InMemoryRepositoryNeverMatchSpec),
+            spec: Box::new(MemoryRepositoryNeverMatchSpec),
         }))
         .map(|resp| resp.entity)
         .unwrap_or(Some("x".into()));
@@ -223,8 +223,8 @@ mod tests {
 
     #[test]
     fn test_count_by_matches_correct_count_edge() {
-        struct InMemoryRepositoryStartsWithASpec;
-        impl Spec for InMemoryRepositoryStartsWithASpec {
+        struct MemoryRepositoryStartsWithASpec;
+        impl Spec for MemoryRepositoryStartsWithASpec {
             type Entity = String;
 
             fn matches(
@@ -236,7 +236,7 @@ mod tests {
                 })
             }
         }
-        let r = InMemoryRepository::new();
+        let r = MemoryRepository::new();
         block_on(r.save(RepositorySaveRequest {
             id: 1u32,
             entity: "ant".into(),
@@ -253,7 +253,7 @@ mod tests {
         }))
         .unwrap_or_default();
         let n = block_on(r.count_by(SpecRequest {
-            spec: Box::new(InMemoryRepositoryStartsWithASpec),
+            spec: Box::new(MemoryRepositoryStartsWithASpec),
         }))
         .map(|resp| resp.count)
         .unwrap_or(0);

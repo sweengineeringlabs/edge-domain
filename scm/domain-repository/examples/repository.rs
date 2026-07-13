@@ -1,8 +1,8 @@
 //! Basic `Repository` usage example.
 
-use edge_domain_repository::InMemoryRepository;
+use edge_domain_repository::MemoryRepository;
 
 fn main() {
-    let _cfg: InMemoryRepository<String, u32> = InMemoryRepository::new();
+    let _cfg: MemoryRepository<String, u32> = MemoryRepository::new();
     println!("repository sub-crate ready");
 }

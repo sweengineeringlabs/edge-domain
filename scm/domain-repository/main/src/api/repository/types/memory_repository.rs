@@ -1,4 +1,4 @@
-//! `InMemoryRepository` — heap-backed repository for testing and prototyping.
+//! `MemoryRepository` — heap-backed repository for testing and prototyping.
 
 use std::collections::HashMap;
 use std::hash::Hash;
@@ -10,7 +10,7 @@ use parking_lot::RwLock;
 /// Suitable for tests and in-process prototyping. The `store` field is
 /// `pub(crate)` so that `core/` implementations can access it directly
 /// without exposing raw storage to consumers.
-pub struct InMemoryRepository<T, Id>
+pub struct MemoryRepository<T, Id>
 where
     Id: Hash + Eq + Clone + Send + Sync + 'static,
     T: Clone + Send + Sync + 'static,

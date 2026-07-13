@@ -7,7 +7,7 @@ pub use errors::RepositoryError;
 pub use page::Page;
 pub use traits::{QueryableRepository, Repository, Spec};
 pub use types::{
-    AlwaysMatchSpec, CountByResponse, InMemoryRepository, MatchingEntitiesResponse,
+    AlwaysMatchSpec, CountByResponse, MemoryRepository, MatchingEntitiesResponse,
     MatchingEntityResponse, RepositoryCountResponse, RepositoryDeleteResponse,
     RepositoryExistsResponse, RepositoryFindResponse, RepositoryIdRequest,
     RepositoryListPageRequest, RepositoryListPageResponse, RepositoryListRequest,
