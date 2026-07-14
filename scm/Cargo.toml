@@ -68,9 +68,4 @@ edge-security-authz     = { git = "https://github.com/sweengineeringlabs/edge-se
 edge-domain-registry    = { path = "domain-registry" }
 edge-domain-lifecycle   = { path = "domain-lifecycle" }
 edge-domain-observer    = { path = "domain-observer" }
-swe-edge-configbuilder  = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", tag = "v0.4.1" }
-
-# ── Development override — use local path when building inside the swe-edge assembly
-[patch."https://github.com/sweengineeringlabs/edge-configbuilder.git"]
-swe-edge-configbuilder = { path = "../../configbuilder/scm" }
-
+swe-edge-configbuilder  = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", tag = "v0.4.2" }
