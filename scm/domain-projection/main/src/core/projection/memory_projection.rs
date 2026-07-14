@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use edge_domain_event::{DomainEvent, EventAggregateIdRequest, EventTypeRequest};
+use edge_application_event::{DomainEvent, EventAggregateIdRequest, EventTypeRequest};
 
 use crate::api::Projection;
 use crate::api::MemoryProjection;
@@ -12,7 +12,7 @@ use crate::api::{ProjectionApplyRequest, ProjectionReadModelRequest, ProjectionR
 
 /// Bridges every [`DomainEvent`] into [`ProjectionEvent`], so any real domain
 /// event can drive an [`MemoryProjection`] (or any other `Projection`)
-/// without `api/` referencing `edge_domain_event::DomainEvent` directly.
+/// without `api/` referencing `edge_application_event::DomainEvent` directly.
 impl<T: DomainEvent> ProjectionEvent for T {
     fn describe(
         &self,
@@ -79,11 +79,11 @@ mod tests {
     }
 
     impl DomainEvent for MemoryProjectionTestEvt {
-        fn aggregate_id(&self, _req: edge_domain_event::EventAggregateIdRequest) -> Result<edge_domain_event::EventAggregateIdResponse<'_>, edge_domain_event::EventError> {
-            Ok(edge_domain_event::EventAggregateIdResponse { aggregate_id: "test" })
+        fn aggregate_id(&self, _req: edge_application_event::EventAggregateIdRequest) -> Result<edge_application_event::EventAggregateIdResponse<'_>, edge_application_event::EventError> {
+            Ok(edge_application_event::EventAggregateIdResponse { aggregate_id: "test" })
         }
-        fn occurred_at(&self, _req: edge_domain_event::EventOccurredAtRequest) -> Result<edge_domain_event::EventOccurredAtResponse, edge_domain_event::EventError> {
-            Ok(edge_domain_event::EventOccurredAtResponse { occurred_at: SystemTime::UNIX_EPOCH })
+        fn occurred_at(&self, _req: edge_application_event::EventOccurredAtRequest) -> Result<edge_application_event::EventOccurredAtResponse, edge_application_event::EventError> {
+            Ok(edge_application_event::EventOccurredAtResponse { occurred_at: SystemTime::UNIX_EPOCH })
         }
     }
 
@@ -122,9 +122,9 @@ mod tests {
     impl DomainEvent for MemoryProjectionBridgeTestEvt {
         fn aggregate_id(
             &self,
-            _req: edge_domain_event::EventAggregateIdRequest,
-        ) -> Result<edge_domain_event::EventAggregateIdResponse<'_>, edge_domain_event::EventError> {
-            Ok(edge_domain_event::EventAggregateIdResponse { aggregate_id: "agg-1" })
+            _req: edge_application_event::EventAggregateIdRequest,
+        ) -> Result<edge_application_event::EventAggregateIdResponse<'_>, edge_application_event::EventError> {
+            Ok(edge_application_event::EventAggregateIdResponse { aggregate_id: "agg-1" })
         }
     }
 

@@ -5,7 +5,7 @@
 // (i.e., when the `valueobject` feature is disabled).
 #[cfg(not(feature = "valueobject"))]
 mod tests {
-    use edge_domain::{NonEmptyString, ValueObjectFactory};
+    use edge_application::{NonEmptyString, ValueObjectFactory};
 
     struct TestValueObjects;
     impl ValueObjectFactory for TestValueObjects {}

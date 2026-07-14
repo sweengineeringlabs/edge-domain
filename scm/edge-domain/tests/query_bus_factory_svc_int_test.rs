@@ -1,6 +1,6 @@
 //! Integration tests for the `DirectQueryBus` construction path.
 
-use edge_domain::DirectQueryBus;
+use edge_application::DirectQueryBus;
 
 /// @covers DirectQueryBus::new — happy path: returns a DirectQueryBus
 #[test]

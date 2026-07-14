@@ -1,6 +1,6 @@
 //! Integration tests for `ServiceError`.
 
-use edge_domain::ServiceError;
+use edge_application::ServiceError;
 
 /// @covers: ServiceError
 #[test]

@@ -7,7 +7,7 @@ use crate::api::handler::types::{
 
 /// A tracing span produced by a [`HandlerTracer`](super::HandlerTracer).
 ///
-/// Declared locally so `api/` never references `edge_domain_observer::Span`
+/// Declared locally so `api/` never references `edge_application_observer::Span`
 /// directly in a type position (SEA `no_foreign_type`). Any real `Span`
 /// implementor satisfies this automatically via the blanket impl in `core/`.
 pub trait Span: Send + Sync {

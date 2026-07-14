@@ -1,4 +1,4 @@
-use edge_domain_handler::{METRIC_REGISTRY_SVC, METRIC_REGISTRY_SVC_FACTORY};
+use edge_application_handler::{METRIC_REGISTRY_SVC, METRIC_REGISTRY_SVC_FACTORY};
 
 #[test]
 fn test_metric_registry_svc_constant_value_happy() {

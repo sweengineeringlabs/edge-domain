@@ -2,7 +2,7 @@
 // @allow: no_mocks_in_integration — MemoryRepository is the production-shipped reference impl, not a test double
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{
+use edge_application::{
     MemoryRepository, Page, Repository, RepositoryIdRequest, RepositoryListPageRequest,
     RepositoryListRequest, RepositorySaveRequest,
 };

@@ -8,7 +8,7 @@ use crate::api::handler::types::{CommandBusAdapter, CommandDispatchRequest};
 
 /// Dispatches [`Command`](super::Command) instances to their executors.
 ///
-/// Declared locally so `api/` never references `edge_domain_command::CommandBus`
+/// Declared locally so `api/` never references `edge_application_command::CommandBus`
 /// directly in a type position (SEA `no_foreign_type`). Any real `CommandBus`
 /// implementor satisfies this automatically via the blanket impl in `core/`.
 pub trait CommandBus: Send + Sync {

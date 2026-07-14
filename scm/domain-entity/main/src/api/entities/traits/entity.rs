@@ -17,14 +17,14 @@ use crate::api::entities::types::{IdRequest, IdResponse, ValidationRequest, Vali
 /// # Examples
 ///
 /// ```rust
-/// use edge_domain_entity::{Entity, IdRequest};
+/// use edge_application_entity::{Entity, IdRequest};
 ///
 /// struct LineItem { id: u64, quantity: u32 }
 ///
 /// impl Entity for LineItem {
 ///     type Id = u64;
-///     fn id(&self, _req: IdRequest) -> Result<edge_domain_entity::IdResponse<'_, u64>, edge_domain_entity::EntityError> {
-///         Ok(edge_domain_entity::IdResponse { id: &self.id })
+///     fn id(&self, _req: IdRequest) -> Result<edge_application_entity::IdResponse<'_, u64>, edge_application_entity::EntityError> {
+///         Ok(edge_application_entity::IdResponse { id: &self.id })
 ///     }
 /// }
 /// ```

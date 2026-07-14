@@ -6,7 +6,7 @@
 
 use std::sync::Arc;
 
-use edge_domain_handler::{
+use edge_application_handler::{
     BridgeRequest, BridgeResponse, DeregisterHandlerRequest, DeregisterHandlerResponse,
     EmptinessRequest, EmptinessResponse, ExecutionRequest, Handler, HandlerContext, HandlerError,
     HandlerLookupRequest, HandlerLookupResponse, HandlerRegistry, HealthCheckRequest,
@@ -15,7 +15,7 @@ use edge_domain_handler::{
     ListNamesRequest, PatternRequest, PatternResponse, RegisterHandlerRequest,
     RegisterHandlerResponse, ValidatorRequest,
 };
-use edge_domain_service::{
+use edge_application_service::{
     NameRequest, NameResponse, RegisterServiceRequest, Service, ServiceError,
     ServiceRegistry as ServiceRegistryTrait, ServiceRegistryStore,
 };
@@ -238,13 +238,13 @@ fn test_register_handler_request_new_wraps_handler_happy() {
 /// @covers: ExecutionRequest
 #[test]
 fn test_execution_request_holds_req_and_ctx_happy() {
-    use edge_domain_command::NoopCommandBus;
-    use edge_domain_observer::StdObserveFactory;
+    use edge_application_command::NoopCommandBus;
+    use edge_application_observer::StdObserveFactory;
     use edge_security_runtime::SecurityContext;
 
     let security = SecurityContext::unauthenticated();
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = edge_domain_handler::ObserverContextAdapter(observer.as_ref());
+    let observer_adapter = edge_application_handler::ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
         commands: &NoopCommandBus,

@@ -1,12 +1,12 @@
 //! Integration tests — `HandlerContext` type.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_command::DirectCommandBus;
-use edge_domain_handler::{
+use edge_application_command::DirectCommandBus;
+use edge_application_handler::{
     CommandDispatchRequest, HandlerContext, ObserverContextAdapter, SecurityPrincipal,
     SpanFinishRequest, SpanStartRequest, TracerRequest,
 };
-use edge_domain_observer::StdObserveFactory;
+use edge_application_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
 
 /// Identity pointer for a `&dyn SecurityPrincipal`, so tests can assert `HandlerContext`
@@ -38,7 +38,7 @@ fn test_handler_context_constructs_with_unauthenticated_security_happy() {
 /// @covers: HandlerContext::commands — dispatch on direct bus succeeds
 #[test]
 fn test_handler_context_commands_field_is_accessible_error() {
-    use edge_domain_command::NoopCommand;
+    use edge_application_command::NoopCommand;
     use futures::executor::block_on;
 
     let security = SecurityContext::unauthenticated();

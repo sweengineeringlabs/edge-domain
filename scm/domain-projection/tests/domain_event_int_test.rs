@@ -2,7 +2,7 @@
 // @allow: no_mocks_in_integration
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_event::{DomainEvent, EventAggregateIdRequest, EventOccurredAtRequest, EventTypeRequest};
+use edge_application_event::{DomainEvent, EventAggregateIdRequest, EventOccurredAtRequest, EventTypeRequest};
 
 #[derive(Clone)]
 struct DomainEventTestEvt;

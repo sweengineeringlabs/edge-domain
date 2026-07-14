@@ -3,8 +3,8 @@
 
 use std::time::{Duration, SystemTime};
 
-use edge_domain::{Clock, FixedClock};
-use edge_domain_clock::NowRequest;
+use edge_application::{Clock, FixedClock};
+use edge_application_clock::NowRequest;
 
 /// @covers: FixedClock::new, Clock::now
 #[test]

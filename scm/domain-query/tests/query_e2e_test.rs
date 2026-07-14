@@ -1,7 +1,7 @@
 //! SAF facade tests — `Query` trait.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_query::{Query, QueryError, QueryExecuteRequest, QueryNameRequest, QueryNameResponse, QueryResultResponse};
+use edge_application_query::{Query, QueryError, QueryExecuteRequest, QueryNameRequest, QueryNameResponse, QueryResultResponse};
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 

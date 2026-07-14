@@ -1,6 +1,6 @@
 //! Integration tests — `SECURITY_PRINCIPAL_SVC_FACTORY` constant.
 
-use edge_domain_handler::SECURITY_PRINCIPAL_SVC_FACTORY;
+use edge_application_handler::SECURITY_PRINCIPAL_SVC_FACTORY;
 
 /// @covers: SECURITY_PRINCIPAL_SVC_FACTORY — correct factory identity value
 #[test]

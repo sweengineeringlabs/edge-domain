@@ -4,7 +4,7 @@
 
 use std::sync::Arc;
 
-use edge_domain_registry::{
+use edge_application_registry::{
     EmptinessRequest, MemoryRegistry, LenRequest, RegisterRequest, Registry,
     RegistryLookupRequest,
 };

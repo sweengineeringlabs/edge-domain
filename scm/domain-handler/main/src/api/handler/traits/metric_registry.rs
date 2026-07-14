@@ -8,7 +8,7 @@ use crate::api::handler::types::{
 
 /// Creates named metric instruments.
 ///
-/// Declared locally so `api/` never references `edge_domain_observer::MetricRegistry`
+/// Declared locally so `api/` never references `edge_application_observer::MetricRegistry`
 /// directly in a type position (SEA `no_foreign_type`). Any real `MetricRegistry`
 /// implementor satisfies this automatically via the blanket impl in `core/`.
 pub trait MetricRegistry: Send + Sync {

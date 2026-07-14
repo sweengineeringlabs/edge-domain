@@ -4,7 +4,7 @@
 use std::fs;
 
 use base64::{Engine as _, engine::general_purpose::STANDARD};
-use edge_domain_vpn::{CLIENT_CONFIG_SVC, VpnClientConfig};
+use edge_application_vpn::{CLIENT_CONFIG_SVC, VpnClientConfig};
 use swe_edge_configbuilder::{ConfigLoaderFactory, FeatureState, OptionalSection};
 
 fn loader(dir: &tempfile::TempDir, toml: &str) -> swe_edge_configbuilder::SectionLoaderImpl {

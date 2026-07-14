@@ -1,6 +1,6 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_observer::{LogDrain, LogEmitRequest, StdObserveFactory};
+use edge_application_observer::{LogDrain, LogEmitRequest, StdObserveFactory};
 
 // --- emit ---
 

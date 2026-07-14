@@ -2,7 +2,7 @@
 // @allow: no_mocks_in_integration — Spec is tested through concrete impls, not test doubles
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_repository::{RepositoryError, Spec, SpecMatchesRequest, SpecMatchesResponse};
+use edge_application_repository::{RepositoryError, Spec, SpecMatchesRequest, SpecMatchesResponse};
 
 struct ExactMatch(u32);
 impl Spec for ExactMatch {

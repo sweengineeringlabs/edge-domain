@@ -1,22 +1,22 @@
-//! Integration tests for saf/edge_domain_svc public API.
+//! Integration tests for saf/edge_application_svc public API.
 //!
-//! Covers all factory functions in edge_domain_svc.rs
+//! Covers all factory functions in edge_application_svc.rs
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::*;
-use edge_domain_handler::{
+use edge_application::*;
+use edge_application_handler::{
     CommandBusAdapter, EmptinessRequest as HandlerEmptinessRequest, ExecutionRequest,
     HandlerContext, ObserverContextAdapter,
 };
-use edge_domain_observer::StdObserveFactory;
-use edge_domain_service::EmptinessRequest as ServiceEmptinessRequest;
+use edge_application_observer::StdObserveFactory;
+use edge_application_service::EmptinessRequest as ServiceEmptinessRequest;
 use edge_security_runtime::SecurityContext;
 use std::sync::Arc;
 
 /// @covers: echo_handler
 #[test]
 fn test_echo_handler() {
-    let _: Arc<dyn edge_domain::Handler<Request = String, Response = String>> =
+    let _: Arc<dyn edge_application::Handler<Request = String, Response = String>> =
         Domain.echo_handler("id", "/path");
 }
 
@@ -65,21 +65,21 @@ fn test_new_service_registry_returns_empty_registry() {
 /// @covers: new_in_memory_repository
 #[test]
 fn test_new_in_memory_repository() {
-    let _: Arc<dyn edge_domain::Repository<Entity = String, Id = u32>> =
+    let _: Arc<dyn edge_application::Repository<Entity = String, Id = u32>> =
         Domain.new_in_memory_repository();
 }
 
 /// @covers: new_in_memory_queryable_repository
 #[test]
 fn test_new_in_memory_queryable_repository() {
-    let _: Arc<dyn edge_domain::QueryableRepository<Entity = String, Id = u32>> =
+    let _: Arc<dyn edge_application::QueryableRepository<Entity = String, Id = u32>> =
         Domain.new_in_memory_queryable_repository();
 }
 
 /// @covers: new_in_memory_queryable_repository
 #[tokio::test]
 async fn test_new_in_memory_queryable_repository_returns_functional_store() {
-    use edge_domain::{RepositoryError, Spec, SpecMatchesRequest, SpecMatchesResponse};
+    use edge_application::{RepositoryError, Spec, SpecMatchesRequest, SpecMatchesResponse};
     struct Any;
     impl Spec for Any {
         type Entity = String;
@@ -112,7 +112,7 @@ async fn test_new_in_memory_queryable_repository_returns_functional_store() {
 /// @covers: new_in_memory_repository
 #[tokio::test]
 async fn test_new_in_memory_repository_saves_and_finds_entity() {
-    let repo: Arc<dyn edge_domain::Repository<Entity = String, Id = u32>> =
+    let repo: Arc<dyn edge_application::Repository<Entity = String, Id = u32>> =
         Domain.new_in_memory_repository::<String, u32>();
     repo.save(RepositorySaveRequest {
         id: 1u32,
@@ -131,7 +131,7 @@ async fn test_new_in_memory_repository_saves_and_finds_entity() {
 /// @covers: new_in_memory_queryable_repository
 #[tokio::test]
 async fn test_new_in_memory_queryable_repository_supports_count_by() {
-    use edge_domain::{RepositoryError, Spec, SpecMatchesRequest, SpecMatchesResponse};
+    use edge_application::{RepositoryError, Spec, SpecMatchesRequest, SpecMatchesResponse};
     struct Any;
     impl Spec for Any {
         type Entity = String;
@@ -164,14 +164,14 @@ async fn test_new_in_memory_queryable_repository_supports_count_by() {
 /// @covers: validate_config
 #[test]
 fn test_validate_config_returns_ok_for_valid_input() {
-    use edge_domain::{Validator, ValidatorError};
+    use edge_application::{Validator, ValidatorError};
     struct AlwaysValid;
     impl Validator for AlwaysValid {
         fn validate(
             &self,
-            _req: edge_domain_validator::ValidationRequest,
-        ) -> Result<edge_domain_validator::ValidationResponse, ValidatorError> {
-            Ok(edge_domain_validator::ValidationResponse)
+            _req: edge_application_validator::ValidationRequest,
+        ) -> Result<edge_application_validator::ValidationResponse, ValidatorError> {
+            Ok(edge_application_validator::ValidationResponse)
         }
     }
     assert_eq!(Domain.validate_config(&AlwaysValid), Ok(()));
@@ -180,13 +180,13 @@ fn test_validate_config_returns_ok_for_valid_input() {
 /// @covers: validate_config
 #[test]
 fn test_validate_config_returns_err_for_invalid_input() {
-    use edge_domain::{Validator, ValidatorError};
+    use edge_application::{Validator, ValidatorError};
     struct AlwaysInvalid;
     impl Validator for AlwaysInvalid {
         fn validate(
             &self,
-            _req: edge_domain_validator::ValidationRequest,
-        ) -> Result<edge_domain_validator::ValidationResponse, ValidatorError> {
+            _req: edge_application_validator::ValidationRequest,
+        ) -> Result<edge_application_validator::ValidationResponse, ValidatorError> {
             Err(ValidatorError::Invalid("bad".into()))
         }
     }
@@ -200,7 +200,7 @@ fn test_direct_command_bus_returns_arc_command_bus() {
         .direct_command_bus(DirectCommandBusRequest)
         .unwrap()
         .bus;
-    let _: Arc<dyn edge_domain::CommandBus> = bus;
+    let _: Arc<dyn edge_application::CommandBus> = bus;
 }
 
 /// @covers: noop_event_publisher
@@ -210,19 +210,19 @@ fn test_noop_event_publisher_returns_arc_event_publisher() {
         .noop_event_publisher(NoopEventPublisherRequest)
         .unwrap()
         .publisher;
-    let _: Arc<dyn edge_domain::EventPublisher> = pub_;
+    let _: Arc<dyn edge_application::EventPublisher> = pub_;
 }
 
 /// @covers: direct_query_bus
 #[test]
 fn test_direct_query_bus_returns_arc_query_bus() {
     let bus = Domain.direct_query_bus::<String>();
-    let _: Arc<dyn edge_domain::QueryBus<Result = String>> = bus;
+    let _: Arc<dyn edge_application::QueryBus<Result = String>> = bus;
 }
 
 #[derive(Clone)]
 struct AnyEvent;
-impl edge_domain::DomainEvent for AnyEvent {
+impl edge_application::DomainEvent for AnyEvent {
     fn event_type(&self, _req: EventTypeRequest) -> Result<EventTypeResponse<'_>, EventError> {
         Ok(EventTypeResponse {
             event_type: "test.any",
@@ -247,7 +247,7 @@ impl edge_domain::DomainEvent for AnyEvent {
 /// @covers: new_in_memory_event_store
 #[test]
 fn test_new_in_memory_event_store_returns_arc_event_store() {
-    let _: Arc<dyn edge_domain::EventStore<Event = AnyEvent>> =
+    let _: Arc<dyn edge_application::EventStore<Event = AnyEvent>> =
         Domain.new_in_memory_event_store::<AnyEvent>();
 }
 
@@ -299,7 +299,7 @@ fn test_reconstitute_returns_none_for_unknown_id() {
     struct AnyAgg {
         id: String,
     }
-    impl edge_domain::Aggregate for AnyAgg {
+    impl edge_application::Aggregate for AnyAgg {
         type Event = AnyEvent;
         fn apply(
             &mut self,
@@ -320,7 +320,7 @@ fn test_reconstitute_returns_none_for_unknown_id() {
             Ok(AggregateIdentityResponse { id: &self.id })
         }
     }
-    let store: Arc<dyn edge_domain::EventStore<Event = AnyEvent>> =
+    let store: Arc<dyn edge_application::EventStore<Event = AnyEvent>> =
         Domain.new_in_memory_event_store::<AnyEvent>();
     let result = rt
         .block_on(Domain.reconstitute::<AnyAgg>(&*store, "none"))
@@ -335,7 +335,7 @@ async fn test_reconstitute_returns_none_for_empty_store() {
     struct AnyAgg {
         id: String,
     }
-    impl edge_domain::Aggregate for AnyAgg {
+    impl edge_application::Aggregate for AnyAgg {
         type Event = AnyEvent;
         fn apply(
             &mut self,

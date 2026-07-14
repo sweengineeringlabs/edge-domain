@@ -1,6 +1,6 @@
 //! Integration tests for `SagaError`.
 
-use edge_domain_saga::SagaError;
+use edge_application_saga::SagaError;
 
 #[test]
 fn test_already_registered_display_contains_id_happy() {

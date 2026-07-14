@@ -1,13 +1,13 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, unused_imports)]
 //! SAF facade smoke test — CommandBus is exported from the crate root.
 
-use edge_domain::Command;
-use edge_domain::CommandBus;
-use edge_domain::CommandError;
-use edge_domain::DirectCommandBusRequest;
-use edge_domain::Domain;
-use edge_domain::DomainRuntime;
-use edge_domain_command::{CommandDispatchRequest, ExecutionRequest, NameRequest, NameResponse};
+use edge_application::Command;
+use edge_application::CommandBus;
+use edge_application::CommandError;
+use edge_application::DirectCommandBusRequest;
+use edge_application::Domain;
+use edge_application::DomainRuntime;
+use edge_application_command::{CommandDispatchRequest, ExecutionRequest, NameRequest, NameResponse};
 
 struct Noop;
 impl Command for Noop {

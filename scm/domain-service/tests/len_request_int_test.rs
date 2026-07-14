@@ -1,6 +1,6 @@
 //! Tests for [`LenRequest`] — zero-sized marker type.
 
-use edge_domain_service::LenRequest;
+use edge_application_service::LenRequest;
 use std::mem::size_of;
 
 /// @covers: LenRequest — constructible

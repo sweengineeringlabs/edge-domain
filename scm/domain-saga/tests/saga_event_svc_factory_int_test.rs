@@ -1,4 +1,4 @@
-use edge_domain_saga::{SAGA_EVENT_SVC, SAGA_EVENT_SVC_FACTORY};
+use edge_application_saga::{SAGA_EVENT_SVC, SAGA_EVENT_SVC_FACTORY};
 
 #[test]
 fn test_saga_event_svc_constant_value_happy() {

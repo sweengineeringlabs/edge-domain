@@ -1,6 +1,6 @@
 //! Integration tests for `NoopDomainAssemblyHook`.
 
-use edge_domain::{DomainAssemblyHook, NoopDomainAssemblyHook};
+use edge_application::{DomainAssemblyHook, NoopDomainAssemblyHook};
 
 /// @covers: NoopDomainAssemblyHook
 #[test]

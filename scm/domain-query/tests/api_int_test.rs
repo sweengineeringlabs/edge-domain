@@ -1,7 +1,7 @@
 //! Layer-level coverage for `api/query/types/*.rs` request/response types.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_query::{
+use edge_application_query::{
     Query, QueryDispatchRequest, QueryError, QueryExecuteRequest, QueryNameRequest,
     QueryNameResponse, QueryResultResponse,
 };

@@ -1,7 +1,7 @@
 //! Layer-level coverage for `api/policy/types/*.rs` request/response types.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_policy::{Policy, PolicyEvaluateRequest, PolicyNameRequest, PolicyNameResponse};
+use edge_application_policy::{Policy, PolicyEvaluateRequest, PolicyNameRequest, PolicyNameResponse};
 
 /// @covers: PolicyNameRequest
 #[test]
@@ -26,13 +26,13 @@ fn test_policy_evaluate_request_used_by_policy_impl_happy() {
         fn name(
             &self,
             _req: PolicyNameRequest,
-        ) -> Result<PolicyNameResponse, edge_domain_policy::PolicyError> {
+        ) -> Result<PolicyNameResponse, edge_application_policy::PolicyError> {
             Ok(PolicyNameResponse { name: "always-ok" })
         }
         fn evaluate(
             &self,
             _req: PolicyEvaluateRequest<'_, u64>,
-        ) -> Result<(), edge_domain_policy::PolicyError> {
+        ) -> Result<(), edge_application_policy::PolicyError> {
             Ok(())
         }
     }

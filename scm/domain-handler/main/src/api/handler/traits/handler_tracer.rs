@@ -5,7 +5,7 @@ use crate::api::handler::types::{SpanStartRequest, SpanStartResponse};
 
 /// Opens tracing spans for a domain handler execution.
 ///
-/// Declared locally so `api/` never references `edge_domain_observer::HandlerTracer`
+/// Declared locally so `api/` never references `edge_application_observer::HandlerTracer`
 /// directly in a type position (SEA `no_foreign_type`). Any real `HandlerTracer`
 /// implementor satisfies this automatically via the blanket impl in `core/`.
 pub trait HandlerTracer: Send + Sync {

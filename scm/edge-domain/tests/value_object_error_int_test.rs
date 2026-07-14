@@ -1,7 +1,7 @@
 //! Integration tests — `ValueObjectError` variants and display.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::ValueObjectError;
+use edge_application::ValueObjectError;
 
 /// @covers: ValueObjectError — Empty display is non-empty
 #[test]

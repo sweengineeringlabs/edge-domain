@@ -4,7 +4,7 @@
 //! crate's public API and asserts on its real shape or field values.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_validator::{ValidationRequest, ValidationResponse};
+use edge_application_validator::{ValidationRequest, ValidationResponse};
 
 /// @covers: ValidationRequest
 #[test]

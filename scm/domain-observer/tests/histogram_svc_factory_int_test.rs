@@ -1,4 +1,4 @@
-use edge_domain_observer::HISTOGRAM_SVC_FACTORY;
+use edge_application_observer::HISTOGRAM_SVC_FACTORY;
 
 #[test]
 fn test_histogram_svc_factory_constant_value_happy() {

@@ -4,7 +4,7 @@
 
 use std::time::SystemTime;
 
-use edge_domain::{
+use edge_application::{
     DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventError,
     EventOccurredAtRequest, EventOccurredAtResponse, EventTypeRequest, EventTypeResponse,
     Projection, ProjectionApplyRequest, ProjectionError, ProjectionReadModelRequest,

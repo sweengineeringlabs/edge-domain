@@ -1,6 +1,6 @@
 //! Integration tests for the `Entity` trait.
 
-use edge_domain_entity::{Entity, EntityError, IdRequest, IdResponse, ValidationRequest, ValidationResponse};
+use edge_application_entity::{Entity, EntityError, IdRequest, IdResponse, ValidationRequest, ValidationResponse};
 
 struct OrderLine {
     id: u64,

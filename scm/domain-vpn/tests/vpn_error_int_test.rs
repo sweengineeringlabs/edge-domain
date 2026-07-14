@@ -1,6 +1,6 @@
 //! Tests for `api/vpn/errors/vpn_error.rs` — VpnError display and variants.
 
-use edge_domain_vpn::VpnError;
+use edge_application_vpn::VpnError;
 
 #[test]
 fn test_vpn_error_config_error_variant_display_happy() {

@@ -2,7 +2,7 @@
 
 use std::fs;
 
-use edge_domain_vpn::{VpnClientConfig, VpnError, VpnManagerFactory, TunnelStatus};
+use edge_application_vpn::{VpnClientConfig, VpnError, VpnManagerFactory, TunnelStatus};
 use swe_edge_configbuilder::{ConfigLoaderFactory, FeatureState, OptionalSection};
 use tokio::runtime::Runtime;
 

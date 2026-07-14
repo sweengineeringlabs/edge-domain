@@ -1,6 +1,6 @@
 //! Integration tests — `SERVICE_SVC_FACTORY` constant.
 
-use edge_domain_handler::SERVICE_SVC_FACTORY;
+use edge_application_handler::SERVICE_SVC_FACTORY;
 
 /// @covers: SERVICE_SVC_FACTORY — correct factory identity value
 #[test]

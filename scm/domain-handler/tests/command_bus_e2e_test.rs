@@ -1,7 +1,7 @@
 //! SAF facade tests — `CommandBus` trait.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_handler::{
+use edge_application_handler::{
     Command, CommandBus, CommandDispatchRequest, CommandExecutionRequest, HandlerError,
 };
 use futures::executor::block_on;
@@ -78,8 +78,8 @@ fn test_dispatch_repeated_calls_are_independent_edge() {
 /// @covers: CommandBus::wrap — wraps an already type-erased real `CommandBus`
 #[test]
 fn test_wrap_erased_reference_dispatches_happy() {
-    let bus = edge_domain_command::DirectCommandBus;
-    let adapter = EchoBus::wrap(&bus as &dyn edge_domain_command::CommandBus);
+    let bus = edge_application_command::DirectCommandBus;
+    let adapter = EchoBus::wrap(&bus as &dyn edge_application_command::CommandBus);
     let result = block_on(adapter.dispatch(CommandDispatchRequest {
         command: Box::new(OkCmd),
     }));
@@ -89,8 +89,8 @@ fn test_wrap_erased_reference_dispatches_happy() {
 /// @covers: CommandBus::wrap — wrapped erased bus propagates real errors
 #[test]
 fn test_wrap_erased_reference_propagates_errors_error() {
-    let bus = edge_domain_command::DirectCommandBus;
-    let adapter = EchoBus::wrap(&bus as &dyn edge_domain_command::CommandBus);
+    let bus = edge_application_command::DirectCommandBus;
+    let adapter = EchoBus::wrap(&bus as &dyn edge_application_command::CommandBus);
     struct DenyCmd;
     impl Command for DenyCmd {
         fn execute(
@@ -111,8 +111,8 @@ fn test_wrap_erased_reference_propagates_errors_error() {
 /// @covers: CommandBus::wrap — adapter reusable across multiple dispatches
 #[test]
 fn test_wrap_adapter_reusable_edge() {
-    let bus = edge_domain_command::DirectCommandBus;
-    let adapter = EchoBus::wrap(&bus as &dyn edge_domain_command::CommandBus);
+    let bus = edge_application_command::DirectCommandBus;
+    let adapter = EchoBus::wrap(&bus as &dyn edge_application_command::CommandBus);
     assert_eq!(
         block_on(adapter.dispatch(CommandDispatchRequest {
             command: Box::new(OkCmd)

@@ -1,6 +1,6 @@
 //! Integration tests for `EventError`.
 
-use edge_domain::EventError;
+use edge_application::EventError;
 
 /// @covers: EventError
 #[test]

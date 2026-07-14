@@ -1,4 +1,4 @@
-use edge_domain_repository::{REPOSITORY_SVC, REPOSITORY_SVC_FACTORY};
+use edge_application_repository::{REPOSITORY_SVC, REPOSITORY_SVC_FACTORY};
 
 #[test]
 fn test_repository_svc_constant_value_happy() {

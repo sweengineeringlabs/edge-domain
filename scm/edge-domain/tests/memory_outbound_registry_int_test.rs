@@ -2,7 +2,7 @@
 // @allow: no_mocks_in_integration — MemoryOutboundRegistry is the production-shipped reference impl, not a test double
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{MemoryOutboundRegistry, OutboundIsEmptyRequest, OutboundRegistry};
+use edge_application::{MemoryOutboundRegistry, OutboundIsEmptyRequest, OutboundRegistry};
 
 /// @covers: MemoryOutboundRegistry::new
 #[test]

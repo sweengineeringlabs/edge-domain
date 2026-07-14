@@ -1,7 +1,7 @@
 //! SAF facade tests — `EventStore` trait via `MemoryEventStore`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_event::{
+use edge_application_event::{
     DomainEvent, EventAggregateIdRequest, EventStore, EventStoreAppendRequest, EventStoreError,
     EventStoreLoadFromRequest, EventStoreLoadRequest, EventTypeRequest, ExpectedVersion,
     MemoryEventStore,
@@ -10,11 +10,11 @@ use edge_domain_event::{
 #[derive(Clone)]
 struct OrderEvt(String);
 impl DomainEvent for OrderEvt {
-    fn event_type(&self, _req: EventTypeRequest) -> Result<edge_domain_event::EventTypeResponse<'_>, edge_domain_event::EventError> {
-        Ok(edge_domain_event::EventTypeResponse { event_type: "order.evt" })
+    fn event_type(&self, _req: EventTypeRequest) -> Result<edge_application_event::EventTypeResponse<'_>, edge_application_event::EventError> {
+        Ok(edge_application_event::EventTypeResponse { event_type: "order.evt" })
     }
-    fn aggregate_id(&self, _req: EventAggregateIdRequest) -> Result<edge_domain_event::EventAggregateIdResponse<'_>, edge_domain_event::EventError> {
-        Ok(edge_domain_event::EventAggregateIdResponse { aggregate_id: &self.0 })
+    fn aggregate_id(&self, _req: EventAggregateIdRequest) -> Result<edge_application_event::EventAggregateIdResponse<'_>, edge_application_event::EventError> {
+        Ok(edge_application_event::EventAggregateIdResponse { aggregate_id: &self.0 })
     }
 }
 

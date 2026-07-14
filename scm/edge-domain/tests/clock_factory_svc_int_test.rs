@@ -3,8 +3,8 @@
 
 use std::time::{Duration, SystemTime};
 
-use edge_domain::{Clock, SystemClock};
-use edge_domain_clock::NowRequest;
+use edge_application::{Clock, SystemClock};
+use edge_application_clock::NowRequest;
 
 // --- SystemClock ---
 
@@ -48,7 +48,7 @@ fn test_system_returns_system_clock_type_edge() {
 /// @covers FixedClock::new — happy path: returned clock reports the pinned time
 #[test]
 fn test_fixed_reports_pinned_time_happy() {
-    use edge_domain::FixedClock;
+    use edge_application::FixedClock;
     let pinned = SystemTime::UNIX_EPOCH;
     let clock: FixedClock = FixedClock::new(pinned);
     assert_eq!(clock.now(NowRequest).unwrap().instant, pinned);
@@ -57,7 +57,7 @@ fn test_fixed_reports_pinned_time_happy() {
 /// @covers FixedClock::new — error: fixed clock does not advance
 #[test]
 fn test_fixed_does_not_advance_error() {
-    use edge_domain::FixedClock;
+    use edge_application::FixedClock;
     let at = SystemTime::UNIX_EPOCH;
     let clock = FixedClock::new(at);
     std::thread::sleep(Duration::from_millis(1));
@@ -71,7 +71,7 @@ fn test_fixed_does_not_advance_error() {
 /// @covers FixedClock::new — edge: UNIX_EPOCH is a valid anchor point
 #[test]
 fn test_fixed_unix_epoch_anchor_edge() {
-    use edge_domain::FixedClock;
+    use edge_application::FixedClock;
     let clock = FixedClock::new(SystemTime::UNIX_EPOCH);
     assert_eq!(
         clock.now(NowRequest).unwrap().instant,

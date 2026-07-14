@@ -1,4 +1,4 @@
-use edge_domain_repository::{SPEC_SVC, SPEC_SVC_FACTORY};
+use edge_application_repository::{SPEC_SVC, SPEC_SVC_FACTORY};
 
 #[test]
 fn test_spec_svc_constant_value_happy() {

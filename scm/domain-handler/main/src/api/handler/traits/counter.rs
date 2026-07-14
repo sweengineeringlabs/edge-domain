@@ -5,7 +5,7 @@ use crate::api::handler::types::{IncrementRequest, IncrementResponse};
 
 /// A monotonically increasing integer metric.
 ///
-/// Declared locally so `api/` never references `edge_domain_observer::Counter`
+/// Declared locally so `api/` never references `edge_application_observer::Counter`
 /// directly in a type position (SEA `no_foreign_type`). Any real `Counter`
 /// implementor satisfies this automatically via the blanket impl in `core/`.
 pub trait Counter: Send + Sync {

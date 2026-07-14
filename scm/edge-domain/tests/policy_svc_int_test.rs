@@ -5,7 +5,7 @@
 //! real business violation rather than a contrived assertion.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{
+use edge_application::{
     Policy, PolicyError, PolicyEvaluateRequest, PolicyNameRequest, PolicyNameResponse,
 };
 

@@ -9,7 +9,7 @@ use parking_lot::RwLock;
 /// ## Example
 ///
 /// ```rust
-/// use edge_domain::{MemoryOutboundRegistry, OutboundRegisterRequest, OutboundRegistry, OutboundGetRequest};
+/// use edge_application::{MemoryOutboundRegistry, OutboundRegisterRequest, OutboundRegistry, OutboundGetRequest};
 ///
 /// let reg: MemoryOutboundRegistry<String> = MemoryOutboundRegistry::new();
 /// reg.register(OutboundRegisterRequest { name: "anthropic".into(), handle: "https://api.anthropic.com".to_string() }).unwrap();

@@ -1,5 +1,5 @@
 //! Coverage for api/event/types/expected_version.rs
-use edge_domain::ExpectedVersion;
+use edge_application::ExpectedVersion;
 
 #[test]
 fn test_expected_version_any_not_equal_to_exact() {

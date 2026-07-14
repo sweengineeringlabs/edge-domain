@@ -4,14 +4,14 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain::DirectCommandBusRequest;
-use edge_domain::DomainRuntime;
-use edge_domain::{Domain, Handler, HandlerContext, HandlerError};
-use edge_domain_handler::{
+use edge_application::DirectCommandBusRequest;
+use edge_application::DomainRuntime;
+use edge_application::{Domain, Handler, HandlerContext, HandlerError};
+use edge_application_handler::{
     CommandBusAdapter, ExecutionRequest, HealthCheckRequest, IdRequest, IdResponse,
     ObserverContextAdapter,
 };
-use edge_domain_observer::{ObserverContext, StdObserveFactory};
+use edge_application_observer::{ObserverContext, StdObserveFactory};
 use edge_security_runtime::SecurityContext;
 
 struct Counter {
@@ -50,14 +50,14 @@ impl Handler for SickHandler {
     async fn health_check(
         &self,
         _req: HealthCheckRequest,
-    ) -> Result<edge_domain_handler::HealthCheckResponse, HandlerError> {
-        Ok(edge_domain_handler::HealthCheckResponse { healthy: false })
+    ) -> Result<edge_application_handler::HealthCheckResponse, HandlerError> {
+        Ok(edge_application_handler::HealthCheckResponse { healthy: false })
     }
 }
 
 fn make_ctx<'a>(
     security: &'a SecurityContext,
-    bus: &'a CommandBusAdapter<'a, dyn edge_domain::CommandBus>,
+    bus: &'a CommandBusAdapter<'a, dyn edge_application::CommandBus>,
     observer: &'a ObserverContextAdapter<'a, dyn ObserverContext>,
 ) -> HandlerContext<'a> {
     HandlerContext {
@@ -79,7 +79,7 @@ async fn test_handler_trait_execute_returns_transformed_value() {
         .direct_command_bus(DirectCommandBusRequest)
         .unwrap()
         .bus;
-    let bus_erased: &dyn edge_domain::CommandBus = bus.as_ref();
+    let bus_erased: &dyn edge_application::CommandBus = bus.as_ref();
     let bus_adapter = CommandBusAdapter(bus_erased);
     let observer = StdObserveFactory::noop_observer_context();
     let observer_adapter = ObserverContextAdapter(observer.as_ref());

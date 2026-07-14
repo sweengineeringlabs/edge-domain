@@ -1,6 +1,6 @@
 //! [`LocalMetricRegistryRef`] — wraps a borrowed real `MetricRegistry` reference as a local [`MetricRegistry`].
 
-use edge_domain_observer as obs;
+use edge_application_observer as obs;
 
 use super::into_handler_error::IntoHandlerError;
 use super::local_counter_adapter::LocalCounterAdapter;

@@ -1,6 +1,6 @@
 //! Tests for `api/vpn/errors/vpn_result.rs` — VpnResult alias.
 
-use edge_domain_vpn::{VpnError, VpnResult};
+use edge_application_vpn::{VpnError, VpnResult};
 
 #[test]
 fn test_vpn_result_ok_variant_happy() {

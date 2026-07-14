@@ -2,7 +2,7 @@
 //! SAF factory.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{
+use edge_application::{
     Domain, Snapshot, SnapshotAggregateIdRequest, SnapshotAggregateIdResponse, SnapshotError,
     SnapshotLoadRequest, SnapshotLoadResponse, SnapshotSaveRequest, SnapshotStore,
     SnapshotVersionRequest, SnapshotVersionResponse,

@@ -1,4 +1,4 @@
-use edge_domain_app::APP_BOOTSTRAP_SVC_FACTORY;
+use edge_application_app::APP_BOOTSTRAP_SVC_FACTORY;
 
 #[test]
 fn test_bootstrap_svc_factory_constant_value_happy() {

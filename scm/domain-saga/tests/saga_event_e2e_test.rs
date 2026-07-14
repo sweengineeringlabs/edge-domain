@@ -1,7 +1,7 @@
 //! SAF facade tests — `SagaEvent` trait.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_saga::{NoopSagaEvent, SagaError, SagaEvent, SagaEventDescribeRequest, SagaEventDescribeResponse};
+use edge_application_saga::{NoopSagaEvent, SagaError, SagaEvent, SagaEventDescribeRequest, SagaEventDescribeResponse};
 
 struct ConfiguredEvt {
     event_type: &'static str,

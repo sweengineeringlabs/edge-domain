@@ -1,6 +1,6 @@
 //! Basic `ValueObject` and `NonEmptyString` usage example.
 
-use edge_domain_valueobject::{NonEmptyString, ValueObject};
+use edge_application_valueobject::{NonEmptyString, ValueObject};
 
 fn store<V: ValueObject>(_v: V) {}
 

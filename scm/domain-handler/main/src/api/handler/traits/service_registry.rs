@@ -7,7 +7,7 @@ use crate::api::handler::types::{
 
 /// A thread-safe registry of domain [`Service`](super::Service) instances, looked up by name.
 ///
-/// Declared locally so `api/` never references `edge_domain_service::ServiceRegistry` directly
+/// Declared locally so `api/` never references `edge_application_service::ServiceRegistry` directly
 /// in a type position (SEA `no_foreign_type`). Any real `ServiceRegistry` implementor satisfies
 /// this automatically via the blanket impl in `core/`.
 pub trait ServiceRegistry: Send + Sync {

@@ -4,14 +4,14 @@
 use std::sync::Arc;
 use std::time::SystemTime;
 
-use edge_domain::DomainRuntime;
-use edge_domain::{
+use edge_application::DomainRuntime;
+use edge_application::{
     Domain, DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventBusConfig,
     EventBusPublishRequest, EventBusSubscribeRequest, EventError, EventOccurredAtRequest,
     EventOccurredAtResponse, EventSource, EventSourceRecvNextRequest, EventTypeRequest,
     EventTypeResponse,
 };
-use edge_domain::{InProcessEventBusRequest, NoopEventBusRequest};
+use edge_application::{InProcessEventBusRequest, NoopEventBusRequest};
 
 // ── test fixtures ────────────────────────────────────────────────────────────
 

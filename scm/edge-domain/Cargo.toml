@@ -1,5 +1,5 @@
 [package]
-name                   = "edge-domain"
+name                   = "edge-application"
 version                = "0.10.0"
 edition.workspace      = true
 license.workspace      = true
@@ -25,25 +25,25 @@ default     = [
     "repository", "handler", "event",
     "projection", "saga", "security",
 ]
-entity      = ["dep:edge-domain-entity"]
-valueobject = ["dep:edge-domain-valueobject"]
-clock       = ["dep:edge-domain-clock"]
-validator   = ["dep:edge-domain-validator"]
-policy      = ["dep:edge-domain-policy"]
-command     = ["dep:edge-domain-command"]
-query       = ["dep:edge-domain-query"]
-snapshot    = ["dep:edge-domain-snapshot"]
-service     = ["dep:edge-domain-service"]
-repository  = ["dep:edge-domain-repository"]
-handler     = ["dep:edge-domain-handler"]
-event       = ["dep:edge-domain-event"]
+entity      = ["dep:edge-application-entity"]
+valueobject = ["dep:edge-application-valueobject"]
+clock       = ["dep:edge-application-clock"]
+validator   = ["dep:edge-application-validator"]
+policy      = ["dep:edge-application-policy"]
+command     = ["dep:edge-application-command"]
+query       = ["dep:edge-application-query"]
+snapshot    = ["dep:edge-application-snapshot"]
+service     = ["dep:edge-application-service"]
+repository  = ["dep:edge-application-repository"]
+handler     = ["dep:edge-application-handler"]
+event       = ["dep:edge-application-event"]
 pipeline    = ["dep:edge-pipeline"]
-projection  = ["dep:edge-domain-projection", "event"]
-saga        = ["dep:edge-domain-saga",        "event", "command"]
+projection  = ["dep:edge-application-projection", "event"]
+saga        = ["dep:edge-application-saga",        "event", "command"]
 security    = ["dep:edge-security-runtime", "dep:edge-security-authn", "dep:edge-security-authz"]
-registry    = ["dep:edge-domain-registry"]
-lifecycle   = ["dep:edge-domain-lifecycle"]
-observer    = ["dep:edge-domain-observer"]
+registry    = ["dep:edge-application-registry"]
+lifecycle   = ["dep:edge-application-lifecycle"]
+observer    = ["dep:edge-application-observer"]
 full        = [
     "entity", "valueobject",
     "clock", "validator", "policy",
@@ -60,24 +60,24 @@ async-trait   = "0.1"
 parking_lot   = "0.12"
 tracing       = { version = "0.1", default-features = false }
 
-edge-domain-entity      = { path = "../domain-entity", optional = true }
-edge-domain-valueobject = { path = "../domain-valueobject", optional = true }
-edge-domain-clock       = { path = "../domain-clock", optional = true }
-edge-domain-validator   = { path = "../domain-validator", optional = true }
-edge-domain-policy      = { path = "../domain-policy", optional = true }
-edge-domain-command     = { path = "../domain-command", optional = true }
-edge-domain-query       = { path = "../domain-query", optional = true }
-edge-domain-snapshot    = { path = "../domain-snapshot", optional = true }
-edge-domain-service     = { path = "../domain-service", optional = true }
-edge-domain-repository  = { path = "../domain-repository", optional = true }
-edge-domain-handler     = { path = "../domain-handler", optional = true }
-edge-domain-event       = { path = "../domain-event", optional = true }
+edge-application-entity      = { path = "../domain-entity", optional = true }
+edge-application-valueobject = { path = "../domain-valueobject", optional = true }
+edge-application-clock       = { path = "../domain-clock", optional = true }
+edge-application-validator   = { path = "../domain-validator", optional = true }
+edge-application-policy      = { path = "../domain-policy", optional = true }
+edge-application-command     = { path = "../domain-command", optional = true }
+edge-application-query       = { path = "../domain-query", optional = true }
+edge-application-snapshot    = { path = "../domain-snapshot", optional = true }
+edge-application-service     = { path = "../domain-service", optional = true }
+edge-application-repository  = { path = "../domain-repository", optional = true }
+edge-application-handler     = { path = "../domain-handler", optional = true }
+edge-application-event       = { path = "../domain-event", optional = true }
 edge-pipeline           = { git = "https://github.com/sweengineeringlabs/edge-pipeline.git", tag = "v0.2.0", optional = true }
-edge-domain-projection  = { path = "../domain-projection", optional = true }
-edge-domain-saga        = { path = "../domain-saga", optional = true }
-edge-domain-registry    = { path = "../domain-registry", optional = true }
-edge-domain-lifecycle   = { path = "../domain-lifecycle", optional = true }
-edge-domain-observer    = { path = "../domain-observer", optional = true }
+edge-application-projection  = { path = "../domain-projection", optional = true }
+edge-application-saga        = { path = "../domain-saga", optional = true }
+edge-application-registry    = { path = "../domain-registry", optional = true }
+edge-application-lifecycle   = { path = "../domain-lifecycle", optional = true }
+edge-application-observer    = { path = "../domain-observer", optional = true }
 edge-security-runtime   = { workspace = true, optional = true }
 edge-security-authn     = { workspace = true, optional = true }
 edge-security-authz     = { workspace = true, optional = true }
@@ -85,24 +85,24 @@ edge-security-authz     = { workspace = true, optional = true }
 [dev-dependencies]
 tokio       = { version = "1", features = ["macros", "rt", "rt-multi-thread"] }
 futures     = "0.3"
-edge-domain-entity = { path = "../domain-entity" }
-edge-domain-valueobject.workspace  = true
-edge-domain-clock.workspace        = true
-edge-domain-validator.workspace    = true
-edge-domain-policy.workspace       = true
-edge-domain-command.workspace      = true
-edge-domain-query.workspace        = true
-edge-domain-snapshot.workspace     = true
-edge-domain-service.workspace      = true
-edge-domain-repository.workspace   = true
-edge-domain-handler.workspace      = true
-edge-domain-event.workspace        = true
+edge-application-entity = { path = "../domain-entity" }
+edge-application-valueobject.workspace  = true
+edge-application-clock.workspace        = true
+edge-application-validator.workspace    = true
+edge-application-policy.workspace       = true
+edge-application-command.workspace      = true
+edge-application-query.workspace        = true
+edge-application-snapshot.workspace     = true
+edge-application-service.workspace      = true
+edge-application-repository.workspace   = true
+edge-application-handler.workspace      = true
+edge-application-event.workspace        = true
 edge-pipeline.workspace            = true
-edge-domain-projection.workspace   = true
-edge-domain-saga.workspace         = true
-edge-domain-registry.workspace     = true
-edge-domain-lifecycle.workspace    = true
-edge-domain-observer.workspace     = true
+edge-application-projection.workspace   = true
+edge-application-saga.workspace         = true
+edge-application-registry.workspace     = true
+edge-application-lifecycle.workspace    = true
+edge-application-observer.workspace     = true
 edge-security-runtime.workspace    = true
 edge-security-authn.workspace      = true
 edge-security-authz.workspace      = true

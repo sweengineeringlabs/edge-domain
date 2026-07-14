@@ -1,6 +1,6 @@
 //! Integration tests for `EntityError`.
 
-use edge_domain_entity::EntityError;
+use edge_application_entity::EntityError;
 
 /// @covers: EntityError — is Debug-formattable (derives Debug)
 #[test]

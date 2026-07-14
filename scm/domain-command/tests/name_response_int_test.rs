@@ -1,6 +1,6 @@
 //! Structural coverage for [`NameResponse`].
 
-use edge_domain_command::NameResponse;
+use edge_application_command::NameResponse;
 
 /// @covers: NameResponse
 #[test]

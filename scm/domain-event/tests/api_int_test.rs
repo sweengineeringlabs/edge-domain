@@ -5,7 +5,7 @@
 use std::sync::Arc;
 use std::time::SystemTime;
 
-use edge_domain_event::{
+use edge_application_event::{
     Aggregate, AggregateApplyRequest, AggregateApplyResponse, AggregateIdentityRequest,
     AggregateIdentityResponse, ClosedEventSource, DomainEvent, EventAggregateIdRequest,
     EventAggregateIdResponse, EventBus, EventBusPublishRequest, EventBusSubscribeRequest,
@@ -114,7 +114,7 @@ fn test_event_bus_publish_request_wraps_arc_dyn_domain_event_happy() {
 /// @covers: EventBusPublishRequest
 #[test]
 fn test_event_bus_publish_request_accepted_by_noop_bus_edge() {
-    use edge_domain_event::NoopEventBus;
+    use edge_application_event::NoopEventBus;
     let result = futures::executor::block_on(
         NoopEventBus.publish(EventBusPublishRequest { event: Arc::new(NoopDomainEvent) }),
     );
@@ -130,7 +130,7 @@ fn test_event_bus_subscribe_request_is_zero_sized_happy() {
 /// @covers: EventBusSubscribeRequest
 #[test]
 fn test_event_bus_subscribe_request_accepted_by_noop_bus_edge() {
-    use edge_domain_event::NoopEventBus;
+    use edge_application_event::NoopEventBus;
     let mut resp = NoopEventBus
         .subscribe(EventBusSubscribeRequest)
         .expect("subscribe");
@@ -142,7 +142,7 @@ fn test_event_bus_subscribe_request_accepted_by_noop_bus_edge() {
 /// @covers: EventBusSubscribeResponse
 #[test]
 fn test_event_bus_subscribe_response_exposes_receiver_happy() {
-    use edge_domain_event::NoopEventBus;
+    use edge_application_event::NoopEventBus;
     let resp: EventBusSubscribeResponse = NoopEventBus.subscribe(EventBusSubscribeRequest).unwrap();
     let mut rx = resp.receiver;
     let result = futures::executor::block_on(rx.recv_next(EventSourceRecvNextRequest));
@@ -200,7 +200,7 @@ fn test_event_publisher_publish_request_wraps_dyn_domain_event_happy() {
 /// @covers: EventPublisherPublishRequest
 #[test]
 fn test_event_publisher_publish_request_accepted_by_noop_publisher_edge() {
-    use edge_domain_event::NoopEventPublisher;
+    use edge_application_event::NoopEventPublisher;
     let evt = NoopDomainEvent;
     let result = futures::executor::block_on(
         NoopEventPublisher.publish(EventPublisherPublishRequest { event: &evt }),
@@ -343,7 +343,7 @@ fn test_event_source_recv_next_response_holds_event_happy() {
 /// @covers: EventSourceRecvNextResponse
 #[test]
 fn test_event_source_recv_next_response_used_by_closed_source_error() {
-    use edge_domain_event::EventSourceRecvNextRequest as Req;
+    use edge_application_event::EventSourceRecvNextRequest as Req;
     let mut src = ClosedEventSource;
     let result = futures::executor::block_on(src.recv_next(Req));
     assert!(matches!(result, Err(EventError::Unavailable(_))));

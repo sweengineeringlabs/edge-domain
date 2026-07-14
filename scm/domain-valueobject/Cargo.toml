@@ -1,11 +1,11 @@
 [package]
-name         = "edge-domain-valueobject"
+name         = "edge-application-valueobject"
 version      = "0.1.0"
 edition      = "2021"
 license      = "MIT OR Apache-2.0"
 rust-version = "1.95"
 authors      = ["SWE Engineering Labs"]
-repository   = "https://github.com/sweengineeringlabs/edge-domain"
+repository   = "https://github.com/sweengineeringlabs/edge-application"
 description  = "edge-domain — ValueObject port contract and NonEmptyString reference implementation"
 keywords     = ["domain", "value-object", "sea", "swe"]
 categories   = ["development-tools"]

@@ -1,8 +1,8 @@
 //! Integration tests for `Service` and `ServiceRegistry`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{Domain, Service, ServiceError, ServiceRegistry};
-use edge_domain_service::{
+use edge_application::{Domain, Service, ServiceError, ServiceRegistry};
+use edge_application_service::{
     EmptinessRequest, LenRequest, NameRequest, NameResponse, RegisterServiceRequest,
     ServiceLookupRequest, ServiceRegistryStore, ServiceRemovalRequest,
 };

@@ -1,17 +1,17 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, unused_imports)]
 //! SAF facade smoke test — EventPublisher is exported from the crate root.
 
-use edge_domain::Domain;
-use edge_domain::DomainEvent;
-use edge_domain::DomainRuntime;
-use edge_domain::EventAggregateIdRequest;
-use edge_domain::EventAggregateIdResponse;
-use edge_domain::EventError;
-use edge_domain::EventPublisher;
-use edge_domain::EventPublisherPublishRequest;
-use edge_domain::EventTypeRequest;
-use edge_domain::EventTypeResponse;
-use edge_domain::NoopEventPublisherRequest;
+use edge_application::Domain;
+use edge_application::DomainEvent;
+use edge_application::DomainRuntime;
+use edge_application::EventAggregateIdRequest;
+use edge_application::EventAggregateIdResponse;
+use edge_application::EventError;
+use edge_application::EventPublisher;
+use edge_application::EventPublisherPublishRequest;
+use edge_application::EventTypeRequest;
+use edge_application::EventTypeResponse;
+use edge_application::NoopEventPublisherRequest;
 
 struct Pulse;
 impl DomainEvent for Pulse {

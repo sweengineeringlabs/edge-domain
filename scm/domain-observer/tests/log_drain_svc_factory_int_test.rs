@@ -1,4 +1,4 @@
-use edge_domain_observer::LOG_DRAIN_SVC_FACTORY;
+use edge_application_observer::LOG_DRAIN_SVC_FACTORY;
 
 #[test]
 fn test_log_drain_svc_factory_constant_value_happy() {

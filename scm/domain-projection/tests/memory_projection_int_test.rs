@@ -2,8 +2,8 @@
 // @allow: no_mocks_in_integration
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_event::{EventAggregateIdRequest, EventAggregateIdResponse, EventError};
-use edge_domain_projection::{
+use edge_application_event::{EventAggregateIdRequest, EventAggregateIdResponse, EventError};
+use edge_application_projection::{
     DomainEvent, MemoryProjection, Projection, ProjectionApplyRequest, ProjectionReadModelRequest,
 };
 

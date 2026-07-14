@@ -1,6 +1,6 @@
 //! SAF facade tests — `Service` trait.
 
-use edge_domain_service::{NameRequest, NameResponse, Service, ServiceError};
+use edge_application_service::{NameRequest, NameResponse, Service, ServiceError};
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 

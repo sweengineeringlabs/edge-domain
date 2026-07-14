@@ -1,7 +1,7 @@
 //! Tests for `saf/vpn/tunnel_manager_svc.rs` — VpnManagerFactory SAF methods.
 //! Required by `saf_trait_svc_test_exists` and `saf_trait_svc_fn_scenario_coverage`.
 
-use edge_domain_vpn::{VpnManagerFactory, TunnelStatus, TunnelManager};
+use edge_application_vpn::{VpnManagerFactory, TunnelStatus, TunnelManager};
 use tokio::runtime::Runtime;
 
 // ── noop_tunnel_manager ───────────────────────────────────────────────────────

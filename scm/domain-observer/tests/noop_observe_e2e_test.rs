@@ -1,6 +1,6 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_observer::{
+use edge_application_observer::{
     BootstrapNameRequest, Counter, CounterLookupRequest, Gauge, GaugeLookupRequest,
     GaugeSetRequest, HandlerTracer, Histogram, HistogramLookupRequest, HistogramRecordRequest,
     IncrementRequest, LogDrain, LogEmitRequest, MetricRegistry, MetricsRequest, NoopObserve,

@@ -3,15 +3,15 @@
 
 use std::sync::Arc;
 
-use edge_domain::DirectCommandBusRequest;
-use edge_domain::DomainRuntime;
-use edge_domain::{
+use edge_application::DirectCommandBusRequest;
+use edge_application::DomainRuntime;
+use edge_application::{
     Domain, HandlerContext, HandlerError, Repository, RepositoryIdRequest, RepositorySaveRequest,
 };
-use edge_domain_handler::{
+use edge_application_handler::{
     CommandBusAdapter, EmptinessRequest, ExecutionRequest, LenRequest, ObserverContextAdapter,
 };
-use edge_domain_observer::StdObserveFactory;
+use edge_application_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
 
 struct WriteHandler {

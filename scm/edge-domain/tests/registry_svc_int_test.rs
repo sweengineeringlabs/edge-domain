@@ -3,7 +3,7 @@
 // @allow: no_mocks_in_integration — MemoryRegistry is a reference implementation in the public API, not a mock.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_registry::{
+use edge_application_registry::{
     DeregisterRequest, MemoryRegistry, ListIdsRequest, RegisterRequest, Registry,
     RegistryLookupRequest,
 };

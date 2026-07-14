@@ -1,4 +1,4 @@
-use edge_domain_validator::VALIDATOR_SVC_FACTORY;
+use edge_application_validator::VALIDATOR_SVC_FACTORY;
 
 #[test]
 fn test_validator_svc_factory_constant_value_happy() {

@@ -1,13 +1,13 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, unused_imports)]
 //! SAF facade smoke test — QueryBus is exported from the crate root.
 
-use edge_domain::Domain;
-use edge_domain::Query;
-use edge_domain::QueryBus;
-use edge_domain::QueryDispatchRequest;
-use edge_domain::QueryError;
-use edge_domain::QueryExecuteRequest;
-use edge_domain::QueryResultResponse;
+use edge_application::Domain;
+use edge_application::Query;
+use edge_application::QueryBus;
+use edge_application::QueryDispatchRequest;
+use edge_application::QueryError;
+use edge_application::QueryExecuteRequest;
+use edge_application::QueryResultResponse;
 
 struct FindById(u32);
 impl Query for FindById {

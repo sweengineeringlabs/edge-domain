@@ -1,6 +1,6 @@
 //! Tests for configuration and error types across api/ modules.
 
-use edge_domain::{EventError, HandlerError, QueryError, RepositoryError, ServiceError};
+use edge_application::{EventError, HandlerError, QueryError, RepositoryError, ServiceError};
 
 /// @covers: HandlerError::ExecutionFailed
 #[test]

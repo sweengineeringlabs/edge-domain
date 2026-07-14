@@ -6,7 +6,7 @@ use crate::api::handler::errors::HandlerError;
 
 /// An async unit of domain logic looked up from a [`ServiceRegistry`](super::ServiceRegistry).
 ///
-/// Declared locally so `api/` never references `edge_domain_service::Service` directly in a
+/// Declared locally so `api/` never references `edge_application_service::Service` directly in a
 /// type position (SEA `no_foreign_type`). Any real `Service` implementor is reachable through
 /// this boundary via the adapter constructed in `core/`.
 #[async_trait]

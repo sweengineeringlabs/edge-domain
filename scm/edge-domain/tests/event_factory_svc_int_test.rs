@@ -2,7 +2,7 @@
 // @allow: no_mocks_in_integration — MemoryEventStore is the production-shipped reference impl, not a test double
 #![allow(clippy::unwrap_used)]
 
-use edge_domain::{
+use edge_application::{
     ClosedEventSource, DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventError,
     EventOccurredAtRequest, EventOccurredAtResponse, EventTypeRequest, EventTypeResponse,
     MemoryEventStore, InProcessEventBus, NoopEventBus, NoopEventPublisher,

@@ -3,7 +3,7 @@
 
 use std::collections::HashMap;
 
-use edge_domain::NonEmptyString;
+use edge_application::NonEmptyString;
 
 #[test]
 fn test_non_empty_string_new_with_valid_value_returns_ok() {

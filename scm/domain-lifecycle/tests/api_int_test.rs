@@ -1,6 +1,6 @@
 //! Layer-level coverage for `api/lifecycle/types/*.rs` request/response types.
 
-use edge_domain_lifecycle::{
+use edge_application_lifecycle::{
     LifecycleIsInRequest, LifecycleIsInResponse, LifecycleStateRequest, LifecycleStateResponse,
     LifecycleTransitionRequest, TransitionAllowedRequest, TransitionAllowedResponse,
 };

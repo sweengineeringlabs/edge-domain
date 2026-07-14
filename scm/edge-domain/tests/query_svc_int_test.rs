@@ -1,11 +1,11 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, unused_imports)]
 //! SAF facade smoke test — Query trait is exported from the crate root.
 
-use edge_domain::Query;
-use edge_domain::QueryError;
-use edge_domain::QueryExecuteRequest;
-use edge_domain::QueryNameRequest;
-use edge_domain::QueryResultResponse;
+use edge_application::Query;
+use edge_application::QueryError;
+use edge_application::QueryExecuteRequest;
+use edge_application::QueryNameRequest;
+use edge_application::QueryResultResponse;
 
 struct Count(u32);
 impl Query for Count {
@@ -13,8 +13,8 @@ impl Query for Count {
     fn name(
         &self,
         _req: QueryNameRequest,
-    ) -> Result<edge_domain::QueryNameResponse<'_>, QueryError> {
-        Ok(edge_domain::QueryNameResponse { name: "count" })
+    ) -> Result<edge_application::QueryNameResponse<'_>, QueryError> {
+        Ok(edge_application::QueryNameResponse { name: "count" })
     }
     fn execute(
         &self,

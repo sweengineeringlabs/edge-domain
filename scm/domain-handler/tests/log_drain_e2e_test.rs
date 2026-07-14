@@ -1,7 +1,7 @@
 //! SAF facade tests — `LogDrain` trait.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_handler::{HandlerError, LogDrain, LogEmitRequest, LogEmitResponse};
+use edge_application_handler::{HandlerError, LogDrain, LogEmitRequest, LogEmitResponse};
 
 struct OkDrain;
 impl LogDrain for OkDrain {

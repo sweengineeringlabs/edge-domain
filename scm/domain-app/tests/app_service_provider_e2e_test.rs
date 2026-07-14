@@ -1,7 +1,7 @@
 //! Integration tests — `AppServiceProvider` trait.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_app::{
+use edge_application_app::{
     AppServiceProvider, ApplicationBuildRequest, NameRequest, NoopAppBootstrap, NoopAppSvcFactory,
     ProviderBuildRequest, ProviderBuildResponse,
 };
@@ -12,7 +12,7 @@ impl AppServiceProvider for PassthroughProvider {
     fn build(
         &self,
         _req: ProviderBuildRequest,
-    ) -> Result<ProviderBuildResponse, edge_domain_app::AppError> {
+    ) -> Result<ProviderBuildResponse, edge_application_app::AppError> {
         Ok(ProviderBuildResponse {
             bootstrap: Box::new(self.0),
         })

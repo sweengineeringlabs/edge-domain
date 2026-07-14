@@ -6,7 +6,7 @@
 
 use std::time::SystemTime;
 
-use edge_domain::{
+use edge_application::{
     Aggregate, AggregateApplyRequest, AggregateApplyResponse, AggregateIdentityRequest,
     AggregateIdentityResponse, Domain, DomainEvent, EventAggregateIdRequest,
     EventAggregateIdResponse, EventError, EventOccurredAtRequest, EventOccurredAtResponse,

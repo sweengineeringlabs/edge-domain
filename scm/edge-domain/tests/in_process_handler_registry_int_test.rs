@@ -4,11 +4,11 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain::Domain;
-use edge_domain::Handler;
-use edge_domain::HandlerContext;
-use edge_domain::HandlerError;
-use edge_domain_handler::{
+use edge_application::Domain;
+use edge_application::Handler;
+use edge_application::HandlerContext;
+use edge_application::HandlerError;
+use edge_application_handler::{
     DeregisterHandlerRequest, ExecutionRequest, HandlerLookupRequest, IdRequest, IdResponse,
     LenRequest, ListIdsRequest, RegisterHandlerRequest,
 };

@@ -2,9 +2,9 @@
 // @allow: no_mocks_in_integration
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_command::{ExecutionRequest, NameRequest};
-use edge_domain_event::{EventAggregateIdRequest, EventAggregateIdResponse, EventError};
-use edge_domain_saga::{
+use edge_application_command::{ExecutionRequest, NameRequest};
+use edge_application_event::{EventAggregateIdRequest, EventAggregateIdResponse, EventError};
+use edge_application_saga::{
     Command, CommandError, DomainEvent, MemorySagaStore, NoopSaga, NoopSagaCommand,
     NoopSagaEvent, Saga, SagaError, SagaGetRequest, SagaHandleRequest, SagaHandleResponse,
     SagaIsCompleteRequest, SagaIsCompleteResponse, SagaRegisterRequest, SagaStore,
@@ -134,7 +134,7 @@ fn test_noop_event_creates_event_with_empty_aggregate_id_happy() {
 /// @covers: NoopSagaEvent
 #[test]
 fn test_noop_event_event_type_returns_default_error() {
-    use edge_domain_event::EventTypeRequest;
+    use edge_application_event::EventTypeRequest;
     let evt = NoopSagaEvent;
     assert_eq!(
         evt.event_type(EventTypeRequest).unwrap().event_type,

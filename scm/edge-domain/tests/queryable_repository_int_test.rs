@@ -1,7 +1,7 @@
 //! Integration tests for `QueryableRepository` — spec-based queries.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{
+use edge_application::{
     Domain, QueryableRepository, RepositoryError, RepositorySaveRequest, Spec, SpecMatchesRequest,
     SpecMatchesResponse, SpecRequest,
 };

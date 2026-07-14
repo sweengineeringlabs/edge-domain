@@ -1,6 +1,6 @@
 //! Tests for the `ServiceError` error type.
 
-use edge_domain_service::ServiceError;
+use edge_application_service::ServiceError;
 
 /// @covers: ServiceError::InvalidRequest — Display
 #[test]

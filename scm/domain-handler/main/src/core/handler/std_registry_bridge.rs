@@ -85,9 +85,9 @@ impl RegistryBridge for StdRegistryBridge {
 mod tests {
     use std::sync::Arc;
 
-    use edge_domain_command::DirectCommandBus;
-    use edge_domain_observer::StdObserveFactory;
-    use edge_domain_service::{
+    use edge_application_command::DirectCommandBus;
+    use edge_application_observer::StdObserveFactory;
+    use edge_application_service::{
         NoopService, RegisterServiceRequest as RegisterServiceRequestSvc,
         ServiceRegistry as ServiceRegistryTraitSvc, ServiceRegistryStore,
     };

@@ -1,7 +1,7 @@
 //! Integration tests for `SagaError`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::SagaError;
+use edge_application::SagaError;
 
 /// @covers: SagaError
 #[test]

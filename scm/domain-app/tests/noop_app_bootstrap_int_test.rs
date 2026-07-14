@@ -1,7 +1,7 @@
 //! Integration tests — `NoopAppBootstrap` (api noop type).
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_app::{ApplicationBuildRequest, Bootstrap, NameRequest, NoopAppBootstrap};
+use edge_application_app::{ApplicationBuildRequest, Bootstrap, NameRequest, NoopAppBootstrap};
 
 /// @covers: NoopAppBootstrap — build() returns a NoopApplication
 #[test]

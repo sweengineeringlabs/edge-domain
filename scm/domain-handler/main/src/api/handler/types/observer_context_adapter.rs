@@ -3,7 +3,7 @@
 //!
 //! Fully generic (no foreign type referenced here) so it satisfies SEA
 //! `no_foreign_type`; the actual bridging `impl` lives in `core/` where
-//! referencing `edge_domain_observer::ObserverContext` is permitted.
+//! referencing `edge_application_observer::ObserverContext` is permitted.
 
 /// Wraps `&'a T` so a caller already holding an erased `&dyn ForeignTrait`
 /// (e.g. from `Box<dyn ForeignTrait>::as_ref()`) can bridge it into

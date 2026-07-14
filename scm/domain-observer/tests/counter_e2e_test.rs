@@ -1,6 +1,6 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_observer::{CounterLookupRequest, IncrementRequest, StdObserveFactory};
+use edge_application_observer::{CounterLookupRequest, IncrementRequest, StdObserveFactory};
 
 // --- increment ---
 

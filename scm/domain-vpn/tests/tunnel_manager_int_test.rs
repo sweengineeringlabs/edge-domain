@@ -4,7 +4,7 @@
 //! Async trait tests use `#[test] + block_on` so the arch checker can find them.
 
 use base64::Engine as _;
-use edge_domain_vpn::{
+use edge_application_vpn::{
     NoopTunnelManager, TunnelManager, TunnelStatus, VpnClientConfig, VpnManagerFactory,
 };
 use tokio::runtime::Runtime;
@@ -13,17 +13,17 @@ struct FailingTunnelManager;
 
 #[async_trait::async_trait]
 impl TunnelManager for FailingTunnelManager {
-    async fn connect(&self) -> edge_domain_vpn::VpnResult<()> {
-        Err(edge_domain_vpn::VpnError::ConnectionFailed { reason: "test error".to_string() })
+    async fn connect(&self) -> edge_application_vpn::VpnResult<()> {
+        Err(edge_application_vpn::VpnError::ConnectionFailed { reason: "test error".to_string() })
     }
-    async fn disconnect(&self) -> edge_domain_vpn::VpnResult<()> {
-        Err(edge_domain_vpn::VpnError::ConnectionFailed { reason: "test error".to_string() })
+    async fn disconnect(&self) -> edge_application_vpn::VpnResult<()> {
+        Err(edge_application_vpn::VpnError::ConnectionFailed { reason: "test error".to_string() })
     }
-    async fn status(&self) -> edge_domain_vpn::VpnResult<TunnelStatus> {
-        Err(edge_domain_vpn::VpnError::Unavailable { reason: "test error".to_string() })
+    async fn status(&self) -> edge_application_vpn::VpnResult<TunnelStatus> {
+        Err(edge_application_vpn::VpnError::Unavailable { reason: "test error".to_string() })
     }
-    async fn configure(&self, _config: &VpnClientConfig) -> Result<(), edge_domain_vpn::VpnError> {
-        Err(edge_domain_vpn::VpnError::ConfigError { reason: "always fails".to_string() })
+    async fn configure(&self, _config: &VpnClientConfig) -> Result<(), edge_application_vpn::VpnError> {
+        Err(edge_application_vpn::VpnError::ConfigError { reason: "always fails".to_string() })
     }
     fn factory() -> VpnManagerFactory
     where

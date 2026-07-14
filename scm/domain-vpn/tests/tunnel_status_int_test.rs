@@ -1,6 +1,6 @@
 //! Tests for `api/vpn/types/tunnel_status.rs` — TunnelStatus enum.
 
-use edge_domain_vpn::TunnelStatus;
+use edge_application_vpn::TunnelStatus;
 
 #[test]
 fn test_tunnel_status_connected_eq_connected_happy() {

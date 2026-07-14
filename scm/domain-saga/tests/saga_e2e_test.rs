@@ -2,9 +2,9 @@
 // @allow: no_mocks_in_integration
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_command::ExecutionRequest;
-use edge_domain_event::{EventAggregateIdRequest, EventAggregateIdResponse, EventError};
-use edge_domain_saga::{
+use edge_application_command::ExecutionRequest;
+use edge_application_event::{EventAggregateIdRequest, EventAggregateIdResponse, EventError};
+use edge_application_saga::{
     Command, CommandError, DomainEvent, MemorySagaStore, Saga, SagaError, SagaGetRequest,
     SagaHandleRequest, SagaHandleResponse, SagaIsCompleteRequest, SagaIsCompleteResponse,
     SagaRegisterRequest, SagaStore,

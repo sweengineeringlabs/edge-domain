@@ -3,8 +3,8 @@
 
 use std::sync::Arc;
 
-use edge_domain::{CommandBus, Domain, DomainError, DomainRuntime, EventBus, EventPublisher};
-use edge_domain::{
+use edge_application::{CommandBus, Domain, DomainError, DomainRuntime, EventBus, EventPublisher};
+use edge_application::{
     DirectCommandBusRequest, DirectCommandBusResponse, InProcessEventBusRequest,
     InProcessEventBusResponse, NoopEventBusRequest, NoopEventBusResponse,
     NoopEventPublisherRequest, NoopEventPublisherResponse,
@@ -149,7 +149,7 @@ fn test_in_process_event_bus_ok_runtime_returns_bus_happy() {
     let runtime = as_dyn(&TestRuntime);
     let resp = runtime
         .in_process_event_bus(InProcessEventBusRequest {
-            config: edge_domain::EventBusConfig { capacity: 4 },
+            config: edge_application::EventBusConfig { capacity: 4 },
         })
         .unwrap();
     let _bus: Arc<dyn EventBus> = resp.bus;
@@ -161,7 +161,7 @@ fn test_in_process_event_bus_failing_runtime_returns_err_error() {
     let runtime = as_dyn(&FailingRuntime);
     assert!(runtime
         .in_process_event_bus(InProcessEventBusRequest {
-            config: edge_domain::EventBusConfig { capacity: 4 },
+            config: edge_application::EventBusConfig { capacity: 4 },
         })
         .is_err());
 }
@@ -172,7 +172,7 @@ fn test_in_process_event_bus_minimum_capacity_config_still_constructs_edge() {
     let runtime = as_dyn(&TestRuntime);
     let resp = runtime
         .in_process_event_bus(InProcessEventBusRequest {
-            config: edge_domain::EventBusConfig { capacity: 1 },
+            config: edge_application::EventBusConfig { capacity: 1 },
         })
         .unwrap();
     assert_eq!(Arc::strong_count(&resp.bus), 1);

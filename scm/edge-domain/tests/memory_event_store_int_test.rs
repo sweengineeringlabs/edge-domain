@@ -3,7 +3,7 @@
 
 use std::time::SystemTime;
 
-use edge_domain::{
+use edge_application::{
     Domain, DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventError,
     EventOccurredAtRequest, EventOccurredAtResponse, EventStoreAppendRequest,
     EventStoreLoadRequest, EventTypeRequest, EventTypeResponse, ExpectedVersion,

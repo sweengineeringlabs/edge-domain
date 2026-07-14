@@ -1,8 +1,8 @@
 //! Coverage for `EventSource::recv` (api/event/traits/event_source.rs)
 #![allow(clippy::unwrap_used, clippy::expect_used)]
-use edge_domain::DomainRuntime;
-use edge_domain::InProcessEventBusRequest;
-use edge_domain::{
+use edge_application::DomainRuntime;
+use edge_application::InProcessEventBusRequest;
+use edge_application::{
     Domain, DomainEvent, EventBusConfig, EventBusPublishRequest, EventBusSubscribeRequest,
     EventSource, EventSourceRecvNextRequest,
 };

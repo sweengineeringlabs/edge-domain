@@ -1,6 +1,6 @@
 //! Integration tests for `RepositoryError`.
 
-use edge_domain::RepositoryError;
+use edge_application::RepositoryError;
 
 /// @covers: RepositoryError
 #[test]

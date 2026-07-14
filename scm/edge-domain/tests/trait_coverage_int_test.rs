@@ -5,17 +5,17 @@
 // @allow: no_mocks_in_integration — MemoryRepository is the production-shipped reference impl, not a test double
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::*;
-use edge_domain_command::{
+use edge_application::*;
+use edge_application_command::{
     CommandDispatchRequest, ExecutionRequest as CommandExecutionRequest,
     NameRequest as CommandNameRequest, NameResponse as CommandNameResponse,
 };
-use edge_domain_handler::{
+use edge_application_handler::{
     DeregisterHandlerRequest, EmptinessRequest as HandlerEmptinessRequest, HandlerLookupRequest,
     IdRequest, LenRequest as HandlerLenRequest, ListIdsRequest, PatternRequest,
     RegisterHandlerRequest,
 };
-use edge_domain_service::{
+use edge_application_service::{
     EmptinessRequest as ServiceEmptinessRequest, LenRequest as ServiceLenRequest, ListNamesRequest,
     NameRequest, RegisterServiceRequest, ServiceError, ServiceLookupRequest, ServiceRemovalRequest,
 };
@@ -136,8 +136,8 @@ struct OkSvc;
 impl Service for OkSvc {
     type Request = String;
     type Response = String;
-    fn name(&self, _req: NameRequest) -> Result<edge_domain_service::NameResponse, ServiceError> {
-        Ok(edge_domain_service::NameResponse {
+    fn name(&self, _req: NameRequest) -> Result<edge_application_service::NameResponse, ServiceError> {
+        Ok(edge_application_service::NameResponse {
             name: "ok-svc".to_string(),
         })
     }
@@ -150,8 +150,8 @@ struct ErrSvc;
 impl Service for ErrSvc {
     type Request = String;
     type Response = String;
-    fn name(&self, _req: NameRequest) -> Result<edge_domain_service::NameResponse, ServiceError> {
-        Ok(edge_domain_service::NameResponse {
+    fn name(&self, _req: NameRequest) -> Result<edge_application_service::NameResponse, ServiceError> {
+        Ok(edge_application_service::NameResponse {
             name: "err-svc".to_string(),
         })
     }
@@ -239,8 +239,8 @@ fn test_name_service_can_be_empty_string_edge() {
         fn name(
             &self,
             _req: NameRequest,
-        ) -> Result<edge_domain_service::NameResponse, ServiceError> {
-            Ok(edge_domain_service::NameResponse {
+        ) -> Result<edge_application_service::NameResponse, ServiceError> {
+            Ok(edge_application_service::NameResponse {
                 name: String::new(),
             })
         }

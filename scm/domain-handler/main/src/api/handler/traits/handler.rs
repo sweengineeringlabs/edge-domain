@@ -51,8 +51,8 @@ pub trait Handler: Send + Sync {
 mod tests {
     use super::*;
     use crate::api::handler::types::HandlerContext;
-    use edge_domain_command::DirectCommandBus;
-    use edge_domain_observer::StdObserveFactory;
+    use edge_application_command::DirectCommandBus;
+    use edge_application_observer::StdObserveFactory;
     use edge_security_runtime::SecurityContext;
 
     struct AlwaysOk;

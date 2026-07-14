@@ -4,7 +4,7 @@
 //! crate's public API and asserts on its real shape or field values.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_app::{
+use edge_application_app::{
     ApplicationBuildRequest, ApplicationBuildResponse, ApplicationRunRequest, ApplicationRunResponse,
     NameRequest, NameResponse, NoopApplication, ProviderBuildRequest, ProviderBuildResponse,
     RuntimeBootRequest, RuntimeBootResponse,
@@ -64,7 +64,7 @@ fn test_provider_build_request_is_zero_sized_happy() {
 /// @covers: ProviderBuildResponse
 #[test]
 fn test_provider_build_response_holds_bootstrap_happy() {
-    use edge_domain_app::NoopAppBootstrap;
+    use edge_application_app::NoopAppBootstrap;
     let r = ProviderBuildResponse {
         bootstrap: Box::new(NoopAppBootstrap),
     };
@@ -79,7 +79,7 @@ fn test_provider_build_response_holds_bootstrap_happy() {
 /// @covers: RuntimeBootRequest
 #[test]
 fn test_runtime_boot_request_holds_bootstrap_happy() {
-    use edge_domain_app::NoopAppBootstrap;
+    use edge_application_app::NoopAppBootstrap;
     let b = NoopAppBootstrap;
     let r = RuntimeBootRequest { bootstrap: &b };
     let app = r.bootstrap.build(ApplicationBuildRequest).unwrap().application;

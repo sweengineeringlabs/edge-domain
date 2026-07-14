@@ -1,7 +1,7 @@
 //! SAF facade tests — `QueryableRepository` trait via `MemoryRepository`.
 // @allow: no_mocks_in_integration — MemoryRepository is the production-shipped reference impl, not a test double
 
-use edge_domain_repository::{
+use edge_application_repository::{
     MemoryRepository, QueryableRepository, Repository, RepositoryError, RepositorySaveRequest,
     Spec, SpecMatchesRequest, SpecMatchesResponse, SpecRequest,
 };

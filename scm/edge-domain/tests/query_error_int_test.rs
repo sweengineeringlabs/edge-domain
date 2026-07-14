@@ -1,6 +1,6 @@
 //! Integration tests for `QueryError`.
 
-use edge_domain::QueryError;
+use edge_application::QueryError;
 
 /// @covers: QueryError
 #[test]

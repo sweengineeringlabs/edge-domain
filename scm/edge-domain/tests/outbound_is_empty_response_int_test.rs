@@ -1,7 +1,7 @@
 //! Integration tests for `OutboundIsEmptyResponse`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::OutboundIsEmptyResponse;
+use edge_application::OutboundIsEmptyResponse;
 
 /// @covers: OutboundIsEmptyResponse
 #[test]

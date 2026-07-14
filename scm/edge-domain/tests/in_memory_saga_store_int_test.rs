@@ -1,12 +1,12 @@
 //! Integration tests for the in-memory saga store implementation.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{
+use edge_application::{
     Command, Domain, DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventError,
     Saga, SagaError, SagaGetRequest, SagaHandleRequest, SagaHandleResponse, SagaIsCompleteRequest,
     SagaIsCompleteResponse, SagaRegisterRequest, SagaStore,
 };
-use edge_domain_command::ExecutionRequest;
+use edge_application_command::ExecutionRequest;
 
 #[derive(Clone)]
 struct Pulse {
@@ -29,7 +29,7 @@ impl Command for Step {
     fn execute(
         &self,
         _req: ExecutionRequest,
-    ) -> futures::future::BoxFuture<'_, Result<(), edge_domain::CommandError>> {
+    ) -> futures::future::BoxFuture<'_, Result<(), edge_application::CommandError>> {
         Box::pin(async move { Ok(()) })
     }
 }

@@ -1,20 +1,20 @@
 //! Integration tests for `EchoHandler` and the `echo_handler` factory.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::DirectCommandBusRequest;
-use edge_domain::DomainRuntime;
-use edge_domain::{Domain, EchoHandler, Handler, HandlerContext};
-use edge_domain_handler::{
+use edge_application::DirectCommandBusRequest;
+use edge_application::DomainRuntime;
+use edge_application::{Domain, EchoHandler, Handler, HandlerContext};
+use edge_application_handler::{
     CommandBusAdapter, ExecutionRequest, HealthCheckRequest, IdRequest, ObserverContextAdapter,
     PatternRequest,
 };
-use edge_domain_observer::{ObserverContext, StdObserveFactory};
+use edge_application_observer::{ObserverContext, StdObserveFactory};
 use edge_security_runtime::SecurityContext;
 use std::sync::Arc;
 
 fn make_ctx<'a>(
     security: &'a SecurityContext,
-    bus: &'a CommandBusAdapter<'a, dyn edge_domain::CommandBus>,
+    bus: &'a CommandBusAdapter<'a, dyn edge_application::CommandBus>,
     observer: &'a ObserverContextAdapter<'a, dyn ObserverContext>,
 ) -> HandlerContext<'a> {
     HandlerContext {
@@ -40,7 +40,7 @@ async fn test_echo_handler_returns_request_as_response() {
         .direct_command_bus(DirectCommandBusRequest)
         .unwrap()
         .bus;
-    let bus_erased: &dyn edge_domain::CommandBus = bus.as_ref();
+    let bus_erased: &dyn edge_application::CommandBus = bus.as_ref();
     let bus_adapter = CommandBusAdapter(bus_erased);
     let observer = StdObserveFactory::noop_observer_context();
     let observer_adapter = ObserverContextAdapter(observer.as_ref());
@@ -87,7 +87,7 @@ async fn test_echo_handler_works_with_numeric_type() {
         .direct_command_bus(DirectCommandBusRequest)
         .unwrap()
         .bus;
-    let bus_erased: &dyn edge_domain::CommandBus = bus.as_ref();
+    let bus_erased: &dyn edge_application::CommandBus = bus.as_ref();
     let bus_adapter = CommandBusAdapter(bus_erased);
     let observer = StdObserveFactory::noop_observer_context();
     let observer_adapter = ObserverContextAdapter(observer.as_ref());

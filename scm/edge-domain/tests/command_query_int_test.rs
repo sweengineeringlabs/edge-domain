@@ -1,11 +1,11 @@
 //! Integration tests for `Command`, `Query`, `CommandBus`, and `QueryBus`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{
+use edge_application::{
     Command, CommandBus, CommandError, Query, QueryBus, QueryDispatchRequest, QueryError,
     QueryExecuteRequest, QueryNameRequest, QueryNameResponse, QueryResultResponse,
 };
-use edge_domain_command::{CommandDispatchRequest, ExecutionRequest, NameRequest, NameResponse};
+use edge_application_command::{CommandDispatchRequest, ExecutionRequest, NameRequest, NameResponse};
 use futures::future::BoxFuture;
 use std::sync::Arc;
 

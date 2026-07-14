@@ -1,6 +1,6 @@
 //! Tests for the `ClockError` error type.
 
-use edge_domain_clock::ClockError;
+use edge_application_clock::ClockError;
 
 /// @covers: ClockError::BeforeEpoch — Display
 #[test]

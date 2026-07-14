@@ -8,7 +8,7 @@ use crate::api::handler::types::{
 
 /// A composition handle that bundles tracing, logging, and metric primitives.
 ///
-/// Declared locally so `api/` never references `edge_domain_observer::ObserverContext`
+/// Declared locally so `api/` never references `edge_application_observer::ObserverContext`
 /// directly in a type position (SEA `no_foreign_type`). Any real `ObserverContext`
 /// implementor satisfies this automatically via the blanket impl in `core/`.
 pub trait ObserverContext: Send + Sync {

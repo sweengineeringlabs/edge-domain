@@ -2,7 +2,7 @@
 //! crate root and implementable by downstream consumers.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{
+use edge_application::{
     Snapshot, SnapshotAggregateIdRequest, SnapshotAggregateIdResponse, SnapshotError,
     SnapshotVersionRequest, SnapshotVersionResponse,
 };

@@ -3,7 +3,7 @@
 
 use std::collections::HashMap;
 
-use edge_domain_valueobject::NonEmptyString;
+use edge_application_valueobject::NonEmptyString;
 
 /// @covers: NonEmptyString::new — valid input returns Ok
 #[test]

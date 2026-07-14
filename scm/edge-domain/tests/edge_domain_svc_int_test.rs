@@ -1,17 +1,17 @@
 //! Integration tests for saf factory functions.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::DomainRuntime;
-use edge_domain::{
+use edge_application::DomainRuntime;
+use edge_application::{
     Command, CommandBus, CommandError, Domain, QueryBus, QueryError, QueryableRepository,
     Repository, RepositoryIdRequest, RepositorySaveRequest, SpecRequest,
 };
-use edge_domain::{DirectCommandBusRequest, NoopEventPublisherRequest};
-use edge_domain_command::{CommandDispatchRequest, ExecutionRequest, NameRequest, NameResponse};
-use edge_domain_handler::{
+use edge_application::{DirectCommandBusRequest, NoopEventPublisherRequest};
+use edge_application_command::{CommandDispatchRequest, ExecutionRequest, NameRequest, NameResponse};
+use edge_application_handler::{
     EmptinessRequest as HandlerEmptinessRequest, LenRequest as HandlerLenRequest,
 };
-use edge_domain_service::{
+use edge_application_service::{
     EmptinessRequest as ServiceEmptinessRequest, LenRequest as ServiceLenRequest,
 };
 use std::sync::Arc;
@@ -62,7 +62,7 @@ async fn test_new_in_memory_repository_saves_and_finds_entity() {
 /// @covers: new_in_memory_queryable_repository
 #[tokio::test]
 async fn test_new_in_memory_queryable_repository_finds_by_spec() {
-    use edge_domain::{RepositoryError, Spec, SpecMatchesRequest, SpecMatchesResponse};
+    use edge_application::{RepositoryError, Spec, SpecMatchesRequest, SpecMatchesResponse};
     struct LongStr;
     impl Spec for LongStr {
         type Entity = String;
@@ -131,7 +131,7 @@ async fn test_factory_fn_direct_command_bus_dispatches_command_inline() {
 /// @covers: noop_event_publisher
 #[tokio::test]
 async fn test_factory_fn_noop_event_publisher_silently_discards_events() {
-    use edge_domain::{
+    use edge_application::{
         DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventError,
         EventOccurredAtRequest, EventOccurredAtResponse, EventPublisherPublishRequest,
         EventTypeRequest, EventTypeResponse,
@@ -172,7 +172,7 @@ async fn test_factory_fn_noop_event_publisher_silently_discards_events() {
 /// @covers: direct_query_bus
 #[tokio::test]
 async fn test_factory_fn_direct_query_bus_dispatches_query_inline() {
-    use edge_domain::{
+    use edge_application::{
         Query, QueryDispatchRequest, QueryExecuteRequest, QueryNameRequest, QueryNameResponse,
         QueryResultResponse,
     };

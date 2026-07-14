@@ -1,7 +1,7 @@
 //! Comprehensive coverage tests for api/ types and configuration modules.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{
+use edge_application::{
     Aggregate, AggregateApplyRequest, DomainEvent, EventAggregateIdRequest,
     EventAggregateIdResponse, EventOccurredAtRequest, EventOccurredAtResponse, EventTypeRequest,
     EventTypeResponse, RepositoryError, Spec, SpecMatchesRequest, SpecMatchesResponse,
@@ -39,19 +39,19 @@ fn test_aggregate_trait_apply_default() {
         fn event_type(
             &self,
             _req: EventTypeRequest,
-        ) -> Result<EventTypeResponse<'_>, edge_domain::EventError> {
+        ) -> Result<EventTypeResponse<'_>, edge_application::EventError> {
             Ok(EventTypeResponse { event_type: "test" })
         }
         fn aggregate_id(
             &self,
             _req: EventAggregateIdRequest,
-        ) -> Result<EventAggregateIdResponse<'_>, edge_domain::EventError> {
+        ) -> Result<EventAggregateIdResponse<'_>, edge_application::EventError> {
             Ok(EventAggregateIdResponse { aggregate_id: "id" })
         }
         fn occurred_at(
             &self,
             _req: EventOccurredAtRequest,
-        ) -> Result<EventOccurredAtResponse, edge_domain::EventError> {
+        ) -> Result<EventOccurredAtResponse, edge_application::EventError> {
             Ok(EventOccurredAtResponse {
                 occurred_at: SystemTime::now(),
             })

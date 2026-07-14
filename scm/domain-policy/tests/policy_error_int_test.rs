@@ -1,6 +1,6 @@
 //! Tests for the `PolicyError` error type.
 
-use edge_domain_policy::PolicyError;
+use edge_application_policy::PolicyError;
 
 /// @covers: PolicyError::new — carries policy name and reason
 #[test]

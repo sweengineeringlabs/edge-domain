@@ -1,7 +1,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, unused_imports)]
 //! SAF facade smoke test — Spec trait is exported from the crate root.
 
-use edge_domain::{RepositoryError, Spec, SpecMatchesRequest, SpecMatchesResponse};
+use edge_application::{RepositoryError, Spec, SpecMatchesRequest, SpecMatchesResponse};
 
 struct Even;
 impl Spec for Even {

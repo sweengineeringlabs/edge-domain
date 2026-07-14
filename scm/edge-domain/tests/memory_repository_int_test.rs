@@ -1,7 +1,7 @@
 //! Integration tests for `MemoryRepository` api type and `new_in_memory_repository` factory.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{
+use edge_application::{
     Domain, QueryableRepository, Repository, RepositoryError, RepositoryIdRequest,
     RepositorySaveRequest, Spec, SpecMatchesRequest, SpecMatchesResponse, SpecRequest,
 };

@@ -1,8 +1,8 @@
 //! Integration tests for `Entity` trait.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::Entity;
-use edge_domain_entity::{EntityError, IdRequest, IdResponse};
+use edge_application::Entity;
+use edge_application_entity::{EntityError, IdRequest, IdResponse};
 
 struct OrderLine {
     id: u64,

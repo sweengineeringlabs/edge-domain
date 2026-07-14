@@ -53,8 +53,8 @@ mod tests {
     use crate::api::{
         SagaHandleRequest, SagaHandleResponse, SagaIsCompleteRequest, SagaIsCompleteResponse,
     };
-    use edge_domain_command::{Command, CommandError, ExecutionRequest};
-    use edge_domain_event::DomainEvent;
+    use edge_application_command::{Command, CommandError, ExecutionRequest};
+    use edge_application_event::DomainEvent;
     use futures::future::BoxFuture;
 
     #[derive(Debug, Default)]
@@ -68,10 +68,10 @@ mod tests {
     impl DomainEvent for MemorySagaStoreTestSagaSignal {
         fn aggregate_id(
             &self,
-            _req: edge_domain_event::EventAggregateIdRequest,
-        ) -> Result<edge_domain_event::EventAggregateIdResponse<'_>, edge_domain_event::EventError>
+            _req: edge_application_event::EventAggregateIdRequest,
+        ) -> Result<edge_application_event::EventAggregateIdResponse<'_>, edge_application_event::EventError>
         {
-            Ok(edge_domain_event::EventAggregateIdResponse {
+            Ok(edge_application_event::EventAggregateIdResponse {
                 aggregate_id: "saga-test",
             })
         }

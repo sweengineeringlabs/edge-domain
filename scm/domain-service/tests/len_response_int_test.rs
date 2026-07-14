@@ -1,6 +1,6 @@
 //! Tests for [`LenResponse`] — length wrapper response.
 
-use edge_domain_service::LenResponse;
+use edge_application_service::LenResponse;
 
 /// @covers: LenResponse — constructible with count
 #[test]

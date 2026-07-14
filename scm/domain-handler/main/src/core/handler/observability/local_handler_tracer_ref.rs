@@ -1,6 +1,6 @@
 //! [`LocalHandlerTracerRef`] — wraps a borrowed real `HandlerTracer` reference as a local [`HandlerTracer`].
 
-use edge_domain_observer as obs;
+use edge_application_observer as obs;
 
 use super::into_handler_error::IntoHandlerError;
 use super::local_span_adapter::LocalSpanAdapter;

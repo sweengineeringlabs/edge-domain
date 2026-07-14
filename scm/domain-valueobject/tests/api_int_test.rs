@@ -5,7 +5,7 @@
     clippy::default_constructed_unit_structs
 )]
 
-use edge_domain_valueobject::ValidationRequest;
+use edge_application_valueobject::ValidationRequest;
 
 /// @covers: ValidationRequest
 #[test]

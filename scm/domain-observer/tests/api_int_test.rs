@@ -4,7 +4,7 @@
 //! crate's public API and asserts on its real shape, field values, or ZST-ness.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_observer::{
+use edge_application_observer::{
     BootstrapNameRequest, BootstrapNameResponse, Counter, CounterLookupRequest,
     CounterLookupResponse, DrainRequest, DrainResponse, Gauge, GaugeLookupRequest,
     GaugeLookupResponse, GaugeSetRequest, GaugeSetResponse, HandlerTracer,

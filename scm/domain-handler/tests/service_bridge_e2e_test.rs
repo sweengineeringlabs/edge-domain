@@ -3,7 +3,7 @@
 
 use std::sync::Arc;
 
-use edge_domain_handler::ServiceBridge;
+use edge_application_handler::ServiceBridge;
 
 struct BridgeDouble;
 impl ServiceBridge for BridgeDouble {}

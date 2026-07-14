@@ -1,14 +1,14 @@
 //! Integration tests — `Application` trait via SAF facade.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_app::{AppError, Application, ApplicationRunRequest, ApplicationRunResponse, NameRequest};
+use edge_application_app::{AppError, Application, ApplicationRunRequest, ApplicationRunResponse, NameRequest};
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 
 struct Echo;
 impl Application for Echo {
-    fn name(&self, _req: NameRequest) -> Result<edge_domain_app::NameResponse, AppError> {
-        Ok(edge_domain_app::NameResponse { name: "echo" })
+    fn name(&self, _req: NameRequest) -> Result<edge_application_app::NameResponse, AppError> {
+        Ok(edge_application_app::NameResponse { name: "echo" })
     }
     fn run(&self, _req: ApplicationRunRequest) -> BoxFuture<'_, Result<ApplicationRunResponse, AppError>> {
         Box::pin(async { Ok(ApplicationRunResponse) })
@@ -69,7 +69,7 @@ fn test_run_repeated_calls_are_independent_edge() {
 /// @covers: Application::noop — returns NoopApplication with default name
 #[test]
 fn test_noop_returns_noop_application_happy() {
-    use edge_domain_app::NoopApplication;
+    use edge_application_app::NoopApplication;
     let noop: NoopApplication = Echo::noop();
     assert_eq!(noop.name(NameRequest).unwrap().name, "application");
 }
@@ -77,7 +77,7 @@ fn test_noop_returns_noop_application_happy() {
 /// @covers: Application::noop — noop name differs from the caller's custom name
 #[test]
 fn test_noop_name_differs_from_caller_name_error() {
-    use edge_domain_app::NoopApplication;
+    use edge_application_app::NoopApplication;
     let noop: NoopApplication = Echo::noop();
     assert_ne!(noop.name(NameRequest).unwrap().name, Echo.name(NameRequest).unwrap().name);
 }
@@ -85,7 +85,7 @@ fn test_noop_name_differs_from_caller_name_error() {
 /// @covers: Application::noop — returned NoopApplication is Copy
 #[test]
 fn test_noop_application_is_copy_edge() {
-    use edge_domain_app::NoopApplication;
+    use edge_application_app::NoopApplication;
     let noop: NoopApplication = Echo::noop();
     let copy = noop;
     assert_eq!(noop.name(NameRequest).unwrap().name, copy.name(NameRequest).unwrap().name);

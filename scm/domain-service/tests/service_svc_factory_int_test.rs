@@ -1,6 +1,6 @@
 //! Tests for `service_svc_factory`.
 
-use edge_domain_service::SERVICE_SVC;
+use edge_application_service::SERVICE_SVC;
 
 /// @covers: SERVICE_SVC constant
 #[test]

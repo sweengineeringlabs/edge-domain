@@ -1,4 +1,4 @@
-use edge_domain_clock::CLOCK_SVC_FACTORY;
+use edge_application_clock::CLOCK_SVC_FACTORY;
 
 #[test]
 fn test_clock_svc_factory_constant_value_happy() {

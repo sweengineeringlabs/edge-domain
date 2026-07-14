@@ -1,4 +1,4 @@
-use edge_domain_handler::{OBSERVER_CONTEXT_SVC, OBSERVER_CONTEXT_SVC_FACTORY};
+use edge_application_handler::{OBSERVER_CONTEXT_SVC, OBSERVER_CONTEXT_SVC_FACTORY};
 
 #[test]
 fn test_observer_context_svc_constant_value_happy() {

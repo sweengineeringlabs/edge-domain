@@ -1,6 +1,6 @@
 //! Structural coverage for [`NameRequest`].
 
-use edge_domain_command::NameRequest;
+use edge_application_command::NameRequest;
 
 /// @covers: NameRequest
 #[test]

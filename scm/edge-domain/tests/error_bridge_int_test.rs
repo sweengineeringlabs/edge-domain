@@ -5,7 +5,7 @@
 //! The supported pattern is `.map_err(|e| HandlerError::ExecutionFailed(e.to_string()))`
 //! or `.map_err(|e| HandlerError::InvalidRequest(e.to_string()))`.
 
-use edge_domain::{
+use edge_application::{
     CommandError, EventError, HandlerError, QueryError, RepositoryError, ServiceError,
 };
 

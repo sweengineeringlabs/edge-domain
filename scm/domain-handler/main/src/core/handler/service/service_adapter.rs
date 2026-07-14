@@ -1,10 +1,10 @@
-//! Blanket bridges from `edge_domain_service`'s `ServiceRegistry`/`Service` traits to their
+//! Blanket bridges from `edge_application_service`'s `ServiceRegistry`/`Service` traits to their
 //! local `domain-handler` decoupling boundaries (SEA `no_foreign_type`).
 
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain_service as svc;
+use edge_application_service as svc;
 
 use crate::api::HandlerError;
 use crate::api::{
@@ -28,7 +28,7 @@ impl<T: svc::Service + ?Sized> Service for T {
     }
 }
 
-/// Adapter wrapping an already-erased `Arc<dyn edge_domain_service::Service>` as a local
+/// Adapter wrapping an already-erased `Arc<dyn edge_application_service::Service>` as a local
 /// [`Service`].
 ///
 /// Needed because an existing `Arc<dyn svc::Service>` cannot be re-coerced into
@@ -82,7 +82,7 @@ impl<T: svc::ServiceRegistry + ?Sized> ServiceRegistry for T {
 mod tests {
     use std::sync::Arc;
 
-    use edge_domain_service::{
+    use edge_application_service::{
         NoopService, RegisterServiceRequest, ServiceRegistry as ForeignServiceRegistry,
         ServiceRegistryStore,
     };

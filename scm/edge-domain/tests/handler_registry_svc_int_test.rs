@@ -1,16 +1,16 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, unused_imports)]
 //! SAF facade smoke test — HandlerRegistry is exported from the crate root.
 
-use edge_domain::Domain;
-use edge_domain::EchoHandler;
-use edge_domain::HandlerRegistry;
-use edge_domain_handler::{HandlerLookupRequest, RegisterHandlerRequest};
+use edge_application::Domain;
+use edge_application::EchoHandler;
+use edge_application::HandlerRegistry;
+use edge_application_handler::{HandlerLookupRequest, RegisterHandlerRequest};
 use std::sync::Arc;
 
 #[test]
 fn test_handler_registry_svc_facade_register_and_retrieve() {
     let reg = Domain.new_handler_registry::<String, String>();
-    let handler: Arc<dyn edge_domain::Handler<Request = String, Response = String>> =
+    let handler: Arc<dyn edge_application::Handler<Request = String, Response = String>> =
         Arc::new(EchoHandler::from(("echo", "*")));
     reg.register(RegisterHandlerRequest::new(handler)).unwrap();
     assert!(reg

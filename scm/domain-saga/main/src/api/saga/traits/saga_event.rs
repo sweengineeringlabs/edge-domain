@@ -5,7 +5,7 @@ use crate::api::saga::types::{NoopSagaEvent, SagaEventDescribeRequest, SagaEvent
 
 /// The minimal contract a [`Saga`](super::Saga)'s associated `Event` type must satisfy.
 ///
-/// Declared locally so `api/` never references `edge_domain_event::DomainEvent`
+/// Declared locally so `api/` never references `edge_application_event::DomainEvent`
 /// directly in a type position (SEA `no_foreign_type`). Any `DomainEvent`
 /// implementor satisfies this automatically via the blanket impl in `core/`.
 pub trait SagaEvent: Send + Sync {

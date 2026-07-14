@@ -1,7 +1,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, unused_imports)]
 //! SAF facade smoke test — DomainEvent trait is exported from the crate root.
 
-use edge_domain::{
+use edge_application::{
     DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventError, EventTypeRequest,
     EventTypeResponse,
 };

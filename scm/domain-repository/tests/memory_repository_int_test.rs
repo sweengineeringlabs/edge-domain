@@ -1,7 +1,7 @@
 //! Integration tests for `MemoryRepository` — covers the types/ file directly.
 // @allow: no_mocks_in_integration — MemoryRepository is the production-shipped reference impl, not a test double
 
-use edge_domain_repository::{
+use edge_application_repository::{
     MemoryRepository, Repository, RepositoryIdRequest, RepositoryListRequest,
     RepositorySaveRequest,
 };

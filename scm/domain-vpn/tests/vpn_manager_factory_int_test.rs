@@ -1,6 +1,6 @@
 //! Tests for `api/vpn/types/vpn_manager_factory.rs` — VpnManagerFactory.
 
-use edge_domain_vpn::{VpnManagerFactory, TunnelStatus, TunnelManager};
+use edge_application_vpn::{VpnManagerFactory, TunnelStatus, TunnelManager};
 use tokio::runtime::Runtime;
 
 #[test]

@@ -1,6 +1,6 @@
 //! Tests for `api/vpn/noop/noop_tunnel_manager.rs` and `core/vpn/noop_tunnel_manager.rs`.
 
-use edge_domain_vpn::{NoopTunnelManager, TunnelManager, TunnelStatus};
+use edge_application_vpn::{NoopTunnelManager, TunnelManager, TunnelStatus};
 use tokio::runtime::Runtime;
 
 #[test]

@@ -1,6 +1,6 @@
 //! Integration tests for `EventError`.
 
-use edge_domain_event::EventError;
+use edge_application_event::EventError;
 
 /// @covers: EventError — Unavailable variant displays correctly
 #[test]

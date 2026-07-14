@@ -1,6 +1,6 @@
 //! Tests for [`RegisterServiceRequest`].
 
-use edge_domain_service::{
+use edge_application_service::{
     NoopService, RegisterServiceRequest, Service, ServiceLookupRequest, ServiceRegistry,
     ServiceRegistryStore,
 };

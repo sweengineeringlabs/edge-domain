@@ -2,7 +2,7 @@
 // @allow: no_mocks_in_integration — MemorySnapshotStore is the production-shipped reference impl, not a test double
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_snapshot::{
+use edge_application_snapshot::{
     MemorySnapshotStore, Snapshot, SnapshotAggregateIdRequest, SnapshotAggregateIdResponse,
     SnapshotError, SnapshotLoadRequest, SnapshotSaveRequest, SnapshotStore, SnapshotVersionRequest,
     SnapshotVersionResponse,

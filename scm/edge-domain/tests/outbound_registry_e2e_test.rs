@@ -3,7 +3,7 @@
 
 use std::sync::Mutex;
 
-use edge_domain::{
+use edge_application::{
     DomainError, OutboundDeregisterRequest, OutboundGetRequest, OutboundIsEmptyRequest,
     OutboundLenRequest, OutboundNamesRequest, OutboundRegisterRequest, OutboundRegistry,
 };
@@ -27,21 +27,21 @@ impl OutboundRegistry for TestRegistry {
     fn register(
         &self,
         req: OutboundRegisterRequest<String>,
-    ) -> Result<edge_domain::OutboundRegisterResponse, DomainError> {
+    ) -> Result<edge_application::OutboundRegisterResponse, DomainError> {
         let mut store = self.store.lock().unwrap();
         store.retain(|(n, _)| n != &req.name);
         store.push((req.name, req.handle));
-        Ok(edge_domain::OutboundRegisterResponse)
+        Ok(edge_application::OutboundRegisterResponse)
     }
 
     fn deregister(
         &self,
         req: OutboundDeregisterRequest,
-    ) -> Result<edge_domain::OutboundDeregisterResponse, DomainError> {
+    ) -> Result<edge_application::OutboundDeregisterResponse, DomainError> {
         let mut store = self.store.lock().unwrap();
         let before = store.len();
         store.retain(|(n, _)| n != &req.name);
-        Ok(edge_domain::OutboundDeregisterResponse {
+        Ok(edge_application::OutboundDeregisterResponse {
             removed: store.len() < before,
         })
     }
@@ -49,21 +49,21 @@ impl OutboundRegistry for TestRegistry {
     fn get(
         &self,
         req: OutboundGetRequest,
-    ) -> Result<edge_domain::OutboundGetResponse<String>, DomainError> {
+    ) -> Result<edge_application::OutboundGetResponse<String>, DomainError> {
         let store = self.store.lock().unwrap();
         let handle = store
             .iter()
             .find(|(n, _)| n == &req.name)
             .map(|(_, h)| h.clone());
-        Ok(edge_domain::OutboundGetResponse { handle })
+        Ok(edge_application::OutboundGetResponse { handle })
     }
 
     fn names(
         &self,
         _req: OutboundNamesRequest,
-    ) -> Result<edge_domain::OutboundNamesResponse, DomainError> {
+    ) -> Result<edge_application::OutboundNamesResponse, DomainError> {
         let store = self.store.lock().unwrap();
-        Ok(edge_domain::OutboundNamesResponse {
+        Ok(edge_application::OutboundNamesResponse {
             names: store.iter().map(|(n, _)| n.clone()).collect(),
         })
     }
@@ -71,8 +71,8 @@ impl OutboundRegistry for TestRegistry {
     fn len(
         &self,
         _req: OutboundLenRequest,
-    ) -> Result<edge_domain::OutboundLenResponse, DomainError> {
-        Ok(edge_domain::OutboundLenResponse {
+    ) -> Result<edge_application::OutboundLenResponse, DomainError> {
+        Ok(edge_application::OutboundLenResponse {
             count: self.store.lock().unwrap().len(),
         })
     }
@@ -80,8 +80,8 @@ impl OutboundRegistry for TestRegistry {
     fn is_empty(
         &self,
         _req: OutboundIsEmptyRequest,
-    ) -> Result<edge_domain::OutboundIsEmptyResponse, DomainError> {
-        Ok(edge_domain::OutboundIsEmptyResponse {
+    ) -> Result<edge_application::OutboundIsEmptyResponse, DomainError> {
+        Ok(edge_application::OutboundIsEmptyResponse {
             empty: self.store.lock().unwrap().is_empty(),
         })
     }
@@ -95,42 +95,42 @@ impl OutboundRegistry for FailingRegistry {
     fn register(
         &self,
         _req: OutboundRegisterRequest<String>,
-    ) -> Result<edge_domain::OutboundRegisterResponse, DomainError> {
+    ) -> Result<edge_application::OutboundRegisterResponse, DomainError> {
         Err(DomainError::Unavailable("registry offline".into()))
     }
 
     fn deregister(
         &self,
         _req: OutboundDeregisterRequest,
-    ) -> Result<edge_domain::OutboundDeregisterResponse, DomainError> {
+    ) -> Result<edge_application::OutboundDeregisterResponse, DomainError> {
         Err(DomainError::Unavailable("registry offline".into()))
     }
 
     fn get(
         &self,
         _req: OutboundGetRequest,
-    ) -> Result<edge_domain::OutboundGetResponse<String>, DomainError> {
+    ) -> Result<edge_application::OutboundGetResponse<String>, DomainError> {
         Err(DomainError::Unavailable("registry offline".into()))
     }
 
     fn names(
         &self,
         _req: OutboundNamesRequest,
-    ) -> Result<edge_domain::OutboundNamesResponse, DomainError> {
+    ) -> Result<edge_application::OutboundNamesResponse, DomainError> {
         Err(DomainError::Unavailable("registry offline".into()))
     }
 
     fn len(
         &self,
         _req: OutboundLenRequest,
-    ) -> Result<edge_domain::OutboundLenResponse, DomainError> {
+    ) -> Result<edge_application::OutboundLenResponse, DomainError> {
         Err(DomainError::Unavailable("registry offline".into()))
     }
 
     fn is_empty(
         &self,
         _req: OutboundIsEmptyRequest,
-    ) -> Result<edge_domain::OutboundIsEmptyResponse, DomainError> {
+    ) -> Result<edge_application::OutboundIsEmptyResponse, DomainError> {
         Err(DomainError::Unavailable("registry offline".into()))
     }
 }

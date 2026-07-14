@@ -1,9 +1,9 @@
 //! Coverage for api/event/types/ins/in_process_event_bus.rs
 #![allow(clippy::unwrap_used)]
 
-use edge_domain::DomainRuntime;
-use edge_domain::InProcessEventBusRequest;
-use edge_domain::{
+use edge_application::DomainRuntime;
+use edge_application::InProcessEventBusRequest;
+use edge_application::{
     Domain, DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventBusConfig,
     EventBusPublishRequest, EventBusSubscribeRequest, EventError, EventOccurredAtRequest,
     EventOccurredAtResponse, EventSource, EventSourceRecvNextRequest, EventTypeRequest,

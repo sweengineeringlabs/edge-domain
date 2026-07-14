@@ -1,6 +1,6 @@
 //! Basic `Entity` usage example.
 
-use edge_domain_entity::{Entity, EntityError, IdRequest, IdResponse};
+use edge_application_entity::{Entity, EntityError, IdRequest, IdResponse};
 
 struct OrderLine {
     id: u64,

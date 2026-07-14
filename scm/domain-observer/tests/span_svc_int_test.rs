@@ -1,4 +1,4 @@
-use edge_domain_observer::SPAN_SVC;
+use edge_application_observer::SPAN_SVC;
 
 #[test]
 fn test_span_svc_key_non_empty_happy() {

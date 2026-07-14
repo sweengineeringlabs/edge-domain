@@ -1,7 +1,7 @@
 //! Integration tests for `PolicyError`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::PolicyError;
+use edge_application::PolicyError;
 
 /// @covers: PolicyError::new
 #[test]

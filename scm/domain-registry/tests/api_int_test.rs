@@ -6,7 +6,7 @@
 
 use std::sync::Arc;
 
-use edge_domain_registry::{
+use edge_application_registry::{
     DeregisterRequest, DeregisterResponse, EmptinessRequest, EmptinessResponse, LenRequest,
     LenResponse, ListIdsRequest, ListIdsResponse, RegisterRequest, RegisterResponse,
     RegistryLookupRequest, RegistryLookupResponse, TryRegisterRequest, TryRegisterResponse,

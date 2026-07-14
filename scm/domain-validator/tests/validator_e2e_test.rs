@@ -1,6 +1,6 @@
 //! SAF facade tests — `Validator` trait exported from the crate root.
 
-use edge_domain_validator::{ValidationRequest, ValidationResponse, Validator, ValidatorError};
+use edge_application_validator::{ValidationRequest, ValidationResponse, Validator, ValidatorError};
 
 struct NonEmpty(String);
 impl Validator for NonEmpty {

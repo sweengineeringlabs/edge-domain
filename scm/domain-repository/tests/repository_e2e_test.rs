@@ -1,7 +1,7 @@
 //! SAF facade tests — `Repository` trait via `MemoryRepository`.
 // @allow: no_mocks_in_integration — MemoryRepository is the production-shipped reference impl, not a test double
 
-use edge_domain_repository::{
+use edge_application_repository::{
     MemoryRepository, Repository, RepositoryIdRequest, RepositoryListPageRequest,
     RepositoryListRequest, RepositorySaveRequest,
 };
@@ -120,7 +120,7 @@ fn test_delete_already_deleted_returns_false_edge() {
     }))
     .unwrap_or_default();
     block_on(repo.delete(RepositoryIdRequest { id: &3 }))
-        .unwrap_or(edge_domain_repository::RepositoryDeleteResponse { removed: false });
+        .unwrap_or(edge_application_repository::RepositoryDeleteResponse { removed: false });
     let second = block_on(repo.delete(RepositoryIdRequest { id: &3 }))
         .map(|r| r.removed)
         .unwrap_or(true);
@@ -172,7 +172,7 @@ fn test_exists_deleted_entity_returns_false_edge() {
     }))
     .unwrap_or_default();
     block_on(repo.delete(RepositoryIdRequest { id: &5 }))
-        .unwrap_or(edge_domain_repository::RepositoryDeleteResponse { removed: false });
+        .unwrap_or(edge_application_repository::RepositoryDeleteResponse { removed: false });
     let exists = block_on(repo.exists(RepositoryIdRequest { id: &5 }))
         .map(|r| r.exists)
         .unwrap_or(true);
@@ -225,7 +225,7 @@ fn test_list_page_returns_correct_slice_happy() {
         limit: 2,
     }))
     .map(|r| r.page)
-    .unwrap_or_else(|_| edge_domain_repository::Page::new(vec![], 0, 0, 2));
+    .unwrap_or_else(|_| edge_application_repository::Page::new(vec![], 0, 0, 2));
     assert_eq!(page.total, 5);
     assert_eq!(page.items.len(), 2);
 }
@@ -244,7 +244,7 @@ fn test_list_page_offset_beyond_total_returns_empty_error() {
         limit: 5,
     }))
     .map(|r| r.page)
-    .unwrap_or_else(|_| edge_domain_repository::Page::new(vec!["x".into()], 0, 10, 5));
+    .unwrap_or_else(|_| edge_application_repository::Page::new(vec!["x".into()], 0, 10, 5));
     assert!(page.items.is_empty());
 }
 
@@ -264,6 +264,6 @@ fn test_list_page_last_partial_page_has_no_more_edge() {
         limit: 10,
     }))
     .map(|r| r.page)
-    .unwrap_or_else(|_| edge_domain_repository::Page::new(vec![], 0, 0, 10));
+    .unwrap_or_else(|_| edge_application_repository::Page::new(vec![], 0, 0, 10));
     assert!(!page.has_more());
 }

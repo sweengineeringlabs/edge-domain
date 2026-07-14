@@ -1,6 +1,6 @@
 //! Tests for the `QueryError` error type.
 
-use edge_domain_query::QueryError;
+use edge_application_query::QueryError;
 
 /// @covers: QueryError::InvalidInput — Display
 #[test]

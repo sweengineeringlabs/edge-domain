@@ -1,7 +1,7 @@
 //! Integration tests for `InProcessEventBusResponse`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{
+use edge_application::{
     Domain, DomainEvent, DomainRuntime, EventBusConfig, EventBusPublishRequest,
     EventBusSubscribeRequest, EventSourceRecvNextRequest, InProcessEventBusRequest,
 };

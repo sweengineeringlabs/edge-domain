@@ -10,7 +10,7 @@
 //! # Quick start
 //!
 //! ```rust,no_run
-//! use edge_domain_vpn::{VpnClientConfig, VpnManagerFactory};
+//! use edge_application_vpn::{VpnClientConfig, VpnManagerFactory};
 //! use swe_edge_configbuilder::{ConfigLoaderFactory, FeatureState, OptionalSection};
 //!
 //! # async fn example() {

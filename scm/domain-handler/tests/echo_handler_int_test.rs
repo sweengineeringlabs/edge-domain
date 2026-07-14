@@ -4,18 +4,18 @@
 use std::marker::PhantomData;
 use std::sync::Arc;
 
-use edge_domain_command::DirectCommandBus;
-use edge_domain_handler::{
+use edge_application_command::DirectCommandBus;
+use edge_application_handler::{
     CommandBusAdapter, EchoHandler, ExecutionRequest, Handler, HandlerContext, HealthCheckRequest,
     IdRequest, ObserverContextAdapter, PatternRequest,
 };
-use edge_domain_observer::{ObserverContext, StdObserveFactory};
+use edge_application_observer::{ObserverContext, StdObserveFactory};
 use edge_security_runtime::SecurityContext;
 use futures::executor::block_on;
 
 fn unauth_ctx<'a>(
     security: &'a SecurityContext,
-    bus: &'a CommandBusAdapter<'a, dyn edge_domain_command::CommandBus>,
+    bus: &'a CommandBusAdapter<'a, dyn edge_application_command::CommandBus>,
     observer: &'a ObserverContextAdapter<'a, dyn ObserverContext>,
 ) -> HandlerContext<'a> {
     HandlerContext {
@@ -31,7 +31,7 @@ fn test_execute_returns_request_unchanged_happy() {
     let h = EchoHandler::<String>::from(("echo", "/"));
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
-    let bus_erased: &dyn edge_domain_command::CommandBus = &bus;
+    let bus_erased: &dyn edge_application_command::CommandBus = &bus;
     let bus_adapter = CommandBusAdapter(bus_erased);
     let observer = StdObserveFactory::noop_observer_context();
     let observer_adapter = ObserverContextAdapter(observer.as_ref());
@@ -66,7 +66,7 @@ fn test_execute_empty_string_returns_empty_string_edge() {
     let h = EchoHandler::<String>::from(("e", "/"));
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
-    let bus_erased: &dyn edge_domain_command::CommandBus = &bus;
+    let bus_erased: &dyn edge_application_command::CommandBus = &bus;
     let bus_adapter = CommandBusAdapter(bus_erased);
     let observer = StdObserveFactory::noop_observer_context();
     let observer_adapter = ObserverContextAdapter(observer.as_ref());
@@ -98,7 +98,7 @@ fn test_execute_with_security_context_returns_same_value_happy() {
     let h = EchoHandler::<String>::from(("e", "/"));
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
-    let bus_erased: &dyn edge_domain_command::CommandBus = &bus;
+    let bus_erased: &dyn edge_application_command::CommandBus = &bus;
     let bus_adapter = CommandBusAdapter(bus_erased);
     let observer = StdObserveFactory::noop_observer_context();
     let observer_adapter = ObserverContextAdapter(observer.as_ref());
@@ -123,7 +123,7 @@ fn test_echo_handler_usable_as_dyn_handler_edge() {
     });
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
-    let bus_erased: &dyn edge_domain_command::CommandBus = &bus;
+    let bus_erased: &dyn edge_application_command::CommandBus = &bus;
     let bus_adapter = CommandBusAdapter(bus_erased);
     let observer = StdObserveFactory::noop_observer_context();
     let observer_adapter = ObserverContextAdapter(observer.as_ref());

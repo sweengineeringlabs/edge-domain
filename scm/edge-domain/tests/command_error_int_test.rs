@@ -1,6 +1,6 @@
 //! Integration tests for `CommandError`.
 
-use edge_domain::CommandError;
+use edge_application::CommandError;
 
 /// @covers: CommandError
 #[test]
