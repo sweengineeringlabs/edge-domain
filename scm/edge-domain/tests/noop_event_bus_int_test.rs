@@ -1,8 +1,9 @@
 //! Coverage for api/event/types/noop/noop_event_bus.rs
+#![cfg(feature = "event")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
-use edge_domain::DomainRuntime;
-use edge_domain::NoopEventBusRequest;
-use edge_domain::{
+use edge_application::DomainRuntime;
+use edge_application::NoopEventBusRequest;
+use edge_application::{
     Domain, EventBusPublishRequest, EventBusSubscribeRequest, EventSource,
     EventSourceRecvNextRequest, NoopEventBus,
 };
@@ -18,7 +19,7 @@ fn test_noop_event_bus_marker_type_is_constructible() {
 #[test]
 fn test_noop_event_bus_publish_returns_ok() {
     block_on(async {
-        use edge_domain::DomainEvent;
+        use edge_application::DomainEvent;
         struct AnyEvent;
         impl DomainEvent for AnyEvent {}
         let bus = Domain.noop_event_bus(NoopEventBusRequest).unwrap().bus;

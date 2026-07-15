@@ -38,7 +38,7 @@ pub use api::EventStoreLoadResponse;
 pub use api::EventTypeRequest;
 pub use api::EventTypeResponse;
 pub use api::ExpectedVersion;
-pub use api::InMemoryEventStore;
+pub use api::MemoryEventStore;
 pub use api::InProcessEventBus;
 pub use api::NoopAggregate;
 pub use api::NoopDomainEvent;

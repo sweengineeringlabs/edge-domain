@@ -1,8 +1,9 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, unused_imports)]
 //! SAF facade smoke test — Service trait is exported from the crate root.
+#![cfg(feature = "service")]
 
-use edge_domain::Service;
-use edge_domain_service::{NameRequest, NameResponse, ServiceError};
+use edge_application::Service;
+use edge_application_service::{NameRequest, NameResponse, ServiceError};
 
 struct Echo;
 impl Service for Echo {

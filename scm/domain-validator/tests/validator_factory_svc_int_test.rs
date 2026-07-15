@@ -1,6 +1,6 @@
 //! SAF facade tests — `AlwaysValid` construction.
 
-use edge_domain_validator::{AlwaysValid, ValidationRequest, ValidationResponse, Validator};
+use edge_application_validator::{AlwaysValid, ValidationRequest, ValidationResponse, Validator};
 
 /// @covers: AlwaysValid — returns a passing validator
 #[test]

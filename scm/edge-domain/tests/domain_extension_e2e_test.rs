@@ -1,7 +1,7 @@
 //! Contract tests for the DomainExtension marker trait.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{DomainExtension, DomainExtensionHealthRequest, NoopDomainExtension};
+use edge_application::{DomainExtension, DomainExtensionHealthRequest, NoopDomainExtension};
 
 /// @covers: DomainExtension
 #[test]
@@ -23,7 +23,7 @@ fn test_health_noop_extension_returns_ok_happy() {
 /// @covers: DomainExtension::health — custom implementation can return Err
 #[test]
 fn test_health_failing_extension_returns_err_error() {
-    use edge_domain::DomainError;
+    use edge_application::DomainError;
 
     struct FailingExtension;
     impl DomainExtension for FailingExtension {

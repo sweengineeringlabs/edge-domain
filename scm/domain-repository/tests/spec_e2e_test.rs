@@ -1,7 +1,7 @@
 //! Integration tests for `Spec` — predicate trait.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_repository::{RepositoryError, Spec, SpecMatchesRequest, SpecMatchesResponse};
+use edge_application_repository::{RepositoryError, Spec, SpecMatchesRequest, SpecMatchesResponse};
 
 struct AlwaysTrue;
 impl Spec for AlwaysTrue {

@@ -1,6 +1,6 @@
 //! Tests for [`ListNamesResponse`] — names wrapper response.
 
-use edge_domain_service::ListNamesResponse;
+use edge_application_service::ListNamesResponse;
 
 /// @covers: ListNamesResponse — constructible with names
 #[test]

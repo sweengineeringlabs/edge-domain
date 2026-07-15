@@ -3,7 +3,7 @@
 use std::time::SystemTime;
 
 use crate::api::clock::errors::ClockError;
-use crate::api::clock::types::{
+use crate::api::clock::dto::{
     ElapsedSinceEpochRequest, ElapsedSinceEpochResponse, NowRequest, NowResponse,
 };
 

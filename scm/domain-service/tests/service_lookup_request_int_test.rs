@@ -1,6 +1,6 @@
 //! Tests for [`ServiceLookupRequest`] — service lookup request.
 
-use edge_domain_service::ServiceLookupRequest;
+use edge_application_service::ServiceLookupRequest;
 
 /// @covers: ServiceLookupRequest — constructible with name
 #[test]

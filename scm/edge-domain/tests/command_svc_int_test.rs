@@ -1,9 +1,10 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, unused_imports)]
 //! SAF facade smoke test — Command trait is exported from the crate root.
+#![cfg(feature = "command")]
 
-use edge_domain::Command;
-use edge_domain::CommandError;
-use edge_domain_command::{ExecutionRequest, NameRequest, NameResponse};
+use edge_application::Command;
+use edge_application::CommandError;
+use edge_application_command::{ExecutionRequest, NameRequest, NameResponse};
 
 struct Succeed;
 impl Command for Succeed {

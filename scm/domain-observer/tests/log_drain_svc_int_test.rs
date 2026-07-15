@@ -1,6 +1,6 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_observer::{LogDrain, LogEmitRequest, StdObserveFactory, LOG_DRAIN_SVC};
+use edge_application_observer::{LogDrain, LogEmitRequest, StdObserveFactory, LOG_DRAIN_SVC};
 
 #[test]
 fn test_noop_log_drain_svc_emits_info_record_happy() {

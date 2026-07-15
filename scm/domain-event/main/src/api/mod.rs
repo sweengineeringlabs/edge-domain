@@ -32,7 +32,7 @@ pub use event::EventStoreLoadResponse;
 pub use event::EventTypeRequest;
 pub use event::EventTypeResponse;
 pub use event::ExpectedVersion;
-pub use event::InMemoryEventStore;
+pub use event::MemoryEventStore;
 pub use event::InProcessEventBus;
 pub use event::NoopAggregate;
 pub use event::NoopDomainEvent;

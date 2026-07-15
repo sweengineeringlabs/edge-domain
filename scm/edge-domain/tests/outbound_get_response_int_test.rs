@@ -1,7 +1,7 @@
 //! Integration tests for `OutboundGetResponse`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::OutboundGetResponse;
+use edge_application::OutboundGetResponse;
 
 /// @covers: OutboundGetResponse
 #[test]

@@ -3,7 +3,7 @@
 use std::future::Future;
 use std::pin::Pin;
 
-use crate::api::command::types::{ExecutionRequest, NameRequest, NameResponse};
+use crate::api::command::dto::{ExecutionRequest, NameRequest, NameResponse};
 use crate::api::command::CommandError;
 
 /// A named write operation that mutates domain state and returns no value.

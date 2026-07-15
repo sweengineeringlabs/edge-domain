@@ -1,9 +1,10 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, unused_imports)]
 //! SAF facade smoke test — QueryableRepository is exported from the crate root.
+#![cfg(feature = "repository")]
 
-use edge_domain::Domain;
-use edge_domain::QueryableRepository;
-use edge_domain::{
+use edge_application::Domain;
+use edge_application::QueryableRepository;
+use edge_application::{
     RepositoryError, RepositorySaveRequest, Spec, SpecMatchesRequest, SpecMatchesResponse,
     SpecRequest,
 };

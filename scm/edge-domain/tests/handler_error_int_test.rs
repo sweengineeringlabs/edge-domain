@@ -1,5 +1,6 @@
 //! Coverage for api/handler/errors/handler_error.rs
-use edge_domain::HandlerError;
+#![cfg(feature = "handler")]
+use edge_application::HandlerError;
 
 #[test]
 fn test_handler_error_internal_wraps_as_execution_failed() {

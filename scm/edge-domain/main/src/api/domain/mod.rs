@@ -1,22 +1,26 @@
 //! Domain theme — cross-cutting domain types and the extension hook contract.
 
+#[allow(clippy::module_inception)]
+mod domain;
+pub mod dto;
 pub mod errors;
+mod memory_outbound_registry;
+mod noop_domain_extension;
 pub mod traits;
-pub mod types;
 
 pub use errors::DomainError;
 pub use traits::{
-    Domain, DomainExtension, DomainExtensionHealthRequest, DomainRuntime, InMemoryOutboundRegistry,
+    Domain, DomainExtension, DomainExtensionHealthRequest, DomainRuntime, MemoryOutboundRegistry,
     NoopDomainExtension, OutboundRegistry,
 };
 #[cfg(feature = "command")]
-pub use types::{DirectCommandBusRequest, DirectCommandBusResponse};
+pub use dto::{DirectCommandBusRequest, DirectCommandBusResponse};
 #[cfg(feature = "event")]
-pub use types::{
+pub use dto::{
     InProcessEventBusRequest, InProcessEventBusResponse, NoopEventBusRequest, NoopEventBusResponse,
     NoopEventPublisherRequest, NoopEventPublisherResponse,
 };
-pub use types::{
+pub use dto::{
     OutboundDeregisterRequest, OutboundDeregisterResponse, OutboundGetRequest, OutboundGetResponse,
     OutboundIsEmptyRequest, OutboundIsEmptyResponse, OutboundLenRequest, OutboundLenResponse,
     OutboundNamesRequest, OutboundNamesResponse, OutboundRegisterRequest, OutboundRegisterResponse,

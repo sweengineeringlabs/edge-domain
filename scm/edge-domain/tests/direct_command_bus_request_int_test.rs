@@ -1,7 +1,8 @@
 //! Integration tests for `DirectCommandBusRequest`.
+#![cfg(feature = "command")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::DirectCommandBusRequest;
+use edge_application::DirectCommandBusRequest;
 
 /// @covers: DirectCommandBusRequest
 #[test]

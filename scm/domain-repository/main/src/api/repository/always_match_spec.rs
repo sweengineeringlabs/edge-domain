@@ -1,10 +1,15 @@
-//! `AlwaysMatchSpec` — SEA Rule 121 api/core mirror.
-//!
-//! Provides a type alias so the structural auditor finds a substantive
-//! declaration at this path, mirroring the core implementation at
-//! `core/repository/always_match_spec.rs`.
+//! `AlwaysMatchSpec` — a null-object [`Spec`](crate::Spec) that matches every entity.
 
-/// Type alias for the null-object [`Spec`](crate::api::Spec) that matches every entity.
+use std::marker::PhantomData;
+
+/// Reference [`Spec`](crate::Spec) implementation that matches every entity of type `T`.
 ///
-/// Prefer this alias over naming `types::AlwaysMatchSpec` directly in call sites.
-pub type AlwaysMatchSpec<T> = crate::api::repository::types::always_match_spec::AlwaysMatchSpec<T>;
+/// Use as a null-object default where a `Spec` is required but no filtering
+/// is needed (e.g. an unfiltered `find_by` that still goes through the
+/// specification-based query path).
+///
+/// Construct via [`AlwaysMatchSpec::new`](crate::AlwaysMatchSpec); the concrete
+/// trait impl lives in `core::repository::always_match_spec`.
+pub struct AlwaysMatchSpec<T> {
+    pub(crate) entity: PhantomData<fn() -> T>,
+}

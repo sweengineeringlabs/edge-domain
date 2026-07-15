@@ -1,4 +1,4 @@
-use edge_domain_handler::{LOG_DRAIN_SVC, LOG_DRAIN_SVC_FACTORY};
+use edge_application_handler::{LOG_DRAIN_SVC, LOG_DRAIN_SVC_FACTORY};
 
 #[test]
 fn test_log_drain_svc_constant_value_happy() {

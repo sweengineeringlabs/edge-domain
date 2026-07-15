@@ -1,7 +1,8 @@
 //! Integration tests for `SnapshotError`.
+#![cfg(feature = "snapshot")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::SnapshotError;
+use edge_application::SnapshotError;
 
 /// @covers: SnapshotError
 #[test]

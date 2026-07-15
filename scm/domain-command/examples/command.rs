@@ -1,6 +1,6 @@
 //! Basic `Command` usage example.
 
-use edge_domain_command::{
+use edge_application_command::{
     Command, CommandDispatchRequest, CommandError, DirectCommandBus, ExecutionRequest,
     NameRequest, NameResponse,
 };
@@ -21,7 +21,7 @@ impl Command for Ping {
 #[tokio::main]
 async fn main() {
     let bus = DirectCommandBus;
-    let result = edge_domain_command::CommandBus::dispatch(
+    let result = edge_application_command::CommandBus::dispatch(
         &bus,
         CommandDispatchRequest {
             command: Box::new(Ping),

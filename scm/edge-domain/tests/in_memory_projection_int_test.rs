@@ -2,14 +2,15 @@
 //!
 //! The read model used here ([`Tally`]) deliberately surfaces a failure mode
 //! (`u64` overflow) by recording it in the model rather than panicking — the
-//! pattern the [`Projection`](edge_domain::Projection) contract documents for
+//! pattern the [`Projection`](edge_application::Projection) contract documents for
 //! fallible folds.  This lets the `_error`-scenario tests exercise genuine
 //! error-surfacing behaviour rather than a contrived assertion.
+#![cfg(all(feature = "event", feature = "projection"))]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::time::SystemTime;
 
-use edge_domain::{
+use edge_application::{
     Domain, DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventError,
     EventOccurredAtRequest, EventOccurredAtResponse, EventTypeRequest, EventTypeResponse,
     Projection, ProjectionApplyRequest, ProjectionReadModelRequest,

@@ -1,7 +1,7 @@
 //! SAF facade tests — `CommandBus` trait via `DirectCommandBus`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_command::{
+use edge_application_command::{
     Command, CommandBus, CommandDispatchRequest, CommandError, DirectCommandBus, ExecutionRequest,
 };
 use futures::executor::block_on;

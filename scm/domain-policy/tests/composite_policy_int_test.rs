@@ -1,7 +1,7 @@
 //! Integration tests for `CompositePolicy` AND-composition.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_policy::{CompositePolicy, Policy, PolicyEvaluateRequest, PolicyNameRequest, PolicyNameResponse, PolicyError};
+use edge_application_policy::{CompositePolicy, Policy, PolicyEvaluateRequest, PolicyNameRequest, PolicyNameResponse, PolicyError};
 
 struct Reject(&'static str);
 impl Policy for Reject {

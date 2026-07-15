@@ -1,13 +1,14 @@
 //! SAF facade smoke test — `CommandBus` factory (`Domain.direct_command_bus`) is exported
 //! from the crate root.
+#![cfg(feature = "command")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
 
-use edge_domain::DirectCommandBusRequest;
-use edge_domain::Domain;
-use edge_domain::DomainRuntime;
-use edge_domain_command::{Command, CommandDispatchRequest, CommandError, ExecutionRequest};
+use edge_application::DirectCommandBusRequest;
+use edge_application::Domain;
+use edge_application::DomainRuntime;
+use edge_application_command::{Command, CommandDispatchRequest, CommandError, ExecutionRequest};
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 
@@ -52,7 +53,7 @@ fn test_direct_command_bus_factory_returns_dyn_command_bus_edge() {
         .direct_command_bus(DirectCommandBusRequest)
         .unwrap()
         .bus;
-    let bus_ref: &dyn edge_domain_command::CommandBus = bus.as_ref();
+    let bus_ref: &dyn edge_application_command::CommandBus = bus.as_ref();
     let result = block_on(bus_ref.dispatch(CommandDispatchRequest {
         command: Box::new(Ok_),
     }));

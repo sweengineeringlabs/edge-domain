@@ -1,10 +1,10 @@
 //! Integration tests — [`ServiceBridge`] SAF re-export contract.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_handler::{
+use edge_application_handler::{
     Handler, IdRequest, IntoHandler, IntoHandlerRequest, ServiceBridge, SERVICE_BRIDGE_SVC,
 };
-use edge_domain_service::{NameRequest, NameResponse, Service, ServiceError};
+use edge_application_service::{NameRequest, NameResponse, Service, ServiceError};
 use futures::future::BoxFuture;
 
 struct EchoService;

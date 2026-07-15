@@ -1,17 +1,18 @@
 //! Rule-221 coverage: _happy, _error, and _edge tests for every pub fn in domain_svc.rs.
+#![cfg(all(feature = "command", feature = "handler", feature = "event", feature = "query", feature = "validator", feature = "repository"))]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::*;
-use edge_domain_command::{
+use edge_application::*;
+use edge_application_command::{
     CommandDispatchRequest, ExecutionRequest as CommandExecutionRequest,
     NameRequest as CommandNameRequest, NameResponse as CommandNameResponse,
 };
-use edge_domain_handler::{
+use edge_application_handler::{
     CommandBusAdapter, EmptinessRequest as HandlerEmptinessRequest, ExecutionRequest,
     LenRequest as HandlerLenRequest, ListIdsRequest, ObserverContextAdapter,
 };
-use edge_domain_observer::{ObserverContext, StdObserveFactory};
-use edge_domain_service::{
+use edge_application_observer::{ObserverContext, StdObserveFactory};
+use edge_application_service::{
     EmptinessRequest as ServiceEmptinessRequest, LenRequest as ServiceLenRequest,
     ServiceLookupRequest,
 };
@@ -129,9 +130,9 @@ struct AlwaysValid;
 impl Validator for AlwaysValid {
     fn validate(
         &self,
-        _req: edge_domain_validator::ValidationRequest,
-    ) -> Result<edge_domain_validator::ValidationResponse, ValidatorError> {
-        Ok(edge_domain_validator::ValidationResponse)
+        _req: edge_application_validator::ValidationRequest,
+    ) -> Result<edge_application_validator::ValidationResponse, ValidatorError> {
+        Ok(edge_application_validator::ValidationResponse)
     }
 }
 
@@ -139,8 +140,8 @@ struct AlwaysInvalid;
 impl Validator for AlwaysInvalid {
     fn validate(
         &self,
-        _req: edge_domain_validator::ValidationRequest,
-    ) -> Result<edge_domain_validator::ValidationResponse, ValidatorError> {
+        _req: edge_application_validator::ValidationRequest,
+    ) -> Result<edge_application_validator::ValidationResponse, ValidatorError> {
         Err(ValidatorError::Invalid("invalid config".into()))
     }
 }
@@ -289,7 +290,7 @@ fn test_new_handler_registry_get_unknown_id_returns_none_not_error() {
     // get on empty registry must return None, not panic or error
     let reg = Domain.new_handler_registry::<String, String>();
     assert!(reg
-        .get(edge_domain_handler::HandlerLookupRequest {
+        .get(edge_application_handler::HandlerLookupRequest {
             id: "unknown".to_string()
         })
         .unwrap()

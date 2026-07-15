@@ -1,6 +1,7 @@
 //! Integration tests for `RepositoryError`.
+#![cfg(feature = "repository")]
 
-use edge_domain::RepositoryError;
+use edge_application::RepositoryError;
 
 /// @covers: RepositoryError
 #[test]

@@ -1,7 +1,7 @@
-//! Blanket bridges from `edge_domain_command`'s traits to their local
+//! Blanket bridges from `edge_application_command`'s traits to their local
 //! `domain-handler` decoupling boundaries (SEA `no_foreign_type`).
 
-use edge_domain_command as cmd;
+use edge_application_command as cmd;
 
 use super::local_command_as_foreign::LocalCommandAsForeign;
 use crate::api::HandlerError;

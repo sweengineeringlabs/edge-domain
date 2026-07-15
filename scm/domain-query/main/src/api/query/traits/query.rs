@@ -4,7 +4,7 @@ use std::future::Future;
 use std::pin::Pin;
 
 use crate::api::query::QueryError;
-use crate::api::query::types::{QueryExecuteRequest, QueryNameRequest, QueryNameResponse, QueryResultResponse};
+use crate::api::query::dto::{QueryExecuteRequest, QueryNameRequest, QueryNameResponse, QueryResultResponse};
 
 /// A named read operation that returns data without mutating state.
 pub trait Query: Send + Sync {

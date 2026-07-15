@@ -1,7 +1,7 @@
-//! Concrete adapter: wraps a [`Service`](edge_domain_service::Service) as a [`Handler`].
+//! Concrete adapter: wraps a [`Service`](edge_application_service::Service) as a [`Handler`].
 
 use async_trait::async_trait;
-use edge_domain_service::Service;
+use edge_application_service::Service;
 
 use crate::api::ExecutionRequest;
 use crate::api::Handler;
@@ -85,7 +85,7 @@ where
     #[rustfmt::skip]
     fn into_handler(self, _req: IntoHandlerRequest) -> Result<IntoHandlerResponse<impl Handler<Request = Self::Request, Response = Self::Response> + ServiceHandler>, HandlerError> {
         let id = self
-            .name(edge_domain_service::NameRequest)
+            .name(edge_application_service::NameRequest)
             .map_err(HandlerError::from)?
             .name;
         Ok(IntoHandlerResponse {
@@ -97,7 +97,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use edge_domain_service::ServiceError;
+    use edge_application_service::ServiceError;
     use futures::future::BoxFuture;
 
     struct DefaultServiceHandlerStub;
@@ -107,9 +107,9 @@ mod tests {
         type Response = ();
         fn name(
             &self,
-            _req: edge_domain_service::NameRequest,
-        ) -> Result<edge_domain_service::NameResponse, ServiceError> {
-            Ok(edge_domain_service::NameResponse {
+            _req: edge_application_service::NameRequest,
+        ) -> Result<edge_application_service::NameResponse, ServiceError> {
+            Ok(edge_application_service::NameResponse {
                 name: "stub".to_string(),
             })
         }

@@ -1,8 +1,8 @@
-//! Integration tests for the `edge_domain::Authenticator`/`Authorizer` re-exports.
+//! Integration tests for the `edge_application::Authenticator`/`Authorizer` re-exports.
 #![cfg(feature = "security")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{
+use edge_application::{
     AnonymousPrincipal, Authenticator, AuthnError, AuthnRequest, AuthnResponse, Authorizer,
     AuthzError, AuthzRequest, AuthzResponse, SecurityContext,
 };
@@ -126,7 +126,7 @@ async fn test_authorize_with_principal_present_succeeds_edge() {
     assert!(response.ctx.is_authorized);
 }
 
-/// @covers: edge_domain's re-exported Authenticator/Authorizer are the underlying
+/// @covers: edge_application's re-exported Authenticator/Authorizer are the underlying
 /// edge_security_authn/edge_security_authz traits, not look-alike wrappers.
 #[test]
 fn test_facade_authenticator_authorizer_are_the_raw_traits_edge() {

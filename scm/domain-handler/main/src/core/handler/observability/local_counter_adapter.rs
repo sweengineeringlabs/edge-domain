@@ -1,6 +1,6 @@
 //! [`LocalCounterAdapter`] — wraps an owned real `Counter` as a local [`Counter`].
 
-use edge_domain_observer as obs;
+use edge_application_observer as obs;
 
 use super::into_handler_error::IntoHandlerError;
 use crate::api::{Counter, HandlerError, IncrementRequest, IncrementResponse};

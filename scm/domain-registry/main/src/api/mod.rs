@@ -3,7 +3,7 @@ pub use registry::DeregisterRequest;
 pub use registry::DeregisterResponse;
 pub use registry::EmptinessRequest;
 pub use registry::EmptinessResponse;
-pub use registry::InMemoryRegistry;
+pub use registry::MemoryRegistry;
 pub use registry::LenRequest;
 pub use registry::LenResponse;
 pub use registry::ListIdsRequest;

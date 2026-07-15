@@ -1,7 +1,7 @@
 //! Integration tests for `NoopDomainEvent`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_event::{
+use edge_application_event::{
     DomainEvent, EventAggregateIdRequest, EventOccurredAtRequest, EventTypeRequest, NoopDomainEvent,
 };
 use std::time::SystemTime;

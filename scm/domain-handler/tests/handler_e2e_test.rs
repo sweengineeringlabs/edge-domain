@@ -2,12 +2,12 @@
 //! test-double implementation via the crate's public API.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_command::DirectCommandBus;
-use edge_domain_handler::{
+use edge_application_command::DirectCommandBus;
+use edge_application_handler::{
     ExecutionRequest, Handler, HandlerContext, HandlerError, HealthCheckRequest,
     HealthCheckResponse, IdRequest, ObserverContextAdapter, PatternRequest,
 };
-use edge_domain_observer::StdObserveFactory;
+use edge_application_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
 
 struct EchoHandlerDouble;

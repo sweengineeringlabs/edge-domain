@@ -1,7 +1,7 @@
 //! SAF facade tests — `MetricRegistry` trait.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_handler::{
+use edge_application_handler::{
     Counter, CounterLookupRequest, CounterLookupResponse, Gauge, GaugeLookupRequest,
     GaugeLookupResponse, GaugeSetRequest, GaugeSetResponse, HandlerError, Histogram,
     HistogramLookupRequest, HistogramLookupResponse, HistogramRecordRequest,

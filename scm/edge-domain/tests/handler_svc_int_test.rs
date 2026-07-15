@@ -1,18 +1,19 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, unused_imports)]
 //! SAF facade smoke test — Handler trait is exported from the crate root.
+#![cfg(all(feature = "command", feature = "handler"))]
 
 use async_trait::async_trait;
-use edge_domain::DirectCommandBusRequest;
-use edge_domain::Domain;
-use edge_domain::DomainRuntime;
-use edge_domain::Handler;
-use edge_domain::HandlerContext;
-use edge_domain::HandlerError;
-use edge_domain_handler::{
+use edge_application::DirectCommandBusRequest;
+use edge_application::Domain;
+use edge_application::DomainRuntime;
+use edge_application::Handler;
+use edge_application::HandlerContext;
+use edge_application::HandlerError;
+use edge_application_handler::{
     CommandBusAdapter, ExecutionRequest, HealthCheckRequest, IdRequest, IdResponse,
     ObserverContextAdapter,
 };
-use edge_domain_observer::StdObserveFactory;
+use edge_application_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
 
 struct Doubler;

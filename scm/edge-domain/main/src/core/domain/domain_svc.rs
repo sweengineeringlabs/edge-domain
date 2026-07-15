@@ -2,6 +2,7 @@
 //! methods on [`Domain`]. The non-generic subset also implements
 //! [`DomainRuntime`], giving `Domain` a real `dyn DomainRuntime` seam.
 
+#[cfg(feature = "repository")]
 use std::hash::Hash;
 use std::sync::Arc;
 
@@ -12,7 +13,7 @@ use crate::api::CommandBus;
 #[cfg(feature = "command")]
 use crate::api::{DirectCommandBusRequest, DirectCommandBusResponse};
 #[cfg(feature = "command")]
-use edge_domain_command::DirectCommandBus;
+use edge_application_command::DirectCommandBus;
 
 #[cfg(feature = "event")]
 use crate::api::Aggregate;
@@ -31,7 +32,7 @@ use crate::api::EventStoreError;
 #[cfg(feature = "event")]
 use crate::api::EventStoreLoadRequest;
 #[cfg(feature = "event")]
-use crate::api::InMemoryEventStore;
+use crate::api::MemoryEventStore;
 #[cfg(feature = "event")]
 use crate::api::NoopEventBus;
 #[cfg(feature = "event")]
@@ -43,7 +44,7 @@ use crate::api::{NoopEventBusRequest, NoopEventBusResponse};
 #[cfg(feature = "event")]
 use crate::api::{NoopEventPublisherRequest, NoopEventPublisherResponse};
 #[cfg(feature = "event")]
-use edge_domain_event::InProcessEventBus;
+use edge_application_event::InProcessEventBus;
 
 #[cfg(feature = "handler")]
 use crate::api::EchoHandler;
@@ -57,7 +58,7 @@ use crate::api::InProcessHandlerRegistry;
 #[cfg(feature = "projection")]
 use crate::api::Projection;
 #[cfg(feature = "projection")]
-use edge_domain_projection::InMemoryProjection;
+use edge_application_projection::MemoryProjection;
 
 #[cfg(feature = "query")]
 use crate::api::DirectQueryBus;
@@ -65,14 +66,14 @@ use crate::api::DirectQueryBus;
 use crate::api::QueryBus;
 
 #[cfg(feature = "repository")]
-use crate::api::InMemoryRepository;
+use crate::api::MemoryRepository;
 #[cfg(feature = "repository")]
 use crate::api::QueryableRepository;
 #[cfg(feature = "repository")]
 use crate::api::Repository;
 
 #[cfg(feature = "saga")]
-use crate::api::InMemorySagaStore;
+use crate::api::MemorySagaStore;
 #[cfg(feature = "saga")]
 use crate::api::Saga;
 #[cfg(feature = "saga")]
@@ -81,15 +82,16 @@ use crate::api::SagaStore;
 #[cfg(feature = "service")]
 use crate::api::ServiceRegistry;
 #[cfg(feature = "service")]
-use edge_domain_service::StdServiceRegistryFactory;
+use edge_application_service::StdServiceRegistryFactory;
 
 #[cfg(feature = "snapshot")]
 use crate::api::Snapshot;
 #[cfg(feature = "snapshot")]
 use crate::api::SnapshotStore;
 #[cfg(feature = "snapshot")]
-use edge_domain_snapshot::InMemorySnapshotStore;
+use edge_application_snapshot::MemorySnapshotStore;
 
+#[cfg(any(feature = "command", feature = "event"))]
 use crate::api::DomainError;
 use crate::api::DomainRuntime;
 
@@ -102,7 +104,7 @@ impl Domain {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use edge_domain::Domain;
+    /// use edge_application::Domain;
     ///
     /// let h = Domain.echo_handler::<String>("echo", "/ping");
     /// ```
@@ -128,8 +130,8 @@ impl Domain {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// use edge_domain::Domain;
-    /// use edge_domain_handler::EmptinessRequest;
+    /// use edge_application::Domain;
+    /// use edge_application_handler::EmptinessRequest;
     ///
     /// let registry = Domain.new_handler_registry::<String, String>();
     /// assert!(registry.is_empty(EmptinessRequest).unwrap().empty);
@@ -182,7 +184,7 @@ impl Domain {
         Id: Hash + Eq + Clone + Send + Sync + 'static,
         T: Clone + Send + Sync + 'static,
     {
-        let r = InMemoryRepository::new();
+        let r = MemoryRepository::new();
         Arc::new(r)
     }
 
@@ -195,7 +197,7 @@ impl Domain {
         Id: Hash + Eq + Clone + Send + Sync + 'static,
         T: Clone + Send + Sync + 'static,
     {
-        let r = InMemoryRepository::new();
+        let r = MemoryRepository::new();
         Arc::new(r)
     }
 
@@ -205,7 +207,7 @@ impl Domain {
     where
         E: DomainEvent + Send + Sync + Clone + 'static,
     {
-        let s = InMemoryEventStore::new();
+        let s = MemoryEventStore::new();
         Arc::new(s)
     }
 
@@ -234,7 +236,7 @@ impl Domain {
         R: Send + Sync + 'static,
         F: Fn(&mut R, &E) + Send + Sync + 'static,
     {
-        Box::new(InMemoryProjection::new(initial, reducer))
+        Box::new(MemoryProjection::new(initial, reducer))
     }
 
     /// Construct a fresh in-memory [`SagaStore`] for saga type `S`.
@@ -256,7 +258,7 @@ impl Domain {
         S: Saga + 'static,
         S::SagaId: std::fmt::Display + 'static,
     {
-        Box::new(InMemorySagaStore::new())
+        Box::new(MemorySagaStore::new())
     }
 
     /// Construct a thread-safe in-memory [`SnapshotStore`] for snapshot type `S`.
@@ -280,7 +282,7 @@ impl Domain {
         S: Snapshot + Clone + 'static,
         S::AggregateId: std::fmt::Display + 'static,
     {
-        Arc::new(InMemorySnapshotStore::new())
+        Arc::new(MemorySnapshotStore::new())
     }
 
     /// Reconstitute an aggregate by replaying all events from an [`EventStore`].
@@ -322,7 +324,7 @@ impl Domain {
     #[cfg(feature = "validator")]
     pub fn validate_config<V: crate::api::Validator>(&self, config: &V) -> Result<(), String> {
         config
-            .validate(edge_domain_validator::ValidationRequest)
+            .validate(edge_application_validator::ValidationRequest)
             .map(|_| ())
             .map_err(|e| e.to_string())
     }

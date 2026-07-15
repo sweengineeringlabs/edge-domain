@@ -5,14 +5,14 @@ use std::pin::Pin;
 
 use crate::api::event::errors::EventStoreError;
 use crate::api::event::traits::DomainEvent;
-use crate::api::event::types::{
+use crate::api::event::dto::{
     EventStoreAppendRequest, EventStoreAppendResponse, EventStoreLoadFromRequest,
     EventStoreLoadFromResponse, EventStoreLoadRequest, EventStoreLoadResponse,
 };
 
 /// Append-only storage for domain event streams keyed by aggregate ID.
 ///
-/// Optimistic concurrency is enforced via [`ExpectedVersion`](super::super::types::ExpectedVersion):
+/// Optimistic concurrency is enforced via [`ExpectedVersion`](super::super::vo::ExpectedVersion):
 /// callers declare what version they read before appending so conflicting
 /// writes are detected and rejected.
 pub trait EventStore: Send + Sync {

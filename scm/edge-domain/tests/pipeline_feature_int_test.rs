@@ -6,7 +6,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use async_trait::async_trait;
-use edge_domain::{
+use edge_application::{
     ContextMutationRequest, Pipeline, PipelineBuilder, PipelineConfig, PipelineEmptinessRequest,
     PipelineError, PipelineSvc, Step, StepCountRequest, StepNameRequest, StepNameResponse,
 };
@@ -109,12 +109,12 @@ fn test_pipeline_config_through_edge_domain() {
     assert!(!config.abort_on_error);
 }
 
-/// @covers: edge_domain's re-exported pipeline types are the underlying edge_pipeline types
+/// @covers: edge_application's re-exported pipeline types are the underlying edge_pipeline types
 #[test]
 fn test_edge_domain_pipeline_config_is_edge_pipeline_config_edge() {
     // Proves the facade re-export is a type alias, not a look-alike wrapper —
     // a RawPipelineConfig (imported directly from edge_pipeline) must be
-    // directly assignable to the edge_domain::PipelineConfig binding used
+    // directly assignable to the edge_application::PipelineConfig binding used
     // throughout this file.
     let direct: RawPipelineConfig = PipelineConfig::default();
     let via_facade: PipelineConfig = direct;

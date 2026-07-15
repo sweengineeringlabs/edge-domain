@@ -2,18 +2,18 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::time::SystemTime;
-use edge_domain_event::{DomainEvent, EventAggregateIdRequest, EventEnvelope, EventTypeRequest};
+use edge_application_event::{DomainEvent, EventAggregateIdRequest, EventEnvelope, EventTypeRequest};
 
 #[derive(Clone)]
 struct OrderCreated {
     id: String,
 }
 impl DomainEvent for OrderCreated {
-    fn event_type(&self, _req: EventTypeRequest) -> Result<edge_domain_event::EventTypeResponse<'_>, edge_domain_event::EventError> {
-        Ok(edge_domain_event::EventTypeResponse { event_type: "order.created" })
+    fn event_type(&self, _req: EventTypeRequest) -> Result<edge_application_event::EventTypeResponse<'_>, edge_application_event::EventError> {
+        Ok(edge_application_event::EventTypeResponse { event_type: "order.created" })
     }
-    fn aggregate_id(&self, _req: EventAggregateIdRequest) -> Result<edge_domain_event::EventAggregateIdResponse<'_>, edge_domain_event::EventError> {
-        Ok(edge_domain_event::EventAggregateIdResponse { aggregate_id: &self.id })
+    fn aggregate_id(&self, _req: EventAggregateIdRequest) -> Result<edge_application_event::EventAggregateIdResponse<'_>, edge_application_event::EventError> {
+        Ok(edge_application_event::EventAggregateIdResponse { aggregate_id: &self.id })
     }
 }
 

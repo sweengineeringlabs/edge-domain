@@ -1,7 +1,7 @@
 //! SAF facade tests — `Command` trait.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_handler::{Command, CommandExecutionRequest, CommandNameRequest, HandlerError};
+use edge_application_handler::{Command, CommandExecutionRequest, CommandNameRequest, HandlerError};
 use futures::executor::block_on;
 
 struct Ping(String);
@@ -9,8 +9,8 @@ impl Command for Ping {
     fn name(
         &self,
         _req: CommandNameRequest,
-    ) -> Result<edge_domain_handler::CommandNameResponse, HandlerError> {
-        Ok(edge_domain_handler::CommandNameResponse {
+    ) -> Result<edge_application_handler::CommandNameResponse, HandlerError> {
+        Ok(edge_application_handler::CommandNameResponse {
             name: self.0.clone(),
         })
     }

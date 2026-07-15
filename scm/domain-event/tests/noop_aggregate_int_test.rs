@@ -1,7 +1,7 @@
 //! Integration tests for `NoopAggregate`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_event::{Aggregate, AggregateApplyRequest, AggregateIdentityRequest, NoopAggregate, NoopDomainEvent};
+use edge_application_event::{Aggregate, AggregateApplyRequest, AggregateIdentityRequest, NoopAggregate, NoopDomainEvent};
 
 /// @covers: NoopAggregate::id — returns empty string before any apply
 #[test]

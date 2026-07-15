@@ -1,7 +1,7 @@
-﻿mod entity;
-pub use entity::Entity;
-pub use entity::EntityError;
-pub use entity::IdRequest;
-pub use entity::IdResponse;
-pub use entity::ValidationRequest;
-pub use entity::ValidationResponse;
+﻿mod entities;
+pub use entities::Entity;
+pub use entities::EntityError;
+pub use entities::IdRequest;
+pub use entities::IdResponse;
+pub use entities::ValidationRequest;
+pub use entities::ValidationResponse;

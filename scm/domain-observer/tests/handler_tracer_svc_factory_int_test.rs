@@ -1,4 +1,4 @@
-use edge_domain_observer::HANDLER_TRACER_SVC_FACTORY;
+use edge_application_observer::HANDLER_TRACER_SVC_FACTORY;
 
 #[test]
 fn test_handler_tracer_svc_factory_constant_value_happy() {

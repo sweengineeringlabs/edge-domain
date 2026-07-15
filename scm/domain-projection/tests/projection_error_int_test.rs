@@ -1,6 +1,6 @@
 //! Integration tests for `ProjectionError`.
 
-use edge_domain_projection::ProjectionError;
+use edge_application_projection::ProjectionError;
 
 #[test]
 fn test_empty_stream_display_contains_empty_happy() {

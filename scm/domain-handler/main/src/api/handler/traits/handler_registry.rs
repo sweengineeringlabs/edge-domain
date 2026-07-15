@@ -1,7 +1,7 @@
 //! `HandlerRegistry` trait — stores and retrieves [`Handler`] instances by id.
 
 use crate::api::handler::errors::HandlerError;
-use crate::api::handler::types::{
+use crate::api::handler::dto::{
     DeregisterHandlerRequest, DeregisterHandlerResponse, EmptinessRequest, EmptinessResponse,
     HandlerLookupRequest, HandlerLookupResponse, LenRequest, LenResponse, ListIdsRequest,
     ListIdsResponse, RegisterHandlerRequest, RegisterHandlerResponse,

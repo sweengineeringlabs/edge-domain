@@ -1,4 +1,4 @@
-use edge_domain_handler::SERVICE_BRIDGE_SVC_FACTORY;
+use edge_application_handler::SERVICE_BRIDGE_SVC_FACTORY;
 
 #[test]
 fn test_service_bridge_svc_factory_constant_value_happy() {

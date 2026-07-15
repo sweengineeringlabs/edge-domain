@@ -1,4 +1,4 @@
-use edge_domain_repository::{QUERYABLE_REPOSITORY_SVC, QUERYABLE_REPOSITORY_SVC_FACTORY};
+use edge_application_repository::{QUERYABLE_REPOSITORY_SVC, QUERYABLE_REPOSITORY_SVC_FACTORY};
 
 #[test]
 fn test_queryable_repository_svc_constant_value_happy() {
