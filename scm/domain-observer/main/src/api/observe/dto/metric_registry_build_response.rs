@@ -1,4 +1,6 @@
 //! [`MetricRegistryBuildResponse`] — wrapper for a constructed `MetricRegistry`.
+// @allow: dto_types_must_serialize — holds a live `Box<dyn MetricRegistry>` factory
+// result, not wire-format data; a trait object cannot derive Serialize/Deserialize.
 
 use crate::api::MetricRegistry;
 

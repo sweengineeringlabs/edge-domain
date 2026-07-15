@@ -1,4 +1,6 @@
 //! [`SpanStartResponse`] — wrapper for a newly opened tracing span.
+// @allow: dto_types_must_serialize — holds a live `Box<dyn Span>` instrument
+// result, not wire-format data; a trait object cannot derive Serialize/Deserialize.
 
 use crate::api::Span;
 

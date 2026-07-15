@@ -1,5 +1,5 @@
 //! [`SpanAnnotationResponse`] — wrapper for a successfully recorded span annotation.
 
 /// Result of [`Span::record`](crate::api::Span::record).
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct SpanAnnotationResponse;

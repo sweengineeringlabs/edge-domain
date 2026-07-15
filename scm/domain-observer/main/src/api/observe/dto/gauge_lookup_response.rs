@@ -1,4 +1,6 @@
 //! [`GaugeLookupResponse`] — wrapper for a resolved gauge instrument.
+// @allow: dto_types_must_serialize — holds a live `Box<dyn Gauge>` instrument
+// result, not wire-format data; a trait object cannot derive Serialize/Deserialize.
 
 use crate::api::Gauge;
 

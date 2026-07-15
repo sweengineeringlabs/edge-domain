@@ -1,5 +1,5 @@
 //! [`IncrementResponse`] — wrapper for a successful counter increment.
 
 /// Result of [`Counter::increment`](crate::api::Counter::increment).
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct IncrementResponse;
