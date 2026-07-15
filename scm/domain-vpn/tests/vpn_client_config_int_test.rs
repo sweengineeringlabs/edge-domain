@@ -1,4 +1,4 @@
-//! Tests for `api/vpn/types/vpn_client_config.rs` — VpnClientConfig validation.
+//! Tests for `api/vpn/vo/vpn_client_config.rs` — VpnClientConfig validation.
 
 use std::fs;
 

@@ -1,4 +1,4 @@
-//! Tests for `api/vpn/types/tunnel_status.rs` — TunnelStatus enum.
+//! Tests for `api/vpn/vo/tunnel_status.rs` — TunnelStatus enum.
 
 use edge_application_vpn::TunnelStatus;
 

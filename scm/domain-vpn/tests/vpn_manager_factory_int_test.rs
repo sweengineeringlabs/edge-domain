@@ -1,4 +1,4 @@
-//! Tests for `api/vpn/types/vpn_manager_factory.rs` — VpnManagerFactory.
+//! Tests for `api/vpn/vo/vpn_manager_factory.rs` — VpnManagerFactory.
 
 use edge_application_vpn::{VpnManagerFactory, TunnelStatus, TunnelManager};
 use tokio::runtime::Runtime;
