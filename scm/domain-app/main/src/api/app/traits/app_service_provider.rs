@@ -1,6 +1,6 @@
 //! [`AppServiceProvider`] — composition-root contract for wiring service dependencies into a [`Bootstrap`].
 
-use crate::api::app::types::{
+use crate::api::app::dto::{
     NameRequest, NameResponse, ProviderBuildRequest, ProviderBuildResponse,
 };
 use crate::api::AppError;
