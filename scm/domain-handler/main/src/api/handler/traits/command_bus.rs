@@ -4,7 +4,8 @@ use std::future::Future;
 use std::pin::Pin;
 
 use crate::api::handler::errors::HandlerError;
-use crate::api::handler::types::{CommandBusAdapter, CommandDispatchRequest};
+use crate::api::handler::command_bus_adapter::CommandBusAdapter;
+use crate::api::handler::dto::CommandDispatchRequest;
 
 /// Dispatches [`Command`](super::Command) instances to their executors.
 ///

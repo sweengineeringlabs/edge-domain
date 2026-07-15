@@ -1,7 +1,7 @@
 //! `Counter` — local decoupling boundary for a monotonically increasing metric.
 
 use crate::api::handler::errors::HandlerError;
-use crate::api::handler::types::{IncrementRequest, IncrementResponse};
+use crate::api::handler::dto::{IncrementRequest, IncrementResponse};
 
 /// A monotonically increasing integer metric.
 ///

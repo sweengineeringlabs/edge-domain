@@ -1,7 +1,7 @@
 //! `HandlerTracer` — local decoupling boundary for tracing.
 
 use crate::api::handler::errors::HandlerError;
-use crate::api::handler::types::{SpanStartRequest, SpanStartResponse};
+use crate::api::handler::dto::{SpanStartRequest, SpanStartResponse};
 
 /// Opens tracing spans for a domain handler execution.
 ///

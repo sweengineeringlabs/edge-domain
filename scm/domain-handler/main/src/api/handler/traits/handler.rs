@@ -3,7 +3,7 @@
 use async_trait::async_trait;
 
 use crate::api::handler::errors::HandlerError;
-use crate::api::handler::types::{
+use crate::api::handler::dto::{
     ExecutionRequest, HealthCheckRequest, HealthCheckResponse, IdRequest, IdResponse,
     PatternRequest, PatternResponse,
 };
@@ -50,7 +50,7 @@ pub trait Handler: Send + Sync {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::api::handler::types::HandlerContext;
+    use crate::api::handler::vo::HandlerContext;
     use edge_application_command::DirectCommandBus;
     use edge_application_observer::StdObserveFactory;
     use edge_security_runtime::SecurityContext;

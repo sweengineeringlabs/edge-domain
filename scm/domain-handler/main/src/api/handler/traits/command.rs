@@ -4,7 +4,7 @@ use std::future::Future;
 use std::pin::Pin;
 
 use crate::api::handler::errors::HandlerError;
-use crate::api::handler::types::{
+use crate::api::handler::dto::{
     CommandExecutionRequest, CommandNameRequest, CommandNameResponse,
 };
 

@@ -1,1 +1,8 @@
-pub use crate::api::handler::types::HistogramRecordRequest;
+//! [`HistogramRecordRequest`] — request to record a histogram observation.
+
+/// Request to record a single observation on a [`Histogram`](crate::api::handler::traits::Histogram).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct HistogramRecordRequest {
+    /// The observed value.
+    pub value: f64,
+}

@@ -1,7 +1,7 @@
 //! `Span` — local decoupling boundary for a traced unit of work.
 
 use crate::api::handler::errors::HandlerError;
-use crate::api::handler::types::{
+use crate::api::handler::dto::{
     SpanAnnotationRequest, SpanAnnotationResponse, SpanFinishRequest, SpanFinishResponse,
 };
 

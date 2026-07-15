@@ -1,7 +1,7 @@
 //! `Gauge` — local decoupling boundary for a point-in-time value metric.
 
 use crate::api::handler::errors::HandlerError;
-use crate::api::handler::types::{GaugeSetRequest, GaugeSetResponse};
+use crate::api::handler::dto::{GaugeSetRequest, GaugeSetResponse};
 
 /// A metric that records a current absolute value (e.g. queue depth).
 ///

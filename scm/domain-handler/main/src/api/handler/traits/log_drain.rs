@@ -1,7 +1,7 @@
 //! `LogDrain` — local decoupling boundary for structured log emission.
 
 use crate::api::handler::errors::HandlerError;
-use crate::api::handler::types::{LogEmitRequest, LogEmitResponse};
+use crate::api::handler::dto::{LogEmitRequest, LogEmitResponse};
 
 /// Receives structured log records emitted by domain handlers.
 ///

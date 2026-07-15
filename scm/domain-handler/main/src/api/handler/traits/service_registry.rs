@@ -1,7 +1,7 @@
 //! `ServiceRegistry` trait — local decoupling boundary for looking up domain services by name.
 
 use crate::api::handler::errors::HandlerError;
-use crate::api::handler::types::{
+use crate::api::handler::dto::{
     ListNamesRequest, ListNamesResponse, ServiceLookupRequest, ServiceLookupResponse,
 };
 

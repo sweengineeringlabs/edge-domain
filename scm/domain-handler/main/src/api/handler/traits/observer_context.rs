@@ -1,10 +1,10 @@
 //! `ObserverContext` — local decoupling boundary bundling all observability primitives.
 
 use crate::api::handler::errors::HandlerError;
-use crate::api::handler::types::{
-    DrainRequest, DrainResponse, MetricsRequest, MetricsResponse, ObserverContextAdapter,
-    TracerRequest, TracerResponse,
+use crate::api::handler::dto::{
+    DrainRequest, DrainResponse, MetricsRequest, MetricsResponse, TracerRequest, TracerResponse,
 };
+use crate::api::handler::observer_context_adapter::ObserverContextAdapter;
 
 /// A composition handle that bundles tracing, logging, and metric primitives.
 ///
