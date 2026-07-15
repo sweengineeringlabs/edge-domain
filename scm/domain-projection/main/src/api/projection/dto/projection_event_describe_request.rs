@@ -1,2 +1,5 @@
-//! Rule 121 path-mirror: re-exports `ProjectionEventDescribeRequest` from `types/`.
-pub use crate::api::projection::types::ProjectionEventDescribeRequest;
+//! [`ProjectionEventDescribeRequest`] — input for [`ProjectionEvent::describe`](crate::api::projection::traits::ProjectionEvent::describe).
+
+/// Marker request; `describe` takes no data beyond `&self`.
+#[derive(Debug, Clone, Copy, Default)]
+pub struct ProjectionEventDescribeRequest;

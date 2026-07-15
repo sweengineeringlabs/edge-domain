@@ -1,4 +1,3 @@
-pub mod memory_projection;
 pub mod projection_apply_request;
 pub mod projection_event_describe_request;
 pub mod projection_event_describe_response;
@@ -7,7 +6,6 @@ pub mod projection_read_model_response;
 pub mod try_drain_request;
 pub mod try_drain_response;
 
-pub use memory_projection::MemoryProjection;
 pub use projection_apply_request::ProjectionApplyRequest;
 pub use projection_event_describe_request::ProjectionEventDescribeRequest;
 pub use projection_event_describe_response::ProjectionEventDescribeResponse;
