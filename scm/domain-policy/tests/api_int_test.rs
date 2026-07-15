@@ -1,4 +1,4 @@
-//! Layer-level coverage for `api/policy/types/*.rs` request/response types.
+//! Layer-level coverage for `api/policy/dto/*.rs` request/response types.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application_policy::{Policy, PolicyEvaluateRequest, PolicyNameRequest, PolicyNameResponse};

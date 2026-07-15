@@ -1,4 +1,3 @@
-pub mod composite_policy;
 pub mod policy_evaluate_request;
 pub mod policy_name_request;
 pub mod policy_name_response;
