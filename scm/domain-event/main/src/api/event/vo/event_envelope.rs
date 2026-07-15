@@ -6,7 +6,7 @@ use std::time::SystemTime;
 ///
 /// Stored by [`EventStore`](super::super::traits::EventStore) and returned
 /// by load operations.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct EventEnvelope<E> {
     /// The ID of the aggregate that owns this stream.
     pub aggregate_id: String,
