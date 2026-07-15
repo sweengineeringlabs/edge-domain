@@ -6,7 +6,7 @@ use crate::api::ExpectedVersion;
 ///
 /// `expected` is checked before writing; a mismatch yields
 /// [`EventStoreError::Conflict`](crate::api::EventStoreError::Conflict).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct EventStoreAppendRequest<'a, E> {
     /// The aggregate whose stream to append to.
     pub aggregate_id: &'a str,

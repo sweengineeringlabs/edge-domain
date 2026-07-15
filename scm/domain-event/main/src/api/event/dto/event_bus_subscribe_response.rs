@@ -1,4 +1,7 @@
 //! [`EventBusSubscribeResponse`] — wrapper for a new event bus subscription.
+// @allow: dto_types_must_serialize — holds a live `Box<dyn EventSource>`
+// handle, not wire-format data; a trait object cannot derive
+// Serialize/Deserialize.
 
 use crate::api::EventSource;
 
