@@ -1,4 +1,4 @@
-//! Layer-level coverage for `api/lifecycle/types/*.rs` request/response types.
+//! Layer-level coverage for `api/lifecycle/dto/*.rs` request/response types.
 
 use edge_application_lifecycle::{
     LifecycleIsInRequest, LifecycleIsInResponse, LifecycleStateRequest, LifecycleStateResponse,
