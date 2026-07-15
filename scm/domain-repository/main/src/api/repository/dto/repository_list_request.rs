@@ -1,2 +1,5 @@
-//! Rule 121 path-mirror: re-exports `RepositoryListRequest` from `types/`.
-pub use crate::api::repository::types::RepositoryListRequest;
+//! [`RepositoryListRequest`] — zero-sized marker for listing/counting all entities.
+
+/// Request to list or count all entities in a repository.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub struct RepositoryListRequest;

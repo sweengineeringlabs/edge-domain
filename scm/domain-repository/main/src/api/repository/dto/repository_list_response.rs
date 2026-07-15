@@ -1,2 +1,8 @@
-//! Rule 121 path-mirror: re-exports `RepositoryListResponse` from `types/`.
-pub use crate::api::repository::types::RepositoryListResponse;
+//! [`RepositoryListResponse`] — wrapper for a full entity listing.
+
+/// Result of [`Repository::list`](crate::api::repository::traits::Repository::list).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RepositoryListResponse<T> {
+    /// All entities in the repository.
+    pub items: Vec<T>,
+}

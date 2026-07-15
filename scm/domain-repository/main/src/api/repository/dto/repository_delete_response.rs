@@ -1,2 +1,8 @@
-//! Rule 121 path-mirror: re-exports `RepositoryDeleteResponse` from `types/`.
-pub use crate::api::repository::types::RepositoryDeleteResponse;
+//! [`RepositoryDeleteResponse`] — wrapper for a delete outcome.
+
+/// Result of [`Repository::delete`](crate::api::repository::traits::Repository::delete).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct RepositoryDeleteResponse {
+    /// `true` if an entity was removed.
+    pub removed: bool,
+}
