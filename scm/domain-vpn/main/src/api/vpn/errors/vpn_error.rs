@@ -3,7 +3,7 @@
 use thiserror::Error;
 
 /// Errors that can occur during VPN tunnel operations.
-#[derive(Debug, Error)]
+#[derive(Debug, Error, Clone, PartialEq, Eq)]
 pub enum VpnError {
     /// Config is structurally invalid (bad key encoding, missing required field).
     #[error("vpn config error: {reason}")]

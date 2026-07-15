@@ -1,4 +1,5 @@
 //! Tests for `api/vpn/vo/vpn_manager_factory.rs` — VpnManagerFactory.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application_vpn::{VpnManagerFactory, TunnelStatus, TunnelManager};
 use tokio::runtime::Runtime;

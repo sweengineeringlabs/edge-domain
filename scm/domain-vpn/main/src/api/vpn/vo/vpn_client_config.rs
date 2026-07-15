@@ -97,27 +97,29 @@ impl OptionalSection for VpnClientConfig {
     }
 
     fn validate_enabled(&self) -> Result<(), ConfigError> {
-        Self::decode_key_32(&self.server_public_key).map_err(|e| {
-            ConfigError::validation(
-                "vpn",
-                format!("server_public_key: {e} (expected base64-encoded 32-byte X25519 key)"),
-            )
+        Self::decode_key_32(&self.server_public_key).map_err(|e| ConfigError::Validation {
+            section: "vpn".to_string(),
+            reason: format!("server_public_key: {e} (expected base64-encoded 32-byte X25519 key)"),
         })?;
 
         if let Some(ref psk) = self.psk {
-            Self::decode_key_32(psk).map_err(|e| {
-                ConfigError::validation(
-                    "vpn",
-                    format!("psk: {e} (expected base64-encoded 32-byte key)"),
-                )
+            Self::decode_key_32(psk).map_err(|e| ConfigError::Validation {
+                section: "vpn".to_string(),
+                reason: format!("psk: {e} (expected base64-encoded 32-byte key)"),
             })?;
         }
 
         if self.keepalive_interval == 0 {
-            return Err(ConfigError::validation("vpn", "keepalive_interval must be > 0"));
+            return Err(ConfigError::Validation {
+                section: "vpn".to_string(),
+                reason: "keepalive_interval must be > 0".to_string(),
+            });
         }
         if self.handshake_timeout == 0 {
-            return Err(ConfigError::validation("vpn", "handshake_timeout must be > 0"));
+            return Err(ConfigError::Validation {
+                section: "vpn".to_string(),
+                reason: "handshake_timeout must be > 0".to_string(),
+            });
         }
         Ok(())
     }

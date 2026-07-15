@@ -1,4 +1,5 @@
 //! Tests for `api/vpn/vo/vpn_client_config.rs` — VpnClientConfig validation.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::fs;
 

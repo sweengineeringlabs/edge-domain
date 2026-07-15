@@ -1,11 +1,12 @@
 //! Tests for `api/vpn/errors/vpn_result.rs` — VpnResult alias.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application_vpn::{VpnError, VpnResult};
 
 #[test]
 fn test_vpn_result_ok_variant_happy() {
     let r: VpnResult<u32> = Ok(42);
-    assert_eq!(r.unwrap(), 42);
+    assert_eq!(r, Ok(42));
 }
 
 #[test]

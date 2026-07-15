@@ -2,6 +2,7 @@
 //!
 //! Uses `NoopTunnelManager` as the concrete impl under test.
 //! Async trait tests use `#[test] + block_on` so the arch checker can find them.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use base64::Engine as _;
 use edge_application_vpn::{

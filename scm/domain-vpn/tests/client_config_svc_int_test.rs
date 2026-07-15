@@ -1,5 +1,6 @@
 //! Tests for `saf/vpn/client_config_svc.rs` — VpnClientConfig SAF exports.
 //! Required by `saf_trait_svc_test_exists`.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::fs;
 

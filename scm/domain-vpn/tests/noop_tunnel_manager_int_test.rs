@@ -1,4 +1,5 @@
 //! Tests for `api/vpn/noop/noop_tunnel_manager.rs` and `core/vpn/noop_tunnel_manager.rs`.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application_vpn::{NoopTunnelManager, TunnelManager, TunnelStatus};
 use tokio::runtime::Runtime;
@@ -10,6 +11,7 @@ fn test_noop_tunnel_manager_new_creates_instance_happy() {
 }
 
 #[test]
+#[allow(clippy::default_constructed_unit_structs)]
 fn test_noop_tunnel_manager_default_equals_new_edge() {
     let a = NoopTunnelManager::new();
     let b = NoopTunnelManager::default();

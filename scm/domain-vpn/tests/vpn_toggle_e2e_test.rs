@@ -1,4 +1,5 @@
 //! E2E toggle tests — verify `[vpn]` TOML section on/off behaviour.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::fs;
 

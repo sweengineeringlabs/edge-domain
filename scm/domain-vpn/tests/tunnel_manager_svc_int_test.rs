@@ -1,5 +1,6 @@
 //! Tests for `saf/vpn/tunnel_manager_svc.rs` — VpnManagerFactory SAF methods.
 //! Required by `saf_trait_svc_test_exists` and `saf_trait_svc_fn_scenario_coverage`.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application_vpn::{VpnManagerFactory, TunnelStatus, TunnelManager};
 use tokio::runtime::Runtime;
