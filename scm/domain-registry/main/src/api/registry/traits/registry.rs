@@ -1,7 +1,7 @@
 //! `Registry` — id-keyed resolution registry of shared entries.
 
 use crate::api::registry::errors::RegistryError;
-use crate::api::registry::types::{
+use crate::api::registry::dto::{
     DeregisterRequest, DeregisterResponse, EmptinessRequest, EmptinessResponse, LenRequest,
     LenResponse, ListIdsRequest, ListIdsResponse, RegisterRequest, RegisterResponse,
     RegistryLookupRequest, RegistryLookupResponse, TryRegisterRequest, TryRegisterResponse,

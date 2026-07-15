@@ -1,2 +1,8 @@
-//! Rule 121 path-mirror: re-exports `RegistryLookupRequest` from `types/`.
-pub use crate::api::registry::types::RegistryLookupRequest;
+//! [`RegistryLookupRequest`] — request to resolve the entry registered under an id.
+
+/// Request to resolve the entry registered under `id`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RegistryLookupRequest {
+    /// The id to resolve.
+    pub id: String,
+}

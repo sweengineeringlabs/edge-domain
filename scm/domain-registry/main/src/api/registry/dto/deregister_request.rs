@@ -1,2 +1,8 @@
-//! Rule 121 path-mirror: re-exports `DeregisterRequest` from `types/`.
-pub use crate::api::registry::types::DeregisterRequest;
+//! [`DeregisterRequest`] — request to remove the entry registered under an id.
+
+/// Request to remove the entry registered under `id`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DeregisterRequest {
+    /// The id to remove.
+    pub id: String,
+}

@@ -1,2 +1,8 @@
-//! Rule 121 path-mirror: re-exports `LenResponse` from `types/`.
-pub use crate::api::registry::types::LenResponse;
+//! [`LenResponse`] — wrapper for registry length.
+
+/// Result of [`Registry::len`](crate::api::Registry::len).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct LenResponse {
+    /// The number of registered entries.
+    pub count: usize,
+}

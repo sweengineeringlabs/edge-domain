@@ -1,2 +1,5 @@
-//! Rule 121 path-mirror: re-exports `ListIdsRequest` from `types/`.
-pub use crate::api::registry::types::ListIdsRequest;
+//! [`ListIdsRequest`] — zero-sized marker for listing registered ids.
+
+/// Request to list all registered ids.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub struct ListIdsRequest;

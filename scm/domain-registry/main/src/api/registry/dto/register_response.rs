@@ -1,2 +1,5 @@
-//! Rule 121 path-mirror: re-exports `RegisterResponse` from `types/`.
-pub use crate::api::registry::types::RegisterResponse;
+//! [`RegisterResponse`] — wrapper for successful registration.
+
+/// Successful result of [`Registry::register`](crate::api::Registry::register).
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub struct RegisterResponse;

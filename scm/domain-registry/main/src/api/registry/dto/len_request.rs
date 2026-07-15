@@ -1,2 +1,5 @@
-//! Rule 121 path-mirror: re-exports `LenRequest` from `types/`.
-pub use crate::api::registry::types::LenRequest;
+//! [`LenRequest`] — zero-sized marker for querying registry length.
+
+/// Request for the number of registered entries.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub struct LenRequest;
