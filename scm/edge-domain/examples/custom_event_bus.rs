@@ -8,12 +8,12 @@
 //! Run:
 //!     cargo run -p edge-domain --example custom_event_bus
 //!
-//! SEA constraint: all imports come from the edge_domain SAF surface.
+//! SEA constraint: all imports come from the edge_application SAF surface.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::DomainRuntime;
-use edge_domain::InProcessEventBusRequest;
-use edge_domain::{
+use edge_application::DomainRuntime;
+use edge_application::InProcessEventBusRequest;
+use edge_application::{
     Domain, DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventBus,
     EventBusConfig, EventBusPublishRequest, EventBusSubscribeRequest, EventBusSubscribeResponse,
     EventError, EventOccurredAtRequest, EventOccurredAtResponse, EventTypeRequest,

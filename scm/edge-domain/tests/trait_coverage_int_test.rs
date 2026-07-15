@@ -2,20 +2,21 @@
 //!
 //! One test per unique method name × 3 suffixes covers all 47 trait functions because
 //! the arch audit pattern `test_<fn>_*_<suffix>` matches on method name globally across traits.
-// @allow: no_mocks_in_integration — InMemoryRepository is the production-shipped reference impl, not a test double
+#![cfg(all(feature = "event", feature = "command", feature = "query", feature = "service", feature = "repository", feature = "handler"))]
+// @allow: no_mocks_in_integration — MemoryRepository is the production-shipped reference impl, not a test double
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::*;
-use edge_domain_command::{
+use edge_application::*;
+use edge_application_command::{
     CommandDispatchRequest, ExecutionRequest as CommandExecutionRequest,
     NameRequest as CommandNameRequest, NameResponse as CommandNameResponse,
 };
-use edge_domain_handler::{
+use edge_application_handler::{
     DeregisterHandlerRequest, EmptinessRequest as HandlerEmptinessRequest, HandlerLookupRequest,
     IdRequest, LenRequest as HandlerLenRequest, ListIdsRequest, PatternRequest,
     RegisterHandlerRequest,
 };
-use edge_domain_service::{
+use edge_application_service::{
     EmptinessRequest as ServiceEmptinessRequest, LenRequest as ServiceLenRequest, ListNamesRequest,
     NameRequest, RegisterServiceRequest, ServiceError, ServiceLookupRequest, ServiceRemovalRequest,
 };
@@ -136,8 +137,8 @@ struct OkSvc;
 impl Service for OkSvc {
     type Request = String;
     type Response = String;
-    fn name(&self, _req: NameRequest) -> Result<edge_domain_service::NameResponse, ServiceError> {
-        Ok(edge_domain_service::NameResponse {
+    fn name(&self, _req: NameRequest) -> Result<edge_application_service::NameResponse, ServiceError> {
+        Ok(edge_application_service::NameResponse {
             name: "ok-svc".to_string(),
         })
     }
@@ -150,8 +151,8 @@ struct ErrSvc;
 impl Service for ErrSvc {
     type Request = String;
     type Response = String;
-    fn name(&self, _req: NameRequest) -> Result<edge_domain_service::NameResponse, ServiceError> {
-        Ok(edge_domain_service::NameResponse {
+    fn name(&self, _req: NameRequest) -> Result<edge_application_service::NameResponse, ServiceError> {
+        Ok(edge_application_service::NameResponse {
             name: "err-svc".to_string(),
         })
     }
@@ -239,8 +240,8 @@ fn test_name_service_can_be_empty_string_edge() {
         fn name(
             &self,
             _req: NameRequest,
-        ) -> Result<edge_domain_service::NameResponse, ServiceError> {
-            Ok(edge_domain_service::NameResponse {
+        ) -> Result<edge_application_service::NameResponse, ServiceError> {
+            Ok(edge_application_service::NameResponse {
                 name: String::new(),
             })
         }
@@ -1787,7 +1788,7 @@ fn test_count_decrements_after_delete_edge() {
 #[test]
 fn test_list_page_returns_first_page_happy() {
     block_on(async {
-        let repo = InMemoryRepository::<String, u32>::new();
+        let repo = MemoryRepository::<String, u32>::new();
         for i in 0..5u32 {
             repo.save(RepositorySaveRequest {
                 id: i,
@@ -1812,7 +1813,7 @@ fn test_list_page_returns_first_page_happy() {
 #[test]
 fn test_list_page_offset_beyond_end_returns_empty_items_not_error() {
     block_on(async {
-        let repo = InMemoryRepository::<String, u32>::new();
+        let repo = MemoryRepository::<String, u32>::new();
         repo.save(RepositorySaveRequest {
             id: 1u32,
             entity: "x".into(),
@@ -1835,7 +1836,7 @@ fn test_list_page_offset_beyond_end_returns_empty_items_not_error() {
 #[test]
 fn test_list_page_total_equals_full_count_edge() {
     block_on(async {
-        let repo = InMemoryRepository::<String, u32>::new();
+        let repo = MemoryRepository::<String, u32>::new();
         for i in 0..4u32 {
             repo.save(RepositorySaveRequest {
                 id: i,

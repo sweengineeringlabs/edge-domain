@@ -1,6 +1,6 @@
 //! Integration tests — `REGISTRY_BRIDGE_SVC_FACTORY` constant.
 
-use edge_domain_handler::REGISTRY_BRIDGE_SVC_FACTORY;
+use edge_application_handler::REGISTRY_BRIDGE_SVC_FACTORY;
 
 /// @covers: REGISTRY_BRIDGE_SVC_FACTORY — correct factory identity value
 #[test]

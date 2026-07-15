@@ -2,7 +2,7 @@
 //! dependency — verifying the sub-crate contract is accessible end-to-end.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_entity::{Entity, EntityError, IdRequest, IdResponse};
+use edge_application_entity::{Entity, EntityError, IdRequest, IdResponse};
 
 struct Invoice {
     id: u64,

@@ -1,5 +1,6 @@
 //! Coverage for api/event/types/event/event_bus_config.rs
-use edge_domain::EventBusConfig;
+#![cfg(feature = "event")]
+use edge_application::EventBusConfig;
 
 #[test]
 fn test_event_bus_config_default_capacity_is_1024() {

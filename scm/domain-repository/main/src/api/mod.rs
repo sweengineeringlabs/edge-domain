@@ -1,7 +1,7 @@
 mod repository;
 pub use repository::AlwaysMatchSpec;
 pub use repository::CountByResponse;
-pub use repository::InMemoryRepository;
+pub use repository::MemoryRepository;
 pub use repository::MatchingEntitiesResponse;
 pub use repository::MatchingEntityResponse;
 pub use repository::Page;

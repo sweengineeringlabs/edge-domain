@@ -2,7 +2,7 @@
 
 use crate::api::event::errors::EventError;
 use crate::api::event::traits::DomainEvent;
-use crate::api::event::types::{
+use crate::api::event::dto::{
     AggregateApplyRequest, AggregateApplyResponse, AggregateIdentityRequest,
     AggregateIdentityResponse,
 };

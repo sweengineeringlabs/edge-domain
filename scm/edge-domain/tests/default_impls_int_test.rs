@@ -1,15 +1,16 @@
 //! Integration tests for default domain implementations:
 //! direct_command_bus, noop_event_publisher.
+#![cfg(all(feature = "event", feature = "command"))]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::DomainRuntime;
-use edge_domain::{
+use edge_application::DomainRuntime;
+use edge_application::{
     Command, CommandBus, CommandError, Domain, DomainEvent, EventAggregateIdRequest,
     EventAggregateIdResponse, EventError, EventOccurredAtRequest, EventOccurredAtResponse,
     EventPublisher, EventPublisherPublishRequest, EventTypeRequest, EventTypeResponse,
 };
-use edge_domain::{DirectCommandBusRequest, NoopEventPublisherRequest};
-use edge_domain_command::{CommandDispatchRequest, ExecutionRequest, NameRequest, NameResponse};
+use edge_application::{DirectCommandBusRequest, NoopEventPublisherRequest};
+use edge_application_command::{CommandDispatchRequest, ExecutionRequest, NameRequest, NameResponse};
 use futures::future::BoxFuture;
 use std::sync::Arc;
 use std::time::SystemTime;

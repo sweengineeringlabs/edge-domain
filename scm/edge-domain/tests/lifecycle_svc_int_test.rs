@@ -2,7 +2,7 @@
 //! dependency — verifying the sub-crate contract is accessible end-to-end.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_lifecycle::{
+use edge_application_lifecycle::{
     Lifecycle, LifecycleStateRequest, LifecycleTransitionRequest, ManagedLifecycle,
     PermissivePolicy,
 };

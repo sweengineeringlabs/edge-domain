@@ -1,20 +1,20 @@
 //! Arch-audit rule-95 coverage: direct sub-crate imports.
-//! The 13 optional deps are exercised via `edge_domain` feature re-exports
+//! The 13 optional deps are exercised via `edge_application` feature re-exports
 //! in their respective theme test files. These imports satisfy the
 //! dep-coverage requirement by naming each sub-crate directly.
 
-use edge_domain_clock::SystemClock;
-use edge_domain_command::CommandError;
-use edge_domain_event::EventError;
-use edge_domain_handler::HandlerError;
-use edge_domain_policy::PolicyError;
-use edge_domain_projection::ProjectionError;
-use edge_domain_query::QueryError;
-use edge_domain_repository::RepositoryError;
-use edge_domain_saga::SagaError;
-use edge_domain_service::ServiceError;
-use edge_domain_snapshot::SnapshotError;
-use edge_domain_validator::ValidatorError;
+use edge_application_clock::SystemClock;
+use edge_application_command::CommandError;
+use edge_application_event::EventError;
+use edge_application_handler::HandlerError;
+use edge_application_policy::PolicyError;
+use edge_application_projection::ProjectionError;
+use edge_application_query::QueryError;
+use edge_application_repository::RepositoryError;
+use edge_application_saga::SagaError;
+use edge_application_service::ServiceError;
+use edge_application_snapshot::SnapshotError;
+use edge_application_validator::ValidatorError;
 use edge_security_runtime::SecurityError;
 
 /// Verifies all 13 optional sub-crate dependencies are linkable from the test binary.

@@ -4,7 +4,7 @@
 use std::future::Future;
 use std::pin::Pin;
 
-use edge_domain_saga::{SagaCommand, SagaCommandDispatchRequest, SagaError};
+use edge_application_saga::{SagaCommand, SagaCommandDispatchRequest, SagaError};
 use futures::executor::block_on;
 
 struct OkCmd;

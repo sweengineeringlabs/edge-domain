@@ -1,8 +1,9 @@
 //! Integration tests for `SnapshotStore` and the `new_in_memory_snapshot_store`
 //! SAF factory.
+#![cfg(feature = "snapshot")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{
+use edge_application::{
     Domain, Snapshot, SnapshotAggregateIdRequest, SnapshotAggregateIdResponse, SnapshotError,
     SnapshotLoadRequest, SnapshotLoadResponse, SnapshotSaveRequest, SnapshotStore,
     SnapshotVersionRequest, SnapshotVersionResponse,

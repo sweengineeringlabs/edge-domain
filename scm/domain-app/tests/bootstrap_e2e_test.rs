@@ -1,7 +1,7 @@
 //! Integration tests — `Bootstrap` trait via SAF facade.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_app::{
+use edge_application_app::{
     AppError, Application, ApplicationBuildRequest, ApplicationBuildResponse, ApplicationRunRequest,
     ApplicationRunResponse, Bootstrap, NameRequest, NameResponse,
 };
@@ -65,7 +65,7 @@ fn test_build_application_runs_successfully_edge() {
 /// @covers: Bootstrap::noop — returns NoopAppBootstrap that builds successfully
 #[test]
 fn test_noop_returns_noop_bootstrap_happy() {
-    use edge_domain_app::NoopAppBootstrap;
+    use edge_application_app::NoopAppBootstrap;
     let noop: NoopAppBootstrap = AlwaysBuilds::noop();
     let app = noop
         .build(ApplicationBuildRequest)
@@ -77,7 +77,7 @@ fn test_noop_returns_noop_bootstrap_happy() {
 /// @covers: Bootstrap::noop — built application name differs from caller's custom app
 #[test]
 fn test_noop_bootstrap_build_returns_default_name_error() {
-    use edge_domain_app::NoopAppBootstrap;
+    use edge_application_app::NoopAppBootstrap;
     let noop: NoopAppBootstrap = AlwaysBuilds::noop();
     let app = noop.build(ApplicationBuildRequest).expect("build succeeds").application;
     assert_ne!(app.name(NameRequest).unwrap().name, "echo");
@@ -87,7 +87,7 @@ fn test_noop_bootstrap_build_returns_default_name_error() {
 /// @covers: Bootstrap::noop — NoopAppBootstrap is Copy
 #[test]
 fn test_noop_bootstrap_is_copy_edge() {
-    use edge_domain_app::NoopAppBootstrap;
+    use edge_application_app::NoopAppBootstrap;
     let noop: NoopAppBootstrap = AlwaysBuilds::noop();
     let copy = noop;
     let app = copy.build(ApplicationBuildRequest).expect("copy builds ok").application;
@@ -97,7 +97,7 @@ fn test_noop_bootstrap_is_copy_edge() {
 /// @covers: Bootstrap::noop_runtime — returns NoopAppRuntime
 #[test]
 fn test_noop_runtime_returns_noop_app_runtime_happy() {
-    use edge_domain_app::NoopAppRuntime;
+    use edge_application_app::NoopAppRuntime;
     let r: NoopAppRuntime = AlwaysBuilds::noop_runtime();
     assert_eq!(format!("{r:?}"), "NoopAppRuntime");
 }
@@ -105,7 +105,7 @@ fn test_noop_runtime_returns_noop_app_runtime_happy() {
 /// @covers: Bootstrap::noop_runtime — returned value has the expected name
 #[test]
 fn test_noop_runtime_name_is_app_runtime_error() {
-    use edge_domain_app::{AppRuntime, NoopAppRuntime};
+    use edge_application_app::{AppRuntime, NoopAppRuntime};
     let r: NoopAppRuntime = AlwaysBuilds::noop_runtime();
     assert_eq!(r.name(NameRequest).unwrap().name, "app_runtime");
 }
@@ -113,7 +113,7 @@ fn test_noop_runtime_name_is_app_runtime_error() {
 /// @covers: Bootstrap::noop_runtime — is Copy
 #[test]
 fn test_noop_runtime_is_copy_edge() {
-    use edge_domain_app::NoopAppRuntime;
+    use edge_application_app::NoopAppRuntime;
     let a: NoopAppRuntime = AlwaysBuilds::noop_runtime();
     let b = a;
     assert_eq!(a, b);
@@ -122,7 +122,7 @@ fn test_noop_runtime_is_copy_edge() {
 /// @covers: Bootstrap::noop_svc_factory — returns NoopAppSvcFactory
 #[test]
 fn test_noop_svc_factory_returns_noop_app_svc_factory_happy() {
-    use edge_domain_app::NoopAppSvcFactory;
+    use edge_application_app::NoopAppSvcFactory;
     let f: NoopAppSvcFactory = AlwaysBuilds::noop_svc_factory();
     assert_eq!(format!("{f:?}"), "NoopAppSvcFactory");
 }
@@ -130,7 +130,7 @@ fn test_noop_svc_factory_returns_noop_app_svc_factory_happy() {
 /// @covers: Bootstrap::noop_svc_factory — built bootstrap produces a runnable application
 #[test]
 fn test_noop_svc_factory_build_always_ok_error() {
-    use edge_domain_app::{AppServiceProvider, NoopAppSvcFactory, ProviderBuildRequest};
+    use edge_application_app::{AppServiceProvider, NoopAppSvcFactory, ProviderBuildRequest};
     let f: NoopAppSvcFactory = AlwaysBuilds::noop_svc_factory();
     let app = f
         .build(ProviderBuildRequest)
@@ -145,7 +145,7 @@ fn test_noop_svc_factory_build_always_ok_error() {
 /// @covers: Bootstrap::noop_svc_factory — is Copy
 #[test]
 fn test_noop_svc_factory_is_copy_edge() {
-    use edge_domain_app::NoopAppSvcFactory;
+    use edge_application_app::NoopAppSvcFactory;
     let a: NoopAppSvcFactory = AlwaysBuilds::noop_svc_factory();
     let b = a;
     assert_eq!(a, b);

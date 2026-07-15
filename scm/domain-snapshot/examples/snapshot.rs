@@ -1,6 +1,6 @@
 //! Basic `Snapshot` usage example.
 
-use edge_domain_snapshot::{Snapshot, SnapshotAggregateIdRequest, SnapshotVersionRequest};
+use edge_application_snapshot::{Snapshot, SnapshotAggregateIdRequest, SnapshotVersionRequest};
 
 struct OrderSnap {
     id: String,
@@ -13,19 +13,19 @@ impl Snapshot for OrderSnap {
         &self,
         _req: SnapshotAggregateIdRequest,
     ) -> Result<
-        edge_domain_snapshot::SnapshotAggregateIdResponse<'_, String>,
-        edge_domain_snapshot::SnapshotError,
+        edge_application_snapshot::SnapshotAggregateIdResponse<'_, String>,
+        edge_application_snapshot::SnapshotError,
     > {
-        Ok(edge_domain_snapshot::SnapshotAggregateIdResponse {
+        Ok(edge_application_snapshot::SnapshotAggregateIdResponse {
             aggregate_id: &self.id,
         })
     }
     fn version(
         &self,
         _req: SnapshotVersionRequest,
-    ) -> Result<edge_domain_snapshot::SnapshotVersionResponse, edge_domain_snapshot::SnapshotError>
+    ) -> Result<edge_application_snapshot::SnapshotVersionResponse, edge_application_snapshot::SnapshotError>
     {
-        Ok(edge_domain_snapshot::SnapshotVersionResponse {
+        Ok(edge_application_snapshot::SnapshotVersionResponse {
             version: self.version,
         })
     }

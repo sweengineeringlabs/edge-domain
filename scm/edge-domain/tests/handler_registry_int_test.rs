@@ -1,11 +1,12 @@
 //! Integration tests for `HandlerRegistry`.
+#![cfg(feature = "handler")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain::{Domain, Handler, HandlerError, HandlerRegistry};
-use edge_domain_handler::{
+use edge_application::{Domain, Handler, HandlerError, HandlerRegistry};
+use edge_application_handler::{
     DeregisterHandlerRequest, EmptinessRequest, ExecutionRequest, HandlerLookupRequest, IdRequest,
     IdResponse, LenRequest, ListIdsRequest, RegisterHandlerRequest,
 };

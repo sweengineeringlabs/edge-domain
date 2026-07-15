@@ -1,7 +1,8 @@
 //! Integration tests for `DomainEvent` and `EventPublisher`.
+#![cfg(feature = "event")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{
+use edge_application::{
     DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventError,
     EventOccurredAtRequest, EventOccurredAtResponse, EventPublisher, EventPublisherPublishRequest,
     EventTypeRequest, EventTypeResponse,

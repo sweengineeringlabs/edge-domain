@@ -3,7 +3,7 @@
 use std::hash::Hash;
 
 use crate::api::snapshot::errors::SnapshotError;
-use crate::api::snapshot::types::{
+use crate::api::snapshot::dto::{
     SnapshotAggregateIdRequest, SnapshotAggregateIdResponse, SnapshotVersionRequest,
     SnapshotVersionResponse,
 };

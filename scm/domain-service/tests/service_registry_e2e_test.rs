@@ -1,7 +1,7 @@
 //! End-to-end contract tests for the `ServiceRegistry` trait, exercised
 //! through test-double implementations via the crate's public API.
 
-use edge_domain_service::{
+use edge_application_service::{
     EmptinessRequest, LenRequest, ListNamesRequest, NoopService, RegisterServiceRequest,
     RegisterServiceResponse, Service, ServiceError, ServiceLookupRequest, ServiceRegistry,
     ServiceRegistryStore, ServiceRemovalRequest, StdServiceRegistryFactory,
@@ -24,33 +24,33 @@ impl ServiceRegistry for TestRegistry {
     fn deregister(
         &self,
         _req: &ServiceRemovalRequest,
-    ) -> Result<edge_domain_service::ServiceRemovalResponse, ServiceError> {
-        Ok(edge_domain_service::ServiceRemovalResponse { was_present: false })
+    ) -> Result<edge_application_service::ServiceRemovalResponse, ServiceError> {
+        Ok(edge_application_service::ServiceRemovalResponse { was_present: false })
     }
 
     fn get(
         &self,
         _req: &ServiceLookupRequest,
-    ) -> Result<edge_domain_service::ServiceLookupResponse<(), ()>, ServiceError> {
-        Ok(edge_domain_service::ServiceLookupResponse { service: None })
+    ) -> Result<edge_application_service::ServiceLookupResponse<(), ()>, ServiceError> {
+        Ok(edge_application_service::ServiceLookupResponse { service: None })
     }
 
     fn list_names(
         &self,
         _req: ListNamesRequest,
-    ) -> Result<edge_domain_service::ListNamesResponse, ServiceError> {
-        Ok(edge_domain_service::ListNamesResponse { names: vec![] })
+    ) -> Result<edge_application_service::ListNamesResponse, ServiceError> {
+        Ok(edge_application_service::ListNamesResponse { names: vec![] })
     }
 
-    fn len(&self, _req: LenRequest) -> Result<edge_domain_service::LenResponse, ServiceError> {
-        Ok(edge_domain_service::LenResponse { count: 0 })
+    fn len(&self, _req: LenRequest) -> Result<edge_application_service::LenResponse, ServiceError> {
+        Ok(edge_application_service::LenResponse { count: 0 })
     }
 
     fn is_empty(
         &self,
         _req: EmptinessRequest,
-    ) -> Result<edge_domain_service::EmptinessResponse, ServiceError> {
-        Ok(edge_domain_service::EmptinessResponse { empty: true })
+    ) -> Result<edge_application_service::EmptinessResponse, ServiceError> {
+        Ok(edge_application_service::EmptinessResponse { empty: true })
     }
 
     fn default_factory() -> StdServiceRegistryFactory {
@@ -84,32 +84,32 @@ impl ServiceRegistry for FailingRegistry {
     fn deregister(
         &self,
         _req: &ServiceRemovalRequest,
-    ) -> Result<edge_domain_service::ServiceRemovalResponse, ServiceError> {
+    ) -> Result<edge_application_service::ServiceRemovalResponse, ServiceError> {
         Err(ServiceError::NotFound("registry unavailable".to_string()))
     }
 
     fn get(
         &self,
         _req: &ServiceLookupRequest,
-    ) -> Result<edge_domain_service::ServiceLookupResponse<(), ()>, ServiceError> {
+    ) -> Result<edge_application_service::ServiceLookupResponse<(), ()>, ServiceError> {
         Err(ServiceError::NotFound("registry unavailable".to_string()))
     }
 
     fn list_names(
         &self,
         _req: ListNamesRequest,
-    ) -> Result<edge_domain_service::ListNamesResponse, ServiceError> {
+    ) -> Result<edge_application_service::ListNamesResponse, ServiceError> {
         Err(ServiceError::Unavailable("registry offline".to_string()))
     }
 
-    fn len(&self, _req: LenRequest) -> Result<edge_domain_service::LenResponse, ServiceError> {
+    fn len(&self, _req: LenRequest) -> Result<edge_application_service::LenResponse, ServiceError> {
         Err(ServiceError::Unavailable("registry offline".to_string()))
     }
 
     fn is_empty(
         &self,
         _req: EmptinessRequest,
-    ) -> Result<edge_domain_service::EmptinessResponse, ServiceError> {
+    ) -> Result<edge_application_service::EmptinessResponse, ServiceError> {
         Err(ServiceError::Unavailable("registry offline".to_string()))
     }
 
@@ -258,7 +258,7 @@ fn test_default_factory_consistent_edge() {
 #[test]
 fn test_noop_service_returns_noop_happy() {
     let noop = TestRegistry::noop_service();
-    match noop.name(edge_domain_service::NameRequest) {
+    match noop.name(edge_application_service::NameRequest) {
         Ok(response) => assert_eq!(response.name, "noop"),
         Err(err) => panic!("expected Ok, got Err: {err:?}"),
     }
@@ -269,8 +269,8 @@ fn test_noop_service_returns_noop_happy() {
 fn test_noop_service_consistent_edge() {
     let noop1 = TestRegistry::noop_service();
     let noop2 = FailingRegistry::noop_service();
-    let n1 = noop1.name(edge_domain_service::NameRequest);
-    let n2 = noop2.name(edge_domain_service::NameRequest);
+    let n1 = noop1.name(edge_application_service::NameRequest);
+    let n2 = noop2.name(edge_application_service::NameRequest);
     assert_eq!(n1, n2);
 }
 

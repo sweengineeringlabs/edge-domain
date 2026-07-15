@@ -1,11 +1,11 @@
-//! Layer-level coverage for `api/event/types/*.rs` request/response types.
+//! Layer-level coverage for `api/event/dto/*.rs` request/response types.
 // @allow: no_mocks_in_integration
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
 use std::time::SystemTime;
 
-use edge_domain_event::{
+use edge_application_event::{
     Aggregate, AggregateApplyRequest, AggregateApplyResponse, AggregateIdentityRequest,
     AggregateIdentityResponse, ClosedEventSource, DomainEvent, EventAggregateIdRequest,
     EventAggregateIdResponse, EventBus, EventBusPublishRequest, EventBusSubscribeRequest,
@@ -14,7 +14,7 @@ use edge_domain_event::{
     EventSourceRecvNextResponse, EventStore, EventStoreAppendRequest, EventStoreAppendResponse,
     EventStoreLoadFromRequest, EventStoreLoadFromResponse, EventStoreLoadRequest,
     EventStoreLoadResponse, EventTypeRequest, EventTypeResponse, ExpectedVersion,
-    InMemoryEventStore, InProcessEventBus, NoopAggregate, NoopDomainEvent,
+    MemoryEventStore, InProcessEventBus, NoopAggregate, NoopDomainEvent,
 };
 
 /// @covers: AggregateApplyRequest
@@ -114,7 +114,7 @@ fn test_event_bus_publish_request_wraps_arc_dyn_domain_event_happy() {
 /// @covers: EventBusPublishRequest
 #[test]
 fn test_event_bus_publish_request_accepted_by_noop_bus_edge() {
-    use edge_domain_event::NoopEventBus;
+    use edge_application_event::NoopEventBus;
     let result = futures::executor::block_on(
         NoopEventBus.publish(EventBusPublishRequest { event: Arc::new(NoopDomainEvent) }),
     );
@@ -130,7 +130,7 @@ fn test_event_bus_subscribe_request_is_zero_sized_happy() {
 /// @covers: EventBusSubscribeRequest
 #[test]
 fn test_event_bus_subscribe_request_accepted_by_noop_bus_edge() {
-    use edge_domain_event::NoopEventBus;
+    use edge_application_event::NoopEventBus;
     let mut resp = NoopEventBus
         .subscribe(EventBusSubscribeRequest)
         .expect("subscribe");
@@ -142,7 +142,7 @@ fn test_event_bus_subscribe_request_accepted_by_noop_bus_edge() {
 /// @covers: EventBusSubscribeResponse
 #[test]
 fn test_event_bus_subscribe_response_exposes_receiver_happy() {
-    use edge_domain_event::NoopEventBus;
+    use edge_application_event::NoopEventBus;
     let resp: EventBusSubscribeResponse = NoopEventBus.subscribe(EventBusSubscribeRequest).unwrap();
     let mut rx = resp.receiver;
     let result = futures::executor::block_on(rx.recv_next(EventSourceRecvNextRequest));
@@ -200,7 +200,7 @@ fn test_event_publisher_publish_request_wraps_dyn_domain_event_happy() {
 /// @covers: EventPublisherPublishRequest
 #[test]
 fn test_event_publisher_publish_request_accepted_by_noop_publisher_edge() {
-    use edge_domain_event::NoopEventPublisher;
+    use edge_application_event::NoopEventPublisher;
     let evt = NoopDomainEvent;
     let result = futures::executor::block_on(
         NoopEventPublisher.publish(EventPublisherPublishRequest { event: &evt }),
@@ -238,7 +238,7 @@ fn test_event_store_append_request_constructed_with_fields_happy() {
 /// @covers: EventStoreAppendRequest
 #[test]
 fn test_event_store_append_request_used_by_in_memory_store_edge() {
-    let store = InMemoryEventStore::<NoopDomainEvent>::new();
+    let store = MemoryEventStore::<NoopDomainEvent>::new();
     let resp = futures::executor::block_on(store.append(EventStoreAppendRequest {
         aggregate_id: "agg-api-test",
         events: vec![NoopDomainEvent],
@@ -273,7 +273,7 @@ fn test_event_store_load_from_request_constructed_with_fields_happy() {
 /// @covers: EventStoreLoadFromRequest
 #[test]
 fn test_event_store_load_from_request_used_by_in_memory_store_edge() {
-    let store = InMemoryEventStore::<NoopDomainEvent>::new();
+    let store = MemoryEventStore::<NoopDomainEvent>::new();
     let events = futures::executor::block_on(
         store.load_from(EventStoreLoadFromRequest { aggregate_id: "missing", from_sequence: 1 }),
     )
@@ -292,7 +292,7 @@ fn test_event_store_load_request_constructed_with_field_happy() {
 /// @covers: EventStoreLoadRequest
 #[test]
 fn test_event_store_load_request_used_by_in_memory_store_edge() {
-    let store = InMemoryEventStore::<NoopDomainEvent>::new();
+    let store = MemoryEventStore::<NoopDomainEvent>::new();
     let events =
         futures::executor::block_on(store.load(EventStoreLoadRequest { aggregate_id: "missing" }))
             .expect("load")
@@ -343,7 +343,7 @@ fn test_event_source_recv_next_response_holds_event_happy() {
 /// @covers: EventSourceRecvNextResponse
 #[test]
 fn test_event_source_recv_next_response_used_by_closed_source_error() {
-    use edge_domain_event::EventSourceRecvNextRequest as Req;
+    use edge_application_event::EventSourceRecvNextRequest as Req;
     let mut src = ClosedEventSource;
     let result = futures::executor::block_on(src.recv_next(Req));
     assert!(matches!(result, Err(EventError::Unavailable(_))));
@@ -359,7 +359,7 @@ fn test_event_store_load_response_holds_events_happy() {
 /// @covers: EventStoreLoadResponse
 #[test]
 fn test_event_store_load_response_used_by_in_memory_store_edge() {
-    let store = InMemoryEventStore::<NoopDomainEvent>::new();
+    let store = MemoryEventStore::<NoopDomainEvent>::new();
     let resp = futures::executor::block_on(
         store.load(EventStoreLoadRequest { aggregate_id: "none" }),
     )
@@ -378,7 +378,7 @@ fn test_event_store_load_from_response_holds_events_happy() {
 /// @covers: EventStoreLoadFromResponse
 #[test]
 fn test_event_store_load_from_response_used_by_in_memory_store_edge() {
-    let store = InMemoryEventStore::<NoopDomainEvent>::new();
+    let store = MemoryEventStore::<NoopDomainEvent>::new();
     let resp = futures::executor::block_on(store.load_from(EventStoreLoadFromRequest {
         aggregate_id: "none",
         from_sequence: 0,

@@ -4,7 +4,7 @@
 //! returns `Err`, since the concrete `ServiceRegistryStore` never fails and
 //! so cannot exercise the trait's error contract on its own.
 
-use edge_domain_service::*;
+use edge_application_service::*;
 use std::fmt::Debug;
 use std::sync::Arc;
 

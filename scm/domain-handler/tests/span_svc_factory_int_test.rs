@@ -1,4 +1,4 @@
-use edge_domain_handler::{SPAN_SVC, SPAN_SVC_FACTORY};
+use edge_application_handler::{SPAN_SVC, SPAN_SVC_FACTORY};
 
 #[test]
 fn test_span_svc_constant_value_happy() {

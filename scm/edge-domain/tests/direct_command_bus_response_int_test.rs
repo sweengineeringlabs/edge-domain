@@ -1,10 +1,11 @@
 //! Integration tests for `DirectCommandBusResponse`.
+#![cfg(feature = "command")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{
+use edge_application::{
     Command, CommandBus, CommandError, DirectCommandBusRequest, Domain, DomainRuntime,
 };
-use edge_domain_command::{CommandDispatchRequest, ExecutionRequest, NameRequest, NameResponse};
+use edge_application_command::{CommandDispatchRequest, ExecutionRequest, NameRequest, NameResponse};
 
 struct Noop;
 impl Command for Noop {

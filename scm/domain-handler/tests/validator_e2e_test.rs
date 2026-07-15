@@ -2,7 +2,7 @@
 //! test-double implementation via the crate's public API.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_handler::{HandlerError, Validator, ValidatorRequest};
+use edge_application_handler::{HandlerError, Validator, ValidatorRequest};
 
 struct ValidatorDouble {
     name: String,

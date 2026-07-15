@@ -1,7 +1,7 @@
 //! SAF facade tests — `TransitionPolicy` service (`transition_policy_svc`).
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_lifecycle::{
+use edge_application_lifecycle::{
     LifecycleError, TransitionAllowedRequest, TransitionAllowedResponse, TransitionPolicy,
     TRANSITION_POLICY_SVC,
 };

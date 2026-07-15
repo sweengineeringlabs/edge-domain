@@ -1,4 +1,4 @@
-use edge_domain_handler::{COUNTER_SVC, COUNTER_SVC_FACTORY};
+use edge_application_handler::{COUNTER_SVC, COUNTER_SVC_FACTORY};
 
 #[test]
 fn test_counter_svc_constant_value_happy() {

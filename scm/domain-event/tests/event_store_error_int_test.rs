@@ -1,6 +1,6 @@
 //! Integration tests for `EventStoreError`.
 
-use edge_domain_event::EventStoreError;
+use edge_application_event::EventStoreError;
 
 /// @covers: EventStoreError — Conflict variant displays aggregate id and versions
 #[test]

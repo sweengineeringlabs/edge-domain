@@ -1,4 +1,4 @@
-use edge_domain_observer::GAUGE_SVC;
+use edge_application_observer::GAUGE_SVC;
 
 #[test]
 fn test_gauge_svc_key_non_empty_happy() {

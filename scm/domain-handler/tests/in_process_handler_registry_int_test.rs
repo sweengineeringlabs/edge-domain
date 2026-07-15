@@ -4,14 +4,14 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain_command::DirectCommandBus;
-use edge_domain_handler::{
+use edge_application_command::DirectCommandBus;
+use edge_application_handler::{
     DeregisterHandlerRequest, EmptinessRequest, ExecutionRequest, Handler, HandlerContext,
     HandlerError, HandlerLookupRequest, HandlerRegistry, IdRequest, IdResponse,
     InProcessHandlerRegistry, LenRequest, ListIdsRequest, ObserverContextAdapter,
     RegisterHandlerRequest,
 };
-use edge_domain_observer::StdObserveFactory;
+use edge_application_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
 use futures::executor::block_on;
 

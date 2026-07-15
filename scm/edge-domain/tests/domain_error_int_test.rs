@@ -1,6 +1,6 @@
 //! Integration tests — `DomainError` type.
 
-use edge_domain::DomainError;
+use edge_application::DomainError;
 
 /// @covers: DomainError::Unavailable — Display formats the inner message
 #[test]

@@ -1,6 +1,6 @@
 //! Integration tests — `SERVICE_SVC` constant.
 
-use edge_domain_handler::SERVICE_SVC;
+use edge_application_handler::SERVICE_SVC;
 
 /// @covers: SERVICE_SVC — correct service identity value
 #[test]

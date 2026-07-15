@@ -1,6 +1,7 @@
 //! Integration tests for `QueryError`.
+#![cfg(feature = "query")]
 
-use edge_domain::QueryError;
+use edge_application::QueryError;
 
 /// @covers: QueryError
 #[test]

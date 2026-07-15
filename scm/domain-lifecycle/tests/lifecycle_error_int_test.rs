@@ -1,7 +1,7 @@
 //! Integration tests for `LifecycleError` — covers the errors/ file directly.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_lifecycle::LifecycleError;
+use edge_application_lifecycle::LifecycleError;
 
 /// @covers: LifecycleError::InvalidTransition — display message includes from and to
 #[test]

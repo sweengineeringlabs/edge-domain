@@ -1,12 +1,12 @@
 //! `ObserveBootstrap` — assembles the observability triplet.
 
-use crate::api::observe::errors::ObserveError;
-use crate::api::observe::types::{
+use crate::api::observe::dto::{
     BootstrapNameRequest, BootstrapNameResponse, HandlerTracerBuildRequest,
     HandlerTracerBuildResponse, LogDrainBuildRequest, LogDrainBuildResponse,
-    MetricRegistryBuildRequest, MetricRegistryBuildResponse, StdObserveFactory, ValidationRequest,
-    ValidationResponse,
+    MetricRegistryBuildRequest, MetricRegistryBuildResponse, ValidationRequest, ValidationResponse,
 };
+use crate::api::observe::errors::ObserveError;
+use crate::api::observe::std_observe_factory::StdObserveFactory;
 
 /// Constructs the three observability primitives as a unit.
 ///

@@ -1,11 +1,12 @@
 //! Integration tests for the event primitives' SAF facade.
-// @allow: no_mocks_in_integration — InMemoryEventStore is the production-shipped reference impl, not a test double
+#![cfg(feature = "event")]
+// @allow: no_mocks_in_integration — MemoryEventStore is the production-shipped reference impl, not a test double
 #![allow(clippy::unwrap_used)]
 
-use edge_domain::{
+use edge_application::{
     ClosedEventSource, DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventError,
     EventOccurredAtRequest, EventOccurredAtResponse, EventTypeRequest, EventTypeResponse,
-    InMemoryEventStore, InProcessEventBus, NoopEventBus, NoopEventPublisher,
+    MemoryEventStore, InProcessEventBus, NoopEventBus, NoopEventPublisher,
 };
 
 #[derive(Clone)]
@@ -128,13 +129,13 @@ fn test_noop_publisher_independent_calls_edge() {
     assert_eq!(std::mem::size_of_val(&b), 0);
 }
 
-// --- InMemoryEventStore::new ---
+// --- MemoryEventStore::new ---
 
-/// @covers InMemoryEventStore::new — happy path: constructs successfully
+/// @covers MemoryEventStore::new — happy path: constructs successfully
 #[test]
 fn test_in_memory_store_constructs_successfully_happy() {
-    // @allow: no_mocks_in_integration — InMemoryEventStore is the production-shipped reference impl
-    let store = InMemoryEventStore::<AnyEvent>::new();
+    // @allow: no_mocks_in_integration — MemoryEventStore is the production-shipped reference impl
+    let store = MemoryEventStore::<AnyEvent>::new();
     assert_ne!(
         std::mem::size_of_val(&store),
         0,
@@ -142,20 +143,20 @@ fn test_in_memory_store_constructs_successfully_happy() {
     );
 }
 
-/// @covers InMemoryEventStore::new — error: store is non-zero-size (heap-backed)
+/// @covers MemoryEventStore::new — error: store is non-zero-size (heap-backed)
 #[test]
 fn test_in_memory_store_is_nonzero_size_error() {
     assert_ne!(
-        std::mem::size_of_val(&InMemoryEventStore::<AnyEvent>::new()),
+        std::mem::size_of_val(&MemoryEventStore::<AnyEvent>::new()),
         0,
     );
 }
 
-/// @covers InMemoryEventStore::new — edge: successive calls produce independent stores
+/// @covers MemoryEventStore::new — edge: successive calls produce independent stores
 #[test]
 fn test_in_memory_store_successive_calls_independent_edge() {
-    let a = InMemoryEventStore::<AnyEvent>::new();
-    let b = InMemoryEventStore::<AnyEvent>::new();
+    let a = MemoryEventStore::<AnyEvent>::new();
+    let b = MemoryEventStore::<AnyEvent>::new();
     let a_ptr = &a as *const _;
     let b_ptr = &b as *const _;
     assert_ne!(

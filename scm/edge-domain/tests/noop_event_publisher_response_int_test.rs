@@ -1,7 +1,8 @@
 //! Integration tests for `NoopEventPublisherResponse`.
+#![cfg(feature = "event")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{
+use edge_application::{
     Domain, DomainEvent, DomainRuntime, EventPublisherPublishRequest, NoopEventPublisherRequest,
 };
 

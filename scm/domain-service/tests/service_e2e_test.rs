@@ -1,7 +1,7 @@
 //! End-to-end contract tests for the `Service` trait, exercised through a
 //! test-double implementation via the crate's public API.
 
-use edge_domain_service::{NameRequest, NameResponse, Service, ServiceError};
+use edge_application_service::{NameRequest, NameResponse, Service, ServiceError};
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 use std::sync::Arc;

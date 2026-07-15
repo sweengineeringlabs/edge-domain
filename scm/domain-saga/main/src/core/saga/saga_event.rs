@@ -1,6 +1,6 @@
-//! Blanket bridge: every `edge_domain_event::DomainEvent` satisfies `SagaEvent`.
+//! Blanket bridge: every `edge_application_event::DomainEvent` satisfies `SagaEvent`.
 
-use edge_domain_event::{DomainEvent, EventAggregateIdRequest, EventTypeRequest};
+use edge_application_event::{DomainEvent, EventAggregateIdRequest, EventTypeRequest};
 
 use crate::api::SagaError;
 use crate::api::SagaEvent;
@@ -27,7 +27,7 @@ impl<T: DomainEvent> SagaEvent for T {
 
 #[cfg(test)]
 mod tests {
-    use edge_domain_event::{EventAggregateIdResponse, EventError};
+    use edge_application_event::{EventAggregateIdResponse, EventError};
 
     use super::*;
 

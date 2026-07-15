@@ -1,11 +1,11 @@
 //! Integration tests — `DomainAssemblyHook` SAF facade (`domain_spi_svc`).
 
-use edge_domain::{DomainAssemblyHook, NoopDomainAssemblyHook};
+use edge_application::{DomainAssemblyHook, NoopDomainAssemblyHook};
 
 /// @covers: DOMAIN_SPI_SVC — SAF anchor is accessible
 #[test]
 fn test_domain_spi_svc_anchor_is_accessible_happy() {
-    assert_eq!(edge_domain::DOMAIN_SPI_SVC, ());
+    assert_eq!(edge_application::DOMAIN_SPI_SVC, ());
 }
 
 /// @covers: DomainAssemblyHook re-export — trait usable from crate root

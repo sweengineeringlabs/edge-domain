@@ -1,4 +1,4 @@
-use edge_domain_observer::OBSERVE_BOOTSTRAP_SVC_FACTORY;
+use edge_application_observer::OBSERVE_BOOTSTRAP_SVC_FACTORY;
 
 #[test]
 fn test_observe_bootstrap_svc_factory_constant_value_happy() {

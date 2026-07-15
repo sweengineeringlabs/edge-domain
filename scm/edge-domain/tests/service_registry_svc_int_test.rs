@@ -1,10 +1,11 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, unused_imports)]
 //! SAF facade smoke test — ServiceRegistry is exported from the crate root.
+#![cfg(feature = "service")]
 
-use edge_domain::Domain;
-use edge_domain::Service;
-use edge_domain::ServiceError;
-use edge_domain_service::{
+use edge_application::Domain;
+use edge_application::Service;
+use edge_application::ServiceError;
+use edge_application_service::{
     NameRequest, NameResponse, RegisterServiceRequest, ServiceLookupRequest,
 };
 use std::sync::Arc;

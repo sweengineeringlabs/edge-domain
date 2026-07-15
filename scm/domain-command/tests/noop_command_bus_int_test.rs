@@ -1,6 +1,6 @@
 //! Integration tests for `NoopCommandBus` — discards every command silently.
 
-use edge_domain_command::{
+use edge_application_command::{
     Command, CommandBus, CommandDispatchRequest, CommandError, ExecutionRequest, NoopCommandBus,
 };
 use futures::executor::block_on;

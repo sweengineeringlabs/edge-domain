@@ -1,4 +1,4 @@
-use edge_domain_registry::REGISTRY_SVC_FACTORY;
+use edge_application_registry::REGISTRY_SVC_FACTORY;
 
 #[test]
 fn test_registry_svc_factory_constant_value_happy() {

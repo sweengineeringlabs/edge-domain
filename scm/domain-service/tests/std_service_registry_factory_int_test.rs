@@ -1,6 +1,6 @@
 //! Tests for [`StdServiceRegistryFactory`] — default registry factory.
 
-use edge_domain_service::{Service, ServiceRegistry, StdServiceRegistryFactory};
+use edge_application_service::{Service, ServiceRegistry, StdServiceRegistryFactory};
 use futures::executor::block_on;
 
 /// @covers: StdServiceRegistryFactory
@@ -67,7 +67,7 @@ fn test_std_service_registry_factory_hash_consistent_happy() {
 #[test]
 fn test_std_service_registry_factory_produces_valid_registry_edge() {
     let registry = StdServiceRegistryFactory::new_registry::<String, String>();
-    let req = edge_domain_service::EmptinessRequest;
+    let req = edge_application_service::EmptinessRequest;
     match registry.is_empty(req) {
         Ok(response) => assert!(response.empty),
         Err(err) => panic!("expected Ok, got Err: {err:?}"),

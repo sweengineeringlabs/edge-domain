@@ -1,8 +1,8 @@
 //! Basic `Saga` usage example.
 
-use edge_domain_command::{Command, CommandError, ExecutionRequest};
-use edge_domain_event::DomainEvent;
-use edge_domain_saga::{
+use edge_application_command::{Command, CommandError, ExecutionRequest};
+use edge_application_event::DomainEvent;
+use edge_application_saga::{
     Saga, SagaError, SagaHandleRequest, SagaHandleResponse, SagaIsCompleteRequest,
     SagaIsCompleteResponse,
 };

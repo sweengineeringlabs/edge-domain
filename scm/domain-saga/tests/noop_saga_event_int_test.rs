@@ -2,8 +2,8 @@
 // @allow: no_mocks_in_integration
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_event::{EventAggregateIdRequest, EventTypeRequest};
-use edge_domain_saga::{DomainEvent, NoopSagaEvent};
+use edge_application_event::{EventAggregateIdRequest, EventTypeRequest};
+use edge_application_saga::{DomainEvent, NoopSagaEvent};
 
 /// @covers: aggregate_id
 #[test]

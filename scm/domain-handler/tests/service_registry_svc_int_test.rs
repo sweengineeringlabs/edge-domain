@@ -1,6 +1,6 @@
 //! Integration tests — `SERVICE_REGISTRY_SVC` constant.
 
-use edge_domain_handler::SERVICE_REGISTRY_SVC;
+use edge_application_handler::SERVICE_REGISTRY_SVC;
 
 /// @covers: SERVICE_REGISTRY_SVC — correct service identity value
 #[test]

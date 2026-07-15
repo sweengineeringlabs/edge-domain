@@ -2,7 +2,7 @@
 
 use std::time::{Duration, SystemTime};
 
-use edge_domain_clock::{Clock, ClockError, FixedClock, NowRequest, SystemClock};
+use edge_application_clock::{Clock, ClockError, FixedClock, NowRequest, SystemClock};
 
 fn main() -> Result<(), ClockError> {
     let wall = SystemClock;

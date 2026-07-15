@@ -1,6 +1,6 @@
 //! Tests for the `ValidatorError` error type.
 
-use edge_domain_validator::ValidatorError;
+use edge_application_validator::ValidatorError;
 
 /// @covers: ValidatorError::Invalid — Display includes message
 #[test]

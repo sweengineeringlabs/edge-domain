@@ -1,7 +1,7 @@
 //! Integration tests for `OutboundNamesRequest`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::OutboundNamesRequest;
+use edge_application::OutboundNamesRequest;
 
 /// @covers: OutboundNamesRequest
 #[test]

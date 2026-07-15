@@ -8,11 +8,11 @@
 //! Run:
 //!     cargo run -p edge-domain --example event_bus_consumer
 //!
-//! SEA constraint: all imports come from the edge_domain SAF surface.
+//! SEA constraint: all imports come from the edge_application SAF surface.
 
-use edge_domain::DomainRuntime;
-use edge_domain::InProcessEventBusRequest;
-use edge_domain::{
+use edge_application::DomainRuntime;
+use edge_application::InProcessEventBusRequest;
+use edge_application::{
     Domain, EventAggregateIdRequest, EventAggregateIdResponse, EventBusConfig,
     EventBusPublishRequest, EventError, EventOccurredAtRequest, EventOccurredAtResponse,
     EventTypeRequest, EventTypeResponse,
@@ -26,7 +26,7 @@ struct OrderEvent {
     status: String,
 }
 
-impl edge_domain::DomainEvent for OrderEvent {
+impl edge_application::DomainEvent for OrderEvent {
     fn event_type(&self, _req: EventTypeRequest) -> Result<EventTypeResponse<'_>, EventError> {
         Ok(EventTypeResponse {
             event_type: "order.status_changed",
@@ -94,7 +94,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 /// Example service receiving Arc<dyn EventBus> from factory.
 struct OrderService {
-    bus: Arc<dyn edge_domain::EventBus>,
+    bus: Arc<dyn edge_application::EventBus>,
 }
 
 impl OrderService {

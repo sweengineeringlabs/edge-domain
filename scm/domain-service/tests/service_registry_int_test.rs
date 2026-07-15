@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use edge_domain_service::{
+use edge_application_service::{
     EmptinessRequest, LenRequest, NameRequest, NameResponse, RegisterServiceRequest, Service,
     ServiceError, ServiceLookupRequest, ServiceRegistry, ServiceRegistryStore,
 };

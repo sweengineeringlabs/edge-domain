@@ -1,5 +1,6 @@
 //! Coverage for api/event/types/closed_event_source.rs
-use edge_domain::ClosedEventSource;
+#![cfg(feature = "event")]
+use edge_application::ClosedEventSource;
 
 #[test]
 fn test_closed_event_source_is_constructible_happy() {

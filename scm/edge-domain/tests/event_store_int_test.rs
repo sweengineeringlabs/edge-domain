@@ -2,11 +2,12 @@
 //!
 //! Uses only the public SAF surface — `new_in_memory_event_store` and
 //! `reconstitute` — to verify the full append → load → reconstitute cycle.
+#![cfg(feature = "event")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::time::SystemTime;
 
-use edge_domain::{
+use edge_application::{
     Aggregate, AggregateApplyRequest, AggregateApplyResponse, AggregateIdentityRequest,
     AggregateIdentityResponse, Domain, DomainEvent, EventAggregateIdRequest,
     EventAggregateIdResponse, EventError, EventOccurredAtRequest, EventOccurredAtResponse,

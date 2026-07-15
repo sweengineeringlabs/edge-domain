@@ -4,7 +4,7 @@
 
 use std::sync::Arc;
 
-use edge_domain_handler::{
+use edge_application_handler::{
     HandlerError, ListNamesRequest, Service, ServiceLookupRequest, ServiceLookupResponse,
     ServiceRegistry,
 };
@@ -33,8 +33,8 @@ impl ServiceRegistry for FixedRegistry {
     fn list_names(
         &self,
         _req: ListNamesRequest,
-    ) -> Result<edge_domain_handler::ListNamesResponse, HandlerError> {
-        Ok(edge_domain_handler::ListNamesResponse {
+    ) -> Result<edge_application_handler::ListNamesResponse, HandlerError> {
+        Ok(edge_application_handler::ListNamesResponse {
             names: self.names.clone(),
         })
     }

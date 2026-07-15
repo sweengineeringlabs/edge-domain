@@ -1,4 +1,4 @@
-use edge_domain_command::{Command, CommandError, ExecutionRequest};
+use edge_application_command::{Command, CommandError, ExecutionRequest};
 use futures::future::BoxFuture;
 
 use crate::api::NoopSagaCommand;

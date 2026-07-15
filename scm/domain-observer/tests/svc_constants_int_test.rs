@@ -1,4 +1,4 @@
-use edge_domain_observer::{
+use edge_application_observer::{
     HANDLER_TRACER_SVC, LOG_DRAIN_SVC, METRIC_REGISTRY_SVC, OBSERVE_FACTORY_SVC,
 };
 

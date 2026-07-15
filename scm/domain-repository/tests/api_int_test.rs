@@ -1,7 +1,7 @@
-//! Layer-level coverage for `api/repository/types/*.rs` request/response types.
+//! Layer-level coverage for `api/repository/dto/*.rs` request/response types.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_repository::{
+use edge_application_repository::{
     AlwaysMatchSpec, CountByResponse, MatchingEntitiesResponse, MatchingEntityResponse, Page,
     RepositoryCountResponse, RepositoryDeleteResponse, RepositoryExistsResponse,
     RepositoryFindResponse, RepositoryIdRequest, RepositoryListPageRequest,

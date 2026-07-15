@@ -1,8 +1,8 @@
 //! Integration tests — [`Validator`] trait contract.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_handler::{IntoHandler, IntoHandlerRequest, Validator, ValidatorRequest};
-use edge_domain_service::{NameRequest, NameResponse, Service, ServiceError};
+use edge_application_handler::{IntoHandler, IntoHandlerRequest, Validator, ValidatorRequest};
+use edge_application_service::{NameRequest, NameResponse, Service, ServiceError};
 use futures::future::BoxFuture;
 
 struct NamedService;

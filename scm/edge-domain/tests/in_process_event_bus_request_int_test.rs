@@ -1,7 +1,8 @@
 //! Integration tests for `InProcessEventBusRequest`.
+#![cfg(feature = "event")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{EventBusConfig, InProcessEventBusRequest};
+use edge_application::{EventBusConfig, InProcessEventBusRequest};
 
 /// @covers: InProcessEventBusRequest
 #[test]

@@ -1,6 +1,6 @@
 //! Basic `Query` usage example.
 
-use edge_domain_query::{DirectQueryBus, Query, QueryError, QueryExecuteRequest, QueryResultResponse};
+use edge_application_query::{DirectQueryBus, Query, QueryError, QueryExecuteRequest, QueryResultResponse};
 use futures::future::BoxFuture;
 
 struct Ping;

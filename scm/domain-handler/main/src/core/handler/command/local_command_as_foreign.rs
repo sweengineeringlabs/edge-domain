@@ -1,7 +1,7 @@
 //! [`LocalCommandAsForeign`] — wraps a local [`Command`](crate::api::Command) trait object as a
-//! real `edge_domain_command::Command`, so it can flow through the real `CommandBus::dispatch`.
+//! real `edge_application_command::Command`, so it can flow through the real `CommandBus::dispatch`.
 
-use edge_domain_command as cmd;
+use edge_application_command as cmd;
 
 use crate::api::{Command, CommandExecutionRequest, CommandNameRequest};
 

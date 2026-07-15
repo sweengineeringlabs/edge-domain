@@ -1,14 +1,14 @@
 //! `MetricRegistry` — local decoupling boundary for a metric instrument factory.
 
 use crate::api::handler::errors::HandlerError;
-use crate::api::handler::types::{
+use crate::api::handler::dto::{
     CounterLookupRequest, CounterLookupResponse, GaugeLookupRequest, GaugeLookupResponse,
     HistogramLookupRequest, HistogramLookupResponse,
 };
 
 /// Creates named metric instruments.
 ///
-/// Declared locally so `api/` never references `edge_domain_observer::MetricRegistry`
+/// Declared locally so `api/` never references `edge_application_observer::MetricRegistry`
 /// directly in a type position (SEA `no_foreign_type`). Any real `MetricRegistry`
 /// implementor satisfies this automatically via the blanket impl in `core/`.
 pub trait MetricRegistry: Send + Sync {

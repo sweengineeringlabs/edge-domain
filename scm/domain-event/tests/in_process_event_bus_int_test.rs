@@ -2,15 +2,15 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
-use edge_domain_event::{
+use edge_application_event::{
     DomainEvent, EventBus, EventBusPublishRequest, EventBusSubscribeRequest, EventError,
     EventSource, EventSourceRecvNextRequest, EventTypeRequest, InProcessEventBus,
 };
 
 struct SigEvt;
 impl DomainEvent for SigEvt {
-    fn event_type(&self, _req: EventTypeRequest) -> Result<edge_domain_event::EventTypeResponse<'_>, EventError> {
-        Ok(edge_domain_event::EventTypeResponse { event_type: "signal" })
+    fn event_type(&self, _req: EventTypeRequest) -> Result<edge_application_event::EventTypeResponse<'_>, EventError> {
+        Ok(edge_application_event::EventTypeResponse { event_type: "signal" })
     }
 }
 

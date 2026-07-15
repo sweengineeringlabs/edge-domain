@@ -2,8 +2,8 @@
 // @allow: no_mocks_in_integration
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_command::{Command, CommandError, ExecutionRequest, NameRequest};
-use edge_domain_event::{DomainEvent, EventAggregateIdRequest, EventTypeRequest};
+use edge_application_command::{Command, CommandError, ExecutionRequest, NameRequest};
+use edge_application_event::{DomainEvent, EventAggregateIdRequest, EventTypeRequest};
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 

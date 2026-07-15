@@ -1,6 +1,6 @@
 //! Integration tests for `EventBusConfig`.
 
-use edge_domain_event::EventBusConfig;
+use edge_application_event::EventBusConfig;
 
 /// @covers: EventBusConfig — default capacity is 1024
 #[test]

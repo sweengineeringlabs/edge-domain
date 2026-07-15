@@ -1,7 +1,7 @@
 //! Integration tests for `OutboundLenResponse`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::OutboundLenResponse;
+use edge_application::OutboundLenResponse;
 
 /// @covers: OutboundLenResponse
 #[test]

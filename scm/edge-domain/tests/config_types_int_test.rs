@@ -1,6 +1,7 @@
 //! Tests for configuration and error types across api/ modules.
+#![cfg(all(feature = "service", feature = "repository", feature = "query", feature = "handler", feature = "event"))]
 
-use edge_domain::{EventError, HandlerError, QueryError, RepositoryError, ServiceError};
+use edge_application::{EventError, HandlerError, QueryError, RepositoryError, ServiceError};
 
 /// @covers: HandlerError::ExecutionFailed
 #[test]

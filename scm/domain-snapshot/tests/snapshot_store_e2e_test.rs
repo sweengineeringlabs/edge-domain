@@ -1,9 +1,9 @@
-//! SAF facade tests — `SnapshotStore` trait via `InMemorySnapshotStore`.
-// @allow: no_mocks_in_integration — InMemorySnapshotStore is the production-shipped reference impl, not a test double
+//! SAF facade tests — `SnapshotStore` trait via `MemorySnapshotStore`.
+// @allow: no_mocks_in_integration — MemorySnapshotStore is the production-shipped reference impl, not a test double
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_snapshot::{
-    InMemorySnapshotStore, Snapshot, SnapshotAggregateIdRequest, SnapshotAggregateIdResponse,
+use edge_application_snapshot::{
+    MemorySnapshotStore, Snapshot, SnapshotAggregateIdRequest, SnapshotAggregateIdResponse,
     SnapshotError, SnapshotLoadRequest, SnapshotSaveRequest, SnapshotStore, SnapshotVersionRequest,
     SnapshotVersionResponse,
 };
@@ -45,7 +45,7 @@ fn order_snapshot(id: &str, v: u64) -> OrderSnapshot {
 /// @covers: SnapshotStore::save + load — round-trip
 #[test]
 fn test_save_then_load_returns_saved_snapshot_happy() {
-    let store: InMemorySnapshotStore<OrderSnapshot> = InMemorySnapshotStore::new();
+    let store: MemorySnapshotStore<OrderSnapshot> = MemorySnapshotStore::new();
     block_on(store.save(SnapshotSaveRequest {
         snapshot: order_snapshot("a1", 5),
     }))
@@ -60,7 +60,7 @@ fn test_save_then_load_returns_saved_snapshot_happy() {
 /// @covers: SnapshotStore::save — version zero is rejected
 #[test]
 fn test_save_version_zero_returns_invalid_version_error() {
-    let store: InMemorySnapshotStore<OrderSnapshot> = InMemorySnapshotStore::new();
+    let store: MemorySnapshotStore<OrderSnapshot> = MemorySnapshotStore::new();
     let err = block_on(store.save(SnapshotSaveRequest {
         snapshot: order_snapshot("a1", 0),
     }))
@@ -77,7 +77,7 @@ fn test_save_version_zero_returns_invalid_version_error() {
 /// @covers: SnapshotStore — save overwrites earlier snapshot
 #[test]
 fn test_save_overwrites_earlier_snapshot_edge() {
-    let store: InMemorySnapshotStore<OrderSnapshot> = InMemorySnapshotStore::new();
+    let store: MemorySnapshotStore<OrderSnapshot> = MemorySnapshotStore::new();
     block_on(store.save(SnapshotSaveRequest {
         snapshot: order_snapshot("a1", 3),
     }))
@@ -96,7 +96,7 @@ fn test_save_overwrites_earlier_snapshot_edge() {
 /// @covers: SnapshotStore::load — returns saved snapshot
 #[test]
 fn test_load_saved_snapshot_returns_some_happy() {
-    let store: InMemorySnapshotStore<OrderSnapshot> = InMemorySnapshotStore::new();
+    let store: MemorySnapshotStore<OrderSnapshot> = MemorySnapshotStore::new();
     block_on(store.save(SnapshotSaveRequest {
         snapshot: order_snapshot("b1", 10),
     }))
@@ -111,7 +111,7 @@ fn test_load_saved_snapshot_returns_some_happy() {
 /// @covers: SnapshotStore::load — missing aggregate returns None
 #[test]
 fn test_load_missing_aggregate_returns_none_error() {
-    let store: InMemorySnapshotStore<OrderSnapshot> = InMemorySnapshotStore::new();
+    let store: MemorySnapshotStore<OrderSnapshot> = MemorySnapshotStore::new();
     let id = "missing".to_string();
     let result = block_on(store.load(SnapshotLoadRequest { id: &id }))
         .unwrap()
@@ -122,7 +122,7 @@ fn test_load_missing_aggregate_returns_none_error() {
 /// @covers: SnapshotStore::load — isolates different aggregate ids
 #[test]
 fn test_load_different_aggregate_id_returns_none_edge() {
-    let store: InMemorySnapshotStore<OrderSnapshot> = InMemorySnapshotStore::new();
+    let store: MemorySnapshotStore<OrderSnapshot> = MemorySnapshotStore::new();
     block_on(store.save(SnapshotSaveRequest {
         snapshot: order_snapshot("c1", 2),
     }))

@@ -1,7 +1,7 @@
 //! Integration tests for `OutboundLenRequest`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::OutboundLenRequest;
+use edge_application::OutboundLenRequest;
 
 /// @covers: OutboundLenRequest
 #[test]

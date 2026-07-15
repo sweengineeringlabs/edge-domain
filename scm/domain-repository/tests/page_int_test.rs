@@ -1,6 +1,6 @@
 //! Integration tests for `Page<T>` — paginated result wrapper.
 
-use edge_domain_repository::Page;
+use edge_application_repository::Page;
 
 /// @covers: Page::new — all fields stored correctly
 #[test]

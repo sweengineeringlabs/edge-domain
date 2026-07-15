@@ -1,6 +1,6 @@
 //! Comprehensive tests for Service trait methods.
 
-use edge_domain_service::{NameRequest, NameResponse, Service, ServiceError};
+use edge_application_service::{NameRequest, NameResponse, Service, ServiceError};
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 
@@ -25,7 +25,7 @@ impl Service for FailingService {
 /// @covers: Service::name
 #[test]
 fn test_name_returns_noop_happy() {
-    use edge_domain_service::NoopService;
+    use edge_application_service::NoopService;
     let result = NoopService.name(NameRequest);
     match result {
         Ok(response) => assert_eq!(response.name, "noop"),
@@ -36,7 +36,7 @@ fn test_name_returns_noop_happy() {
 /// @covers: Service::name
 #[test]
 fn test_name_consistent_edge() {
-    use edge_domain_service::NoopService;
+    use edge_application_service::NoopService;
     let r1 = NoopService.name(NameRequest);
     let r2 = NoopService.name(NameRequest);
     assert_eq!(r1, r2);
@@ -52,7 +52,7 @@ fn test_name_failing_service_returns_err_error() {
 /// @covers: Service::execute
 #[test]
 fn test_execute_returns_ok_happy() {
-    use edge_domain_service::NoopService;
+    use edge_application_service::NoopService;
     let result = block_on(NoopService.execute(()));
     assert_eq!(result, Ok(()));
 }
@@ -60,7 +60,7 @@ fn test_execute_returns_ok_happy() {
 /// @covers: Service::execute
 #[test]
 fn test_execute_idempotent_edge() {
-    use edge_domain_service::NoopService;
+    use edge_application_service::NoopService;
     for _ in 0..5 {
         let result = block_on(NoopService.execute(()));
         assert_eq!(result, Ok(()));
