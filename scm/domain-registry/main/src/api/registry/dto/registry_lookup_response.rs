@@ -1,4 +1,7 @@
 //! [`RegistryLookupResponse`] — wrapper for a registry lookup result.
+// @allow: dto_types_must_serialize — holds a live `Option<Arc<V>>` where
+// `V: ?Sized` is typically a trait object, not wire-format data; an unsized
+// type param cannot derive Serialize/Deserialize.
 
 use std::sync::Arc;
 
