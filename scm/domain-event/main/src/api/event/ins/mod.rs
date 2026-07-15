@@ -1,4 +1,7 @@
-//! In-process and in-memory type mirrors — SEA Rule 121 api/core mirrors.
+//! In-process and in-memory event infrastructure.
 
-mod memory_event_store;
-mod in_process_event_bus;
+pub mod in_process_event_bus;
+pub mod memory_event_store;
+
+pub use in_process_event_bus::InProcessEventBus;
+pub use memory_event_store::MemoryEventStore;

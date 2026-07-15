@@ -1,2 +1,8 @@
-//! Rule 121 path-mirror: re-exports `AggregateIdentityResponse` from `types/`.
-pub use crate::api::event::types::AggregateIdentityResponse;
+//! [`AggregateIdentityResponse`] — wrapper for an aggregate's identity string.
+
+/// Result of [`Aggregate::id`](crate::api::Aggregate::id).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct AggregateIdentityResponse<'a> {
+    /// The stable aggregate identity string.
+    pub id: &'a str,
+}

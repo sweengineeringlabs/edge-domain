@@ -1,2 +1,5 @@
-//! Rule 121 path-mirror: re-exports `EventTypeRequest` from `types/`.
-pub use crate::api::event::types::EventTypeRequest;
+//! [`EventTypeRequest`] — zero-sized marker for querying an event's type name.
+
+/// Request for a [`DomainEvent`](crate::api::DomainEvent)'s stable type name.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub struct EventTypeRequest;

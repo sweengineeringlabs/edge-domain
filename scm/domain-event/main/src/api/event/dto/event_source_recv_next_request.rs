@@ -1,2 +1,5 @@
-//! Rule 121 path-mirror: re-exports `EventSourceRecvNextRequest` from `types/`.
-pub use crate::api::event::types::EventSourceRecvNextRequest;
+//! [`EventSourceRecvNextRequest`] — zero-sized marker for pulling the next event.
+
+/// Request for the next available event from an [`EventSource`](crate::api::EventSource).
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub struct EventSourceRecvNextRequest;

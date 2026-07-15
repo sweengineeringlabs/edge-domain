@@ -1,2 +1,5 @@
-//! Rule 121 path-mirror: re-exports `AggregateIdentityRequest` from `types/`.
-pub use crate::api::event::types::AggregateIdentityRequest;
+//! [`AggregateIdentityRequest`] — zero-sized marker for querying an aggregate's identity.
+
+/// Request for an [`Aggregate`](crate::api::Aggregate)'s stable identity string.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub struct AggregateIdentityRequest;

@@ -1,4 +1,4 @@
-//! Layer-level coverage for `api/event/types/*.rs` request/response types.
+//! Layer-level coverage for `api/event/dto/*.rs` request/response types.
 // @allow: no_mocks_in_integration
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 

@@ -1,2 +1,5 @@
-//! Rule 121 path-mirror: re-exports `EventAggregateIdRequest` from `types/`.
-pub use crate::api::event::types::EventAggregateIdRequest;
+//! [`EventAggregateIdRequest`] — zero-sized marker for querying an event's aggregate ID.
+
+/// Request for the ID of the aggregate that produced a [`DomainEvent`](crate::api::DomainEvent).
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub struct EventAggregateIdRequest;

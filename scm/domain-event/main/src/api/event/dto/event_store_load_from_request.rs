@@ -1,2 +1,10 @@
-//! Rule 121 path-mirror: re-exports `EventStoreLoadFromRequest` from `types/`.
-pub use crate::api::event::types::EventStoreLoadFromRequest;
+//! [`EventStoreLoadFromRequest`] — request to load an aggregate's stream from a sequence.
+
+/// Request to load events for `aggregate_id` starting at `from_sequence` (inclusive).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct EventStoreLoadFromRequest<'a> {
+    /// The aggregate whose stream to load.
+    pub aggregate_id: &'a str,
+    /// The first sequence number to include.
+    pub from_sequence: u64,
+}

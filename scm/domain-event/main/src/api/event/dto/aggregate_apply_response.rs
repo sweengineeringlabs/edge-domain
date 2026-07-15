@@ -1,2 +1,5 @@
-//! Rule 121 path-mirror: re-exports `AggregateApplyResponse` from `types/`.
-pub use crate::api::event::types::AggregateApplyResponse;
+//! [`AggregateApplyResponse`] — wrapper for a successful aggregate fold.
+
+/// Result of [`Aggregate::apply`](crate::api::Aggregate::apply).
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub struct AggregateApplyResponse;
