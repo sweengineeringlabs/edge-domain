@@ -1,9 +1,9 @@
 //! Noop saga infrastructure — zero-sized markers for testing and bring-up.
 
-mod saga;
-mod saga_command;
-mod saga_event;
+mod noop_saga;
+mod noop_saga_command;
+mod noop_saga_event;
 
-pub use saga::NoopSaga;
-pub use saga_command::NoopSagaCommand;
-pub use saga_event::NoopSagaEvent;
+pub use noop_saga::NoopSaga;
+pub use noop_saga_command::NoopSagaCommand;
+pub use noop_saga_event::NoopSagaEvent;
