@@ -20,6 +20,7 @@ path = "main/src/lib.rs"
 [dependencies]
 async-trait.workspace = true
 futures.workspace     = true
+serde.workspace       = true
 thiserror.workspace   = true
 tracing.workspace     = true
 
