@@ -1,2 +1,5 @@
-//! Rule 121 path-mirror: re-exports `OutboundLenRequest` from `types/`.
-pub use crate::api::domain::types::OutboundLenRequest;
+//! [`OutboundLenRequest`] — zero-sized marker for querying registry length.
+
+/// Request to query the number of registered handles.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub struct OutboundLenRequest;

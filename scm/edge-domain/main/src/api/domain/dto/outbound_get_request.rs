@@ -1,2 +1,7 @@
-//! Rule 121 path-mirror: re-exports `OutboundGetRequest` from `types/`.
-pub use crate::api::domain::types::OutboundGetRequest;
+//! [`OutboundGetRequest`] — request to look up an outbound handle.
+
+/// Request to look up the handle registered under `name`.
+pub struct OutboundGetRequest {
+    /// The name to look up.
+    pub name: String,
+}

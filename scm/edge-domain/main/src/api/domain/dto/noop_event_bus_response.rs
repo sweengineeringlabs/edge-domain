@@ -1,2 +1,11 @@
-//! Rule 121 path-mirror: re-exports `NoopEventBusResponse` from `types/`.
-pub use crate::api::domain::types::NoopEventBusResponse;
+//! [`NoopEventBusResponse`] — a constructed no-op [`EventBus`](crate::api::EventBus) handle.
+
+use std::sync::Arc;
+
+use crate::api::EventBus;
+
+/// The [`EventBus`] constructed by [`DomainRuntime::noop_event_bus`](crate::api::DomainRuntime::noop_event_bus).
+pub struct NoopEventBusResponse {
+    /// The discarding event bus.
+    pub bus: Arc<dyn EventBus>,
+}

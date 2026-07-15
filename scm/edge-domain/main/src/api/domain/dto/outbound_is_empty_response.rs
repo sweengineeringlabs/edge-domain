@@ -1,2 +1,8 @@
-//! Rule 121 path-mirror: re-exports `OutboundIsEmptyResponse` from `types/`.
-pub use crate::api::domain::types::OutboundIsEmptyResponse;
+//! [`OutboundIsEmptyResponse`] — wrapper for an empty-check result.
+
+/// Result of [`OutboundRegistry::is_empty`](crate::api::domain::traits::OutboundRegistry::is_empty).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct OutboundIsEmptyResponse {
+    /// `true` if the registry holds no handles.
+    pub empty: bool,
+}

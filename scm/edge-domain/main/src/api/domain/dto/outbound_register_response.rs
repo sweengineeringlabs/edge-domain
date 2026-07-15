@@ -1,2 +1,5 @@
-//! Rule 121 path-mirror: re-exports `OutboundRegisterResponse` from `types/`.
-pub use crate::api::domain::types::OutboundRegisterResponse;
+//! [`OutboundRegisterResponse`] — wrapper for a successful handle registration.
+
+/// Result of [`OutboundRegistry::register`](crate::api::domain::traits::OutboundRegistry::register).
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub struct OutboundRegisterResponse;

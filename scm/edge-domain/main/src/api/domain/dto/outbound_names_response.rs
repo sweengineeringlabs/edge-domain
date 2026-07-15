@@ -1,2 +1,8 @@
-//! Rule 121 path-mirror: re-exports `OutboundNamesResponse` from `types/`.
-pub use crate::api::domain::types::OutboundNamesResponse;
+//! [`OutboundNamesResponse`] — wrapper for the set of registered handle names.
+
+/// Result of [`OutboundRegistry::names`](crate::api::domain::traits::OutboundRegistry::names).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OutboundNamesResponse {
+    /// Snapshot of registered names. Order is unspecified.
+    pub names: Vec<String>,
+}

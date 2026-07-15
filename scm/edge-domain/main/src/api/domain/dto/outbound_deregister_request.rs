@@ -1,2 +1,7 @@
-//! Rule 121 path-mirror: re-exports `OutboundDeregisterRequest` from `types/`.
-pub use crate::api::domain::types::OutboundDeregisterRequest;
+//! [`OutboundDeregisterRequest`] — request to remove an outbound handle.
+
+/// Request to remove the handle registered under `name`.
+pub struct OutboundDeregisterRequest {
+    /// The name of the handle to remove.
+    pub name: String,
+}

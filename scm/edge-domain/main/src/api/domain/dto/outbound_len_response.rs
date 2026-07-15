@@ -1,2 +1,8 @@
-//! Rule 121 path-mirror: re-exports `OutboundLenResponse` from `types/`.
-pub use crate::api::domain::types::OutboundLenResponse;
+//! [`OutboundLenResponse`] — wrapper for the registry's handle count.
+
+/// Result of [`OutboundRegistry::len`](crate::api::domain::traits::OutboundRegistry::len).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct OutboundLenResponse {
+    /// The number of currently registered handles.
+    pub count: usize,
+}

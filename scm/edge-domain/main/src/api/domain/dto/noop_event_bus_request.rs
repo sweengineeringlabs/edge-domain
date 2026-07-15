@@ -1,2 +1,5 @@
-//! Rule 121 path-mirror: re-exports `NoopEventBusRequest` from `types/`.
-pub use crate::api::domain::types::NoopEventBusRequest;
+//! [`NoopEventBusRequest`] — request to construct a discarding [`EventBus`](crate::api::EventBus).
+
+/// Request to construct an [`EventBus`](crate::api::EventBus) that silently discards all events.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct NoopEventBusRequest;

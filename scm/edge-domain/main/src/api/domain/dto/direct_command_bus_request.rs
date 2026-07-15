@@ -1,2 +1,5 @@
-//! Rule 121 path-mirror: re-exports `DirectCommandBusRequest` from `types/`.
-pub use crate::api::domain::types::DirectCommandBusRequest;
+//! [`DirectCommandBusRequest`] — request to construct a [`CommandBus`](crate::api::CommandBus).
+
+/// Request to construct a [`CommandBus`](crate::api::CommandBus) that dispatches commands inline.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct DirectCommandBusRequest;

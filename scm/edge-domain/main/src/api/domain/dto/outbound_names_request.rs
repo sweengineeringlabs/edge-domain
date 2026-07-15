@@ -1,2 +1,5 @@
-//! Rule 121 path-mirror: re-exports `OutboundNamesRequest` from `types/`.
-pub use crate::api::domain::types::OutboundNamesRequest;
+//! [`OutboundNamesRequest`] — zero-sized marker for listing registered names.
+
+/// Request to list all registered handle names.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub struct OutboundNamesRequest;
