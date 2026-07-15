@@ -1,2 +1,8 @@
-//! Rule 121 path-mirror: re-exports `SagaIsCompleteResponse` from `types/`.
-pub use crate::api::saga::types::SagaIsCompleteResponse;
+//! [`SagaIsCompleteResponse`] — wrapper for a saga completion check.
+
+/// Result of [`Saga::is_complete`](crate::api::saga::traits::Saga::is_complete).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SagaIsCompleteResponse {
+    /// `true` if the saga has reached a terminal state.
+    pub complete: bool,
+}

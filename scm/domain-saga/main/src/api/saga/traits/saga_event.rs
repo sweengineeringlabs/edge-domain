@@ -1,7 +1,8 @@
 //! `SagaEvent` — local decoupling boundary for `Saga::Event`.
 
 use crate::api::saga::errors::SagaError;
-use crate::api::saga::types::{NoopSagaEvent, SagaEventDescribeRequest, SagaEventDescribeResponse};
+use crate::api::saga::dto::{SagaEventDescribeRequest, SagaEventDescribeResponse};
+use crate::api::saga::noop::NoopSagaEvent;
 
 /// The minimal contract a [`Saga`](super::Saga)'s associated `Event` type must satisfy.
 ///

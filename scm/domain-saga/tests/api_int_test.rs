@@ -1,4 +1,4 @@
-//! Layer-level coverage for `api/saga/types/*.rs` request/response types.
+//! Layer-level coverage for `api/saga/dto/*.rs` request/response types.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application_saga::{

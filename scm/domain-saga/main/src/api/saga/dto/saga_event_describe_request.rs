@@ -1,2 +1,5 @@
-//! Rule 121 path-mirror: re-exports `SagaEventDescribeRequest` from `types/`.
-pub use crate::api::saga::types::SagaEventDescribeRequest;
+//! [`SagaEventDescribeRequest`] — input for [`SagaEvent::describe`](crate::api::saga::traits::SagaEvent::describe).
+
+/// Marker request; `describe` takes no data beyond `&self`.
+#[derive(Debug, Clone, Copy, Default)]
+pub struct SagaEventDescribeRequest;

@@ -4,7 +4,7 @@ use std::future::Future;
 use std::pin::Pin;
 
 use crate::api::saga::errors::SagaError;
-use crate::api::saga::types::SagaCommandDispatchRequest;
+use crate::api::saga::dto::SagaCommandDispatchRequest;
 
 /// The minimal contract a [`Saga`](super::Saga)'s associated `Command` type must satisfy.
 ///
