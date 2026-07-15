@@ -4,7 +4,7 @@ use std::future::Future;
 use std::pin::Pin;
 
 use crate::api::query::QueryError;
-use crate::api::query::types::{QueryDispatchRequest, QueryResultResponse};
+use crate::api::query::dto::{QueryDispatchRequest, QueryResultResponse};
 
 /// Dispatches [`Query`](super::Query) instances and returns their results.
 pub trait QueryBus: Send + Sync {

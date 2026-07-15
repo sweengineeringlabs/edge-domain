@@ -1,6 +1,6 @@
 //! Tests for the `CommandError` error type.
 
-use edge_domain_command::CommandError;
+use edge_application_command::CommandError;
 
 /// @covers: CommandError::InvalidInput — Display
 #[test]

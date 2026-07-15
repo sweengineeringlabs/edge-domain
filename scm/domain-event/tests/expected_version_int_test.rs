@@ -1,6 +1,6 @@
 //! Integration tests for `ExpectedVersion`.
 
-use edge_domain_event::ExpectedVersion;
+use edge_application_event::ExpectedVersion;
 
 /// @covers: ExpectedVersion — Any variant creation and identity
 #[test]

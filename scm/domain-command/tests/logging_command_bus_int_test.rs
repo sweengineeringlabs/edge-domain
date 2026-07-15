@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use edge_domain_command::{
+use edge_application_command::{
     Command, CommandBus, CommandDispatchRequest, CommandError, DirectCommandBus, ExecutionRequest,
     LoggingCommandBus, NameRequest, NameResponse, NoopCommandBus,
 };

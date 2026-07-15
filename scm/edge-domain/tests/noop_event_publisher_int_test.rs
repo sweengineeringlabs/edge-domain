@@ -1,8 +1,9 @@
 //! Coverage for api/event/types/noop/noop_event_publisher.rs
+#![cfg(feature = "event")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
-use edge_domain::DomainRuntime;
-use edge_domain::NoopEventPublisherRequest;
-use edge_domain::{Domain, EventPublisherPublishRequest, NoopEventPublisher};
+use edge_application::DomainRuntime;
+use edge_application::NoopEventPublisherRequest;
+use edge_application::{Domain, EventPublisherPublishRequest, NoopEventPublisher};
 use futures::executor::block_on;
 
 #[test]
@@ -14,7 +15,7 @@ fn test_noop_event_publisher_marker_type_is_constructible() {
 #[test]
 fn test_noop_event_publisher_publish_always_succeeds() {
     block_on(async {
-        use edge_domain::DomainEvent;
+        use edge_application::DomainEvent;
         struct AnyEvent;
         impl DomainEvent for AnyEvent {}
         let pub_ = Domain
@@ -32,7 +33,7 @@ fn test_noop_event_publisher_publish_always_succeeds() {
 #[test]
 fn test_noop_event_publisher_repeated_publish_never_errors() {
     block_on(async {
-        use edge_domain::DomainEvent;
+        use edge_application::DomainEvent;
         struct AnyEvent;
         impl DomainEvent for AnyEvent {}
         let pub_ = Domain

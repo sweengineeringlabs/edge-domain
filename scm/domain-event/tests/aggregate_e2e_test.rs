@@ -1,7 +1,7 @@
 //! SAF facade tests — `Aggregate` trait.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_event::{
+use edge_application_event::{
     Aggregate, AggregateApplyRequest, AggregateIdentityRequest, DomainEvent, EventAggregateIdRequest,
     EventTypeRequest,
 };
@@ -18,23 +18,23 @@ struct Incremented {
 }
 
 impl DomainEvent for Incremented {
-    fn event_type(&self, _req: EventTypeRequest) -> Result<edge_domain_event::EventTypeResponse<'_>, edge_domain_event::EventError> {
-        Ok(edge_domain_event::EventTypeResponse { event_type: "counter.incremented" })
+    fn event_type(&self, _req: EventTypeRequest) -> Result<edge_application_event::EventTypeResponse<'_>, edge_application_event::EventError> {
+        Ok(edge_application_event::EventTypeResponse { event_type: "counter.incremented" })
     }
-    fn aggregate_id(&self, _req: EventAggregateIdRequest) -> Result<edge_domain_event::EventAggregateIdResponse<'_>, edge_domain_event::EventError> {
-        Ok(edge_domain_event::EventAggregateIdResponse { aggregate_id: &self.counter_id })
+    fn aggregate_id(&self, _req: EventAggregateIdRequest) -> Result<edge_application_event::EventAggregateIdResponse<'_>, edge_application_event::EventError> {
+        Ok(edge_application_event::EventAggregateIdResponse { aggregate_id: &self.counter_id })
     }
 }
 
 impl Aggregate for Counter {
     type Event = Incremented;
-    fn apply(&mut self, req: AggregateApplyRequest<'_, Incremented>) -> Result<edge_domain_event::AggregateApplyResponse, edge_domain_event::EventError> {
+    fn apply(&mut self, req: AggregateApplyRequest<'_, Incremented>) -> Result<edge_application_event::AggregateApplyResponse, edge_application_event::EventError> {
         self.id = req.event.counter_id.clone();
         self.count += 1;
-        Ok(edge_domain_event::AggregateApplyResponse)
+        Ok(edge_application_event::AggregateApplyResponse)
     }
-    fn id(&self, _req: AggregateIdentityRequest) -> Result<edge_domain_event::AggregateIdentityResponse<'_>, edge_domain_event::EventError> {
-        Ok(edge_domain_event::AggregateIdentityResponse { id: &self.id })
+    fn id(&self, _req: AggregateIdentityRequest) -> Result<edge_application_event::AggregateIdentityResponse<'_>, edge_application_event::EventError> {
+        Ok(edge_application_event::AggregateIdentityResponse { id: &self.id })
     }
 }
 

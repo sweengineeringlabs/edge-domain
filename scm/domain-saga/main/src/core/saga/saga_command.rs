@@ -1,9 +1,9 @@
-//! Blanket bridge: every `edge_domain_command::Command` satisfies `SagaCommand`.
+//! Blanket bridge: every `edge_application_command::Command` satisfies `SagaCommand`.
 
 use std::future::Future;
 use std::pin::Pin;
 
-use edge_domain_command::{Command, ExecutionRequest};
+use edge_application_command::{Command, ExecutionRequest};
 
 use crate::api::SagaCommand;
 use crate::api::SagaCommandDispatchRequest;
@@ -24,7 +24,7 @@ impl<T: Command> SagaCommand for T {
 
 #[cfg(test)]
 mod tests {
-    use edge_domain_command::CommandError;
+    use edge_application_command::CommandError;
     use futures::executor::block_on;
 
     use super::*;

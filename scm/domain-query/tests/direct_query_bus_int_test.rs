@@ -1,7 +1,7 @@
 //! Integration tests for `DirectQueryBus` — the zero-size in-process query bus marker.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_query::{DirectQueryBus, Query, QueryBus, QueryDispatchRequest, QueryError, QueryExecuteRequest, QueryResultResponse};
+use edge_application_query::{DirectQueryBus, Query, QueryBus, QueryDispatchRequest, QueryError, QueryExecuteRequest, QueryResultResponse};
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 

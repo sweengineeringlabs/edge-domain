@@ -1,19 +1,19 @@
 //! Integration tests — [`IntoHandler`] extension-trait contract.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_command::NoopCommandBus;
-use edge_domain_handler::{
+use edge_application_command::NoopCommandBus;
+use edge_application_handler::{
     ExecutionRequest, Handler, HandlerContext, IdRequest, IntoHandler, IntoHandlerRequest,
     ObserverContextAdapter, Validator, ValidatorRequest, INTO_HANDLER_SVC,
 };
-use edge_domain_observer::StdObserveFactory;
-use edge_domain_service::{NameRequest, NameResponse, Service, ServiceError};
+use edge_application_observer::StdObserveFactory;
+use edge_application_service::{NameRequest, NameResponse, Service, ServiceError};
 use edge_security_runtime::SecurityContext;
 use futures::future::BoxFuture;
 
 fn make_ctx<'a>(
     security: &'a SecurityContext,
-    observer: &'a ObserverContextAdapter<'a, dyn edge_domain_observer::ObserverContext>,
+    observer: &'a ObserverContextAdapter<'a, dyn edge_application_observer::ObserverContext>,
 ) -> HandlerContext<'a> {
     HandlerContext {
         security,

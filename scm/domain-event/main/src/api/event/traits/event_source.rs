@@ -4,7 +4,7 @@ use std::future::Future;
 use std::pin::Pin;
 
 use crate::api::event::errors::EventError;
-use crate::api::event::types::{EventSourceRecvNextRequest, EventSourceRecvNextResponse};
+use crate::api::event::dto::{EventSourceRecvNextRequest, EventSourceRecvNextResponse};
 
 /// A pull-based source of [`DomainEvent`](super::DomainEvent) values.
 ///

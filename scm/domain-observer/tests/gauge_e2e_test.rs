@@ -1,6 +1,6 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_observer::{GaugeLookupRequest, GaugeSetRequest, StdObserveFactory};
+use edge_application_observer::{GaugeLookupRequest, GaugeSetRequest, StdObserveFactory};
 
 // --- set ---
 

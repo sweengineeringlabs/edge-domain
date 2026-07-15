@@ -8,7 +8,7 @@ use thiserror::Error;
 /// # Examples
 ///
 /// ```rust
-/// use edge_domain_policy::PolicyError;
+/// use edge_application_policy::PolicyError;
 ///
 /// let v = PolicyError::new("spending-limit", "transfer of 500 exceeds daily limit of 200");
 /// assert_eq!(v.policy, "spending-limit");

@@ -1,6 +1,6 @@
 //! Tests for [`RegisterServiceResponse`] — zero-sized marker type.
 
-use edge_domain_service::RegisterServiceResponse;
+use edge_application_service::RegisterServiceResponse;
 use std::mem::size_of;
 
 /// @covers: RegisterServiceResponse — constructible

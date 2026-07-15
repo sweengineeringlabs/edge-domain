@@ -1,8 +1,8 @@
-//! `NoopSaga` — SEA Rule 121 api/core mirror.
-//!
-//! This path-level mirror lets the structural auditor match
-//! `core/saga/noop/saga.rs` to an api counterpart.
-
-/// SEA Rule 121 marker — path co-location sentinel for
-/// [`crate::api::saga::types::NoopSaga`].
-pub(crate) const _RULE_121: () = ();
+/// A no-op [`Saga`](crate::api::saga::traits::Saga) that never handles events.
+///
+/// Useful as a placeholder or test double where a concrete `Saga` type is
+/// required but no actual processing should occur.
+#[derive(Default)]
+pub struct NoopSaga {
+    pub(crate) complete: bool,
+}

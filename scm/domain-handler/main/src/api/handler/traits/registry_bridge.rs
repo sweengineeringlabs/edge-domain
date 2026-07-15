@@ -1,8 +1,8 @@
 //! [`RegistryBridge`] — bulk-transfers services from a [`ServiceRegistry`] into a [`HandlerRegistry`].
 
 use crate::api::handler::errors::HandlerError;
-use crate::api::handler::types::std_registry_bridge::StdRegistryBridge;
-use crate::api::handler::types::{BridgeRequest, BridgeResponse};
+use crate::api::handler::dto::{BridgeRequest, BridgeResponse};
+use crate::api::handler::std_registry_bridge::StdRegistryBridge;
 
 /// Bridges a [`ServiceRegistry`](super::ServiceRegistry) into a
 /// [`HandlerRegistry`](super::traits::HandlerRegistry) by wrapping each registered

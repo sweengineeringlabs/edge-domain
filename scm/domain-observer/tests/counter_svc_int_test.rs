@@ -1,4 +1,4 @@
-use edge_domain_observer::COUNTER_SVC;
+use edge_application_observer::COUNTER_SVC;
 
 #[test]
 fn test_counter_svc_key_non_empty_happy() {

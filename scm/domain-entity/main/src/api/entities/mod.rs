@@ -1,0 +1,9 @@
+pub mod dto;
+pub mod errors;
+pub mod traits;
+pub use dto::IdRequest;
+pub use dto::IdResponse;
+pub use dto::ValidationRequest;
+pub use dto::ValidationResponse;
+pub use errors::EntityError;
+pub use traits::Entity;

@@ -1,9 +1,9 @@
 //! Integration tests — `SecurityContext` → `SecurityPrincipal` bridge.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_command::DirectCommandBus;
-use edge_domain_handler::{HandlerContext, ObserverContextAdapter, SecurityPrincipal};
-use edge_domain_observer::StdObserveFactory;
+use edge_application_command::DirectCommandBus;
+use edge_application_handler::{HandlerContext, ObserverContextAdapter, SecurityPrincipal};
+use edge_application_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
 
 fn assert_security_principal<T: SecurityPrincipal>(_: &T) {}

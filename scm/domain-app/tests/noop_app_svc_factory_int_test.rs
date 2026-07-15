@@ -1,7 +1,7 @@
 //! Integration tests — `NoopAppSvcFactory` type.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_app::{
+use edge_application_app::{
     AppServiceProvider, ApplicationBuildRequest, NameRequest, NoopAppSvcFactory, ProviderBuildRequest,
 };
 

@@ -1,6 +1,6 @@
 //! Integration tests — `REGISTRY_BRIDGE_SVC` constant.
 
-use edge_domain_handler::REGISTRY_BRIDGE_SVC;
+use edge_application_handler::REGISTRY_BRIDGE_SVC;
 
 /// @covers: REGISTRY_BRIDGE_SVC — correct service identity value
 #[test]

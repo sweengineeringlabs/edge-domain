@@ -1,7 +1,7 @@
 //! SAF facade tests — `Gauge` trait.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_handler::{Gauge, GaugeSetRequest, GaugeSetResponse, HandlerError};
+use edge_application_handler::{Gauge, GaugeSetRequest, GaugeSetResponse, HandlerError};
 
 struct OkGauge;
 impl Gauge for OkGauge {

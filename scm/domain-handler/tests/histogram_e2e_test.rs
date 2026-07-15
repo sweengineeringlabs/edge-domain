@@ -1,7 +1,7 @@
 //! SAF facade tests — `Histogram` trait.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_handler::{
+use edge_application_handler::{
     HandlerError, Histogram, HistogramRecordRequest, HistogramRecordResponse,
 };
 

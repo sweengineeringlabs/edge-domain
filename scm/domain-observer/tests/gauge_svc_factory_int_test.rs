@@ -1,4 +1,4 @@
-use edge_domain_observer::GAUGE_SVC_FACTORY;
+use edge_application_observer::GAUGE_SVC_FACTORY;
 
 #[test]
 fn test_gauge_svc_factory_constant_value_happy() {

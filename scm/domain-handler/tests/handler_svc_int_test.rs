@@ -2,12 +2,12 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use async_trait::async_trait;
-use edge_domain_command::{CommandBus, DirectCommandBus};
-use edge_domain_handler::{
+use edge_application_command::{CommandBus, DirectCommandBus};
+use edge_application_handler::{
     CommandBusAdapter, ExecutionRequest, Handler, HandlerContext, HandlerError, HealthCheckRequest,
     IdRequest, ObserverContextAdapter, PatternRequest,
 };
-use edge_domain_observer::{ObserverContext, StdObserveFactory};
+use edge_application_observer::{ObserverContext, StdObserveFactory};
 use edge_security_runtime::SecurityContext;
 use futures::executor::block_on;
 
@@ -18,16 +18,16 @@ impl Handler for OkHandler {
     type Request = String;
     type Response = String;
 
-    fn id(&self, _req: IdRequest) -> Result<edge_domain_handler::IdResponse, HandlerError> {
-        Ok(edge_domain_handler::IdResponse {
+    fn id(&self, _req: IdRequest) -> Result<edge_application_handler::IdResponse, HandlerError> {
+        Ok(edge_application_handler::IdResponse {
             id: "ok-handler".to_string(),
         })
     }
     fn pattern(
         &self,
         _req: PatternRequest,
-    ) -> Result<edge_domain_handler::PatternResponse, HandlerError> {
-        Ok(edge_domain_handler::PatternResponse {
+    ) -> Result<edge_application_handler::PatternResponse, HandlerError> {
+        Ok(edge_application_handler::PatternResponse {
             pattern: "/ok".to_string(),
         })
     }
@@ -62,8 +62,8 @@ impl Handler for UnhealthyHandler {
     async fn health_check(
         &self,
         _req: HealthCheckRequest,
-    ) -> Result<edge_domain_handler::HealthCheckResponse, HandlerError> {
-        Ok(edge_domain_handler::HealthCheckResponse { healthy: false })
+    ) -> Result<edge_application_handler::HealthCheckResponse, HandlerError> {
+        Ok(edge_application_handler::HealthCheckResponse { healthy: false })
     }
 }
 

@@ -1,7 +1,7 @@
 //! Integration tests for `OutboundRegisterResponse`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::OutboundRegisterResponse;
+use edge_application::OutboundRegisterResponse;
 
 /// @covers: OutboundRegisterResponse
 #[test]

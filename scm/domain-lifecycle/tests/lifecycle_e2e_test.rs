@@ -2,7 +2,7 @@
 // @allow: no_mocks_in_integration — ManagedLifecycle is the production in-process reference impl, not a test double
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_lifecycle::{
+use edge_application_lifecycle::{
     Lifecycle, LifecycleError, LifecycleIsInRequest, LifecycleStateRequest,
     LifecycleTransitionRequest, ManagedLifecycle, PermissivePolicy, TransitionAllowedRequest,
     TransitionAllowedResponse, TransitionPolicy, LIFECYCLE_SVC,

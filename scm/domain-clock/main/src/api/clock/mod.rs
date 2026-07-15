@@ -1,12 +1,14 @@
+pub mod dto;
 pub mod errors;
+mod fixed_clock;
+mod system_clock;
 pub mod traits;
-pub mod types;
 
+pub use dto::ElapsedSinceEpochRequest;
+pub use dto::ElapsedSinceEpochResponse;
+pub use dto::NowRequest;
+pub use dto::NowResponse;
 pub use errors::ClockError;
+pub use fixed_clock::FixedClock;
+pub use system_clock::SystemClock;
 pub use traits::Clock;
-pub use types::ElapsedSinceEpochRequest;
-pub use types::ElapsedSinceEpochResponse;
-pub use types::FixedClock;
-pub use types::NowRequest;
-pub use types::NowResponse;
-pub use types::SystemClock;

@@ -1,12 +1,12 @@
 //! Layer-level coverage for the small request/response value types declared under
-//! `api/clock/types/` that have no dedicated per-type test file (SEA layer test
+//! `api/clock/dto/` that have no dedicated per-type test file (SEA layer test
 //! coverage, `sea_layer_test_coverage`). Each test constructs the type through the
 //! crate's public API and asserts on its real shape or field values.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::time::{Duration, SystemTime};
 
-use edge_domain_clock::{ElapsedSinceEpochRequest, ElapsedSinceEpochResponse, NowRequest, NowResponse};
+use edge_application_clock::{ElapsedSinceEpochRequest, ElapsedSinceEpochResponse, NowRequest, NowResponse};
 
 /// @covers: ElapsedSinceEpochRequest
 #[test]

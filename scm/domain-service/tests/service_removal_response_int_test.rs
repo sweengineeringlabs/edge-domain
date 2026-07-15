@@ -1,6 +1,6 @@
 //! Tests for [`ServiceRemovalResponse`] — service removal response.
 
-use edge_domain_service::ServiceRemovalResponse;
+use edge_application_service::ServiceRemovalResponse;
 
 /// @covers: ServiceRemovalResponse — service was present
 #[test]

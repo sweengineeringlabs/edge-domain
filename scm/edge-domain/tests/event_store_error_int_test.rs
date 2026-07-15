@@ -1,5 +1,6 @@
 //! Coverage for api/event/errors/event/event_store_error.rs
-use edge_domain::EventStoreError;
+#![cfg(feature = "event")]
+use edge_application::EventStoreError;
 
 #[test]
 fn test_event_store_error_unavailable_carries_message() {

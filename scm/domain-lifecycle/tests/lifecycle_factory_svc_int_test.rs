@@ -1,7 +1,7 @@
 //! SAF facade tests — `ManagedLifecycle` construction via `PermissivePolicy`/custom policies.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_lifecycle::{
+use edge_application_lifecycle::{
     Lifecycle, LifecycleError, LifecycleStateRequest, LifecycleTransitionRequest, ManagedLifecycle,
     PermissivePolicy, TransitionAllowedRequest, TransitionAllowedResponse, TransitionPolicy,
 };

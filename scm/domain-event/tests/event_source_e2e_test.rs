@@ -1,7 +1,7 @@
 //! SAF facade tests — `EventSource` trait via `ClosedEventSource`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_event::{ClosedEventSource, EventError, EventSource, EventSourceRecvNextRequest};
+use edge_application_event::{ClosedEventSource, EventError, EventSource, EventSourceRecvNextRequest};
 
 /// @covers: ClosedEventSource::recv_next — returns Unavailable immediately
 #[test]

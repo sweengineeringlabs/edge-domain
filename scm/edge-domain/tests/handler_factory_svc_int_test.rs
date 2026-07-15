@@ -1,14 +1,15 @@
 //! SAF facade smoke test — `Handler` factory (`Domain.echo_handler`) is exported
 //! from the crate root.
+#![cfg(all(feature = "command", feature = "handler"))]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::DirectCommandBusRequest;
-use edge_domain::DomainRuntime;
-use edge_domain::{Domain, Handler, HandlerContext};
-use edge_domain_handler::{
+use edge_application::DirectCommandBusRequest;
+use edge_application::DomainRuntime;
+use edge_application::{Domain, Handler, HandlerContext};
+use edge_application_handler::{
     CommandBusAdapter, ExecutionRequest, IdRequest, ObserverContextAdapter, PatternRequest,
 };
-use edge_domain_observer::StdObserveFactory;
+use edge_application_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
 use futures::executor::block_on;
 

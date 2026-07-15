@@ -2,7 +2,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
-use edge_domain_event::{
+use edge_application_event::{
     DomainEvent, EventBus, EventBusPublishRequest, EventBusSubscribeRequest, EventError,
     EventSource, EventSourceRecvNextRequest, NoopEventBus,
 };

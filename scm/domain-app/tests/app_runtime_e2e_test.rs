@@ -1,6 +1,6 @@
 //! Integration tests — `AppRuntime` trait.
 
-use edge_domain_app::{
+use edge_application_app::{
     AppError, AppRuntime, ApplicationBuildRequest, ApplicationBuildResponse, ApplicationRunRequest,
     Bootstrap, NoopAppBootstrap, NoopAppRuntime, RuntimeBootRequest, RuntimeBootResponse,
 };

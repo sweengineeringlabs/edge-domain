@@ -1,6 +1,6 @@
 use crate::api::projection::errors::ProjectionError;
 use crate::api::projection::traits::ProjectionEvent;
-use crate::api::projection::types::{
+use crate::api::projection::dto::{
     ProjectionApplyRequest, ProjectionReadModelRequest, ProjectionReadModelResponse, TryDrainRequest,
     TryDrainResponse,
 };

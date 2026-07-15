@@ -1,4 +1,4 @@
-use edge_domain_event::EVENT_BUS_SVC_FACTORY;
+use edge_application_event::EVENT_BUS_SVC_FACTORY;
 
 #[test]
 fn test_event_bus_svc_factory_constant_value_happy() {

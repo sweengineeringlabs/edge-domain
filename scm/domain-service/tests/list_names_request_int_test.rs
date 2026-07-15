@@ -1,6 +1,6 @@
 //! Tests for [`ListNamesRequest`] — zero-sized marker type.
 
-use edge_domain_service::ListNamesRequest;
+use edge_application_service::ListNamesRequest;
 use std::mem::size_of;
 
 /// @covers: ListNamesRequest — constructible

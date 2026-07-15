@@ -2,10 +2,10 @@
 //! (its only public construction path).
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_handler::{
+use edge_application_handler::{
     ObserverContext, SpanFinishRequest, SpanFinishResponse, SpanStartRequest, TracerRequest,
 };
-use edge_domain_observer::StdObserveFactory;
+use edge_application_observer::StdObserveFactory;
 
 /// @covers: LocalHandlerTracerRef::start_span — starts a span through the borrowed real tracer
 #[test]

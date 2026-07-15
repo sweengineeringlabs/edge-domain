@@ -1,7 +1,7 @@
 //! Rule-222 coverage for [`ObserveBootstrap`] trait fn `bootstrap_name`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_observer::{BootstrapNameRequest, ObserveBootstrap, StdObserveFactory};
+use edge_application_observer::{BootstrapNameRequest, ObserveBootstrap, StdObserveFactory};
 
 /// @covers: ObserveBootstrap::bootstrap_name
 #[test]

@@ -1,1 +1,1 @@
-mod in_memory_registry;
+mod memory_registry;

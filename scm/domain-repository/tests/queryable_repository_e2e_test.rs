@@ -1,14 +1,14 @@
-//! SAF facade tests — `QueryableRepository` trait via `InMemoryRepository`.
-// @allow: no_mocks_in_integration — InMemoryRepository is the production-shipped reference impl, not a test double
+//! SAF facade tests — `QueryableRepository` trait via `MemoryRepository`.
+// @allow: no_mocks_in_integration — MemoryRepository is the production-shipped reference impl, not a test double
 
-use edge_domain_repository::{
-    InMemoryRepository, QueryableRepository, Repository, RepositoryError, RepositorySaveRequest,
+use edge_application_repository::{
+    MemoryRepository, QueryableRepository, Repository, RepositoryError, RepositorySaveRequest,
     Spec, SpecMatchesRequest, SpecMatchesResponse, SpecRequest,
 };
 use futures::executor::block_on;
 
-fn make() -> InMemoryRepository<String, u32> {
-    InMemoryRepository::new()
+fn make() -> MemoryRepository<String, u32> {
+    MemoryRepository::new()
 }
 
 struct StartsWithA;

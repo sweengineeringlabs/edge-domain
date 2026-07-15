@@ -1,4 +1,4 @@
-use edge_domain_query::{QUERY_SVC, QUERY_SVC_FACTORY};
+use edge_application_query::{QUERY_SVC, QUERY_SVC_FACTORY};
 
 #[test]
 fn test_query_svc_constant_value_happy() {

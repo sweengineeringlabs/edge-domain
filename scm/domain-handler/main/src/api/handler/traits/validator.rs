@@ -1,7 +1,7 @@
 //! [`Validator`] — validates a service-backed handler before registration.
 
 use crate::api::handler::errors::HandlerError;
-use crate::api::handler::types::ValidatorRequest;
+use crate::api::handler::dto::ValidatorRequest;
 
 /// Validates a service-backed handler's configuration before it enters the dispatch pipeline.
 pub trait Validator {

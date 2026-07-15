@@ -3,7 +3,7 @@
 use std::future::Future;
 use std::pin::Pin;
 
-use crate::api::command::types::CommandDispatchRequest;
+use crate::api::command::dto::CommandDispatchRequest;
 use crate::api::command::CommandError;
 
 /// Dispatches [`Command`](super::command::Command) instances to their executors.

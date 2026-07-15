@@ -1,4 +1,4 @@
-use edge_domain_handler::INTO_HANDLER_SVC_FACTORY;
+use edge_application_handler::INTO_HANDLER_SVC_FACTORY;
 
 #[test]
 fn test_into_handler_svc_factory_constant_value_happy() {

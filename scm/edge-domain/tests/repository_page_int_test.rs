@@ -1,16 +1,17 @@
 //! Integration tests for `Repository` pagination — `list_page`, `exists`, `count`.
-// @allow: no_mocks_in_integration — InMemoryRepository is the production-shipped reference impl, not a test double
+#![cfg(feature = "repository")]
+// @allow: no_mocks_in_integration — MemoryRepository is the production-shipped reference impl, not a test double
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{
-    InMemoryRepository, Page, Repository, RepositoryIdRequest, RepositoryListPageRequest,
+use edge_application::{
+    MemoryRepository, Page, Repository, RepositoryIdRequest, RepositoryListPageRequest,
     RepositoryListRequest, RepositorySaveRequest,
 };
 
 /// @covers: list_page
 #[tokio::test]
 async fn test_repository_list_page_returns_correct_window() {
-    let repo = InMemoryRepository::<String, u32>::new();
+    let repo = MemoryRepository::<String, u32>::new();
     for i in 0..10u32 {
         repo.save(RepositorySaveRequest {
             id: i,
@@ -38,7 +39,7 @@ async fn test_repository_list_page_returns_correct_window() {
 /// @covers: list_page
 #[tokio::test]
 async fn test_repository_list_page_last_page_has_no_more() {
-    let repo = InMemoryRepository::<String, u32>::new();
+    let repo = MemoryRepository::<String, u32>::new();
     for i in 0..5u32 {
         repo.save(RepositorySaveRequest {
             id: i,
@@ -64,7 +65,7 @@ async fn test_repository_list_page_last_page_has_no_more() {
 /// @covers: list_page
 #[tokio::test]
 async fn test_repository_list_page_beyond_end_returns_empty() {
-    let repo = InMemoryRepository::<String, u32>::new();
+    let repo = MemoryRepository::<String, u32>::new();
     repo.save(RepositorySaveRequest {
         id: 1u32,
         entity: "a".into(),
@@ -87,7 +88,7 @@ async fn test_repository_list_page_beyond_end_returns_empty() {
 /// @covers: exists
 #[tokio::test]
 async fn test_repository_exists_returns_true_for_saved_entity() {
-    let repo = InMemoryRepository::<String, u32>::new();
+    let repo = MemoryRepository::<String, u32>::new();
     repo.save(RepositorySaveRequest {
         id: 42u32,
         entity: "hello".into(),
@@ -105,7 +106,7 @@ async fn test_repository_exists_returns_true_for_saved_entity() {
 /// @covers: exists
 #[tokio::test]
 async fn test_repository_exists_returns_false_for_missing_entity() {
-    let repo = InMemoryRepository::<String, u32>::new();
+    let repo = MemoryRepository::<String, u32>::new();
     assert!(
         !repo
             .exists(RepositoryIdRequest { id: &99u32 })
@@ -118,14 +119,14 @@ async fn test_repository_exists_returns_false_for_missing_entity() {
 /// @covers: count
 #[tokio::test]
 async fn test_repository_count_returns_zero_when_empty() {
-    let repo = InMemoryRepository::<String, u32>::new();
+    let repo = MemoryRepository::<String, u32>::new();
     assert_eq!(repo.count(RepositoryListRequest).await.unwrap().count, 0);
 }
 
 /// @covers: count
 #[tokio::test]
 async fn test_repository_count_reflects_saved_entities() {
-    let repo = InMemoryRepository::<String, u32>::new();
+    let repo = MemoryRepository::<String, u32>::new();
     repo.save(RepositorySaveRequest {
         id: 1u32,
         entity: "a".into(),
@@ -144,7 +145,7 @@ async fn test_repository_count_reflects_saved_entities() {
 /// @covers: count
 #[tokio::test]
 async fn test_repository_count_decrements_after_delete() {
-    let repo = InMemoryRepository::<String, u32>::new();
+    let repo = MemoryRepository::<String, u32>::new();
     repo.save(RepositorySaveRequest {
         id: 1u32,
         entity: "a".into(),

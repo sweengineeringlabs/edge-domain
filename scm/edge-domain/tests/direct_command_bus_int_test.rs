@@ -1,9 +1,10 @@
 //! Coverage for api/command/direct_command_bus.rs and api/command/types/direct_command_bus.rs
+#![cfg(feature = "command")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
-use edge_domain::DirectCommandBusRequest;
-use edge_domain::DomainRuntime;
-use edge_domain::{CommandBus, Domain};
-use edge_domain_command::DirectCommandBus;
+use edge_application::DirectCommandBusRequest;
+use edge_application::DomainRuntime;
+use edge_application::{CommandBus, Domain};
+use edge_application_command::DirectCommandBus;
 use std::sync::Arc;
 
 #[test]

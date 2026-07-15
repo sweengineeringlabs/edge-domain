@@ -1,7 +1,7 @@
 //! SAF facade tests — `CompositePolicy` construction.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_policy::{CompositePolicy, Policy, PolicyEvaluateRequest, PolicyNameRequest, PolicyNameResponse, PolicyError};
+use edge_application_policy::{CompositePolicy, Policy, PolicyEvaluateRequest, PolicyNameRequest, PolicyNameResponse, PolicyError};
 
 struct AlwaysFails;
 impl Policy for AlwaysFails {

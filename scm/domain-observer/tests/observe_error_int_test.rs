@@ -1,4 +1,4 @@
-use edge_domain_observer::ObserveError;
+use edge_application_observer::ObserveError;
 
 #[test]
 fn test_observe_error_backend_unavailable_display_contains_message() {

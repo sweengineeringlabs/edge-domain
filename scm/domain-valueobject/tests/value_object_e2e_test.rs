@@ -5,7 +5,7 @@
     clippy::default_constructed_unit_structs
 )]
 
-use edge_domain_valueobject::{NonEmptyString, ValidationRequest, ValueObject, ValueObjectError};
+use edge_application_valueobject::{NonEmptyString, ValidationRequest, ValueObject, ValueObjectError};
 
 fn accepts_value_object<V: ValueObject>(_v: V) {}
 
@@ -59,7 +59,7 @@ fn test_value_object_svc_non_empty_string_accessible_from_crate_root_happy() {
 /// @covers: ValueObjectError — error type is accessible from crate root
 #[test]
 fn test_value_object_svc_value_object_error_accessible_via_public_api_edge() {
-    use edge_domain_valueobject::ValueObjectError;
+    use edge_application_valueobject::ValueObjectError;
     let e = ValueObjectError::Empty;
     assert_eq!(e.to_string(), "value must not be empty");
 }

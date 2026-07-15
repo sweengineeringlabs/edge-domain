@@ -1,6 +1,6 @@
 //! # edge-domain-repository
 //!
-//! The `Repository` port contract — data access with InMemoryRepository, Page, and Spec.
+//! The `Repository` port contract — data access with MemoryRepository, Page, and Spec.
 
 #![deny(unsafe_code)]
 #![warn(missing_docs)]
@@ -12,7 +12,7 @@ mod saf;
 
 pub use api::AlwaysMatchSpec;
 pub use api::CountByResponse;
-pub use api::InMemoryRepository;
+pub use api::MemoryRepository;
 pub use api::MatchingEntitiesResponse;
 pub use api::MatchingEntityResponse;
 pub use api::Page;

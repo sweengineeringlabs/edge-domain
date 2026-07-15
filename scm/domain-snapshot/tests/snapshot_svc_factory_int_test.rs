@@ -1,4 +1,4 @@
-use edge_domain_snapshot::{SNAPSHOT_SVC, SNAPSHOT_SVC_FACTORY};
+use edge_application_snapshot::{SNAPSHOT_SVC, SNAPSHOT_SVC_FACTORY};
 
 #[test]
 fn test_snapshot_svc_constant_value_happy() {

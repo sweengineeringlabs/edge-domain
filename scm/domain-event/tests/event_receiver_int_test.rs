@@ -2,15 +2,15 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
-use edge_domain_event::{
+use edge_application_event::{
     DomainEvent, EventBus, EventBusPublishRequest, EventBusSubscribeRequest, EventError,
     EventSource, EventSourceRecvNextRequest, EventTypeRequest, InProcessEventBus,
 };
 
 struct PingEvt;
 impl DomainEvent for PingEvt {
-    fn event_type(&self, _req: EventTypeRequest) -> Result<edge_domain_event::EventTypeResponse<'_>, EventError> {
-        Ok(edge_domain_event::EventTypeResponse { event_type: "ping" })
+    fn event_type(&self, _req: EventTypeRequest) -> Result<edge_application_event::EventTypeResponse<'_>, EventError> {
+        Ok(edge_application_event::EventTypeResponse { event_type: "ping" })
     }
 }
 
@@ -33,7 +33,7 @@ fn test_event_receiver_recv_returns_published_event_happy() {
 /// @covers: EventSource::recv_next — closed bus returns Unavailable error
 #[test]
 fn test_event_receiver_recv_on_closed_bus_returns_unavailable_error() {
-    use edge_domain_event::InProcessEventBus;
+    use edge_application_event::InProcessEventBus;
     let rt = tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()
@@ -50,7 +50,7 @@ fn test_event_receiver_recv_on_closed_bus_returns_unavailable_error() {
 /// @covers: EventSource::recv_next — noop bus receiver returns Unavailable immediately
 #[test]
 fn test_event_receiver_recv_noop_bus_returns_unavailable_edge() {
-    use edge_domain_event::NoopEventBus;
+    use edge_application_event::NoopEventBus;
     let mut rx = NoopEventBus.subscribe(EventBusSubscribeRequest).unwrap().receiver;
     let result = futures::executor::block_on(rx.recv_next(EventSourceRecvNextRequest));
     assert!(matches!(result, Err(EventError::Unavailable(_))));

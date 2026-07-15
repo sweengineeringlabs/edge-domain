@@ -2,8 +2,8 @@
 //! `CommandBus::dispatch` blanket impl (the only public entry point that constructs it).
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_command::DirectCommandBus;
-use edge_domain_handler::{
+use edge_application_command::DirectCommandBus;
+use edge_application_handler::{
     Command, CommandBus, CommandDispatchRequest, CommandExecutionRequest, HandlerError,
 };
 use futures::executor::block_on;
@@ -61,7 +61,7 @@ fn test_local_command_as_foreign_wraps_failing_command_error() {
 fn test_local_command_as_foreign_default_name_preserved_edge() {
     assert_eq!(
         OkCmd
-            .name(edge_domain_handler::CommandNameRequest)
+            .name(edge_application_handler::CommandNameRequest)
             .unwrap()
             .name,
         "command"

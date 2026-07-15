@@ -1,7 +1,7 @@
 //! `LogDrain` — structured log emission contract.
 
 use crate::api::observe::errors::ObserveError;
-use crate::api::observe::types::{LogEmitRequest, LogEmitResponse};
+use crate::api::observe::dto::{LogEmitRequest, LogEmitResponse};
 
 /// Receives structured log records emitted by domain handlers.
 pub trait LogDrain: Send + Sync {

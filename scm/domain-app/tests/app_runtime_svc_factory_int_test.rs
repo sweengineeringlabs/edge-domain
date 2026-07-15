@@ -1,6 +1,6 @@
 //! Integration tests — `APP_RUNTIME_SVC_FACTORY` constant.
 
-use edge_domain_app::APP_RUNTIME_SVC_FACTORY;
+use edge_application_app::APP_RUNTIME_SVC_FACTORY;
 
 /// @covers: APP_RUNTIME_SVC_FACTORY — correct factory identity value
 #[test]

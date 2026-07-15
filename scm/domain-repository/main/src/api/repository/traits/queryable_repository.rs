@@ -5,7 +5,7 @@ use std::pin::Pin;
 
 use crate::api::repository::errors::RepositoryError;
 use crate::api::repository::traits::Repository;
-use crate::api::repository::types::{
+use crate::api::repository::dto::{
     CountByResponse, MatchingEntitiesResponse, MatchingEntityResponse, RepositoryListRequest,
     SpecMatchesRequest, SpecRequest,
 };
@@ -76,7 +76,7 @@ where
 mod tests {
     use super::*;
     use crate::api::repository::traits::Spec;
-    use crate::api::repository::types::{
+    use crate::api::repository::dto::{
         RepositoryDeleteResponse, RepositoryFindResponse, RepositoryIdRequest,
         RepositoryListResponse, RepositorySaveRequest, SpecMatchesResponse,
     };

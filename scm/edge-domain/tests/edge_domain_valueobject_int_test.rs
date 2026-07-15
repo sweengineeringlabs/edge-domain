@@ -2,7 +2,7 @@
 //! dependency — verifying the sub-crate contract is accessible end-to-end.
 #![allow(clippy::unwrap_used)]
 
-use edge_domain_valueobject::{NonEmptyString, ValueObject};
+use edge_application_valueobject::{NonEmptyString, ValueObject};
 
 fn accepts_value_object<V: ValueObject>(_v: V) {}
 

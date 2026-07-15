@@ -1,4 +1,4 @@
-use edge_domain_lifecycle::{TRANSITION_POLICY_SVC, TRANSITION_POLICY_SVC_FACTORY};
+use edge_application_lifecycle::{TRANSITION_POLICY_SVC, TRANSITION_POLICY_SVC_FACTORY};
 
 #[test]
 fn test_transition_policy_svc_constant_value_happy() {

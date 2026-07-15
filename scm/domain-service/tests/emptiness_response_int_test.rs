@@ -1,6 +1,6 @@
 //! Tests for [`EmptinessResponse`] — emptiness wrapper response.
 
-use edge_domain_service::EmptinessResponse;
+use edge_application_service::EmptinessResponse;
 
 /// @covers: EmptinessResponse — empty registry
 #[test]

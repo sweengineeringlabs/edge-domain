@@ -2,8 +2,8 @@
 //! (its only public construction path).
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_handler::{DrainRequest, LogEmitRequest, LogEmitResponse, ObserverContext};
-use edge_domain_observer::StdObserveFactory;
+use edge_application_handler::{DrainRequest, LogEmitRequest, LogEmitResponse, ObserverContext};
+use edge_application_observer::StdObserveFactory;
 
 /// @covers: LocalLogDrainRef::emit — emits through the borrowed real drain
 #[test]

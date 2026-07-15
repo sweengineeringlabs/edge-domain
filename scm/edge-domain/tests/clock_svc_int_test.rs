@@ -1,10 +1,11 @@
 //! Integration tests for `Clock`, `SystemClock`, and `FixedClock`.
+#![cfg(feature = "clock")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::time::{Duration, SystemTime};
 
-use edge_domain::{Clock, FixedClock, SystemClock};
-use edge_domain_clock::NowRequest;
+use edge_application::{Clock, FixedClock, SystemClock};
+use edge_application_clock::NowRequest;
 
 /// @covers: Clock::now (SystemClock)
 #[test]

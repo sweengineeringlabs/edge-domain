@@ -10,7 +10,7 @@ mod api;
 mod core;
 mod saf;
 
-pub use api::InMemorySnapshotStore;
+pub use api::MemorySnapshotStore;
 pub use api::NoopSnapshot;
 pub use api::SnapshotAggregateIdRequest;
 pub use api::SnapshotAggregateIdResponse;

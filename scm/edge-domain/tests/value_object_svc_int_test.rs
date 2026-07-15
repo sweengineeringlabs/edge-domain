@@ -1,8 +1,9 @@
 //! SAF facade integration tests for `ValueObject` and `NonEmptyString`.
+#![cfg(feature = "valueobject")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::NonEmptyString;
-use edge_domain::ValueObject;
+use edge_application::NonEmptyString;
+use edge_application::ValueObject;
 
 fn accepts_value_object<V: ValueObject>(_v: V) {}
 

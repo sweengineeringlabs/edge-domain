@@ -1,7 +1,7 @@
 //! `Histogram` — latency / distribution metric.
 
 use crate::api::observe::errors::ObserveError;
-use crate::api::observe::types::{HistogramRecordRequest, HistogramRecordResponse};
+use crate::api::observe::dto::{HistogramRecordRequest, HistogramRecordResponse};
 
 /// A metric that records value distributions (e.g. latency in milliseconds).
 pub trait Histogram: Send + Sync {

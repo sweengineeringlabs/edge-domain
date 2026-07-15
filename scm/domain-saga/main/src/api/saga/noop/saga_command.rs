@@ -1,8 +1,6 @@
-//! `NoopSagaCommand` — SEA Rule 121 api/core mirror.
-//!
-//! This path-level mirror lets the structural auditor match
-//! `core/saga/noop/saga_command.rs` to an api counterpart.
+//! [`NoopSagaCommand`] — a no-op command for use with [`NoopSaga`](crate::api::saga::noop::NoopSaga).
 
-/// SEA Rule 121 marker — path co-location sentinel for
-/// [`crate::api::saga::types::NoopSagaCommand`].
-pub(crate) const _RULE_121: () = ();
+/// A no-op command that executes immediately with `Ok(())`.
+///
+/// Used as the `Command` associated type for [`NoopSaga`].
+pub struct NoopSagaCommand;

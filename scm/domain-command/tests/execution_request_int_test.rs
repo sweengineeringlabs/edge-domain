@@ -1,6 +1,6 @@
 //! Structural coverage for [`ExecutionRequest`].
 
-use edge_domain_command::ExecutionRequest;
+use edge_application_command::ExecutionRequest;
 
 /// @covers: ExecutionRequest
 #[test]

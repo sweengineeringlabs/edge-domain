@@ -1,7 +1,8 @@
 //! Integration tests for `NoopEventPublisherRequest`.
+#![cfg(feature = "event")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::NoopEventPublisherRequest;
+use edge_application::NoopEventPublisherRequest;
 
 /// @covers: NoopEventPublisherRequest
 #[test]

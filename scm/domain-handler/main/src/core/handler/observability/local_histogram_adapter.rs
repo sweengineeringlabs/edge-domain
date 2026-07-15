@@ -1,6 +1,6 @@
 //! [`LocalHistogramAdapter`] — wraps an owned real `Histogram` as a local [`Histogram`].
 
-use edge_domain_observer as obs;
+use edge_application_observer as obs;
 
 use super::into_handler_error::IntoHandlerError;
 use crate::api::{HandlerError, Histogram, HistogramRecordRequest, HistogramRecordResponse};

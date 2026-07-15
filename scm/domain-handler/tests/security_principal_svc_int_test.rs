@@ -1,6 +1,6 @@
 //! Integration tests — `SECURITY_PRINCIPAL_SVC` constant.
 
-use edge_domain_handler::SECURITY_PRINCIPAL_SVC;
+use edge_application_handler::SECURITY_PRINCIPAL_SVC;
 
 /// @covers: SECURITY_PRINCIPAL_SVC — correct service identity value
 #[test]

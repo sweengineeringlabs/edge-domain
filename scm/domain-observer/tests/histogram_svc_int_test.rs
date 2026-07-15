@@ -1,4 +1,4 @@
-use edge_domain_observer::HISTOGRAM_SVC;
+use edge_application_observer::HISTOGRAM_SVC;
 
 #[test]
 fn test_histogram_svc_key_non_empty_happy() {

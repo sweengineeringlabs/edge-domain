@@ -1,10 +1,14 @@
-//! `Page` — SEA Rule 121 api/core mirror.
-//!
-//! Provides a type alias so the structural auditor finds a substantive
-//! declaration at this path, mirroring the core implementation at
-//! `core/repository/page.rs`.
+//! `Page` — paginated result wrapper for repository list operations.
 
-/// Type alias for the paginated result wrapper, parameterised over the entity type.
-///
-/// Prefer this alias over naming `types::Page` directly in call sites.
-pub type Page<T> = crate::api::repository::types::page::Page<T>;
+/// A paginated slice of results from a repository list operation.
+#[derive(Debug, Clone)]
+pub struct Page<T> {
+    /// The items in this page.
+    pub items: Vec<T>,
+    /// Total number of matching entities across all pages.
+    pub total: usize,
+    /// The zero-based offset this page starts at.
+    pub offset: usize,
+    /// The maximum number of items per page that was requested.
+    pub limit: usize,
+}

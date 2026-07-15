@@ -4,7 +4,7 @@
 
 use std::sync::Arc;
 
-use edge_domain_handler::{
+use edge_application_handler::{
     DeregisterHandlerRequest, EmptinessRequest, ExecutionRequest, Handler, HandlerError,
     HandlerLookupRequest, HandlerRegistry, IdRequest, IdResponse, InProcessHandlerRegistry,
     LenRequest, ListIdsRequest, RegisterHandlerRequest,

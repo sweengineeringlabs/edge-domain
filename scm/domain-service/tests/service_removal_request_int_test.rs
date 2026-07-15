@@ -1,6 +1,6 @@
 //! Tests for [`ServiceRemovalRequest`] — service removal request.
 
-use edge_domain_service::ServiceRemovalRequest;
+use edge_application_service::ServiceRemovalRequest;
 
 /// @covers: ServiceRemovalRequest — constructible with name
 #[test]

@@ -2,10 +2,10 @@
 // @allow: no_mocks_in_integration
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_command::{ExecutionRequest, NameRequest};
-use edge_domain_event::{EventAggregateIdRequest, EventAggregateIdResponse, EventError};
-use edge_domain_saga::{
-    Command, CommandError, DomainEvent, InMemorySagaStore, NoopSaga, NoopSagaCommand,
+use edge_application_command::{ExecutionRequest, NameRequest};
+use edge_application_event::{EventAggregateIdRequest, EventAggregateIdResponse, EventError};
+use edge_application_saga::{
+    Command, CommandError, DomainEvent, MemorySagaStore, NoopSaga, NoopSagaCommand,
     NoopSagaEvent, Saga, SagaError, SagaGetRequest, SagaHandleRequest, SagaHandleResponse,
     SagaIsCompleteRequest, SagaIsCompleteResponse, SagaRegisterRequest, SagaStore,
 };
@@ -57,18 +57,18 @@ impl Saga for SimpleSaga {
     }
 }
 
-/// @covers: InMemorySagaStore::new
+/// @covers: MemorySagaStore::new
 #[test]
 fn test_in_memory_store_creates_empty_registry_happy() {
-    let reg = InMemorySagaStore::<SimpleSaga>::new();
+    let reg = MemorySagaStore::<SimpleSaga>::new();
     let id = "any".to_string();
     assert!(reg.get(SagaGetRequest { id: &id }).is_err());
 }
 
-/// @covers: InMemorySagaStore::new
+/// @covers: MemorySagaStore::new
 #[test]
 fn test_in_memory_store_accepts_registration_error() {
-    let mut reg = InMemorySagaStore::<SimpleSaga>::new();
+    let mut reg = MemorySagaStore::<SimpleSaga>::new();
     reg.register(SagaRegisterRequest {
         id: "s1".to_string(),
         saga: SimpleSaga,
@@ -76,11 +76,11 @@ fn test_in_memory_store_accepts_registration_error() {
     .expect("registration should succeed");
 }
 
-/// @covers: InMemorySagaStore::new
+/// @covers: MemorySagaStore::new
 #[test]
 fn test_in_memory_store_multiple_instances_are_independent_edge() {
-    let mut reg1 = InMemorySagaStore::<SimpleSaga>::new();
-    let reg2 = InMemorySagaStore::<SimpleSaga>::new();
+    let mut reg1 = MemorySagaStore::<SimpleSaga>::new();
+    let reg2 = MemorySagaStore::<SimpleSaga>::new();
     reg1.register(SagaRegisterRequest {
         id: "s1".to_string(),
         saga: SimpleSaga,
@@ -134,7 +134,7 @@ fn test_noop_event_creates_event_with_empty_aggregate_id_happy() {
 /// @covers: NoopSagaEvent
 #[test]
 fn test_noop_event_event_type_returns_default_error() {
-    use edge_domain_event::EventTypeRequest;
+    use edge_application_event::EventTypeRequest;
     let evt = NoopSagaEvent;
     assert_eq!(
         evt.event_type(EventTypeRequest).unwrap().event_type,

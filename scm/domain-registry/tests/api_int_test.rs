@@ -1,12 +1,12 @@
 //! Layer-level coverage for the small request/response value types declared under
-//! `api/registry/types/` that have no dedicated per-type test file (SEA layer test
+//! `api/registry/dto/` that have no dedicated per-type test file (SEA layer test
 //! coverage, `sea_layer_test_coverage`). Each test constructs the type through the
 //! crate's public API and asserts on its real shape or field values.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
 
-use edge_domain_registry::{
+use edge_application_registry::{
     DeregisterRequest, DeregisterResponse, EmptinessRequest, EmptinessResponse, LenRequest,
     LenResponse, ListIdsRequest, ListIdsResponse, RegisterRequest, RegisterResponse,
     RegistryLookupRequest, RegistryLookupResponse, TryRegisterRequest, TryRegisterResponse,

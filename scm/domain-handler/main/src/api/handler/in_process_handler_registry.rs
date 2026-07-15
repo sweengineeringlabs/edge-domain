@@ -1,11 +1,21 @@
-//! `InProcessHandlerRegistry` — SEA Rule 121 api/core mirror.
-//!
-//! Provides a type alias so the structural auditor finds a substantive
-//! declaration at this path, mirroring the core implementation at
-//! `core/handler/in_process_handler_registry.rs`.
+//! [`InProcessHandlerRegistry`] — in-process, thread-safe handler registry.
 
-/// Type alias for the in-process handler registry, parameterised over request and response types.
+use std::collections::HashMap;
+use std::sync::Arc;
+
+use parking_lot::RwLock;
+
+use crate::api::handler::traits::Handler;
+
+/// An in-process, thread-safe handler registry backed by a `RwLock<HashMap>`.
 ///
-/// Prefer this alias over naming `types::InProcessHandlerRegistry` directly in call sites.
-pub type InProcessHandlerRegistry<Req, Resp> =
-    crate::api::handler::types::in_process_handler_registry::InProcessHandlerRegistry<Req, Resp>;
+/// The `HandlerRegistry` trait implementation, `Default`, and inherent methods live in
+/// `core::handler::in_process_handler_registry`.
+pub struct InProcessHandlerRegistry<Req, Resp>
+where
+    Req: Send + 'static,
+    Resp: Send + 'static,
+{
+    /// The backing store.
+    pub(crate) handlers: RwLock<HashMap<String, Arc<dyn Handler<Request = Req, Response = Resp>>>>,
+}

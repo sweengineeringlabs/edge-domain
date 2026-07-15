@@ -1,6 +1,6 @@
 //! Tests for [`NameResponse`] — name wrapper response.
 
-use edge_domain_service::NameResponse;
+use edge_application_service::NameResponse;
 
 /// @covers: NameResponse — constructible with name
 #[test]

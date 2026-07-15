@@ -1,7 +1,7 @@
 //! Integration tests for `NoopQuery` — the no-op `Query` implementation.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_query::{NoopQuery, Query, QueryExecuteRequest, QueryNameRequest};
+use edge_application_query::{NoopQuery, Query, QueryExecuteRequest, QueryNameRequest};
 use futures::executor::block_on;
 
 /// @covers: NoopQuery::execute — always returns Ok(())

@@ -1,8 +1,8 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, unused_imports)]
 //! SAF facade smoke test — DomainExtension marker is exported from the crate root.
 
-use edge_domain::DomainExtension;
-use edge_domain::NoopDomainExtension;
+use edge_application::DomainExtension;
+use edge_application::NoopDomainExtension;
 
 fn requires_extension<E: DomainExtension>(_e: E) {}
 

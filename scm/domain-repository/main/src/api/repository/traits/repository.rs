@@ -4,8 +4,8 @@ use std::future::Future;
 use std::pin::Pin;
 
 use crate::api::repository::errors::RepositoryError;
-use crate::api::repository::types::Page;
-use crate::api::repository::types::{
+use crate::api::repository::page::Page;
+use crate::api::repository::dto::{
     RepositoryCountResponse, RepositoryDeleteResponse, RepositoryExistsResponse,
     RepositoryFindResponse, RepositoryIdRequest, RepositoryListPageRequest,
     RepositoryListPageResponse, RepositoryListRequest, RepositoryListResponse,

@@ -2,8 +2,8 @@
 // @allow: no_mocks_in_integration
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_command::{ExecutionRequest, NameRequest};
-use edge_domain_saga::{Command, NoopSagaCommand};
+use edge_application_command::{ExecutionRequest, NameRequest};
+use edge_application_saga::{Command, NoopSagaCommand};
 use futures::executor::block_on;
 
 /// @covers: execute

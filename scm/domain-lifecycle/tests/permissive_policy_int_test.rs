@@ -1,7 +1,7 @@
 //! Integration tests for `PermissivePolicy` — covers the types/ file directly.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_lifecycle::{PermissivePolicy, TransitionAllowedRequest, TransitionPolicy};
+use edge_application_lifecycle::{PermissivePolicy, TransitionAllowedRequest, TransitionPolicy};
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 enum S {

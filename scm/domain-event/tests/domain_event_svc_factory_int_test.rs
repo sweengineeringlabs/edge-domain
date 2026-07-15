@@ -1,4 +1,4 @@
-use edge_domain_event::DOMAIN_EVENT_SVC_FACTORY;
+use edge_application_event::DOMAIN_EVENT_SVC_FACTORY;
 
 #[test]
 fn test_domain_event_svc_factory_constant_value_happy() {

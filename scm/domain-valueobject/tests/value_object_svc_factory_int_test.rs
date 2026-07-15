@@ -1,4 +1,4 @@
-use edge_domain_valueobject::{VALUE_OBJECT_SVC, VALUE_OBJECT_SVC_FACTORY};
+use edge_application_valueobject::{VALUE_OBJECT_SVC, VALUE_OBJECT_SVC_FACTORY};
 
 #[test]
 fn test_value_object_svc_constant_value_happy() {

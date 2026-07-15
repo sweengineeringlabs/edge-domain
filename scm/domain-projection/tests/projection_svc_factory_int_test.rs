@@ -1,4 +1,4 @@
-use edge_domain_projection::{PROJECTION_SVC, PROJECTION_SVC_FACTORY};
+use edge_application_projection::{PROJECTION_SVC, PROJECTION_SVC_FACTORY};
 
 #[test]
 fn test_projection_svc_constant_value_happy() {

@@ -3,11 +3,11 @@
 
 use std::sync::Arc;
 
-use edge_domain_handler::{
+use edge_application_handler::{
     BridgeRequest, HandlerRegistry, InProcessHandlerRegistry, LenRequest, ListIdsRequest,
     RegistryBridge, StdRegistryBridge,
 };
-use edge_domain_service::{
+use edge_application_service::{
     NameRequest, NameResponse, RegisterServiceRequest, Service, ServiceError,
     ServiceRegistry as ServiceRegistryTrait, ServiceRegistryStore,
 };
