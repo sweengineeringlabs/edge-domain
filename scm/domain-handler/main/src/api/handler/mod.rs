@@ -1,6 +1,5 @@
 //! `Handler` theme — request/response execution port contracts.
 
-mod command_bridge;
 pub mod command_bus_adapter;
 pub mod dto;
 mod echo_handler;
