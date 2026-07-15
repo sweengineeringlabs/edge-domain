@@ -1,4 +1,5 @@
 //! Coverage for api/event/types/closed_event_source.rs
+#![cfg(feature = "event")]
 use edge_application::ClosedEventSource;
 
 #[test]

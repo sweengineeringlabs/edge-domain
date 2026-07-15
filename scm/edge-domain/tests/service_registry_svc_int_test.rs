@@ -1,5 +1,6 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, unused_imports)]
 //! SAF facade smoke test — ServiceRegistry is exported from the crate root.
+#![cfg(feature = "service")]
 
 use edge_application::Domain;
 use edge_application::Service;

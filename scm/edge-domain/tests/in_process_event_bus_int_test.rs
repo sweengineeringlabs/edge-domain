@@ -1,4 +1,5 @@
 //! Coverage for api/event/types/ins/in_process_event_bus.rs
+#![cfg(feature = "event")]
 #![allow(clippy::unwrap_used)]
 
 use edge_application::DomainRuntime;

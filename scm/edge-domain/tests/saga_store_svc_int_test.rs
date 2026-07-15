@@ -1,5 +1,6 @@
 //! Integration tests for `SagaStore` and the `new_in_memory_saga_store`
 //! SAF factory.
+#![cfg(all(feature = "event", feature = "command", feature = "saga"))]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application::{

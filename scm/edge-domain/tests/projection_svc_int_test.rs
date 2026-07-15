@@ -1,5 +1,6 @@
 //! SAF facade integration tests — `Projection` trait is exported from the
 //! crate root and implementable by downstream consumers.
+#![cfg(all(feature = "event", feature = "projection"))]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::time::SystemTime;

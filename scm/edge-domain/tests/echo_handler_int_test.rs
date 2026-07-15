@@ -1,4 +1,5 @@
 //! Integration tests for `EchoHandler` and the `echo_handler` factory.
+#![cfg(all(feature = "command", feature = "handler"))]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application::DirectCommandBusRequest;

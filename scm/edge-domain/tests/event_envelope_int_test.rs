@@ -1,4 +1,5 @@
 //! Coverage for api/event/types/event/event_envelope.rs
+#![cfg(feature = "event")]
 use edge_application::EventEnvelope;
 use std::time::SystemTime;
 

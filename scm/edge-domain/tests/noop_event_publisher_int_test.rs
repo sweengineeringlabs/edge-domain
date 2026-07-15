@@ -1,4 +1,5 @@
 //! Coverage for api/event/types/noop/noop_event_publisher.rs
+#![cfg(feature = "event")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 use edge_application::DomainRuntime;
 use edge_application::NoopEventPublisherRequest;

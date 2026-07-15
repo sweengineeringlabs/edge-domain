@@ -1,4 +1,5 @@
 //! Integration tests for `EventError`.
+#![cfg(feature = "event")]
 
 use edge_application::EventError;
 

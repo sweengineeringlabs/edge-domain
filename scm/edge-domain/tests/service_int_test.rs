@@ -1,4 +1,5 @@
 //! Integration tests for `Service` and `ServiceRegistry`.
+#![cfg(feature = "service")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application::{Domain, Service, ServiceError, ServiceRegistry};

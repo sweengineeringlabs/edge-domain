@@ -1,4 +1,5 @@
 //! Integration tests for `Domain.paired` — shared backend construction.
+#![cfg(all(feature = "command", feature = "repository", feature = "handler"))]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;

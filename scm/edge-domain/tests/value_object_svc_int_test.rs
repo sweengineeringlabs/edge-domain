@@ -1,4 +1,5 @@
 //! SAF facade integration tests for `ValueObject` and `NonEmptyString`.
+#![cfg(feature = "valueobject")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application::NonEmptyString;

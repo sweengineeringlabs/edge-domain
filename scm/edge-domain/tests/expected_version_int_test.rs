@@ -1,4 +1,5 @@
 //! Coverage for api/event/types/expected_version.rs
+#![cfg(feature = "event")]
 use edge_application::ExpectedVersion;
 
 #[test]

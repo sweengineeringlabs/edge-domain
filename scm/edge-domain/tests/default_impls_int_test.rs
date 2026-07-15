@@ -1,5 +1,6 @@
 //! Integration tests for default domain implementations:
 //! direct_command_bus, noop_event_publisher.
+#![cfg(all(feature = "event", feature = "command"))]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application::DomainRuntime;

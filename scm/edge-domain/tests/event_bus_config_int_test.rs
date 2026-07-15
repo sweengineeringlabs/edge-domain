@@ -1,4 +1,5 @@
 //! Coverage for api/event/types/event/event_bus_config.rs
+#![cfg(feature = "event")]
 use edge_application::EventBusConfig;
 
 #[test]

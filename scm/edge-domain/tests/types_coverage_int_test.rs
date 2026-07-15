@@ -1,4 +1,5 @@
 //! Comprehensive coverage tests for api/ types and configuration modules.
+#![cfg(all(feature = "event", feature = "repository"))]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application::{

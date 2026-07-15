@@ -1,4 +1,5 @@
 //! Integration tests for `QueryableRepository` — spec-based queries.
+#![cfg(feature = "repository")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application::{

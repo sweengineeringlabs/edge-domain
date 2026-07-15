@@ -1,5 +1,6 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, unused_imports)]
 //! SAF facade smoke test — Repository is exported from the crate root.
+#![cfg(feature = "repository")]
 
 use edge_application::{
     Domain, Repository, RepositoryFindResponse, RepositoryIdRequest, RepositorySaveRequest,

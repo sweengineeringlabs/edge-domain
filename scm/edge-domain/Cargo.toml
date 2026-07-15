@@ -17,6 +17,18 @@ service_type     = "handler"
 [lib]
 path = "main/src/lib.rs"
 
+[[example]]
+name = "custom_event_bus"
+required-features = ["event"]
+
+[[example]]
+name = "event_bus_consumer"
+required-features = ["event"]
+
+[[example]]
+name = "handler_registry"
+required-features = ["command", "handler"]
+
 [features]
 default     = [
     "entity", "valueobject",

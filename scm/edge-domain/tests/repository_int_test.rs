@@ -1,4 +1,5 @@
 //! Integration tests for the `Repository` trait contract and `Domain.new_in_memory_repository()`.
+#![cfg(feature = "repository")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application::{

@@ -3,6 +3,7 @@
 //!
 //! The fixture models a spending-limit rule so the `_error` scenarios exercise a
 //! real business violation rather than a contrived assertion.
+#![cfg(feature = "policy")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application::{

@@ -1,4 +1,5 @@
 //! SAF facade tests — `Validator` trait exported from the crate root.
+#![cfg(feature = "validator")]
 
 use edge_application::{Validator, ValidatorError};
 use edge_application_validator::ValidationRequest;

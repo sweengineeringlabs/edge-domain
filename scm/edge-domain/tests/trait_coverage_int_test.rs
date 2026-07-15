@@ -2,6 +2,7 @@
 //!
 //! One test per unique method name × 3 suffixes covers all 47 trait functions because
 //! the arch audit pattern `test_<fn>_*_<suffix>` matches on method name globally across traits.
+#![cfg(all(feature = "event", feature = "command", feature = "query", feature = "service", feature = "repository", feature = "handler"))]
 // @allow: no_mocks_in_integration — MemoryRepository is the production-shipped reference impl, not a test double
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 

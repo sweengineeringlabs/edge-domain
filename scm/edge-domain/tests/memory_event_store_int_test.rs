@@ -1,4 +1,5 @@
 //! Integration tests for the in-memory event store implementation.
+#![cfg(feature = "event")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::time::SystemTime;

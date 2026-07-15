@@ -1,4 +1,5 @@
 //! Integration tests for `SagaError`.
+#![cfg(feature = "saga")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application::SagaError;

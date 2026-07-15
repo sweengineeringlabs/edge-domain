@@ -1,5 +1,6 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, unused_imports)]
 //! SAF facade smoke test — EventSource is accessible from the crate root.
+#![cfg(feature = "event")]
 
 use edge_application::Domain;
 use edge_application::DomainRuntime;

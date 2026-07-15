@@ -1,5 +1,6 @@
 //! SAF facade integration tests — the `Snapshot` trait is exported from the
 //! crate root and implementable by downstream consumers.
+#![cfg(feature = "snapshot")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application::{

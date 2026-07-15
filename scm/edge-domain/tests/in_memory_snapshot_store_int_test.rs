@@ -1,4 +1,5 @@
 //! Integration tests for the in-memory snapshot store implementation.
+#![cfg(feature = "snapshot")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application::{

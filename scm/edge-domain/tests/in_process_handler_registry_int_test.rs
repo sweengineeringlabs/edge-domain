@@ -1,5 +1,6 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, unused_imports)]
 //! Tests for InProcessHandlerRegistry via the public Domain factory.
+#![cfg(feature = "handler")]
 
 use std::sync::Arc;
 

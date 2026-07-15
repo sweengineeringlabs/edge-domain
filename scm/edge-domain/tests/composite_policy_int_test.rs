@@ -3,6 +3,7 @@
 //! Two fixture policies (`NonEmpty`, `MaxLength`) model realistic string
 //! validation so each scenario exercises a genuine business rule failure path
 //! rather than contrived assertions.
+#![cfg(feature = "policy")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application::{

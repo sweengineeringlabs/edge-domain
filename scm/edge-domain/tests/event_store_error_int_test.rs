@@ -1,4 +1,5 @@
 //! Coverage for api/event/errors/event/event_store_error.rs
+#![cfg(feature = "event")]
 use edge_application::EventStoreError;
 
 #[test]

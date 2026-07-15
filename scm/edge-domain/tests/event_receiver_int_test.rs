@@ -1,4 +1,5 @@
 //! Coverage for `EventSource::recv` (api/event/traits/event_source.rs)
+#![cfg(feature = "event")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 use edge_application::DomainRuntime;
 use edge_application::InProcessEventBusRequest;

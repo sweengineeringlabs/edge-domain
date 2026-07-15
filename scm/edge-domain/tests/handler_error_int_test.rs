@@ -1,4 +1,5 @@
 //! Coverage for api/handler/errors/handler_error.rs
+#![cfg(feature = "handler")]
 use edge_application::HandlerError;
 
 #[test]

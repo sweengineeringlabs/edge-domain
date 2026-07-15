@@ -1,4 +1,5 @@
 //! Integration tests for `SystemClock`.
+#![cfg(feature = "clock")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::time::SystemTime;

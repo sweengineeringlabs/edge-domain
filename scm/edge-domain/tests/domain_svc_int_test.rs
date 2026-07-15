@@ -1,6 +1,7 @@
 //! Integration tests for saf/edge_application_svc public API.
 //!
 //! Covers all factory functions in edge_application_svc.rs
+#![cfg(all(feature = "repository", feature = "validator", feature = "handler", feature = "command", feature = "event", feature = "query"))]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application::*;

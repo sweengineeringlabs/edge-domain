@@ -1,4 +1,5 @@
 //! Integration tests — `ValueObjectError` variants and display.
+#![cfg(feature = "valueobject")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application::ValueObjectError;

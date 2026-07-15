@@ -1,4 +1,5 @@
 //! Integration tests for the `ValueObjectFactory` SAF facade.
+#![cfg(feature = "valueobject")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 // This factory is only present when the inline valueobject fallback is compiled

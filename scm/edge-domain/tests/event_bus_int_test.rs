@@ -1,4 +1,5 @@
 //! Integration tests for [`EventBus`], [`EventSource`], and [`EventBusConfig`].
+#![cfg(feature = "event")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;

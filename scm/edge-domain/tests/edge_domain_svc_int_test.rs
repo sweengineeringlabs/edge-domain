@@ -1,4 +1,5 @@
 //! Integration tests for saf factory functions.
+#![cfg(all(feature = "repository", feature = "query", feature = "command", feature = "event"))]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application::DomainRuntime;

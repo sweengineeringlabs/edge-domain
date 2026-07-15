@@ -1,4 +1,5 @@
 //! Coverage for api/query/direct_query_bus.rs and api/query/types/direct_query_bus.rs
+#![cfg(feature = "query")]
 use edge_application::{DirectQueryBus, Domain, QueryBus};
 use std::sync::Arc;
 

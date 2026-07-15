@@ -224,7 +224,6 @@ pub use edge_application_registry::MemoryRegistry;
 #[cfg(feature = "registry")]
 pub use edge_application_registry::Registry;
 #[cfg(feature = "registry")]
-#[cfg(feature = "registry")]
 pub use edge_application_registry::RegistryError;
 
 // ── lifecycle (opt-in; NOT in default features) ───────────────────────────────
@@ -281,6 +280,6 @@ pub use edge_security_runtime::SecurityError;
 
 // ── observer (opt-in; NOT in default features) ───────────────────────────────
 #[cfg(feature = "observer")]
-pub use edge_application_observer::Observer;
+pub use edge_application_observer::ObserveBootstrap;
 #[cfg(feature = "observer")]
-pub use edge_application_observer::ObserverBootstrap;
+pub use edge_application_observer::ObserverContext;

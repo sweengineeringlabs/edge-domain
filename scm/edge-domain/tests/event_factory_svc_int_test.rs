@@ -1,4 +1,5 @@
 //! Integration tests for the event primitives' SAF facade.
+#![cfg(feature = "event")]
 // @allow: no_mocks_in_integration — MemoryEventStore is the production-shipped reference impl, not a test double
 #![allow(clippy::unwrap_used)]
 

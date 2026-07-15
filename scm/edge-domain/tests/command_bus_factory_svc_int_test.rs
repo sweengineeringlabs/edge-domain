@@ -1,5 +1,6 @@
 //! SAF facade smoke test — `CommandBus` factory (`Domain.direct_command_bus`) is exported
 //! from the crate root.
+#![cfg(feature = "command")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;

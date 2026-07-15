@@ -1,4 +1,5 @@
 //! SAF facade tests — `DomainRuntime` trait.
+#![cfg(all(feature = "event", feature = "command"))]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;

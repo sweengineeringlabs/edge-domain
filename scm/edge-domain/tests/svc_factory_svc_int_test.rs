@@ -1,4 +1,5 @@
 //! Rule-221 coverage: _happy, _error, and _edge tests for every pub fn in domain_svc.rs.
+#![cfg(all(feature = "command", feature = "handler", feature = "event", feature = "query", feature = "validator", feature = "repository"))]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application::*;

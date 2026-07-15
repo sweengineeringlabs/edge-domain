@@ -1,4 +1,5 @@
 //! Integration tests for `NonEmptyString`.
+#![cfg(feature = "valueobject")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::collections::HashMap;

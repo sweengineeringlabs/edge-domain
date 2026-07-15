@@ -1,4 +1,5 @@
 //! Integration tests for `QueryError`.
+#![cfg(feature = "query")]
 
 use edge_application::QueryError;
 

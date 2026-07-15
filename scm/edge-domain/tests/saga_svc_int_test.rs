@@ -3,6 +3,7 @@
 //!
 //! The fixture models an order-fulfillment saga with a compensation path so the
 //! `_error` scenarios exercise a real rollback, not a contrived assertion.
+#![cfg(all(feature = "event", feature = "command", feature = "saga"))]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application::{

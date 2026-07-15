@@ -1,4 +1,5 @@
 //! Integration tests for the `DirectQueryBus` construction path.
+#![cfg(feature = "query")]
 
 use edge_application::DirectQueryBus;
 

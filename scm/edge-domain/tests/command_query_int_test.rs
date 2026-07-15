@@ -1,4 +1,5 @@
 //! Integration tests for `Command`, `Query`, `CommandBus`, and `QueryBus`.
+#![cfg(all(feature = "query", feature = "command"))]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application::{

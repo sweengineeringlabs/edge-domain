@@ -1,5 +1,6 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, unused_imports)]
 //! SAF facade smoke test — QueryBus is exported from the crate root.
+#![cfg(feature = "query")]
 
 use edge_application::Domain;
 use edge_application::Query;

@@ -1,4 +1,5 @@
 //! Integration tests for `CommandError`.
+#![cfg(feature = "command")]
 
 use edge_application::CommandError;
 

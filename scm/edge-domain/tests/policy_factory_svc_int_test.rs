@@ -1,4 +1,5 @@
 //! Integration tests for the `CompositePolicy` SAF facade.
+#![cfg(feature = "policy")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_application::{

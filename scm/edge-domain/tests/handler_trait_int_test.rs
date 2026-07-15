@@ -1,4 +1,5 @@
 //! Integration tests for the `Handler` trait contract.
+#![cfg(all(feature = "command", feature = "handler"))]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;

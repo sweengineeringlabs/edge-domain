@@ -5,6 +5,7 @@
 //! pattern the [`Projection`](edge_application::Projection) contract documents for
 //! fallible folds.  This lets the `_error`-scenario tests exercise genuine
 //! error-surfacing behaviour rather than a contrived assertion.
+#![cfg(all(feature = "event", feature = "projection"))]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::time::SystemTime;
