@@ -1,8 +1,9 @@
+pub mod dto;
 pub mod errors;
+mod non_empty_string;
 pub mod traits;
-pub mod types;
 
+pub use dto::ValidationRequest;
 pub use errors::ValueObjectError;
+pub use non_empty_string::NonEmptyString;
 pub use traits::ValueObject;
-pub use types::NonEmptyString;
-pub use types::ValidationRequest;

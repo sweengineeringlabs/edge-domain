@@ -2,8 +2,8 @@
 
 use std::hash::Hash;
 
+use crate::api::valueobject::dto::ValidationRequest;
 use crate::api::valueobject::errors::ValueObjectError;
-use crate::api::valueobject::types::ValidationRequest;
 
 /// Marker trait for value objects.
 ///
@@ -11,9 +11,11 @@ use crate::api::valueobject::types::ValidationRequest;
 /// all their fields are equal.  Implementors must be equality-comparable,
 /// hashable, cloneable, and safe to share across threads.
 ///
-/// Concrete value objects belong in the `api/<theme>/types/` directory of the
-/// theme that owns them.  `NonEmptyString` ships as a reference implementation
-/// in this crate only.
+/// Plain-data value objects with no trait implementors belong in the
+/// `api/<theme>/vo/` directory of the theme that owns them. Concrete
+/// implementors of this trait (which must not live in `vo/`, since `vo/`
+/// holds data only) belong flat under their theme directory instead.
+/// `NonEmptyString` ships as a reference implementation in this crate only.
 pub trait ValueObject: Eq + Hash + Clone + Send + Sync {
     /// Re-check this value object's invariants.
     ///

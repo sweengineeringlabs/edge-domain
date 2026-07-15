@@ -4,5 +4,5 @@
 ///
 /// Useful after deserialization or other construction paths that bypass the
 /// type's normal constructor.
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct ValidationRequest;

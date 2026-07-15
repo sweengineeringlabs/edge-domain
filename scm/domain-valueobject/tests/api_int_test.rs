@@ -1,4 +1,4 @@
-//! Layer-level coverage for `api/valueobject/types/*.rs` request types.
+//! Layer-level coverage for `api/valueobject/dto/*.rs` request types.
 #![allow(
     clippy::unwrap_used,
     clippy::expect_used,
