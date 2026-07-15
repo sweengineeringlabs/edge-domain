@@ -19,6 +19,7 @@ path = "main/src/lib.rs"
 
 [dependencies]
 futures.workspace   = true
+serde.workspace     = true
 thiserror.workspace = true
 
 [dev-dependencies]
