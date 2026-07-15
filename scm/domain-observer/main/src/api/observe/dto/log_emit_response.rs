@@ -1,1 +1,5 @@
-pub use crate::api::observe::types::LogEmitResponse;
+//! [`LogEmitResponse`] — wrapper for a successful log emission.
+
+/// Result of [`LogDrain::emit`](crate::api::LogDrain::emit).
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub struct LogEmitResponse;

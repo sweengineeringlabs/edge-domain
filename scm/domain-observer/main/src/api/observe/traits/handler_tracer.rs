@@ -1,7 +1,7 @@
 //! `HandlerTracer` — tracing contract for domain handlers.
 
 use crate::api::observe::errors::ObserveError;
-use crate::api::observe::types::{SpanStartRequest, SpanStartResponse};
+use crate::api::observe::dto::{SpanStartRequest, SpanStartResponse};
 
 /// Opens tracing spans for a domain handler execution.
 ///

@@ -1,7 +1,7 @@
 //! `Span` — a single unit of traced work.
 
 use crate::api::observe::errors::ObserveError;
-use crate::api::observe::types::{
+use crate::api::observe::dto::{
     SpanAnnotationRequest, SpanAnnotationResponse, SpanFinishRequest, SpanFinishResponse,
 };
 

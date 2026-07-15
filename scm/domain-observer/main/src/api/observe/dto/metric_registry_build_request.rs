@@ -1,1 +1,5 @@
-pub use crate::api::observe::types::MetricRegistryBuildRequest;
+//! [`MetricRegistryBuildRequest`] — zero-sized marker for requesting a `MetricRegistry`.
+
+/// Request to build a [`MetricRegistry`](crate::api::MetricRegistry).
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub struct MetricRegistryBuildRequest;
