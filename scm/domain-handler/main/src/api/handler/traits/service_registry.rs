@@ -1,13 +1,13 @@
 //! `ServiceRegistry` trait — local decoupling boundary for looking up domain services by name.
 
 use crate::api::handler::errors::HandlerError;
-use crate::api::handler::types::{
+use crate::api::handler::dto::{
     ListNamesRequest, ListNamesResponse, ServiceLookupRequest, ServiceLookupResponse,
 };
 
 /// A thread-safe registry of domain [`Service`](super::Service) instances, looked up by name.
 ///
-/// Declared locally so `api/` never references `edge_domain_service::ServiceRegistry` directly
+/// Declared locally so `api/` never references `edge_application_service::ServiceRegistry` directly
 /// in a type position (SEA `no_foreign_type`). Any real `ServiceRegistry` implementor satisfies
 /// this automatically via the blanket impl in `core/`.
 pub trait ServiceRegistry: Send + Sync {

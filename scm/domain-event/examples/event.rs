@@ -1,18 +1,18 @@
 //! Basic `DomainEvent` usage example.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_event::{DomainEvent, EventAggregateIdRequest, EventTypeRequest, NoopEventBus};
+use edge_application_event::{DomainEvent, EventAggregateIdRequest, EventTypeRequest, NoopEventBus};
 
 struct OrderCreated {
     order_id: String,
 }
 
 impl DomainEvent for OrderCreated {
-    fn event_type(&self, _req: EventTypeRequest) -> Result<edge_domain_event::EventTypeResponse<'_>, edge_domain_event::EventError> {
-        Ok(edge_domain_event::EventTypeResponse { event_type: "order.created" })
+    fn event_type(&self, _req: EventTypeRequest) -> Result<edge_application_event::EventTypeResponse<'_>, edge_application_event::EventError> {
+        Ok(edge_application_event::EventTypeResponse { event_type: "order.created" })
     }
-    fn aggregate_id(&self, _req: EventAggregateIdRequest) -> Result<edge_domain_event::EventAggregateIdResponse<'_>, edge_domain_event::EventError> {
-        Ok(edge_domain_event::EventAggregateIdResponse { aggregate_id: &self.order_id })
+    fn aggregate_id(&self, _req: EventAggregateIdRequest) -> Result<edge_application_event::EventAggregateIdResponse<'_>, edge_application_event::EventError> {
+        Ok(edge_application_event::EventAggregateIdResponse { aggregate_id: &self.order_id })
     }
 }
 

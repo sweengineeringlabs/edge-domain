@@ -1,9 +1,10 @@
+pub mod always_valid;
+pub mod dto;
 pub mod errors;
 pub mod traits;
-pub mod types;
 
+pub use always_valid::AlwaysValid;
+pub use dto::ValidationRequest;
+pub use dto::ValidationResponse;
 pub use errors::ValidatorError;
 pub use traits::Validator;
-pub use types::AlwaysValid;
-pub use types::ValidationRequest;
-pub use types::ValidationResponse;

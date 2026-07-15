@@ -2,15 +2,15 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
-use edge_domain_event::{
+use edge_application_event::{
     DomainEvent, EventBus, EventBusPublishRequest, EventBusSubscribeRequest, EventError,
     EventSource, EventSourceRecvNextRequest, EventTypeRequest, InProcessEventBus, NoopEventBus,
 };
 
 struct Evt;
 impl DomainEvent for Evt {
-    fn event_type(&self, _req: EventTypeRequest) -> Result<edge_domain_event::EventTypeResponse<'_>, EventError> {
-        Ok(edge_domain_event::EventTypeResponse { event_type: "evt" })
+    fn event_type(&self, _req: EventTypeRequest) -> Result<edge_application_event::EventTypeResponse<'_>, EventError> {
+        Ok(edge_application_event::EventTypeResponse { event_type: "evt" })
     }
 }
 
@@ -55,7 +55,7 @@ fn test_in_process_bus_publish_no_subscribers_returns_ok_edge() {
         .build()
         .expect("tokio rt");
     rt.block_on(async {
-        let bus = InProcessEventBus::new(edge_domain_event::EventBusConfig::default().capacity);
+        let bus = InProcessEventBus::new(edge_application_event::EventBusConfig::default().capacity);
         assert!(bus.publish(EventBusPublishRequest { event: Arc::new(Evt) }).await.is_ok());
     });
 }

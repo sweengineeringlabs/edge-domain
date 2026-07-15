@@ -1,16 +1,16 @@
 //! `OutboundRegistry` — keyed registry of outbound handles.
 
-use crate::api::domain::errors::DomainError;
-use crate::api::domain::types::{
+use crate::api::domain::dto::{
     OutboundDeregisterRequest, OutboundDeregisterResponse, OutboundGetRequest, OutboundGetResponse,
     OutboundIsEmptyRequest, OutboundIsEmptyResponse, OutboundLenRequest, OutboundLenResponse,
     OutboundNamesRequest, OutboundNamesResponse, OutboundRegisterRequest, OutboundRegisterResponse,
 };
+use crate::api::domain::errors::DomainError;
 
 /// Thread-safe registry of outbound handles keyed by name.
 ///
 /// The canonical implementation is
-/// [`InMemoryOutboundRegistry`](crate::api::domain::types::InMemoryOutboundRegistry).
+/// [`MemoryOutboundRegistry`](crate::api::domain::memory_outbound_registry::MemoryOutboundRegistry).
 pub trait OutboundRegistry: Send + Sync {
     /// The handle type stored in this registry.
     type Handle: Clone + Send + Sync;

@@ -1,6 +1,7 @@
 //! Integration tests for `EventError`.
+#![cfg(feature = "event")]
 
-use edge_domain::EventError;
+use edge_application::EventError;
 
 /// @covers: EventError
 #[test]

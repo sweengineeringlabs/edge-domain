@@ -1,7 +1,7 @@
 //! Basic `Handler` usage example.
 
 use async_trait::async_trait;
-use edge_domain_handler::{
+use edge_application_handler::{
     EchoHandler, ExecutionRequest, Handler, HandlerError, IdRequest, IdResponse, PatternRequest,
     PatternResponse,
 };

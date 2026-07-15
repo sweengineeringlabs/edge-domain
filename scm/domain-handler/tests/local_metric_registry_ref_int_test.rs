@@ -2,11 +2,11 @@
 //! (its only public construction path).
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_handler::{
+use edge_application_handler::{
     CounterLookupRequest, GaugeLookupRequest, HistogramLookupRequest, MetricsRequest,
     ObserverContext,
 };
-use edge_domain_observer::StdObserveFactory;
+use edge_application_observer::StdObserveFactory;
 
 /// @covers: LocalMetricRegistryRef::counter — resolves a counter through the borrowed real registry
 #[test]

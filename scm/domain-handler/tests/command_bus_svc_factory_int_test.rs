@@ -1,4 +1,4 @@
-use edge_domain_handler::{COMMAND_BUS_SVC, COMMAND_BUS_SVC_FACTORY};
+use edge_application_handler::{COMMAND_BUS_SVC, COMMAND_BUS_SVC_FACTORY};
 
 #[test]
 fn test_command_bus_svc_constant_value_happy() {

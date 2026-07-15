@@ -1,4 +1,4 @@
-use edge_domain_lifecycle::{LIFECYCLE_SVC, LIFECYCLE_SVC_FACTORY};
+use edge_application_lifecycle::{LIFECYCLE_SVC, LIFECYCLE_SVC_FACTORY};
 
 #[test]
 fn test_lifecycle_svc_constant_value_happy() {

@@ -1,4 +1,4 @@
-use edge_domain_event::DomainEvent;
+use edge_application_event::DomainEvent;
 
 use crate::api::NoopSagaEvent;
 

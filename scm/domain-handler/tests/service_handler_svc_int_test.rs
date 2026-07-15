@@ -1,11 +1,11 @@
 //! Integration tests — [`ServiceHandler`] marker trait via [`IntoHandler`].
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_handler::{
+use edge_application_handler::{
     Handler, IdRequest, IntoHandler, IntoHandlerRequest, ServiceHandler, Validator,
     ValidatorRequest, BRIDGE_CONTEXT,
 };
-use edge_domain_service::{NameRequest, NameResponse, Service, ServiceError};
+use edge_application_service::{NameRequest, NameResponse, Service, ServiceError};
 use futures::future::BoxFuture;
 
 struct EchoSvc;

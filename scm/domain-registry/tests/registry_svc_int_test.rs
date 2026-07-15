@@ -1,16 +1,16 @@
-//! Integration tests — `Registry` trait via `InMemoryRegistry`.
-// @allow: no_mocks_in_integration — InMemoryRegistry is the production in-process reference impl, not a test double
+//! Integration tests — `Registry` trait via `MemoryRegistry`.
+// @allow: no_mocks_in_integration — MemoryRegistry is the production in-process reference impl, not a test double
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
 
-use edge_domain_registry::{
-    DeregisterRequest, EmptinessRequest, InMemoryRegistry, LenRequest, ListIdsRequest,
+use edge_application_registry::{
+    DeregisterRequest, EmptinessRequest, MemoryRegistry, LenRequest, ListIdsRequest,
     RegisterRequest, Registry, RegistryLookupRequest,
 };
 
-fn make_reg() -> InMemoryRegistry<str> {
-    InMemoryRegistry::default()
+fn make_reg() -> MemoryRegistry<str> {
+    MemoryRegistry::default()
 }
 
 /// @covers: Registry::register — handler is retrievable after registration

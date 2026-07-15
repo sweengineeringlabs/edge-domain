@@ -3,7 +3,7 @@
 
 use std::time::SystemTime;
 
-use edge_domain_clock::{Clock, NowRequest, SystemClock};
+use edge_application_clock::{Clock, NowRequest, SystemClock};
 
 /// @covers: SystemClock (Clock::now)
 #[test]

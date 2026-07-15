@@ -1,7 +1,7 @@
 //! `MetricRegistry` — metric instrument factory.
 
 use crate::api::observe::errors::ObserveError;
-use crate::api::observe::types::{
+use crate::api::observe::dto::{
     CounterLookupRequest, CounterLookupResponse, GaugeLookupRequest, GaugeLookupResponse,
     HistogramLookupRequest, HistogramLookupResponse,
 };

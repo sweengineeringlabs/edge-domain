@@ -1,7 +1,7 @@
-//! Blanket bridges from `edge_domain_observer`'s traits to their local
+//! Blanket bridges from `edge_application_observer`'s traits to their local
 //! `domain-handler` decoupling boundaries (SEA `no_foreign_type`).
 
-use edge_domain_observer as obs;
+use edge_application_observer as obs;
 
 use super::local_handler_tracer_ref::LocalHandlerTracerRef;
 use super::local_log_drain_ref::LocalLogDrainRef;
@@ -188,7 +188,7 @@ impl<T: obs::ObserverContext + ?Sized> ObserverContext for crate::api::ObserverC
 
 #[cfg(test)]
 mod tests {
-    use edge_domain_observer::StdObserveFactory;
+    use edge_application_observer::StdObserveFactory;
 
     use super::*;
 

@@ -1,5 +1,6 @@
 //! Coverage for api/event/types/event/event_envelope.rs
-use edge_domain::EventEnvelope;
+#![cfg(feature = "event")]
+use edge_application::EventEnvelope;
 use std::time::SystemTime;
 
 #[derive(Clone)]

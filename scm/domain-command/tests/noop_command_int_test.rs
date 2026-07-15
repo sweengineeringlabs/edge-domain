@@ -1,6 +1,6 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_command::{Command, ExecutionRequest, NameRequest, NoopCommand};
+use edge_application_command::{Command, ExecutionRequest, NameRequest, NoopCommand};
 
 #[tokio::test]
 async fn test_noop_command_execute_returns_ok_happy() {

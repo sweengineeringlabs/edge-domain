@@ -52,109 +52,115 @@ pub use self::value_object_svc::*;
 
 // ── entity (sub-crate when feature enabled) ───────────────────────────────────
 #[cfg(feature = "entity")]
-pub use edge_domain_entity::Entity;
+pub use edge_application_entity::Entity;
 
 // ── valueobject (sub-crate when feature enabled) ─────────────────────────────
 #[cfg(feature = "valueobject")]
-pub use edge_domain_valueobject::NonEmptyString;
+pub use edge_application_valueobject::NonEmptyString;
 #[cfg(feature = "valueobject")]
-pub use edge_domain_valueobject::ValueObject;
+pub use edge_application_valueobject::ValueObject;
 #[cfg(feature = "valueobject")]
-pub use edge_domain_valueobject::ValueObjectError;
+pub use edge_application_valueobject::ValueObjectError;
 
 // ── clock (sub-crate when feature enabled) ────────────────────────────────────
 #[cfg(feature = "clock")]
-pub use edge_domain_clock::Clock;
+pub use edge_application_clock::Clock;
 #[cfg(feature = "clock")]
-pub use edge_domain_clock::FixedClock;
+pub use edge_application_clock::FixedClock;
 #[cfg(feature = "clock")]
-pub use edge_domain_clock::SystemClock;
+pub use edge_application_clock::SystemClock;
 
 // ── validator (sub-crate when feature enabled; re-exported publicly via api::*) ─
 #[cfg(feature = "validator")]
-pub(crate) use edge_domain_validator::Validator;
+pub(crate) use edge_application_validator::Validator;
 #[cfg(feature = "validator")]
-pub use edge_domain_validator::ValidatorError;
+pub use edge_application_validator::ValidatorError;
 
 // ── policy (sub-crate when feature enabled) ───────────────────────────────────
 #[cfg(feature = "policy")]
-pub use edge_domain_policy::CompositePolicy;
+pub use edge_application_policy::CompositePolicy;
 #[cfg(feature = "policy")]
-pub use edge_domain_policy::Policy;
+pub use edge_application_policy::Policy;
 #[cfg(feature = "policy")]
-pub use edge_domain_policy::PolicyError;
+pub use edge_application_policy::PolicyError;
 #[cfg(feature = "policy")]
-pub use edge_domain_policy::PolicyEvaluateRequest;
+pub use edge_application_policy::PolicyEvaluateRequest;
 #[cfg(feature = "policy")]
-pub use edge_domain_policy::PolicyNameRequest;
+pub use edge_application_policy::PolicyNameRequest;
 #[cfg(feature = "policy")]
-pub use edge_domain_policy::PolicyNameResponse;
+pub use edge_application_policy::PolicyNameResponse;
 
 // ── command (sub-crate when feature enabled) ──────────────────────────────────
 #[cfg(feature = "command")]
-pub use edge_domain_command::Command;
-pub use edge_domain_command::CommandError;
+pub use edge_application_command::Command;
+#[cfg(feature = "command")]
+pub use edge_application_command::CommandError;
 
 // ── query (sub-crate when feature enabled) ────────────────────────────────────
 #[cfg(feature = "query")]
-pub use edge_domain_query::Query;
-pub use edge_domain_query::QueryError;
+pub use edge_application_query::Query;
+#[cfg(feature = "query")]
+pub use edge_application_query::QueryError;
 
 // ── snapshot (sub-crate when feature enabled) ─────────────────────────────────
 #[cfg(feature = "snapshot")]
-pub use edge_domain_snapshot::SnapshotAggregateIdRequest;
+pub use edge_application_snapshot::SnapshotAggregateIdRequest;
 #[cfg(feature = "snapshot")]
-pub use edge_domain_snapshot::SnapshotAggregateIdResponse;
+pub use edge_application_snapshot::SnapshotAggregateIdResponse;
 #[cfg(feature = "snapshot")]
-pub use edge_domain_snapshot::SnapshotError;
+pub use edge_application_snapshot::SnapshotError;
 #[cfg(feature = "snapshot")]
-pub use edge_domain_snapshot::SnapshotLoadRequest;
+pub use edge_application_snapshot::SnapshotLoadRequest;
 #[cfg(feature = "snapshot")]
-pub use edge_domain_snapshot::SnapshotLoadResponse;
+pub use edge_application_snapshot::SnapshotLoadResponse;
 #[cfg(feature = "snapshot")]
-pub use edge_domain_snapshot::SnapshotSaveRequest;
+pub use edge_application_snapshot::SnapshotSaveRequest;
 #[cfg(feature = "snapshot")]
-pub use edge_domain_snapshot::SnapshotVersionRequest;
+pub use edge_application_snapshot::SnapshotVersionRequest;
 #[cfg(feature = "snapshot")]
-pub use edge_domain_snapshot::SnapshotVersionResponse;
+pub use edge_application_snapshot::SnapshotVersionResponse;
 
 // ── service (sub-crate when feature enabled) ──────────────────────────────────
 #[cfg(feature = "service")]
-pub use edge_domain_service::ServiceError;
+pub use edge_application_service::ServiceError;
 #[cfg(feature = "service")]
-pub use edge_domain_service::StdServiceRegistryFactory;
+pub use edge_application_service::StdServiceRegistryFactory;
 
 // ── repository (sub-crate when feature enabled) ───────────────────────────────
 #[cfg(feature = "repository")]
-pub use edge_domain_repository::Page;
+pub use edge_application_repository::Page;
 #[cfg(feature = "repository")]
-pub use edge_domain_repository::RepositoryError;
+pub use edge_application_repository::RepositoryError;
 #[cfg(feature = "repository")]
-pub use edge_domain_repository::Spec;
+pub use edge_application_repository::Spec;
 #[cfg(feature = "repository")]
-pub use edge_domain_repository::QUERYABLE_REPOSITORY_SVC;
+pub use edge_application_repository::QUERYABLE_REPOSITORY_SVC;
 #[cfg(feature = "repository")]
-pub use edge_domain_repository::QUERYABLE_REPOSITORY_SVC_FACTORY;
+pub use edge_application_repository::QUERYABLE_REPOSITORY_SVC_FACTORY;
 #[cfg(feature = "repository")]
-pub use edge_domain_repository::REPOSITORY_SVC;
+pub use edge_application_repository::REPOSITORY_SVC;
 #[cfg(feature = "repository")]
-pub use edge_domain_repository::REPOSITORY_SVC_FACTORY;
+pub use edge_application_repository::REPOSITORY_SVC_FACTORY;
 #[cfg(feature = "repository")]
-pub use edge_domain_repository::SPEC_SVC;
+pub use edge_application_repository::SPEC_SVC;
 #[cfg(feature = "repository")]
-pub use edge_domain_repository::SPEC_SVC_FACTORY;
+pub use edge_application_repository::SPEC_SVC_FACTORY;
 
 // ── handler (sub-crate when feature enabled) ──────────────────────────────────
 #[cfg(feature = "handler")]
-pub use edge_domain_handler::HandlerContext;
-pub use edge_domain_handler::HandlerError;
+pub use edge_application_handler::HandlerContext;
+#[cfg(feature = "handler")]
+pub use edge_application_handler::HandlerError;
 
 // ── event (sub-crate when feature enabled) ────────────────────────────────────
 #[cfg(feature = "event")]
-pub use edge_domain_event::ClosedEventSource;
-pub use edge_domain_event::EventEnvelope;
-pub use edge_domain_event::EventSource;
-pub use edge_domain_event::ExpectedVersion;
+pub use edge_application_event::ClosedEventSource;
+#[cfg(feature = "event")]
+pub use edge_application_event::EventEnvelope;
+#[cfg(feature = "event")]
+pub use edge_application_event::EventSource;
+#[cfg(feature = "event")]
+pub use edge_application_event::ExpectedVersion;
 
 // ── pipeline (sub-crate when feature enabled) ────────────────────────────────
 #[cfg(feature = "pipeline")]
@@ -189,62 +195,62 @@ pub(crate) use edge_pipeline::Validator as PipelineValidator;
 pub use edge_pipeline::ValidatorSvc as PipelineValidatorSvc;
 
 // ── projection (sub-crate when feature enabled) ───────────────────────────────
-pub use edge_domain_projection::ProjectionError;
 #[cfg(feature = "projection")]
-pub use edge_domain_projection::TryDrainResponse;
+pub use edge_application_projection::ProjectionError;
+#[cfg(feature = "projection")]
+pub use edge_application_projection::TryDrainResponse;
 
 // ── saga (sub-crate when feature enabled) ─────────────────────────────────────
 #[cfg(feature = "saga")]
-pub use edge_domain_saga::SagaError;
+pub use edge_application_saga::SagaError;
 #[cfg(feature = "saga")]
-pub use edge_domain_saga::SagaGetRequest;
+pub use edge_application_saga::SagaGetRequest;
 #[cfg(feature = "saga")]
-pub use edge_domain_saga::SagaGetResponse;
+pub use edge_application_saga::SagaGetResponse;
 #[cfg(feature = "saga")]
-pub use edge_domain_saga::SagaHandleRequest;
+pub use edge_application_saga::SagaHandleRequest;
 #[cfg(feature = "saga")]
-pub use edge_domain_saga::SagaHandleResponse;
+pub use edge_application_saga::SagaHandleResponse;
 #[cfg(feature = "saga")]
-pub use edge_domain_saga::SagaIsCompleteRequest;
+pub use edge_application_saga::SagaIsCompleteRequest;
 #[cfg(feature = "saga")]
-pub use edge_domain_saga::SagaIsCompleteResponse;
+pub use edge_application_saga::SagaIsCompleteResponse;
 #[cfg(feature = "saga")]
-pub use edge_domain_saga::SagaRegisterRequest;
+pub use edge_application_saga::SagaRegisterRequest;
 
 // ── registry (opt-in; NOT in default features) ────────────────────────────────
 #[cfg(feature = "registry")]
-pub use edge_domain_registry::InMemoryRegistry;
+pub use edge_application_registry::MemoryRegistry;
 #[cfg(feature = "registry")]
-pub use edge_domain_registry::Registry;
+pub use edge_application_registry::Registry;
 #[cfg(feature = "registry")]
-#[cfg(feature = "registry")]
-pub use edge_domain_registry::RegistryError;
+pub use edge_application_registry::RegistryError;
 
 // ── lifecycle (opt-in; NOT in default features) ───────────────────────────────
 #[cfg(feature = "lifecycle")]
-pub use edge_domain_lifecycle::Lifecycle;
+pub use edge_application_lifecycle::Lifecycle;
 #[cfg(feature = "lifecycle")]
-pub use edge_domain_lifecycle::LifecycleError;
+pub use edge_application_lifecycle::LifecycleError;
 #[cfg(feature = "lifecycle")]
-pub use edge_domain_lifecycle::LifecycleIsInRequest;
+pub use edge_application_lifecycle::LifecycleIsInRequest;
 #[cfg(feature = "lifecycle")]
-pub use edge_domain_lifecycle::LifecycleIsInResponse;
+pub use edge_application_lifecycle::LifecycleIsInResponse;
 #[cfg(feature = "lifecycle")]
-pub use edge_domain_lifecycle::LifecycleStateRequest;
+pub use edge_application_lifecycle::LifecycleStateRequest;
 #[cfg(feature = "lifecycle")]
-pub use edge_domain_lifecycle::LifecycleStateResponse;
+pub use edge_application_lifecycle::LifecycleStateResponse;
 #[cfg(feature = "lifecycle")]
-pub use edge_domain_lifecycle::LifecycleTransitionRequest;
+pub use edge_application_lifecycle::LifecycleTransitionRequest;
 #[cfg(feature = "lifecycle")]
-pub use edge_domain_lifecycle::ManagedLifecycle;
+pub use edge_application_lifecycle::ManagedLifecycle;
 #[cfg(feature = "lifecycle")]
-pub use edge_domain_lifecycle::PermissivePolicy;
+pub use edge_application_lifecycle::PermissivePolicy;
 #[cfg(feature = "lifecycle")]
-pub use edge_domain_lifecycle::TransitionAllowedRequest;
+pub use edge_application_lifecycle::TransitionAllowedRequest;
 #[cfg(feature = "lifecycle")]
-pub use edge_domain_lifecycle::TransitionAllowedResponse;
+pub use edge_application_lifecycle::TransitionAllowedResponse;
 #[cfg(feature = "lifecycle")]
-pub use edge_domain_lifecycle::TransitionPolicy;
+pub use edge_application_lifecycle::TransitionPolicy;
 
 // ── security ──────────────────────────────────────────────────────────────────
 #[cfg(feature = "security")]
@@ -274,6 +280,6 @@ pub use edge_security_runtime::SecurityError;
 
 // ── observer (opt-in; NOT in default features) ───────────────────────────────
 #[cfg(feature = "observer")]
-pub use edge_domain_observer::Observer;
+pub use edge_application_observer::ObserveBootstrap;
 #[cfg(feature = "observer")]
-pub use edge_domain_observer::ObserverBootstrap;
+pub use edge_application_observer::ObserverContext;

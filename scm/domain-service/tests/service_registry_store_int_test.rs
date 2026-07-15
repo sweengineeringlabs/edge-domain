@@ -1,6 +1,6 @@
 //! Tests for [`ServiceRegistryStore`] — the in-process service registry implementation.
 
-use edge_domain_service::{EmptinessRequest, ServiceRegistry, ServiceRegistryStore};
+use edge_application_service::{EmptinessRequest, ServiceRegistry, ServiceRegistryStore};
 
 /// @covers: ServiceRegistryStore
 #[test]

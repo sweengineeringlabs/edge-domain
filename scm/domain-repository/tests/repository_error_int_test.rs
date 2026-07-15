@@ -1,6 +1,6 @@
 //! Integration tests for `RepositoryError` display formatting.
 
-use edge_domain_repository::RepositoryError;
+use edge_application_repository::RepositoryError;
 
 /// @covers: RepositoryError::NotFound — Display includes the key
 #[test]

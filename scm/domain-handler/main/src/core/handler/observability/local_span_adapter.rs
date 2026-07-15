@@ -1,6 +1,6 @@
 //! [`LocalSpanAdapter`] — wraps an owned real `Span` as a local [`Span`].
 
-use edge_domain_observer as obs;
+use edge_application_observer as obs;
 
 use super::into_handler_error::IntoHandlerError;
 use crate::api::{

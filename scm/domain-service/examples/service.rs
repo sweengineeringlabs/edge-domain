@@ -1,6 +1,6 @@
 //! Basic `Service` usage example.
 
-use edge_domain_service::{NameRequest, Service, ServiceError};
+use edge_application_service::{NameRequest, Service, ServiceError};
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 

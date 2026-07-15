@@ -1,7 +1,7 @@
 //! End-to-end contract tests for the `Service` trait, exercised through test-double
 //! implementations via the crate's public API.
 
-use edge_domain_handler::{HandlerError, Service};
+use edge_application_handler::{HandlerError, Service};
 use futures::executor::block_on;
 
 struct EchoService;

@@ -1,6 +1,6 @@
 //! Integration tests — `APP_SERVICE_PROVIDER_SVC_FACTORY` constant.
 
-use edge_domain_app::APP_SERVICE_PROVIDER_SVC_FACTORY;
+use edge_application_app::APP_SERVICE_PROVIDER_SVC_FACTORY;
 
 /// @covers: APP_SERVICE_PROVIDER_SVC_FACTORY — correct factory identity value
 #[test]

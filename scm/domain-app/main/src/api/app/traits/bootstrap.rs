@@ -4,7 +4,7 @@ use crate::api::AppError;
 use crate::api::NoopAppBootstrap;
 use crate::api::NoopAppRuntime;
 use crate::api::NoopAppSvcFactory;
-use crate::api::app::types::{ApplicationBuildRequest, ApplicationBuildResponse};
+use crate::api::app::dto::{ApplicationBuildRequest, ApplicationBuildResponse};
 
 /// Constructs an [`Application`](crate::api::Application) from a resolved service graph.
 ///

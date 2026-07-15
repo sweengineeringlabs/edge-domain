@@ -1,1 +1,1 @@
-pub(crate) mod in_memory_projection;
+pub(crate) mod memory_projection;

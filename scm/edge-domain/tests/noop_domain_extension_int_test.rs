@@ -1,6 +1,6 @@
 //! Contract tests for NoopDomainExtension.
 
-use edge_domain::NoopDomainExtension;
+use edge_application::NoopDomainExtension;
 
 /// @covers: noop_domain_extension
 #[test]

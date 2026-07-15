@@ -1,10 +1,10 @@
 //! Layer-level coverage for the small request/response value types declared under
-//! `api/observe/types/` that have no dedicated per-type test file (SEA layer test
+//! `api/observe/dto/` that have no dedicated per-type test file (SEA layer test
 //! coverage, `sea_layer_test_coverage`). Each test constructs the type through the
 //! crate's public API and asserts on its real shape, field values, or ZST-ness.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_observer::{
+use edge_application_observer::{
     BootstrapNameRequest, BootstrapNameResponse, Counter, CounterLookupRequest,
     CounterLookupResponse, DrainRequest, DrainResponse, Gauge, GaugeLookupRequest,
     GaugeLookupResponse, GaugeSetRequest, GaugeSetResponse, HandlerTracer,

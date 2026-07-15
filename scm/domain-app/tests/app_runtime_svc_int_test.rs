@@ -1,6 +1,6 @@
 //! Integration tests — `APP_RUNTIME_SVC` constant.
 
-use edge_domain_app::APP_RUNTIME_SVC;
+use edge_application_app::APP_RUNTIME_SVC;
 
 /// @covers: APP_RUNTIME_SVC — correct service identity value
 #[test]

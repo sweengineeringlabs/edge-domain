@@ -4,7 +4,7 @@ use std::future::Future;
 use std::pin::Pin;
 
 use crate::api::event::errors::EventError;
-use crate::api::event::types::EventPublisherPublishRequest;
+use crate::api::event::dto::EventPublisherPublishRequest;
 
 /// Publishes a single [`DomainEvent`](super::DomainEvent) without returning a subscription handle.
 ///

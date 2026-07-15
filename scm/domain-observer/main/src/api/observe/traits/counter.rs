@@ -1,7 +1,7 @@
 //! `Counter` — a monotonically increasing metric.
 
 use crate::api::observe::errors::ObserveError;
-use crate::api::observe::types::{IncrementRequest, IncrementResponse};
+use crate::api::observe::dto::{IncrementRequest, IncrementResponse};
 
 /// A monotonically increasing integer metric.
 pub trait Counter: Send + Sync {

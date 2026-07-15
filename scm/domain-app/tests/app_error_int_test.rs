@@ -1,4 +1,4 @@
-use edge_domain_app::AppError;
+use edge_application_app::AppError;
 
 #[test]
 fn test_app_error_boot_failed_message_happy() {

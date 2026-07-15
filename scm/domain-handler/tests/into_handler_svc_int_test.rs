@@ -1,10 +1,10 @@
 //! Integration tests — [`IntoHandler`] SAF surface (`into_handler_svc`).
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_handler::{
+use edge_application_handler::{
     IntoHandler, IntoHandlerRequest, Validator, ValidatorRequest, INTO_HANDLER_SVC,
 };
-use edge_domain_service::{NameRequest, NameResponse, Service, ServiceError};
+use edge_application_service::{NameRequest, NameResponse, Service, ServiceError};
 use futures::future::BoxFuture;
 
 struct EchoSvc;
@@ -44,7 +44,7 @@ fn test_into_handler_svc_constant_value_is_stable_happy() {
 /// @covers: IntoHandler
 #[test]
 fn test_into_handler_svc_trait_accessible_via_saf_surface_happy() {
-    use edge_domain_handler::{Handler, IdRequest};
+    use edge_application_handler::{Handler, IdRequest};
     let h = EchoSvc.into_handler(IntoHandlerRequest).unwrap().handler;
     assert_eq!(h.id(IdRequest).unwrap().id, "echo");
 }

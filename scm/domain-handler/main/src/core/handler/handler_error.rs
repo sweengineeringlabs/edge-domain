@@ -2,20 +2,20 @@
 
 use crate::api::HandlerError;
 
-impl From<edge_domain_service::ServiceError> for HandlerError {
-    fn from(e: edge_domain_service::ServiceError) -> Self {
+impl From<edge_application_service::ServiceError> for HandlerError {
+    fn from(e: edge_application_service::ServiceError) -> Self {
         match e {
-            edge_domain_service::ServiceError::InvalidRequest(msg) => {
+            edge_application_service::ServiceError::InvalidRequest(msg) => {
                 HandlerError::InvalidRequest(msg)
             }
-            edge_domain_service::ServiceError::RuleViolation(msg) => {
+            edge_application_service::ServiceError::RuleViolation(msg) => {
                 HandlerError::FailedPrecondition(msg)
             }
-            edge_domain_service::ServiceError::NotFound(msg) => HandlerError::NotFound(msg),
-            edge_domain_service::ServiceError::Unavailable(msg) => {
+            edge_application_service::ServiceError::NotFound(msg) => HandlerError::NotFound(msg),
+            edge_application_service::ServiceError::Unavailable(msg) => {
                 HandlerError::ExecutionFailed(msg)
             }
-            edge_domain_service::ServiceError::Internal(msg) => HandlerError::ExecutionFailed(msg),
+            edge_application_service::ServiceError::Internal(msg) => HandlerError::ExecutionFailed(msg),
         }
     }
 }
@@ -23,7 +23,7 @@ impl From<edge_domain_service::ServiceError> for HandlerError {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use edge_domain_service::ServiceError;
+    use edge_application_service::ServiceError;
 
     #[test]
     fn test_from_invalid_request_maps_correctly_happy() {

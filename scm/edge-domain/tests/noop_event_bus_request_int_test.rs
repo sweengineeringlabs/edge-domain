@@ -1,7 +1,8 @@
 //! Integration tests for `NoopEventBusRequest`.
+#![cfg(feature = "event")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::NoopEventBusRequest;
+use edge_application::NoopEventBusRequest;
 
 /// @covers: NoopEventBusRequest
 #[test]

@@ -1,7 +1,7 @@
-//! Layer-level coverage for `api/snapshot/types/*.rs` request/response types.
+//! Layer-level coverage for `api/snapshot/dto/*.rs` request/response types.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_snapshot::{
+use edge_application_snapshot::{
     SnapshotAggregateIdRequest, SnapshotAggregateIdResponse, SnapshotLoadRequest,
     SnapshotLoadResponse, SnapshotSaveRequest, SnapshotVersionRequest, SnapshotVersionResponse,
 };

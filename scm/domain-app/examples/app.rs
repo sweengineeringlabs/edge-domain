@@ -1,6 +1,6 @@
 //! Basic `Application` and `Bootstrap` usage example.
 
-use edge_domain_app::{
+use edge_application_app::{
     AppError, Application, ApplicationBuildRequest, ApplicationBuildResponse, ApplicationRunRequest,
     ApplicationRunResponse, Bootstrap, NameRequest, NameResponse,
 };

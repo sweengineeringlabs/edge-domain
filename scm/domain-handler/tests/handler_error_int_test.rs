@@ -1,6 +1,6 @@
 //! Integration tests — `HandlerError` display and helper constructors.
 
-use edge_domain_handler::HandlerError;
+use edge_application_handler::HandlerError;
 
 /// @covers: HandlerError::Unsupported display
 #[test]

@@ -1,4 +1,4 @@
-use edge_domain_event::AGGREGATE_SVC_FACTORY;
+use edge_application_event::AGGREGATE_SVC_FACTORY;
 
 #[test]
 fn test_aggregate_svc_factory_constant_value_happy() {

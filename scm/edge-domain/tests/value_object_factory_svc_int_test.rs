@@ -1,11 +1,12 @@
 //! Integration tests for the `ValueObjectFactory` SAF facade.
+#![cfg(feature = "valueobject")]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 // This factory is only present when the inline valueobject fallback is compiled
 // (i.e., when the `valueobject` feature is disabled).
 #[cfg(not(feature = "valueobject"))]
 mod tests {
-    use edge_domain::{NonEmptyString, ValueObjectFactory};
+    use edge_application::{NonEmptyString, ValueObjectFactory};
 
     struct TestValueObjects;
     impl ValueObjectFactory for TestValueObjects {}

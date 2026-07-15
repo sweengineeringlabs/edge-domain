@@ -1,6 +1,6 @@
 //! Structural coverage for [`CommandDispatchRequest`].
 
-use edge_domain_command::{Command, CommandDispatchRequest, CommandError, ExecutionRequest};
+use edge_application_command::{Command, CommandDispatchRequest, CommandError, ExecutionRequest};
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 

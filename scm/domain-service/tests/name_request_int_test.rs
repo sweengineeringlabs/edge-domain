@@ -1,6 +1,6 @@
 //! Tests for [`NameRequest`] — zero-sized marker type.
 
-use edge_domain_service::NameRequest;
+use edge_application_service::NameRequest;
 use std::mem::size_of;
 
 /// @covers: NameRequest — constructible

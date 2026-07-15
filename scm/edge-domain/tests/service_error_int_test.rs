@@ -1,6 +1,7 @@
 //! Integration tests for `ServiceError`.
+#![cfg(feature = "service")]
 
-use edge_domain::ServiceError;
+use edge_application::ServiceError;
 
 /// @covers: ServiceError
 #[test]

@@ -3,14 +3,15 @@
 //!
 //! The fixture models an order-fulfillment saga with a compensation path so the
 //! `_error` scenarios exercise a real rollback, not a contrived assertion.
+#![cfg(all(feature = "event", feature = "command", feature = "saga"))]
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain::{
+use edge_application::{
     Command, DomainEvent, EventAggregateIdRequest, EventAggregateIdResponse, EventError,
     EventTypeRequest, EventTypeResponse, Saga, SagaError, SagaHandleRequest, SagaHandleResponse,
     SagaIsCompleteRequest, SagaIsCompleteResponse,
 };
-use edge_domain_command::{ExecutionRequest, NameRequest, NameResponse};
+use edge_application_command::{ExecutionRequest, NameRequest, NameResponse};
 
 /// Events the saga reacts to.
 #[derive(Clone)]
@@ -52,7 +53,7 @@ enum OrderCommand {
 }
 
 impl Command for OrderCommand {
-    fn name(&self, _req: NameRequest) -> Result<NameResponse, edge_domain::CommandError> {
+    fn name(&self, _req: NameRequest) -> Result<NameResponse, edge_application::CommandError> {
         Ok(NameResponse {
             name: match self {
                 OrderCommand::ReserveStock { .. } => "reserve-stock",
@@ -64,7 +65,7 @@ impl Command for OrderCommand {
     fn execute(
         &self,
         _req: ExecutionRequest,
-    ) -> futures::future::BoxFuture<'_, Result<(), edge_domain::CommandError>> {
+    ) -> futures::future::BoxFuture<'_, Result<(), edge_application::CommandError>> {
         Box::pin(async move { Ok(()) })
     }
 }

@@ -1,6 +1,6 @@
 //! Integration tests for [`NoopService`] — the no-operation service implementation.
 
-use edge_domain_service::{NameRequest, NoopService, Service};
+use edge_application_service::{NameRequest, NoopService, Service};
 use futures::executor::block_on;
 
 /// @covers: Service::name

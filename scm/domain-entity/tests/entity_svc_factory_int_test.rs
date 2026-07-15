@@ -1,4 +1,4 @@
-use edge_domain_entity::ENTITY_SVC_FACTORY;
+use edge_application_entity::ENTITY_SVC_FACTORY;
 
 #[test]
 fn test_entity_svc_factory_constant_value_happy() {

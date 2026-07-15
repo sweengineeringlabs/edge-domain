@@ -1,4 +1,4 @@
-use edge_domain_observer::StdObserveFactory;
+use edge_application_observer::StdObserveFactory;
 
 #[test]
 fn test_std_observe_factory_is_constructible_happy() {

@@ -1,6 +1,6 @@
 //! Tests for the `SnapshotError` error type.
 
-use edge_domain_snapshot::SnapshotError;
+use edge_application_snapshot::SnapshotError;
 
 /// @covers: SnapshotError::InvalidVersion — Display
 #[test]

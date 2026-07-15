@@ -3,7 +3,7 @@
 
 use std::sync::Arc;
 
-use edge_domain_handler::SecurityPrincipal;
+use edge_application_handler::SecurityPrincipal;
 
 struct PrincipalDouble;
 impl SecurityPrincipal for PrincipalDouble {}

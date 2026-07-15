@@ -1,7 +1,7 @@
 //! Integration tests — `NoopApplication` (api noop type).
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_app::{
+use edge_application_app::{
     AppError, Application, ApplicationRunRequest, ApplicationRunResponse, NameRequest, NoopApplication,
 };
 use futures::executor::block_on;

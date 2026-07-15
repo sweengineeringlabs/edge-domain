@@ -1,6 +1,6 @@
 //! [`LocalLogDrainRef`] — wraps a borrowed real `LogDrain` reference as a local [`LogDrain`].
 
-use edge_domain_observer as obs;
+use edge_application_observer as obs;
 
 use super::into_handler_error::IntoHandlerError;
 use crate::api::{HandlerError, LogDrain, LogEmitRequest, LogEmitResponse};

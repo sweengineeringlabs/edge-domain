@@ -1,5 +1,5 @@
 [package]
-name                   = "edge-domain-handler"
+name                   = "edge-application-handler"
 version                = "0.1.1"
 edition.workspace      = true
 license.workspace      = true
@@ -20,10 +20,10 @@ path = "main/src/lib.rs"
 async-trait.workspace        = true
 thiserror.workspace          = true
 parking_lot.workspace        = true
-edge-domain-command.workspace  = true
-edge-domain-observer.workspace  = true
+edge-application-command.workspace  = true
+edge-application-observer.workspace  = true
 edge-security-runtime.workspace = true
-edge-domain-service.workspace  = true
+edge-application-service.workspace  = true
 
 [dev-dependencies]
 tokio   = { workspace = true, features = ["macros", "rt", "rt-multi-thread"] }

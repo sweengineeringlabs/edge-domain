@@ -1,6 +1,6 @@
 //! Integration tests for `DomainExtensionHealthRequest`.
 
-use edge_domain::{
+use edge_application::{
     DomainError, DomainExtension, DomainExtensionHealthRequest, NoopDomainExtension,
 };
 

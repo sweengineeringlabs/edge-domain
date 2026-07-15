@@ -1,4 +1,4 @@
-use edge_domain_app::APPLICATION_SVC;
+use edge_application_app::APPLICATION_SVC;
 
 #[test]
 fn test_application_svc_constant_value_happy() {

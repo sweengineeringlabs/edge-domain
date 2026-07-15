@@ -1,6 +1,6 @@
 //! Basic `Validator` usage example.
 
-use edge_domain_validator::{AlwaysValid, ValidationRequest, ValidationResponse, Validator, ValidatorError};
+use edge_application_validator::{AlwaysValid, ValidationRequest, ValidationResponse, Validator, ValidatorError};
 
 struct Config {
     value: u32,

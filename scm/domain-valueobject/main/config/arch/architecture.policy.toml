@@ -4,6 +4,8 @@
 
 [rules]
 
-vo_type_partial_eq = [{ id = 233, category = "structure", description = "Value object types in api/valueobject/types/ must derive PartialEq", severity = "error", type = "glob_content_matches", glob = "main/src/api/valueobject/types/*_*.rs", pattern = "PartialEq", fix_hint = "Add PartialEq to #[derive(...)] — VO equality is a core invariant required for assert_eq! in tests" }]
+vo_type_partial_eq_dto = [{ id = 233, category = "structure", description = "Value object DTOs in api/valueobject/dto/ must derive PartialEq", severity = "error", type = "glob_content_matches", glob = "main/src/api/valueobject/dto/*_*.rs", pattern = "PartialEq", fix_hint = "Add PartialEq to #[derive(...)] — VO equality is a core invariant required for assert_eq! in tests" }]
+
+vo_type_partial_eq_flat = [{ id = 235, category = "structure", description = "Value object trait implementors flat under api/valueobject/ (e.g. non_empty_string.rs) must derive PartialEq", severity = "error", type = "glob_content_matches", glob = "main/src/api/valueobject/*_*.rs", pattern = "PartialEq", fix_hint = "Add PartialEq to #[derive(...)] — VO equality is a core invariant required for assert_eq! in tests" }]
 
 vo_error_partial_eq = [{ id = 234, category = "structure", description = "Value object errors in api/valueobject/errors/ must derive PartialEq", severity = "error", type = "glob_content_matches", glob = "main/src/api/valueobject/errors/*_*.rs", pattern = "PartialEq", fix_hint = "Add PartialEq to #[derive(...)] — error equality is required for assert_eq! and matches! in tests" }]

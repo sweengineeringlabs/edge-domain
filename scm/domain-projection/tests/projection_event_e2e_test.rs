@@ -1,7 +1,7 @@
 //! SAF facade tests — `ProjectionEvent` trait.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_projection::{
+use edge_application_projection::{
     ProjectionError, ProjectionEvent, ProjectionEventDescribeRequest, ProjectionEventDescribeResponse,
 };
 

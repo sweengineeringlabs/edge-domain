@@ -3,12 +3,12 @@
 
 use std::sync::Arc;
 
-use edge_domain_handler::{
+use edge_application_handler::{
     BridgeRequest, BridgeResponse, EmptinessRequest, HandlerError, HandlerLookupRequest,
     HandlerRegistry, IdRequest, InProcessHandlerRegistry, LenRequest, ListIdsRequest,
     RegisterHandlerRequest, RegistryBridge, StdRegistryBridge,
 };
-use edge_domain_service::{
+use edge_application_service::{
     NameRequest, NameResponse, RegisterServiceRequest, Service, ServiceError,
     ServiceRegistry as ServiceRegistryTrait, ServiceRegistryStore,
 };
@@ -119,7 +119,7 @@ fn test_bridge_into_non_empty_registry_accumulates_edge() {
         .unwrap();
     let dst = make_handler_registry();
     dst.register(RegisterHandlerRequest::new(Arc::new(
-        edge_domain_handler::EchoHandler::<String>::from(("pre", "/pre")),
+        edge_application_handler::EchoHandler::<String>::from(("pre", "/pre")),
     )))
     .unwrap();
 

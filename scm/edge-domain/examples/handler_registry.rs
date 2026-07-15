@@ -6,21 +6,21 @@
 //! Demonstrates the full domain execution-unit contract:
 //!   new_handler_registry → register → get → execute → health_check → deregister
 //!
-//! SEA constraint: all imports come from the `edge_domain` SAF surface.
+//! SEA constraint: all imports come from the `edge_application` SAF surface.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use edge_domain::DirectCommandBusRequest;
-use edge_domain::DomainRuntime;
-use edge_domain::{Domain, Handler, HandlerContext, HandlerError};
-use edge_domain_handler::{
+use edge_application::DirectCommandBusRequest;
+use edge_application::DomainRuntime;
+use edge_application::{Domain, Handler, HandlerContext, HandlerError};
+use edge_application_handler::{
     CommandBusAdapter, DeregisterHandlerRequest, EmptinessRequest, ExecutionRequest,
     HandlerLookupRequest, IdRequest, IdResponse, ListIdsRequest, ObserverContextAdapter,
     RegisterHandlerRequest,
 };
-use edge_domain_observer::StdObserveFactory;
+use edge_application_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
 
 struct GreetHandler;
@@ -89,7 +89,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("empty name    → {err}");
 
     let healthy = handler
-        .health_check(edge_domain_handler::HealthCheckRequest)
+        .health_check(edge_application_handler::HealthCheckRequest)
         .await?
         .healthy;
     println!("health_check  → {healthy}");

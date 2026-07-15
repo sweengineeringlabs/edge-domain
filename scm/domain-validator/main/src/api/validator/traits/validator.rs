@@ -1,7 +1,7 @@
 //! Configuration validation contract.
 
 use crate::api::validator::errors::ValidatorError;
-use crate::api::validator::types::{ValidationRequest, ValidationResponse};
+use crate::api::validator::dto::{ValidationRequest, ValidationResponse};
 
 /// Configuration validation contract.
 ///

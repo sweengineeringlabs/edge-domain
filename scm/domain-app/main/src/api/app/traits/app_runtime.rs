@@ -3,7 +3,7 @@
 use std::future::Future;
 use std::pin::Pin;
 
-use crate::api::app::types::{NameRequest, NameResponse, RuntimeBootRequest, RuntimeBootResponse};
+use crate::api::app::dto::{NameRequest, NameResponse, RuntimeBootRequest, RuntimeBootResponse};
 use crate::api::AppError;
 use crate::api::NoopAppRuntime;
 

@@ -1,6 +1,6 @@
 //! Integration tests — `APP_SERVICE_PROVIDER_SVC` constant.
 
-use edge_domain_app::APP_SERVICE_PROVIDER_SVC;
+use edge_application_app::APP_SERVICE_PROVIDER_SVC;
 
 /// @covers: APP_SERVICE_PROVIDER_SVC — correct service identity value
 #[test]

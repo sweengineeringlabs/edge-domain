@@ -1,7 +1,7 @@
 //! SAF facade tests — `ObserverContext` trait.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_handler::{
+use edge_application_handler::{
     CounterLookupRequest, DrainRequest, DrainResponse, GaugeLookupRequest, HandlerError,
     HandlerTracer, HistogramLookupRequest, IncrementRequest, IncrementResponse, LogDrain,
     LogEmitRequest, LogEmitResponse, MetricRegistry, MetricsRequest, MetricsResponse,
@@ -36,7 +36,7 @@ impl LogDrain for StubDrain {
 }
 
 struct StubCounter;
-impl edge_domain_handler::Counter for StubCounter {
+impl edge_application_handler::Counter for StubCounter {
     fn increment(&self, _req: IncrementRequest) -> Result<IncrementResponse, HandlerError> {
         Ok(IncrementResponse)
     }
@@ -47,21 +47,21 @@ impl MetricRegistry for StubRegistry {
     fn counter(
         &self,
         _req: CounterLookupRequest,
-    ) -> Result<edge_domain_handler::CounterLookupResponse, HandlerError> {
-        Ok(edge_domain_handler::CounterLookupResponse {
+    ) -> Result<edge_application_handler::CounterLookupResponse, HandlerError> {
+        Ok(edge_application_handler::CounterLookupResponse {
             counter: Box::new(StubCounter),
         })
     }
     fn histogram(
         &self,
         _req: HistogramLookupRequest,
-    ) -> Result<edge_domain_handler::HistogramLookupResponse, HandlerError> {
+    ) -> Result<edge_application_handler::HistogramLookupResponse, HandlerError> {
         Err(HandlerError::ExecutionFailed("not needed".into()))
     }
     fn gauge(
         &self,
         _req: GaugeLookupRequest,
-    ) -> Result<edge_domain_handler::GaugeLookupResponse, HandlerError> {
+    ) -> Result<edge_application_handler::GaugeLookupResponse, HandlerError> {
         Err(HandlerError::ExecutionFailed("not needed".into()))
     }
 }
@@ -223,7 +223,7 @@ fn test_metrics_called_repeatedly_returns_registry_edge() {
 /// @covers: ObserverContext::wrap — wraps an already type-erased real `ObserverContext`
 #[test]
 fn test_wrap_erased_reference_bridges_happy() {
-    let observer = edge_domain_observer::StdObserveFactory::noop_observer_context();
+    let observer = edge_application_observer::StdObserveFactory::noop_observer_context();
     let adapter = OkObserver::wrap(observer.as_ref());
     let span = ObserverContext::tracer(&adapter, TracerRequest)
         .unwrap()
@@ -240,7 +240,7 @@ fn test_wrap_erased_reference_bridges_happy() {
 /// @covers: ObserverContext::wrap — wrapped erased reference bridges drain emission
 #[test]
 fn test_wrap_erased_reference_propagates_errors_error() {
-    let observer = edge_domain_observer::StdObserveFactory::noop_observer_context();
+    let observer = edge_application_observer::StdObserveFactory::noop_observer_context();
     let adapter = OkObserver::wrap(observer.as_ref());
     let drain = ObserverContext::drain(&adapter, DrainRequest)
         .unwrap()
@@ -258,7 +258,7 @@ fn test_wrap_erased_reference_propagates_errors_error() {
 /// @covers: ObserverContext::wrap — adapter reusable across multiple calls
 #[test]
 fn test_wrap_adapter_reusable_edge() {
-    let observer = edge_domain_observer::StdObserveFactory::noop_observer_context();
+    let observer = edge_application_observer::StdObserveFactory::noop_observer_context();
     let adapter = OkObserver::wrap(observer.as_ref());
     for _ in 0..2 {
         let metrics = ObserverContext::metrics(&adapter, MetricsRequest)

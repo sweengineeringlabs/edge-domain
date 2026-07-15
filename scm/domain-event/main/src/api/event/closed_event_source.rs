@@ -1,8 +1,7 @@
-//! `ClosedEventSource` — SEA Rule 121 api/core mirror.
-//!
-//! This path-level mirror lets the structural auditor match
-//! `core/event/closed_event_source.rs` to an api counterpart.
+//! [`ClosedEventSource`] — a zero-sized event source that is permanently closed.
 
-/// SEA Rule 121 marker — path co-location sentinel for
-/// [`crate::api::event::types::ClosedEventSource`].
-pub(crate) const _RULE_121: () = ();
+/// A zero-sized event source that is permanently closed.
+///
+/// Every call to [`EventSource::recv_next`] returns
+/// [`EventError::Unavailable`] immediately.
+pub struct ClosedEventSource;

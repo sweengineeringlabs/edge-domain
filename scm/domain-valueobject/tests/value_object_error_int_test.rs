@@ -1,6 +1,6 @@
 //! Integration tests for `ValueObjectError`.
 
-use edge_domain_valueobject::ValueObjectError;
+use edge_application_valueobject::ValueObjectError;
 
 /// @covers: ValueObjectError::Empty — Display message
 #[test]

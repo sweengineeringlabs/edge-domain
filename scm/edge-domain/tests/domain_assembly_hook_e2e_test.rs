@@ -1,6 +1,6 @@
 //! Integration tests — `DomainAssemblyHook` trait.
 
-use edge_domain::{DomainAssemblyHook, NoopDomainAssemblyHook};
+use edge_application::{DomainAssemblyHook, NoopDomainAssemblyHook};
 
 /// @covers: DomainAssemblyHook — NoopDomainAssemblyHook satisfies the DomainAssemblyHook contract
 #[test]

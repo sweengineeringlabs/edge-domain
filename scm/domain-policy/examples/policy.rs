@@ -1,6 +1,6 @@
 //! Basic `Policy` usage example.
 
-use edge_domain_policy::{
+use edge_application_policy::{
     CompositePolicy, Policy, PolicyEvaluateRequest, PolicyNameRequest, PolicyNameResponse,
     PolicyError,
 };

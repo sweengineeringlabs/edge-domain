@@ -1,7 +1,7 @@
 //! Integration tests for `TransitionPolicy` — covers the traits/ file directly.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_lifecycle::{TransitionAllowedRequest, TransitionPolicy};
+use edge_application_lifecycle::{TransitionAllowedRequest, TransitionPolicy};
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 enum Gate {
@@ -19,8 +19,8 @@ impl TransitionPolicy for LockFinalPolicy {
     fn is_allowed(
         &self,
         req: TransitionAllowedRequest<Gate>,
-    ) -> Result<edge_domain_lifecycle::TransitionAllowedResponse, edge_domain_lifecycle::LifecycleError> {
-        Ok(edge_domain_lifecycle::TransitionAllowedResponse {
+    ) -> Result<edge_application_lifecycle::TransitionAllowedResponse, edge_application_lifecycle::LifecycleError> {
+        Ok(edge_application_lifecycle::TransitionAllowedResponse {
             allowed: req.to != Gate::Locked || req.from == Gate::Open,
         })
     }

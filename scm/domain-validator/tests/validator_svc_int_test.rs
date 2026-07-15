@@ -1,6 +1,6 @@
 //! Integration tests — `Validator` trait via `AlwaysValid`.
 
-use edge_domain_validator::{AlwaysValid, ValidationRequest, ValidationResponse, Validator};
+use edge_application_validator::{AlwaysValid, ValidationRequest, ValidationResponse, Validator};
 
 /// @covers: Validator::validate — always-valid reference impl
 #[test]

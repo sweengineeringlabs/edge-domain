@@ -1,4 +1,4 @@
-use edge_domain_policy::{POLICY_SVC, POLICY_SVC_FACTORY};
+use edge_application_policy::{POLICY_SVC, POLICY_SVC_FACTORY};
 
 #[test]
 fn test_policy_svc_anchor_is_unit_happy() {

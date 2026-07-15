@@ -1,7 +1,7 @@
 //! Integration tests for `NoopEventPublisher`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_event::{
+use edge_application_event::{
     DomainEvent, EventPublisher, EventPublisherPublishRequest, NoopEventPublisher,
 };
 

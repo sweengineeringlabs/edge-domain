@@ -10,7 +10,7 @@ use crate::api::service::{
 /// A registry that maps service names to [`Service`] implementations.
 ///
 /// Implementations must be thread-safe. The canonical implementation is
-/// [`crate::api::service::types::ServiceRegistry`].
+/// [`crate::api::service::service_registry_store::ServiceRegistryStore`].
 pub trait ServiceRegistry: Send + Sync {
     /// The request type accepted by services in this registry.
     type Request: Send + 'static;

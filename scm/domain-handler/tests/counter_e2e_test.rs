@@ -1,7 +1,7 @@
 //! SAF facade tests — `Counter` trait.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_handler::{Counter, HandlerError, IncrementRequest, IncrementResponse};
+use edge_application_handler::{Counter, HandlerError, IncrementRequest, IncrementResponse};
 
 struct OkCounter;
 impl Counter for OkCounter {

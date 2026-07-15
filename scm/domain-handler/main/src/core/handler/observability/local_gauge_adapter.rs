@@ -1,6 +1,6 @@
 //! [`LocalGaugeAdapter`] — wraps an owned real `Gauge` as a local [`Gauge`].
 
-use edge_domain_observer as obs;
+use edge_application_observer as obs;
 
 use super::into_handler_error::IntoHandlerError;
 use crate::api::{Gauge, GaugeSetRequest, GaugeSetResponse, HandlerError};

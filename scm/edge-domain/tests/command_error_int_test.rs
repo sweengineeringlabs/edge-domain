@@ -1,6 +1,7 @@
 //! Integration tests for `CommandError`.
+#![cfg(feature = "command")]
 
-use edge_domain::CommandError;
+use edge_application::CommandError;
 
 /// @covers: CommandError
 #[test]
