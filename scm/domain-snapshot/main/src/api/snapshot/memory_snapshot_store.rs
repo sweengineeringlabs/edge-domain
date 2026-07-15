@@ -1,6 +1,15 @@
-//! `MemorySnapshotStore` — SEA Rule 121 api/core mirror.
-//!
-//! `MemorySnapshotStore` is generic, so the structural auditor cannot match
-//! the generic impl in `core/snapshot/memory_snapshot_store.rs` to an api
-//! type by name. This path-level mirror provides the counterpart.
-pub use crate::api::snapshot::types::MemorySnapshotStore;
+//! API-layer type for the in-memory snapshot store.
+
+use std::collections::HashMap;
+use std::sync::RwLock;
+
+use crate::api::snapshot::traits::Snapshot;
+
+/// An in-memory snapshot store — keeps the latest snapshot per aggregate.
+///
+/// A reference [`SnapshotStore`](crate::SnapshotStore) for development and
+/// testing.  State lives in process memory and is lost when the process stops.
+pub struct MemorySnapshotStore<S: Snapshot> {
+    /// The underlying snapshot map — exposed for test-time inspection.
+    pub snapshots: RwLock<HashMap<S::AggregateId, S>>,
+}

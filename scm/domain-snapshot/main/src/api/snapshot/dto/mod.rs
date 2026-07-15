@@ -1,7 +1,3 @@
-//! Snapshot theme — neutral implementation types.
-
-pub mod memory_snapshot_store;
-pub mod noop_snapshot;
 pub mod snapshot_aggregate_id_request;
 pub mod snapshot_aggregate_id_response;
 pub mod snapshot_load_request;
@@ -10,8 +6,6 @@ pub mod snapshot_save_request;
 pub mod snapshot_version_request;
 pub mod snapshot_version_response;
 
-pub use memory_snapshot_store::MemorySnapshotStore;
-pub use noop_snapshot::NoopSnapshot;
 pub use snapshot_aggregate_id_request::SnapshotAggregateIdRequest;
 pub use snapshot_aggregate_id_response::SnapshotAggregateIdResponse;
 pub use snapshot_load_request::SnapshotLoadRequest;

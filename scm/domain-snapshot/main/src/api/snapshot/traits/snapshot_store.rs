@@ -6,7 +6,7 @@ use std::pin::Pin;
 
 use crate::api::snapshot::errors::SnapshotError;
 use crate::api::snapshot::traits::Snapshot;
-use crate::api::snapshot::types::{SnapshotLoadRequest, SnapshotLoadResponse, SnapshotSaveRequest};
+use crate::api::snapshot::dto::{SnapshotLoadRequest, SnapshotLoadResponse, SnapshotSaveRequest};
 
 /// Stores and retrieves [`Snapshot`]s keyed by aggregate id.
 pub trait SnapshotStore: Send + Sync {

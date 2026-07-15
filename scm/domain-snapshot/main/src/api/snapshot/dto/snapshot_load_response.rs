@@ -1,2 +1,8 @@
-//! Rule 121 path-mirror: re-exports `SnapshotLoadResponse` from `types/`.
-pub use crate::api::snapshot::types::SnapshotLoadResponse;
+//! [`SnapshotLoadResponse`] — wrapper for an optional loaded snapshot.
+
+/// Result of [`SnapshotStore::load`](crate::api::SnapshotStore::load).
+#[derive(Debug)]
+pub struct SnapshotLoadResponse<S> {
+    /// The latest snapshot for the requested aggregate, if any has been saved.
+    pub snapshot: Option<S>,
+}

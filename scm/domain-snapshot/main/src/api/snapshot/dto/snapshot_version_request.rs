@@ -1,2 +1,5 @@
-//! Rule 121 path-mirror: re-exports `SnapshotVersionRequest` from `types/`.
-pub use crate::api::snapshot::types::SnapshotVersionRequest;
+//! [`SnapshotVersionRequest`] — zero-sized marker for querying a snapshot's version.
+
+/// Request to read the event stream version a [`Snapshot`](crate::api::Snapshot) was taken at.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub struct SnapshotVersionRequest;
