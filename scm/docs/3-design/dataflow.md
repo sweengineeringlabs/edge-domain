@@ -23,6 +23,28 @@ edge_application_handler::InProcessHandlerRegistry     (domain-handler, THIS rep
 Handler::execute(ExecutionRequest { req, ctx })          (domain-handler's own trait)
 ```
 
+```mermaid
+sequenceDiagram
+    participant Server as AxumHttpServer / TonicGrpcServer
+    participant Builder as RuntimeBuilder (swe-edge-bootstrap)
+    participant Dispatcher as HttpHandlerRegistryDispatcher
+    participant Impl as HandlerRegistryImpl (edge-dispatcher)
+    participant Reg as InProcessHandlerRegistry (domain-handler)
+    participant Handler as Handler::execute (domain-handler)
+
+    Server->>Builder: incoming request
+    Builder->>Dispatcher: dispatch(request)
+    Dispatcher->>Impl: get(HandlerLookupRequest)
+    Impl->>Reg: get(HandlerLookupRequest)
+    Note right of Impl: pure forward — no logic of its own
+    Reg-->>Impl: Arc<dyn Handler>
+    Impl-->>Dispatcher: Arc<dyn Handler>
+    Dispatcher->>Handler: execute(ExecutionRequest{req, ctx})
+    Handler-->>Dispatcher: Result<Response, HandlerError>
+    Dispatcher-->>Builder: response
+    Builder-->>Server: response
+```
+
 **Proof:** `edge-dispatcher/scm/main/src/core/handler/handler_registry.rs` — `HandlerRegistryImpl<Request, Response>`
 is `{ inner: InProcessHandlerRegistry<Request, Response> }`; `register`/`deregister`/`get`/`list_ids`/`len`
 each forward directly to `self.inner`. This is the registry `swe-edge-bootstrap`'s
@@ -84,6 +106,33 @@ types directly (SEA `no_foreign_type`). They are bridged by:
       }
   }
   ```
+
+```mermaid
+sequenceDiagram
+    participant App as Application startup (_svc.rs)
+    participant SvcReg as ServiceRegistry (domain-service)
+    participant Bridge as StdRegistryBridge
+    participant HReg as HandlerRegistry (domain-handler)
+
+    rect rgb(235, 245, 255)
+    Note over App,HReg: composition time — runs once, at startup
+    App->>SvcReg: register(service)
+    App->>Bridge: bridge(src: ServiceRegistry, dst: HandlerRegistry)
+    Bridge->>SvcReg: list_names() / get(name)
+    Bridge->>HReg: register(StdRegistryBridgeHandler::new(name, svc))
+    end
+
+    participant DSH as DefaultServiceHandler<S>
+    participant Svc as Service::execute (wrapped impl)
+
+    rect rgb(255, 240, 235)
+    Note over DSH,Svc: per request — every call, via section 1's live chain
+    DSH->>DSH: execute(ExecutionRequest{req, ctx})
+    Note right of DSH: ctx (security/commands/observer)<br/>received here, but never forwarded below
+    DSH->>Svc: execute(req.req)
+    Svc-->>DSH: Result<Response, ServiceError>
+    end
+```
 
 **What this means precisely:** `ServiceRegistry` is not part of the per-request dispatch path —
 a live request never touches it. It is real, load-bearing infrastructure at **composition time**:
