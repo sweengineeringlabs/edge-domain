@@ -6,5 +6,5 @@
 /// `*Request` -> `Result<T, E>` port-contract shape, letting implementors
 /// that resolve their name via a fallible lookup (e.g. a registry) fit the
 /// same signature as every other dispatched operation.
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct NameRequest;
