@@ -1,5 +1,6 @@
 //! Domain theme — cross-cutting domain types and the extension hook contract.
 
+#[allow(clippy::module_inception)]
 mod domain;
 pub mod dto;
 pub mod errors;

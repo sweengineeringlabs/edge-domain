@@ -1,5 +1,6 @@
 //! Object-safe runtime seam for `Domain`'s non-generic constructors.
 
+#[cfg(any(feature = "command", feature = "event"))]
 use crate::api::domain::errors::DomainError;
 #[cfg(feature = "command")]
 use crate::api::domain::dto::{DirectCommandBusRequest, DirectCommandBusResponse};

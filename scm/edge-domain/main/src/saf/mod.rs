@@ -93,11 +93,13 @@ pub use edge_application_policy::PolicyNameResponse;
 // ── command (sub-crate when feature enabled) ──────────────────────────────────
 #[cfg(feature = "command")]
 pub use edge_application_command::Command;
+#[cfg(feature = "command")]
 pub use edge_application_command::CommandError;
 
 // ── query (sub-crate when feature enabled) ────────────────────────────────────
 #[cfg(feature = "query")]
 pub use edge_application_query::Query;
+#[cfg(feature = "query")]
 pub use edge_application_query::QueryError;
 
 // ── snapshot (sub-crate when feature enabled) ─────────────────────────────────
@@ -147,13 +149,17 @@ pub use edge_application_repository::SPEC_SVC_FACTORY;
 // ── handler (sub-crate when feature enabled) ──────────────────────────────────
 #[cfg(feature = "handler")]
 pub use edge_application_handler::HandlerContext;
+#[cfg(feature = "handler")]
 pub use edge_application_handler::HandlerError;
 
 // ── event (sub-crate when feature enabled) ────────────────────────────────────
 #[cfg(feature = "event")]
 pub use edge_application_event::ClosedEventSource;
+#[cfg(feature = "event")]
 pub use edge_application_event::EventEnvelope;
+#[cfg(feature = "event")]
 pub use edge_application_event::EventSource;
+#[cfg(feature = "event")]
 pub use edge_application_event::ExpectedVersion;
 
 // ── pipeline (sub-crate when feature enabled) ────────────────────────────────
@@ -189,6 +195,7 @@ pub(crate) use edge_pipeline::Validator as PipelineValidator;
 pub use edge_pipeline::ValidatorSvc as PipelineValidatorSvc;
 
 // ── projection (sub-crate when feature enabled) ───────────────────────────────
+#[cfg(feature = "projection")]
 pub use edge_application_projection::ProjectionError;
 #[cfg(feature = "projection")]
 pub use edge_application_projection::TryDrainResponse;

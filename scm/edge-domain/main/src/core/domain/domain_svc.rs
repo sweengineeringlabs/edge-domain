@@ -2,6 +2,7 @@
 //! methods on [`Domain`]. The non-generic subset also implements
 //! [`DomainRuntime`], giving `Domain` a real `dyn DomainRuntime` seam.
 
+#[cfg(feature = "repository")]
 use std::hash::Hash;
 use std::sync::Arc;
 
@@ -90,6 +91,7 @@ use crate::api::SnapshotStore;
 #[cfg(feature = "snapshot")]
 use edge_application_snapshot::MemorySnapshotStore;
 
+#[cfg(any(feature = "command", feature = "event"))]
 use crate::api::DomainError;
 use crate::api::DomainRuntime;
 
