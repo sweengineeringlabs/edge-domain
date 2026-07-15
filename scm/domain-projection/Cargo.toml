@@ -19,6 +19,7 @@ path = "main/src/lib.rs"
 
 [dependencies]
 thiserror.workspace    = true
+serde.workspace        = true
 edge-application-event = { path = "../domain-event" }
 
 [dev-dependencies]

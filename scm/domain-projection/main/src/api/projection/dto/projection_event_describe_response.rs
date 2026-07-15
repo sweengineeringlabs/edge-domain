@@ -2,7 +2,7 @@
 
 /// Stable identifying metadata for an event consumed by a
 /// [`Projection`](crate::api::projection::traits::Projection).
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct ProjectionEventDescribeResponse {
     /// Stable type name for the event, e.g. `"order.created"`.
     pub event_type: String,
