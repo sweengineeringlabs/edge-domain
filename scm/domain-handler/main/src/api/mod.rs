@@ -65,6 +65,8 @@ pub use handler::PatternResponse;
 pub use handler::RegisterHandlerRequest;
 pub use handler::RegisterHandlerResponse;
 pub use handler::RegistryBridge;
+pub use handler::Request;
+pub use handler::Response;
 pub use handler::SecurityPrincipal;
 pub use handler::Service;
 pub use handler::ServiceBridge;

@@ -55,14 +55,22 @@ Confirmed via `arch audit --rs`, 2026-07-16: 10 `no_foreign_type` offenders in `
 (`handler.rs`, `handler_registry.rs`, `service.rs`, `service_registry.rs`, `registry_bridge.rs` —
 one `Request` and one `Response` reference each) and 4 in `domain-service` (`service.rs`'s
 `Service::Request`/`Response`, `service_registry.rs`'s `ServiceRegistry::Request`/`Response`).
-Also see the pre-existing, already-dismissed `api_dto_request_response_files_exist` false
-positive (#134): the same audit runs reproduce it for `Handler::execute`/`Service::execute` in
-both crates, for the same "generic associated type has no single concrete DTO to file under
-`dto/`" reason #134 documented before #139 existed.
+This is the one remaining exception, accepted as above.
 
-Both crates' remaining audit findings beyond these two are unrelated pre-existing gaps, not
-introduced by #139: `no_orphan_types` on `domain-handler`'s `EchoHandler` (a heuristic mismatch
-with the tool's generic-type exemption detection, present before this work started) and
+**`api_dto_request_response_files_exist` — resolved for real, not accepted as a false positive.**
+This rule (pre-existing, #134) initially reproduced for `Handler::execute`/`Service::execute` in
+both crates. Unlike `no_foreign_type`, this one has a genuine fix: `api/handler/dto/request.rs`,
+`api/handler/dto/response.rs` (`domain-handler`) and `api/service/dto/request.rs`,
+`api/service/dto/response.rs` (`domain-service`) now exist, each a one-line
+`pub use edge_application_base::{Request,Response};` — a real re-export of the actual shared
+contract every `Self::Request`/`Self::Response` resolves to, not a placeholder. Each is
+re-exported through to the crate root and covered by its own `tests/request_int_test.rs`/
+`response_int_test.rs` (2 tests each, verifying a concrete and a zero-sized type satisfy the
+bound through the re-export). `arch audit --rs` no longer reports this rule for either crate.
+
+Both crates' remaining audit findings beyond `no_foreign_type` are unrelated pre-existing gaps,
+not introduced by #139: `no_orphan_types` on `domain-handler`'s `EchoHandler` (a heuristic
+mismatch with the tool's generic-type exemption detection, present before this work started) and
 `spi_organization_follows_api` in both crates (neither has ever had an `spi/` layer — this
 workspace's simpler port-contract crates don't need one).
 

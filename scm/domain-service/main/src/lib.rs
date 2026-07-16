@@ -13,8 +13,8 @@ mod saf;
 pub use api::{
     EmptinessRequest, EmptinessResponse, LenRequest, LenResponse, ListNamesRequest,
     ListNamesResponse, NameRequest, NameResponse, NoopRequest, NoopResponse, NoopService,
-    RegisterServiceRequest, RegisterServiceResponse, Service, ServiceError, ServiceLookupRequest,
-    ServiceLookupResponse, ServiceRegistry, ServiceRegistryStore, ServiceRemovalRequest,
-    ServiceRemovalResponse, StdServiceRegistryFactory,
+    RegisterServiceRequest, RegisterServiceResponse, Request, Response, Service, ServiceError,
+    ServiceLookupRequest, ServiceLookupResponse, ServiceRegistry, ServiceRegistryStore,
+    ServiceRemovalRequest, ServiceRemovalResponse, StdServiceRegistryFactory,
 };
 pub use saf::{SERVICE_REGISTRY_SVC, SERVICE_SVC};

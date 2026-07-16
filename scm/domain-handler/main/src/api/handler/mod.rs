@@ -24,10 +24,10 @@ pub use dto::{
     IdResponse, IncrementRequest, IncrementResponse, IntoHandlerRequest, IntoHandlerResponse,
     LenRequest, LenResponse, ListIdsRequest, ListIdsResponse, ListNamesRequest, ListNamesResponse,
     LogEmitRequest, LogEmitResponse, MetricsRequest, MetricsResponse, PatternRequest,
-    PatternResponse, RegisterHandlerRequest, RegisterHandlerResponse, ServiceLookupRequest,
-    ServiceLookupResponse, SpanAnnotationRequest, SpanAnnotationResponse, SpanFinishRequest,
-    SpanFinishResponse, SpanStartRequest, SpanStartResponse, TracerRequest, TracerResponse,
-    ValidatorRequest,
+    PatternResponse, RegisterHandlerRequest, RegisterHandlerResponse, Request, Response,
+    ServiceLookupRequest, ServiceLookupResponse, SpanAnnotationRequest, SpanAnnotationResponse,
+    SpanFinishRequest, SpanFinishResponse, SpanStartRequest, SpanStartResponse, TracerRequest,
+    TracerResponse, ValidatorRequest,
 };
 pub use echo_handler::EchoHandler;
 pub use errors::HandlerError;

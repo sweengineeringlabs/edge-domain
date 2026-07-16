@@ -64,6 +64,8 @@ pub use api::PatternRequest;
 pub use api::PatternResponse;
 pub use api::RegisterHandlerRequest;
 pub use api::RegisterHandlerResponse;
+pub use api::Request;
+pub use api::Response;
 pub use api::ServiceLookupRequest;
 pub use api::ServiceLookupResponse;
 pub use api::SpanAnnotationRequest;
