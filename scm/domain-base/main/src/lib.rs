@@ -18,6 +18,8 @@ mod api;
 mod core;
 mod saf;
 
+pub use api::EmptyRequest;
+pub use api::EmptyResponse;
 pub use api::Request;
 pub use api::RequestError;
 pub use api::Response;

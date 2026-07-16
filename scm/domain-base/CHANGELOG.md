@@ -9,3 +9,7 @@
   `Result<ValidationResponse, RequestError>`/`Result<ValidationResponse, ResponseError>`,
   mirroring `domain-entity`'s `Entity::validate` pattern. `RequestError`/`ResponseError` are
   reserved, `#[non_exhaustive]`, currently uninhabited error namespaces for future use.
+- `EmptyRequest`/`EmptyResponse` — canonical zero-sized "no payload" types, each independently
+  implementing `Request`/`Response`. Not required to be paired with each other — a `Handler`/
+  `Service` may combine either with any real type on the other side. Saves downstream crates
+  from declaring their own local "no payload" marker for the same concept.
