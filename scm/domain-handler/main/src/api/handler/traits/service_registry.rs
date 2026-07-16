@@ -35,17 +35,17 @@ mod tests {
 
     use super::*;
     use crate::api::handler::traits::service::Service;
-    use edge_application_service::{NoopRequest, NoopResponse};
+    use edge_application_base::{EmptyRequest, EmptyResponse};
 
     struct StubService;
 
     #[async_trait]
     impl Service for StubService {
-        type Request = NoopRequest;
-        type Response = NoopResponse;
+        type Request = EmptyRequest;
+        type Response = EmptyResponse;
 
-        async fn execute(&self, _req: NoopRequest) -> Result<NoopResponse, HandlerError> {
-            Ok(NoopResponse)
+        async fn execute(&self, _req: EmptyRequest) -> Result<EmptyResponse, HandlerError> {
+            Ok(EmptyResponse)
         }
     }
 
@@ -54,8 +54,8 @@ mod tests {
     }
 
     impl ServiceRegistry for FixedRegistry {
-        type Request = NoopRequest;
-        type Response = NoopResponse;
+        type Request = EmptyRequest;
+        type Response = EmptyResponse;
 
         fn list_names(&self, _req: ListNamesRequest) -> Result<ListNamesResponse, HandlerError> {
             Ok(ListNamesResponse {
@@ -66,7 +66,7 @@ mod tests {
         fn get(
             &self,
             req: ServiceLookupRequest,
-        ) -> Result<ServiceLookupResponse<NoopRequest, NoopResponse>, HandlerError> {
+        ) -> Result<ServiceLookupResponse<EmptyRequest, EmptyResponse>, HandlerError> {
             if self.names.contains(&req.name) {
                 Ok(ServiceLookupResponse {
                     service: Some(Arc::new(StubService)),

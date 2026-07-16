@@ -1,15 +1,16 @@
 //! Tests for [`RegisterServiceRequest`].
 
+use edge_application_base::{EmptyRequest, EmptyResponse};
 use edge_application_service::{
-    NoopRequest, NoopResponse, NoopService, RegisterServiceRequest, Service, ServiceLookupRequest,
-    ServiceRegistry, ServiceRegistryStore,
+    NoopService, RegisterServiceRequest, Service, ServiceLookupRequest, ServiceRegistry,
+    ServiceRegistryStore,
 };
 use std::sync::Arc;
 
 /// @covers: RegisterServiceRequest — constructible with service
 #[test]
 fn test_register_service_request_constructible_happy() {
-    let svc: Arc<dyn Service<Request = NoopRequest, Response = NoopResponse>> =
+    let svc: Arc<dyn Service<Request = EmptyRequest, Response = EmptyResponse>> =
         Arc::new(NoopService);
     let _req = RegisterServiceRequest::new(svc);
 }
@@ -17,11 +18,11 @@ fn test_register_service_request_constructible_happy() {
 /// @covers: RegisterServiceRequest — holds service reference used during registration
 #[test]
 fn test_register_service_request_holds_service_edge() {
-    let svc: Arc<dyn Service<Request = NoopRequest, Response = NoopResponse>> =
+    let svc: Arc<dyn Service<Request = EmptyRequest, Response = EmptyResponse>> =
         Arc::new(NoopService);
     let req = RegisterServiceRequest::new(Arc::clone(&svc));
 
-    let reg: ServiceRegistryStore<NoopRequest, NoopResponse> = ServiceRegistryStore::default();
+    let reg: ServiceRegistryStore<EmptyRequest, EmptyResponse> = ServiceRegistryStore::default();
     if let Err(err) = reg.register(&req) {
         panic!("expected Ok, got Err: {err:?}");
     }

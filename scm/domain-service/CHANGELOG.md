@@ -1,5 +1,14 @@
 # Changelog — edge-domain-service
 
+## [0.1.2] — 2026-07-17
+
+### Changed
+- **Breaking:** removed the crate-local `NoopRequest`/`NoopResponse` types. `NoopService` now
+  uses `edge_application_base::{EmptyRequest, EmptyResponse}` — the canonical zero-sized
+  payload types — as its `Service::Request`/`Service::Response`. Any downstream code
+  constructing `NoopService`, or otherwise naming `NoopRequest`/`NoopResponse`, must switch to
+  `edge_application_base::{EmptyRequest, EmptyResponse}`.
+
 ## [0.1.1] — 2026-07-16
 
 ### Added

@@ -1,8 +1,7 @@
 //! Comprehensive tests for Service trait methods.
 
-use edge_application_service::{
-    NameRequest, NameResponse, NoopRequest, NoopResponse, Service, ServiceError,
-};
+use edge_application_base::{EmptyRequest, EmptyResponse};
+use edge_application_service::{NameRequest, NameResponse, Service, ServiceError};
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 
@@ -12,14 +11,14 @@ use futures::future::BoxFuture;
 struct FailingService;
 
 impl Service for FailingService {
-    type Request = NoopRequest;
-    type Response = NoopResponse;
+    type Request = EmptyRequest;
+    type Response = EmptyResponse;
 
     fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
         Err(ServiceError::NotFound("failing-service".to_string()))
     }
 
-    fn execute(&self, _req: NoopRequest) -> BoxFuture<'_, Result<NoopResponse, ServiceError>> {
+    fn execute(&self, _req: EmptyRequest) -> BoxFuture<'_, Result<EmptyResponse, ServiceError>> {
         Box::pin(async move { Err(ServiceError::NotFound("failing-service".to_string())) })
     }
 }
@@ -55,8 +54,8 @@ fn test_name_failing_service_returns_err_error() {
 #[test]
 fn test_execute_returns_ok_happy() {
     use edge_application_service::NoopService;
-    let result = block_on(NoopService.execute(NoopRequest));
-    assert_eq!(result, Ok(NoopResponse));
+    let result = block_on(NoopService.execute(EmptyRequest));
+    assert_eq!(result, Ok(EmptyResponse));
 }
 
 /// @covers: Service::execute
@@ -64,14 +63,14 @@ fn test_execute_returns_ok_happy() {
 fn test_execute_idempotent_edge() {
     use edge_application_service::NoopService;
     for _ in 0..5 {
-        let result = block_on(NoopService.execute(NoopRequest));
-        assert_eq!(result, Ok(NoopResponse));
+        let result = block_on(NoopService.execute(EmptyRequest));
+        assert_eq!(result, Ok(EmptyResponse));
     }
 }
 
 /// @covers: Service::execute
 #[test]
 fn test_execute_failing_returns_err_error() {
-    let result = block_on(FailingService.execute(NoopRequest));
+    let result = block_on(FailingService.execute(EmptyRequest));
     assert!(result.is_err());
 }

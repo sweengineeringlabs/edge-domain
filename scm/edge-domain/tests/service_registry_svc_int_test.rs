@@ -5,9 +5,8 @@
 use edge_application::Domain;
 use edge_application::Service;
 use edge_application::ServiceError;
-use edge_application_service::{
-    NameRequest, NameResponse, NoopRequest, RegisterServiceRequest, ServiceLookupRequest,
-};
+use edge_application_base::EmptyRequest;
+use edge_application_service::{NameRequest, NameResponse, RegisterServiceRequest, ServiceLookupRequest};
 use std::sync::Arc;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -18,7 +17,7 @@ impl edge_application_base::Response for TextPayload {}
 
 struct Greeter;
 impl Service for Greeter {
-    type Request = NoopRequest;
+    type Request = EmptyRequest;
     type Response = TextPayload;
     fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
         Ok(NameResponse {
@@ -27,7 +26,7 @@ impl Service for Greeter {
     }
     fn execute(
         &self,
-        _: NoopRequest,
+        _: EmptyRequest,
     ) -> futures::future::BoxFuture<'_, Result<TextPayload, ServiceError>> {
         Box::pin(async { Ok(TextPayload("hello".into())) })
     }
@@ -35,7 +34,7 @@ impl Service for Greeter {
 
 #[test]
 fn test_service_registry_svc_facade_register_and_get() {
-    let reg = Domain.new_service_registry::<NoopRequest, TextPayload>();
+    let reg = Domain.new_service_registry::<EmptyRequest, TextPayload>();
     reg.register(&RegisterServiceRequest::new(Arc::new(Greeter)))
         .unwrap();
     assert!(reg
@@ -49,7 +48,7 @@ fn test_service_registry_svc_facade_register_and_get() {
 
 #[test]
 fn test_service_registry_svc_facade_missing_name_returns_none() {
-    let reg = Domain.new_service_registry::<NoopRequest, TextPayload>();
+    let reg = Domain.new_service_registry::<EmptyRequest, TextPayload>();
     assert!(reg
         .get(&ServiceLookupRequest {
             name: "absent".to_string()

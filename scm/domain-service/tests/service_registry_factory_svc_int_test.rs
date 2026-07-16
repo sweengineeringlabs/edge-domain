@@ -1,8 +1,8 @@
 //! Factory constructor tests — `StdServiceRegistryFactory` static methods.
 
+use edge_application_base::{EmptyRequest, EmptyResponse};
 use edge_application_service::{
-    NoopRequest, NoopResponse, NoopService, Service, ServiceRegistry, ServiceRegistryStore,
-    StdServiceRegistryFactory,
+    NoopService, Service, ServiceRegistry, ServiceRegistryStore, StdServiceRegistryFactory,
 };
 use futures::executor::block_on;
 use std::fmt::Debug;
@@ -78,8 +78,8 @@ fn test_noop_service_returns_noop_service_instance_happy() {
 #[test]
 fn test_noop_service_execute_returns_ok_happy() {
     let svc = StdServiceRegistryFactory::noop_service();
-    let result = block_on(svc.execute(NoopRequest));
-    assert_eq!(result, Ok(NoopResponse));
+    let result = block_on(svc.execute(EmptyRequest));
+    assert_eq!(result, Ok(EmptyResponse));
 }
 
 /// @covers: StdServiceRegistryFactory::noop_service

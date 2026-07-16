@@ -1,15 +1,13 @@
 //! Service trait impl for [`NoopService`] — a no-operation service.
 
+use edge_application_base::{EmptyRequest, EmptyResponse};
 use futures::future::BoxFuture;
 
-use crate::api::{NameRequest, NameResponse, NoopRequest, NoopResponse, NoopService, Service, ServiceError};
-
-impl edge_application_base::Request for NoopRequest {}
-impl edge_application_base::Response for NoopResponse {}
+use crate::api::{NameRequest, NameResponse, NoopService, Service, ServiceError};
 
 impl Service for NoopService {
-    type Request = NoopRequest;
-    type Response = NoopResponse;
+    type Request = EmptyRequest;
+    type Response = EmptyResponse;
 
     fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
         Ok(NameResponse {
@@ -17,16 +15,17 @@ impl Service for NoopService {
         })
     }
 
-    fn execute(&self, _req: NoopRequest) -> BoxFuture<'_, Result<NoopResponse, ServiceError>> {
-        Box::pin(async move { Ok(NoopResponse) })
+    fn execute(&self, _req: EmptyRequest) -> BoxFuture<'_, Result<EmptyResponse, ServiceError>> {
+        Box::pin(async move { Ok(EmptyResponse) })
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use edge_application_base::{EmptyRequest, EmptyResponse};
     use futures::executor::block_on;
 
-    use crate::api::{NameRequest, NameResponse, NoopRequest, NoopResponse, NoopService, Service};
+    use crate::api::{NameRequest, NameResponse, NoopService, Service};
 
     /// @covers: name
     #[test]
@@ -43,16 +42,16 @@ mod tests {
     /// @covers: execute
     #[test]
     fn test_execute_noop_returns_ok_happy() {
-        let result = block_on(NoopService.execute(NoopRequest));
-        assert_eq!(result, Ok(NoopResponse));
+        let result = block_on(NoopService.execute(EmptyRequest));
+        assert_eq!(result, Ok(EmptyResponse));
     }
 
     /// @covers: execute
     #[test]
     fn test_execute_noop_never_errors_edge() {
         for _i in 0..3 {
-            let result = block_on(NoopService.execute(NoopRequest));
-            assert_eq!(result, Ok(NoopResponse));
+            let result = block_on(NoopService.execute(EmptyRequest));
+            assert_eq!(result, Ok(EmptyResponse));
         }
     }
 }

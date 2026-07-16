@@ -82,9 +82,10 @@ impl<T: svc::ServiceRegistry + ?Sized> ServiceRegistry for T {
 mod tests {
     use std::sync::Arc;
 
+    use edge_application_base::{EmptyRequest, EmptyResponse};
     use edge_application_service::{
-        NoopRequest, NoopResponse, NoopService, RegisterServiceRequest,
-        ServiceRegistry as ForeignServiceRegistry, ServiceRegistryStore,
+        NoopService, RegisterServiceRequest, ServiceRegistry as ForeignServiceRegistry,
+        ServiceRegistryStore,
     };
     use futures::executor::block_on;
 
@@ -92,7 +93,7 @@ mod tests {
 
     #[test]
     fn test_list_names_bridges_registered_service_happy() {
-        let store: ServiceRegistryStore<NoopRequest, NoopResponse> =
+        let store: ServiceRegistryStore<EmptyRequest, EmptyResponse> =
             ServiceRegistryStore::default();
         store
             .register(&RegisterServiceRequest::new(Arc::new(NoopService)))
@@ -105,7 +106,7 @@ mod tests {
 
     #[test]
     fn test_get_missing_service_returns_none_edge() {
-        let store: ServiceRegistryStore<NoopRequest, NoopResponse> =
+        let store: ServiceRegistryStore<EmptyRequest, EmptyResponse> =
             ServiceRegistryStore::default();
         let resp = ServiceRegistry::get(
             &store,
@@ -119,14 +120,14 @@ mod tests {
 
     #[test]
     fn test_concrete_service_coerces_to_local_trait_object_via_blanket_impl_happy() {
-        let service: Arc<dyn Service<Request = NoopRequest, Response = NoopResponse>> =
+        let service: Arc<dyn Service<Request = EmptyRequest, Response = EmptyResponse>> =
             Arc::new(NoopService);
-        assert_eq!(block_on(service.execute(NoopRequest)), Ok(NoopResponse));
+        assert_eq!(block_on(service.execute(EmptyRequest)), Ok(EmptyResponse));
     }
 
     #[test]
     fn test_get_registered_service_executes_via_adapter_happy() {
-        let store: ServiceRegistryStore<NoopRequest, NoopResponse> =
+        let store: ServiceRegistryStore<EmptyRequest, EmptyResponse> =
             ServiceRegistryStore::default();
         store
             .register(&RegisterServiceRequest::new(Arc::new(NoopService)))
@@ -139,6 +140,6 @@ mod tests {
         )
         .unwrap();
         let service = resp.service.expect("service should be present");
-        assert!(block_on(service.execute(NoopRequest)).is_ok());
+        assert!(block_on(service.execute(EmptyRequest)).is_ok());
     }
 }

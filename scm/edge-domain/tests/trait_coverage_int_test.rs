@@ -241,8 +241,8 @@ fn test_name_query_consistent_across_calls_not_error() {
 fn test_name_service_can_be_empty_string_edge() {
     struct EmptySvc;
     impl Service for EmptySvc {
-        type Request = edge_application_service::NoopRequest;
-        type Response = edge_application_service::NoopResponse;
+        type Request = edge_application_base::EmptyRequest;
+        type Response = edge_application_base::EmptyResponse;
         fn name(
             &self,
             _req: NameRequest,
@@ -253,9 +253,9 @@ fn test_name_service_can_be_empty_string_edge() {
         }
         fn execute(
             &self,
-            _: edge_application_service::NoopRequest,
-        ) -> BoxFuture<'_, Result<edge_application_service::NoopResponse, ServiceError>> {
-            Box::pin(async { Ok(edge_application_service::NoopResponse) })
+            _: edge_application_base::EmptyRequest,
+        ) -> BoxFuture<'_, Result<edge_application_base::EmptyResponse, ServiceError>> {
+            Box::pin(async { Ok(edge_application_base::EmptyResponse) })
         }
     }
     assert_eq!(EmptySvc.name(NameRequest).unwrap().name, "");

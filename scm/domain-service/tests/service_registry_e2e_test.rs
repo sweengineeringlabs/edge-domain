@@ -1,22 +1,23 @@
 //! End-to-end contract tests for the `ServiceRegistry` trait, exercised
 //! through test-double implementations via the crate's public API.
 
+use edge_application_base::{EmptyRequest, EmptyResponse};
 use edge_application_service::{
-    EmptinessRequest, LenRequest, ListNamesRequest, NoopRequest, NoopResponse, NoopService,
-    RegisterServiceRequest, RegisterServiceResponse, Service, ServiceError, ServiceLookupRequest,
-    ServiceRegistry, ServiceRegistryStore, ServiceRemovalRequest, StdServiceRegistryFactory,
+    EmptinessRequest, LenRequest, ListNamesRequest, NoopService, RegisterServiceRequest,
+    RegisterServiceResponse, Service, ServiceError, ServiceLookupRequest, ServiceRegistry,
+    ServiceRegistryStore, ServiceRemovalRequest, StdServiceRegistryFactory,
 };
 use std::sync::Arc;
 
 struct TestRegistry;
 
 impl ServiceRegistry for TestRegistry {
-    type Request = NoopRequest;
-    type Response = NoopResponse;
+    type Request = EmptyRequest;
+    type Response = EmptyResponse;
 
     fn register(
         &self,
-        _req: &RegisterServiceRequest<NoopRequest, NoopResponse>,
+        _req: &RegisterServiceRequest<EmptyRequest, EmptyResponse>,
     ) -> Result<RegisterServiceResponse, ServiceError> {
         Ok(RegisterServiceResponse)
     }
@@ -31,7 +32,7 @@ impl ServiceRegistry for TestRegistry {
     fn get(
         &self,
         _req: &ServiceLookupRequest,
-    ) -> Result<edge_application_service::ServiceLookupResponse<NoopRequest, NoopResponse>, ServiceError>
+    ) -> Result<edge_application_service::ServiceLookupResponse<EmptyRequest, EmptyResponse>, ServiceError>
     {
         Ok(edge_application_service::ServiceLookupResponse { service: None })
     }
@@ -62,7 +63,7 @@ impl ServiceRegistry for TestRegistry {
         NoopService
     }
 
-    fn new_store() -> ServiceRegistryStore<NoopRequest, NoopResponse> {
+    fn new_store() -> ServiceRegistryStore<EmptyRequest, EmptyResponse> {
         ServiceRegistryStore::default()
     }
 }
@@ -70,12 +71,12 @@ impl ServiceRegistry for TestRegistry {
 struct FailingRegistry;
 
 impl ServiceRegistry for FailingRegistry {
-    type Request = NoopRequest;
-    type Response = NoopResponse;
+    type Request = EmptyRequest;
+    type Response = EmptyResponse;
 
     fn register(
         &self,
-        _req: &RegisterServiceRequest<NoopRequest, NoopResponse>,
+        _req: &RegisterServiceRequest<EmptyRequest, EmptyResponse>,
     ) -> Result<RegisterServiceResponse, ServiceError> {
         Err(ServiceError::RuleViolation(
             "registration rejected".to_string(),
@@ -92,7 +93,7 @@ impl ServiceRegistry for FailingRegistry {
     fn get(
         &self,
         _req: &ServiceLookupRequest,
-    ) -> Result<edge_application_service::ServiceLookupResponse<NoopRequest, NoopResponse>, ServiceError>
+    ) -> Result<edge_application_service::ServiceLookupResponse<EmptyRequest, EmptyResponse>, ServiceError>
     {
         Err(ServiceError::NotFound("registry unavailable".to_string()))
     }
@@ -123,7 +124,7 @@ impl ServiceRegistry for FailingRegistry {
         NoopService
     }
 
-    fn new_store() -> ServiceRegistryStore<NoopRequest, NoopResponse> {
+    fn new_store() -> ServiceRegistryStore<EmptyRequest, EmptyResponse> {
         ServiceRegistryStore::default()
     }
 }

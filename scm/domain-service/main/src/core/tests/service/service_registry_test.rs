@@ -5,22 +5,23 @@ mod tests {
     use std::sync::Arc;
 
     use crate::api::{
-        NameRequest, NoopRequest, NoopResponse, NoopService, RegisterServiceRequest, Service,
-        ServiceRegistryStore, StdServiceRegistryFactory,
+        NameRequest, NoopService, RegisterServiceRequest, Service, ServiceRegistryStore,
+        StdServiceRegistryFactory,
     };
+    use edge_application_base::{EmptyRequest, EmptyResponse};
 
     /// @covers: default
     #[test]
     fn test_default_creates_empty_backing_map() {
-        let store: ServiceRegistryStore<NoopRequest, NoopResponse> = Default::default();
+        let store: ServiceRegistryStore<EmptyRequest, EmptyResponse> = Default::default();
         assert_eq!(store.inner.read().len(), 0);
     }
 
     /// @covers: default
     #[test]
     fn test_default_backing_map_accepts_insertion() {
-        let store: ServiceRegistryStore<NoopRequest, NoopResponse> = Default::default();
-        let svc: Arc<dyn Service<Request = NoopRequest, Response = NoopResponse>> =
+        let store: ServiceRegistryStore<EmptyRequest, EmptyResponse> = Default::default();
+        let svc: Arc<dyn Service<Request = EmptyRequest, Response = EmptyResponse>> =
             Arc::new(NoopService);
         store.inner.write().insert("noop".to_string(), svc);
         assert_eq!(store.inner.read().len(), 1);
@@ -29,7 +30,7 @@ mod tests {
     /// @covers: new_registry
     #[test]
     fn test_new_registry_creates_empty_backing_map() {
-        let store: ServiceRegistryStore<NoopRequest, NoopResponse> =
+        let store: ServiceRegistryStore<EmptyRequest, EmptyResponse> =
             StdServiceRegistryFactory::new_registry();
         assert_eq!(store.inner.read().len(), 0);
     }
@@ -51,7 +52,7 @@ mod tests {
     /// @covers: new
     #[test]
     fn test_new_wraps_given_service() {
-        let req = RegisterServiceRequest::<NoopRequest, NoopResponse>::new(Arc::new(NoopService));
+        let req = RegisterServiceRequest::<EmptyRequest, EmptyResponse>::new(Arc::new(NoopService));
         assert_eq!(req.service.name(NameRequest).unwrap().name, "noop");
     }
 }
