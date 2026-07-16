@@ -68,11 +68,39 @@ re-exported through to the crate root and covered by its own `tests/request_int_
 `response_int_test.rs` (2 tests each, verifying a concrete and a zero-sized type satisfy the
 bound through the re-export). `arch audit --rs` no longer reports this rule for either crate.
 
-Both crates' remaining audit findings beyond `no_foreign_type` are unrelated pre-existing gaps,
-not introduced by #139: `no_orphan_types` on `domain-handler`'s `EchoHandler` (a heuristic
-mismatch with the tool's generic-type exemption detection, present before this work started) and
-`spi_organization_follows_api` in both crates (neither has ever had an `spi/` layer — this
-workspace's simpler port-contract crates don't need one).
+**`no_orphan_types` on `domain-handler`'s `EchoHandler` — also resolved for real.** Pre-existing,
+unrelated to #139, but fixed while auditing this crate anyway: the tool's orphan-type exemption
+detection for "genuine trait implementor" doesn't recognize a wrapped (multi-line) `impl<T: ...>
+Trait for Type<T>` signature — `core/handler/in_process_handler_registry.rs` already carried a
+comment documenting this exact gap and working around it by keeping the impl signature on one
+line (`#[rustfmt::skip]`-protected). `core/handler/echo_handler.rs`'s `impl ... Handler for
+EchoHandler<T>` had the same wrapped-signature shape and hit the same false positive; applying
+the identical one-line-signature fix resolved it. `arch audit --rs` no longer reports this rule.
+
+**`saf_layer_mirrors_api_domains` in `edge-domain` — also resolved for real.** `api/spi/`
+(`DomainAssemblyHook`/`NoopDomainAssemblyHook`, a genuine extension-point trait, not a
+placeholder) already had a working SAF facade — `domain_assembly_hook_svc_factory.rs` — but it
+was filed under `saf/domain/` instead of `saf/spi/`, so the rule's api/-domain-to-saf/-domain name
+match failed even though the facade itself was real and working. Moved the file to `saf/spi/`
+(new `saf/spi/mod.rs` added, `saf/mod.rs` wired in) — pure relocation, no content change; the
+`DOMAIN_SPI_SVC` re-export still resolves identically at the crate root, confirmed by the
+pre-existing `tests/domain_assembly_hook_svc_factory_int_test.rs` (3 tests, still passing).
+
+**`spi_organization_follows_api` — investigated and confirmed out of scope, not merely accepted.**
+Running `arch audit --rs` from the workspace root (by accident, while re-checking `domain-handler`)
+showed this rule failing in **all 20 workspace members**, including 17 crates #139 never touched
+(`domain-app`, `domain-clock`, `domain-command`, `domain-entity`, `domain-event`,
+`domain-lifecycle`, `domain-observer`, `domain-policy`, `domain-projection`, `domain-query`,
+`domain-registry`, `domain-repository`, `domain-saga`, `domain-snapshot`, `domain-validator`,
+`domain-valueobject`, plus `domain-service`/`domain-handler`/`domain-base`/`edge-domain` from this
+work). This is a 100%-workspace-wide, pre-existing characteristic, not a #139 regression and not
+selectively fixable within this issue's scope: the rule's own docs note a domain can legitimately
+have no `spi/` counterpart "if a domain genuinely has no `spi/` counterpart by design" — true for
+every port-contract crate here, none of which were ever designed with a pluggable third-party
+extension point. Fabricating `spi/` directories with placeholder content across 20 crates to
+force this rule green would be exactly the kind of fake work these standards reject. Left as a
+known, workspace-wide gap outside this issue's scope — a candidate for its own dedicated cleanup
+issue if ever prioritized, not something #139 should absorb.
 
 ---
 

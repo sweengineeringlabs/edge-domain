@@ -23,10 +23,11 @@ impl<T> From<(&str, &str)> for EchoHandler<T> {
     }
 }
 
+// SEA no_orphan_types exemption detection needs "Handler for EchoHandler" on one line —
+// a wrapped signature reads as an orphan type despite this being a real impl.
+#[rustfmt::skip]
 #[async_trait]
-impl<T: Clone + edge_application_base::Request + edge_application_base::Response> Handler
-    for EchoHandler<T>
-{
+impl<T: Clone + edge_application_base::Request + edge_application_base::Response> Handler for EchoHandler<T> {
     type Request = T;
     type Response = T;
 

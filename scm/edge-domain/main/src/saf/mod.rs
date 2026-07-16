@@ -21,6 +21,7 @@ mod saga;
 mod service;
 mod snapshot;
 mod spec_svc;
+mod spi;
 mod validator_svc;
 mod value;
 mod value_object_svc;
@@ -37,6 +38,7 @@ pub use self::repository::*;
 pub use self::saga::*;
 pub use self::service::*;
 pub use self::snapshot::*;
+pub use self::spi::*;
 pub use self::value::*;
 
 // ── top-level _svc.rs re-exports ─────────────────────────────────────────────
