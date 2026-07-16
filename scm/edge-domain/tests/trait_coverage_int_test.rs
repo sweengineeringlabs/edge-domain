@@ -27,6 +27,12 @@ use std::time::SystemTime;
 
 // ─── shared fixtures ─────────────────────────────────────────────────────────
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct TextPayload(String);
+
+impl edge_application_base::Request for TextPayload {}
+impl edge_application_base::Response for TextPayload {}
+
 #[derive(Clone)]
 struct TestEvent {
     aggregate_id: String,
@@ -135,28 +141,28 @@ impl Query for ErrQry {
 
 struct OkSvc;
 impl Service for OkSvc {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
     fn name(&self, _req: NameRequest) -> Result<edge_application_service::NameResponse, ServiceError> {
         Ok(edge_application_service::NameResponse {
             name: "ok-svc".to_string(),
         })
     }
-    fn execute(&self, req: String) -> BoxFuture<'_, Result<String, ServiceError>> {
+    fn execute(&self, req: TextPayload) -> BoxFuture<'_, Result<TextPayload, ServiceError>> {
         Box::pin(async move { Ok(req) })
     }
 }
 
 struct ErrSvc;
 impl Service for ErrSvc {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
     fn name(&self, _req: NameRequest) -> Result<edge_application_service::NameResponse, ServiceError> {
         Ok(edge_application_service::NameResponse {
             name: "err-svc".to_string(),
         })
     }
-    fn execute(&self, _: String) -> BoxFuture<'_, Result<String, ServiceError>> {
+    fn execute(&self, _: TextPayload) -> BoxFuture<'_, Result<TextPayload, ServiceError>> {
         Box::pin(async { Err(ServiceError::RuleViolation("blocked".into())) })
     }
 }
@@ -208,7 +214,7 @@ impl EventStore for ErrEventStore {
     }
 }
 
-fn make_test_handler() -> Arc<dyn Handler<Request = String, Response = String>> {
+fn make_test_handler() -> Arc<dyn Handler<Request = TextPayload, Response = TextPayload>> {
     Domain.echo_handler("test", "/test")
 }
 
@@ -235,8 +241,8 @@ fn test_name_query_consistent_across_calls_not_error() {
 fn test_name_service_can_be_empty_string_edge() {
     struct EmptySvc;
     impl Service for EmptySvc {
-        type Request = ();
-        type Response = ();
+        type Request = edge_application_service::NoopRequest;
+        type Response = edge_application_service::NoopResponse;
         fn name(
             &self,
             _req: NameRequest,
@@ -245,8 +251,11 @@ fn test_name_service_can_be_empty_string_edge() {
                 name: String::new(),
             })
         }
-        fn execute(&self, _: ()) -> BoxFuture<'_, Result<(), ServiceError>> {
-            Box::pin(async { Ok(()) })
+        fn execute(
+            &self,
+            _: edge_application_service::NoopRequest,
+        ) -> BoxFuture<'_, Result<edge_application_service::NoopResponse, ServiceError>> {
+            Box::pin(async { Ok(edge_application_service::NoopResponse) })
         }
     }
     assert_eq!(EmptySvc.name(NameRequest).unwrap().name, "");
@@ -1019,7 +1028,7 @@ fn test_pattern_stable_across_calls_not_error() {
 
 #[test]
 fn test_pattern_can_be_root_path_edge() {
-    let h = Domain.echo_handler::<String>("root", "/");
+    let h = Domain.echo_handler::<TextPayload>("root", "/");
     assert_eq!(h.pattern(PatternRequest).unwrap().pattern, "/");
 }
 
@@ -1028,7 +1037,7 @@ fn test_pattern_can_be_root_path_edge() {
 
 #[test]
 fn test_register_handler_then_registry_not_empty_happy() {
-    let reg = Domain.new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<TextPayload, TextPayload>();
     reg.register(RegisterHandlerRequest::new(make_test_handler()))
         .unwrap();
     assert!(!reg.is_empty(HandlerEmptinessRequest).unwrap().empty);
@@ -1036,7 +1045,7 @@ fn test_register_handler_then_registry_not_empty_happy() {
 
 #[test]
 fn test_register_same_id_twice_overwrites_not_error() {
-    let reg = Domain.new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<TextPayload, TextPayload>();
     reg.register(RegisterHandlerRequest::new(make_test_handler()))
         .unwrap();
     reg.register(RegisterHandlerRequest::new(make_test_handler()))
@@ -1046,7 +1055,7 @@ fn test_register_same_id_twice_overwrites_not_error() {
 
 #[test]
 fn test_register_service_increments_len_edge() {
-    let reg = Domain.new_service_registry::<String, String>();
+    let reg = Domain.new_service_registry::<TextPayload, TextPayload>();
     reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
         .unwrap();
     assert_eq!(reg.len(ServiceLenRequest).unwrap().count, 1);
@@ -1057,7 +1066,7 @@ fn test_register_service_increments_len_edge() {
 
 #[test]
 fn test_deregister_registered_handler_returns_true_happy() {
-    let reg = Domain.new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<TextPayload, TextPayload>();
     reg.register(RegisterHandlerRequest::new(make_test_handler()))
         .unwrap();
     assert!(
@@ -1071,7 +1080,7 @@ fn test_deregister_registered_handler_returns_true_happy() {
 
 #[test]
 fn test_deregister_absent_handler_returns_false_error() {
-    let reg = Domain.new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<TextPayload, TextPayload>();
     assert!(
         !reg.deregister(DeregisterHandlerRequest {
             id: "ghost".to_string()
@@ -1083,7 +1092,7 @@ fn test_deregister_absent_handler_returns_false_error() {
 
 #[test]
 fn test_deregister_leaves_registry_empty_edge() {
-    let reg = Domain.new_service_registry::<String, String>();
+    let reg = Domain.new_service_registry::<TextPayload, TextPayload>();
     reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
         .unwrap();
     reg.deregister(&ServiceRemovalRequest {
@@ -1098,7 +1107,7 @@ fn test_deregister_leaves_registry_empty_edge() {
 
 #[test]
 fn test_get_registered_handler_returns_some_happy() {
-    let reg = Domain.new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<TextPayload, TextPayload>();
     let h = make_test_handler();
     reg.register(RegisterHandlerRequest::new(h.clone()))
         .unwrap();
@@ -1118,7 +1127,7 @@ fn test_get_registered_handler_returns_some_happy() {
 
 #[test]
 fn test_get_nonexistent_key_returns_none_not_error() {
-    let reg = Domain.new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<TextPayload, TextPayload>();
     assert!(reg
         .get(HandlerLookupRequest {
             id: "ghost".to_string()
@@ -1130,7 +1139,7 @@ fn test_get_nonexistent_key_returns_none_not_error() {
 
 #[test]
 fn test_get_after_deregister_returns_none_edge() {
-    let reg = Domain.new_service_registry::<String, String>();
+    let reg = Domain.new_service_registry::<TextPayload, TextPayload>();
     reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
         .unwrap();
     reg.deregister(&ServiceRemovalRequest {
@@ -1151,7 +1160,7 @@ fn test_get_after_deregister_returns_none_edge() {
 
 #[test]
 fn test_list_ids_contains_registered_id_happy() {
-    let reg = Domain.new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<TextPayload, TextPayload>();
     reg.register(RegisterHandlerRequest::new(make_test_handler()))
         .unwrap();
     assert!(reg
@@ -1163,13 +1172,13 @@ fn test_list_ids_contains_registered_id_happy() {
 
 #[test]
 fn test_list_ids_empty_before_registration_not_error() {
-    let reg = Domain.new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<TextPayload, TextPayload>();
     assert!(reg.list_ids(ListIdsRequest).unwrap().ids.is_empty());
 }
 
 #[test]
 fn test_list_ids_len_matches_registry_len_edge() {
-    let reg = Domain.new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<TextPayload, TextPayload>();
     reg.register(RegisterHandlerRequest::new(Domain.echo_handler("a", "/a")))
         .unwrap();
     reg.register(RegisterHandlerRequest::new(Domain.echo_handler("b", "/b")))
@@ -1185,7 +1194,7 @@ fn test_list_ids_len_matches_registry_len_edge() {
 
 #[test]
 fn test_len_increments_after_register_happy() {
-    let reg = Domain.new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<TextPayload, TextPayload>();
     assert_eq!(reg.len(HandlerLenRequest).unwrap().count, 0);
     reg.register(RegisterHandlerRequest::new(make_test_handler()))
         .unwrap();
@@ -1194,7 +1203,7 @@ fn test_len_increments_after_register_happy() {
 
 #[test]
 fn test_len_decrements_after_deregister_not_error() {
-    let reg = Domain.new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<TextPayload, TextPayload>();
     reg.register(RegisterHandlerRequest::new(make_test_handler()))
         .unwrap();
     reg.deregister(DeregisterHandlerRequest {
@@ -1206,7 +1215,7 @@ fn test_len_decrements_after_deregister_not_error() {
 
 #[test]
 fn test_len_service_registry_matches_registered_count_edge() {
-    let reg = Domain.new_service_registry::<String, String>();
+    let reg = Domain.new_service_registry::<TextPayload, TextPayload>();
     reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
         .unwrap();
     reg.register(&RegisterServiceRequest::new(Arc::new(ErrSvc)))
@@ -1219,13 +1228,13 @@ fn test_len_service_registry_matches_registered_count_edge() {
 
 #[test]
 fn test_is_empty_true_on_new_registry_happy() {
-    let reg = Domain.new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<TextPayload, TextPayload>();
     assert!(reg.is_empty(HandlerEmptinessRequest).unwrap().empty);
 }
 
 #[test]
 fn test_is_empty_false_after_registration_not_error() {
-    let reg = Domain.new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<TextPayload, TextPayload>();
     reg.register(RegisterHandlerRequest::new(make_test_handler()))
         .unwrap();
     assert!(!reg.is_empty(HandlerEmptinessRequest).unwrap().empty);
@@ -1233,7 +1242,7 @@ fn test_is_empty_false_after_registration_not_error() {
 
 #[test]
 fn test_is_empty_true_after_deregister_all_edge() {
-    let reg = Domain.new_service_registry::<String, String>();
+    let reg = Domain.new_service_registry::<TextPayload, TextPayload>();
     reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
         .unwrap();
     reg.deregister(&ServiceRemovalRequest {
@@ -1899,7 +1908,7 @@ fn test_matches_empty_string_input_edge() {
 
 #[test]
 fn test_list_names_contains_registered_service_name_happy() {
-    let reg = Domain.new_service_registry::<String, String>();
+    let reg = Domain.new_service_registry::<TextPayload, TextPayload>();
     reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
         .unwrap();
     assert!(reg
@@ -1911,13 +1920,13 @@ fn test_list_names_contains_registered_service_name_happy() {
 
 #[test]
 fn test_list_names_empty_before_registration_not_error() {
-    let reg = Domain.new_service_registry::<String, String>();
+    let reg = Domain.new_service_registry::<TextPayload, TextPayload>();
     assert!(reg.list_names(ListNamesRequest).unwrap().names.is_empty());
 }
 
 #[test]
 fn test_list_names_len_matches_registry_len_edge() {
-    let reg = Domain.new_service_registry::<String, String>();
+    let reg = Domain.new_service_registry::<TextPayload, TextPayload>();
     reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
         .unwrap();
     reg.register(&RegisterServiceRequest::new(Arc::new(ErrSvc)))

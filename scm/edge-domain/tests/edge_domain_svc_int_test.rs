@@ -17,10 +17,16 @@ use edge_application_service::{
 };
 use std::sync::Arc;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct TextPayload(String);
+
+impl edge_application_base::Request for TextPayload {}
+impl edge_application_base::Response for TextPayload {}
+
 /// @covers: new_handler_registry
 #[test]
 fn test_factory_fn_new_handler_registry_returns_empty_arc_registry() {
-    let reg = Domain.new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<TextPayload, TextPayload>();
     assert!(reg.is_empty(HandlerEmptinessRequest).unwrap().empty);
     assert_eq!(reg.len(HandlerLenRequest).unwrap().count, 0);
 }
@@ -28,7 +34,7 @@ fn test_factory_fn_new_handler_registry_returns_empty_arc_registry() {
 /// @covers: new_service_registry
 #[test]
 fn test_factory_fn_new_service_registry_returns_empty_arc_registry() {
-    let reg = Domain.new_service_registry::<String, String>();
+    let reg = Domain.new_service_registry::<TextPayload, TextPayload>();
     assert!(reg.is_empty(ServiceEmptinessRequest).unwrap().empty);
     assert_eq!(reg.len(ServiceLenRequest).unwrap().count, 0);
 }

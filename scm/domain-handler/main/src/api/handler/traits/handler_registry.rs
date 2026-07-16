@@ -10,10 +10,10 @@ use crate::api::handler::dto::{
 /// A thread-safe registry that stores and retrieves [`Handler`] instances by id.
 pub trait HandlerRegistry: Send + Sync {
     /// The request type for handlers stored in this registry.
-    type Request: Send + 'static;
+    type Request: edge_application_base::Request;
 
     /// The response type for handlers stored in this registry.
-    type Response: Send + 'static;
+    type Response: edge_application_base::Response;
 
     /// Register a handler, replacing any existing entry with the same id.
     fn register(

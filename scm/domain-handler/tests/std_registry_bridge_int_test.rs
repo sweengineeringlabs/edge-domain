@@ -13,17 +13,23 @@ use edge_application_service::{
 };
 use futures::future::BoxFuture;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct TextPayload(String);
+
+impl edge_application_base::Request for TextPayload {}
+impl edge_application_base::Response for TextPayload {}
+
 struct EchoSvc;
 
 impl Service for EchoSvc {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
     fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
         Ok(NameResponse {
             name: "echo".to_string(),
         })
     }
-    fn execute(&self, req: String) -> BoxFuture<'_, Result<String, ServiceError>> {
+    fn execute(&self, req: TextPayload) -> BoxFuture<'_, Result<TextPayload, ServiceError>> {
         Box::pin(async move { Ok(req) })
     }
 }
@@ -31,10 +37,10 @@ impl Service for EchoSvc {
 /// @covers: StdRegistryBridge — bridge transfers services and returns correct count
 #[test]
 fn test_std_registry_bridge_bridge_transfers_service_happy() {
-    let src: ServiceRegistryStore<String, String> = ServiceRegistryStore::default();
+    let src: ServiceRegistryStore<TextPayload, TextPayload> = ServiceRegistryStore::default();
     src.register(&RegisterServiceRequest::new(Arc::new(EchoSvc)))
         .unwrap();
-    let dst = InProcessHandlerRegistry::<String, String>::default();
+    let dst = InProcessHandlerRegistry::<TextPayload, TextPayload>::default();
 
     let result = StdRegistryBridge.bridge(BridgeRequest {
         src: &src,
@@ -49,8 +55,8 @@ fn test_std_registry_bridge_bridge_transfers_service_happy() {
 /// @covers: StdRegistryBridge — bridge on empty source never errors; returns 0
 #[test]
 fn test_std_registry_bridge_bridge_empty_source_never_errors_error() {
-    let src: ServiceRegistryStore<String, String> = ServiceRegistryStore::default();
-    let dst = InProcessHandlerRegistry::<String, String>::default();
+    let src: ServiceRegistryStore<TextPayload, TextPayload> = ServiceRegistryStore::default();
+    let dst = InProcessHandlerRegistry::<TextPayload, TextPayload>::default();
 
     let result = StdRegistryBridge.bridge(BridgeRequest {
         src: &src,
@@ -67,10 +73,10 @@ fn test_std_registry_bridge_is_copy_edge() {
     let b = StdRegistryBridge;
     let copy = b;
 
-    let src: ServiceRegistryStore<String, String> = ServiceRegistryStore::default();
+    let src: ServiceRegistryStore<TextPayload, TextPayload> = ServiceRegistryStore::default();
     src.register(&RegisterServiceRequest::new(Arc::new(EchoSvc)))
         .unwrap();
-    let dst = InProcessHandlerRegistry::<String, String>::default();
+    let dst = InProcessHandlerRegistry::<TextPayload, TextPayload>::default();
 
     let c1 = b.bridge(BridgeRequest {
         src: &src,
@@ -78,8 +84,8 @@ fn test_std_registry_bridge_is_copy_edge() {
     });
     assert_eq!(c1.unwrap().transferred, 1);
 
-    let src2: ServiceRegistryStore<String, String> = ServiceRegistryStore::default();
-    let dst2 = InProcessHandlerRegistry::<String, String>::default();
+    let src2: ServiceRegistryStore<TextPayload, TextPayload> = ServiceRegistryStore::default();
+    let dst2 = InProcessHandlerRegistry::<TextPayload, TextPayload>::default();
     let c2 = copy.bridge(BridgeRequest {
         src: &src2,
         dst: &dst2,

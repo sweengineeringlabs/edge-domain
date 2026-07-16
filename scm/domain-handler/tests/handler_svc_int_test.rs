@@ -11,12 +11,18 @@ use edge_application_observer::{ObserverContext, StdObserveFactory};
 use edge_security_runtime::SecurityContext;
 use futures::executor::block_on;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct TextPayload(String);
+
+impl edge_application_base::Request for TextPayload {}
+impl edge_application_base::Response for TextPayload {}
+
 struct OkHandler;
 
 #[async_trait]
 impl Handler for OkHandler {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
 
     fn id(&self, _req: IdRequest) -> Result<edge_application_handler::IdResponse, HandlerError> {
         Ok(edge_application_handler::IdResponse {
@@ -32,8 +38,11 @@ impl Handler for OkHandler {
         })
     }
 
-    async fn execute(&self, req: ExecutionRequest<'_, String>) -> Result<String, HandlerError> {
-        Ok(req.req.to_uppercase())
+    async fn execute(
+        &self,
+        req: ExecutionRequest<'_, TextPayload>,
+    ) -> Result<TextPayload, HandlerError> {
+        Ok(TextPayload(req.req.0.to_uppercase()))
     }
 }
 
@@ -41,10 +50,13 @@ struct FailHandler;
 
 #[async_trait]
 impl Handler for FailHandler {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
 
-    async fn execute(&self, _req: ExecutionRequest<'_, String>) -> Result<String, HandlerError> {
+    async fn execute(
+        &self,
+        _req: ExecutionRequest<'_, TextPayload>,
+    ) -> Result<TextPayload, HandlerError> {
         Err(HandlerError::ExecutionFailed("deliberate".into()))
     }
 }
@@ -53,10 +65,13 @@ struct UnhealthyHandler;
 
 #[async_trait]
 impl Handler for UnhealthyHandler {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
 
-    async fn execute(&self, _req: ExecutionRequest<'_, String>) -> Result<String, HandlerError> {
+    async fn execute(
+        &self,
+        _req: ExecutionRequest<'_, TextPayload>,
+    ) -> Result<TextPayload, HandlerError> {
         Err(HandlerError::Unhealthy)
     }
     async fn health_check(
@@ -91,11 +106,11 @@ fn test_execute_ok_handler_returns_response_happy() {
     let ctx = make_ctx(&security, &bus_adapter, &observer_adapter);
     assert_eq!(
         block_on(OkHandler.execute(ExecutionRequest {
-            req: "hello".into(),
+            req: TextPayload("hello".into()),
             ctx: &ctx
         }))
         .unwrap(),
-        "HELLO"
+        TextPayload("HELLO".into())
     );
 }
 
@@ -110,7 +125,7 @@ fn test_execute_failing_handler_returns_err_error() {
     let bus_adapter = CommandBusAdapter(bus_erased);
     let ctx = make_ctx(&security, &bus_adapter, &observer_adapter);
     assert!(block_on(FailHandler.execute(ExecutionRequest {
-        req: "x".into(),
+        req: TextPayload("x".into()),
         ctx: &ctx
     }))
     .is_err());
@@ -172,11 +187,11 @@ fn test_execute_with_unauthenticated_context_returns_response_happy() {
     let ctx = make_ctx(&security, &bus_adapter, &observer_adapter);
     assert_eq!(
         block_on(OkHandler.execute(ExecutionRequest {
-            req: "world".into(),
+            req: TextPayload("world".into()),
             ctx: &ctx
         }))
         .unwrap(),
-        "WORLD"
+        TextPayload("WORLD".into())
     );
 }
 
@@ -193,11 +208,11 @@ fn test_execute_with_authenticated_context_still_executes_edge() {
     let ctx = make_ctx(&security, &bus_adapter, &observer_adapter);
     assert_eq!(
         block_on(OkHandler.execute(ExecutionRequest {
-            req: "test".into(),
+            req: TextPayload("test".into()),
             ctx: &ctx
         }))
         .unwrap(),
-        "TEST"
+        TextPayload("TEST".into())
     );
 }
 

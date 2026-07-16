@@ -6,27 +6,36 @@ use edge_application::Domain;
 use edge_application::Service;
 use edge_application::ServiceError;
 use edge_application_service::{
-    NameRequest, NameResponse, RegisterServiceRequest, ServiceLookupRequest,
+    NameRequest, NameResponse, NoopRequest, RegisterServiceRequest, ServiceLookupRequest,
 };
 use std::sync::Arc;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct TextPayload(String);
+
+impl edge_application_base::Request for TextPayload {}
+impl edge_application_base::Response for TextPayload {}
+
 struct Greeter;
 impl Service for Greeter {
-    type Request = ();
-    type Response = String;
+    type Request = NoopRequest;
+    type Response = TextPayload;
     fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
         Ok(NameResponse {
             name: "greeter".to_string(),
         })
     }
-    fn execute(&self, _: ()) -> futures::future::BoxFuture<'_, Result<String, ServiceError>> {
-        Box::pin(async { Ok("hello".into()) })
+    fn execute(
+        &self,
+        _: NoopRequest,
+    ) -> futures::future::BoxFuture<'_, Result<TextPayload, ServiceError>> {
+        Box::pin(async { Ok(TextPayload("hello".into())) })
     }
 }
 
 #[test]
 fn test_service_registry_svc_facade_register_and_get() {
-    let reg = Domain.new_service_registry::<(), String>();
+    let reg = Domain.new_service_registry::<NoopRequest, TextPayload>();
     reg.register(&RegisterServiceRequest::new(Arc::new(Greeter)))
         .unwrap();
     assert!(reg
@@ -40,7 +49,7 @@ fn test_service_registry_svc_facade_register_and_get() {
 
 #[test]
 fn test_service_registry_svc_facade_missing_name_returns_none() {
-    let reg = Domain.new_service_registry::<(), String>();
+    let reg = Domain.new_service_registry::<NoopRequest, TextPayload>();
     assert!(reg
         .get(&ServiceLookupRequest {
             name: "absent".to_string()

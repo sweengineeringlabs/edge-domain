@@ -24,6 +24,12 @@ pub use domain::{
 mod spi;
 pub use spi::{DomainAssemblyHook, NoopDomainAssemblyHook};
 
+// ── base ──────────────────────────────────────────────────────────────────────
+#[cfg(feature = "base")]
+pub use edge_application_base::Request;
+#[cfg(feature = "base")]
+pub use edge_application_base::Response;
+
 // ── command ───────────────────────────────────────────────────────────────────
 #[cfg(feature = "command")]
 pub use edge_application_command::CommandBus;

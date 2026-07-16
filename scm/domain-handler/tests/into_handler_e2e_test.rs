@@ -23,17 +23,23 @@ fn make_ctx<'a>(
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct TextPayload(String);
+
+impl edge_application_base::Request for TextPayload {}
+impl edge_application_base::Response for TextPayload {}
+
 struct GreetService;
 impl Service for GreetService {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
     fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
         Ok(NameResponse {
             name: "greet".to_string(),
         })
     }
-    fn execute(&self, req: String) -> BoxFuture<'_, Result<String, ServiceError>> {
-        Box::pin(async move { Ok(format!("hello {req}")) })
+    fn execute(&self, req: TextPayload) -> BoxFuture<'_, Result<TextPayload, ServiceError>> {
+        Box::pin(async move { Ok(TextPayload(format!("hello {}", req.0))) })
     }
 }
 
@@ -70,11 +76,11 @@ async fn test_into_handler_execute_delegates_to_service_happy() {
     let ctx = make_ctx(&security, &observer_adapter);
     let result = handler
         .execute(ExecutionRequest {
-            req: "world".into(),
+            req: TextPayload("world".into()),
             ctx: &ctx,
         })
         .await;
-    assert_eq!(result.unwrap(), "hello world");
+    assert_eq!(result.unwrap(), TextPayload("hello world".into()));
 }
 
 /// @covers: IntoHandler::into_handler
@@ -82,14 +88,14 @@ async fn test_into_handler_execute_delegates_to_service_happy() {
 async fn test_into_handler_execute_propagates_service_error_error() {
     struct FailingService;
     impl Service for FailingService {
-        type Request = String;
-        type Response = String;
+        type Request = TextPayload;
+        type Response = TextPayload;
         fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
             Ok(NameResponse {
                 name: "failing".to_string(),
             })
         }
-        fn execute(&self, _req: String) -> BoxFuture<'_, Result<String, ServiceError>> {
+        fn execute(&self, _req: TextPayload) -> BoxFuture<'_, Result<TextPayload, ServiceError>> {
             Box::pin(async move { Err(ServiceError::Internal("boom".into())) })
         }
     }
@@ -104,7 +110,7 @@ async fn test_into_handler_execute_propagates_service_error_error() {
     let ctx = make_ctx(&security, &observer_adapter);
     let result = handler
         .execute(ExecutionRequest {
-            req: "x".into(),
+            req: TextPayload("x".into()),
             ctx: &ctx,
         })
         .await;

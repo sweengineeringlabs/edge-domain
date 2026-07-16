@@ -5,10 +5,16 @@
 use edge_application::Service;
 use edge_application_service::{NameRequest, NameResponse, ServiceError};
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct TextPayload(String);
+
+impl edge_application_base::Request for TextPayload {}
+impl edge_application_base::Response for TextPayload {}
+
 struct Echo;
 impl Service for Echo {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
     fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
         Ok(NameResponse {
             name: "echo".to_string(),
@@ -16,15 +22,18 @@ impl Service for Echo {
     }
     fn execute(
         &self,
-        input: String,
-    ) -> futures::future::BoxFuture<'_, Result<String, ServiceError>> {
+        input: TextPayload,
+    ) -> futures::future::BoxFuture<'_, Result<TextPayload, ServiceError>> {
         Box::pin(async move { Ok(input) })
     }
 }
 
 #[tokio::test]
 async fn test_service_svc_facade_execute_returns_input() {
-    assert_eq!(Echo.execute("hi".into()).await.unwrap(), "hi");
+    assert_eq!(
+        Echo.execute(TextPayload("hi".into())).await.unwrap(),
+        TextPayload("hi".into())
+    );
 }
 
 #[test]

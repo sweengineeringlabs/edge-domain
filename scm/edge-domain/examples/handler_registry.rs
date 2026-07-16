@@ -23,12 +23,18 @@ use edge_application_handler::{
 use edge_application_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct TextPayload(String);
+
+impl edge_application_base::Request for TextPayload {}
+impl edge_application_base::Response for TextPayload {}
+
 struct GreetHandler;
 
 #[async_trait]
 impl Handler for GreetHandler {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
 
     fn id(&self, _req: IdRequest) -> Result<IdResponse, HandlerError> {
         Ok(IdResponse {
@@ -36,19 +42,22 @@ impl Handler for GreetHandler {
         })
     }
 
-    async fn execute(&self, req: ExecutionRequest<'_, String>) -> Result<String, HandlerError> {
-        if req.req.is_empty() {
+    async fn execute(
+        &self,
+        req: ExecutionRequest<'_, TextPayload>,
+    ) -> Result<TextPayload, HandlerError> {
+        if req.req.0.is_empty() {
             return Err(HandlerError::InvalidRequest(
                 "name must not be empty".into(),
             ));
         }
-        Ok(format!("Hello, {}!", req.req))
+        Ok(TextPayload(format!("Hello, {}!", req.req.0)))
     }
 }
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let registry = Domain.new_handler_registry::<String, String>();
+    let registry = Domain.new_handler_registry::<TextPayload, TextPayload>();
     assert!(registry.is_empty(EmptinessRequest)?.empty);
 
     registry.register(RegisterHandlerRequest::new(Arc::new(GreetHandler)))?;
@@ -73,15 +82,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let resp = handler
         .execute(ExecutionRequest {
-            req: "world".into(),
+            req: TextPayload("world".into()),
             ctx: &ctx,
         })
         .await?;
-    println!("execute       → {resp}");
+    println!("execute       → {}", resp.0);
 
     let err = handler
         .execute(ExecutionRequest {
-            req: "".into(),
+            req: TextPayload("".into()),
             ctx: &ctx,
         })
         .await

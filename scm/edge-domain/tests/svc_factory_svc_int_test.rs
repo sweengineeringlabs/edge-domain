@@ -21,6 +21,18 @@ use futures::executor::block_on;
 use futures::future::BoxFuture;
 use std::sync::Arc;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct TextPayload(String);
+
+impl edge_application_base::Request for TextPayload {}
+impl edge_application_base::Response for TextPayload {}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct BytePayload(u8);
+
+impl edge_application_base::Request for BytePayload {}
+impl edge_application_base::Response for BytePayload {}
+
 fn test_ctx<'a>(
     security: &'a SecurityContext,
     bus: &'a CommandBusAdapter<'a, dyn CommandBus>,
@@ -198,7 +210,7 @@ impl EventStore for ErrStore {
 #[test]
 fn test_echo_handler_string_roundtrip_happy() {
     block_on(async {
-        let h = Domain.echo_handler::<String>("id", "/");
+        let h = Domain.echo_handler::<TextPayload>("id", "/");
         let security = SecurityContext::unauthenticated();
         let bus = Domain
             .direct_command_bus(DirectCommandBusRequest)
@@ -211,12 +223,12 @@ fn test_echo_handler_string_roundtrip_happy() {
         let ctx = test_ctx(&security, &bus_adapter, &observer_adapter);
         assert_eq!(
             h.execute(ExecutionRequest {
-                req: "ping".to_string(),
+                req: TextPayload("ping".to_string()),
                 ctx: &ctx
             })
             .await
             .unwrap(),
-            "ping"
+            TextPayload("ping".to_string())
         );
     });
 }
@@ -225,7 +237,7 @@ fn test_echo_handler_string_roundtrip_happy() {
 fn test_echo_handler_always_returns_ok_not_error() {
     block_on(async {
         // echo_handler execution is infallible — documents no error path
-        let h = Domain.echo_handler::<String>("id", "/");
+        let h = Domain.echo_handler::<TextPayload>("id", "/");
         let security = SecurityContext::unauthenticated();
         let bus = Domain
             .direct_command_bus(DirectCommandBusRequest)
@@ -238,13 +250,13 @@ fn test_echo_handler_always_returns_ok_not_error() {
         let ctx = test_ctx(&security, &bus_adapter, &observer_adapter);
         let result = h
             .execute(ExecutionRequest {
-                req: "anything".to_string(),
+                req: TextPayload("anything".to_string()),
                 ctx: &ctx,
             })
             .await;
         assert_eq!(
             result,
-            Ok("anything".to_string()),
+            Ok(TextPayload("anything".to_string())),
             "echo handler should return the input unchanged"
         );
     });
@@ -253,7 +265,7 @@ fn test_echo_handler_always_returns_ok_not_error() {
 #[test]
 fn test_echo_handler_empty_string_preserved_edge() {
     block_on(async {
-        let h = Domain.echo_handler::<String>("id", "/");
+        let h = Domain.echo_handler::<TextPayload>("id", "/");
         let security = SecurityContext::unauthenticated();
         let bus = Domain
             .direct_command_bus(DirectCommandBusRequest)
@@ -266,12 +278,12 @@ fn test_echo_handler_empty_string_preserved_edge() {
         let ctx = test_ctx(&security, &bus_adapter, &observer_adapter);
         assert_eq!(
             h.execute(ExecutionRequest {
-                req: String::new(),
+                req: TextPayload(String::new()),
                 ctx: &ctx
             })
             .await
             .unwrap(),
-            ""
+            TextPayload(String::new())
         );
     });
 }
@@ -280,7 +292,7 @@ fn test_echo_handler_empty_string_preserved_edge() {
 
 #[test]
 fn test_new_handler_registry_starts_empty_happy() {
-    let reg = Domain.new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<TextPayload, TextPayload>();
     assert!(reg.is_empty(HandlerEmptinessRequest).unwrap().empty);
     assert_eq!(reg.len(HandlerLenRequest).unwrap().count, 0);
 }
@@ -288,7 +300,7 @@ fn test_new_handler_registry_starts_empty_happy() {
 #[test]
 fn test_new_handler_registry_get_unknown_id_returns_none_not_error() {
     // get on empty registry must return None, not panic or error
-    let reg = Domain.new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<TextPayload, TextPayload>();
     assert!(reg
         .get(edge_application_handler::HandlerLookupRequest {
             id: "unknown".to_string()
@@ -300,7 +312,7 @@ fn test_new_handler_registry_get_unknown_id_returns_none_not_error() {
 
 #[test]
 fn test_new_handler_registry_list_ids_empty_before_registration_edge() {
-    let reg = Domain.new_handler_registry::<u8, u8>();
+    let reg = Domain.new_handler_registry::<BytePayload, BytePayload>();
     assert!(reg.list_ids(ListIdsRequest).unwrap().ids.is_empty());
 }
 
@@ -348,13 +360,13 @@ fn test_paired_returns_two_distinct_values_edge() {
 
 #[test]
 fn test_new_service_registry_starts_empty_happy() {
-    let reg = Domain.new_service_registry::<String, String>();
+    let reg = Domain.new_service_registry::<TextPayload, TextPayload>();
     assert!(reg.is_empty(ServiceEmptinessRequest).unwrap().empty);
 }
 
 #[test]
 fn test_new_service_registry_get_unknown_returns_none_not_error() {
-    let reg = Domain.new_service_registry::<String, String>();
+    let reg = Domain.new_service_registry::<TextPayload, TextPayload>();
     assert!(reg
         .get(&ServiceLookupRequest {
             name: "unknown".to_string()
@@ -366,7 +378,7 @@ fn test_new_service_registry_get_unknown_returns_none_not_error() {
 
 #[test]
 fn test_new_service_registry_len_is_zero_edge() {
-    let reg = Domain.new_service_registry::<u8, u8>();
+    let reg = Domain.new_service_registry::<BytePayload, BytePayload>();
     assert_eq!(reg.len(ServiceLenRequest).unwrap().count, 0);
 }
 

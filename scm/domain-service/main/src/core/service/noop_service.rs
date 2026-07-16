@@ -2,11 +2,14 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::{NameRequest, NameResponse, NoopService, Service, ServiceError};
+use crate::api::{NameRequest, NameResponse, NoopRequest, NoopResponse, NoopService, Service, ServiceError};
+
+impl edge_application_base::Request for NoopRequest {}
+impl edge_application_base::Response for NoopResponse {}
 
 impl Service for NoopService {
-    type Request = ();
-    type Response = ();
+    type Request = NoopRequest;
+    type Response = NoopResponse;
 
     fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
         Ok(NameResponse {
@@ -14,8 +17,8 @@ impl Service for NoopService {
         })
     }
 
-    fn execute(&self, _req: ()) -> BoxFuture<'_, Result<(), ServiceError>> {
-        Box::pin(async move { Ok(()) })
+    fn execute(&self, _req: NoopRequest) -> BoxFuture<'_, Result<NoopResponse, ServiceError>> {
+        Box::pin(async move { Ok(NoopResponse) })
     }
 }
 
@@ -23,7 +26,7 @@ impl Service for NoopService {
 mod tests {
     use futures::executor::block_on;
 
-    use crate::api::{NameRequest, NameResponse, NoopService, Service};
+    use crate::api::{NameRequest, NameResponse, NoopRequest, NoopResponse, NoopService, Service};
 
     /// @covers: name
     #[test]
@@ -40,16 +43,16 @@ mod tests {
     /// @covers: execute
     #[test]
     fn test_execute_noop_returns_ok_happy() {
-        let result = block_on(NoopService.execute(()));
-        assert_eq!(result, Ok(()));
+        let result = block_on(NoopService.execute(NoopRequest));
+        assert_eq!(result, Ok(NoopResponse));
     }
 
     /// @covers: execute
     #[test]
     fn test_execute_noop_never_errors_edge() {
         for _i in 0..3 {
-            let result = block_on(NoopService.execute(()));
-            assert_eq!(result, Ok(()));
+            let result = block_on(NoopService.execute(NoopRequest));
+            assert_eq!(result, Ok(NoopResponse));
         }
     }
 }

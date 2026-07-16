@@ -3,20 +3,21 @@
 #[cfg(test)]
 mod tests {
     use crate::api::{
-        EmptinessRequest, LenRequest, ListNamesRequest, NoopService, RegisterServiceRequest,
-        Service, ServiceError, ServiceLookupRequest, ServiceRegistry, ServiceRemovalRequest,
+        EmptinessRequest, LenRequest, ListNamesRequest, NoopRequest, NoopResponse, NoopService,
+        RegisterServiceRequest, Service, ServiceError, ServiceLookupRequest, ServiceRegistry,
+        ServiceRemovalRequest,
     };
     use std::sync::Arc;
 
     struct TestRegistry;
 
     impl ServiceRegistry for TestRegistry {
-        type Request = ();
-        type Response = ();
+        type Request = NoopRequest;
+        type Response = NoopResponse;
 
         fn register(
             &self,
-            _req: &RegisterServiceRequest<(), ()>,
+            _req: &RegisterServiceRequest<NoopRequest, NoopResponse>,
         ) -> Result<crate::api::RegisterServiceResponse, ServiceError> {
             Ok(crate::api::RegisterServiceResponse)
         }
@@ -31,7 +32,7 @@ mod tests {
         fn get(
             &self,
             _req: &ServiceLookupRequest,
-        ) -> Result<crate::api::ServiceLookupResponse<(), ()>, ServiceError> {
+        ) -> Result<crate::api::ServiceLookupResponse<NoopRequest, NoopResponse>, ServiceError> {
             Ok(crate::api::ServiceLookupResponse { service: None })
         }
 
@@ -61,7 +62,7 @@ mod tests {
             crate::api::NoopService
         }
 
-        fn new_store() -> crate::api::ServiceRegistryStore<(), ()> {
+        fn new_store() -> crate::api::ServiceRegistryStore<NoopRequest, NoopResponse> {
             crate::api::ServiceRegistryStore::default()
         }
     }

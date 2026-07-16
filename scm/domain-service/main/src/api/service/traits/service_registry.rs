@@ -13,9 +13,9 @@ use crate::api::service::{
 /// [`crate::api::service::service_registry_store::ServiceRegistryStore`].
 pub trait ServiceRegistry: Send + Sync {
     /// The request type accepted by services in this registry.
-    type Request: Send + 'static;
+    type Request: edge_application_base::Request;
     /// The response type produced by services in this registry.
-    type Response: Send + 'static;
+    type Response: edge_application_base::Response;
 
     /// Register a service under its reported name.
     fn register(

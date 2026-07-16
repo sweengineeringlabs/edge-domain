@@ -14,16 +14,22 @@ use edge_application_service::{
 };
 use futures::future::BoxFuture;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct TextPayload(String);
+
+impl edge_application_base::Request for TextPayload {}
+impl edge_application_base::Response for TextPayload {}
+
 struct GreetSvc;
 impl Service for GreetSvc {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
     fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
         Ok(NameResponse {
             name: "greet".to_string(),
         })
     }
-    fn execute(&self, req: String) -> BoxFuture<'_, Result<String, ServiceError>> {
+    fn execute(&self, req: TextPayload) -> BoxFuture<'_, Result<TextPayload, ServiceError>> {
         Box::pin(async move { Ok(req) })
     }
 }
@@ -31,10 +37,10 @@ impl Service for GreetSvc {
 /// @covers: RegistryBridge::bridge
 #[test]
 fn test_bridge_transfers_services_into_handler_registry_happy() {
-    let src = ServiceRegistryStore::<String, String>::default();
+    let src = ServiceRegistryStore::<TextPayload, TextPayload>::default();
     src.register(&RegisterServiceRequest::new(Arc::new(GreetSvc)))
         .unwrap();
-    let dst = InProcessHandlerRegistry::<String, String>::default();
+    let dst = InProcessHandlerRegistry::<TextPayload, TextPayload>::default();
 
     let result = StdRegistryBridge.bridge(BridgeRequest {
         src: &src,
@@ -48,8 +54,8 @@ fn test_bridge_transfers_services_into_handler_registry_happy() {
 /// @covers: RegistryBridge::bridge
 #[test]
 fn test_bridge_empty_source_transfers_nothing_error() {
-    let src = ServiceRegistryStore::<String, String>::default();
-    let dst = InProcessHandlerRegistry::<String, String>::default();
+    let src = ServiceRegistryStore::<TextPayload, TextPayload>::default();
+    let dst = InProcessHandlerRegistry::<TextPayload, TextPayload>::default();
 
     let result = StdRegistryBridge.bridge(BridgeRequest {
         src: &src,
@@ -63,10 +69,10 @@ fn test_bridge_empty_source_transfers_nothing_error() {
 /// @covers: RegistryBridge::default_bridge
 #[test]
 fn test_default_bridge_returns_functional_bridge_edge() {
-    let src = ServiceRegistryStore::<String, String>::default();
+    let src = ServiceRegistryStore::<TextPayload, TextPayload>::default();
     src.register(&RegisterServiceRequest::new(Arc::new(GreetSvc)))
         .unwrap();
-    let dst = InProcessHandlerRegistry::<String, String>::default();
+    let dst = InProcessHandlerRegistry::<TextPayload, TextPayload>::default();
 
     let bridge = StdRegistryBridge::default_bridge();
     let result = bridge.bridge(BridgeRequest {

@@ -45,9 +45,10 @@ policy      = ["dep:edge-application-policy"]
 command     = ["dep:edge-application-command"]
 query       = ["dep:edge-application-query"]
 snapshot    = ["dep:edge-application-snapshot"]
-service     = ["dep:edge-application-service"]
+base        = ["dep:edge-application-base"]
+service     = ["dep:edge-application-service", "base"]
 repository  = ["dep:edge-application-repository"]
-handler     = ["dep:edge-application-handler"]
+handler     = ["dep:edge-application-handler", "base"]
 event       = ["dep:edge-application-event"]
 pipeline    = ["dep:edge-pipeline"]
 projection  = ["dep:edge-application-projection", "event"]
@@ -81,6 +82,7 @@ edge-application-policy      = { path = "../domain-policy", optional = true }
 edge-application-command     = { path = "../domain-command", optional = true }
 edge-application-query       = { path = "../domain-query", optional = true }
 edge-application-snapshot    = { path = "../domain-snapshot", optional = true }
+edge-application-base        = { path = "../domain-base", optional = true }
 edge-application-service     = { path = "../domain-service", optional = true }
 edge-application-repository  = { path = "../domain-repository", optional = true }
 edge-application-handler     = { path = "../domain-handler", optional = true }
@@ -99,6 +101,7 @@ edge-security-authz     = { workspace = true, optional = true }
 tokio       = { version = "1", features = ["macros", "rt", "rt-multi-thread"] }
 futures     = "0.3"
 edge-application-entity = { path = "../domain-entity" }
+edge-application-base.workspace         = true
 edge-application-valueobject.workspace  = true
 edge-application-clock.workspace        = true
 edge-application-validator.workspace    = true

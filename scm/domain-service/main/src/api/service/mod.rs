@@ -9,9 +9,9 @@ pub mod vo;
 
 pub use dto::{
     EmptinessRequest, EmptinessResponse, LenRequest, LenResponse, ListNamesRequest,
-    ListNamesResponse, NameRequest, NameResponse, RegisterServiceRequest,
-    RegisterServiceResponse, ServiceLookupRequest, ServiceLookupResponse, ServiceRemovalRequest,
-    ServiceRemovalResponse,
+    ListNamesResponse, NameRequest, NameResponse, NoopRequest, NoopResponse,
+    RegisterServiceRequest, RegisterServiceResponse, ServiceLookupRequest, ServiceLookupResponse,
+    ServiceRemovalRequest, ServiceRemovalResponse,
 };
 pub use errors::ServiceError;
 pub use noop_service::NoopService;

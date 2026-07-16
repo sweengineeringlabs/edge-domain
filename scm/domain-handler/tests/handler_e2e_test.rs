@@ -10,14 +10,23 @@ use edge_application_handler::{
 use edge_application_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct TextPayload(String);
+
+impl edge_application_base::Request for TextPayload {}
+impl edge_application_base::Response for TextPayload {}
+
 struct EchoHandlerDouble;
 
 #[async_trait::async_trait]
 impl Handler for EchoHandlerDouble {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
 
-    async fn execute(&self, req: ExecutionRequest<'_, String>) -> Result<String, HandlerError> {
+    async fn execute(
+        &self,
+        req: ExecutionRequest<'_, TextPayload>,
+    ) -> Result<TextPayload, HandlerError> {
         Ok(req.req)
     }
 }
@@ -26,10 +35,13 @@ struct FailingHandlerDouble;
 
 #[async_trait::async_trait]
 impl Handler for FailingHandlerDouble {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
 
-    async fn execute(&self, _req: ExecutionRequest<'_, String>) -> Result<String, HandlerError> {
+    async fn execute(
+        &self,
+        _req: ExecutionRequest<'_, TextPayload>,
+    ) -> Result<TextPayload, HandlerError> {
         Err(HandlerError::ExecutionFailed("boom".into()))
     }
 
@@ -55,11 +67,11 @@ async fn test_execute_echo_returns_input_happy() {
     };
     let result = EchoHandlerDouble
         .execute(ExecutionRequest {
-            req: "payload".into(),
+            req: TextPayload("payload".into()),
             ctx: &ctx,
         })
         .await;
-    assert_eq!(result.unwrap(), "payload");
+    assert_eq!(result.unwrap(), TextPayload("payload".into()));
 }
 
 /// @covers: Handler::execute
@@ -76,7 +88,7 @@ async fn test_execute_failing_handler_returns_execution_failed_error() {
     };
     let result = FailingHandlerDouble
         .execute(ExecutionRequest {
-            req: "x".into(),
+            req: TextPayload("x".into()),
             ctx: &ctx,
         })
         .await;

@@ -14,17 +14,23 @@ use edge_application_service::{
 };
 use futures::future::BoxFuture;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct TextPayload(String);
+
+impl edge_application_base::Request for TextPayload {}
+impl edge_application_base::Response for TextPayload {}
+
 struct EchoSvc;
 
 impl Service for EchoSvc {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
     fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
         Ok(NameResponse {
             name: "echo".to_string(),
         })
     }
-    fn execute(&self, req: String) -> BoxFuture<'_, Result<String, ServiceError>> {
+    fn execute(&self, req: TextPayload) -> BoxFuture<'_, Result<TextPayload, ServiceError>> {
         Box::pin(async move { Ok(req) })
     }
 }
@@ -32,15 +38,15 @@ impl Service for EchoSvc {
 struct GreetSvc;
 
 impl Service for GreetSvc {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
     fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
         Ok(NameResponse {
             name: "greet".to_string(),
         })
     }
-    fn execute(&self, req: String) -> BoxFuture<'_, Result<String, ServiceError>> {
-        Box::pin(async move { Ok(format!("hello {req}")) })
+    fn execute(&self, req: TextPayload) -> BoxFuture<'_, Result<TextPayload, ServiceError>> {
+        Box::pin(async move { Ok(TextPayload(format!("hello {}", req.0))) })
     }
 }
 
@@ -52,22 +58,22 @@ impl RegistryBridge for AlternativeBridge {
         _req: BridgeRequest<'_, Req, Resp>,
     ) -> Result<BridgeResponse, HandlerError>
     where
-        Req: Send + 'static,
-        Resp: Send + 'static,
+        Req: edge_application_base::Request,
+        Resp: edge_application_base::Response,
     {
         Ok(BridgeResponse { transferred: 0 })
     }
 }
 
-fn make_svc_registry() -> ServiceRegistryStore<String, String> {
+fn make_svc_registry() -> ServiceRegistryStore<TextPayload, TextPayload> {
     ServiceRegistryStore::default()
 }
 
-fn make_handler_registry() -> InProcessHandlerRegistry<String, String> {
+fn make_handler_registry() -> InProcessHandlerRegistry<TextPayload, TextPayload> {
     InProcessHandlerRegistry::default()
 }
 
-fn get_id(reg: &InProcessHandlerRegistry<String, String>, id: &str) -> Option<String> {
+fn get_id(reg: &InProcessHandlerRegistry<TextPayload, TextPayload>, id: &str) -> Option<String> {
     reg.get(HandlerLookupRequest { id: id.to_string() })
         .unwrap()
         .handler
@@ -119,7 +125,7 @@ fn test_bridge_into_non_empty_registry_accumulates_edge() {
         .unwrap();
     let dst = make_handler_registry();
     dst.register(RegisterHandlerRequest::new(Arc::new(
-        edge_application_handler::EchoHandler::<String>::from(("pre", "/pre")),
+        edge_application_handler::EchoHandler::<TextPayload>::from(("pre", "/pre")),
     )))
     .unwrap();
 

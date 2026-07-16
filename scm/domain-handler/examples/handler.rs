@@ -6,12 +6,18 @@ use edge_application_handler::{
     PatternResponse,
 };
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct TextPayload(String);
+
+impl edge_application_base::Request for TextPayload {}
+impl edge_application_base::Response for TextPayload {}
+
 struct Greet;
 
 #[async_trait]
 impl Handler for Greet {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
 
     fn id(&self, _req: IdRequest) -> Result<IdResponse, HandlerError> {
         Ok(IdResponse {
@@ -23,9 +29,12 @@ impl Handler for Greet {
             pattern: "/greet".to_string(),
         })
     }
-    async fn execute(&self, req: ExecutionRequest<'_, String>) -> Result<String, HandlerError> {
-        let greeting = format!("Hello, {}!", req.req);
-        Ok(greeting)
+    async fn execute(
+        &self,
+        req: ExecutionRequest<'_, TextPayload>,
+    ) -> Result<TextPayload, HandlerError> {
+        let greeting = format!("Hello, {}!", req.req.0);
+        Ok(TextPayload(greeting))
     }
 }
 

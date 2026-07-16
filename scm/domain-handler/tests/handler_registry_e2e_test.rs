@@ -10,12 +10,18 @@ use edge_application_handler::{
     LenRequest, ListIdsRequest, RegisterHandlerRequest,
 };
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct TextPayload(String);
+
+impl edge_application_base::Request for TextPayload {}
+impl edge_application_base::Response for TextPayload {}
+
 struct StubHandler;
 
 #[async_trait::async_trait]
 impl Handler for StubHandler {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
 
     fn id(&self, _req: IdRequest) -> Result<IdResponse, HandlerError> {
         Ok(IdResponse {
@@ -23,12 +29,15 @@ impl Handler for StubHandler {
         })
     }
 
-    async fn execute(&self, req: ExecutionRequest<'_, String>) -> Result<String, HandlerError> {
+    async fn execute(
+        &self,
+        req: ExecutionRequest<'_, TextPayload>,
+    ) -> Result<TextPayload, HandlerError> {
         Ok(req.req)
     }
 }
 
-fn make_registry() -> InProcessHandlerRegistry<String, String> {
+fn make_registry() -> InProcessHandlerRegistry<TextPayload, TextPayload> {
     InProcessHandlerRegistry::default()
 }
 

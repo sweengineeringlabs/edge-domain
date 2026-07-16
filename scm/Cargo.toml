@@ -3,6 +3,7 @@ resolver = "2"
 members  = [
     "domain-app",
     "edge-domain",
+    "domain-base",
     "domain-entity",
     "domain-valueobject",
     "domain-validator",
@@ -47,6 +48,7 @@ tracing     = "0.1"
 serde       = { version = "1.0", features = ["derive"] }
 serde_json  = "1.0"
 edge-application-app         = { path = "domain-app" }
+edge-application-base        = { path = "domain-base" }
 edge-application-entity      = { path = "domain-entity" }
 edge-application-valueobject = { path = "domain-valueobject" }
 edge-application-clock       = { path = "domain-clock" }

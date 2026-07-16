@@ -15,6 +15,12 @@ use edge_application_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
 use futures::executor::block_on;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct TextPayload(String);
+
+impl edge_application_base::Request for TextPayload {}
+impl edge_application_base::Response for TextPayload {}
+
 struct Stub {
     id: &'static str,
     response: &'static str,
@@ -22,20 +28,23 @@ struct Stub {
 
 #[async_trait]
 impl Handler for Stub {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
 
     fn id(&self, _req: IdRequest) -> Result<IdResponse, HandlerError> {
         Ok(IdResponse {
             id: self.id.to_string(),
         })
     }
-    async fn execute(&self, _req: ExecutionRequest<'_, String>) -> Result<String, HandlerError> {
-        Ok(self.response.into())
+    async fn execute(
+        &self,
+        _req: ExecutionRequest<'_, TextPayload>,
+    ) -> Result<TextPayload, HandlerError> {
+        Ok(TextPayload(self.response.into()))
     }
 }
 
-fn make_reg() -> InProcessHandlerRegistry<String, String> {
+fn make_reg() -> InProcessHandlerRegistry<TextPayload, TextPayload> {
     InProcessHandlerRegistry::default()
 }
 
@@ -50,7 +59,7 @@ fn test_new_creates_empty_registry_happy() {
 /// @covers: InProcessHandlerRegistry default
 #[test]
 fn test_default_creates_empty_registry_edge() {
-    let reg = InProcessHandlerRegistry::<String, String>::default();
+    let reg = InProcessHandlerRegistry::<TextPayload, TextPayload>::default();
     assert!(reg.is_empty(EmptinessRequest).unwrap().empty);
 }
 
@@ -106,11 +115,11 @@ fn test_register_duplicate_id_replaces_handler_edge() {
     };
     assert_eq!(
         block_on(h.execute(ExecutionRequest {
-            req: "".into(),
+            req: TextPayload("".into()),
             ctx: &ctx
         }))
         .unwrap(),
-        "second"
+        TextPayload("second".into())
     );
 }
 
@@ -209,10 +218,10 @@ fn test_retrieved_handler_produces_expected_response_happy() {
     };
     assert_eq!(
         block_on(h.execute(ExecutionRequest {
-            req: "ping".into(),
+            req: TextPayload("ping".into()),
             ctx: &ctx
         }))
         .unwrap(),
-        "pong"
+        TextPayload("pong".into())
     );
 }

@@ -97,14 +97,14 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use edge_application_service::ServiceError;
+    use edge_application_service::{NoopRequest, NoopResponse, ServiceError};
     use futures::future::BoxFuture;
 
     struct DefaultServiceHandlerStub;
 
     impl Service for DefaultServiceHandlerStub {
-        type Request = ();
-        type Response = ();
+        type Request = NoopRequest;
+        type Response = NoopResponse;
         fn name(
             &self,
             _req: edge_application_service::NameRequest,
@@ -113,8 +113,8 @@ mod tests {
                 name: "stub".to_string(),
             })
         }
-        fn execute(&self, _: ()) -> BoxFuture<'_, Result<(), ServiceError>> {
-            Box::pin(async { Ok(()) })
+        fn execute(&self, _: NoopRequest) -> BoxFuture<'_, Result<NoopResponse, ServiceError>> {
+            Box::pin(async { Ok(NoopResponse) })
         }
     }
 

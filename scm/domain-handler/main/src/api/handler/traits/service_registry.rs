@@ -12,10 +12,10 @@ use crate::api::handler::dto::{
 /// this automatically via the blanket impl in `core/`.
 pub trait ServiceRegistry: Send + Sync {
     /// The request type for services stored in this registry.
-    type Request: Send + 'static;
+    type Request: edge_application_base::Request;
 
     /// The response type for services stored in this registry.
-    type Response: Send + 'static;
+    type Response: edge_application_base::Response;
 
     /// Return the names of all registered services.
     fn list_names(&self, req: ListNamesRequest) -> Result<ListNamesResponse, HandlerError>;
@@ -35,16 +35,17 @@ mod tests {
 
     use super::*;
     use crate::api::handler::traits::service::Service;
+    use edge_application_service::{NoopRequest, NoopResponse};
 
-    struct NoopService;
+    struct StubService;
 
     #[async_trait]
-    impl Service for NoopService {
-        type Request = ();
-        type Response = ();
+    impl Service for StubService {
+        type Request = NoopRequest;
+        type Response = NoopResponse;
 
-        async fn execute(&self, _req: ()) -> Result<(), HandlerError> {
-            Ok(())
+        async fn execute(&self, _req: NoopRequest) -> Result<NoopResponse, HandlerError> {
+            Ok(NoopResponse)
         }
     }
 
@@ -53,8 +54,8 @@ mod tests {
     }
 
     impl ServiceRegistry for FixedRegistry {
-        type Request = ();
-        type Response = ();
+        type Request = NoopRequest;
+        type Response = NoopResponse;
 
         fn list_names(&self, _req: ListNamesRequest) -> Result<ListNamesResponse, HandlerError> {
             Ok(ListNamesResponse {
@@ -65,10 +66,10 @@ mod tests {
         fn get(
             &self,
             req: ServiceLookupRequest,
-        ) -> Result<ServiceLookupResponse<(), ()>, HandlerError> {
+        ) -> Result<ServiceLookupResponse<NoopRequest, NoopResponse>, HandlerError> {
             if self.names.contains(&req.name) {
                 Ok(ServiceLookupResponse {
-                    service: Some(Arc::new(NoopService)),
+                    service: Some(Arc::new(StubService)),
                 })
             } else {
                 Ok(ServiceLookupResponse { service: None })

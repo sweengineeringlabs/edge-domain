@@ -36,14 +36,14 @@ impl<T: svc::Service + ?Sized> Service for T {
 /// when the blanket impl above proves the underlying type satisfies both traits.
 struct ServiceAdapter<Req, Resp>(Arc<dyn svc::Service<Request = Req, Response = Resp>>)
 where
-    Req: Send + 'static,
-    Resp: Send + 'static;
+    Req: edge_application_base::Request,
+    Resp: edge_application_base::Response;
 
 #[async_trait]
 impl<Req, Resp> Service for ServiceAdapter<Req, Resp>
 where
-    Req: Send + 'static,
-    Resp: Send + 'static,
+    Req: edge_application_base::Request,
+    Resp: edge_application_base::Response,
 {
     type Request = Req;
     type Response = Resp;
@@ -83,8 +83,8 @@ mod tests {
     use std::sync::Arc;
 
     use edge_application_service::{
-        NoopService, RegisterServiceRequest, ServiceRegistry as ForeignServiceRegistry,
-        ServiceRegistryStore,
+        NoopRequest, NoopResponse, NoopService, RegisterServiceRequest,
+        ServiceRegistry as ForeignServiceRegistry, ServiceRegistryStore,
     };
     use futures::executor::block_on;
 
@@ -92,7 +92,8 @@ mod tests {
 
     #[test]
     fn test_list_names_bridges_registered_service_happy() {
-        let store: ServiceRegistryStore<(), ()> = ServiceRegistryStore::default();
+        let store: ServiceRegistryStore<NoopRequest, NoopResponse> =
+            ServiceRegistryStore::default();
         store
             .register(&RegisterServiceRequest::new(Arc::new(NoopService)))
             .unwrap();
@@ -104,7 +105,8 @@ mod tests {
 
     #[test]
     fn test_get_missing_service_returns_none_edge() {
-        let store: ServiceRegistryStore<(), ()> = ServiceRegistryStore::default();
+        let store: ServiceRegistryStore<NoopRequest, NoopResponse> =
+            ServiceRegistryStore::default();
         let resp = ServiceRegistry::get(
             &store,
             ServiceLookupRequest {
@@ -117,13 +119,15 @@ mod tests {
 
     #[test]
     fn test_concrete_service_coerces_to_local_trait_object_via_blanket_impl_happy() {
-        let service: Arc<dyn Service<Request = (), Response = ()>> = Arc::new(NoopService);
-        assert_eq!(block_on(service.execute(())), Ok(()));
+        let service: Arc<dyn Service<Request = NoopRequest, Response = NoopResponse>> =
+            Arc::new(NoopService);
+        assert_eq!(block_on(service.execute(NoopRequest)), Ok(NoopResponse));
     }
 
     #[test]
     fn test_get_registered_service_executes_via_adapter_happy() {
-        let store: ServiceRegistryStore<(), ()> = ServiceRegistryStore::default();
+        let store: ServiceRegistryStore<NoopRequest, NoopResponse> =
+            ServiceRegistryStore::default();
         store
             .register(&RegisterServiceRequest::new(Arc::new(NoopService)))
             .unwrap();
@@ -135,6 +139,6 @@ mod tests {
         )
         .unwrap();
         let service = resp.service.expect("service should be present");
-        assert!(block_on(service.execute(())).is_ok());
+        assert!(block_on(service.execute(NoopRequest)).is_ok());
     }
 }

@@ -3,6 +3,12 @@
 use edge_application_service::{Service, ServiceRegistry, StdServiceRegistryFactory};
 use futures::executor::block_on;
 
+#[allow(dead_code)]
+struct TextPayload(String);
+
+impl edge_application_base::Request for TextPayload {}
+impl edge_application_base::Response for TextPayload {}
+
 /// @covers: StdServiceRegistryFactory
 #[test]
 fn test_std_service_registry_factory_is_copy() {
@@ -66,7 +72,7 @@ fn test_std_service_registry_factory_hash_consistent_happy() {
 /// @covers: StdServiceRegistryFactory
 #[test]
 fn test_std_service_registry_factory_produces_valid_registry_edge() {
-    let registry = StdServiceRegistryFactory::new_registry::<String, String>();
+    let registry = StdServiceRegistryFactory::new_registry::<TextPayload, TextPayload>();
     let req = edge_application_service::EmptinessRequest;
     match registry.is_empty(req) {
         Ok(response) => assert!(response.empty),

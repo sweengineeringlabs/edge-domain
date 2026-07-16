@@ -8,17 +8,18 @@ use edge_application_handler::{
     HandlerError, ListNamesRequest, Service, ServiceLookupRequest, ServiceLookupResponse,
     ServiceRegistry,
 };
+use edge_application_service::{NoopRequest, NoopResponse};
 use futures::executor::block_on;
 
-struct NoopService;
+struct StubService;
 
 #[async_trait::async_trait]
-impl Service for NoopService {
-    type Request = ();
-    type Response = ();
+impl Service for StubService {
+    type Request = NoopRequest;
+    type Response = NoopResponse;
 
-    async fn execute(&self, _req: ()) -> Result<(), HandlerError> {
-        Ok(())
+    async fn execute(&self, _req: NoopRequest) -> Result<NoopResponse, HandlerError> {
+        Ok(NoopResponse)
     }
 }
 
@@ -27,8 +28,8 @@ struct FixedRegistry {
 }
 
 impl ServiceRegistry for FixedRegistry {
-    type Request = ();
-    type Response = ();
+    type Request = NoopRequest;
+    type Response = NoopResponse;
 
     fn list_names(
         &self,
@@ -42,10 +43,10 @@ impl ServiceRegistry for FixedRegistry {
     fn get(
         &self,
         req: ServiceLookupRequest,
-    ) -> Result<ServiceLookupResponse<(), ()>, HandlerError> {
+    ) -> Result<ServiceLookupResponse<NoopRequest, NoopResponse>, HandlerError> {
         if self.names.contains(&req.name) {
             Ok(ServiceLookupResponse {
-                service: Some(Arc::new(NoopService)),
+                service: Some(Arc::new(StubService)),
             })
         } else {
             Ok(ServiceLookupResponse { service: None })
@@ -104,7 +105,7 @@ fn test_get_registered_name_returns_executable_service_happy() {
         })
         .unwrap();
     let service = resp.service.expect("service should be present");
-    assert_eq!(block_on(service.execute(())), Ok(()));
+    assert_eq!(block_on(service.execute(NoopRequest)), Ok(NoopResponse));
 }
 
 /// @covers: ServiceRegistry::get — unknown name returns no service

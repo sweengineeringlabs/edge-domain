@@ -21,8 +21,8 @@ pub trait RegistryBridge: Send + Sync {
         req: BridgeRequest<'_, Req, Resp>,
     ) -> Result<BridgeResponse, HandlerError>
     where
-        Req: Send + 'static,
-        Resp: Send + 'static;
+        Req: edge_application_base::Request,
+        Resp: edge_application_base::Response;
 
     /// Construct the standard zero-config bridge implementation.
     fn default_bridge() -> StdRegistryBridge

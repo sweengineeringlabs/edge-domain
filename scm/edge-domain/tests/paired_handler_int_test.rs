@@ -15,6 +15,12 @@ use edge_application_handler::{
 use edge_application_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct TextPayload(String);
+
+impl edge_application_base::Request for TextPayload {}
+impl edge_application_base::Response for TextPayload {}
+
 struct WriteHandler {
     repo: Arc<dyn Repository<Entity = String, Id = String>>,
 }
@@ -94,7 +100,7 @@ fn test_paired_accepts_heterogeneous_handler_types() {
 /// @covers: Domain.echo_handler delegates to Dispatch::echo_handler
 #[tokio::test]
 async fn test_domain_echo_handler_returns_input_unchanged() {
-    let h = Domain.echo_handler::<String>("e", "/e");
+    let h = Domain.echo_handler::<TextPayload>("e", "/e");
     let security = SecurityContext::unauthenticated();
     let bus = Domain
         .direct_command_bus(DirectCommandBusRequest)
@@ -110,17 +116,17 @@ async fn test_domain_echo_handler_returns_input_unchanged() {
     };
     let result = h
         .execute(ExecutionRequest {
-            req: "hello".to_string(),
+            req: TextPayload("hello".to_string()),
             ctx: &ctx,
         })
         .await;
-    assert_eq!(result.unwrap(), "hello");
+    assert_eq!(result.unwrap(), TextPayload("hello".to_string()));
 }
 
 /// @covers: Domain.new_handler_registry delegates to Dispatch::new_handler_registry
 #[test]
 fn test_domain_new_handler_registry_is_empty() {
-    let reg = Domain.new_handler_registry::<String, String>();
+    let reg = Domain.new_handler_registry::<TextPayload, TextPayload>();
     assert!(reg.is_empty(EmptinessRequest).unwrap().empty);
     assert_eq!(reg.len(LenRequest).unwrap().count, 0);
 }

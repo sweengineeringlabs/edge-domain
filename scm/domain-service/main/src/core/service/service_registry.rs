@@ -26,8 +26,8 @@ where
 
 impl<Req, Resp> ServiceRegistry for ServiceRegistryStore<Req, Resp>
 where
-    Req: Send + 'static,
-    Resp: Send + 'static,
+    Req: edge_application_base::Request,
+    Resp: edge_application_base::Response,
 {
     type Request = Req;
     type Response = Resp;
@@ -118,55 +118,5 @@ where
     /// Create a new registration request.
     pub fn new(service: Arc<dyn crate::api::Service<Request = Req, Response = Resp>>) -> Self {
         Self { service }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::api::Service;
-
-    /// @covers: default
-    #[test]
-    fn test_default_creates_empty_backing_map() {
-        let store: ServiceRegistryStore<(), ()> = Default::default();
-        assert_eq!(store.inner.read().len(), 0);
-    }
-
-    /// @covers: default
-    #[test]
-    fn test_default_backing_map_accepts_insertion() {
-        let store: ServiceRegistryStore<(), ()> = Default::default();
-        let svc: Arc<dyn crate::api::Service<Request = (), Response = ()>> = Arc::new(NoopService);
-        store.inner.write().insert("noop".to_string(), svc);
-        assert_eq!(store.inner.read().len(), 1);
-    }
-
-    /// @covers: new_registry
-    #[test]
-    fn test_new_registry_creates_empty_backing_map() {
-        let store: ServiceRegistryStore<(), ()> = StdServiceRegistryFactory::new_registry();
-        assert_eq!(store.inner.read().len(), 0);
-    }
-
-    /// @covers: noop_service
-    #[test]
-    fn test_noop_service_reports_noop_name() {
-        let svc = StdServiceRegistryFactory::noop_service();
-        assert_eq!(svc.name(NameRequest).unwrap().name, "noop");
-    }
-
-    /// @covers: default_factory
-    #[test]
-    fn test_default_factory_returns_std_factory() {
-        let factory = StdServiceRegistryFactory::default_factory();
-        assert_eq!(factory, StdServiceRegistryFactory);
-    }
-
-    /// @covers: new
-    #[test]
-    fn test_new_wraps_given_service() {
-        let req = RegisterServiceRequest::<(), ()>::new(Arc::new(NoopService));
-        assert_eq!(req.service.name(NameRequest).unwrap().name, "noop");
     }
 }

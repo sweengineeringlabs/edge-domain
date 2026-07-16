@@ -20,8 +20,8 @@ use crate::api::StdRegistryBridge;
 
 struct StdRegistryBridgeHandler<Req, Resp>
 where
-    Req: Send + 'static,
-    Resp: Send + 'static,
+    Req: edge_application_base::Request,
+    Resp: edge_application_base::Response,
 {
     id: String,
     inner: Arc<dyn Service<Request = Req, Response = Resp>>,
@@ -29,8 +29,8 @@ where
 
 impl<Req, Resp> StdRegistryBridgeHandler<Req, Resp>
 where
-    Req: Send + 'static,
-    Resp: Send + 'static,
+    Req: edge_application_base::Request,
+    Resp: edge_application_base::Response,
 {
     fn new(id: String, inner: Arc<dyn Service<Request = Req, Response = Resp>>) -> Self {
         Self { id, inner }
@@ -40,8 +40,8 @@ where
 #[async_trait]
 impl<Req, Resp> Handler for StdRegistryBridgeHandler<Req, Resp>
 where
-    Req: Send + 'static,
-    Resp: Send + 'static,
+    Req: edge_application_base::Request,
+    Resp: edge_application_base::Response,
 {
     type Request = Req;
     type Response = Resp;
@@ -64,8 +64,8 @@ impl RegistryBridge for StdRegistryBridge {
         req: BridgeRequest<'_, Req, Resp>,
     ) -> Result<BridgeResponse, HandlerError>
     where
-        Req: Send + 'static,
-        Resp: Send + 'static,
+        Req: edge_application_base::Request,
+        Resp: edge_application_base::Response,
     {
         let names = req.src.list_names(ListNamesRequest)?.names;
         let count = names.len();
@@ -88,7 +88,7 @@ mod tests {
     use edge_application_command::DirectCommandBus;
     use edge_application_observer::StdObserveFactory;
     use edge_application_service::{
-        NoopService, RegisterServiceRequest as RegisterServiceRequestSvc,
+        NoopRequest, NoopResponse, NoopService, RegisterServiceRequest as RegisterServiceRequestSvc,
         ServiceRegistry as ServiceRegistryTraitSvc, ServiceRegistryStore,
     };
     use edge_security_runtime::SecurityContext;
@@ -115,15 +115,19 @@ mod tests {
             commands: &bus,
             observer: &observer_adapter,
         };
-        assert!(block_on(handler.execute(ExecutionRequest { req: (), ctx: &ctx })).is_ok());
+        assert!(block_on(handler.execute(ExecutionRequest {
+            req: NoopRequest,
+            ctx: &ctx
+        }))
+        .is_ok());
     }
 
     #[test]
     fn test_bridge_populates_handler_registry_happy() {
-        let src: ServiceRegistryStore<(), ()> = ServiceRegistryStore::default();
+        let src: ServiceRegistryStore<NoopRequest, NoopResponse> = ServiceRegistryStore::default();
         src.register(&RegisterServiceRequestSvc::new(Arc::new(NoopService)))
             .unwrap();
-        let dst = InProcessHandlerRegistry::<(), ()>::default();
+        let dst = InProcessHandlerRegistry::<NoopRequest, NoopResponse>::default();
         let result = StdRegistryBridge.bridge(BridgeRequest {
             src: &src,
             dst: &dst,
@@ -142,8 +146,8 @@ mod tests {
 
     #[test]
     fn test_bridge_empty_registry_returns_zero_error() {
-        let src: ServiceRegistryStore<(), ()> = ServiceRegistryStore::default();
-        let dst = InProcessHandlerRegistry::<(), ()>::default();
+        let src: ServiceRegistryStore<NoopRequest, NoopResponse> = ServiceRegistryStore::default();
+        let dst = InProcessHandlerRegistry::<NoopRequest, NoopResponse>::default();
         let result = StdRegistryBridge.bridge(BridgeRequest {
             src: &src,
             dst: &dst,
@@ -154,10 +158,10 @@ mod tests {
 
     #[test]
     fn test_bridge_registered_handler_has_correct_id_edge() {
-        let src: ServiceRegistryStore<(), ()> = ServiceRegistryStore::default();
+        let src: ServiceRegistryStore<NoopRequest, NoopResponse> = ServiceRegistryStore::default();
         src.register(&RegisterServiceRequestSvc::new(Arc::new(NoopService)))
             .unwrap();
-        let dst = InProcessHandlerRegistry::<(), ()>::default();
+        let dst = InProcessHandlerRegistry::<NoopRequest, NoopResponse>::default();
         StdRegistryBridge
             .bridge(BridgeRequest {
                 src: &src,

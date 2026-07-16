@@ -9,26 +9,32 @@ use edge_application_service::{
 use futures::executor::block_on;
 use futures::future::BoxFuture;
 
+#[allow(dead_code)]
+struct NumberPayload(i32);
+
+impl edge_application_base::Request for NumberPayload {}
+impl edge_application_base::Response for NumberPayload {}
+
 struct Constant(String, i32);
 impl Service for Constant {
-    type Request = i32;
-    type Response = i32;
+    type Request = NumberPayload;
+    type Response = NumberPayload;
 
     fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
         Ok(NameResponse {
             name: self.0.clone(),
         })
     }
-    fn execute(&self, _req: i32) -> BoxFuture<'_, Result<i32, ServiceError>> {
+    fn execute(&self, _req: NumberPayload) -> BoxFuture<'_, Result<NumberPayload, ServiceError>> {
         let val = self.1;
-        Box::pin(async move { Ok(val) })
+        Box::pin(async move { Ok(NumberPayload(val)) })
     }
 }
 
 /// @covers: ServiceRegistryStore::default
 #[test]
 fn test_new_creates_empty_registry_happy() {
-    let reg: ServiceRegistryStore<i32, i32> = ServiceRegistryStore::default();
+    let reg: ServiceRegistryStore<NumberPayload, NumberPayload> = ServiceRegistryStore::default();
     let result = reg.len(LenRequest);
     match result {
         Ok(response) => assert_eq!(response.count, 0),
@@ -43,7 +49,7 @@ fn test_new_creates_empty_registry_happy() {
 /// @covers: ServiceRegistryStore::default
 #[test]
 fn test_default_creates_empty_registry_happy() {
-    let reg: ServiceRegistryStore<i32, i32> = ServiceRegistryStore::default();
+    let reg: ServiceRegistryStore<NumberPayload, NumberPayload> = ServiceRegistryStore::default();
     match reg.is_empty(EmptinessRequest) {
         Ok(response) => assert!(response.empty),
         Err(err) => panic!("expected Ok, got Err: {err:?}"),
@@ -53,7 +59,7 @@ fn test_default_creates_empty_registry_happy() {
 /// @covers: ServiceRegistry::register and get
 #[test]
 fn test_register_then_get_retrieves_service_edge() {
-    let reg: ServiceRegistryStore<i32, i32> = ServiceRegistryStore::default();
+    let reg: ServiceRegistryStore<NumberPayload, NumberPayload> = ServiceRegistryStore::default();
     let svc = Arc::new(Constant("forty-two".into(), 42));
     let req = RegisterServiceRequest::new(svc.clone());
     let _ = reg.register(&req);

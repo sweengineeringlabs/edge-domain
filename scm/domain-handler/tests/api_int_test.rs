@@ -21,12 +21,18 @@ use edge_application_service::{
 };
 use futures::future::BoxFuture;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct TextPayload(String);
+
+impl edge_application_base::Request for TextPayload {}
+impl edge_application_base::Response for TextPayload {}
+
 struct HandlerDouble;
 
 #[async_trait::async_trait]
 impl Handler for HandlerDouble {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
 
     fn id(&self, _req: IdRequest) -> Result<IdResponse, HandlerError> {
         Ok(IdResponse {
@@ -34,21 +40,24 @@ impl Handler for HandlerDouble {
         })
     }
 
-    async fn execute(&self, req: ExecutionRequest<'_, String>) -> Result<String, HandlerError> {
+    async fn execute(
+        &self,
+        req: ExecutionRequest<'_, TextPayload>,
+    ) -> Result<TextPayload, HandlerError> {
         Ok(req.req)
     }
 }
 
 struct ServiceDouble;
 impl Service for ServiceDouble {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
     fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
         Ok(NameResponse {
             name: "stub".to_string(),
         })
     }
-    fn execute(&self, req: String) -> BoxFuture<'_, Result<String, ServiceError>> {
+    fn execute(&self, req: TextPayload) -> BoxFuture<'_, Result<TextPayload, ServiceError>> {
         Box::pin(async move { Ok(req) })
     }
 }
@@ -210,14 +219,15 @@ fn test_handler_lookup_request_holds_id_happy() {
 /// @covers: HandlerLookupResponse
 #[test]
 fn test_handler_lookup_response_holds_none_when_absent_edge() {
-    let r: HandlerLookupResponse<String, String> = HandlerLookupResponse { handler: None };
+    let r: HandlerLookupResponse<TextPayload, TextPayload> = HandlerLookupResponse { handler: None };
     assert!(r.handler.is_none());
 }
 
 /// @covers: HandlerLookupResponse
 #[test]
 fn test_handler_lookup_response_holds_some_handler_happy() {
-    let handler: Arc<dyn Handler<Request = String, Response = String>> = Arc::new(HandlerDouble);
+    let handler: Arc<dyn Handler<Request = TextPayload, Response = TextPayload>> =
+        Arc::new(HandlerDouble);
     let r = HandlerLookupResponse {
         handler: Some(handler),
     };
@@ -227,10 +237,9 @@ fn test_handler_lookup_response_holds_some_handler_happy() {
 /// @covers: RegisterHandlerRequest
 #[test]
 fn test_register_handler_request_new_wraps_handler_happy() {
-    let req = RegisterHandlerRequest::new(
-        Arc::new(HandlerDouble) as Arc<dyn Handler<Request = String, Response = String>>
-    );
-    let reg = InProcessHandlerRegistry::<String, String>::default();
+    let req = RegisterHandlerRequest::new(Arc::new(HandlerDouble)
+        as Arc<dyn Handler<Request = TextPayload, Response = TextPayload>>);
+    let reg = InProcessHandlerRegistry::<TextPayload, TextPayload>::default();
     reg.register(req).unwrap();
     assert_eq!(reg.len(LenRequest).unwrap().count, 1);
 }
@@ -260,10 +269,10 @@ fn test_execution_request_holds_req_and_ctx_happy() {
 /// @covers: BridgeRequest
 #[test]
 fn test_bridge_request_holds_src_and_dst_refs_happy() {
-    let src = ServiceRegistryStore::<String, String>::default();
+    let src = ServiceRegistryStore::<TextPayload, TextPayload>::default();
     src.register(&RegisterServiceRequest::new(Arc::new(ServiceDouble)))
         .unwrap();
-    let dst = InProcessHandlerRegistry::<String, String>::default();
+    let dst = InProcessHandlerRegistry::<TextPayload, TextPayload>::default();
     let req = BridgeRequest {
         src: &src,
         dst: &dst,

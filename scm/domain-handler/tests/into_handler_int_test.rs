@@ -22,45 +22,51 @@ fn make_ctx<'a>(
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct TextPayload(String);
+
+impl edge_application_base::Request for TextPayload {}
+impl edge_application_base::Response for TextPayload {}
+
 struct EchoService;
 impl Service for EchoService {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
     fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
         Ok(NameResponse {
             name: "echo".to_string(),
         })
     }
-    fn execute(&self, req: String) -> BoxFuture<'_, Result<String, ServiceError>> {
+    fn execute(&self, req: TextPayload) -> BoxFuture<'_, Result<TextPayload, ServiceError>> {
         Box::pin(async move { Ok(req) })
     }
 }
 
 struct FailingService;
 impl Service for FailingService {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
     fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
         Ok(NameResponse {
             name: "failing".to_string(),
         })
     }
-    fn execute(&self, _req: String) -> BoxFuture<'_, Result<String, ServiceError>> {
+    fn execute(&self, _req: TextPayload) -> BoxFuture<'_, Result<TextPayload, ServiceError>> {
         Box::pin(async move { Err(ServiceError::Internal("forced failure".into())) })
     }
 }
 
 struct EmptyNameService;
 impl Service for EmptyNameService {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
     fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
         Ok(NameResponse {
             name: String::new(),
         })
     }
-    fn execute(&self, _req: String) -> BoxFuture<'_, Result<String, ServiceError>> {
-        Box::pin(async move { Ok(String::new()) })
+    fn execute(&self, _req: TextPayload) -> BoxFuture<'_, Result<TextPayload, ServiceError>> {
+        Box::pin(async move { Ok(TextPayload(String::new())) })
     }
 }
 
@@ -114,12 +120,12 @@ async fn test_into_handler_executes_ok_service_happy() {
     assert_eq!(
         handler
             .execute(ExecutionRequest {
-                req: "hello".into(),
+                req: TextPayload("hello".into()),
                 ctx: &ctx
             })
             .await
             .unwrap(),
-        "hello"
+        TextPayload("hello".into())
     );
 }
 
@@ -136,7 +142,7 @@ async fn test_into_handler_propagates_service_error() {
     let ctx = make_ctx(&security, &observer_adapter);
     let err = handler
         .execute(ExecutionRequest {
-            req: "x".into(),
+            req: TextPayload("x".into()),
             ctx: &ctx,
         })
         .await
@@ -158,11 +164,11 @@ async fn test_into_handler_empty_name_service_executes_edge() {
     assert_eq!(
         handler
             .execute(ExecutionRequest {
-                req: "".into(),
+                req: TextPayload("".into()),
                 ctx: &ctx
             })
             .await
             .unwrap(),
-        ""
+        TextPayload("".into())
     );
 }

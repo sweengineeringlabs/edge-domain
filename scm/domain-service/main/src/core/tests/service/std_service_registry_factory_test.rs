@@ -3,14 +3,15 @@
 #[cfg(test)]
 mod tests {
     use crate::api::{
-        EmptinessRequest, NameRequest, Service, ServiceRegistry, ServiceRegistryStore,
-        StdServiceRegistryFactory,
+        EmptinessRequest, NameRequest, NoopRequest, NoopResponse, Service, ServiceRegistry,
+        ServiceRegistryStore, StdServiceRegistryFactory,
     };
 
     /// @covers: new_registry
     #[test]
     fn test_new_registry_produces_usable_empty_registry_happy() {
-        let reg: ServiceRegistryStore<(), ()> = StdServiceRegistryFactory::new_registry();
+        let reg: ServiceRegistryStore<NoopRequest, NoopResponse> =
+            StdServiceRegistryFactory::new_registry();
         assert!(reg.is_empty(EmptinessRequest).unwrap().empty);
     }
 
@@ -31,8 +32,10 @@ mod tests {
     /// @covers: new_registry
     #[test]
     fn test_new_registry_instances_are_independent_edge() {
-        let reg1: ServiceRegistryStore<(), ()> = StdServiceRegistryFactory::new_registry();
-        let reg2: ServiceRegistryStore<(), ()> = StdServiceRegistryFactory::new_registry();
+        let reg1: ServiceRegistryStore<NoopRequest, NoopResponse> =
+            StdServiceRegistryFactory::new_registry();
+        let reg2: ServiceRegistryStore<NoopRequest, NoopResponse> =
+            StdServiceRegistryFactory::new_registry();
         assert!(reg1.is_empty(EmptinessRequest).unwrap().empty);
         assert!(reg2.is_empty(EmptinessRequest).unwrap().empty);
     }

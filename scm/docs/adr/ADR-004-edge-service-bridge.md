@@ -7,7 +7,64 @@ Invariant I1 below described a design later superseded by `edge`'s own `ADR-020`
 records "Status: Updated — bridge consolidated into `edge-domain-handler`") without this local
 mirror ever being updated to match. See "Amendment: the bridge lives in `domain-handler`, not a
 separate repo" below for what actually ships today.  
+**Amended:** 2026-07-16 — `domain-base` (issue #139) is a deliberate, accepted exception to the
+`no_foreign_type` boundary described below. See "Amendment: `domain-base` is exempt from
+`no_foreign_type`" below.  
 **Governing ADR:** [ADR-020](https://github.com/sweengineeringlabs/edge/blob/main/docs/3-architecture/adr/ADR-020-edge-service-bridge.md) — edge-service Service-to-Handler Bridge
+
+---
+
+## Amendment (2026-07-16): `domain-base` is exempt from `no_foreign_type`
+
+Issue #139 tightened `Handler`/`Service`'s `Request`/`Response` associated types from bare
+`Send + 'static` to a real, shared contract: `edge_application_base::Request`/`Response`,
+declared in a new foundational crate, `domain-base`. `domain-handler`'s `api/` layer now names
+that foreign crate directly in type position (`type Request: edge_application_base::Request;` in
+`handler.rs`, `handler_registry.rs`, `service.rs`, `service_registry.rs`, `registry_bridge.rs`) —
+which `arch audit`'s `no_foreign_type` rule flags (10 offenders as of 2026-07-16).
+
+**This is deliberate, not an oversight.** Two designs were tried and rejected before landing here:
+
+1. **Local mirror traits per crate** (the same pattern this ADR's `Service`/`ServiceRegistry`
+   mirrors already use to avoid naming `edge_application_service` in `api/`) — rejected by #139
+   itself: `domain-handler`'s `Service`→`Handler` bridge (`core/handler/service/service_adapter.rs`)
+   forwards `edge_application_service::Service::Request`/`Response` directly into the local
+   `Service` trait. If `domain-handler` and `domain-service` each declared independent local
+   marker traits, any type crossing that bridge would need to implement two separately-declared
+   traits from two different crates simultaneously — the exact reconciliation problem a shared
+   crate avoids.
+2. **A sealed local trait, blanket-implemented from `core/`** (`pub trait Request: Sealed {}`
+   locally in `api/`, with `impl<T: edge_application_base::Request> Request for T {}` living in
+   `core/` as the one designated foreign-reference point) — this compiles and technically keeps
+   `edge_application_base` out of `api/`'s own files, but on inspection it isn't a real port/adapter
+   relationship: there is no concrete adapter in `core/` doing any work, only a blanket rule
+   aliasing one trait to another. It also fails several *other* structural rules that don't
+   recognize blanket impls or capped (`pub` nested inside `pub(crate)`) visibility
+   (`core_implements_api_traits`, `filename_matches_type`, `one_type_per_file`,
+   `saf_trait_svc_correspondence`) — trading one accepted exception for four new ones, none of
+   them any more real than the first.
+
+**The accepted resolution**: bind directly against `edge_application_base::Request`/`Response` in
+`api/`, and treat `domain-base` as exempt from `no_foreign_type` — the same category `no_foreign_type`
+already carves out for `std` types (`String`, `Vec`): *"part of the language contract"*, not a
+business-logic dependency whose churn `api/` needs insulating from. `domain-base` plays that
+identical role for this workspace: `domain-handler` and `domain-service` are both explicitly
+designed around it as shared vocabulary, not as an external dependency being adapted in.
+
+Confirmed via `arch audit --rs`, 2026-07-16: 10 `no_foreign_type` offenders in `domain-handler`
+(`handler.rs`, `handler_registry.rs`, `service.rs`, `service_registry.rs`, `registry_bridge.rs` —
+one `Request` and one `Response` reference each) and 4 in `domain-service` (`service.rs`'s
+`Service::Request`/`Response`, `service_registry.rs`'s `ServiceRegistry::Request`/`Response`).
+Also see the pre-existing, already-dismissed `api_dto_request_response_files_exist` false
+positive (#134): the same audit runs reproduce it for `Handler::execute`/`Service::execute` in
+both crates, for the same "generic associated type has no single concrete DTO to file under
+`dto/`" reason #134 documented before #139 existed.
+
+Both crates' remaining audit findings beyond these two are unrelated pre-existing gaps, not
+introduced by #139: `no_orphan_types` on `domain-handler`'s `EchoHandler` (a heuristic mismatch
+with the tool's generic-type exemption detection, present before this work started) and
+`spi_organization_follows_api` in both crates (neither has ever had an `spi/` layer — this
+workspace's simpler port-contract crates don't need one).
 
 ---
 

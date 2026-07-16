@@ -22,44 +22,50 @@ fn make_ctx<'a>(
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct TextPayload(String);
+
+impl edge_application_base::Request for TextPayload {}
+impl edge_application_base::Response for TextPayload {}
+
 struct InvalidRequestService;
 impl Service for InvalidRequestService {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
     fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
         Ok(NameResponse {
             name: "invalid.service".to_string(),
         })
     }
-    fn execute(&self, _req: String) -> BoxFuture<'_, Result<String, ServiceError>> {
+    fn execute(&self, _req: TextPayload) -> BoxFuture<'_, Result<TextPayload, ServiceError>> {
         Box::pin(async move { Err(ServiceError::InvalidRequest("bad input".into())) })
     }
 }
 
 struct NotFoundService;
 impl Service for NotFoundService {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
     fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
         Ok(NameResponse {
             name: "notfound.service".to_string(),
         })
     }
-    fn execute(&self, _req: String) -> BoxFuture<'_, Result<String, ServiceError>> {
+    fn execute(&self, _req: TextPayload) -> BoxFuture<'_, Result<TextPayload, ServiceError>> {
         Box::pin(async move { Err(ServiceError::NotFound("gone".into())) })
     }
 }
 
 struct UnnamedService;
 impl Service for UnnamedService {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
     fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
         Ok(NameResponse {
             name: String::new(),
         })
     }
-    fn execute(&self, req: String) -> BoxFuture<'_, Result<String, ServiceError>> {
+    fn execute(&self, req: TextPayload) -> BoxFuture<'_, Result<TextPayload, ServiceError>> {
         Box::pin(async move { Ok(req) })
     }
 }
@@ -76,7 +82,7 @@ async fn test_invalid_request_service_error_maps_to_handler_error_happy() {
     let ctx = make_ctx(&security, &observer_adapter);
     let err = h
         .execute(ExecutionRequest {
-            req: "x".into(),
+            req: TextPayload("x".into()),
             ctx: &ctx,
         })
         .await
@@ -96,7 +102,7 @@ async fn test_not_found_service_error_maps_to_handler_error_error() {
     let ctx = make_ctx(&security, &observer_adapter);
     let err = h
         .execute(ExecutionRequest {
-            req: "x".into(),
+            req: TextPayload("x".into()),
             ctx: &ctx,
         })
         .await

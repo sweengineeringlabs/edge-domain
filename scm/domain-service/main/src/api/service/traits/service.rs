@@ -11,9 +11,9 @@ use crate::api::service::{NameRequest, NameResponse, ServiceError};
 /// identified by name and invoked via the [`ServiceRegistry`](super::service_registry::ServiceRegistry).
 pub trait Service: Send + Sync {
     /// The request type this service accepts.
-    type Request: Send + 'static;
+    type Request: edge_application_base::Request;
     /// The response type this service produces.
-    type Response: Send + 'static;
+    type Response: edge_application_base::Response;
 
     /// Query the stable name identifying this service.
     fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {

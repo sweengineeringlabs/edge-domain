@@ -12,10 +12,10 @@ use crate::api::handler::dto::{
 #[async_trait]
 pub trait Handler: Send + Sync {
     /// The request type this handler accepts.
-    type Request: Send + 'static;
+    type Request: edge_application_base::Request;
 
     /// The response type this handler produces.
-    type Response: Send + 'static;
+    type Response: edge_application_base::Response;
 
     /// Stable identifier for this handler.
     fn id(&self, _req: IdRequest) -> Result<IdResponse, HandlerError> {
@@ -55,14 +55,23 @@ mod tests {
     use edge_application_observer::StdObserveFactory;
     use edge_security_runtime::SecurityContext;
 
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    struct TextPayload(String);
+
+    impl edge_application_base::Request for TextPayload {}
+    impl edge_application_base::Response for TextPayload {}
+
     struct AlwaysOk;
 
     #[async_trait]
     impl Handler for AlwaysOk {
-        type Request = String;
-        type Response = String;
+        type Request = TextPayload;
+        type Response = TextPayload;
 
-        async fn execute(&self, req: ExecutionRequest<'_, String>) -> Result<String, HandlerError> {
+        async fn execute(
+            &self,
+            req: ExecutionRequest<'_, TextPayload>,
+        ) -> Result<TextPayload, HandlerError> {
             Ok(req.req)
         }
     }
@@ -71,13 +80,13 @@ mod tests {
 
     #[async_trait]
     impl Handler for AlwaysFail {
-        type Request = String;
-        type Response = String;
+        type Request = TextPayload;
+        type Response = TextPayload;
 
         async fn execute(
             &self,
-            _req: ExecutionRequest<'_, String>,
-        ) -> Result<String, HandlerError> {
+            _req: ExecutionRequest<'_, TextPayload>,
+        ) -> Result<TextPayload, HandlerError> {
             Err(HandlerError::ExecutionFailed("fail".into()))
         }
     }
@@ -95,7 +104,7 @@ mod tests {
         };
         assert!(AlwaysOk
             .execute(ExecutionRequest {
-                req: "hi".into(),
+                req: TextPayload("hi".into()),
                 ctx: &ctx
             })
             .await
@@ -115,7 +124,7 @@ mod tests {
         };
         assert!(AlwaysFail
             .execute(ExecutionRequest {
-                req: "hi".into(),
+                req: TextPayload("hi".into()),
                 ctx: &ctx
             })
             .await

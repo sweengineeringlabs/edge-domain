@@ -24,7 +24,9 @@ impl<T> From<(&str, &str)> for EchoHandler<T> {
 }
 
 #[async_trait]
-impl<T: Clone + Send + 'static> Handler for EchoHandler<T> {
+impl<T: Clone + edge_application_base::Request + edge_application_base::Response> Handler
+    for EchoHandler<T>
+{
     type Request = T;
     type Response = T;
 

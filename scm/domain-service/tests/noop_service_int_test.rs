@@ -1,6 +1,6 @@
 //! Integration tests for [`NoopService`] — the no-operation service implementation.
 
-use edge_application_service::{NameRequest, NoopService, Service};
+use edge_application_service::{NameRequest, NoopRequest, NoopResponse, NoopService, Service};
 use futures::executor::block_on;
 
 /// @covers: Service::name
@@ -16,14 +16,14 @@ fn test_name_noop_service_returns_noop_happy() {
 /// @covers: Service::execute
 #[test]
 fn test_execute_noop_service_returns_ok_happy() {
-    let result = block_on(NoopService.execute(()));
-    assert_eq!(result, Ok(()));
+    let result = block_on(NoopService.execute(NoopRequest));
+    assert_eq!(result, Ok(NoopResponse));
 }
 
 /// @covers: Service::execute
 #[test]
 fn test_execute_noop_service_repeated_always_succeeds_edge() {
     for _ in 0..3 {
-        assert_eq!(block_on(NoopService.execute(())), Ok(()));
+        assert_eq!(block_on(NoopService.execute(NoopRequest)), Ok(NoopResponse));
     }
 }

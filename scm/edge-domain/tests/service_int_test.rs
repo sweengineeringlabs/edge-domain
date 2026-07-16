@@ -10,17 +10,23 @@ use edge_application_service::{
 use futures::future::BoxFuture;
 use std::sync::Arc;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct TextPayload(String);
+
+impl edge_application_base::Request for TextPayload {}
+impl edge_application_base::Response for TextPayload {}
+
 struct EchoService;
 
 impl Service for EchoService {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
     fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
         Ok(NameResponse {
             name: "echo".to_string(),
         })
     }
-    fn execute(&self, req: String) -> BoxFuture<'_, Result<String, ServiceError>> {
+    fn execute(&self, req: TextPayload) -> BoxFuture<'_, Result<TextPayload, ServiceError>> {
         Box::pin(async move { Ok(req) })
     }
 }
@@ -28,14 +34,14 @@ impl Service for EchoService {
 struct FailingService;
 
 impl Service for FailingService {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
     fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
         Ok(NameResponse {
             name: "failing".to_string(),
         })
     }
-    fn execute(&self, _req: String) -> BoxFuture<'_, Result<String, ServiceError>> {
+    fn execute(&self, _req: TextPayload) -> BoxFuture<'_, Result<TextPayload, ServiceError>> {
         Box::pin(async { Err(ServiceError::RuleViolation("always fails".into())) })
     }
 }
@@ -43,7 +49,7 @@ impl Service for FailingService {
 /// @covers: ServiceRegistry::register, ServiceRegistry::get
 #[test]
 fn test_service_registry_struct_register_and_get_retrieves_service() {
-    let reg: ServiceRegistryStore<String, String> = ServiceRegistryStore::default();
+    let reg: ServiceRegistryStore<TextPayload, TextPayload> = ServiceRegistryStore::default();
     reg.register(&RegisterServiceRequest::new(Arc::new(EchoService)))
         .unwrap();
     assert!(reg
@@ -58,7 +64,7 @@ fn test_service_registry_struct_register_and_get_retrieves_service() {
 /// @covers: ServiceRegistry::get
 #[test]
 fn test_service_registry_struct_get_returns_none_for_missing_name() {
-    let reg: ServiceRegistryStore<String, String> = ServiceRegistryStore::default();
+    let reg: ServiceRegistryStore<TextPayload, TextPayload> = ServiceRegistryStore::default();
     assert!(reg
         .get(&ServiceLookupRequest {
             name: "missing".to_string()
@@ -71,7 +77,7 @@ fn test_service_registry_struct_get_returns_none_for_missing_name() {
 /// @covers: ServiceRegistry::deregister
 #[test]
 fn test_service_registry_struct_deregister_removes_service() {
-    let reg: ServiceRegistryStore<String, String> = ServiceRegistryStore::default();
+    let reg: ServiceRegistryStore<TextPayload, TextPayload> = ServiceRegistryStore::default();
     reg.register(&RegisterServiceRequest::new(Arc::new(EchoService)))
         .unwrap();
     assert!(
@@ -93,7 +99,7 @@ fn test_service_registry_struct_deregister_removes_service() {
 /// @covers: ServiceRegistry::len, ServiceRegistry::is_empty
 #[test]
 fn test_service_registry_struct_len_reflects_registration_count() {
-    let reg: ServiceRegistryStore<String, String> = ServiceRegistryStore::default();
+    let reg: ServiceRegistryStore<TextPayload, TextPayload> = ServiceRegistryStore::default();
     assert!(reg.is_empty(EmptinessRequest).unwrap().empty);
     reg.register(&RegisterServiceRequest::new(Arc::new(EchoService)))
         .unwrap();
@@ -104,20 +110,20 @@ fn test_service_registry_struct_len_reflects_registration_count() {
 #[tokio::test]
 async fn test_service_trait_execute_returns_result() {
     let svc = EchoService;
-    let result = svc.execute("ping".into()).await.unwrap();
-    assert_eq!(result, "ping");
+    let result = svc.execute(TextPayload("ping".into())).await.unwrap();
+    assert_eq!(result, TextPayload("ping".into()));
 }
 
 /// @covers: Service::execute
 #[tokio::test]
 async fn test_service_trait_execute_propagates_error() {
     let svc = FailingService;
-    assert!(svc.execute("x".into()).await.is_err());
+    assert!(svc.execute(TextPayload("x".into())).await.is_err());
 }
 
 /// @covers: new_service_registry
 #[test]
 fn test_factory_fn_new_service_registry_returns_empty_arc_registry() {
-    let reg = Domain.new_service_registry::<String, String>();
+    let reg = Domain.new_service_registry::<TextPayload, TextPayload>();
     assert!(reg.is_empty(EmptinessRequest).unwrap().empty);
 }

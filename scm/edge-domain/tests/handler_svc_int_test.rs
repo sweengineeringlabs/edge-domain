@@ -16,19 +16,28 @@ use edge_application_handler::{
 use edge_application_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct IntPayload(i32);
+
+impl edge_application_base::Request for IntPayload {}
+impl edge_application_base::Response for IntPayload {}
+
 struct Doubler;
 
 #[async_trait]
 impl Handler for Doubler {
-    type Request = i32;
-    type Response = i32;
+    type Request = IntPayload;
+    type Response = IntPayload;
     fn id(&self, _req: IdRequest) -> Result<IdResponse, HandlerError> {
         Ok(IdResponse {
             id: "doubler".to_string(),
         })
     }
-    async fn execute(&self, req: ExecutionRequest<'_, i32>) -> Result<i32, HandlerError> {
-        Ok(req.req * 2)
+    async fn execute(
+        &self,
+        req: ExecutionRequest<'_, IntPayload>,
+    ) -> Result<IntPayload, HandlerError> {
+        Ok(IntPayload(req.req.0 * 2))
     }
 }
 
@@ -49,10 +58,13 @@ async fn test_handler_svc_facade_execute_doubles_input() {
     };
     assert_eq!(
         Doubler
-            .execute(ExecutionRequest { req: 21, ctx: &ctx })
+            .execute(ExecutionRequest {
+                req: IntPayload(21),
+                ctx: &ctx
+            })
             .await
             .unwrap(),
-        42
+        IntPayload(42)
     );
 }
 

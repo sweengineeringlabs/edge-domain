@@ -15,30 +15,39 @@ use edge_application_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
 use futures::executor::block_on;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct TextPayload(String);
+
+impl edge_application_base::Request for TextPayload {}
+impl edge_application_base::Response for TextPayload {}
+
 struct Fixed {
     id: &'static str,
 }
 
 #[async_trait]
 impl Handler for Fixed {
-    type Request = String;
-    type Response = String;
+    type Request = TextPayload;
+    type Response = TextPayload;
 
     fn id(&self, _req: IdRequest) -> Result<IdResponse, HandlerError> {
         Ok(IdResponse {
             id: self.id.to_string(),
         })
     }
-    async fn execute(&self, req: ExecutionRequest<'_, String>) -> Result<String, HandlerError> {
+    async fn execute(
+        &self,
+        req: ExecutionRequest<'_, TextPayload>,
+    ) -> Result<TextPayload, HandlerError> {
         Ok(req.req)
     }
 }
 
-fn make_reg() -> InProcessHandlerRegistry<String, String> {
+fn make_reg() -> InProcessHandlerRegistry<TextPayload, TextPayload> {
     InProcessHandlerRegistry::default()
 }
 
-fn reg_id(id: &'static str) -> RegisterHandlerRequest<String, String> {
+fn reg_id(id: &'static str) -> RegisterHandlerRequest<TextPayload, TextPayload> {
     RegisterHandlerRequest::new(Arc::new(Fixed { id }))
 }
 
@@ -145,11 +154,11 @@ fn test_retrieved_handler_executes_correctly_happy() {
     };
     assert_eq!(
         block_on(h.execute(ExecutionRequest {
-            req: "data".into(),
+            req: TextPayload("data".into()),
             ctx: &ctx
         }))
         .unwrap(),
-        "data"
+        TextPayload("data".into())
     );
 }
 

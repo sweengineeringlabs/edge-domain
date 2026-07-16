@@ -5,11 +5,12 @@
 //! so cannot exercise the trait's error contract on its own.
 
 use edge_application_service::*;
+use edge_application_service::{NoopRequest, NoopResponse};
 use std::fmt::Debug;
 use std::sync::Arc;
 
 /// Helper to create a test service registry
-fn make_registry() -> ServiceRegistryStore<(), ()> {
+fn make_registry() -> ServiceRegistryStore<NoopRequest, NoopResponse> {
     ServiceRegistryStore::default()
 }
 
@@ -28,12 +29,12 @@ fn ok<T, E: Debug>(result: Result<T, E>) -> T {
 struct FailingRegistry;
 
 impl ServiceRegistry for FailingRegistry {
-    type Request = ();
-    type Response = ();
+    type Request = NoopRequest;
+    type Response = NoopResponse;
 
     fn register(
         &self,
-        _req: &RegisterServiceRequest<(), ()>,
+        _req: &RegisterServiceRequest<NoopRequest, NoopResponse>,
     ) -> Result<RegisterServiceResponse, ServiceError> {
         Err(ServiceError::RuleViolation(
             "registration rejected".to_string(),
@@ -50,7 +51,7 @@ impl ServiceRegistry for FailingRegistry {
     fn get(
         &self,
         _req: &ServiceLookupRequest,
-    ) -> Result<ServiceLookupResponse<(), ()>, ServiceError> {
+    ) -> Result<ServiceLookupResponse<NoopRequest, NoopResponse>, ServiceError> {
         Err(ServiceError::NotFound("registry unavailable".to_string()))
     }
 
@@ -74,7 +75,7 @@ impl ServiceRegistry for FailingRegistry {
         NoopService
     }
 
-    fn new_store() -> ServiceRegistryStore<(), ()> {
+    fn new_store() -> ServiceRegistryStore<NoopRequest, NoopResponse> {
         ServiceRegistryStore::default()
     }
 }
@@ -187,7 +188,8 @@ fn test_get_unavailable_registry_error() {
 #[test]
 fn test_get_returns_same_service_edge() {
     let reg = make_registry();
-    let service: Arc<dyn Service<Request = (), Response = ()>> = Arc::new(NoopService);
+    let service: Arc<dyn Service<Request = NoopRequest, Response = NoopResponse>> =
+        Arc::new(NoopService);
     let req = RegisterServiceRequest::new(Arc::clone(&service));
     let _ = reg.register(&req);
     let lookup_req = ServiceLookupRequest {
@@ -303,7 +305,7 @@ fn test_is_empty_after_register_edge() {
 /// @covers: ServiceRegistry::default_factory
 #[test]
 fn test_default_factory_returns_factory_happy() {
-    let factory = ServiceRegistryStore::<(), ()>::default_factory();
+    let factory = ServiceRegistryStore::<NoopRequest, NoopResponse>::default_factory();
     assert_eq!(
         std::mem::size_of_val(&factory),
         std::mem::size_of::<StdServiceRegistryFactory>()
@@ -313,7 +315,7 @@ fn test_default_factory_returns_factory_happy() {
 /// @covers: ServiceRegistry::default_factory
 #[test]
 fn test_default_factory_consistent_across_impls_error() {
-    let f1 = ServiceRegistryStore::<(), ()>::default_factory();
+    let f1 = ServiceRegistryStore::<NoopRequest, NoopResponse>::default_factory();
     let f2 = FailingRegistry::default_factory();
     assert_eq!(std::mem::size_of_val(&f1), std::mem::size_of_val(&f2));
 }
@@ -321,8 +323,8 @@ fn test_default_factory_consistent_across_impls_error() {
 /// @covers: ServiceRegistry::default_factory
 #[test]
 fn test_default_factory_multiple_calls_edge() {
-    let f1 = ServiceRegistryStore::<(), ()>::default_factory();
-    let f2 = ServiceRegistryStore::<(), ()>::default_factory();
+    let f1 = ServiceRegistryStore::<NoopRequest, NoopResponse>::default_factory();
+    let f2 = ServiceRegistryStore::<NoopRequest, NoopResponse>::default_factory();
     assert_eq!(std::mem::size_of_val(&f1), std::mem::size_of_val(&f2));
 }
 
@@ -330,14 +332,14 @@ fn test_default_factory_multiple_calls_edge() {
 /// @covers: ServiceRegistry::noop_service
 #[test]
 fn test_noop_service_returns_noop_happy() {
-    let svc = ServiceRegistryStore::<(), ()>::noop_service();
+    let svc = ServiceRegistryStore::<NoopRequest, NoopResponse>::noop_service();
     assert_eq!(ok(svc.name(NameRequest)).name, "noop");
 }
 
 /// @covers: ServiceRegistry::noop_service
 #[test]
 fn test_noop_service_consistent_across_impls_error() {
-    let svc1 = ServiceRegistryStore::<(), ()>::noop_service();
+    let svc1 = ServiceRegistryStore::<NoopRequest, NoopResponse>::noop_service();
     let svc2 = FailingRegistry::noop_service();
     assert_eq!(
         ok(svc1.name(NameRequest)).name,
@@ -348,8 +350,8 @@ fn test_noop_service_consistent_across_impls_error() {
 /// @covers: ServiceRegistry::noop_service
 #[test]
 fn test_noop_service_multiple_calls_edge() {
-    let svc1 = ServiceRegistryStore::<(), ()>::noop_service();
-    let svc2 = ServiceRegistryStore::<(), ()>::noop_service();
+    let svc1 = ServiceRegistryStore::<NoopRequest, NoopResponse>::noop_service();
+    let svc2 = ServiceRegistryStore::<NoopRequest, NoopResponse>::noop_service();
     assert_eq!(
         ok(svc1.name(NameRequest)).name,
         ok(svc2.name(NameRequest)).name
@@ -360,14 +362,14 @@ fn test_noop_service_multiple_calls_edge() {
 /// @covers: ServiceRegistry::new_store
 #[test]
 fn test_new_store_returns_empty_registry_happy() {
-    let store = ServiceRegistryStore::<(), ()>::new_store();
+    let store = ServiceRegistryStore::<NoopRequest, NoopResponse>::new_store();
     assert!(ok(store.is_empty(EmptinessRequest)).empty);
 }
 
 /// @covers: ServiceRegistry::new_store
 #[test]
 fn test_new_store_independent_across_impls_error() {
-    let store1 = ServiceRegistryStore::<(), ()>::new_store();
+    let store1 = ServiceRegistryStore::<NoopRequest, NoopResponse>::new_store();
     let store2 = FailingRegistry::new_store();
     assert_eq!(
         ok(store1.is_empty(EmptinessRequest)).empty,
@@ -378,8 +380,8 @@ fn test_new_store_independent_across_impls_error() {
 /// @covers: ServiceRegistry::new_store
 #[test]
 fn test_new_store_instances_are_independent_edge() {
-    let store1 = ServiceRegistryStore::<(), ()>::new_store();
-    let store2 = ServiceRegistryStore::<(), ()>::new_store();
+    let store1 = ServiceRegistryStore::<NoopRequest, NoopResponse>::new_store();
+    let store2 = ServiceRegistryStore::<NoopRequest, NoopResponse>::new_store();
     let req = RegisterServiceRequest::new(Arc::new(NoopService));
     ok(store1.register(&req));
     assert_eq!(ok(store1.len(LenRequest)).count, 1);
