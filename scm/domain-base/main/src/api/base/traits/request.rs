@@ -1,5 +1,8 @@
 //! `Request` — contract every `Handler`/`Service`-supplied request payload must satisfy.
 
+use crate::api::base::dto::{ValidationRequest, ValidationResponse};
+use crate::api::base::errors::RequestError;
+
 /// Marker bound for a `Handler::Request` or `Service::Request` associated type.
 ///
 /// Implementors declare the concrete request payload they accept; this trait exists so the
@@ -19,4 +22,11 @@
 ///
 /// impl Request for Greeting {}
 /// ```
-pub trait Request: Send + 'static {}
+pub trait Request: Send + 'static {
+    /// Validate this request's invariants.
+    ///
+    /// Returns `Ok(ValidationResponse)` by default. Override to enforce domain rules.
+    fn validate(&self, _req: ValidationRequest) -> Result<ValidationResponse, RequestError> {
+        Ok(ValidationResponse)
+    }
+}

@@ -77,6 +77,22 @@ line (`#[rustfmt::skip]`-protected). `core/handler/echo_handler.rs`'s `impl ... 
 EchoHandler<T>` had the same wrapped-signature shape and hit the same false positive; applying
 the identical one-line-signature fix resolved it. `arch audit --rs` no longer reports this rule.
 
+**`has_error_dir` in `domain-base` — also resolved for real, not accepted as unfixable.** Initial
+attempt concluded this had no legitimate fix without adding a required method, which would
+contradict #139's "pure marker, no required methods" scope. The actual fix: a *provided* (default,
+non-breaking) `validate()` method on both `Request` and `Response`, mirroring `domain-entity`'s
+own `Entity::validate` pattern exactly — `fn validate(&self, _req: ValidationRequest) ->
+Result<ValidationResponse, RequestError> { Ok(ValidationResponse) }`. This gives `RequestError`/
+`ResponseError` (reserved, `#[non_exhaustive]`, zero-variant — same shape as `EntityError`) a
+genuine, non-fake home in a real trait method signature, satisfying `has_error_dir` and
+`no_orphan_types` simultaneously without breaking any existing implementor (the method is
+optional to override). `ValidationRequest`/`ValidationResponse` DTOs added, shared by both
+`validate()` methods (the tool's own documented "shared-type case," not duplication). Covered by
+6 new test files (`request_error_int_test.rs`, `response_error_int_test.rs`,
+`validation_request_int_test.rs`, `validation_response_int_test.rs`, plus `_happy`/`_error`/
+`_edge` scenario tests added to `request_e2e_test.rs`/`response_e2e_test.rs`). `arch audit --rs`
+no longer reports this rule; `domain-base` is now 181/184 (was 179/184).
+
 **`saf_layer_mirrors_api_domains` in `edge-domain` — also resolved for real.** `api/spi/`
 (`DomainAssemblyHook`/`NoopDomainAssemblyHook`, a genuine extension-point trait, not a
 placeholder) already had a working SAF facade — `domain_assembly_hook_svc_factory.rs` — but it

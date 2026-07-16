@@ -19,7 +19,11 @@ mod core;
 mod saf;
 
 pub use api::Request;
+pub use api::RequestError;
 pub use api::Response;
+pub use api::ResponseError;
+pub use api::ValidationRequest;
+pub use api::ValidationResponse;
 
 pub use saf::REQUEST_SVC;
 pub use saf::REQUEST_SVC_FACTORY;

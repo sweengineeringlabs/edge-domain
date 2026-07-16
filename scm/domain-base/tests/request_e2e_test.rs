@@ -1,6 +1,6 @@
 //! Integration tests for the `Request` trait.
 
-use edge_application_base::Request;
+use edge_application_base::{Request, ValidationRequest, ValidationResponse};
 
 struct GreetingRequest {
     name: String,
@@ -35,4 +35,32 @@ fn test_request_type_name_resolves_via_public_api_error() {
 fn test_request_bound_accepts_zero_sized_type_edge() {
     let req = accept_request(Ping);
     assert_eq!(std::mem::size_of_val(&req), 0);
+}
+
+/// @covers: Request::validate — default implementation always passes
+#[test]
+fn test_validate_default_impl_returns_ok_happy() {
+    let req = GreetingRequest {
+        name: "world".to_string(),
+    };
+    assert_eq!(req.validate(ValidationRequest), Ok(ValidationResponse));
+}
+
+/// @covers: Request::validate — RequestError is currently uninhabited; no error path exists
+#[test]
+fn test_validate_no_error_variant_exists_error() {
+    // RequestError has zero variants — validate() can only ever return Ok(_)
+    let req = Ping;
+    assert_eq!(req.validate(ValidationRequest), Ok(ValidationResponse));
+}
+
+/// @covers: Request::validate — repeated calls on the same instance are all Ok, never flip
+#[test]
+fn test_validate_repeated_calls_still_pass_edge() {
+    let req = GreetingRequest {
+        name: String::new(),
+    };
+    for _ in 0..3 {
+        assert_eq!(req.validate(ValidationRequest), Ok(ValidationResponse));
+    }
 }
