@@ -21,6 +21,7 @@ members  = [
     "domain-registry",
     "domain-lifecycle",
     "domain-observer",
+    "examples/dataflow",
 ]
 
 [workspace.package]

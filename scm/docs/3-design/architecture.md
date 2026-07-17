@@ -24,6 +24,17 @@ and others) depend on these crates as libraries and wire them into a live dispat
 this repo itself contains no ingress/egress/transport code. See `docs/3-design/dataflow.md` for
 exactly how far that wiring is confirmed to reach today.
 
+**Important scoping note:** the list above is a claim *about* those repos, not something
+`edge-application` can verify from its own side — this repo has zero Cargo-level dependency on
+any of them, in either direction. Confirming that a named consumer actually wires a contract from
+here into a live entrypoint requires independently inspecting *that* consumer's own repo; it is
+never something `edge-application`'s own code, tests, or Cargo.toml establish. `edge-application`
+(and any library built the same way, e.g. `swe-edge-service`) has no entrypoint of its own by
+design — that is not a gap to close, it is what a library is. Don't conflate "a library's own
+demonstrated consumption pattern, per its own example/tests" with "the entrypoint some downstream
+application uses" — they are different claims requiring different evidence, and the second one is
+always external to this repo.
+
 ---
 
 ## SEA layering
@@ -88,24 +99,32 @@ graph TB
         Registry["domain-registry<br/><i>Registry&lt;V&gt;</i>"]
     end
 
+    Bridge["swe-edge-service<br/>(external bridge repo, outside this repo — #143)"]
     Consumer["edge-dispatcher / swe-edge-bootstrap<br/>(live dispatch, outside this repo)"]
 
-    Service -->|"IntoHandler / RegistryBridge<br/>composition-time only,<br/>HandlerContext dropped — #140"| Handler
+    Service -.->|"no bridge inside this repo — #143"| Handler
+    Service -->|"IntoHandler / DefaultServiceHandler<br/>composition-time only,<br/>HandlerContext dropped — #140"| Bridge
+    Bridge -->|"produces a boxed Handler"| Handler
     Observer -->|"7 blanket impls + ObserverContextAdapter<br/>per-request, not enforced"| Handler
     Command -->|"HandlerContext.commands<br/>per-request, convention only"| Handler
+    Command -.->|"Service::execute has no context param —<br/>structurally unreachable, not just unwired"| Service
     Handler -->|"InProcessHandlerRegistry<br/>wrapped, live"| Consumer
     Registry -.->|"no bridge exists — ADR-029 deferred, #141"| Handler
     Registry -.->|"no bridge exists"| Service
 
     style Registry stroke-dasharray: 5 5
+    style Bridge stroke-dasharray: 5 5
 ```
 
 `docs/3-design/dataflow.md` is the traced, cited reference for how the pieces above actually
-connect at the code level — the live `HandlerRegistry` chain, the `Service`→`Handler` bridge and
-its confirmed `HandlerContext`-dropping behavior, the `ObserverContext` blanket-impl bridge,
-`CommandBus` injection, and `domain-registry::Registry<V>`'s confirmed lack of any bridge to the
-other two registries. Read that document for citations; this document is the map, not the
-evidence.
+connect at the code level — the live `HandlerRegistry` chain, the `Service`→`Handler` bridge (now
+external to this repo, in `swe-edge-service`, since `domain-handler`'s own duplicate was removed —
+#143) and its confirmed `HandlerContext`-dropping behavior, the `ObserverContext` blanket-impl
+bridge, `CommandBus` injection, `domain-registry::Registry<V>`'s confirmed lack of any bridge to
+the other two registries, and — newest — `Command`/`CommandBus`'s confirmed lack of any path to
+`Service`/`ServiceRegistry`, which is structurally impossible via the existing bridge rather than
+merely unwired (dataflow.md §6). Read that document for citations; this document is the map, not
+the evidence.
 
 ---
 
@@ -122,9 +141,15 @@ amendment) closes them:
   type. Explicitly scoped to stay an in-repo crate (see #141 below for why that matters).
 - **[#140](https://github.com/sweengineeringlabs/edge-application/issues/140)** — `HandlerContext`
   (`security`, `commands`, `observer`) is silently dropped at the exact point a bridged `Service`
-  is invoked (`DefaultServiceHandler::execute` forwards only `req.req`, never `req.ctx`). Not
-  necessarily a bug — `Service`'s trait never promised context — but currently undecided whether
-  that's the intended final shape or should change.
+  is invoked (`DefaultServiceHandler::execute` forwards only `req.req`, never `req.ctx`; that type
+  now lives in `swe-edge-service`, not this repo — see #143). Not necessarily a bug — `Service`'s
+  trait never promised context — but currently undecided whether that's the intended final shape
+  or should change. **Confirmed corollary (2026-07-17):** this same context-blind
+  `Service::execute` shape is why `Command`/`CommandBus` has no path to `Service`/`ServiceRegistry`
+  either — not merely unwired, but structurally impossible through the existing bridge, since
+  there is no context parameter on `Service::execute` to carry a `CommandBus` reference through in
+  the first place. See `dataflow.md` §6 for the full trace, the three-tier
+  `Handler`/`Service`/`Command` context-access comparison, and the exhaustive grep evidence.
 - **[#141](https://github.com/sweengineeringlabs/edge-application/issues/141)** — review of
   whether retiring `domain-security` in favor of the external `edge-security` repo (2026-07-06,
   `fba9004`) was the right call, given the `no_foreign_type` decoupling cost it produced five

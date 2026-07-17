@@ -79,82 +79,83 @@ amendment added to `edge`'s ADR-024 (`edge/docs/3-architecture/adr/ADR-024-handl
 
 ---
 
-## 2. `Service` → `Handler`: real, tested, load-bearing — but composition-time, not per-request
+## 2. `Service` → `Handler`: real bridge, but no longer inside this repo
 
-`domain-service::Service` (`name()` + `execute(req) -> Result<Resp, ServiceError>`) and
-`domain-handler::Handler` are declared independently — neither's `api/` references the other's
-types directly (SEA `no_foreign_type`). They are bridged by:
+**Amendment (2026-07-17, issue #143):** this section previously described `IntoHandler` and
+`RegistryBridge`/`StdRegistryBridge` living in `domain-handler` (`main/src/core/handler/std_registry_bridge.rs`).
+That was a second, independently-built, duplicate of a bridge that already existed in the
+`swe-edge-service` repo — three implementations of the same on-ramp in total, once `domain-handler`'s
+own two are counted. Both of `domain-handler`'s copies were removed 2026-07-17, and
+`domain-handler` lost its `edge-application-service` dependency entirely (`domain-handler/Cargo.toml`,
+confirmed by grep — no `edge-application-service` entry remains). **As of this amendment,
+`domain-service::Service` and `domain-handler::Handler` have zero bridge between them anywhere in
+this repo.** See ADR-004's 2026-07-17 amendment for the full trace and worked example.
 
-- **`IntoHandler`** (`domain-handler/main/src/api/handler/traits/into_handler.rs`) — a blanket
-  impl for every `S: Service`, wrapping it in `DefaultServiceHandler<S>` whose `Handler::execute`
-  delegates to the original `Service::execute`.
-- **`RegistryBridge`/`StdRegistryBridge`** (`domain-handler/main/src/core/handler/std_registry_bridge.rs`)
-  — bulk-transfers every entry of a `ServiceRegistry` into a `HandlerRegistry`:
+The sole surviving bridge is external, in the `swe-edge-service` repo (package `swe-edge-service`,
+crate root `service/main/src/`), which depends on this repo's `domain-handler`/`domain-service` as
+a downstream consumer — the same relationship `edge-dispatcher`/`swe-edge-bootstrap` have to
+`domain-handler` in section 1, not something this repo can see or verify from its own side (see
+`architecture.md`'s scoping note). It is documented here only because the mechanism and its
+consequences (next subsection) are directly relevant to understanding what a `Service` impl can
+and cannot do once bridged — the same question this section always answered, just with the bridge
+now correctly attributed to where it actually lives:
 
-  ```rust
-  impl RegistryBridge for StdRegistryBridge {
-      fn bridge<Req, Resp>(&self, req: BridgeRequest<'_, Req, Resp>) -> Result<BridgeResponse, HandlerError> {
-          let names = req.src.list_names(ListNamesRequest)?.names;   // req.src: ServiceRegistry
-          for name in names {
-              if let Some(svc) = req.src.get(ServiceLookupRequest{name})?.service {
-                  req.dst.register(RegisterHandlerRequest::new(Arc::new(
-                      StdRegistryBridgeHandler::new(name, svc),
-                  )))?;                                              // req.dst: HandlerRegistry
-              }
-          }
-          Ok(BridgeResponse { transferred: count })
-      }
-  }
-  ```
+- **`IntoHandler`** (`swe-edge-service/service/main/src/core/bridge/service_handler.rs`) — a
+  blanket impl for every `S: Service`, wrapping it in `DefaultServiceHandler<S>` whose
+  `Handler::execute` delegates to the original `Service::execute`. Also now enforces
+  `Validator::validate` at construction time (rejects a malformed `Service` before it is ever
+  boxed into a `Handler`), rather than leaving validation as a separately-callable, easy-to-forget
+  step — see that repo's `f3702f5` ("remove ServiceBridge/ServiceBackedHandler, enforce validation
+  at construction").
 
 ```mermaid
 sequenceDiagram
-    participant App as Application startup (_svc.rs)
-    participant SvcReg as ServiceRegistry (domain-service)
-    participant Bridge as StdRegistryBridge
-    participant HReg as HandlerRegistry (domain-handler)
+    participant App as Application startup (swe-edge-service consumer)
+    participant Svc as S: Service (domain-service contract)
+    participant IH as IntoHandler (swe-edge-service, external to this repo)
+    participant DSH as DefaultServiceHandler<S>
 
     rect rgb(235, 245, 255)
-    Note over App,HReg: composition time — runs once, at startup
-    App->>SvcReg: register(service)
-    App->>Bridge: bridge(src: ServiceRegistry, dst: HandlerRegistry)
-    Bridge->>SvcReg: list_names() / get(name)
-    Bridge->>HReg: register(StdRegistryBridgeHandler::new(name, svc))
+    Note over App,DSH: composition time — runs once, per Service instance
+    App->>IH: svc.into_handler()
+    IH->>DSH: validate() then box as Handler
     end
 
-    participant DSH as DefaultServiceHandler<S>
-    participant Svc as Service::execute (wrapped impl)
+    participant Reg as HandlerRegistry (domain-handler, THIS repo)
+    participant Caller as Handler::execute caller (section 1's live chain)
 
     rect rgb(255, 240, 235)
     Note over DSH,Svc: per request — every call, via section 1's live chain
-    DSH->>DSH: execute(ExecutionRequest{req, ctx})
+    Caller->>Reg: get(HandlerLookupRequest)
+    Reg-->>Caller: Arc<dyn Handler> (the boxed DefaultServiceHandler<S>)
+    Caller->>DSH: execute(ExecutionRequest{req, ctx})
     Note right of DSH: ctx (security/commands/observer)<br/>received here, but never forwarded below
     DSH->>Svc: execute(req.req)
     Svc-->>DSH: Result<Response, ServiceError>
     end
 ```
 
-**What this means precisely:** `ServiceRegistry` is not part of the per-request dispatch path —
-a live request never touches it. It is real, load-bearing infrastructure at **composition time**:
-an application populates a `ServiceRegistry` with its `Service` impls once, at startup, then runs
-`StdRegistryBridge::bridge()` (or a single `svc.into_handler()`) to produce the `HandlerRegistry`
-that section 1's live dispatch chain actually uses. Without this bridge, a `Service` impl has no
-path to ever be reached by a live request — this is the entire reason `Service` has production
-relevance at all (see `docs/3-design/temp/edge-repo-dataflow-snapshot.md` discussion for the
-general principle).
+**What this means precisely:** a `Service` impl has no path to ever be reached by a live request
+in *this* repo's own dispatch chain (section 1) unless some external consumer bridges it — that
+bridging is no longer something `domain-handler` offers internally. `domain-service` and
+`domain-handler` are, within this repo, two fully independent port declarations with no
+composition-time or per-request connection between them at all (see also section 6's related
+`Command`↔`Service` finding, which follows from the same context-blind `Service::execute` shape
+described next).
 
 ### `HandlerContext` does not survive the bridge
 
 `Service::execute(&self, req: Self::Request) -> Result<Self::Response, ServiceError>` takes no
-context parameter at all — `domain-service`'s trait is context-blind by design. The bridge does
-not compensate for this. `DefaultServiceHandler<S>::execute` — the `Handler` impl the bridge
-produces — receives the full `ExecutionRequest<'_, S::Request> { req, ctx: &HandlerContext }`
-like any other handler, but only forwards `req.req` to the wrapped service:
+context parameter at all — `domain-service`'s trait is context-blind by design, in this repo,
+independent of who bridges it. Wherever the bridge lives, it cannot compensate for this.
+`DefaultServiceHandler<S>::execute` — the `Handler` impl the bridge produces — receives the full
+`ExecutionRequest<'_, S::Request> { req, ctx: &HandlerContext }` like any other handler, but only
+forwards `req.req` to the wrapped service:
 
 ```rust
-// domain-handler/main/src/core/handler/service/service_handler.rs
+// swe-edge-service/service/main/src/core/bridge/service_handler.rs
 async fn execute(&self, req: ExecutionRequest<'_, S::Request>) -> Result<S::Response, HandlerError> {
-    self.inner.execute(req.req).await.map_err(HandlerError::from)   // req.ctx is never read
+    self.inner.execute(req.req).await.map_err(Self::convert_error)   // req.ctx is never read
 }
 ```
 
@@ -166,7 +167,7 @@ a bug in the narrow sense — `Service`'s trait signature never promised context
 constraint on what a bridged `Service` can do that is easy to miss from the `Handler` side, where
 context is normally always available. Anything a `Service` impl needs from context has to be
 supplied another way (constructor injection, a field on the concrete type), not through this
-bridge.
+bridge. See issue #140.
 
 `edge-llm`'s own ADR-085 (`edge-llm/docs/3-design/adr/ADR-085-memory-ports-service-dispatch-reachability.md`)
 documents this exact mechanism independently, from the consumer side, and explicitly names an
@@ -205,11 +206,26 @@ enforcement layer requiring it, unlike `ctx.commands` for writes (section 4).
 
 ## 4. `CommandBus`: the enforced write path
 
-`domain-handler` also depends directly on `domain-command`. `HandlerContext.commands: &'a dyn CommandBus`
-is present on every `execute()` call. Per the (amended) ADR-024: a write handler is expected to
-dispatch mutations through `ctx.commands.dispatch(...)` rather than mutating a repository
-directly — this is a documented convention (`ADR-024` §"Write handlers — enforced path"), not a
-type-level guarantee; nothing prevents a `Handler` impl from ignoring `ctx.commands` entirely.
+`domain-handler` also depends directly on `domain-command`, bridged the same way section 3
+bridges `domain-observer`: `HandlerContext.commands: &'a dyn CommandBus` is `domain-handler`'s own
+locally-declared `CommandBus`/`Command`/`CommandDispatchRequest` mirror types
+(`domain-handler/main/src/api/handler/traits/command_bus.rs`, `.../traits/command.rs`,
+`.../dto/command_dispatch_request.rs`), never `edge_application_command`'s directly (SEA
+`no_foreign_type`). Any real `edge_application_command::Command`/`CommandBus`/`DirectCommandBus`
+implementor satisfies the local mirror automatically via a blanket impl in
+`domain-handler/main/src/core/handler/command/into_handler_error.rs` — the same shape as section
+3's `ObserverContext` bridge. Concretely: dispatching a command through `ctx.commands` from a
+`Handler::execute` body means constructing `domain-handler`'s own `CommandDispatchRequest { command:
+Box<dyn domain_handler::Command> }`, not `domain_command`'s type of the same name — the two are
+distinct, non-interchangeable types with identical names, easy to reach for the wrong one (see
+`examples/dataflow/src/main.rs`, which hit exactly this mismatch as a compile error while being
+built).
+
+`HandlerContext.commands` is present on every `execute()` call. Per the (amended) ADR-024: a write
+handler is expected to dispatch mutations through `ctx.commands.dispatch(...)` rather than
+mutating a repository directly — this is a documented convention (`ADR-024` §"Write handlers —
+enforced path"), not a type-level guarantee; nothing prevents a `Handler` impl from ignoring
+`ctx.commands` entirely.
 
 ---
 
@@ -245,26 +261,94 @@ crates (`domain-handler`, `domain-service`).
 
 ---
 
+## 6. What is *not* connected — `Command`/`CommandBus` ↔ `Service`/`ServiceRegistry`
+
+No mechanism connects a dispatched `Command` to invoking a named `Service` from a
+`ServiceRegistry`. This is not merely unwired — it is **structurally impossible** through the
+existing `Service`→`Handler` bridge (section 2), because `Service::execute()`'s signature has no
+context parameter to carry a `CommandBus` reference through in the first place.
+
+**Confirmed by exhaustive grep** (2026-07-17, both directions, across `domain-command`,
+`domain-service`, and `swe-edge-service`): zero references from `domain-command`/`CommandBus` to
+`Service`/`ServiceRegistry`, and zero references the other way. Neither crate's `Cargo.toml`
+depends on the other (`domain-command/Cargo.toml`, `domain-service/Cargo.toml` — checked directly).
+
+The reason isn't an oversight to fix — it falls out of a real, three-tier hierarchy of how much
+execution context each of this repo's three request-handling ports actually receives:
+
+| Port | `execute()` signature | Payload | Context available |
+|---|---|---|---|
+| `Handler` | `execute(&self, req: ExecutionRequest<'_, Req> { req, ctx: &HandlerContext })` | Yes | Yes — `security`, `commands: &dyn CommandBus`, `observer` (section 1) |
+| `Service` | `execute(&self, req: Self::Request) -> Result<Self::Response, ServiceError>` | Yes | **None** — no context parameter exists at all (section 2) |
+| `Command` | `execute(&self, _req: ExecutionRequest) -> Result<(), CommandError>` where `ExecutionRequest` is a zero-sized unit struct | **None** | **None** — carries neither payload nor context |
+
+(`ExecutionRequest` here is `domain-command`'s own type,
+`domain-command/main/src/api/command/dto/execution_request.rs` — `#[derive(...)] pub struct
+ExecutionRequest;` — distinct from, and unrelated to, `domain-handler`'s
+`ExecutionRequest<'a, Req>` used in the table's `Handler` row.)
+
+Tracing why a `Command` dispatched from inside a `Handler::execute` call can never reach a named
+`Service`, even when that `Service` has separately been bridged into the very same
+`HandlerRegistry` the `Handler` is running in:
+
+1. `Handler::execute` receives `ctx.commands: &dyn CommandBus` and may call
+   `ctx.commands.dispatch(CommandDispatchRequest { command })` (`domain-command/main/src/api/command/traits/command_bus.rs`).
+2. `CommandBus::dispatch` invokes `Command::execute(&self, _req: ExecutionRequest)` — but that
+   `ExecutionRequest` is the zero-sized unit struct above, so the `Command` impl receives no
+   payload and no context. It cannot look up or invoke a `Service` by name because it has nothing
+   to look one up *with* — no `ServiceRegistry` reference, no `HandlerContext`, nothing.
+3. Separately, even if a `Command` impl held a `ServiceRegistry` via constructor injection
+   (the only way it could reach one at all, per step 2), and used it to fetch and bridge a
+   `Service` into a `Handler` and call it — that inner `Service::execute(req)` call still has no
+   context parameter (section 2's table row), so nothing round-trips back to the original
+   `ctx.commands` the outer `Handler` started with. The two ports simply don't share a context
+   shape that would let one meaningfully drive the other beyond one-way, hand-wired composition
+   the type system doesn't help with.
+
+So the gap is real at two independent levels: no existing code performs step 3's hypothetical
+wiring (confirmed by the grep above), and even hand-written wiring following that path would still
+lose context at the inner `Service::execute` boundary, for the same structural reason section 2
+already documents for the `Handler`→`Service` direction. `Service::execute` lacking context isn't
+a defect relative to some missing feature — it matches `domain-service`'s own documented purpose
+as pure application-layer logic, not infrastructure-aware execution; `Command` carrying neither
+payload nor context is the most minimal of the three contracts by the same logic. The three rows
+above are a coherent, intentional design tier, not three independent oversights that happen to
+look similar.
+
+---
+
 ## Summary table
 
 | Connection | Status | Mechanism | Proof |
 |---|---|---|---|
 | `HandlerRegistryImpl` (edge-dispatcher) → `domain-handler` | **Live, confirmed** | Direct struct wrapping, pure forwarding | `edge-dispatcher/.../handler_registry.rs` |
-| `ServiceRegistry` (domain-service) → `HandlerRegistry` (domain-handler) | **Real, composition-time only; `HandlerContext` dropped at the bridge** | `IntoHandler` blanket impl, `RegistryBridge`/`StdRegistryBridge` | `domain-handler/.../std_registry_bridge.rs`, `.../into_handler.rs`, `.../service/service_handler.rs` |
+| `Service` (domain-service) → `Handler` (domain-handler) | **Not connected within this repo (as of #143); real bridge exists, but only externally in `swe-edge-service`; `HandlerContext` dropped at that bridge** | `IntoHandler` blanket impl, `DefaultServiceHandler` | `swe-edge-service/service/main/src/core/bridge/service_handler.rs` |
 | `domain-observer` → `domain-handler` | **Real, per-request-reachable, not enforced** | 7 blanket impls + `ObserverContextAdapter` | `domain-handler/.../into_handler_error.rs` |
 | `domain-command` → `domain-handler` | **Real, per-request-reachable, convention-only** | `HandlerContext.commands` field | ADR-024 |
 | `domain-registry::Registry<V>` → `HandlerRegistry`/`ServiceRegistry` | **Not connected** | None — deferred by ADR-029 | grep, exhaustive, zero matches |
+| `Command`/`CommandBus` → `Service`/`ServiceRegistry` | **Not connected — structurally impossible via existing bridge, not just unwired** | None — `Service::execute` has no context parameter to carry a `CommandBus` through | grep, exhaustive, zero matches, both directions |
 
 ---
 
 ## See also
 
+- `examples/dataflow/src/main.rs` (`cargo run -p edge-application-dataflow-example`) — a runnable
+  reproduction of sections 2 and 6's findings: traces, at the code level, exactly where
+  `HandlerContext` does (`Handler` -> `Command`, via `ctx.commands.dispatch`) and does not
+  (`Handler` -> `Service`) reach. Not a production bridge — `DemoServiceHandler` in that file
+  exists only to make the finding observable; the real bridge lives in `swe-edge-service`.
 - `docs/3-design/temp/edge-repo-dataflow-snapshot.md` — the `edge` repo's own (partially stale)
   ingress/egress dataflow docs, temporarily mirrored here; delete once that repo's git conflicts
   are resolved and its docs are fixed in place.
 - [Issue #139](https://github.com/sweengineeringlabs/edge-application/issues/139) — proposed
   `domain-base` shared crate for `Request`/`Response` marker traits, touching the same
   `domain-handler`/`domain-service` boundary as section 2 above.
+- [Issue #140](https://github.com/sweengineeringlabs/edge-application/issues/140) — `HandlerContext`
+  dropped at the `Service`→`Handler` bridge; the same context-blind `Service::execute` shape is
+  the root cause of section 6's `Command`↔`Service` finding.
+- [Issue #143](https://github.com/sweengineeringlabs/edge-application/issues/143) — removal of
+  `domain-handler`'s duplicate `Service`→`Handler` bridge, resolved 2026-07-17; see ADR-004's
+  amendment and section 2 above for the corrected picture.
 - `edge`'s ADR-024 (amended 2026-07-15), ADR-020, ADR-029 — the governing ADRs for sections 1, 2,
   and 5 respectively.
 - `edge-llm`'s ADR-085 — independent confirmation of section 2 from the consumer side.
