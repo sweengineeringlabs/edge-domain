@@ -2,8 +2,8 @@
 
 **Why this file exists here:** copied from `sweengineeringlabs/edge` (`docs/3-architecture/architecture.md`
 and `proxy/scm/docs/architecture.md`) on 2026-07-15, during an investigation of how
-`edge-application`'s domain crates (`domain-handler`, `domain-service`, `domain-registry`,
-`domain-observer`, `domain-command`) connect to the rest of the platform. The source repo
+`edge-application`'s domain crates (`handler`, `service`, `registry`,
+`observer`, `command`) connect to the rest of the platform. The source repo
 (`edge`) currently has unresolved `git stash pop` conflicts in its working tree (`scm/Cargo.toml`,
 `docs/3-architecture/architecture.md` itself) that block any commit there — see two pending
 stashes on its `dev` branch. This snapshot preserves the relevant content here until that repo
@@ -132,6 +132,6 @@ And critically for `edge-application`: `edge_dispatch::HandlerRegistryImpl` (pat
 one) is itself a thin wrapper around `edge_application_handler::InProcessHandlerRegistry` —
 confirmed by reading `edge-dispatcher/scm/main/src/core/handler/handler_registry.rs`, where
 every method (`register`/`deregister`/`get`/`list_ids`/`len`) is a one-line forward to
-`self.inner: InProcessHandlerRegistry`. So `domain-handler` (this repo's own crate) sits at the
+`self.inner: InProcessHandlerRegistry`. So `handler` (this repo's own crate) sits at the
 root of the one dispatch path that is actually confirmed live, regardless of which docs above
 are accurate.

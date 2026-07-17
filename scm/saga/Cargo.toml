@@ -21,8 +21,8 @@ path = "main/src/lib.rs"
 futures.workspace     = true
 serde.workspace       = true
 thiserror.workspace   = true
-edge-application-event   = { path = "../domain-event" }
-edge-application-command = { path = "../domain-command" }
+edge-application-event   = { path = "../event" }
+edge-application-command = { path = "../command" }
 
 [dev-dependencies]
 futures.workspace = true

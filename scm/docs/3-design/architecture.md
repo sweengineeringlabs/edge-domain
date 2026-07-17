@@ -66,12 +66,12 @@ this workspace owns. Status reflects this repo's own doc, not necessarily the up
 
 | ADR | Title | Status | Governs |
 |---|---|---|---|
-| [001](../adr/ADR-001-security-context-propagation.md) | Security Context Propagation | Accepted | `SecurityContext` shape referenced by `domain-handler` |
-| [002](../adr/ADR-002-event-sourcing-pipeline.md) | Event Sourcing Pipeline | Accepted | `domain-event`, `EventStore`/`EventBus` |
-| [003](../adr/ADR-003-repository-pattern.md) | Repository Pattern | Accepted | `domain-repository` |
-| [004](../adr/ADR-004-edge-service-bridge.md) | edge-service — Service-to-Handler Bridge | Accepted, amended 2026-07-15 | `domain-service` ↔ `domain-handler` bridge — see `dataflow.md` §2 |
-| [005](../adr/ADR-005-command-query-bus-stack.md) | CommandBus/QueryBus Middleware Stack | Accepted | `domain-command`, `domain-query`, `HandlerContext.commands` |
-| [006](../adr/ADR-006-observability-domain-primitive.md) | Observability Domain Primitive | Implemented | `domain-observer`, `HandlerContext.observer` — see `dataflow.md` §3 |
+| [001](../adr/ADR-001-security-context-propagation.md) | Security Context Propagation | Accepted | `SecurityContext` shape referenced by `handler` |
+| [002](../adr/ADR-002-event-sourcing-pipeline.md) | Event Sourcing Pipeline | Accepted | `event`, `EventStore`/`EventBus` |
+| [003](../adr/ADR-003-repository-pattern.md) | Repository Pattern | Accepted | `repository` |
+| [004](../adr/ADR-004-edge-service-bridge.md) | edge-service — Service-to-Handler Bridge | Accepted, amended 2026-07-15 | `service` ↔ `handler` bridge — see `dataflow.md` §2 |
+| [005](../adr/ADR-005-command-query-bus-stack.md) | CommandBus/QueryBus Middleware Stack | Accepted | `command`, `query`, `HandlerContext.commands` |
+| [006](../adr/ADR-006-observability-domain-primitive.md) | Observability Domain Primitive | Implemented | `observer`, `HandlerContext.observer` — see `dataflow.md` §3 |
 | [043](../adr/ADR-043-llm-complete-domain-primitive.md) | LLM Complete Domain Primitive | Implemented | HTTP-level completion port (out of this repo's own domain-crate family; see note below) |
 | [044](../adr/ADR-044-observability-llm-integration.md) | Observability↔LLM Integration | Implemented except L4 | Two injection seams between observability and LLM primitives |
 
@@ -81,7 +81,7 @@ exhaustive grep) that `edge-llm`'s own crates have zero Cargo-level dependency o
 evaluated in this repo's planning process, not evidence of an actual code dependency in either
 direction. Don't infer a live connection from their presence here.
 
-**No ADR governs `domain-registry`.** Its generalization intent (unifying `HandlerRegistry`/
+**No ADR governs `registry`.** Its generalization intent (unifying `HandlerRegistry`/
 `ServiceRegistry`) is recorded upstream in `edge`'s `ADR-029`, not mirrored locally — see
 `dataflow.md` §5 and issue #141.
 
@@ -92,11 +92,11 @@ direction. Don't infer a live connection from their presence here.
 ```mermaid
 graph TB
     subgraph app["edge-application workspace"]
-        Handler["domain-handler<br/><i>Handler, HandlerRegistry</i>"]
-        Service["domain-service<br/><i>Service, ServiceRegistry</i>"]
-        Observer["domain-observer<br/><i>Tracer, LogDrain, MetricRegistry</i>"]
-        Command["domain-command<br/><i>CommandBus</i>"]
-        Registry["domain-registry<br/><i>Registry&lt;V&gt;</i>"]
+        Handler["handler<br/><i>Handler, HandlerRegistry</i>"]
+        Service["service<br/><i>Service, ServiceRegistry</i>"]
+        Observer["observer<br/><i>Tracer, LogDrain, MetricRegistry</i>"]
+        Command["command<br/><i>CommandBus</i>"]
+        Registry["registry<br/><i>Registry&lt;V&gt;</i>"]
     end
 
     Bridge["swe-edge-service<br/>(external bridge repo, outside this repo — #143)"]
@@ -118,9 +118,9 @@ graph TB
 
 `docs/3-design/dataflow.md` is the traced, cited reference for how the pieces above actually
 connect at the code level — the live `HandlerRegistry` chain, the `Service`→`Handler` bridge (now
-external to this repo, in `swe-edge-service`, since `domain-handler`'s own duplicate was removed —
+external to this repo, in `swe-edge-service`, since `handler`'s own duplicate was removed —
 #143) and its confirmed `HandlerContext`-dropping behavior, the `ObserverContext` blanket-impl
-bridge, `CommandBus` injection, `domain-registry::Registry<V>`'s confirmed lack of any bridge to
+bridge, `CommandBus` injection, `registry::Registry<V>`'s confirmed lack of any bridge to
 the other two registries, and — newest — `Command`/`CommandBus`'s confirmed lack of any path to
 `Service`/`ServiceRegistry`, which is structurally impossible via the existing bridge rather than
 merely unwired (dataflow.md §6). Read that document for citations; this document is the map, not
@@ -136,7 +136,7 @@ amendment) closes them:
 
 - **[#139](https://github.com/sweengineeringlabs/edge-application/issues/139)** — `Handler`/`Service`'s
   `Request`/`Response` associated types are currently unconstrained (`Send + 'static` only).
-  Proposes a shared `domain-base` crate with `Request`/`Response` marker traits, bound at the
+  Proposes a shared `base` crate with `Request`/`Response` marker traits, bound at the
   trait level, so a `Handler`/`Service` implementor can't satisfy the contract with an arbitrary
   type. Explicitly scoped to stay an in-repo crate (see #141 below for why that matters).
 - **[#140](https://github.com/sweengineeringlabs/edge-application/issues/140)** — `HandlerContext`
@@ -154,12 +154,12 @@ amendment) closes them:
   whether retiring `domain-security` in favor of the external `edge-security` repo (2026-07-06,
   `fba9004`) was the right call, given the `no_foreign_type` decoupling cost it produced five
   days later (`bd911de`). Relevant precedent for any future "should this concern live in its own
-  repo" decision, including how #139's `domain-base` crate should be scoped.
-- **[#143](https://github.com/sweengineeringlabs/edge-application/issues/143)** — `domain-handler`
+  repo" decision, including how #139's `base` crate should be scoped.
+- **[#143](https://github.com/sweengineeringlabs/edge-application/issues/143)** — `handler`
   independently duplicated `edge-service`'s `Service`→`Handler` bridge (three implementations of
-  the same on-ramp; `domain-handler`'s two were removed 2026-07-17, consolidating on
+  the same on-ramp; `handler`'s two were removed 2026-07-17, consolidating on
   `edge-service`, the original, legitimately-built path). `edge-service` itself arched clean
-  (234/236) and `domain-handler` lost its `edge-application-service` dependency entirely,
+  (234/236) and `handler` lost its `edge-application-service` dependency entirely,
   restoring ADR-004's Invariant I1. Remaining: bump `edge-service`'s pinned tag once this ships in
   a release. See ADR-004's 2026-07-17 amendment for the full trace, worked example, and
   resolution.

@@ -74,25 +74,25 @@ parking_lot   = "0.12"
 tracing       = { version = "0.1", default-features = false }
 serde         = { version = "1.0", features = ["derive"] }
 
-edge-application-entity      = { path = "../domain-entity", optional = true }
-edge-application-valueobject = { path = "../domain-valueobject", optional = true }
-edge-application-clock       = { path = "../domain-clock", optional = true }
-edge-application-validator   = { path = "../domain-validator", optional = true }
-edge-application-policy      = { path = "../domain-policy", optional = true }
-edge-application-command     = { path = "../domain-command", optional = true }
-edge-application-query       = { path = "../domain-query", optional = true }
-edge-application-snapshot    = { path = "../domain-snapshot", optional = true }
-edge-application-base        = { path = "../domain-base", optional = true }
-edge-application-service     = { path = "../domain-service", optional = true }
-edge-application-repository  = { path = "../domain-repository", optional = true }
-edge-application-handler     = { path = "../domain-handler", optional = true }
-edge-application-event       = { path = "../domain-event", optional = true }
+edge-application-entity      = { path = "../entity", optional = true }
+edge-application-valueobject = { path = "../valueobject", optional = true }
+edge-application-clock       = { path = "../clock", optional = true }
+edge-application-validator   = { path = "../validator", optional = true }
+edge-application-policy      = { path = "../policy", optional = true }
+edge-application-command     = { path = "../command", optional = true }
+edge-application-query       = { path = "../query", optional = true }
+edge-application-snapshot    = { path = "../snapshot", optional = true }
+edge-application-base        = { path = "../base", optional = true }
+edge-application-service     = { path = "../service", optional = true }
+edge-application-repository  = { path = "../repository", optional = true }
+edge-application-handler     = { path = "../handler", optional = true }
+edge-application-event       = { path = "../event", optional = true }
 edge-pipeline           = { git = "https://github.com/sweengineeringlabs/edge-pipeline.git", tag = "v0.2.0", optional = true }
-edge-application-projection  = { path = "../domain-projection", optional = true }
-edge-application-saga        = { path = "../domain-saga", optional = true }
-edge-application-registry    = { path = "../domain-registry", optional = true }
-edge-application-lifecycle   = { path = "../domain-lifecycle", optional = true }
-edge-application-observer    = { path = "../domain-observer", optional = true }
+edge-application-projection  = { path = "../projection", optional = true }
+edge-application-saga        = { path = "../saga", optional = true }
+edge-application-registry    = { path = "../registry", optional = true }
+edge-application-lifecycle   = { path = "../lifecycle", optional = true }
+edge-application-observer    = { path = "../observer", optional = true }
 edge-security-runtime   = { workspace = true, optional = true }
 edge-security-authn     = { workspace = true, optional = true }
 edge-security-authz     = { workspace = true, optional = true }
@@ -100,7 +100,7 @@ edge-security-authz     = { workspace = true, optional = true }
 [dev-dependencies]
 tokio       = { version = "1", features = ["macros", "rt", "rt-multi-thread"] }
 futures     = "0.3"
-edge-application-entity = { path = "../domain-entity" }
+edge-application-entity = { path = "../entity" }
 edge-application-base.workspace         = true
 edge-application-valueobject.workspace  = true
 edge-application-clock.workspace        = true
