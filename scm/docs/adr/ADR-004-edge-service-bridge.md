@@ -10,7 +10,144 @@ separate repo" below for what actually ships today.
 **Amended:** 2026-07-16 — `domain-base` (issue #139) is a deliberate, accepted exception to the
 `no_foreign_type` boundary described below. See "Amendment: `domain-base` is exempt from
 `no_foreign_type`" below.  
+**Amended:** 2026-07-17 — `domain-handler` independently duplicates `edge-service`'s own
+Service→Handler bridge, three implementations total, none with a confirmed live caller. See
+"Amendment: three independent Service→Handler bridges" below.  
 **Governing ADR:** [ADR-020](https://github.com/sweengineeringlabs/edge/blob/main/docs/3-architecture/adr/ADR-020-edge-service-bridge.md) — edge-service Service-to-Handler Bridge
+
+---
+
+## Amendment (2026-07-17): three independent Service→Handler bridges
+
+Investigating the `no_foreign_type` blanket impls in
+`domain-handler/main/src/core/handler/service/service_adapter.rs`
+(`impl<T: svc::Service + ?Sized> Service for T {}` and the equivalent for `ServiceRegistry`)
+surfaced a broader finding: there are **three** independent implementations of "bridge a `Service`
+into a `Handler`" across this ecosystem, not one, and none has a confirmed live caller.
+
+**The three, traced through git history:**
+
+1. **`edge-service`'s `IntoHandler`/`DefaultServiceBridgeAdapter`** — `swe-edge-service` repo,
+   `main/src/core/bridge/service_bridge_adapter.rs`. Built first: `283decf` (2026-06-13, repo
+   scaffold, same day as this ADR's original Mandate) through `d4de18f` (2026-06-14, the
+   `IntoHandler` extension trait). This is the bridge the original Mandate below designated as the
+   one place `Service`↔`Handler` conversion should live. Legitimately built: the concrete adapter
+   (`DefaultServiceBridgeAdapter<S>`) is `pub(crate)`, constructed explicitly inside
+   `into_handler()`, and returned as a boxed trait object (`BoxedServiceBackedHandler`) so callers
+   never see or name the concrete type.
+2. **`domain-handler`'s `RegistryBridge`/`StdRegistryBridge`** —
+   `core/handler/std_registry_bridge.rs`, added `bdd6ecd` (2026-07-01), over two weeks *after*
+   `edge-service`'s bridge already existed. Bulk-transfers every entry of a `ServiceRegistry` into
+   a `HandlerRegistry`. Has no counterpart in `edge-service` at all — `domain-handler`-only scope
+   with no precedent. Depends on the blanket impls in `service_adapter.rs` to compile against a
+   real `edge_application_service::ServiceRegistryStore`.
+3. **`domain-handler`'s `IntoHandler`/`DefaultServiceHandler`** —
+   `core/handler/service/service_handler.rs`, added in the same commit as the blanket impls,
+   `bd911de` (2026-07-11) — whose own commit message, *"decouple api/ layer from foreign
+   ServiceRegistry/Service/SecurityContext types (SEA no_foreign_type)"*, confirms this was a
+   reactive fix to a structural-rule failure, not a deliberate decision to build a second bridge.
+   Legitimately built in the same shape as `edge-service`'s (opaque `impl Trait` return, `pub(crate)`
+   concrete adapter) — the mechanism is sound; its existence alongside an already-working
+   `edge-service` equivalent is what's in question.
+
+**Zero confirmed callers for any of the three**, checked against every real consumer named in
+`docs/3-design/architecture.md`'s "Confirmed dataflow" section:
+
+- `edge-dispatcher` — the one confirmed-live consumer of `domain-handler`'s `HandlerRegistry` — has
+  no dependency on `edge-application-service` at all. Its own example
+  (`edge-dispatcher/scm/examples/dispatch_pipeline.rs`) registers a hand-written `Handler`
+  implementor (`UppercaseHandler`) directly, never via `Service`.
+- `swe-edge-bootstrap` depends only on the `edge-domain` umbrella crate; its own `ServiceRegistry`
+  type is an unrelated struct (egress HTTP/gRPC clients), not `domain-service::ServiceRegistry`.
+- `edge-domain`'s own `Domain` facade never calls `.into_handler()` or `RegistryBridge::bridge()`.
+- A grep across every local repo in the workspace for `.into_handler(`/`IntoHandler` found matches
+  only inside the three implementations' own definitions and test suites.
+
+**This does not mean `Service` is dead, or that `Handler` "skips" it as a defect.** `Handler` is
+the actual dispatch-pipeline port; `Service` is an optional, simpler on-ramp for logic that doesn't
+need `HandlerContext` (`Service::execute` has no context parameter at all, structurally). A
+consumer writing `Handler` directly, as `edge-dispatcher`'s example does, reaches the same goal —
+domain logic registered and dispatchable — by the more direct of two legitimate routes. Nothing is
+avoided; the destination is what matters, and it's reached either way.
+
+**What *is* a live finding**: three separate implementations of the same on-ramp, confirmed
+functionally identical once exercised against the same input. Worked example, using
+`edge-dispatcher`'s own `UppercaseHandler` reimplemented as a `Service`:
+
+```rust
+#[derive(Debug, Clone)]
+struct UppercaseRequest(String);
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct UppercaseResponse(String);
+impl edge_application_base::Request for UppercaseRequest {}
+impl edge_application_base::Response for UppercaseResponse {}
+
+struct UppercaseService;
+impl edge_application_service::Service for UppercaseService {
+    type Request = UppercaseRequest;
+    type Response = UppercaseResponse;
+    fn name(&self, _: NameRequest) -> Result<NameResponse, ServiceError> {
+        Ok(NameResponse { name: "uppercase".into() })
+    }
+    fn execute(&self, req: UppercaseRequest) -> BoxFuture<'_, Result<UppercaseResponse, ServiceError>> {
+        Box::pin(async move { Ok(UppercaseResponse(req.0.to_uppercase())) })
+    }
+}
+```
+
+*Path 1 — domain-handler's `IntoHandler`/`DefaultServiceHandler`:*
+```rust
+let resp = UppercaseService.into_handler(IntoHandlerRequest)?;
+registry.register(RegisterHandlerRequest::new(Arc::new(resp.handler)))?;
+```
+
+*Path 2 — domain-handler's `RegistryBridge`/`StdRegistryBridge`:*
+```rust
+let svc_registry: ServiceRegistryStore<UppercaseRequest, UppercaseResponse> = ServiceRegistryStore::default();
+svc_registry.register(&RegisterServiceRequest::new(Arc::new(UppercaseService)))?;
+StdRegistryBridge.bridge(BridgeRequest { src: &svc_registry, dst: &handler_registry })?;
+```
+`src: &svc_registry` only type-checks today via the blanket impl
+`impl<T: svc::ServiceRegistry + ?Sized> ServiceRegistry for T {}` in `service_adapter.rs` — the one
+already established as a real `no_foreign_type` violation, not a tool blind spot: the local
+`ServiceRegistry` mirror trait becomes a transparent, automatic pass-through for the foreign one,
+with no explicit per-type adapter decision at the call site. Contrast with Paths 1 and 3, where
+crossing the bridge is an explicit method call producing an opaque, hidden concrete type.
+
+*Path 3 — edge-service's `IntoHandler`/`DefaultServiceBridgeAdapter`:*
+```rust
+let resp = UppercaseService.into_handler(IntoHandlerRequest)?; // edge-service's own trait
+registry.register(RegisterHandlerRequest::new(resp.handler))?; // Box<dyn ServiceBackedHandler<...>>
+```
+
+All three land `UppercaseService` in the identical end state — a `Handler` registered under id
+`"uppercase"`, `execute` forwarding only `req.req` to `Service::execute` and dropping `ctx` in
+every path that crosses through `Service` (vs. none dropped when `Handler` is implemented
+directly, since it never had a context problem to begin with — see #140). Path 2 reaches that same
+state through strictly more ceremony (an intermediate `ServiceRegistryStore`) and is the only one
+of the three resting on the blanket-impl violation.
+
+**Resolution decided 2026-07-17**: consolidate on `edge-service` (the legitimate, originally-mandated
+path) and remove `domain-handler`'s two duplicate/illegitimate copies (#2 and #3 above), restoring
+`domain-handler`'s original independence from `domain-service` per this ADR's Invariant I1. Tracked
+in [issue #143](https://github.com/sweengineeringlabs/edge-application/issues/143), with tasks and
+acceptance criteria for arching `edge-service`, bumping its pinned tag, and the full removal.
+
+**Resolved 2026-07-17 — `domain-handler`'s duplicate copies removed.** `IntoHandler`,
+`DefaultServiceHandler`, `RegistryBridge`, `StdRegistryBridge`, and the local
+`Service`/`ServiceRegistry`/`ServiceBridge`/`ServiceHandler`/`Validator` mirror traits (33 files:
+7 `api/traits/`, 9 `api/dto/`, 3 `core/`, 14 `saf/handler/{into,registry,service,validator}/`) are
+deleted from `domain-handler`, along with `edge-application-service` as a dependency and the
+`From<ServiceError> for HandlerError` conversion that only existed to support them. 24 test files
+that existed solely to test this bridge deleted alongside; `tests/api_int_test.rs` (a mixed
+layer-coverage file) edited to keep its non-bridge DTO tests and drop only the bridge-specific
+ones. `domain-handler`'s `no_foreign_type` accepted-exception count dropped from 10 offenders to 4
+as a direct result — only `Handler`/`HandlerRegistry`'s `domain-base` bound remains. Full
+workspace `cargo build`/`cargo test` (default and `--all-features`) and `cargo clippy` clean
+throughout. Version bumped to `0.2.0`, `CHANGELOG.md` updated. `domain-handler` now has zero
+dependency on `domain-service`, matching Invariant I1 for the first time since `bd911de`
+(2026-07-11) introduced the violation this amendment traces. Remaining: bump `edge-service`'s
+pinned tag once this lands in a release (issue #143, task 2).
 
 ---
 

@@ -130,6 +130,14 @@ amendment) closes them:
   `fba9004`) was the right call, given the `no_foreign_type` decoupling cost it produced five
   days later (`bd911de`). Relevant precedent for any future "should this concern live in its own
   repo" decision, including how #139's `domain-base` crate should be scoped.
+- **[#143](https://github.com/sweengineeringlabs/edge-application/issues/143)** — `domain-handler`
+  independently duplicated `edge-service`'s `Service`→`Handler` bridge (three implementations of
+  the same on-ramp; `domain-handler`'s two were removed 2026-07-17, consolidating on
+  `edge-service`, the original, legitimately-built path). `edge-service` itself arched clean
+  (234/236) and `domain-handler` lost its `edge-application-service` dependency entirely,
+  restoring ADR-004's Invariant I1. Remaining: bump `edge-service`'s pinned tag once this ships in
+  a release. See ADR-004's 2026-07-17 amendment for the full trace, worked example, and
+  resolution.
 
 ---
 

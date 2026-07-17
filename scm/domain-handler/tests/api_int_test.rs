@@ -7,19 +7,13 @@
 use std::sync::Arc;
 
 use edge_application_handler::{
-    BridgeRequest, BridgeResponse, DeregisterHandlerRequest, DeregisterHandlerResponse,
-    EmptinessRequest, EmptinessResponse, ExecutionRequest, Handler, HandlerContext, HandlerError,
-    HandlerLookupRequest, HandlerLookupResponse, HandlerRegistry, HealthCheckRequest,
-    HealthCheckResponse, IdRequest, IdResponse, InProcessHandlerRegistry, IntoHandlerRequest,
-    IntoHandlerResponse, LenRequest, LenResponse, ListIdsRequest, ListIdsResponse,
-    ListNamesRequest, PatternRequest, PatternResponse, RegisterHandlerRequest,
-    RegisterHandlerResponse, ValidatorRequest,
+    DeregisterHandlerRequest, DeregisterHandlerResponse, EmptinessRequest, EmptinessResponse,
+    ExecutionRequest, Handler, HandlerContext, HandlerError, HandlerLookupRequest,
+    HandlerLookupResponse, HandlerRegistry, HealthCheckRequest, HealthCheckResponse, IdRequest,
+    IdResponse, InProcessHandlerRegistry, LenRequest, LenResponse, ListIdsRequest,
+    ListIdsResponse, PatternRequest, PatternResponse, RegisterHandlerRequest,
+    RegisterHandlerResponse,
 };
-use edge_application_service::{
-    NameRequest, NameResponse, RegisterServiceRequest, Service, ServiceError,
-    ServiceRegistry as ServiceRegistryTrait, ServiceRegistryStore,
-};
-use futures::future::BoxFuture;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct TextPayload(String);
@@ -48,20 +42,6 @@ impl Handler for HandlerDouble {
     }
 }
 
-struct ServiceDouble;
-impl Service for ServiceDouble {
-    type Request = TextPayload;
-    type Response = TextPayload;
-    fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
-        Ok(NameResponse {
-            name: "stub".to_string(),
-        })
-    }
-    fn execute(&self, req: TextPayload) -> BoxFuture<'_, Result<TextPayload, ServiceError>> {
-        Box::pin(async move { Ok(req) })
-    }
-}
-
 // --- zero-sized marker request types ---
 
 /// @covers: EmptinessRequest
@@ -85,13 +65,6 @@ fn test_id_request_is_zero_sized_happy() {
     let _ = IdRequest;
 }
 
-/// @covers: IntoHandlerRequest
-#[test]
-fn test_into_handler_request_is_zero_sized_happy() {
-    assert_eq!(std::mem::size_of::<IntoHandlerRequest>(), 0);
-    let _ = IntoHandlerRequest;
-}
-
 /// @covers: LenRequest
 #[test]
 fn test_len_request_is_zero_sized_happy() {
@@ -113,13 +86,6 @@ fn test_pattern_request_is_zero_sized_happy() {
     let _ = PatternRequest;
 }
 
-/// @covers: ValidatorRequest
-#[test]
-fn test_validator_request_is_zero_sized_happy() {
-    assert_eq!(std::mem::size_of::<ValidatorRequest>(), 0);
-    let _ = ValidatorRequest;
-}
-
 /// @covers: RegisterHandlerResponse
 #[test]
 fn test_register_handler_response_is_zero_sized_edge() {
@@ -128,13 +94,6 @@ fn test_register_handler_response_is_zero_sized_edge() {
 }
 
 // --- field-carrying request/response types ---
-
-/// @covers: BridgeResponse
-#[test]
-fn test_bridge_response_holds_transferred_count_happy() {
-    let r = BridgeResponse { transferred: 3 };
-    assert_eq!(r.transferred, 3);
-}
 
 /// @covers: DeregisterHandlerRequest
 #[test]
@@ -200,13 +159,6 @@ fn test_pattern_response_holds_pattern_happy() {
     assert_eq!(r.pattern, "/x");
 }
 
-/// @covers: IntoHandlerResponse
-#[test]
-fn test_into_handler_response_holds_handler_happy() {
-    let r = IntoHandlerResponse { handler: 42u32 };
-    assert_eq!(r.handler, 42);
-}
-
 /// @covers: HandlerLookupRequest
 #[test]
 fn test_handler_lookup_request_holds_id_happy() {
@@ -264,18 +216,4 @@ fn test_execution_request_holds_req_and_ctx_happy() {
         ctx: &ctx,
     };
     assert_eq!(req.req, "payload");
-}
-
-/// @covers: BridgeRequest
-#[test]
-fn test_bridge_request_holds_src_and_dst_refs_happy() {
-    let src = ServiceRegistryStore::<TextPayload, TextPayload>::default();
-    src.register(&RegisterServiceRequest::new(Arc::new(ServiceDouble)))
-        .unwrap();
-    let dst = InProcessHandlerRegistry::<TextPayload, TextPayload>::default();
-    let req = BridgeRequest {
-        src: &src,
-        dst: &dst,
-    };
-    assert_eq!(req.src.list_names(ListNamesRequest).unwrap().names.len(), 1);
 }
