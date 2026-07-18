@@ -85,6 +85,13 @@ direction. Don't infer a live connection from their presence here.
 `ServiceRegistry`) is recorded upstream in `edge`'s `ADR-029`, not mirrored locally — see
 `dataflow.md` §5 and issue #141.
 
+**[ADR-007](../adr/ADR-007-handler-associated-type-dispatch.md) is deliberately not in the table
+above.** It lives in `docs/adr/` alongside these, but it is a locally originated design
+clarification (`Handler`'s associated-type dispatch vs. Tower's/`edge-proxy`'s
+generic-parameter dispatch) with no upstream `edge` decision behind it — including it in a table
+whose own definition is "mirrors a governing decision made in the `edge` repo" would misstate what
+kind of document it is.
+
 ---
 
 ## Confirmed dataflow
