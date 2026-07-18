@@ -6,7 +6,7 @@ license.workspace      = true
 rust-version.workspace = true
 authors.workspace      = true
 repository.workspace   = true
-description = "AuthSvc riding infra via Query through ordinary constructor injection — no trait changes, no deviation from the architecture"
+description = "AuthHandler riding infra via Query through ordinary constructor injection — no trait changes, no deviation from the architecture"
 publish = false
 
 [[bin]]
@@ -14,20 +14,18 @@ name = "service_query"
 path = "src/main.rs"
 
 [dependencies]
-futures.workspace = true
-edge-application-service.workspace = true
-edge-application-query.workspace   = true
+async-trait.workspace               = true
+futures.workspace                   = true
+edge-application-base.workspace     = true
+edge-application-handler.workspace  = true
+edge-application-command.workspace  = true
+edge-application-observer.workspace = true
+edge-application-query.workspace    = true
+edge-security-runtime.workspace     = true
 
 [dependencies.tokio]
 workspace = true
 features  = ["macros", "rt", "rt-multi-thread"]
-
-[dev-dependencies]
-async-trait.workspace              = true
-edge-application-handler.workspace  = true
-edge-application-command.workspace  = true
-edge-application-observer.workspace = true
-edge-security-runtime.workspace     = true
 
 [lints.rust]
 unsafe_code = "deny"

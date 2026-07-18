@@ -1,6 +1,7 @@
 # ADR-004: edge-service — Service-to-Handler Bridge
 
-**Status:** Accepted  
+**Status:** Superseded — `service`/`Service`/`ServiceRegistry` removed entirely, 2026-07-18. This
+document is now historical record only. See "Amendment (2026-07-18): full removal" below.  
 **Date:** 2026-06-13  
 **Amended:** 2026-07-15 — corrected against the real, current codebase; the original Mandate and
 Invariant I1 below described a design later superseded by `edge`'s own `ADR-020` (whose header
@@ -13,7 +14,40 @@ separate repo" below for what actually ships today.
 **Amended:** 2026-07-17 — `domain-handler` independently duplicates `edge-service`'s own
 Service→Handler bridge, three implementations total, none with a confirmed live caller. See
 "Amendment: three independent Service→Handler bridges" below.  
+**Amended:** 2026-07-18 — full removal. See "Amendment (2026-07-18): full removal" below.  
 **Governing ADR:** [ADR-020](https://github.com/sweengineeringlabs/edge/blob/main/docs/3-architecture/adr/ADR-020-edge-service-bridge.md) — edge-service Service-to-Handler Bridge
+
+---
+
+## Amendment (2026-07-18): full removal
+
+2026-07-17's resolution (below) removed `domain-handler`'s two duplicate bridge copies but
+stopped short of questioning `Service`/`ServiceRegistry` themselves, concluding "`Service` isn't
+dead, it's an optional simpler path." Revisited the next day: given zero confirmed live callers
+for *any* of the three bridges (including the one legitimate external one in `swe-edge-service`),
+and that `ServiceRegistry` is structurally identical to `HandlerRegistry` (same CRUD-registry
+contract, register/deregister/get/list/len/is_empty, keyed by name vs id) while `Handler` is a
+strict superset of `Service`'s execute shape (adds `HandlerContext`, `id()`, `pattern()`,
+`health_check()`) — "optional simpler path" and "redundant" were describing the same fact with
+different verdicts attached. Confirmed empirically by running `edge-domain`'s own
+`handler_registry` example end-to-end (register → get → execute happy+error path → health_check
+→ deregister) with zero `Service` involvement.
+
+**Resolution:** `service` crate (`edge-application-service`) deleted entirely from this repo,
+along with its workspace membership, `edge-domain`'s `service` feature/facade/tests, and the
+`examples/dataflow` crate (whose sole purpose was demonstrating the `Handler`/`Service`/`Command`
+boundary this ADR describes — moot once `Service` no longer exists). `examples/service-query`
+(the one example crate built around demonstrating `Service`) was rewritten to show the same
+constructor-injection pattern through `Handler` directly instead of `Service` wrapped by a
+hand-composed `Handler` — collapsing the two-struct pattern (`AuthSvc` + `AuthHandler`,
+`LoginRecorderSvc` + `LoginHandler`) into one `Handler` each. Tracked in
+[issue #147](https://github.com/sweengineeringlabs/edge-application/issues/147). Full workspace
+`cargo build --workspace --all-targets` and `cargo test --workspace` clean.
+
+This ADR is retained as the historical record of how `Service`/`Handler`'s relationship was
+designed, drifted, and was ultimately found redundant — not deleted, since the reasoning trail
+(the three-bridge duplication, the zero-caller finding) is exactly the kind of thing worth
+keeping for the next time a similar "two ports doing the same job" pattern shows up.
 
 ---
 

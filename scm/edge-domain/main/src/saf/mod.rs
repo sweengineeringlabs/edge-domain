@@ -18,7 +18,6 @@ mod queryable_repository_svc;
 mod repository;
 mod repository_svc;
 mod saga;
-mod service;
 mod snapshot;
 mod spec_svc;
 mod spi;
@@ -36,7 +35,6 @@ pub use self::policy::*;
 pub use self::query::*;
 pub use self::repository::*;
 pub use self::saga::*;
-pub use self::service::*;
 pub use self::snapshot::*;
 pub use self::spi::*;
 pub use self::value::*;
@@ -121,12 +119,6 @@ pub use edge_application_snapshot::SnapshotSaveRequest;
 pub use edge_application_snapshot::SnapshotVersionRequest;
 #[cfg(feature = "snapshot")]
 pub use edge_application_snapshot::SnapshotVersionResponse;
-
-// ── service (sub-crate when feature enabled) ──────────────────────────────────
-#[cfg(feature = "service")]
-pub use edge_application_service::ServiceError;
-#[cfg(feature = "service")]
-pub use edge_application_service::StdServiceRegistryFactory;
 
 // ── repository (sub-crate when feature enabled) ───────────────────────────────
 #[cfg(feature = "repository")]

@@ -79,11 +79,6 @@ use crate::api::Saga;
 #[cfg(feature = "saga")]
 use crate::api::SagaStore;
 
-#[cfg(feature = "service")]
-use crate::api::ServiceRegistry;
-#[cfg(feature = "service")]
-use edge_application_service::StdServiceRegistryFactory;
-
 #[cfg(feature = "snapshot")]
 use crate::api::Snapshot;
 #[cfg(feature = "snapshot")]
@@ -173,19 +168,6 @@ impl Domain {
         let first = make_first(Arc::clone(&backend));
         let second = make_second(backend);
         (first, second)
-    }
-
-    /// Construct a fresh empty [`ServiceRegistry`].
-    #[cfg(feature = "service")]
-    pub fn new_service_registry<Request, Response>(
-        &self,
-    ) -> Arc<dyn ServiceRegistry<Request = Request, Response = Response>>
-    where
-        Request: edge_application_base::Request,
-        Response: edge_application_base::Response,
-    {
-        let r = StdServiceRegistryFactory::new_registry::<Request, Response>();
-        Arc::new(r)
     }
 
     /// Construct a thread-safe in-memory [`Repository`].

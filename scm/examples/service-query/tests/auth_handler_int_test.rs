@@ -1,12 +1,14 @@
 //! Integration test: a single `Handler::execute()` call that both reads `HandlerContext` for
-//! real and, as part of the same call, dispatches a real `Query` — `Service` -> `Handler` ->
-//! `Query`, connected and working, as one observable call chain.
+//! real and, as part of the same call, dispatches a real `Query` — `Handler` -> `Query`,
+//! connected and working, as one observable call chain.
 //!
-//! `AuthHandler` is a hand-composed `Handler` — not the generic `Service`->`Handler` auto-bridge
-//! (`IntoHandler`/`DefaultServiceHandler` in `swe-edge-service`), which is deliberately
-//! context-blind for `Service` (see `docs/3-design/dataflow.md` sections 2 and 6). `AuthHandler`
-//! wraps `AuthSvc` directly and genuinely reads `req.ctx` inside its own `execute()` body, so
-//! calling `auth_handler.execute(...)` once is the entire test — not two independent branches.
+//! `AuthHandler` holds its own constructor-injected `QueryBus` (like any hexagonal adapter
+//! dependency) and genuinely reads `req.ctx` inside its own `execute()` body for observability —
+//! `HandlerContext` is available but the login check itself doesn't need it.
+//!
+//! (Formerly `AuthSvc` implementing `Service`, wrapped by a hand-composed `AuthHandler` —
+//! `Service`/`ServiceRegistry` were removed as redundant with `Handler`/`HandlerRegistry`, see
+//! issue #147. Collapsed into one `Handler` directly.)
 #![allow(clippy::unwrap_used)]
 
 use std::sync::Arc;
@@ -22,7 +24,6 @@ use edge_application_query::{
     DirectQueryBus, Query, QueryBus, QueryDispatchRequest, QueryError, QueryExecuteRequest,
     QueryResultResponse,
 };
-use edge_application_service::{NameRequest, NameResponse, Service, ServiceError};
 use edge_security_runtime::SecurityContext;
 use futures::executor::block_on;
 use futures::future::BoxFuture;
@@ -31,15 +32,15 @@ use futures::future::BoxFuture;
 struct IsLoggedInRequest {
     session_token: String,
 }
-impl edge_application_service::Request for IsLoggedInRequest {}
+impl edge_application_base::Request for IsLoggedInRequest {}
 
 #[derive(Debug, Clone, Copy)]
 struct IsLoggedInResponse {
     logged_in: bool,
 }
-impl edge_application_service::Response for IsLoggedInResponse {}
+impl edge_application_base::Response for IsLoggedInResponse {}
 
-/// The actual infra unit, reached only through `AuthSvc`'s own injected `QueryBus`.
+/// The actual infra unit, reached only through `AuthHandler`'s own injected `QueryBus`.
 struct IsLoggedInQuery {
     session_token: String,
 }
@@ -56,52 +57,9 @@ impl Query for IsLoggedInQuery {
     }
 }
 
-/// `Service` — holds its own injected `QueryBus`; never sees `HandlerContext`.
-struct AuthSvc {
-    query_bus: Arc<dyn QueryBus<Result = bool>>,
-}
-
-impl Service for AuthSvc {
-    type Request = IsLoggedInRequest;
-    type Response = IsLoggedInResponse;
-
-    fn name(&self, _req: NameRequest) -> Result<NameResponse, ServiceError> {
-        Ok(NameResponse {
-            name: "auth.is_logged_in".to_string(),
-        })
-    }
-
-    fn execute(&self, req: IsLoggedInRequest) -> BoxFuture<'_, Result<IsLoggedInResponse, ServiceError>> {
-        let bus = Arc::clone(&self.query_bus);
-        Box::pin(async move {
-            let result = bus
-                .dispatch(QueryDispatchRequest {
-                    query: Box::new(IsLoggedInQuery {
-                        session_token: req.session_token,
-                    }),
-                })
-                .await
-                .map_err(|e: QueryError| ServiceError::Internal(e.to_string()))?;
-            Ok(IsLoggedInResponse {
-                logged_in: result.result,
-            })
-        })
-    }
-}
-
-fn to_handler_error(err: ServiceError) -> HandlerError {
-    match err {
-        ServiceError::InvalidRequest(m) => HandlerError::InvalidRequest(m),
-        ServiceError::RuleViolation(m) => HandlerError::FailedPrecondition(m),
-        ServiceError::NotFound(m) => HandlerError::NotFound(m),
-        ServiceError::Unavailable(m) => HandlerError::ExecutionFailed(m),
-        ServiceError::Internal(m) => HandlerError::ExecutionFailed(m),
-    }
-}
-
-/// Hand-composed `Handler`. Unlike the generic bridge, this one genuinely reads `req.ctx`.
+/// Holds its own injected `QueryBus`; genuinely reads `req.ctx` inside `execute()`.
 struct AuthHandler {
-    inner: AuthSvc,
+    query_bus: Arc<dyn QueryBus<Result = bool>>,
 }
 
 #[async_trait]
@@ -126,8 +84,18 @@ impl Handler for AuthHandler {
             })
             .map_err(|e| HandlerError::ExecutionFailed(e.to_string()))?;
 
-        // Delegates to AuthSvc, which independently dispatches its own injected Query.
-        self.inner.execute(req.req).await.map_err(to_handler_error)
+        let result = self
+            .query_bus
+            .dispatch(QueryDispatchRequest {
+                query: Box::new(IsLoggedInQuery {
+                    session_token: req.req.session_token,
+                }),
+            })
+            .await
+            .map_err(|e: QueryError| HandlerError::ExecutionFailed(e.to_string()))?;
+        Ok(IsLoggedInResponse {
+            logged_in: result.result,
+        })
     }
 }
 
@@ -154,9 +122,7 @@ fn build_ctx_and_run(
 
 fn build_handler() -> AuthHandler {
     let query_bus: Arc<dyn QueryBus<Result = bool>> = Arc::new(DirectQueryBus::<bool>::new());
-    AuthHandler {
-        inner: AuthSvc { query_bus },
-    }
+    AuthHandler { query_bus }
 }
 
 /// @covers: Handler::execute

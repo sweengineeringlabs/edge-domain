@@ -2,7 +2,7 @@
 //!
 //! One test per unique method name × 3 suffixes covers all 47 trait functions because
 //! the arch audit pattern `test_<fn>_*_<suffix>` matches on method name globally across traits.
-#![cfg(all(feature = "event", feature = "command", feature = "query", feature = "service", feature = "repository", feature = "handler"))]
+#![cfg(all(feature = "event", feature = "command", feature = "query", feature = "repository", feature = "handler"))]
 // @allow: no_mocks_in_integration — MemoryRepository is the production-shipped reference impl, not a test double
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
@@ -15,10 +15,6 @@ use edge_application_handler::{
     DeregisterHandlerRequest, EmptinessRequest as HandlerEmptinessRequest, HandlerLookupRequest,
     IdRequest, LenRequest as HandlerLenRequest, ListIdsRequest, PatternRequest,
     RegisterHandlerRequest,
-};
-use edge_application_service::{
-    EmptinessRequest as ServiceEmptinessRequest, LenRequest as ServiceLenRequest, ListNamesRequest,
-    NameRequest, RegisterServiceRequest, ServiceError, ServiceLookupRequest, ServiceRemovalRequest,
 };
 use futures::executor::block_on;
 use futures::future::BoxFuture;
@@ -139,34 +135,6 @@ impl Query for ErrQry {
     }
 }
 
-struct OkSvc;
-impl Service for OkSvc {
-    type Request = TextPayload;
-    type Response = TextPayload;
-    fn name(&self, _req: NameRequest) -> Result<edge_application_service::NameResponse, ServiceError> {
-        Ok(edge_application_service::NameResponse {
-            name: "ok-svc".to_string(),
-        })
-    }
-    fn execute(&self, req: TextPayload) -> BoxFuture<'_, Result<TextPayload, ServiceError>> {
-        Box::pin(async move { Ok(req) })
-    }
-}
-
-struct ErrSvc;
-impl Service for ErrSvc {
-    type Request = TextPayload;
-    type Response = TextPayload;
-    fn name(&self, _req: NameRequest) -> Result<edge_application_service::NameResponse, ServiceError> {
-        Ok(edge_application_service::NameResponse {
-            name: "err-svc".to_string(),
-        })
-    }
-    fn execute(&self, _: TextPayload) -> BoxFuture<'_, Result<TextPayload, ServiceError>> {
-        Box::pin(async { Err(ServiceError::RuleViolation("blocked".into())) })
-    }
-}
-
 struct AlwaysMatch;
 impl Spec for AlwaysMatch {
     type Entity = String;
@@ -219,7 +187,7 @@ fn make_test_handler() -> Arc<dyn Handler<Request = TextPayload, Response = Text
 }
 
 // ─── name ────────────────────────────────────────────────────────────────────
-// Covers: Command::name, Query::name, Service::name
+// Covers: Command::name, Query::name
 
 #[test]
 fn test_name_command_returns_defined_value_happy() {
@@ -238,31 +206,23 @@ fn test_name_query_consistent_across_calls_not_error() {
 }
 
 #[test]
-fn test_name_service_can_be_empty_string_edge() {
-    struct EmptySvc;
-    impl Service for EmptySvc {
-        type Request = edge_application_base::EmptyRequest;
-        type Response = edge_application_base::EmptyResponse;
-        fn name(
-            &self,
-            _req: NameRequest,
-        ) -> Result<edge_application_service::NameResponse, ServiceError> {
-            Ok(edge_application_service::NameResponse {
-                name: String::new(),
-            })
-        }
-        fn execute(
-            &self,
-            _: edge_application_base::EmptyRequest,
-        ) -> BoxFuture<'_, Result<edge_application_base::EmptyResponse, ServiceError>> {
-            Box::pin(async { Ok(edge_application_base::EmptyResponse) })
+fn test_name_command_default_impl_returns_command_edge() {
+    // A Command that doesn't override name() falls back to Command's own
+    // provided default ("command"), distinct from OkCmd/ErrCmd which both override it.
+    struct DefaultNameCmd;
+    impl Command for DefaultNameCmd {
+        fn execute(&self, _req: CommandExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
+            Box::pin(async { Ok(()) })
         }
     }
-    assert_eq!(EmptySvc.name(NameRequest).unwrap().name, "");
+    assert_eq!(
+        DefaultNameCmd.name(CommandNameRequest).unwrap().name,
+        "command"
+    );
 }
 
 // ─── execute ─────────────────────────────────────────────────────────────────
-// Covers: Command::execute, Query::execute, Service::execute
+// Covers: Command::execute, Query::execute
 
 #[test]
 fn test_execute_command_returns_ok_happy() {
@@ -1033,7 +993,7 @@ fn test_pattern_can_be_root_path_edge() {
 }
 
 // ─── register ────────────────────────────────────────────────────────────────
-// Covers: HandlerRegistry::register, ServiceRegistry::register
+// Covers: HandlerRegistry::register
 
 #[test]
 fn test_register_handler_then_registry_not_empty_happy() {
@@ -1054,15 +1014,17 @@ fn test_register_same_id_twice_overwrites_not_error() {
 }
 
 #[test]
-fn test_register_service_increments_len_edge() {
-    let reg = Domain.new_service_registry::<TextPayload, TextPayload>();
-    reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
+fn test_register_two_distinct_ids_both_retrievable_edge() {
+    let reg = Domain.new_handler_registry::<TextPayload, TextPayload>();
+    reg.register(RegisterHandlerRequest::new(Domain.echo_handler("a", "/a")))
         .unwrap();
-    assert_eq!(reg.len(ServiceLenRequest).unwrap().count, 1);
+    reg.register(RegisterHandlerRequest::new(Domain.echo_handler("b", "/b")))
+        .unwrap();
+    assert_eq!(reg.len(HandlerLenRequest).unwrap().count, 2);
 }
 
 // ─── deregister ──────────────────────────────────────────────────────────────
-// Covers: HandlerRegistry::deregister, ServiceRegistry::deregister
+// Covers: HandlerRegistry::deregister
 
 #[test]
 fn test_deregister_registered_handler_returns_true_happy() {
@@ -1091,19 +1053,28 @@ fn test_deregister_absent_handler_returns_false_error() {
 }
 
 #[test]
-fn test_deregister_leaves_registry_empty_edge() {
-    let reg = Domain.new_service_registry::<TextPayload, TextPayload>();
-    reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
+fn test_deregister_already_removed_id_returns_false_edge() {
+    let reg = Domain.new_handler_registry::<TextPayload, TextPayload>();
+    reg.register(RegisterHandlerRequest::new(make_test_handler()))
         .unwrap();
-    reg.deregister(&ServiceRemovalRequest {
-        name: "ok-svc".to_string(),
-    })
-    .unwrap();
-    assert!(reg.is_empty(ServiceEmptinessRequest).unwrap().empty);
+    assert!(
+        reg.deregister(DeregisterHandlerRequest {
+            id: "test".to_string()
+        })
+        .unwrap()
+        .was_present
+    );
+    assert!(
+        !reg.deregister(DeregisterHandlerRequest {
+            id: "test".to_string()
+        })
+        .unwrap()
+        .was_present
+    );
 }
 
 // ─── get ─────────────────────────────────────────────────────────────────────
-// Covers: HandlerRegistry::get, ServiceRegistry::get
+// Covers: HandlerRegistry::get
 
 #[test]
 fn test_get_registered_handler_returns_some_happy() {
@@ -1138,21 +1109,20 @@ fn test_get_nonexistent_key_returns_none_not_error() {
 }
 
 #[test]
-fn test_get_after_deregister_returns_none_edge() {
-    let reg = Domain.new_service_registry::<TextPayload, TextPayload>();
-    reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
+fn test_get_returns_the_matching_id_not_another_edge() {
+    let reg = Domain.new_handler_registry::<TextPayload, TextPayload>();
+    reg.register(RegisterHandlerRequest::new(Domain.echo_handler("a", "/a")))
         .unwrap();
-    reg.deregister(&ServiceRemovalRequest {
-        name: "ok-svc".to_string(),
-    })
-    .unwrap();
-    assert!(reg
-        .get(&ServiceLookupRequest {
-            name: "ok-svc".to_string()
+    reg.register(RegisterHandlerRequest::new(Domain.echo_handler("b", "/b")))
+        .unwrap();
+    let result = reg
+        .get(HandlerLookupRequest {
+            id: "b".to_string(),
         })
         .unwrap()
-        .service
-        .is_none());
+        .handler
+        .expect("handler b should be present");
+    assert_eq!(result.pattern(PatternRequest).unwrap().pattern, "/b");
 }
 
 // ─── list_ids ────────────────────────────────────────────────────────────────
@@ -1190,7 +1160,7 @@ fn test_list_ids_len_matches_registry_len_edge() {
 }
 
 // ─── len ─────────────────────────────────────────────────────────────────────
-// Covers: HandlerRegistry::len, ServiceRegistry::len
+// Covers: HandlerRegistry::len
 
 #[test]
 fn test_len_increments_after_register_happy() {
@@ -1214,17 +1184,23 @@ fn test_len_decrements_after_deregister_not_error() {
 }
 
 #[test]
-fn test_len_service_registry_matches_registered_count_edge() {
-    let reg = Domain.new_service_registry::<TextPayload, TextPayload>();
-    reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
+fn test_len_after_multiple_registers_and_one_deregister_edge() {
+    let reg = Domain.new_handler_registry::<TextPayload, TextPayload>();
+    reg.register(RegisterHandlerRequest::new(Domain.echo_handler("a", "/a")))
         .unwrap();
-    reg.register(&RegisterServiceRequest::new(Arc::new(ErrSvc)))
+    reg.register(RegisterHandlerRequest::new(Domain.echo_handler("b", "/b")))
         .unwrap();
-    assert_eq!(reg.len(ServiceLenRequest).unwrap().count, 2);
+    reg.register(RegisterHandlerRequest::new(Domain.echo_handler("c", "/c")))
+        .unwrap();
+    reg.deregister(DeregisterHandlerRequest {
+        id: "b".to_string(),
+    })
+    .unwrap();
+    assert_eq!(reg.len(HandlerLenRequest).unwrap().count, 2);
 }
 
 // ─── is_empty ────────────────────────────────────────────────────────────────
-// Covers: HandlerRegistry::is_empty, ServiceRegistry::is_empty
+// Covers: HandlerRegistry::is_empty
 
 #[test]
 fn test_is_empty_true_on_new_registry_happy() {
@@ -1241,15 +1217,21 @@ fn test_is_empty_false_after_registration_not_error() {
 }
 
 #[test]
-fn test_is_empty_true_after_deregister_all_edge() {
-    let reg = Domain.new_service_registry::<TextPayload, TextPayload>();
-    reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
+fn test_is_empty_true_after_deregistering_every_registered_handler_edge() {
+    let reg = Domain.new_handler_registry::<TextPayload, TextPayload>();
+    reg.register(RegisterHandlerRequest::new(Domain.echo_handler("a", "/a")))
         .unwrap();
-    reg.deregister(&ServiceRemovalRequest {
-        name: "ok-svc".to_string(),
+    reg.register(RegisterHandlerRequest::new(Domain.echo_handler("b", "/b")))
+        .unwrap();
+    reg.deregister(DeregisterHandlerRequest {
+        id: "a".to_string(),
     })
     .unwrap();
-    assert!(reg.is_empty(ServiceEmptinessRequest).unwrap().empty);
+    reg.deregister(DeregisterHandlerRequest {
+        id: "b".to_string(),
+    })
+    .unwrap();
+    assert!(reg.is_empty(HandlerEmptinessRequest).unwrap().empty);
 }
 
 // ─── find_by ─────────────────────────────────────────────────────────────────
@@ -1903,36 +1885,3 @@ fn test_matches_empty_string_input_edge() {
     );
 }
 
-// ─── list_names ──────────────────────────────────────────────────────────────
-// Covers: ServiceRegistry::list_names
-
-#[test]
-fn test_list_names_contains_registered_service_name_happy() {
-    let reg = Domain.new_service_registry::<TextPayload, TextPayload>();
-    reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
-        .unwrap();
-    assert!(reg
-        .list_names(ListNamesRequest)
-        .unwrap()
-        .names
-        .contains(&"ok-svc".to_string()));
-}
-
-#[test]
-fn test_list_names_empty_before_registration_not_error() {
-    let reg = Domain.new_service_registry::<TextPayload, TextPayload>();
-    assert!(reg.list_names(ListNamesRequest).unwrap().names.is_empty());
-}
-
-#[test]
-fn test_list_names_len_matches_registry_len_edge() {
-    let reg = Domain.new_service_registry::<TextPayload, TextPayload>();
-    reg.register(&RegisterServiceRequest::new(Arc::new(OkSvc)))
-        .unwrap();
-    reg.register(&RegisterServiceRequest::new(Arc::new(ErrSvc)))
-        .unwrap();
-    assert_eq!(
-        reg.list_names(ListNamesRequest).unwrap().names.len(),
-        reg.len(ServiceLenRequest).unwrap().count
-    );
-}

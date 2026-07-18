@@ -194,12 +194,6 @@ pub use edge_application_saga::Saga;
 #[cfg(feature = "saga")]
 pub use edge_application_saga::SagaStore;
 
-// ── service ───────────────────────────────────────────────────────────────────
-#[cfg(feature = "service")]
-pub use edge_application_service::Service;
-#[cfg(feature = "service")]
-pub use edge_application_service::ServiceRegistry;
-
 // ── snapshot ──────────────────────────────────────────────────────────────────
 #[cfg(feature = "snapshot")]
 pub use edge_application_snapshot::MemorySnapshotStore;

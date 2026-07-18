@@ -6,6 +6,18 @@ specific file read directly, not inferred from naming or documentation — see t
 inline. Where something is real but *not yet* connected, that is stated explicitly rather than
 implied.
 
+**Amended 2026-07-18 (issue #145):** sections 3 and 4 described `handler`'s Observer/Command
+bridges as local-mirror-trait + blanket-impl translations (`into_handler_error.rs`,
+`ObserverContextAdapter`/`CommandBusAdapter`). That machinery was removed entirely — `handler`
+now consumes `base`'s canonical `CommandBus`/`ObserverContext` traits directly, with zero bridge
+code left. See the amendment notes at the top of sections 3 and 4 for the corrected picture.
+
+**Amended 2026-07-18 (issue #147):** `service` (`Service`/`ServiceRegistry`) was removed from
+this repo entirely, confirmed redundant with `handler` (`Handler`/`HandlerRegistry`) after an
+audit found zero confirmed live callers for any Service→Handler bridge, in this repo or
+externally. Sections 2 and 6, and the `examples/dataflow` crate they referenced (also removed),
+are now historical record only — see the amendment notes at the top of each section.
+
 ---
 
 ## 1. The confirmed-live dispatch chain
@@ -80,6 +92,14 @@ amendment added to `edge`'s ADR-024 (`edge/docs/3-architecture/adr/ADR-024-handl
 ---
 
 ## 2. `Service` → `Handler`: real bridge, but no longer inside this repo
+
+**Amended 2026-07-18 (issue #147): `service` removed entirely — this section is historical
+record only.** `service`/`Service`/`ServiceRegistry` no longer exist anywhere in this repo,
+including in `swe-edge-service` consumers this section describes. Removed as redundant with
+`handler`/`Handler`/`HandlerRegistry`: an audit found zero confirmed live callers for any
+`Service`→`Handler` bridge (internal or external), and `Handler` is a strict superset of
+`Service`'s shape (adds `HandlerContext`, `id()`, `pattern()`, `health_check()`). See
+`docs/adr/ADR-004-edge-service-bridge.md`'s final amendment for the full resolution.
 
 **Amendment (2026-07-17, issue #143):** this section previously described `IntoHandler` and
 `RegistryBridge`/`StdRegistryBridge` living in `handler` (`main/src/core/handler/std_registry_bridge.rs`).
@@ -179,6 +199,16 @@ document is written to avoid repeating.
 
 ## 3. `ObserverContext`: real bridge, not a stub
 
+**Amended 2026-07-18 (issue #145): bridge removed, section below is historical record only.**
+The seven blanket impls and `ObserverContextAdapter` described below no longer exist —
+`handler/main/src/core/handler/observability/` (9 files) was deleted entirely, along with
+`handler/main/src/api/handler/observer_context_adapter.rs`.
+`HandlerContext.observer: &'a dyn edge_application_base::ObserverContext` now holds `base`'s
+canonical trait directly (`handler/main/src/api/handler/traits/observer_context.rs` is a
+one-line `pub use edge_application_base::ObserverContext;`) — any real `observer` implementor
+(e.g. `StdObserveFactory`'s output) satisfies it with zero translation, since it's the same
+trait, not a structurally-identical mirror.
+
 `handler` depends directly on `observer` (`edge-application-observer` in
 `handler/Cargo.toml`) and bridges it via seven blanket impls in
 `handler/main/src/core/handler/observability/into_handler_error.rs`:
@@ -205,6 +235,18 @@ enforcement layer requiring it, unlike `ctx.commands` for writes (section 4).
 ---
 
 ## 4. `CommandBus`: the enforced write path
+
+**Amended 2026-07-18 (issue #145): bridge removed, section below is historical record only; the
+`examples/dataflow` reference below no longer exists (that crate was also removed, issue #147).**
+`handler/main/src/api/handler/traits/command_bus.rs`, `.../traits/command.rs`, and
+`.../dto/command_dispatch_request.rs` no longer declare local mirror types — each is now a
+one-line `pub use edge_application_base::{CommandBus, Command, CommandDispatchRequest};`.
+`handler/main/src/core/handler/command/` (the blanket-impl bridge, `into_handler_error.rs` +
+`local_command_as_foreign.rs`) was deleted entirely. `ctx.commands.dispatch(...)` now dispatches
+through the exact same `CommandDispatchRequest`/`Command` types `command`'s own
+`DirectCommandBus` uses — there is no longer a "two distinct types with identical names" hazard
+to warn about; `edge_application_command::Command` and `edge_application_handler::Command` are
+the same trait.
 
 `handler` also depends directly on `command`, bridged the same way section 3
 bridges `observer`: `HandlerContext.commands: &'a dyn CommandBus` is `handler`'s own
@@ -262,6 +304,10 @@ crates (`handler`, `service`).
 ---
 
 ## 6. What is *not* connected — `Command`/`CommandBus` ↔ `Service`/`ServiceRegistry`
+
+**Amended 2026-07-18 (issue #147): `service` removed entirely — this section is historical
+record only.** The three-tier `Handler`/`Service`/`Command` context hierarchy below no longer
+has a `Service` row; only `Handler` and `Command` remain. See section 2's amendment above.
 
 No mechanism connects a dispatched `Command` to invoking a named `Service` from a
 `ServiceRegistry`. This is not merely unwired — it is **structurally impossible** through the
@@ -322,33 +368,38 @@ look similar.
 | Connection | Status | Mechanism | Proof |
 |---|---|---|---|
 | `HandlerRegistryImpl` (edge-dispatcher) → `handler` | **Live, confirmed** | Direct struct wrapping, pure forwarding | `edge-dispatcher/.../handler_registry.rs` |
-| `Service` (service) → `Handler` (handler) | **Not connected within this repo (as of #143); real bridge exists, but only externally in `swe-edge-service`; `HandlerContext` dropped at that bridge** | `IntoHandler` blanket impl, `DefaultServiceHandler` | `swe-edge-service/service/main/src/core/bridge/service_handler.rs` |
-| `observer` → `handler` | **Real, per-request-reachable, not enforced** | 7 blanket impls + `ObserverContextAdapter` | `handler/.../into_handler_error.rs` |
-| `command` → `handler` | **Real, per-request-reachable, convention-only** | `HandlerContext.commands` field | ADR-024 |
-| `registry::Registry<V>` → `HandlerRegistry`/`ServiceRegistry` | **Not connected** | None — deferred by ADR-029 | grep, exhaustive, zero matches |
-| `Command`/`CommandBus` → `Service`/`ServiceRegistry` | **Not connected — structurally impossible via existing bridge, not just unwired** | None — `Service::execute` has no context parameter to carry a `CommandBus` through | grep, exhaustive, zero matches, both directions |
+| `Service` (service) → `Handler` (handler) | **Removed — `service` crate deleted entirely (issue #147)** | N/A | `git log` — `service/` directory removed |
+| `observer` → `handler` | **Real, per-request-reachable, not enforced — direct trait consumption, no bridge (issue #145)** | `HandlerContext.observer: &dyn edge_application_base::ObserverContext`, same trait `observer` implementors satisfy directly | `handler/main/src/api/handler/traits/observer_context.rs` |
+| `command` → `handler` | **Real, per-request-reachable, convention-only — direct trait consumption, no bridge (issue #145)** | `HandlerContext.commands: &dyn edge_application_base::CommandBus`, same trait `command` implementors satisfy directly | `handler/main/src/api/handler/traits/command_bus.rs` |
+| `registry::Registry<V>` → `HandlerRegistry`/`ServiceRegistry` | **Not connected; `ServiceRegistry` half moot — `service` removed (issue #147)** | None — deferred by ADR-029 | grep, exhaustive, zero matches |
+| `Command`/`CommandBus` → `Service`/`ServiceRegistry` | **Removed — `service` crate deleted entirely (issue #147)** | N/A | `git log` — `service/` directory removed |
 
 ---
 
 ## See also
 
-- `examples/dataflow/src/main.rs` (`cargo run -p edge-application-dataflow-example`) — a runnable
-  reproduction of sections 2 and 6's findings: traces, at the code level, exactly where
-  `HandlerContext` does (`Handler` -> `Command`, via `ctx.commands.dispatch`) and does not
-  (`Handler` -> `Service`) reach. Not a production bridge — `DemoServiceHandler` in that file
-  exists only to make the finding observable; the real bridge lives in `swe-edge-service`.
 - `docs/3-design/temp/edge-repo-dataflow-snapshot.md` — the `edge` repo's own (partially stale)
   ingress/egress dataflow docs, temporarily mirrored here; delete once that repo's git conflicts
   are resolved and its docs are fixed in place.
 - [Issue #139](https://github.com/sweengineeringlabs/edge-application/issues/139) — proposed
   `base` shared crate for `Request`/`Response` marker traits, touching the same
-  `handler`/`service` boundary as section 2 above.
+  `handler`/`service` boundary as section 2 above (historical — `service` since removed).
 - [Issue #140](https://github.com/sweengineeringlabs/edge-application/issues/140) — `HandlerContext`
-  dropped at the `Service`→`Handler` bridge; the same context-blind `Service::execute` shape is
-  the root cause of section 6's `Command`↔`Service` finding.
+  dropped at the `Service`→`Handler` bridge; the same context-blind `Service::execute` shape was
+  the root cause of section 6's `Command`↔`Service` finding (historical — `service` since removed).
 - [Issue #143](https://github.com/sweengineeringlabs/edge-application/issues/143) — removal of
   `handler`'s duplicate `Service`→`Handler` bridge, resolved 2026-07-17; see ADR-004's
-  amendment and section 2 above for the corrected picture.
+  amendment and section 2 above for the corrected picture (historical — `service` since removed
+  entirely, issue #147).
+- [Issue #145](https://github.com/sweengineeringlabs/edge-application/issues/145) — removed
+  `handler`'s Command/Observer local-mirror-trait + blanket-impl bridge; `HandlerContext` now
+  holds `base`'s canonical `CommandBus`/`ObserverContext` traits directly. Corrects sections 3
+  and 4 above.
+- [Issue #147](https://github.com/sweengineeringlabs/edge-application/issues/147) — full removal
+  of `service`/`Service`/`ServiceRegistry` as redundant with `handler`/`Handler`/`HandlerRegistry`.
+  Corrects sections 2 and 6 above; `examples/dataflow` (which demonstrated section 2/6's findings)
+  was removed alongside it, since its entire purpose no longer applies.
 - `edge`'s ADR-024 (amended 2026-07-15), ADR-020, ADR-029 — the governing ADRs for sections 1, 2,
   and 5 respectively.
-- `edge-llm`'s ADR-085 — independent confirmation of section 2 from the consumer side.
+- `edge-llm`'s ADR-085 — independent confirmation of section 2 from the consumer side (historical
+  — `service` since removed).

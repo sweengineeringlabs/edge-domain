@@ -12,10 +12,6 @@ use edge_application_handler::{
     ListIdsRequest,
 };
 use edge_application_observer::{ObserverContext, StdObserveFactory};
-use edge_application_service::{
-    EmptinessRequest as ServiceEmptinessRequest, LenRequest as ServiceLenRequest,
-    ServiceLookupRequest,
-};
 use edge_security_runtime::SecurityContext;
 use futures::executor::block_on;
 use futures::future::BoxFuture;
@@ -345,32 +341,6 @@ fn test_paired_returns_two_distinct_values_edge() {
     let (a, b) = Domain.paired(Arc::clone(&backend), |_| 1u32, |_| 2u32);
     assert_eq!(a, 1);
     assert_eq!(b, 2);
-}
-
-// ─── new_service_registry ────────────────────────────────────────────────────
-
-#[test]
-fn test_new_service_registry_starts_empty_happy() {
-    let reg = Domain.new_service_registry::<TextPayload, TextPayload>();
-    assert!(reg.is_empty(ServiceEmptinessRequest).unwrap().empty);
-}
-
-#[test]
-fn test_new_service_registry_get_unknown_returns_none_not_error() {
-    let reg = Domain.new_service_registry::<TextPayload, TextPayload>();
-    assert!(reg
-        .get(&ServiceLookupRequest {
-            name: "unknown".to_string()
-        })
-        .unwrap()
-        .service
-        .is_none());
-}
-
-#[test]
-fn test_new_service_registry_len_is_zero_edge() {
-    let reg = Domain.new_service_registry::<BytePayload, BytePayload>();
-    assert_eq!(reg.len(ServiceLenRequest).unwrap().count, 0);
 }
 
 // ─── new_in_memory_repository ────────────────────────────────────────────────

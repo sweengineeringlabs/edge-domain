@@ -9,7 +9,6 @@ use edge_application_handler::{
     EmptinessRequest as HandlerEmptinessRequest, ExecutionRequest, HandlerContext,
 };
 use edge_application_observer::StdObserveFactory;
-use edge_application_service::EmptinessRequest as ServiceEmptinessRequest;
 use edge_security_runtime::SecurityContext;
 use std::sync::Arc;
 
@@ -57,13 +56,6 @@ async fn test_echo_handler_returns_input_as_output() {
 fn test_new_handler_registry_returns_empty_registry() {
     let reg = Domain.new_handler_registry::<TextPayload, TextPayload>();
     assert!(reg.is_empty(HandlerEmptinessRequest).unwrap().empty);
-}
-
-/// @covers: new_service_registry
-#[test]
-fn test_new_service_registry_returns_empty_registry() {
-    let reg = Domain.new_service_registry::<TextPayload, TextPayload>();
-    assert!(reg.is_empty(ServiceEmptinessRequest).unwrap().empty);
 }
 
 /// @covers: new_in_memory_repository
