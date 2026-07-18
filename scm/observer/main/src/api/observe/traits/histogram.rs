@@ -1,10 +1,7 @@
 //! `Histogram` — latency / distribution metric.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here so
+//! `edge_application_observer::Histogram` keeps resolving for existing consumers.
+//! See issue #145.
 
-use crate::api::observe::errors::ObserveError;
-use crate::api::observe::dto::{HistogramRecordRequest, HistogramRecordResponse};
-
-/// A metric that records value distributions (e.g. latency in milliseconds).
-pub trait Histogram: Send + Sync {
-    /// Record a single observation.
-    fn record(&self, req: HistogramRecordRequest) -> Result<HistogramRecordResponse, ObserveError>;
-}
+pub use edge_application_base::Histogram;

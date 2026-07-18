@@ -1,5 +1,6 @@
 //! [`ExecutionRequest`] — input for [`Command::execute`](super::super::traits::Command::execute).
+//!
+//! Canonically defined in `edge-application-base` as `CommandExecutionRequest`;
+//! re-exported under this crate's original name for existing consumers. See issue #145.
 
-/// Request to run a [`Command`](super::super::traits::Command)'s write operation.
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-pub struct ExecutionRequest;
+pub use edge_application_base::CommandExecutionRequest as ExecutionRequest;

@@ -1,10 +1,6 @@
 //! [`SpanAnnotationRequest`] — request to attach a key-value annotation to a span.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-/// Request to attach a key-value annotation to a [`Span`](crate::api::Span).
-#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-pub struct SpanAnnotationRequest {
-    /// The annotation key.
-    pub key: String,
-    /// The annotation value.
-    pub value: String,
-}
+pub use edge_application_base::SpanAnnotationRequest;

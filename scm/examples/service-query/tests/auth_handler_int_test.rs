@@ -15,7 +15,7 @@ use async_trait::async_trait;
 use edge_application_command::DirectCommandBus;
 use edge_application_handler::{
     DrainRequest, ExecutionRequest as HandlerExecutionRequest, Handler, HandlerContext,
-    HandlerError, LogEmitRequest, ObserverContextAdapter,
+    HandlerError, LogEmitRequest,
 };
 use edge_application_observer::StdObserveFactory;
 use edge_application_query::{
@@ -138,11 +138,10 @@ fn build_ctx_and_run(
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: &observer_adapter,
+        observer: observer.as_ref(),
     };
 
     block_on(handler.execute(HandlerExecutionRequest {

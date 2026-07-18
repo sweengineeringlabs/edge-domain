@@ -1,10 +1,6 @@
 //! [`SpanStartRequest`] — request to open a new tracing span.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-/// Request to start a new span named `operation` for handler `handler_id`.
-#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-pub struct SpanStartRequest {
-    /// The handler that owns this span.
-    pub handler_id: String,
-    /// The operation name for the span.
-    pub operation: String,
-}
+pub use edge_application_base::SpanStartRequest;

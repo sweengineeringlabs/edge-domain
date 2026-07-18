@@ -1,10 +1,7 @@
 //! `Gauge` — a point-in-time value metric.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here so
+//! `edge_application_observer::Gauge` keeps resolving for existing consumers.
+//! See issue #145.
 
-use crate::api::observe::errors::ObserveError;
-use crate::api::observe::dto::{GaugeSetRequest, GaugeSetResponse};
-
-/// A metric that records a current absolute value (e.g. queue depth).
-pub trait Gauge: Send + Sync {
-    /// Set the gauge to `value`.
-    fn set(&self, req: GaugeSetRequest) -> Result<GaugeSetResponse, ObserveError>;
-}
+pub use edge_application_base::Gauge;

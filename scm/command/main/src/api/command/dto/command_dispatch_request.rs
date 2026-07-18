@@ -1,11 +1,7 @@
 //! [`CommandDispatchRequest`] — input for [`CommandBus::dispatch`](super::super::traits::CommandBus::dispatch).
-// @allow: dto_types_must_serialize — holds a live `Box<dyn Command>` to dispatch,
-// not wire-format data; a trait object cannot derive Serialize/Deserialize.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here so
+//! `edge_application_command::CommandDispatchRequest` keeps resolving for existing
+//! consumers. See issue #145.
 
-use super::super::traits::Command;
-
-/// Request to dispatch a [`Command`] through a [`CommandBus`](super::super::traits::CommandBus).
-pub struct CommandDispatchRequest {
-    /// The command to dispatch.
-    pub command: Box<dyn Command>,
-}
+pub use edge_application_base::CommandDispatchRequest;

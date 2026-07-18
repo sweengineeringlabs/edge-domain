@@ -1,5 +1,6 @@
 //! [`TracerRequest`] — input for [`ObserverContext::tracer`](crate::api::handler::traits::ObserverContext::tracer).
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-/// Marker request; `tracer` takes no data beyond `&self`.
-#[derive(Debug, Clone, Copy, Default)]
-pub struct TracerRequest;
+pub use edge_application_base::TracerRequest;

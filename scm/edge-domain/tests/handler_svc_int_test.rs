@@ -9,10 +9,7 @@ use edge_application::DomainRuntime;
 use edge_application::Handler;
 use edge_application::HandlerContext;
 use edge_application::HandlerError;
-use edge_application_handler::{
-    CommandBusAdapter, ExecutionRequest, HealthCheckRequest, IdRequest, IdResponse,
-    ObserverContextAdapter,
-};
+use edge_application_handler::{ExecutionRequest, HealthCheckRequest, IdRequest, IdResponse};
 use edge_application_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
 
@@ -48,13 +45,11 @@ async fn test_handler_svc_facade_execute_doubles_input() {
         .direct_command_bus(DirectCommandBusRequest)
         .unwrap()
         .bus;
-    let bus_adapter = CommandBusAdapter(bus.as_ref());
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
-        commands: &bus_adapter,
-        observer: &observer_adapter,
+        commands: bus.as_ref(),
+        observer: observer.as_ref(),
     };
     assert_eq!(
         Doubler

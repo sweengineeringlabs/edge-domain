@@ -1,9 +1,6 @@
 //! [`TracerResponse`] — wrapper for the active `HandlerTracer`.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-use crate::api::handler::traits::HandlerTracer;
-
-/// Result of [`ObserverContext::tracer`](crate::api::handler::traits::ObserverContext::tracer).
-pub struct TracerResponse<'a> {
-    /// The active handler tracer.
-    pub tracer: Box<dyn HandlerTracer + 'a>,
-}
+pub use edge_application_base::TracerResponse;

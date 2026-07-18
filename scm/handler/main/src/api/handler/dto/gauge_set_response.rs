@@ -1,5 +1,6 @@
 //! [`GaugeSetResponse`] — wrapper for a successful gauge update.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-/// Result of [`Gauge::set`](crate::api::handler::traits::Gauge::set).
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
-pub struct GaugeSetResponse;
+pub use edge_application_base::GaugeSetResponse;

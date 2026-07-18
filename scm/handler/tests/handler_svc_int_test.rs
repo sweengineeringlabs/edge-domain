@@ -4,8 +4,8 @@
 use async_trait::async_trait;
 use edge_application_command::{CommandBus, DirectCommandBus};
 use edge_application_handler::{
-    CommandBusAdapter, ExecutionRequest, Handler, HandlerContext, HandlerError, HealthCheckRequest,
-    IdRequest, ObserverContextAdapter, PatternRequest,
+    ExecutionRequest, Handler, HandlerContext, HandlerError, HealthCheckRequest, IdRequest,
+    PatternRequest,
 };
 use edge_application_observer::{ObserverContext, StdObserveFactory};
 use edge_security_runtime::SecurityContext;
@@ -84,8 +84,8 @@ impl Handler for UnhealthyHandler {
 
 fn make_ctx<'a>(
     security: &'a SecurityContext,
-    bus: &'a CommandBusAdapter<'a, dyn CommandBus>,
-    observer: &'a ObserverContextAdapter<'a, dyn ObserverContext>,
+    bus: &'a dyn CommandBus,
+    observer: &'a dyn ObserverContext,
 ) -> HandlerContext<'a> {
     HandlerContext {
         security,
@@ -100,10 +100,7 @@ fn test_execute_ok_handler_returns_response_happy() {
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
-    let bus_erased: &dyn CommandBus = &bus;
-    let bus_adapter = CommandBusAdapter(bus_erased);
-    let ctx = make_ctx(&security, &bus_adapter, &observer_adapter);
+    let ctx = make_ctx(&security, &bus, observer.as_ref());
     assert_eq!(
         block_on(OkHandler.execute(ExecutionRequest {
             req: TextPayload("hello".into()),
@@ -120,10 +117,7 @@ fn test_execute_failing_handler_returns_err_error() {
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
-    let bus_erased: &dyn CommandBus = &bus;
-    let bus_adapter = CommandBusAdapter(bus_erased);
-    let ctx = make_ctx(&security, &bus_adapter, &observer_adapter);
+    let ctx = make_ctx(&security, &bus, observer.as_ref());
     assert!(block_on(FailHandler.execute(ExecutionRequest {
         req: TextPayload("x".into()),
         ctx: &ctx
@@ -181,10 +175,7 @@ fn test_execute_with_unauthenticated_context_returns_response_happy() {
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
-    let bus_erased: &dyn CommandBus = &bus;
-    let bus_adapter = CommandBusAdapter(bus_erased);
-    let ctx = make_ctx(&security, &bus_adapter, &observer_adapter);
+    let ctx = make_ctx(&security, &bus, observer.as_ref());
     assert_eq!(
         block_on(OkHandler.execute(ExecutionRequest {
             req: TextPayload("world".into()),
@@ -202,10 +193,7 @@ fn test_execute_with_authenticated_context_still_executes_edge() {
     let security = SecurityContext::authenticated_with(Box::new(AnonymousPrincipal));
     let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
-    let bus_erased: &dyn CommandBus = &bus;
-    let bus_adapter = CommandBusAdapter(bus_erased);
-    let ctx = make_ctx(&security, &bus_adapter, &observer_adapter);
+    let ctx = make_ctx(&security, &bus, observer.as_ref());
     assert_eq!(
         block_on(OkHandler.execute(ExecutionRequest {
             req: TextPayload("test".into()),

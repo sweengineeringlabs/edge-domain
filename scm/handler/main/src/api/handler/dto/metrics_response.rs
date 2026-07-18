@@ -1,9 +1,6 @@
 //! [`MetricsResponse`] — wrapper for the active `MetricRegistry`.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-use crate::api::handler::traits::MetricRegistry;
-
-/// Result of [`ObserverContext::metrics`](crate::api::handler::traits::ObserverContext::metrics).
-pub struct MetricsResponse<'a> {
-    /// The active metric registry.
-    pub metrics: Box<dyn MetricRegistry + 'a>,
-}
+pub use edge_application_base::MetricsResponse;

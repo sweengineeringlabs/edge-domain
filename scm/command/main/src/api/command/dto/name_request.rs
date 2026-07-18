@@ -1,10 +1,6 @@
 //! [`NameRequest`] — input for [`Command::name`](super::super::traits::Command::name).
+//!
+//! Canonically defined in `edge-application-base` as `CommandNameRequest`;
+//! re-exported under this crate's original name for existing consumers. See issue #145.
 
-/// Request to resolve a [`Command`](super::super::traits::Command)'s stable name.
-///
-/// Carries no data today; it exists so `name` conforms to the uniform
-/// `*Request` -> `Result<T, E>` port-contract shape, letting implementors
-/// that resolve their name via a fallible lookup (e.g. a registry) fit the
-/// same signature as every other dispatched operation.
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-pub struct NameRequest;
+pub use edge_application_base::CommandNameRequest as NameRequest;

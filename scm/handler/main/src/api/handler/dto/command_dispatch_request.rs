@@ -1,9 +1,6 @@
 //! [`CommandDispatchRequest`] — input for [`CommandBus::dispatch`](crate::api::handler::traits::CommandBus::dispatch).
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-use crate::api::handler::traits::Command;
-
-/// Request to dispatch a [`Command`] through a [`CommandBus`](crate::api::handler::traits::CommandBus).
-pub struct CommandDispatchRequest {
-    /// The command to dispatch.
-    pub command: Box<dyn Command>,
-}
+pub use edge_application_base::CommandDispatchRequest;

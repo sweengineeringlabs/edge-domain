@@ -3,171 +3,156 @@
 
 use edge_application_handler::{
     Counter, CounterLookupRequest, CounterLookupResponse, Gauge, GaugeLookupRequest,
-    GaugeLookupResponse, GaugeSetRequest, GaugeSetResponse, HandlerError, Histogram,
-    HistogramLookupRequest, HistogramLookupResponse, HistogramRecordRequest,
-    HistogramRecordResponse, IncrementRequest, IncrementResponse, MetricRegistry,
+    GaugeLookupResponse, GaugeSetRequest, GaugeSetResponse, Histogram, HistogramLookupRequest,
+    HistogramLookupResponse, HistogramRecordRequest, HistogramRecordResponse, IncrementRequest,
+    IncrementResponse, MetricRegistry, ObserveError,
 };
 
 struct StubCounter;
 impl Counter for StubCounter {
-    fn increment(&self, _req: IncrementRequest) -> Result<IncrementResponse, HandlerError> {
+    fn increment(&self, _req: IncrementRequest) -> Result<IncrementResponse, ObserveError> {
         Ok(IncrementResponse)
-    }
-}
-
-struct StubGauge;
-impl Gauge for StubGauge {
-    fn set(&self, _req: GaugeSetRequest) -> Result<GaugeSetResponse, HandlerError> {
-        Ok(GaugeSetResponse)
     }
 }
 
 struct StubHistogram;
 impl Histogram for StubHistogram {
-    fn record(
-        &self,
-        _req: HistogramRecordRequest,
-    ) -> Result<HistogramRecordResponse, HandlerError> {
+    fn record(&self, _req: HistogramRecordRequest) -> Result<HistogramRecordResponse, ObserveError> {
         Ok(HistogramRecordResponse)
     }
 }
 
-struct OkRegistry;
-impl MetricRegistry for OkRegistry {
-    fn counter(&self, _req: CounterLookupRequest) -> Result<CounterLookupResponse, HandlerError> {
+struct StubGauge;
+impl Gauge for StubGauge {
+    fn set(&self, _req: GaugeSetRequest) -> Result<GaugeSetResponse, ObserveError> {
+        Ok(GaugeSetResponse)
+    }
+}
+
+struct FakeRegistry;
+impl MetricRegistry for FakeRegistry {
+    fn counter(&self, req: CounterLookupRequest) -> Result<CounterLookupResponse, ObserveError> {
+        if req.name.is_empty() {
+            return Err(ObserveError::BackendUnavailable("empty name".into()));
+        }
         Ok(CounterLookupResponse {
             counter: Box::new(StubCounter),
         })
     }
     fn histogram(
         &self,
-        _req: HistogramLookupRequest,
-    ) -> Result<HistogramLookupResponse, HandlerError> {
+        req: HistogramLookupRequest,
+    ) -> Result<HistogramLookupResponse, ObserveError> {
+        if req.name.is_empty() {
+            return Err(ObserveError::BackendUnavailable("empty name".into()));
+        }
         Ok(HistogramLookupResponse {
             histogram: Box::new(StubHistogram),
         })
     }
-    fn gauge(&self, _req: GaugeLookupRequest) -> Result<GaugeLookupResponse, HandlerError> {
+    fn gauge(&self, req: GaugeLookupRequest) -> Result<GaugeLookupResponse, ObserveError> {
+        if req.name.is_empty() {
+            return Err(ObserveError::BackendUnavailable("empty name".into()));
+        }
         Ok(GaugeLookupResponse {
             gauge: Box::new(StubGauge),
         })
     }
 }
 
-struct FailingRegistry;
-impl MetricRegistry for FailingRegistry {
-    fn counter(&self, _req: CounterLookupRequest) -> Result<CounterLookupResponse, HandlerError> {
-        Err(HandlerError::ExecutionFailed("registry offline".into()))
-    }
-    fn histogram(
-        &self,
-        _req: HistogramLookupRequest,
-    ) -> Result<HistogramLookupResponse, HandlerError> {
-        Err(HandlerError::ExecutionFailed("registry offline".into()))
-    }
-    fn gauge(&self, _req: GaugeLookupRequest) -> Result<GaugeLookupResponse, HandlerError> {
-        Err(HandlerError::ExecutionFailed("registry offline".into()))
-    }
+/// @covers: MetricRegistry::counter — resolves a usable counter for a known name
+#[test]
+fn test_counter_known_name_returns_counter_happy() {
+    let registry = FakeRegistry;
+    let response = registry
+        .counter(CounterLookupRequest { name: "requests".into() })
+        .expect("counter should succeed");
+    assert!(response.counter.increment(IncrementRequest { delta: 1 }).is_ok());
 }
 
-/// @covers: MetricRegistry::counter — success
+/// @covers: MetricRegistry::counter — empty name is rejected
 #[test]
-fn test_counter_ok_registry_returns_counter_happy() {
-    let counter = OkRegistry
-        .counter(CounterLookupRequest { name: "c".into() })
-        .expect("counter should succeed")
-        .counter;
-    assert_eq!(
-        counter.increment(IncrementRequest { delta: 1 }),
-        Ok(IncrementResponse)
-    );
+fn test_counter_empty_name_returns_err_error() {
+    let registry = FakeRegistry;
+    assert!(matches!(
+        registry.counter(CounterLookupRequest { name: String::new() }),
+        Err(ObserveError::BackendUnavailable(_))
+    ));
 }
 
-/// @covers: MetricRegistry::counter — failure propagates
+/// @covers: MetricRegistry::counter — repeated lookups return independent instruments
 #[test]
-fn test_counter_failing_registry_returns_err_error() {
-    assert!(FailingRegistry
-        .counter(CounterLookupRequest { name: "c".into() })
-        .is_err());
+fn test_counter_repeated_lookups_return_independent_instruments_edge() {
+    let registry = FakeRegistry;
+    let a = registry.counter(CounterLookupRequest { name: "a".into() }).unwrap();
+    let b = registry.counter(CounterLookupRequest { name: "b".into() }).unwrap();
+    assert!(a.counter.increment(IncrementRequest { delta: 1 }).is_ok());
+    assert!(b.counter.increment(IncrementRequest { delta: 1 }).is_ok());
 }
 
-/// @covers: MetricRegistry::counter — empty name accepted
+/// @covers: MetricRegistry::histogram — resolves a usable histogram for a known name
 #[test]
-fn test_counter_empty_name_returns_counter_edge() {
-    let counter = OkRegistry
-        .counter(CounterLookupRequest { name: "".into() })
-        .expect("counter should succeed")
-        .counter;
-    assert_eq!(
-        counter.increment(IncrementRequest { delta: 1 }),
-        Ok(IncrementResponse)
-    );
+fn test_histogram_known_name_returns_histogram_happy() {
+    let registry = FakeRegistry;
+    let response = registry
+        .histogram(HistogramLookupRequest { name: "latency".into() })
+        .expect("histogram should succeed");
+    assert!(response
+        .histogram
+        .record(HistogramRecordRequest { value: 1.0 })
+        .is_ok());
 }
 
-/// @covers: MetricRegistry::histogram — success
+/// @covers: MetricRegistry::histogram — empty name is rejected
 #[test]
-fn test_histogram_ok_registry_returns_histogram_happy() {
-    let histogram = OkRegistry
-        .histogram(HistogramLookupRequest { name: "h".into() })
-        .expect("histogram should succeed")
-        .histogram;
-    assert_eq!(
-        histogram.record(HistogramRecordRequest { value: 1.0 }),
-        Ok(HistogramRecordResponse)
-    );
+fn test_histogram_empty_name_returns_err_error() {
+    let registry = FakeRegistry;
+    assert!(matches!(
+        registry.histogram(HistogramLookupRequest { name: String::new() }),
+        Err(ObserveError::BackendUnavailable(_))
+    ));
 }
 
-/// @covers: MetricRegistry::histogram — failure propagates
+/// @covers: MetricRegistry::histogram — repeated lookups return independent instruments
 #[test]
-fn test_histogram_failing_registry_returns_err_error() {
-    assert!(FailingRegistry
-        .histogram(HistogramLookupRequest { name: "h".into() })
-        .is_err());
+fn test_histogram_repeated_lookups_return_independent_instruments_edge() {
+    let registry = FakeRegistry;
+    let a = registry
+        .histogram(HistogramLookupRequest { name: "a".into() })
+        .unwrap();
+    let b = registry
+        .histogram(HistogramLookupRequest { name: "b".into() })
+        .unwrap();
+    assert!(a.histogram.record(HistogramRecordRequest { value: 1.0 }).is_ok());
+    assert!(b.histogram.record(HistogramRecordRequest { value: 2.0 }).is_ok());
 }
 
-/// @covers: MetricRegistry::histogram — empty name accepted
+/// @covers: MetricRegistry::gauge — resolves a usable gauge for a known name
 #[test]
-fn test_histogram_empty_name_returns_histogram_edge() {
-    let histogram = OkRegistry
-        .histogram(HistogramLookupRequest { name: "".into() })
-        .expect("histogram should succeed")
-        .histogram;
-    assert_eq!(
-        histogram.record(HistogramRecordRequest { value: 1.0 }),
-        Ok(HistogramRecordResponse)
-    );
+fn test_gauge_known_name_returns_gauge_happy() {
+    let registry = FakeRegistry;
+    let response = registry
+        .gauge(GaugeLookupRequest { name: "queue_depth".into() })
+        .expect("gauge should succeed");
+    assert!(response.gauge.set(GaugeSetRequest { value: 3.0 }).is_ok());
 }
 
-/// @covers: MetricRegistry::gauge — success
+/// @covers: MetricRegistry::gauge — empty name is rejected
 #[test]
-fn test_gauge_ok_registry_returns_gauge_happy() {
-    let gauge = OkRegistry
-        .gauge(GaugeLookupRequest { name: "g".into() })
-        .expect("gauge should succeed")
-        .gauge;
-    assert_eq!(
-        gauge.set(GaugeSetRequest { value: 1.0 }),
-        Ok(GaugeSetResponse)
-    );
+fn test_gauge_empty_name_returns_err_error() {
+    let registry = FakeRegistry;
+    assert!(matches!(
+        registry.gauge(GaugeLookupRequest { name: String::new() }),
+        Err(ObserveError::BackendUnavailable(_))
+    ));
 }
 
-/// @covers: MetricRegistry::gauge — failure propagates
+/// @covers: MetricRegistry::gauge — repeated lookups return independent instruments
 #[test]
-fn test_gauge_failing_registry_returns_err_error() {
-    assert!(FailingRegistry
-        .gauge(GaugeLookupRequest { name: "g".into() })
-        .is_err());
-}
-
-/// @covers: MetricRegistry::gauge — empty name accepted
-#[test]
-fn test_gauge_empty_name_returns_gauge_edge() {
-    let gauge = OkRegistry
-        .gauge(GaugeLookupRequest { name: "".into() })
-        .expect("gauge should succeed")
-        .gauge;
-    assert_eq!(
-        gauge.set(GaugeSetRequest { value: 1.0 }),
-        Ok(GaugeSetResponse)
-    );
+fn test_gauge_repeated_lookups_return_independent_instruments_edge() {
+    let registry = FakeRegistry;
+    let a = registry.gauge(GaugeLookupRequest { name: "a".into() }).unwrap();
+    let b = registry.gauge(GaugeLookupRequest { name: "b".into() }).unwrap();
+    assert!(a.gauge.set(GaugeSetRequest { value: 1.0 }).is_ok());
+    assert!(b.gauge.set(GaugeSetRequest { value: 2.0 }).is_ok());
 }

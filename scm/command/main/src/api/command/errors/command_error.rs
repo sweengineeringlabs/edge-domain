@@ -1,18 +1,7 @@
 //! Error type for [`Command`](super::super::traits::Command) operations.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here so
+//! `edge_application_command::CommandError` keeps resolving for existing consumers.
+//! See issue #145.
 
-/// Error produced by command execution.
-#[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
-pub enum CommandError {
-    /// The command input was invalid.
-    #[error("invalid input: {0}")]
-    InvalidInput(String),
-    /// A business rule prevented execution.
-    #[error("rule violation: {0}")]
-    RuleViolation(String),
-    /// The target resource was not found.
-    #[error("not found: {0}")]
-    NotFound(String),
-    /// An unexpected internal error occurred.
-    #[error("internal: {0}")]
-    Internal(String),
-}
+pub use edge_application_base::CommandError;

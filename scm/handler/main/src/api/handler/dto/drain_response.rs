@@ -1,9 +1,6 @@
 //! [`DrainResponse`] — wrapper for the active `LogDrain`.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-use crate::api::handler::traits::LogDrain;
-
-/// Result of [`ObserverContext::drain`](crate::api::handler::traits::ObserverContext::drain).
-pub struct DrainResponse<'a> {
-    /// The active log drain.
-    pub drain: Box<dyn LogDrain + 'a>,
-}
+pub use edge_application_base::DrainResponse;

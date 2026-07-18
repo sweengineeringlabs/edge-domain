@@ -1,17 +1,7 @@
 //! `Span` — a single unit of traced work.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here so
+//! `edge_application_observer::Span` keeps resolving for existing consumers.
+//! See issue #145.
 
-use crate::api::observe::errors::ObserveError;
-use crate::api::observe::dto::{
-    SpanAnnotationRequest, SpanAnnotationResponse, SpanFinishRequest, SpanFinishResponse,
-};
-
-/// A tracing span produced by [`HandlerTracer`].
-///
-/// [`HandlerTracer`]: super::HandlerTracer
-pub trait Span: Send + Sync {
-    /// Attach a key-value annotation to this span.
-    fn record(&self, req: SpanAnnotationRequest) -> Result<SpanAnnotationResponse, ObserveError>;
-
-    /// Mark this span as finished.
-    fn finish(&self, req: SpanFinishRequest) -> Result<SpanFinishResponse, ObserveError>;
-}
+pub use edge_application_base::Span;

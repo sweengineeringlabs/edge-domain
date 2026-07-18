@@ -96,11 +96,10 @@ mod tests {
         let security = SecurityContext::unauthenticated();
         let bus = DirectCommandBus;
         let observer = StdObserveFactory::noop_observer_context();
-        let observer_adapter = crate::api::ObserverContextAdapter(observer.as_ref());
         let ctx = HandlerContext {
             security: &security,
             commands: &bus,
-            observer: &observer_adapter,
+            observer: observer.as_ref(),
         };
         assert!(AlwaysOk
             .execute(ExecutionRequest {
@@ -116,11 +115,10 @@ mod tests {
         let security = SecurityContext::unauthenticated();
         let bus = DirectCommandBus;
         let observer = StdObserveFactory::noop_observer_context();
-        let observer_adapter = crate::api::ObserverContextAdapter(observer.as_ref());
         let ctx = HandlerContext {
             security: &security,
             commands: &bus,
-            observer: &observer_adapter,
+            observer: observer.as_ref(),
         };
         assert!(AlwaysFail
             .execute(ExecutionRequest {

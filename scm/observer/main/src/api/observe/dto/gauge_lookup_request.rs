@@ -1,8 +1,6 @@
 //! [`GaugeLookupRequest`] — request to resolve a named gauge instrument.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-/// Request for the [`Gauge`](crate::api::Gauge) instrument named `name`.
-#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-pub struct GaugeLookupRequest {
-    /// The instrument name.
-    pub name: String,
-}
+pub use edge_application_base::GaugeLookupRequest;

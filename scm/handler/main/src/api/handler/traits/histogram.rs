@@ -1,14 +1,7 @@
-//! `Histogram` — local decoupling boundary for a latency/distribution metric.
+//! `Histogram` trait — latency / distribution metric.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here so
+//! `edge_application_handler::Histogram` keeps resolving for existing consumers.
+//! See issue #145.
 
-use crate::api::handler::errors::HandlerError;
-use crate::api::handler::dto::{HistogramRecordRequest, HistogramRecordResponse};
-
-/// A metric that records value distributions (e.g. latency in milliseconds).
-///
-/// Declared locally so `api/` never references `edge_application_observer::Histogram`
-/// directly in a type position (SEA `no_foreign_type`). Any real `Histogram`
-/// implementor satisfies this automatically via the blanket impl in `core/`.
-pub trait Histogram: Send + Sync {
-    /// Record a single observation.
-    fn record(&self, req: HistogramRecordRequest) -> Result<HistogramRecordResponse, HandlerError>;
-}
+pub use edge_application_base::Histogram;

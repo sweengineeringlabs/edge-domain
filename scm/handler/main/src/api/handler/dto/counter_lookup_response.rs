@@ -1,9 +1,6 @@
 //! [`CounterLookupResponse`] — wrapper for a resolved counter instrument.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-use crate::api::handler::traits::Counter;
-
-/// Result of [`MetricRegistry::counter`](crate::api::handler::traits::MetricRegistry::counter).
-pub struct CounterLookupResponse {
-    /// The resolved counter instrument.
-    pub counter: Box<dyn Counter>,
-}
+pub use edge_application_base::CounterLookupResponse;

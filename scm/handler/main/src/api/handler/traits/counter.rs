@@ -1,14 +1,7 @@
-//! `Counter` — local decoupling boundary for a monotonically increasing metric.
+//! `Counter` trait — a monotonically increasing metric.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here so
+//! `edge_application_handler::Counter` keeps resolving for existing consumers.
+//! See issue #145.
 
-use crate::api::handler::errors::HandlerError;
-use crate::api::handler::dto::{IncrementRequest, IncrementResponse};
-
-/// A monotonically increasing integer metric.
-///
-/// Declared locally so `api/` never references `edge_application_observer::Counter`
-/// directly in a type position (SEA `no_foreign_type`). Any real `Counter`
-/// implementor satisfies this automatically via the blanket impl in `core/`.
-pub trait Counter: Send + Sync {
-    /// Increment the counter by `delta`.
-    fn increment(&self, req: IncrementRequest) -> Result<IncrementResponse, HandlerError>;
-}
+pub use edge_application_base::Counter;

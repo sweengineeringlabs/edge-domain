@@ -1,8 +1,8 @@
-//! `SecurityPrincipal` — local decoupling boundary for the authenticated request principal.
+//! `SecurityPrincipal` trait — the authenticated request principal.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here so
+//! `edge_application_handler::SecurityPrincipal` keeps resolving for existing consumers.
+//! `edge_security_runtime::SecurityContext` already satisfies it via base's own bridge
+//! (`base/core/context/security_bridge.rs`). See issue #145.
 
-/// Opaque handle to the authenticated (or unauthenticated) principal for a request.
-///
-/// Declared locally so `api/` never references `edge_security_runtime::SecurityContext`
-/// directly in a type position (SEA `no_foreign_type`). Any real `SecurityContext` value
-/// satisfies this automatically via the `impl` in `core/`.
-pub trait SecurityPrincipal: Send + Sync {}
+pub use edge_application_base::SecurityPrincipal;

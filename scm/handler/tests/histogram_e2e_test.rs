@@ -1,54 +1,46 @@
 //! SAF facade tests — `Histogram` trait.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_application_handler::{
-    HandlerError, Histogram, HistogramRecordRequest, HistogramRecordResponse,
-};
+use std::sync::Mutex;
 
-struct OkHistogram;
-impl Histogram for OkHistogram {
-    fn record(
-        &self,
-        _req: HistogramRecordRequest,
-    ) -> Result<HistogramRecordResponse, HandlerError> {
+use edge_application_handler::{Histogram, HistogramRecordRequest, HistogramRecordResponse, ObserveError};
+
+#[derive(Default)]
+struct RecordingHistogram {
+    observations: Mutex<Vec<f64>>,
+}
+impl Histogram for RecordingHistogram {
+    fn record(&self, req: HistogramRecordRequest) -> Result<HistogramRecordResponse, ObserveError> {
+        self.observations.lock().unwrap().push(req.value);
         Ok(HistogramRecordResponse)
     }
 }
 
-struct FailingHistogram;
-impl Histogram for FailingHistogram {
-    fn record(
-        &self,
-        _req: HistogramRecordRequest,
-    ) -> Result<HistogramRecordResponse, HandlerError> {
-        Err(HandlerError::ExecutionFailed(
-            "histogram unavailable".into(),
-        ))
-    }
+/// @covers: Histogram::record — observation is stored
+#[test]
+fn test_record_single_observation_stored_happy() {
+    let histogram = RecordingHistogram::default();
+    histogram
+        .record(HistogramRecordRequest { value: 120.0 })
+        .expect("record should succeed");
+    assert_eq!(*histogram.observations.lock().unwrap(), vec![120.0]);
 }
 
-/// @covers: Histogram::record — success
+/// @covers: Histogram::record — zero-value observation is still recorded
 #[test]
-fn test_record_ok_histogram_returns_ok_happy() {
-    assert_eq!(
-        OkHistogram.record(HistogramRecordRequest { value: 12.3 }),
-        Ok(HistogramRecordResponse)
-    );
+fn test_record_zero_value_observation_stored_error() {
+    let histogram = RecordingHistogram::default();
+    histogram
+        .record(HistogramRecordRequest { value: 0.0 })
+        .expect("record should succeed");
+    assert_eq!(*histogram.observations.lock().unwrap(), vec![0.0]);
 }
 
-/// @covers: Histogram::record — failure propagates
+/// @covers: Histogram::record — multiple observations accumulate in order
 #[test]
-fn test_record_failing_histogram_returns_err_error() {
-    assert!(FailingHistogram
-        .record(HistogramRecordRequest { value: 1.0 })
-        .is_err());
-}
-
-/// @covers: Histogram::record — zero value accepted
-#[test]
-fn test_record_zero_value_returns_ok_edge() {
-    assert_eq!(
-        OkHistogram.record(HistogramRecordRequest { value: 0.0 }),
-        Ok(HistogramRecordResponse)
-    );
+fn test_record_multiple_observations_accumulate_in_order_edge() {
+    let histogram = RecordingHistogram::default();
+    histogram.record(HistogramRecordRequest { value: 1.0 }).unwrap();
+    histogram.record(HistogramRecordRequest { value: 2.0 }).unwrap();
+    assert_eq!(*histogram.observations.lock().unwrap(), vec![1.0, 2.0]);
 }

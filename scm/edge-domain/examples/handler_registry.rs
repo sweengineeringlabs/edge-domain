@@ -16,9 +16,8 @@ use edge_application::DirectCommandBusRequest;
 use edge_application::DomainRuntime;
 use edge_application::{Domain, Handler, HandlerContext, HandlerError};
 use edge_application_handler::{
-    CommandBusAdapter, DeregisterHandlerRequest, EmptinessRequest, ExecutionRequest,
-    HandlerLookupRequest, IdRequest, IdResponse, ListIdsRequest, ObserverContextAdapter,
-    RegisterHandlerRequest,
+    DeregisterHandlerRequest, EmptinessRequest, ExecutionRequest, HandlerLookupRequest, IdRequest,
+    IdResponse, ListIdsRequest, RegisterHandlerRequest,
 };
 use edge_application_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
@@ -71,13 +70,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .expect("handler must be present");
     let security = SecurityContext::unauthenticated();
     let bus = Domain.direct_command_bus(DirectCommandBusRequest)?.bus;
-    let bus_adapter = CommandBusAdapter(bus.as_ref());
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
-        commands: &bus_adapter,
-        observer: &observer_adapter,
+        commands: bus.as_ref(),
+        observer: observer.as_ref(),
     };
 
     let resp = handler

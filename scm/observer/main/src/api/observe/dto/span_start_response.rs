@@ -1,11 +1,6 @@
 //! [`SpanStartResponse`] — wrapper for a newly opened tracing span.
-// @allow: dto_types_must_serialize — holds a live `Box<dyn Span>` instrument
-// result, not wire-format data; a trait object cannot derive Serialize/Deserialize.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-use crate::api::Span;
-
-/// Result of [`HandlerTracer::start_span`](crate::api::HandlerTracer::start_span).
-pub struct SpanStartResponse {
-    /// The newly opened span.
-    pub span: Box<dyn Span>,
-}
+pub use edge_application_base::SpanStartResponse;

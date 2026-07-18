@@ -1,23 +1,8 @@
 //! `Command` trait — a write operation that mutates domain state.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here so
+//! `edge_application_command::Command` keeps resolving for existing consumers
+//! while being the exact same type base-dependent crates (e.g. `edge-application-handler`)
+//! consume directly. See issue #145.
 
-use std::future::Future;
-use std::pin::Pin;
-
-use crate::api::command::dto::{ExecutionRequest, NameRequest, NameResponse};
-use crate::api::command::CommandError;
-
-/// A named write operation that mutates domain state and returns no value.
-///
-/// Commands are the write side of the CQRS split. They express intent
-/// ("create order", "cancel subscription") and return only success or failure.
-pub trait Command: Send + Sync {
-    /// Stable name identifying this command type.
-    fn name(&self, _req: NameRequest) -> Result<NameResponse, CommandError> {
-        Ok(NameResponse {
-            name: "command".to_string(),
-        })
-    }
-
-    /// Execute the command, mutating domain state.
-    fn execute(&self, _req: ExecutionRequest) -> Pin<Box<dyn Future<Output = Result<(), CommandError>> + Send + '_>>;
-}
+pub use edge_application_base::Command;

@@ -1,5 +1,6 @@
 //! [`LogEmitResponse`] — wrapper for a successful log emission.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-/// Result of [`LogDrain::emit`](crate::api::handler::traits::LogDrain::emit).
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
-pub struct LogEmitResponse;
+pub use edge_application_base::LogEmitResponse;

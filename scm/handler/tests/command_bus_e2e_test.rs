@@ -1,128 +1,70 @@
 //! SAF facade tests — `CommandBus` trait.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_application_handler::{
-    Command, CommandBus, CommandDispatchRequest, CommandExecutionRequest, HandlerError,
-};
+use edge_application_handler::{Command, CommandBus, CommandDispatchRequest, CommandError, CommandExecutionRequest};
 use futures::executor::block_on;
+use futures::future::BoxFuture;
 
-struct OkCmd;
-impl Command for OkCmd {
-    fn execute(
-        &self,
-        _req: CommandExecutionRequest,
-    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<(), HandlerError>> + Send + '_>>
-    {
+struct Ok_;
+impl Command for Ok_ {
+    fn execute(&self, _req: CommandExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
         Box::pin(async { Ok(()) })
     }
 }
 
-struct EchoBus;
-impl CommandBus for EchoBus {
-    fn dispatch(
-        &self,
-        req: CommandDispatchRequest,
-    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<(), HandlerError>> + Send + '_>>
-    {
-        Box::pin(async move { req.command.execute(CommandExecutionRequest).await })
+struct Err_;
+impl Command for Err_ {
+    fn execute(&self, _req: CommandExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
+        Box::pin(async { Err(CommandError::Internal("boom".into())) })
     }
 }
 
-struct FailingBus;
-impl CommandBus for FailingBus {
+/// Directly runs the dispatched command's `execute`, mirroring the simplest
+/// legal `CommandBus` implementation a consumer could provide.
+struct TestBus;
+impl CommandBus for TestBus {
     fn dispatch(
         &self,
-        _req: CommandDispatchRequest,
-    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<(), HandlerError>> + Send + '_>>
-    {
-        Box::pin(async { Err(HandlerError::ExecutionFailed("bus down".into())) })
+        req: CommandDispatchRequest,
+    ) -> BoxFuture<'_, Result<(), CommandError>> {
+        Box::pin(async move { req.command.execute(CommandExecutionRequest).await })
     }
 }
 
 /// @covers: CommandBus::dispatch — success
 #[test]
-fn test_dispatch_ok_bus_returns_ok_happy() {
-    let result = block_on(EchoBus.dispatch(CommandDispatchRequest {
-        command: Box::new(OkCmd),
+fn test_dispatch_ok_command_returns_ok_happy() {
+    let bus = TestBus;
+    let result = block_on(bus.dispatch(CommandDispatchRequest {
+        command: Box::new(Ok_),
     }));
-    assert_eq!(result, Ok(()));
+    result.expect("dispatch should succeed");
 }
 
 /// @covers: CommandBus::dispatch — failure propagates
 #[test]
-fn test_dispatch_failing_bus_returns_err_error() {
-    let result = block_on(FailingBus.dispatch(CommandDispatchRequest {
-        command: Box::new(OkCmd),
-    }));
-    assert!(result.is_err());
+fn test_dispatch_failing_command_returns_err_error() {
+    let bus = TestBus;
+    assert!(block_on(bus.dispatch(CommandDispatchRequest {
+        command: Box::new(Err_)
+    }))
+    .is_err());
 }
 
-/// @covers: CommandBus::dispatch — repeated dispatch is independent
+/// @covers: CommandBus::dispatch — multiple dispatches independent
 #[test]
-fn test_dispatch_repeated_calls_are_independent_edge() {
-    let bus = EchoBus;
-    assert_eq!(
-        block_on(bus.dispatch(CommandDispatchRequest {
-            command: Box::new(OkCmd)
-        })),
-        Ok(())
-    );
-    assert_eq!(
-        block_on(bus.dispatch(CommandDispatchRequest {
-            command: Box::new(OkCmd)
-        })),
-        Ok(())
-    );
-}
-
-/// @covers: CommandBus::wrap — wraps an already type-erased real `CommandBus`
-#[test]
-fn test_wrap_erased_reference_dispatches_happy() {
-    let bus = edge_application_command::DirectCommandBus;
-    let adapter = EchoBus::wrap(&bus as &dyn edge_application_command::CommandBus);
-    let result = block_on(adapter.dispatch(CommandDispatchRequest {
-        command: Box::new(OkCmd),
-    }));
-    assert_eq!(result, Ok(()));
-}
-
-/// @covers: CommandBus::wrap — wrapped erased bus propagates real errors
-#[test]
-fn test_wrap_erased_reference_propagates_errors_error() {
-    let bus = edge_application_command::DirectCommandBus;
-    let adapter = EchoBus::wrap(&bus as &dyn edge_application_command::CommandBus);
-    struct DenyCmd;
-    impl Command for DenyCmd {
-        fn execute(
-            &self,
-            _req: CommandExecutionRequest,
-        ) -> std::pin::Pin<
-            Box<dyn std::future::Future<Output = Result<(), HandlerError>> + Send + '_>,
-        > {
-            Box::pin(async { Err(HandlerError::ExecutionFailed("denied".into())) })
-        }
-    }
-    let result = block_on(adapter.dispatch(CommandDispatchRequest {
-        command: Box::new(DenyCmd),
-    }));
-    assert!(result.is_err());
-}
-
-/// @covers: CommandBus::wrap — adapter reusable across multiple dispatches
-#[test]
-fn test_wrap_adapter_reusable_edge() {
-    let bus = edge_application_command::DirectCommandBus;
-    let adapter = EchoBus::wrap(&bus as &dyn edge_application_command::CommandBus);
-    assert_eq!(
-        block_on(adapter.dispatch(CommandDispatchRequest {
-            command: Box::new(OkCmd)
-        })),
-        Ok(())
-    );
-    assert_eq!(
-        block_on(adapter.dispatch(CommandDispatchRequest {
-            command: Box::new(OkCmd)
-        })),
-        Ok(())
-    );
+fn test_dispatch_multiple_sequential_commands_are_independent_edge() {
+    let bus = TestBus;
+    assert!(block_on(bus.dispatch(CommandDispatchRequest {
+        command: Box::new(Ok_)
+    }))
+    .is_ok());
+    assert!(block_on(bus.dispatch(CommandDispatchRequest {
+        command: Box::new(Err_)
+    }))
+    .is_err());
+    assert!(block_on(bus.dispatch(CommandDispatchRequest {
+        command: Box::new(Ok_)
+    }))
+    .is_ok());
 }

@@ -1,8 +1,6 @@
 //! [`GaugeSetRequest`] — request to set a gauge's current value.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-/// Request to set a [`Gauge`](crate::api::Gauge) to `value`.
-#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct GaugeSetRequest {
-    /// The value to record.
-    pub value: f64,
-}
+pub use edge_application_base::GaugeSetRequest;

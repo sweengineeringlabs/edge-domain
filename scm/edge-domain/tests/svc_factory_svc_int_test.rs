@@ -8,8 +8,8 @@ use edge_application_command::{
     NameRequest as CommandNameRequest, NameResponse as CommandNameResponse,
 };
 use edge_application_handler::{
-    CommandBusAdapter, EmptinessRequest as HandlerEmptinessRequest, ExecutionRequest,
-    LenRequest as HandlerLenRequest, ListIdsRequest, ObserverContextAdapter,
+    EmptinessRequest as HandlerEmptinessRequest, ExecutionRequest, LenRequest as HandlerLenRequest,
+    ListIdsRequest,
 };
 use edge_application_observer::{ObserverContext, StdObserveFactory};
 use edge_application_service::{
@@ -35,8 +35,8 @@ impl edge_application_base::Response for BytePayload {}
 
 fn test_ctx<'a>(
     security: &'a SecurityContext,
-    bus: &'a CommandBusAdapter<'a, dyn CommandBus>,
-    observer: &'a ObserverContextAdapter<'a, dyn ObserverContext>,
+    bus: &'a dyn CommandBus,
+    observer: &'a dyn ObserverContext,
 ) -> HandlerContext<'a> {
     HandlerContext {
         security,
@@ -216,11 +216,8 @@ fn test_echo_handler_string_roundtrip_happy() {
             .direct_command_bus(DirectCommandBusRequest)
             .unwrap()
             .bus;
-        let bus_erased: &dyn CommandBus = bus.as_ref();
-        let bus_adapter = CommandBusAdapter(bus_erased);
         let observer = StdObserveFactory::noop_observer_context();
-        let observer_adapter = ObserverContextAdapter(observer.as_ref());
-        let ctx = test_ctx(&security, &bus_adapter, &observer_adapter);
+        let ctx = test_ctx(&security, bus.as_ref(), observer.as_ref());
         assert_eq!(
             h.execute(ExecutionRequest {
                 req: TextPayload("ping".to_string()),
@@ -243,11 +240,8 @@ fn test_echo_handler_always_returns_ok_not_error() {
             .direct_command_bus(DirectCommandBusRequest)
             .unwrap()
             .bus;
-        let bus_erased: &dyn CommandBus = bus.as_ref();
-        let bus_adapter = CommandBusAdapter(bus_erased);
         let observer = StdObserveFactory::noop_observer_context();
-        let observer_adapter = ObserverContextAdapter(observer.as_ref());
-        let ctx = test_ctx(&security, &bus_adapter, &observer_adapter);
+        let ctx = test_ctx(&security, bus.as_ref(), observer.as_ref());
         let result = h
             .execute(ExecutionRequest {
                 req: TextPayload("anything".to_string()),
@@ -271,11 +265,8 @@ fn test_echo_handler_empty_string_preserved_edge() {
             .direct_command_bus(DirectCommandBusRequest)
             .unwrap()
             .bus;
-        let bus_erased: &dyn CommandBus = bus.as_ref();
-        let bus_adapter = CommandBusAdapter(bus_erased);
         let observer = StdObserveFactory::noop_observer_context();
-        let observer_adapter = ObserverContextAdapter(observer.as_ref());
-        let ctx = test_ctx(&security, &bus_adapter, &observer_adapter);
+        let ctx = test_ctx(&security, bus.as_ref(), observer.as_ref());
         assert_eq!(
             h.execute(ExecutionRequest {
                 req: TextPayload(String::new()),

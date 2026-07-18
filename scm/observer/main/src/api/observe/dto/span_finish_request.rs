@@ -1,5 +1,6 @@
 //! [`SpanFinishRequest`] — zero-sized marker for marking a span finished.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-/// Request to mark a [`Span`](crate::api::Span) as finished.
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-pub struct SpanFinishRequest;
+pub use edge_application_base::SpanFinishRequest;

@@ -6,8 +6,7 @@
 
 use edge_application::*;
 use edge_application_handler::{
-    CommandBusAdapter, EmptinessRequest as HandlerEmptinessRequest, ExecutionRequest,
-    HandlerContext, ObserverContextAdapter,
+    EmptinessRequest as HandlerEmptinessRequest, ExecutionRequest, HandlerContext,
 };
 use edge_application_observer::StdObserveFactory;
 use edge_application_service::EmptinessRequest as ServiceEmptinessRequest;
@@ -36,13 +35,11 @@ async fn test_echo_handler_returns_input_as_output() {
         .direct_command_bus(DirectCommandBusRequest)
         .unwrap()
         .bus;
-    let bus_adapter = CommandBusAdapter(bus.as_ref());
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
-        commands: &bus_adapter,
-        observer: &observer_adapter,
+        commands: bus.as_ref(),
+        observer: observer.as_ref(),
     };
     assert_eq!(
         h.execute(ExecutionRequest {

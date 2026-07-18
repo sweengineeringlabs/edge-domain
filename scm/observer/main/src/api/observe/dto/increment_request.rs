@@ -1,8 +1,6 @@
 //! [`IncrementRequest`] — request to increment a counter.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-/// Request to increment a [`Counter`](crate::api::Counter) by `delta`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-pub struct IncrementRequest {
-    /// The amount to increment by.
-    pub delta: u64,
-}
+pub use edge_application_base::IncrementRequest;

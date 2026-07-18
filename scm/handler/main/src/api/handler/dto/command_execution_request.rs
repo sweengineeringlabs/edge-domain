@@ -1,5 +1,6 @@
 //! [`CommandExecutionRequest`] — input for [`Command::execute`](crate::api::handler::traits::Command::execute).
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-/// Marker request; `execute` takes no data beyond `&self`.
-#[derive(Debug, Clone, Copy, Default)]
-pub struct CommandExecutionRequest;
+pub use edge_application_base::CommandExecutionRequest;

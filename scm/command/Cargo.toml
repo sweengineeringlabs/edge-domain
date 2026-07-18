@@ -18,6 +18,7 @@ path = "main/src/lib.rs"
 
 [dependencies]
 async-trait.workspace = true
+edge-application-base.workspace = true
 futures.workspace     = true
 serde.workspace       = true
 thiserror.workspace   = true

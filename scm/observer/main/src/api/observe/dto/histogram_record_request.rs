@@ -1,8 +1,6 @@
 //! [`HistogramRecordRequest`] — request to record a histogram observation.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-/// Request to record a single observation on a [`Histogram`](crate::api::Histogram).
-#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct HistogramRecordRequest {
-    /// The observed value.
-    pub value: f64,
-}
+pub use edge_application_base::HistogramRecordRequest;

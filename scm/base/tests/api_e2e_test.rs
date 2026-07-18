@@ -372,3 +372,19 @@ fn test_observe_error_backend_unavailable_carries_reason_edge() {
     let e = ObserveError::BackendUnavailable("no backend".into());
     assert_eq!(e, ObserveError::BackendUnavailable("no backend".into()));
 }
+
+/// @covers: ObserveError — Display includes the wrapped message
+#[test]
+fn test_observe_error_display_backend_unavailable_includes_message_happy() {
+    let e = ObserveError::BackendUnavailable("timeout".to_string());
+    assert_eq!(e.to_string(), "observe backend unavailable: timeout");
+}
+
+/// @covers: ObserveError — Display for NotInitialised has a fixed message
+#[test]
+fn test_observe_error_display_not_initialised_message_error() {
+    assert_eq!(
+        ObserveError::NotInitialised.to_string(),
+        "observe backend not initialised"
+    );
+}

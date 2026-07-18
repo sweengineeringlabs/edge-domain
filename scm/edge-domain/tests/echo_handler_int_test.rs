@@ -5,10 +5,7 @@
 use edge_application::DirectCommandBusRequest;
 use edge_application::DomainRuntime;
 use edge_application::{Domain, EchoHandler, Handler, HandlerContext};
-use edge_application_handler::{
-    CommandBusAdapter, ExecutionRequest, HealthCheckRequest, IdRequest, ObserverContextAdapter,
-    PatternRequest,
-};
+use edge_application_handler::{ExecutionRequest, HealthCheckRequest, IdRequest, PatternRequest};
 use edge_application_observer::{ObserverContext, StdObserveFactory};
 use edge_security_runtime::SecurityContext;
 use std::sync::Arc;
@@ -27,8 +24,8 @@ impl edge_application_base::Response for NumPayload {}
 
 fn make_ctx<'a>(
     security: &'a SecurityContext,
-    bus: &'a CommandBusAdapter<'a, dyn edge_application::CommandBus>,
-    observer: &'a ObserverContextAdapter<'a, dyn ObserverContext>,
+    bus: &'a dyn edge_application::CommandBus,
+    observer: &'a dyn ObserverContext,
 ) -> HandlerContext<'a> {
     HandlerContext {
         security,
@@ -53,11 +50,8 @@ async fn test_echo_handler_returns_request_as_response() {
         .direct_command_bus(DirectCommandBusRequest)
         .unwrap()
         .bus;
-    let bus_erased: &dyn edge_application::CommandBus = bus.as_ref();
-    let bus_adapter = CommandBusAdapter(bus_erased);
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
-    let ctx = make_ctx(&security, &bus_adapter, &observer_adapter);
+    let ctx = make_ctx(&security, bus.as_ref(), observer.as_ref());
     let result = h
         .execute(ExecutionRequest {
             req: TextPayload("hello".to_string()),
@@ -101,11 +95,8 @@ async fn test_echo_handler_works_with_numeric_type() {
         .direct_command_bus(DirectCommandBusRequest)
         .unwrap()
         .bus;
-    let bus_erased: &dyn edge_application::CommandBus = bus.as_ref();
-    let bus_adapter = CommandBusAdapter(bus_erased);
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
-    let ctx = make_ctx(&security, &bus_adapter, &observer_adapter);
+    let ctx = make_ctx(&security, bus.as_ref(), observer.as_ref());
     assert_eq!(
         h.execute(ExecutionRequest {
             req: NumPayload(42u64),

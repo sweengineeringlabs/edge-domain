@@ -1,11 +1,6 @@
 //! [`TracerResponse`] — wrapper for the active `HandlerTracer`.
-// @allow: dto_types_must_serialize — holds a `&dyn HandlerTracer` reference, not
-// wire-format data; a trait object reference cannot derive Serialize/Deserialize.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-use crate::api::HandlerTracer;
-
-/// Result of [`ObserverContext::tracer`](crate::api::ObserverContext::tracer).
-pub struct TracerResponse<'a> {
-    /// The active handler tracer.
-    pub tracer: &'a dyn HandlerTracer,
-}
+pub use edge_application_base::TracerResponse;

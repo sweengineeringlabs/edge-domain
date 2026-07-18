@@ -6,9 +6,7 @@
 use edge_application::DirectCommandBusRequest;
 use edge_application::DomainRuntime;
 use edge_application::{Domain, Handler, HandlerContext};
-use edge_application_handler::{
-    CommandBusAdapter, ExecutionRequest, IdRequest, ObserverContextAdapter, PatternRequest,
-};
+use edge_application_handler::{ExecutionRequest, IdRequest, PatternRequest};
 use edge_application_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
 use futures::executor::block_on;
@@ -44,13 +42,11 @@ fn test_echo_handler_factory_built_handler_echoes_request_edge() {
         .direct_command_bus(DirectCommandBusRequest)
         .unwrap()
         .bus;
-    let bus_adapter = CommandBusAdapter(bus.as_ref());
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
-        commands: &bus_adapter,
-        observer: &observer_adapter,
+        commands: bus.as_ref(),
+        observer: observer.as_ref(),
     };
     let result = block_on(h.execute(ExecutionRequest {
         req: TextPayload("hello".to_string()),

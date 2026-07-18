@@ -1,9 +1,6 @@
 //! [`SpanStartResponse`] — wrapper for a newly opened tracing span.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-use crate::api::handler::traits::Span;
-
-/// Result of [`HandlerTracer::start_span`](crate::api::handler::traits::HandlerTracer::start_span).
-pub struct SpanStartResponse {
-    /// The newly opened span.
-    pub span: Box<dyn Span>,
-}
+pub use edge_application_base::SpanStartResponse;

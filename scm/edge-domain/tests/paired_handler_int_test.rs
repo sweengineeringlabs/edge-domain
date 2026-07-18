@@ -9,9 +9,7 @@ use edge_application::DomainRuntime;
 use edge_application::{
     Domain, HandlerContext, HandlerError, Repository, RepositoryIdRequest, RepositorySaveRequest,
 };
-use edge_application_handler::{
-    CommandBusAdapter, EmptinessRequest, ExecutionRequest, LenRequest, ObserverContextAdapter,
-};
+use edge_application_handler::{EmptinessRequest, ExecutionRequest, LenRequest};
 use edge_application_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
 
@@ -106,13 +104,11 @@ async fn test_domain_echo_handler_returns_input_unchanged() {
         .direct_command_bus(DirectCommandBusRequest)
         .unwrap()
         .bus;
-    let bus_adapter = CommandBusAdapter(bus.as_ref());
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
-        commands: &bus_adapter,
-        observer: &observer_adapter,
+        commands: bus.as_ref(),
+        observer: observer.as_ref(),
     };
     let result = h
         .execute(ExecutionRequest {

@@ -1,14 +1,7 @@
-//! `LogDrain` — local decoupling boundary for structured log emission.
+//! `LogDrain` trait — structured log emission contract.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here so
+//! `edge_application_handler::LogDrain` keeps resolving for existing consumers.
+//! See issue #145.
 
-use crate::api::handler::errors::HandlerError;
-use crate::api::handler::dto::{LogEmitRequest, LogEmitResponse};
-
-/// Receives structured log records emitted by domain handlers.
-///
-/// Declared locally so `api/` never references `edge_application_observer::LogDrain`
-/// directly in a type position (SEA `no_foreign_type`). Any real `LogDrain`
-/// implementor satisfies this automatically via the blanket impl in `core/`.
-pub trait LogDrain: Send + Sync {
-    /// Emit a structured log record.
-    fn emit(&self, req: LogEmitRequest) -> Result<LogEmitResponse, HandlerError>;
-}
+pub use edge_application_base::LogDrain;

@@ -1,10 +1,7 @@
 //! `Counter` — a monotonically increasing metric.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here so
+//! `edge_application_observer::Counter` keeps resolving for existing consumers.
+//! See issue #145.
 
-use crate::api::observe::errors::ObserveError;
-use crate::api::observe::dto::{IncrementRequest, IncrementResponse};
-
-/// A monotonically increasing integer metric.
-pub trait Counter: Send + Sync {
-    /// Increment the counter by `delta`.
-    fn increment(&self, req: IncrementRequest) -> Result<IncrementResponse, ObserveError>;
-}
+pub use edge_application_base::Counter;

@@ -8,8 +8,7 @@ use edge_application_command::DirectCommandBus;
 use edge_application_handler::{
     DeregisterHandlerRequest, EmptinessRequest, ExecutionRequest, Handler, HandlerContext,
     HandlerError, HandlerLookupRequest, HandlerRegistry, IdRequest, IdResponse,
-    InProcessHandlerRegistry, LenRequest, ListIdsRequest, ObserverContextAdapter,
-    RegisterHandlerRequest,
+    InProcessHandlerRegistry, LenRequest, ListIdsRequest, RegisterHandlerRequest,
 };
 use edge_application_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
@@ -107,11 +106,10 @@ fn test_register_duplicate_id_replaces_handler_edge() {
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: &observer_adapter,
+        observer: observer.as_ref(),
     };
     assert_eq!(
         block_on(h.execute(ExecutionRequest {
@@ -210,11 +208,10 @@ fn test_retrieved_handler_produces_expected_response_happy() {
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: &observer_adapter,
+        observer: observer.as_ref(),
     };
     assert_eq!(
         block_on(h.execute(ExecutionRequest {

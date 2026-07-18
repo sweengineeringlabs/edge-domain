@@ -1,11 +1,6 @@
 //! [`CounterLookupResponse`] — wrapper for a resolved counter instrument.
-// @allow: dto_types_must_serialize — holds a live `Box<dyn Counter>` instrument
-// result, not wire-format data; a trait object cannot derive Serialize/Deserialize.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-use crate::api::Counter;
-
-/// Result of [`MetricRegistry::counter`](crate::api::MetricRegistry::counter).
-pub struct CounterLookupResponse {
-    /// The resolved counter instrument.
-    pub counter: Box<dyn Counter>,
-}
+pub use edge_application_base::CounterLookupResponse;

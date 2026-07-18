@@ -1,5 +1,6 @@
 //! [`HistogramRecordResponse`] — wrapper for a successful histogram observation.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-/// Result of [`Histogram::record`](crate::api::Histogram::record).
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-pub struct HistogramRecordResponse;
+pub use edge_application_base::HistogramRecordResponse;

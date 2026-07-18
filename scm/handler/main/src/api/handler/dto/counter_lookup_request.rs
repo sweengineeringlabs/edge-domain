@@ -1,8 +1,6 @@
 //! [`CounterLookupRequest`] — request to resolve a named counter instrument.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-/// Request to resolve a [`Counter`](crate::api::handler::traits::Counter) instrument by name.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct CounterLookupRequest {
-    /// The counter's stable name.
-    pub name: String,
-}
+pub use edge_application_base::CounterLookupRequest;

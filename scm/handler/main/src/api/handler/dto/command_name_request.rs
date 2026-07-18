@@ -1,5 +1,6 @@
 //! [`CommandNameRequest`] — input for [`Command::name`](crate::api::handler::traits::Command::name).
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-/// Marker request; `name` takes no data beyond `&self`.
-#[derive(Debug, Clone, Copy, Default)]
-pub struct CommandNameRequest;
+pub use edge_application_base::CommandNameRequest;

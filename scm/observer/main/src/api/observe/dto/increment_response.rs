@@ -1,5 +1,6 @@
 //! [`IncrementResponse`] — wrapper for a successful counter increment.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-/// Result of [`Counter::increment`](crate::api::Counter::increment).
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-pub struct IncrementResponse;
+pub use edge_application_base::IncrementResponse;

@@ -1,5 +1,6 @@
 //! [`SpanFinishResponse`] — wrapper for a successfully finished span.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-/// Result of [`Span::finish`](crate::api::handler::traits::Span::finish).
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
-pub struct SpanFinishResponse;
+pub use edge_application_base::SpanFinishResponse;

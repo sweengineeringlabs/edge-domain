@@ -1,11 +1,6 @@
 //! [`MetricsResponse`] — wrapper for the active `MetricRegistry`.
-// @allow: dto_types_must_serialize — holds a `&dyn MetricRegistry` reference, not
-// wire-format data; a trait object reference cannot derive Serialize/Deserialize.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-use crate::api::MetricRegistry;
-
-/// Result of [`ObserverContext::metrics`](crate::api::ObserverContext::metrics).
-pub struct MetricsResponse<'a> {
-    /// The active metric registry.
-    pub metrics: &'a dyn MetricRegistry,
-}
+pub use edge_application_base::MetricsResponse;

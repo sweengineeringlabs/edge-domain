@@ -11,8 +11,8 @@ mod core;
 mod saf;
 
 // Types that are part of trait signatures
-pub use api::CommandBusAdapter;
 pub use api::CommandDispatchRequest;
+pub use api::CommandError;
 pub use api::CommandExecutionRequest;
 pub use api::CommandNameRequest;
 pub use api::CommandNameResponse;
@@ -53,7 +53,7 @@ pub use api::LogEmitRequest;
 pub use api::LogEmitResponse;
 pub use api::MetricsRequest;
 pub use api::MetricsResponse;
-pub use api::ObserverContextAdapter;
+pub use api::ObserveError;
 pub use api::PatternRequest;
 pub use api::PatternResponse;
 pub use api::RegisterHandlerRequest;

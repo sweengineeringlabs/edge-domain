@@ -1,5 +1,6 @@
 //! [`MetricsRequest`] — zero-sized marker for querying the active `MetricRegistry`.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-/// Request for the active [`MetricRegistry`](crate::api::MetricRegistry).
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-pub struct MetricsRequest;
+pub use edge_application_base::MetricsRequest;

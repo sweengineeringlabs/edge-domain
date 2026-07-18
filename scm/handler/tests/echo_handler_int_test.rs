@@ -6,8 +6,8 @@ use std::sync::Arc;
 
 use edge_application_command::DirectCommandBus;
 use edge_application_handler::{
-    CommandBusAdapter, EchoHandler, ExecutionRequest, Handler, HandlerContext, HealthCheckRequest,
-    IdRequest, ObserverContextAdapter, PatternRequest,
+    EchoHandler, ExecutionRequest, Handler, HandlerContext, HealthCheckRequest, IdRequest,
+    PatternRequest,
 };
 use edge_application_observer::{ObserverContext, StdObserveFactory};
 use edge_security_runtime::SecurityContext;
@@ -21,8 +21,8 @@ impl edge_application_base::Response for TextPayload {}
 
 fn unauth_ctx<'a>(
     security: &'a SecurityContext,
-    bus: &'a CommandBusAdapter<'a, dyn edge_application_command::CommandBus>,
-    observer: &'a ObserverContextAdapter<'a, dyn ObserverContext>,
+    bus: &'a dyn edge_application_command::CommandBus,
+    observer: &'a dyn ObserverContext,
 ) -> HandlerContext<'a> {
     HandlerContext {
         security,
@@ -37,11 +37,8 @@ fn test_execute_returns_request_unchanged_happy() {
     let h = EchoHandler::<TextPayload>::from(("echo", "/"));
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
-    let bus_erased: &dyn edge_application_command::CommandBus = &bus;
-    let bus_adapter = CommandBusAdapter(bus_erased);
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
-    let ctx = unauth_ctx(&security, &bus_adapter, &observer_adapter);
+    let ctx = unauth_ctx(&security, &bus, observer.as_ref());
     assert_eq!(
         block_on(h.execute(ExecutionRequest {
             req: TextPayload("hello".into()),
@@ -72,11 +69,8 @@ fn test_execute_empty_string_returns_empty_string_edge() {
     let h = EchoHandler::<TextPayload>::from(("e", "/"));
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
-    let bus_erased: &dyn edge_application_command::CommandBus = &bus;
-    let bus_adapter = CommandBusAdapter(bus_erased);
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
-    let ctx = unauth_ctx(&security, &bus_adapter, &observer_adapter);
+    let ctx = unauth_ctx(&security, &bus, observer.as_ref());
     assert_eq!(
         block_on(h.execute(ExecutionRequest {
             req: TextPayload("".into()),
@@ -104,11 +98,8 @@ fn test_execute_with_security_context_returns_same_value_happy() {
     let h = EchoHandler::<TextPayload>::from(("e", "/"));
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
-    let bus_erased: &dyn edge_application_command::CommandBus = &bus;
-    let bus_adapter = CommandBusAdapter(bus_erased);
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
-    let ctx = unauth_ctx(&security, &bus_adapter, &observer_adapter);
+    let ctx = unauth_ctx(&security, &bus, observer.as_ref());
     assert_eq!(
         block_on(h.execute(ExecutionRequest {
             req: TextPayload("world".into()),
@@ -130,11 +121,8 @@ fn test_echo_handler_usable_as_dyn_handler_edge() {
         });
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
-    let bus_erased: &dyn edge_application_command::CommandBus = &bus;
-    let bus_adapter = CommandBusAdapter(bus_erased);
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
-    let ctx = unauth_ctx(&security, &bus_adapter, &observer_adapter);
+    let ctx = unauth_ctx(&security, &bus, observer.as_ref());
     assert_eq!(
         block_on(h.execute(ExecutionRequest {
             req: TextPayload("dyn-test".into()),

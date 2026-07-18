@@ -1,36 +1,26 @@
 //! SAF facade tests — `Command` trait.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_application_handler::{Command, CommandExecutionRequest, CommandNameRequest, HandlerError};
+use edge_application_handler::{Command, CommandError, CommandExecutionRequest, CommandNameRequest, CommandNameResponse};
 use futures::executor::block_on;
+use futures::future::BoxFuture;
 
 struct Ping(String);
 impl Command for Ping {
-    fn name(
-        &self,
-        _req: CommandNameRequest,
-    ) -> Result<edge_application_handler::CommandNameResponse, HandlerError> {
-        Ok(edge_application_handler::CommandNameResponse {
+    fn name(&self, _req: CommandNameRequest) -> Result<CommandNameResponse, CommandError> {
+        Ok(CommandNameResponse {
             name: self.0.clone(),
         })
     }
-    fn execute(
-        &self,
-        _req: CommandExecutionRequest,
-    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<(), HandlerError>> + Send + '_>>
-    {
+    fn execute(&self, _req: CommandExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
         Box::pin(async { Ok(()) })
     }
 }
 
 struct Fails;
 impl Command for Fails {
-    fn execute(
-        &self,
-        _req: CommandExecutionRequest,
-    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<(), HandlerError>> + Send + '_>>
-    {
-        Box::pin(async { Err(HandlerError::ExecutionFailed("denied".into())) })
+    fn execute(&self, _req: CommandExecutionRequest) -> BoxFuture<'_, Result<(), CommandError>> {
+        Box::pin(async { Err(CommandError::RuleViolation("denied".into())) })
     }
 }
 

@@ -1,11 +1,6 @@
 //! [`DrainResponse`] — wrapper for the active `LogDrain`.
-// @allow: dto_types_must_serialize — holds a `&dyn LogDrain` reference, not
-// wire-format data; a trait object reference cannot derive Serialize/Deserialize.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-use crate::api::LogDrain;
-
-/// Result of [`ObserverContext::drain`](crate::api::ObserverContext::drain).
-pub struct DrainResponse<'a> {
-    /// The active log drain.
-    pub drain: &'a dyn LogDrain,
-}
+pub use edge_application_base::DrainResponse;

@@ -1,5 +1,6 @@
 //! [`TracerRequest`] — zero-sized marker for querying the active `HandlerTracer`.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-/// Request for the active [`HandlerTracer`](crate::api::HandlerTracer).
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-pub struct TracerRequest;
+pub use edge_application_base::TracerRequest;

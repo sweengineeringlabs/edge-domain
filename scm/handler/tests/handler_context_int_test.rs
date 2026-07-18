@@ -3,8 +3,8 @@
 
 use edge_application_command::DirectCommandBus;
 use edge_application_handler::{
-    CommandDispatchRequest, HandlerContext, ObserverContextAdapter, SecurityPrincipal,
-    SpanFinishRequest, SpanStartRequest, TracerRequest,
+    CommandDispatchRequest, HandlerContext, SecurityPrincipal, SpanFinishRequest,
+    SpanStartRequest, TracerRequest,
 };
 use edge_application_observer::StdObserveFactory;
 use edge_security_runtime::SecurityContext;
@@ -25,11 +25,10 @@ fn test_handler_context_constructs_with_unauthenticated_security_happy() {
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: &observer_adapter,
+        observer: observer.as_ref(),
     };
     // Verify the context holds a reference to the same security object
     assert!(principal_ptr(ctx.security) == security_ptr(&security));
@@ -44,11 +43,10 @@ fn test_handler_context_commands_field_is_accessible_error() {
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: &observer_adapter,
+        observer: observer.as_ref(),
     };
     let result = block_on(ctx.commands.dispatch(CommandDispatchRequest {
         command: Box::new(NoopCommand),
@@ -63,11 +61,10 @@ fn test_handler_context_is_copy_edge() {
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: &observer_adapter,
+        observer: observer.as_ref(),
     };
     let ctx2 = ctx;
     assert!(principal_ptr(ctx.security) == security_ptr(&security));
@@ -80,11 +77,10 @@ fn test_observer_returns_bound_observe_context_happy() {
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: &observer_adapter,
+        observer: observer.as_ref(),
     };
     ctx.observer
         .tracer(TracerRequest)
@@ -107,11 +103,10 @@ fn test_observer_tracer_usable_after_construction_happy() {
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: &observer_adapter,
+        observer: observer.as_ref(),
     };
     for i in 0..3 {
         ctx.observer
@@ -136,11 +131,10 @@ fn test_observer_empty_span_ids_no_panic_error() {
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: &observer_adapter,
+        observer: observer.as_ref(),
     };
     ctx.observer
         .tracer(TracerRequest)
@@ -163,11 +157,10 @@ fn test_handler_context_with_observer_is_copy_edge() {
     let security = SecurityContext::unauthenticated();
     let bus = DirectCommandBus;
     let observer = StdObserveFactory::noop_observer_context();
-    let observer_adapter = ObserverContextAdapter(observer.as_ref());
     let ctx = HandlerContext {
         security: &security,
         commands: &bus,
-        observer: &observer_adapter,
+        observer: observer.as_ref(),
     };
     let ctx2 = ctx;
     ctx.observer

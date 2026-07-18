@@ -1,9 +1,6 @@
 //! [`GaugeLookupResponse`] — wrapper for a resolved gauge instrument.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-use crate::api::handler::traits::Gauge;
-
-/// Result of [`MetricRegistry::gauge`](crate::api::handler::traits::MetricRegistry::gauge).
-pub struct GaugeLookupResponse {
-    /// The resolved gauge instrument.
-    pub gauge: Box<dyn Gauge>,
-}
+pub use edge_application_base::GaugeLookupResponse;

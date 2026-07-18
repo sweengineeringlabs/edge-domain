@@ -1,5 +1,6 @@
 //! [`SpanAnnotationResponse`] — wrapper for a successfully recorded span annotation.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-/// Result of [`Span::record`](crate::api::Span::record).
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-pub struct SpanAnnotationResponse;
+pub use edge_application_base::SpanAnnotationResponse;

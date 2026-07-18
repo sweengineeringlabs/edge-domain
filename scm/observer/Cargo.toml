@@ -18,6 +18,7 @@ service_type     = "observer"
 path = "main/src/lib.rs"
 
 [dependencies]
+edge-application-base.workspace = true
 serde.workspace = true
 
 [dev-dependencies]

@@ -1,12 +1,6 @@
 //! [`LogEmitRequest`] — request to emit a structured log record.
+//!
+//! Canonically defined in `edge-application-base`; re-exported here for existing
+//! consumers. See issue #145.
 
-/// Request to emit a structured log entry to a [`LogDrain`](crate::api::handler::traits::LogDrain).
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct LogEmitRequest {
-    /// Severity level as a string (e.g. `"INFO"`, `"WARN"`, `"ERROR"`).
-    pub level: String,
-    /// Handler that produced this record.
-    pub handler_id: String,
-    /// Log message body.
-    pub message: String,
-}
+pub use edge_application_base::LogEmitRequest;
