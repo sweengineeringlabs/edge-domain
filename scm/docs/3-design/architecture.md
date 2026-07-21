@@ -176,6 +176,9 @@ amendment) closes them:
 ## See also
 
 - `docs/3-design/dataflow.md` — the traced, cited dataflow reference this document summarizes
+- `docs/3-design/handler-port-wiring.md` — how a `Handler` reaches a generic-per-type domain
+  port (`Repository`, `EventStore`, `Saga`, `SnapshotStore`, `Projection`, `Policy`, `Registry`)
+  via constructor injection + `Self::Request`, proven per-port in issue #149
 - `docs/3-design/temp/edge-repo-dataflow-snapshot.md` — temporary mirror of `edge` repo's own
   (partially stale) dataflow docs; delete once that repo's git conflicts are resolved
 - `docs/adr/` — this repo's own ADRs, each mirroring an upstream `edge` decision

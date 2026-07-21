@@ -21,6 +21,13 @@ members  = [
     "lifecycle",
     "observer",
     "examples/service-query",
+    "examples/repository-handler",
+    "examples/event-store-handler",
+    "examples/saga-handler",
+    "examples/snapshot-handler",
+    "examples/projection-handler",
+    "examples/policy-handler",
+    "examples/registry-handler",
 ]
 
 [workspace.package]
